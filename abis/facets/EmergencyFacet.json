@@ -1,0 +1,906 @@
+[
+  {
+    "type": "function",
+    "name": "approveRecovery",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "completeRecovery",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "emergencyResume",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "emergencyStop",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeRecoveryAction",
+    "inputs": [
+      {
+        "name": "action",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "stepIndex",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeRecoveryStep",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "stepIndex",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeResponse",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "actions",
+        "type": "uint8[]",
+        "internalType": "enum IEmergency.ResponseAction[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeScheduledResume",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "extendPausedUntil",
+    "inputs": [
+      {
+        "name": "newPausedUntil",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "freezeAssets",
+    "inputs": [
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getEmergencyState",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum IEmergency.EmergencyState"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEmergencyTimeout",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getIncident",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IEmergency.Incident",
+        "components": [
+          {
+            "name": "id",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "incidentType",
+            "type": "uint8",
+            "internalType": "enum IEmergency.IncidentType"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "reporter",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "resolved",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "actions",
+            "type": "uint8[]",
+            "internalType": "enum IEmergency.ResponseAction[]"
+          },
+          {
+            "name": "approvers",
+            "type": "address[]",
+            "internalType": "address[]"
+          },
+          {
+            "name": "resolutionTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRecoveryPlan",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "steps",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      },
+      {
+        "name": "approvedByGovernance",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "completionTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "approvalCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "results",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isAssetFrozen",
+    "inputs": [
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isEmergencyStopped",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "reportIncident",
+    "inputs": [
+      {
+        "name": "incidentType",
+        "type": "uint8",
+        "internalType": "enum IEmergency.IncidentType"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "scheduleEmergencyResume",
+    "inputs": [
+      {
+        "name": "executeAfter",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setEmergencyTimeout",
+    "inputs": [
+      {
+        "name": "newTimeout",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setResumeDelay",
+    "inputs": [
+      {
+        "name": "newDelay",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "startRecovery",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "steps",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "triggerEmergency",
+    "inputs": [
+      {
+        "name": "state",
+        "type": "uint8",
+        "internalType": "enum IEmergency.EmergencyState"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unfreezeAssets",
+    "inputs": [
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AssetsFrozen",
+    "inputs": [
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "frozenBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EmergencyResumeExecuted",
+    "inputs": [
+      {
+        "name": "executor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EmergencyResumeScheduled",
+    "inputs": [
+      {
+        "name": "executeAfter",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "scheduler",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "EmergencyStateChanged",
+    "inputs": [
+      {
+        "name": "previousState",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "enum IEmergency.EmergencyState"
+      },
+      {
+        "name": "newState",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "enum IEmergency.EmergencyState"
+      },
+      {
+        "name": "triggeredBy",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "IncidentReported",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "incidentType",
+        "type": "uint8",
+        "indexed": true,
+        "internalType": "enum IEmergency.IncidentType"
+      },
+      {
+        "name": "reporter",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PauseExtended",
+    "inputs": [
+      {
+        "name": "oldUntil",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newUntil",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "extender",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RecoveryCompleted",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "success",
+        "type": "bool",
+        "indexed": true,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RecoveryStarted",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "steps",
+        "type": "bytes[]",
+        "indexed": false,
+        "internalType": "bytes[]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RecoveryStepExecuted",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "stepIndex",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "success",
+        "type": "bool",
+        "indexed": true,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ResponseExecuted",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "actions",
+        "type": "uint8[]",
+        "indexed": false,
+        "internalType": "enum IEmergency.ResponseAction[]"
+      },
+      {
+        "name": "executor",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyApproved",
+    "inputs": [
+      {
+        "name": "approver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "operationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AlreadyPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "AssetFrozen",
+    "inputs": [
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AssetNotFrozen",
+    "inputs": [
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "IncidentAlreadyResolved",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidCaller",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "expected",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidEmergencyState",
+    "inputs": [
+      {
+        "name": "state",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidIncidentId",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidRecoveryStep",
+    "inputs": [
+      {
+        "name": "stepIndex",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidTimestamp",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NeedsGovernanceApproval",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NoActionsSpecified",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoAssetsSpecified",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoRecoverySteps",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "resource",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotEmergencyAdmin",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotRecoveryApprover",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotSecurityAdmin",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "RecoveryNotStarted",
+    "inputs": [
+      {
+        "name": "incidentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "RecoveryStepFailed",
+    "inputs": [
+      {
+        "name": "stepIndex",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "TimelockActive",
+    "inputs": [
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "required",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  }
+]

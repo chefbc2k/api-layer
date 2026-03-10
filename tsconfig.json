@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/client" },
+    { "path": "./packages/rpc" },
+    { "path": "./packages/indexer" }
+  ]
+}
+

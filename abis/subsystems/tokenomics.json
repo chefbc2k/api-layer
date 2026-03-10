@@ -1,0 +1,2367 @@
+[
+  {
+    "type": "function",
+    "name": "allowance",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "approve",
+    "inputs": [
+      {
+        "name": "spender",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "balanceOf",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "burn",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "burnFrom",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "decimals",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initializeToken",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "supplyFinishMinting",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "supplyGetMaximum",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "supplyIsMintingFinished",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "supplyMintTokens",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "supplySetMaximum",
+    "inputs": [
+      {
+        "name": "maxSupply_",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "tokenAllowance",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenApprove",
+    "inputs": [
+      {
+        "name": "spender",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "tokenBalanceOf",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenName",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenSymbol",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenTransferFrom",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "totalSupply",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transfer",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferFrom",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "thresholdBurnExcess",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "thresholdBurnTokens",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "thresholdBurnTokensFrom",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "thresholdCalculateExcess",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "thresholdGetBurnLimit",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "thresholdSetBurnLimit",
+    "inputs": [
+      {
+        "name": "threshold",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "campaignCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "claim",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalAllocation",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "proof",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "claimedNow",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimableAmount",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "totalAllocation",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "claimed",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createCampaign",
+    "inputs": [
+      {
+        "name": "merkleRoot",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "startTime",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "cliffSeconds",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "durationSeconds",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "tgeUnlockBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "maxTotalClaimable",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCampaign",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CommunityRewardsStorage.Campaign",
+        "components": [
+          {
+            "name": "merkleRoot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "startTime",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "cliffSeconds",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "durationSeconds",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "tgeUnlockBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxTotalClaimable",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalClaimed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "paused",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "pauseCampaign",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMerkleRoot",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "newRoot",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unpauseCampaign",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "vestedAmount",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalAllocation",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "advanceEpoch",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimRewards",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeUnstake",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fundRewardPool",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getDegradedModeConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.DegradedModeConfig",
+        "components": [
+          {
+            "name": "enabled",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "staleAfterSeconds",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxStakePerWallet",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEffectiveApy",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "echoScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "apyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPendingRewards",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRewardBreakdown",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "breakdown",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.RewardBreakdown",
+        "components": [
+          {
+            "name": "rawPending",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "claimable",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "forfeited",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "multiplierBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStakeAgeMultiplier",
+    "inputs": [
+      {
+        "name": "stakeTimestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "multiplierBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStakeInfo",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "info",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.StakeInfo",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "stakeTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastClaimTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pendingRewards",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "effectiveApyBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "tier",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "stakeAgeMultiplierBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "echoScoreBoostBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStakingStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "stats",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.StakingStats",
+        "components": [
+          {
+            "name": "totalStaked",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "rewardPoolBalance",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalUniqueStakers",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalRewardsDistributed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "currentEpoch",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "epochMaxReward",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTier",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "tier",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTierConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "baseApy",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUnstakeRequest",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "info",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.UnstakeInfo",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "unlockTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pending",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initStaking",
+    "inputs": [
+      {
+        "name": "minStakeDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "withdrawalCooldown",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "baseApyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initStakingWithToken",
+    "inputs": [
+      {
+        "name": "uspkToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "minStakeDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "withdrawalCooldown",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "baseApyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isDegradedModeActive",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "active",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "queueTierConfigUpdate",
+    "inputs": [
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "requestUnstake",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDegradedModeConfig",
+    "inputs": [
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "staleAfterSeconds",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxStakePerWallet",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setEchoScoreBoost",
+    "inputs": [
+      {
+        "name": "boostBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setStakingPaused",
+    "inputs": [
+      {
+        "name": "paused",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "stake",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "batchReleaseTwaveVesting",
+    "inputs": [
+      {
+        "name": "beneficiaries",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "canTransferVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createUsdcVestingSchedule",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cliff",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "isQuarterly",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "isRevocable",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getMinTwaveVestingDuration",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getNextUnlockTime",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getQuarterlyUnlockRate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getReleasableTwaveAmount",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestedTwaveAmount",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingTwaveSchedule",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "releasedAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "cliff",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "isQuarterly",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "isRevocable",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "isRevoked",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isFullyVested",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isVestingActive",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "releaseTwaveVesting",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "releaseTwaveVestingFor",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeTwaveVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMinimumTwaveVestingDuration",
+    "inputs": [
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setQuarterlyUnlockRate",
+    "inputs": [
+      {
+        "name": "rate",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferTwaveVesting",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "calculateCexVesting",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "calculateDevFundVesting",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "calculateFounderVesting",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "calculatePublicVesting",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "calculateTeamVesting",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "startTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "vestingType",
+        "type": "uint8",
+        "internalType": "enum IVesting.VestingType"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "createCexVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createDevFundVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createFounderVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createPublicVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createTeamVesting",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "vestingType",
+        "type": "uint8",
+        "internalType": "enum IVesting.VestingType"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getSellableAmount",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStandardVestedAmount",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalVested",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalReleased",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "releasable",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStandardVestingReleasable",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStandardVestingSchedule",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IVesting.VestingScheduleView",
+        "components": [
+          {
+            "name": "vestingType",
+            "type": "uint8",
+            "internalType": "enum IVesting.VestingType"
+          },
+          {
+            "name": "totalAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "releasedAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "startTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "duration",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "cliff",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastReleaseTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "revocable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "sellablePercentage",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingDetails",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IVesting.VestingScheduleView",
+        "components": [
+          {
+            "name": "vestingType",
+            "type": "uint8",
+            "internalType": "enum IVesting.VestingType"
+          },
+          {
+            "name": "totalAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "releasedAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "startTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "duration",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "cliff",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastReleaseTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "revocable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "sellablePercentage",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingReleasableAmount",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingTotalAmount",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "totalVested",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalReleased",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "releasable",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVestingType",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum IVesting.VestingType"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasVestingSchedule",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "releaseStandardVesting",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "releaseStandardVestingFor",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "releaseTokensFor",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "releaseVestedTokens",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeVestingSchedule",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMinimumVestingDuration",
+    "inputs": [
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferVestingSchedule",
+    "inputs": [
+      {
+        "name": "newBeneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "veGetRoleAdmin",
+    "inputs": [
+      {
+        "name": "role",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "veGetVestingSchedule",
+    "inputs": [
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IVesting.VestingScheduleView",
+        "components": [
+          {
+            "name": "vestingType",
+            "type": "uint8",
+            "internalType": "enum IVesting.VestingType"
+          },
+          {
+            "name": "totalAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "releasedAmount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "startTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "duration",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "cliff",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastReleaseTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "revocable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revoked",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "sellablePercentage",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "veHasRole",
+    "inputs": [
+      {
+        "name": "role",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "veSupportsInterface",
+    "inputs": [
+      {
+        "name": "interfaceId",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "pure"
+  }
+]

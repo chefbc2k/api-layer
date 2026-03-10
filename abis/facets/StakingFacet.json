@@ -1,0 +1,1066 @@
+[
+  {
+    "type": "function",
+    "name": "advanceEpoch",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "claimRewards",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeUnstake",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fundRewardPool",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getDegradedModeConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.DegradedModeConfig",
+        "components": [
+          {
+            "name": "enabled",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "staleAfterSeconds",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxStakePerWallet",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getEffectiveApy",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "echoScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "apyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPendingRewards",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRewardBreakdown",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "breakdown",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.RewardBreakdown",
+        "components": [
+          {
+            "name": "rawPending",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "claimable",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "forfeited",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "multiplierBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStakeAgeMultiplier",
+    "inputs": [
+      {
+        "name": "stakeTimestamp",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "multiplierBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStakeInfo",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "info",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.StakeInfo",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "stakeTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "lastClaimTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pendingRewards",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "effectiveApyBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "tier",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "stakeAgeMultiplierBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "echoScoreBoostBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getStakingStats",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "stats",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.StakingStats",
+        "components": [
+          {
+            "name": "totalStaked",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "rewardPoolBalance",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalUniqueStakers",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalRewardsDistributed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "currentEpoch",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "epochMaxReward",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTier",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "tier",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTierConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "baseApy",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUnstakeRequest",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "info",
+        "type": "tuple",
+        "internalType": "struct IStakingRewards.UnstakeInfo",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "unlockTimestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "pending",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "initStaking",
+    "inputs": [
+      {
+        "name": "minStakeDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "withdrawalCooldown",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "baseApyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initStakingWithToken",
+    "inputs": [
+      {
+        "name": "uspkToken",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "minStakeDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "withdrawalCooldown",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "baseApyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "isDegradedModeActive",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "active",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "queueTierConfigUpdate",
+    "inputs": [
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "requestUnstake",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDegradedModeConfig",
+    "inputs": [
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "staleAfterSeconds",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxStakePerWallet",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setEchoScoreBoost",
+    "inputs": [
+      {
+        "name": "boostBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setStakingPaused",
+    "inputs": [
+      {
+        "name": "paused",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "stake",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "EpochAdvanced",
+    "inputs": [
+      {
+        "name": "epochNumber",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxReward",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RewardPoolFunded",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "newBalance",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "funder",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RewardsClaimed",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RewardsClaimedDetailed",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "rawPending",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "claimable",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "forfeited",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Staked",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tier",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StakingInitialized",
+    "inputs": [
+      {
+        "name": "minStakeDuration",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "withdrawalCooldown",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "baseApy",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "StakingPaused",
+    "inputs": [
+      {
+        "name": "paused",
+        "type": "bool",
+        "indexed": true,
+        "internalType": "bool"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TierConfigUpdated",
+    "inputs": [
+      {
+        "name": "thresholds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "multipliers",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "baseApy",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "UnstakeRequested",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "unlockTimestamp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Unstaked",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "rewardsClaimed",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ArrayLengthMismatch",
+    "inputs": [
+      {
+        "name": "thresholdsLength",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "multipliersLength",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "BaseAPYTooHigh",
+    "inputs": [
+      {
+        "name": "apyBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "max",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "BelowMinimumStake",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minimum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "CooldownNotElapsed",
+    "inputs": [
+      {
+        "name": "currentTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "unlockTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "EchoScoreTooLow",
+    "inputs": [
+      {
+        "name": "userScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minRequired",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "EpochNotReady",
+    "inputs": [
+      {
+        "name": "currentTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "nextEpochTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ExceedsMaximumStake",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maximum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InsufficientRewardPool",
+    "inputs": [
+      {
+        "name": "requested",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "available",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InsufficientStakedBalance",
+    "inputs": [
+      {
+        "name": "requested",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "available",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidBoostParameters",
+    "inputs": [
+      {
+        "name": "boostBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidTierConfig",
+    "inputs": [
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "MultiplierOutOfRange",
+    "inputs": [
+      {
+        "name": "multiplier",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "min",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "max",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NoActiveStake",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoRewardsToClaim",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NoUnstakeRequest",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotInitialized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SafeERC20FailedOperation",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "StakeDurationTooShort",
+    "inputs": [
+      {
+        "name": "stakeDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "minDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "StakingPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ThresholdsNotIncreasing",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnauthorizedReentrantCall",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnstakeAlreadyPending",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroStakeAmount",
+    "inputs": []
+  }
+]

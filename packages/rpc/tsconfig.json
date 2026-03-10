@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "../../dist/rpc"
+  },
+  "references": [{ "path": "../client" }],
+  "include": ["src/**/*.ts"]
+}
+

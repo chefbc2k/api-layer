@@ -1,0 +1,257 @@
+[
+  {
+    "type": "function",
+    "name": "GOVERNANCE_PROPOSER_ROLE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRoleMultiplier",
+    "inputs": [
+      {
+        "name": "role",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "getVotingConfig",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IGovernor.VotingConfig",
+        "components": [
+          {
+            "name": "votingDelay",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "votingPeriod",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "proposalThreshold",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "quorumNumerator",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setDefaultGasLimit",
+    "inputs": [
+      {
+        "name": "limit",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTrustedTarget",
+    "inputs": [
+      {
+        "name": "target",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "trusted",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "gasLimit",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateProposalThreshold",
+    "inputs": [
+      {
+        "name": "newProposalThreshold",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateQuorumNumerator",
+    "inputs": [
+      {
+        "name": "newQuorumNumerator",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateVotingDelay",
+    "inputs": [
+      {
+        "name": "newVotingDelay",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateVotingPeriod",
+    "inputs": [
+      {
+        "name": "newVotingPeriod",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "TargetGasLimitUpdated",
+    "inputs": [
+      {
+        "name": "target",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "gasLimit",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TrustedTargetUpdated",
+    "inputs": [
+      {
+        "name": "target",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "trusted",
+        "type": "bool",
+        "indexed": true,
+        "internalType": "bool"
+      },
+      {
+        "name": "maxGas",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "manager",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "InvalidGasLimit",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "OnlyGovernance",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "QuorumTooHigh",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "QuorumTooLow",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ThresholdTooLow",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "VotingDelayTooHigh",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "VotingDelayTooLow",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "VotingPeriodTooHigh",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "VotingPeriodTooLow",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAddressTarget",
+    "inputs": []
+  }
+]

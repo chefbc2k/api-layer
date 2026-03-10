@@ -1,0 +1,35 @@
+{
+  "name": "@uspeaks/api-layer",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.30.0",
+  "engines": {
+    "node": ">=20 <26"
+  },
+  "scripts": {
+    "sync:abis": "tsx scripts/sync-abis.ts",
+    "sync:scenarios": "tsx scripts/sync-scenarios.ts",
+    "build:manifest": "tsx scripts/generate-manifest.ts",
+    "build:typechain": "typechain --target ethers-v6 --out-dir generated/typechain \"generated/abis/facets/*.json\"",
+    "build:wrappers": "tsx scripts/generate-client.ts",
+    "coverage:check": "tsx scripts/check-wrapper-coverage.ts",
+    "codegen": "pnpm run sync:abis && pnpm run build:manifest && pnpm run build:typechain && pnpm run build:wrappers && pnpm run coverage:check",
+    "build": "pnpm run codegen && pnpm -r build",
+    "test": "vitest run",
+    "dev:rpc": "pnpm --filter @uspeaks/api-rpc dev",
+    "dev:indexer": "pnpm --filter @uspeaks/api-indexer dev",
+    "scenario:api": "pnpm run sync:scenarios && tsx scenario-adapter/src/run-api-mode.ts",
+    "ops:orchestrate": "tsx ops/orchestrate.ts"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v6": "^0.5.1",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "@types/pg": "^8.15.5",
+    "dotenv": "^16.4.7",
+    "tsx": "^4.20.5",
+    "typechain": "^8.3.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

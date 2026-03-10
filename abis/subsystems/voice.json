@@ -1,0 +1,3046 @@
+[
+  {
+    "type": "function",
+    "name": "addCollaborator",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "collaborator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "share",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCategoryContracts",
+    "inputs": [
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "rightIds",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getCollaborator",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "collaborator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "isActive",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "share",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRightCategory",
+    "inputs": [
+      {
+        "name": "rightId",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRightContract",
+    "inputs": [
+      {
+        "name": "rightId",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "contractAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRightsGroup",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "groupIndex",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "group",
+        "type": "tuple",
+        "internalType": "struct RightsStorage.RightsGroup",
+        "components": [
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "rights",
+            "type": "tuple[]",
+            "internalType": "struct RightsStorage.UsageRight[]",
+            "components": [
+              {
+                "name": "rightType",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "startTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "endTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "transferable",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "restrictions",
+                "type": "string[]",
+                "internalType": "string[]"
+              },
+              {
+                "name": "revocable",
+                "type": "bool",
+                "internalType": "bool"
+              }
+            ]
+          },
+          {
+            "name": "members",
+            "type": "address[]",
+            "internalType": "address[]"
+          },
+          {
+            "name": "active",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserRights",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "rights",
+        "type": "tuple[]",
+        "internalType": "struct RightsStorage.UsageRight[]",
+        "components": [
+          {
+            "name": "rightType",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "startTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "endTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "transferable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "restrictions",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "revocable",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "registerRightContract",
+    "inputs": [
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "contractAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "rightId",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "removeCollaborator",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "collaborator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeRight",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holder",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "rightType",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "rightIdExists",
+    "inputs": [
+      {
+        "name": "rightId",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "exists",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "updateCollaboratorShare",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "collaborator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "newShare",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateRightContract",
+    "inputs": [
+      {
+        "name": "rightId",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "newContractAddress",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "approveVoiceAsset",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "authorizeUser",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "customizeRoyaltyRate",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "royaltyPercent",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getApproved",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDefaultPlatformFee",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDefaultRoyaltyRate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxRoyaltyRate",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRoyaltyHistory",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct VoiceAssetStorage.RoyaltyPayment[]",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "user",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "usageReference",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTokenId",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserVoices",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceAsset",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "ipfsHash",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "royaltyRate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "isLocked",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "usageCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "createdAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceAssetDetails",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "isRegistered",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "createdAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceAssetsByOwner",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceHash",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceHashFromTokenId",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isApprovedForAll",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isAuthorized",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isRegistrationPaused",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "lockVoiceAsset",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "name",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "ownerOf",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "recordRoyaltyPayment",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "usageReference",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "recordRoyaltyPaymentFrom",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "usageReference",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "recordUsage",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "usageRef",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "recordUsageFrom",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "usageRef",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "registerVoiceAsset",
+    "inputs": [
+      {
+        "name": "ipfsHash",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "royaltyRate",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "registerVoiceAssetForCaller",
+    "inputs": [
+      {
+        "name": "ipfsHash",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "royaltyRate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeUser",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "safeTransferFrom",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "safeTransferFrom",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "data",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setApprovalForAll",
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "approved",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDefaultPlatformFee",
+    "inputs": [
+      {
+        "name": "fee",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setDefaultRoyaltyRate",
+    "inputs": [
+      {
+        "name": "rate",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setRegistrationPaused",
+    "inputs": [
+      {
+        "name": "paused",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "symbol",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenURI",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "transferFromVoiceAsset",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "unlockVoiceAsset",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "voiceAssetBalanceOf",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "voiceAssetName",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "voiceAssetSymbol",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "appendAssets",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "burnDataset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "containsAsset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createDataset",
+    "inputs": [
+      {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "licenseTemplateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataURI",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getDataset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IVoiceDataset.VoiceDataset",
+        "components": [
+          {
+            "name": "id",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "assetIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "licenseTemplateId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "metadataURI",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "royaltyBps",
+            "type": "uint96",
+            "internalType": "uint96"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "active",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDatasetsByCreator",
+    "inputs": [
+      {
+        "name": "creator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxAssetsPerDataset",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalDatasets",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeAsset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "royaltyInfo",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "salePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "royaltyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setDatasetStatus",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setLicense",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "licenseTemplateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMaxAssetsPerDataset",
+    "inputs": [
+      {
+        "name": "maxAssets",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMetadata",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataURI",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setRoyalty",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createLicenseWithMarketplace",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "price",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "transferable",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "terms",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getLicense",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "licensee",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "license",
+        "type": "tuple",
+        "internalType": "struct VoiceLicenseStorage.License",
+        "components": [
+          {
+            "name": "licensee",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "isActive",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "transferable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "startTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "endTime",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxUses",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "usageCount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "licenseFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "usageFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "templateHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "termsHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "rights",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "restrictions",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "usageRefs",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLicenseHistory",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "licenseeCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "totalRevenue",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "activeGrants",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLicenseTerms",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "terms",
+        "type": "tuple",
+        "internalType": "struct VoiceLicenseStorage.LicenseTerms",
+        "components": [
+          {
+            "name": "licenseHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "duration",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "price",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxUses",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "transferable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "rights",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "restrictions",
+            "type": "string[]",
+            "internalType": "string[]"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLicensees",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "licensees",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPendingRevenue",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUsageCount",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "licensee",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "count",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isUsageRefUsed",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "usageRef",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "used",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "issueLicense",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "licensee",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "recordLicensedUsage",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "usageRef",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeLicense",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "licensee",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "transferLicense",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateLicenseTerms",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "newPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "newDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "newTerms",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "validateLicense",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "licensee",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "isValid",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "expiryTime",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "withdrawLicenseRevenue",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getCreatorTemplates",
+    "inputs": [
+      {
+        "name": "creator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTemplate",
+    "inputs": [
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct VoiceLicenseStorage.LicenseTemplate",
+        "components": [
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "isActive",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "transferable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "updatedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "defaultDuration",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "defaultPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxUses",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "defaultRights",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "defaultRestrictions",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "terms",
+            "type": "tuple",
+            "internalType": "struct VoiceLicenseStorage.LicenseTerms",
+            "components": [
+              {
+                "name": "licenseHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+              },
+              {
+                "name": "duration",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "price",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "maxUses",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "transferable",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "rights",
+                "type": "string[]",
+                "internalType": "string[]"
+              },
+              {
+                "name": "restrictions",
+                "type": "string[]",
+                "internalType": "string[]"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isTemplateActive",
+    "inputs": [
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setTemplateStatus",
+    "inputs": [
+      {
+        "name": "templateHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getBasicAcousticFeatures",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "features",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.BasicAcousticFeatures",
+        "components": [
+          {
+            "name": "pitch",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "volume",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "speechRate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timbre",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "formants",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "harmonicsToNoise",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "dynamicRange",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getGeographicData",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "geographic",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.GeographicData",
+        "components": [
+          {
+            "name": "latitude",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "longitude",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "region",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "country",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "locality",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceCategories",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "categories",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceClassifications",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "classifications",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.VoiceClassifications",
+        "components": [
+          {
+            "name": "analysisVersion",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "processingTimeMs",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "componentsRun",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "categories",
+            "type": "string[]",
+            "internalType": "string[]"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "searchVoicesByClassification",
+    "inputs": [
+      {
+        "name": "classificationName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "level",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "voiceHashes",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "searchVoicesByClassificationPaginated",
+    "inputs": [
+      {
+        "name": "classificationName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "level",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "offset",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "limit",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "voiceHashes",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "totalMatches",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setAnalysisVersion",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "ENCRYPTOR_ROLE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "OWNER_ROLE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "VOICE_OPERATOR_ROLE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "generateAndSetEncryptionKey",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "publicKey",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getAuditTrail",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "grantAccess",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "registerVoiceFingerprint",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "structuredFingerprintData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "revokeAccess",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setAuditEnabled",
+    "inputs": [
+      {
+        "name": "enabled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setOffchainEntropy",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "offchainSeed",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "walletAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "blockHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "signature",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setTrustedOracle",
+    "inputs": [
+      {
+        "name": "oracle",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateSystemParameters",
+    "inputs": [
+      {
+        "name": "newMinKeyStrength",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "newMinEntropy",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "newDefaultAccessDuration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "verifyVoiceAuthenticity",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "fingerprintData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "isValid",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "addBeneficiary",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "share",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "canDelegate",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addDatasets",
+    "inputs": [
+      {
+        "name": "datasetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addInheritanceRequirement",
+    "inputs": [
+      {
+        "name": "doc",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addVoiceAssets",
+    "inputs": [
+      {
+        "name": "voiceAssets",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createLegacyPlan",
+    "inputs": [
+      {
+        "name": "memo",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setBeneficiaryRelationship",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "relationship",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setInheritanceConditions",
+    "inputs": [
+      {
+        "name": "timelock",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "requiresProof",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "approvers",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      {
+        "name": "minApprovals",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMaxBeneficiaries",
+    "inputs": [
+      {
+        "name": "max",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMinTimelockPeriod",
+    "inputs": [
+      {
+        "name": "period",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getLegacyPlan",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "plan",
+        "type": "tuple",
+        "internalType": "struct LegacyStorage.LegacyPlan",
+        "components": [
+          {
+            "name": "voiceAssets",
+            "type": "bytes32[]",
+            "internalType": "bytes32[]"
+          },
+          {
+            "name": "datasetIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "beneficiaries",
+            "type": "tuple[]",
+            "internalType": "struct LegacyStorage.Beneficiary[]",
+            "components": [
+              {
+                "name": "sharePercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "activationTime",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+              },
+              {
+                "name": "isActive",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "canDelegate",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "relationship",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          },
+          {
+            "name": "conditions",
+            "type": "tuple",
+            "internalType": "struct LegacyStorage.InheritanceCondition",
+            "components": [
+              {
+                "name": "timelock",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "requiresProof",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "requiredDocs",
+                "type": "string[]",
+                "internalType": "string[]"
+              },
+              {
+                "name": "approvers",
+                "type": "address[]",
+                "internalType": "address[]"
+              },
+              {
+                "name": "minApprovals",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "updatedAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "isActive",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "isExecuted",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "memo",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isInheritanceReady",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "ready",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "approvalCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "requiredApprovals",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "approveInheritance",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "delegateRights",
+    "inputs": [
+      {
+        "name": "delegatee",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "duration",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "executeInheritance",
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "initiateInheritance",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "proofDocuments",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+]

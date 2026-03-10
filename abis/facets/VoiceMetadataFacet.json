@@ -1,0 +1,718 @@
+[
+  {
+    "type": "function",
+    "name": "getBasicAcousticFeatures",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "features",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.BasicAcousticFeatures",
+        "components": [
+          {
+            "name": "pitch",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "volume",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "speechRate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timbre",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "formants",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "harmonicsToNoise",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "dynamicRange",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getGeographicData",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "geographic",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.GeographicData",
+        "components": [
+          {
+            "name": "latitude",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "longitude",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "region",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "country",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "locality",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSelectors",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "selectors",
+        "type": "bytes4[]",
+        "internalType": "bytes4[]"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceCategories",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "categories",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getVoiceClassifications",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "classifications",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.VoiceClassifications",
+        "components": [
+          {
+            "name": "analysisVersion",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "processingTimeMs",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "componentsRun",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "categories",
+            "type": "string[]",
+            "internalType": "string[]"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "searchVoicesByClassification",
+    "inputs": [
+      {
+        "name": "classificationName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "level",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "voiceHashes",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "searchVoicesByClassificationPaginated",
+    "inputs": [
+      {
+        "name": "classificationName",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "level",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "minScore",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "offset",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "limit",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "voiceHashes",
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      {
+        "name": "totalMatches",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setAnalysisVersion",
+    "inputs": [
+      {
+        "name": "version",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateBasicAcousticFeatures",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "features",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.BasicAcousticFeatures",
+        "components": [
+          {
+            "name": "pitch",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "volume",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "speechRate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timbre",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "formants",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "harmonicsToNoise",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "dynamicRange",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateClassificationCategory",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "classifications",
+        "type": "tuple[]",
+        "internalType": "struct IVoiceMetadata.ClassificationResult[]",
+        "components": [
+          {
+            "name": "name",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "score",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "category",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "level",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "metadata",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateGeographicData",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "geographic",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.GeographicData",
+        "components": [
+          {
+            "name": "latitude",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "longitude",
+            "type": "int256",
+            "internalType": "int256"
+          },
+          {
+            "name": "region",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "country",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "locality",
+            "type": "string",
+            "internalType": "string"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateVoiceClassifications",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "classifications",
+        "type": "tuple",
+        "internalType": "struct IVoiceMetadata.VoiceClassifications",
+        "components": [
+          {
+            "name": "analysisVersion",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "processingTimeMs",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "componentsRun",
+            "type": "string[]",
+            "internalType": "string[]"
+          },
+          {
+            "name": "categories",
+            "type": "string[]",
+            "internalType": "string[]"
+          }
+        ]
+      },
+      {
+        "name": "categoryData",
+        "type": "tuple[]",
+        "internalType": "struct IVoiceMetadata.CategoryClassifications[]",
+        "components": [
+          {
+            "name": "category",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "classifications",
+            "type": "tuple[]",
+            "internalType": "struct IVoiceMetadata.ClassificationResult[]",
+            "components": [
+              {
+                "name": "name",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "score",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "category",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "level",
+                "type": "string",
+                "internalType": "string"
+              },
+              {
+                "name": "metadata",
+                "type": "string",
+                "internalType": "string"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AnalysisVersionUpdated",
+    "inputs": [
+      {
+        "name": "oldVersion",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "newVersion",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "BasicAcousticFeaturesUpdated",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "pitch",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "volume",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ClassificationCategoryUpdated",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "classificationsCount",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "GeographicDataUpdated",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "region",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "country",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "VoiceClassificationsUpdated",
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "analysisVersion",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "categories",
+        "type": "string[]",
+        "indexed": false,
+        "internalType": "string[]"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "InvalidParameter",
+    "inputs": [
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "resource",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "SystemInRecovery",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SystemLocked",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SystemPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnauthorizedUser",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  }
+]

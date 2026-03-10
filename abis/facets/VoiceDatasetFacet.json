@@ -1,0 +1,813 @@
+[
+  {
+    "type": "function",
+    "name": "appendAssets",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "burnDataset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "containsAsset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "createDataset",
+    "inputs": [
+      {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "licenseTemplateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataURI",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getDataset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct IVoiceDataset.VoiceDataset",
+        "components": [
+          {
+            "name": "id",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "assetIds",
+            "type": "uint256[]",
+            "internalType": "uint256[]"
+          },
+          {
+            "name": "licenseTemplateId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "metadataURI",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "creator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "royaltyBps",
+            "type": "uint96",
+            "internalType": "uint96"
+          },
+          {
+            "name": "createdAt",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "active",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDatasetsByCreator",
+    "inputs": [
+      {
+        "name": "creator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxAssetsPerDataset",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSelectors",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes4[]",
+        "internalType": "bytes4[]"
+      }
+    ],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "getTotalDatasets",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeAsset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "royaltyInfo",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "salePrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "receiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "royaltyAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "setDatasetStatus",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setLicense",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "licenseTemplateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMaxAssetsPerDataset",
+    "inputs": [
+      {
+        "name": "maxAssets",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMetadata",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataURI",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setRoyalty",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AssetRemoved",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AssetsAppended",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DatasetBurned",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DatasetCreated",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "creator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "title",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "assetIds",
+        "type": "uint256[]",
+        "indexed": false,
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "licenseTemplateId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataURI",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "indexed": false,
+        "internalType": "uint96"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DatasetRoyaltyPayeeSet",
+    "inputs": [
+      {
+        "name": "datasetTokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "oldPayee",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newPayee",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DatasetStatusChanged",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "indexed": true,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "LicenseChanged",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "licenseTemplateId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "MetadataChanged",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "metadataURI",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RoyaltySet",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "indexed": true,
+        "internalType": "uint96"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "Transfer",
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AssetNotFound",
+    "inputs": [
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AssetNotInDataset",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AssetNotOwned",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "DatasetNotFound",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "DuplicateAsset",
+    "inputs": [
+      {
+        "name": "assetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "EmptyAssetList",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InitializationFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidDatasetCreator",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidLicenseTemplate",
+    "inputs": [
+      {
+        "name": "templateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidParameter",
+    "inputs": [
+      {
+        "name": "param",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "reason",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidRoyaltyBps",
+    "inputs": [
+      {
+        "name": "royaltyBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidTokenId",
+    "inputs": [
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "LicenseTemplateNotFound",
+    "inputs": [
+      {
+        "name": "templateId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "MaxAssetsExceeded",
+    "inputs": [
+      {
+        "name": "provided",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maximum",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "NotAuthorized",
+    "inputs": [
+      {
+        "name": "caller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "resource",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "RoyaltyIncreaseNotAllowed",
+    "inputs": [
+      {
+        "name": "currentBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      },
+      {
+        "name": "newBps",
+        "type": "uint96",
+        "internalType": "uint96"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "RoyaltyPayeeNotSet",
+    "inputs": [
+      {
+        "name": "datasetId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "SystemInRecovery",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SystemLocked",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SystemPaused",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UnauthorizedReentrantCall",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAddress",
+    "inputs": []
+  }
+]

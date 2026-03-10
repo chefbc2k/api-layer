@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.turbo/
+.env
+.env.*
+coverage/
+generated/typechain/
+generated/abis/
+generated/manifests/
+pnpm-lock.yaml
+*.log
+

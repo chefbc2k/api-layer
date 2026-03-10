@@ -1,0 +1,16 @@
+{
+  "name": "@uspeaks/api-indexer",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@uspeaks/api-client": "workspace:*",
+    "ethers": "^6.15.0",
+    "pg": "^8.16.3",
+    "zod": "^4.1.5"
+  }
+}
