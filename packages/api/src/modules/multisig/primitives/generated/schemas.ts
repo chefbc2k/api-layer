@@ -1,0 +1,27 @@
+import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../shared/validation.js";
+import { multisigEventDefinitions, multisigMethodDefinitions } from "./mapping.js";
+
+export const addOperationTypeRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "addOperationType")!);
+export const addOperatorRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "addOperator")!);
+export const approveOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "approveOperation")!);
+export const cancelOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "cancelOperation")!);
+export const canExecuteOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "canExecuteOperation")!);
+export const executeRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "execute")!);
+export const executeOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "executeOperation")!);
+export const getOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "getOperation")!);
+export const getOperationConfigRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationConfig")!);
+export const getOperationStatusRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationStatus")!);
+export const hasApprovedOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "hasApprovedOperation")!);
+export const isOperatorRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "isOperator")!);
+export const muSetPausedRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "muSetPaused")!);
+export const proposeOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "proposeOperation")!);
+export const removeOperatorRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "removeOperator")!);
+export const setOperationConfigRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "setOperationConfig")!);
+export const submitTransactionRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "submitTransaction")!);
+export const actionExecutedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "actionExecutedEventQuery")!);
+export const batchCompletedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "batchCompletedEventQuery")!);
+export const multiSigOperationCancelledEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "multiSigOperationCancelledEventQuery")!);
+export const operationApprovedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "operationApprovedEventQuery")!);
+export const operationExecutedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "operationExecutedEventQuery")!);
+export const operationProposedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "operationProposedEventQuery")!);
+export const operationStatusChangedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "operationStatusChangedEventQuery")!);

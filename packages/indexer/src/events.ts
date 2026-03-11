@@ -1,42 +1,43 @@
-import { Interface, type EventFragment, type Log } from "ethers";
+import { Interface, type Log } from "ethers";
 
-import { facetRegistry } from "../../client/src/index.js";
+import { facetRegistry, getAllAbiEventDefinitions } from "../../client/src/index.js";
+import type { AbiEventDefinition } from "../../client/src/runtime/abi-registry.js";
 
 type EventDescriptor = {
   facetName: string;
   eventName: string;
+  wrapperKey: string;
+  fullEventKey: string;
   iface: Interface;
 };
 
 export type DecodedEvent = {
   facetName: string;
   eventName: string;
+  wrapperKey: string;
+  fullEventKey: string;
   args: Record<string, unknown>;
   signature: string;
 };
 
 export function buildEventRegistry(): Map<string, EventDescriptor[]> {
   const registry = new Map<string, EventDescriptor[]>();
-  for (const facet of Object.values(facetRegistry)) {
-    const iface = new Interface(facet.abi);
-    for (const fragment of iface.fragments) {
-      if (fragment.type !== "event") {
-        continue;
-      }
-      const eventFragment = fragment as EventFragment;
-      const resolved = iface.getEvent(eventFragment.name);
-      if (!resolved) {
-        continue;
-      }
-      const topic = resolved.topicHash;
-      const existing = registry.get(topic) ?? [];
-      existing.push({
-        facetName: facet.facetName,
-        eventName: eventFragment.name,
-        iface,
-      });
-      registry.set(topic, existing);
+  for (const [eventKey, eventDefinition] of Object.entries(getAllAbiEventDefinitions()) as Array<[string, AbiEventDefinition]>) {
+    const iface = new Interface(facetRegistry[eventDefinition.facetName as keyof typeof facetRegistry].abi);
+    const resolved = iface.getEvent(eventDefinition.wrapperKey);
+    if (!resolved) {
+      continue;
     }
+    const topic = resolved.topicHash;
+    const existing = registry.get(topic) ?? [];
+    existing.push({
+      facetName: eventDefinition.facetName,
+      eventName: eventDefinition.eventName,
+      wrapperKey: eventDefinition.wrapperKey,
+      fullEventKey: eventKey,
+      iface,
+    });
+    registry.set(topic, existing);
   }
   return registry;
 }
@@ -55,7 +56,9 @@ export function decodeEvent(registry: Map<string, EventDescriptor[]>, log: Log):
       }
       return {
         facetName: candidate.facetName,
-        eventName: parsed.name,
+        eventName: candidate.eventName,
+        wrapperKey: candidate.wrapperKey,
+        fullEventKey: candidate.fullEventKey,
         args: parsed.args.toObject(),
         signature: parsed.signature,
       };

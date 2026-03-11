@@ -1,0 +1,52 @@
+import { Router } from "express";
+
+import type { ApiExecutionContext } from "../../../../shared/execution-context.js";
+import { registerRoute } from "../../../../shared/route-factory.js";
+import { createAccessControlPrimitiveController } from "./controller.js";
+import { accessControlEventDefinitions, accessControlMethodDefinitions } from "./mapping.js";
+
+export function createAccessControlPrimitiveRouter(context: ApiExecutionContext): Router {
+  const router = Router();
+  const controller = createAccessControlPrimitiveController(context);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "configureRole")!, controller["configureRole"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "debugRoleIndexState")!, controller["debugRoleIndexState"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "emergencyForceAdd")!, controller["emergencyForceAdd"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "executeFounderSunset")!, controller["executeFounderSunset"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getOwnerOperationalRoles")!, controller["getOwnerOperationalRoles"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getQuorum")!, controller["getQuorum"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getRequiredSigners")!, controller["getRequiredSigners"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getRoleAdmin")!, controller["getRoleAdmin"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getRoleConfig")!, controller["getRoleConfig"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getRoleMember")!, controller["getRoleMember"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getRoleMembers")!, controller["getRoleMembers"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "getUserRoles")!, controller["getUserRoles"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "grantRole")!, controller["grantRole"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "hasAllParticipantRoles")!, controller["hasAllParticipantRoles"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "hasRole")!, controller["hasRole"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "isFounderSunsetActive")!, controller["isFounderSunsetActive"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "isRoleActive")!, controller["isRoleActive"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "renounceRole")!, controller["renounceRole"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "revokeRole")!, controller["revokeRole"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "scheduleFounderSunset")!, controller["scheduleFounderSunset"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "setDefaultValidityPeriod")!, controller["setDefaultValidityPeriod"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "setMinValidations")!, controller["setMinValidations"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "setPaused")!, controller["setPaused"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "setRecoveryActive")!, controller["setRecoveryActive"]);
+  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "setRoleAdmin")!, controller["setRoleAdmin"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "accessAttemptEventQuery")!, controller["accessAttemptEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "daomemberRoleGrantedEventQuery")!, controller["daomemberRoleGrantedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "founderSunsetExecutedEventQuery")!, controller["founderSunsetExecutedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "founderSunsetScheduledEventQuery")!, controller["founderSunsetScheduledEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "governanceParticipantRoleGrantedEventQuery")!, controller["governanceParticipantRoleGrantedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "marketplacePurchaserRoleGrantedEventQuery")!, controller["marketplacePurchaserRoleGrantedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "marketplaceSellerRoleGrantedEventQuery")!, controller["marketplaceSellerRoleGrantedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "participantRoleRevokedEventQuery")!, controller["participantRoleRevokedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "researchParticipantRoleGrantedEventQuery")!, controller["researchParticipantRoleGrantedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "roleAdminChangedEventQuery")!, controller["roleAdminChangedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "roleConfigUpdatedEventQuery")!, controller["roleConfigUpdatedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "roleGrantedEventQuery")!, controller["roleGrantedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "roleRenouncedEventQuery")!, controller["roleRenouncedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "roleRevokedEventQuery")!, controller["roleRevokedEventQuery"]);
+  registerRoute(router, accessControlEventDefinitions.find((definition) => definition.operationId === "securityActionEventQuery")!, controller["securityActionEventQuery"]);
+  return router;
+}

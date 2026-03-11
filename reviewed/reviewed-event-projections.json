@@ -1,0 +1,1612 @@
+{
+  "version": 1,
+  "events": {
+    "AccessControlFacet.AccessAttempt": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.DAOMemberRoleGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.FounderSunsetExecuted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.FounderSunsetScheduled": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.GovernanceParticipantRoleGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.MarketplacePurchaserRoleGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.MarketplaceSellerRoleGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.ParticipantRoleRevoked": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.ResearchParticipantRoleGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.RoleAdminChanged": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.RoleConfigUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.RoleGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.RoleRenounced": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.RoleRevoked": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "AccessControlFacet.SecurityAction": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "BurnThresholdFacet.BurnThresholdUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "BurnThresholdFacet.ThresholdBurn": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "BurnThresholdFacet.Transfer": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "DelegationFacet.DelegateChanged(address,address,address)": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_delegations",
+          "mode": "current"
+        }
+      ]
+    },
+    "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_delegations",
+          "mode": "current"
+        }
+      ]
+    },
+    "DelegationFacet.VotingPowerUpdated": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_delegations",
+          "mode": "current"
+        }
+      ]
+    },
+    "DiamondCutFacet.DiamondCut": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "DiamondCutFacet.DiamondCutEvent": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "DiamondCutFacet.TrustedInitCodehashSet": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "DiamondCutFacet.TrustedInitContractSet": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "DiamondCutFacet.TrustedInitSelectorSet": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.OracleFutureDriftConfigUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.OracleQuorumConfigUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.OracleStalenessConfigUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.OracleUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.Paused": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.ReputationUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.ScoresUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EchoScoreFacetV3.Unpaused": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EmergencyFacet.AssetsFrozen": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.EmergencyResumeExecuted": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.EmergencyResumeScheduled": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.EmergencyStateChanged": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.IncidentReported": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.PauseExtended": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.RecoveryCompleted": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.RecoveryStarted": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.RecoveryStepExecuted": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyFacet.ResponseExecuted": {
+      "domain": "emergency",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "emergency_incidents",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyEthWithdrawalApproved": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyEthWithdrawalExecuted": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyEthWithdrawalRequested": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyWithdrawal": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyWithdrawalApproved": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyWithdrawalExecuted": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.EmergencyWithdrawalRequested": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.RecipientWhitelisted": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "EmergencyWithdrawalFacet.WithdrawalConfigUpdated": {
+      "domain": "emergency",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "emergency_withdrawals",
+          "mode": "current"
+        }
+      ]
+    },
+    "GovernorFacet.TargetGasLimitUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "GovernorFacet.TrustedTargetUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "MarketplaceFacet.AssetEscrowed": {
+      "domain": "market",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "market_listings",
+          "mode": "current"
+        }
+      ]
+    },
+    "MarketplaceFacet.AssetListed": {
+      "domain": "market",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "market_listings",
+          "mode": "current"
+        }
+      ]
+    },
+    "MarketplaceFacet.AssetPurchased": {
+      "domain": "market",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "market_sales",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "MarketplaceFacet.ListingCancelled": {
+      "domain": "market",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "market_listings",
+          "mode": "current"
+        }
+      ]
+    },
+    "MarketplaceFacet.ListingPriceUpdated": {
+      "domain": "market",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "market_listings",
+          "mode": "current"
+        }
+      ]
+    },
+    "MarketplaceFacet.MarketplacePaused": {
+      "domain": "market",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "market_listings",
+          "mode": "current"
+        }
+      ]
+    },
+    "MarketplaceFacet.MarketplaceUnpaused": {
+      "domain": "market",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "market_listings",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.ActionExecuted": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.BatchCompleted": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.MultiSigOperationCancelled": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.OperationApproved": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.OperationExecuted": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.OperationProposed": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "MultiSigFacet.OperationStatusChanged": {
+      "domain": "multisig",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "multisig_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "OwnershipFacet.OwnershipPolicyEnforcementSet": {
+      "domain": "ownership",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "ownership_transfers",
+          "mode": "current"
+        }
+      ]
+    },
+    "OwnershipFacet.OwnershipTargetApprovalSet": {
+      "domain": "ownership",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "ownership_transfers",
+          "mode": "current"
+        }
+      ]
+    },
+    "OwnershipFacet.OwnershipTransferCancelled": {
+      "domain": "ownership",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "ownership_transfers",
+          "mode": "current"
+        }
+      ]
+    },
+    "OwnershipFacet.OwnershipTransferProposed": {
+      "domain": "ownership",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "ownership_transfers",
+          "mode": "current"
+        }
+      ]
+    },
+    "OwnershipFacet.OwnershipTransferred": {
+      "domain": "ownership",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "ownership_transfers",
+          "mode": "current"
+        }
+      ]
+    },
+    "PaymentFacet.BuybackAccumulatorUpdated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.BuybackConfigUpdated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.BuybackExecuted": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.BuybackPaused": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.ClaimCommitted": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.ClaimRevealed": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.DatasetRoyaltyAccrued": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.DevFundAddressUpdated": {
+      "domain": "payment",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "current"
+        }
+      ]
+    },
+    "PaymentFacet.FeeConfigurationUpdated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.FlashbotsSuggested": {
+      "domain": "payment",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "current"
+        }
+      ]
+    },
+    "PaymentFacet.MetadataAccessed": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.PauseStateChanged": {
+      "domain": "payment",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "current"
+        }
+      ]
+    },
+    "PaymentFacet.PaymentDistributed": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.TimewaveGiftCreated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.TreasuryAddressUpdated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.USDCPaymentWithdrawn": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_withdrawals",
+          "mode": "ledger"
+        },
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.UnionTreasuryAddressUpdated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "PaymentFacet.UsdcTokenUpdated": {
+      "domain": "payment",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "current"
+        }
+      ]
+    },
+    "PaymentFacet.WithdrawalLimitUpdated": {
+      "domain": "payment",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "payment_withdrawals",
+          "mode": "ledger"
+        },
+        {
+          "table": "payment_flows",
+          "mode": "current"
+        }
+      ]
+    },
+    "ProposalFacet.ProposalCanceled": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_proposals",
+          "mode": "current"
+        }
+      ]
+    },
+    "ProposalFacet.ProposalCreated": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_proposals",
+          "mode": "current"
+        }
+      ]
+    },
+    "ProposalFacet.ProposalExecuted": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_proposals",
+          "mode": "current"
+        }
+      ]
+    },
+    "ProposalFacet.ProposalQueued": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_proposals",
+          "mode": "current"
+        }
+      ]
+    },
+    "ProposalFacet.ProposalTypeConfigSet": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_proposals",
+          "mode": "current"
+        }
+      ]
+    },
+    "ProposalFacet.VoteCast": {
+      "domain": "governance",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "governance_votes",
+          "mode": "ledger"
+        },
+        {
+          "table": "governance_proposals",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.EpochAdvanced": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.RewardPoolFunded": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.RewardsClaimed": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_rewards",
+          "mode": "ledger"
+        },
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.RewardsClaimedDetailed": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_rewards",
+          "mode": "ledger"
+        },
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.Staked": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.StakingInitialized": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.StakingPaused": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.TierConfigUpdated": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.UnstakeRequested": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "StakingFacet.Unstaked": {
+      "domain": "staking",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "staking_positions",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.CallExecuted": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.MinDelayUpdated(uint256,uint256)": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.OperationExecuted(bytes32)": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.OperationRemoved": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.OperationScheduled": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.OperationStored": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimelockFacet.TimelockOperationCanceled": {
+      "domain": "timelock",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "timelock_operations",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimewaveGiftFacet.TokensVested": {
+      "domain": "vesting",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "vesting_schedules",
+          "mode": "current"
+        },
+        {
+          "table": "vesting_releases",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "TimewaveGiftFacet.VestingRevoked": {
+      "domain": "vesting",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "vesting_schedules",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimewaveGiftFacet.VestingScheduleCreated(address,uint256,uint256,uint256,uint256,bool)": {
+      "domain": "vesting",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "vesting_schedules",
+          "mode": "current"
+        }
+      ]
+    },
+    "TimewaveGiftFacet.VestingTransferred": {
+      "domain": "vesting",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "vesting_schedules",
+          "mode": "current"
+        }
+      ]
+    },
+    "TokenSupplyFacet.Approval": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "TokenSupplyFacet.MintingFinished": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "TokenSupplyFacet.TokenInitialized": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "TokenSupplyFacet.Transfer": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "UpgradeControllerFacet.UpgradeApproved": {
+      "domain": "upgrade",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "upgrade_requests",
+          "mode": "current"
+        }
+      ]
+    },
+    "UpgradeControllerFacet.UpgradeControlEnforcementSet": {
+      "domain": "upgrade",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "upgrade_requests",
+          "mode": "current"
+        }
+      ]
+    },
+    "UpgradeControllerFacet.UpgradeControlFrozen": {
+      "domain": "upgrade",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "upgrade_requests",
+          "mode": "current"
+        }
+      ]
+    },
+    "UpgradeControllerFacet.UpgradeControllerInitialized": {
+      "domain": "upgrade",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "upgrade_requests",
+          "mode": "current"
+        }
+      ]
+    },
+    "UpgradeControllerFacet.UpgradeExecuted": {
+      "domain": "upgrade",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "upgrade_requests",
+          "mode": "current"
+        }
+      ]
+    },
+    "UpgradeControllerFacet.UpgradeProposed": {
+      "domain": "upgrade",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "upgrade_requests",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.Approval": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.ApprovalForAll": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.DefaultPlatformFeeUpdated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.DefaultRoyaltyRateUpdated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.RegistrationPauseChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.RoyaltyPaid": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.RoyaltyRateChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.RoyaltyRateUpdated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.Transfer": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.UserAuthorizationChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.VoiceAssetLockChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.VoiceAssetRegistered": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceAssetFacet.VoiceAssetUsed": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_assets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.AssetRemoved": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        },
+        {
+          "table": "voice_dataset_members",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.AssetsAppended": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        },
+        {
+          "table": "voice_dataset_members",
+          "mode": "ledger"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.DatasetBurned": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.DatasetCreated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.DatasetRoyaltyPayeeSet": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.DatasetStatusChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.LicenseChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.MetadataChanged": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.RoyaltySet": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceDatasetFacet.Transfer": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_datasets",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.Debug": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseBatchGranted": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseEnded": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseRenewed": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseRevoked": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseTermsUpdated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseTransferred": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.LicenseUsed": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.TemplateUpdated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseFacet.VoiceAssetUsed": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_licenses",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseTemplateFacet.LicenseCreated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_license_templates",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceLicenseTemplateFacet.TemplateUpdated": {
+      "domain": "voice",
+      "projectionMode": "mixed",
+      "targets": [
+        {
+          "table": "voice_license_templates",
+          "mode": "current"
+        }
+      ]
+    },
+    "VoiceMetadataFacet.AnalysisVersionUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VoiceMetadataFacet.BasicAcousticFeaturesUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VoiceMetadataFacet.ClassificationCategoryUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VoiceMetadataFacet.GeographicDataUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VoiceMetadataFacet.VoiceClassificationsUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VotingPowerFacet.LockDurationUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VotingPowerFacet.MaxLockDurationUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VotingPowerFacet.RoleMultiplierUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VotingPowerFacet.VotingPowerUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.AccessGranted": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.AccessRevoked": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.AuditEvent": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.KeyRotated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.OffchainKeyGenerated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.SecurityParametersUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "WhisperBlockFacet.VoiceFingerprintUpdated": {
+      "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  }
+}

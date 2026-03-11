@@ -6,14 +6,19 @@ const ethersModule = require("ethers");
 
 const rootDir = path.resolve(__dirname, "..");
 const manifestPath = path.join(rootDir, "generated", "manifests", "contract-manifest.json");
-const rpcEndpoint = process.env.API_LAYER_RPC_URL || "http://127.0.0.1:8787";
+const endpointRegistryPath = path.join(rootDir, "generated", "manifests", "http-endpoint-registry.json");
+const apiBaseUrl = process.env.API_LAYER_API_URL || process.env.API_LAYER_RPC_URL || "http://127.0.0.1:8787";
 const apiKey = process.env.API_LAYER_API_KEY || "";
 
 if (!fs.existsSync(manifestPath)) {
   throw new Error(`scenario adapter requires generated manifest: ${manifestPath}`);
 }
+if (!fs.existsSync(endpointRegistryPath)) {
+  throw new Error(`scenario adapter requires generated endpoint registry: ${endpointRegistryPath}`);
+}
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+const endpointRegistry = JSON.parse(fs.readFileSync(endpointRegistryPath, "utf8"));
 const facetAbis = new Map();
 for (const facet of manifest.facets) {
   const abiPath = path.join(rootDir, facet.abiPath);
@@ -43,24 +48,53 @@ function identifyFacet(abi) {
 }
 
 async function invoke(method, params) {
-  const response = await fetch(rpcEndpoint, {
-    method: "POST",
+  const definition = endpointRegistry.methods[method];
+  if (!definition) {
+    throw new Error(`missing HTTP endpoint definition for ${method}`);
+  }
+  let requestPath = definition.path;
+  const query = new URLSearchParams();
+  const body = {};
+  definition.inputShape.bindings.forEach((binding, index) => {
+    const value = params[index];
+    if (binding.source === "path") {
+      requestPath = requestPath.replace(`:${binding.field}`, encodeURIComponent(String(value)));
+      return;
+    }
+    if (binding.source === "query") {
+      query.set(binding.field, typeof value === "string" ? value : JSON.stringify(value));
+      return;
+    }
+    body[binding.field] = value;
+  });
+  const response = await fetch(`${apiBaseUrl}${requestPath}${query.size > 0 ? `?${query.toString()}` : ""}`, {
+    method: definition.httpMethod,
     headers: {
-      "content-type": "application/json",
+      ...(definition.httpMethod === "GET" ? {} : { "content-type": "application/json" }),
       ...(apiKey ? { "x-api-key": apiKey } : {}),
     },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: `${Date.now()}`,
-      method,
-      params,
-    }),
+    body: definition.httpMethod === "GET"
+      ? undefined
+      : JSON.stringify(body, (_key, value) => typeof value === "bigint" ? value.toString() : value),
   });
-  const payload = await response.json();
-  if (payload.error) {
-    throw new Error(payload.error.message || "RPC error");
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || `HTTP ${response.status}`);
   }
-  return payload.result;
+  return reviveBigInts(payload.result ?? payload);
+}
+
+function reviveBigInts(value) {
+  if (typeof value === "string" && /^-?\\d+$/.test(value)) {
+    return BigInt(value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(reviveBigInts);
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, reviveBigInts(entry)]));
+  }
+  return value;
 }
 
 function createProxyContract(address, abi, runner) {

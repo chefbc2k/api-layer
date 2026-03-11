@@ -18,6 +18,9 @@ type ManifestFunction = {
   mutability: string;
   category: "read" | "write";
   liveRequired: boolean;
+  cacheClass: "none" | "short" | "queryJoin" | "static" | "assetMetadata";
+  executionSources: Array<"live" | "cache" | "indexed">;
+  gaslessModes: Array<"signature" | "cdpSmartWallet">;
   cacheTtlSeconds: number | null;
 };
 
@@ -36,20 +39,20 @@ type FacetManifest = {
   events: ManifestEvent[];
 };
 
-const LIVE_REQUIRED_PATTERNS = [
-  /approve/i,
-  /allowance/i,
-  /balance/i,
-  /withdraw/i,
-  /claim/i,
-  /reward/i,
-  /stake/i,
-  /unstake/i,
-  /buyback/i,
-  /fee/i,
-  /treasury/i,
-  /payout/i,
-];
+type ReviewedMethodPolicy = {
+  category: "read" | "write";
+  liveRequired: boolean;
+  cacheClass: "none" | "short" | "queryJoin" | "static" | "assetMetadata";
+  executionSources: Array<"live" | "cache" | "indexed">;
+  gaslessModes: Array<"signature" | "cdpSmartWallet">;
+};
+
+type ReviewedMethodPolicyFile = {
+  version: number;
+  methods: Record<string, ReviewedMethodPolicy>;
+};
+
+const reviewedMethodPolicyPath = path.resolve("reviewed", "reviewed-method-policy.json");
 
 function signatureFor(entry: AbiInput): string {
   const inputs = (entry.inputs ?? []).map((input) => input.type).join(",");
@@ -60,28 +63,19 @@ function isRead(entry: AbiInput): boolean {
   return entry.type === "function" && (entry.stateMutability === "view" || entry.stateMutability === "pure");
 }
 
-function isLiveRequired(name: string): boolean {
-  return LIVE_REQUIRED_PATTERNS.some((pattern) => pattern.test(name));
-}
-
-function cacheTtlSeconds(entry: AbiInput, liveRequired: boolean): number | null {
-  if (!isRead(entry)) {
-    return null;
+function cacheTtlSeconds(cacheClass: ReviewedMethodPolicy["cacheClass"]): number | null {
+  switch (cacheClass) {
+    case "none":
+      return null;
+    case "short":
+      return 5;
+    case "queryJoin":
+      return 30;
+    case "static":
+      return 600;
+    case "assetMetadata":
+      return 3600;
   }
-  if (liveRequired) {
-    return null;
-  }
-  const name = entry.name ?? "";
-  if (/getListing|getLicense|getProposal|getOperation|getStake|getRewards/i.test(name)) {
-    return 30;
-  }
-  if (/name|symbol|decimals|getSelectors|getRole|getMinDelay|getVotingConfig/i.test(name)) {
-    return 600;
-  }
-  if (/getGeographicData|getVoiceClassifications|getBasicAcousticFeatures/i.test(name)) {
-    return 3600;
-  }
-  return 5;
 }
 
 async function main(): Promise<void> {
@@ -89,10 +83,12 @@ async function main(): Promise<void> {
   const subsystemsDir = path.join(generatedAbiDir, "subsystems");
   const facetFiles = (await readdir(facetsDir)).filter((name) => name.endsWith(".json")).sort();
   const subsystemFiles = (await readdir(subsystemsDir)).filter((name) => name.endsWith(".json")).sort();
+  const reviewedMethodPolicy = await readJson<ReviewedMethodPolicyFile>(reviewedMethodPolicyPath);
 
   const facets: FacetManifest[] = [];
   let totalFunctions = 0;
   let totalEvents = 0;
+  const policyProblems: string[] = [];
 
   for (const fileName of facetFiles) {
     const abi = await readJson<AbiInput[]>(path.join(facetsDir, fileName));
@@ -111,17 +107,28 @@ async function main(): Promise<void> {
 
     const functions = functionEntries
       .map<ManifestFunction>((entry) => {
-        const liveRequired = isLiveRequired(entry.name ?? "");
-        const category = isRead(entry) ? "read" : "write";
         const signature = signatureFor(entry);
+        const wrapperKey = (functionNameCounts.get(entry.name ?? "") ?? 0) > 1 ? signature : (entry.name ?? "");
+        const policyKey = `${facetName}.${wrapperKey}`;
+        const reviewedPolicy = reviewedMethodPolicy.methods[policyKey];
+        if (!reviewedPolicy) {
+          policyProblems.push(`missing reviewed method policy for ${policyKey}`);
+        }
+        const abiCategory = isRead(entry) ? "read" : "write";
+        if (reviewedPolicy && reviewedPolicy.category !== abiCategory) {
+          policyProblems.push(`category mismatch for ${policyKey}: abi=${abiCategory} reviewed=${reviewedPolicy.category}`);
+        }
         return {
           name: entry.name ?? "",
           signature,
-          wrapperKey: (functionNameCounts.get(entry.name ?? "") ?? 0) > 1 ? signature : (entry.name ?? ""),
+          wrapperKey,
           mutability: entry.stateMutability ?? "nonpayable",
-          category,
-          liveRequired,
-          cacheTtlSeconds: cacheTtlSeconds(entry, liveRequired),
+          category: reviewedPolicy?.category ?? abiCategory,
+          liveRequired: reviewedPolicy?.liveRequired ?? false,
+          cacheClass: reviewedPolicy?.cacheClass ?? "none",
+          executionSources: reviewedPolicy?.executionSources ?? ["live"],
+          gaslessModes: reviewedPolicy?.gaslessModes ?? [],
+          cacheTtlSeconds: cacheTtlSeconds(reviewedPolicy?.cacheClass ?? "none"),
         };
       });
     const events = eventEntries
@@ -158,6 +165,19 @@ async function main(): Promise<void> {
       abiPath: `generated/abis/subsystems/${fileName}`,
     })),
   };
+
+  const reviewedMethodKeys = new Set(Object.keys(reviewedMethodPolicy.methods));
+  const manifestMethodKeys = new Set(
+    facets.flatMap((facet) => facet.functions.map((method) => `${facet.facetName}.${method.wrapperKey}`)),
+  );
+  for (const reviewedKey of reviewedMethodKeys) {
+    if (!manifestMethodKeys.has(reviewedKey)) {
+      policyProblems.push(`stale reviewed method policy entry ${reviewedKey}`);
+    }
+  }
+  if (policyProblems.length > 0) {
+    throw new Error(policyProblems.join("\n"));
+  }
 
   await writeJson(path.join(generatedManifestDir, "contract-manifest.json"), manifest);
   console.log(`generated manifest with ${totalFunctions} functions and ${totalEvents} events`);

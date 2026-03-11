@@ -1,0 +1,24 @@
+import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../shared/validation.js";
+import { whisperblockEventDefinitions, whisperblockMethodDefinitions } from "./mapping.js";
+
+export const encryptorRoleRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "encryptorRole")!);
+export const generateAndSetEncryptionKeyRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "generateAndSetEncryptionKey")!);
+export const getAuditTrailRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "getAuditTrail")!);
+export const getSelectorsRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!);
+export const grantAccessRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "grantAccess")!);
+export const ownerRoleRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "ownerRole")!);
+export const registerVoiceFingerprintRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "registerVoiceFingerprint")!);
+export const revokeAccessRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "revokeAccess")!);
+export const setAuditEnabledRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "setAuditEnabled")!);
+export const setOffchainEntropyRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "setOffchainEntropy")!);
+export const setTrustedOracleRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "setTrustedOracle")!);
+export const updateSystemParametersRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "updateSystemParameters")!);
+export const verifyVoiceAuthenticityRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "verifyVoiceAuthenticity")!);
+export const voiceOperatorRoleRequestSchemas = buildMethodRequestSchemas(whisperblockMethodDefinitions.find((definition) => definition.operationId === "voiceOperatorRole")!);
+export const accessGrantedEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "accessGrantedEventQuery")!);
+export const accessRevokedEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "accessRevokedEventQuery")!);
+export const auditEventEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "auditEventEventQuery")!);
+export const keyRotatedEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "keyRotatedEventQuery")!);
+export const offchainKeyGeneratedEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "offchainKeyGeneratedEventQuery")!);
+export const securityParametersUpdatedEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "securityParametersUpdatedEventQuery")!);
+export const voiceFingerprintUpdatedEventQueryRequestSchema = buildEventRequestSchema(whisperblockEventDefinitions.find((definition) => definition.operationId === "voiceFingerprintUpdatedEventQuery")!);

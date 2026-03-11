@@ -3,25 +3,29 @@ import { LocalCache } from "./runtime/cache.js";
 import { ProviderRouter, type ProviderRouterOptions } from "./runtime/provider-router.js";
 import { createFacetWrappers } from "./generated/createFacetWrappers.js";
 import { subsystemRegistry } from "./generated/subsystems.js";
-import type { RpcTransport } from "./transports/json-rpc.js";
-import type { SignerFactory } from "./types.js";
+import type { ExecutionSource, SignerFactory } from "./types.js";
 
 export type UspeaksClientOptions = {
-  providerRouterOptions: ProviderRouterOptions;
+  providerRouterOptions?: ProviderRouterOptions;
+  providerRouter?: ProviderRouter;
   addresses: FacetAddressBook;
-  transport?: RpcTransport;
+  cache?: LocalCache;
+  executionSource?: ExecutionSource;
   signerFactory?: SignerFactory;
 };
 
 export function createUspeaksClient(options: UspeaksClientOptions) {
-  const providerRouter = new ProviderRouter(options.providerRouterOptions);
-  const cache = new LocalCache();
+  if (!options.providerRouter && !options.providerRouterOptions) {
+    throw new Error("createUspeaksClient requires providerRouter or providerRouterOptions");
+  }
+  const providerRouter = options.providerRouter ?? new ProviderRouter(options.providerRouterOptions!);
+  const cache = options.cache ?? new LocalCache();
   const addressBook = new AddressBook(options.addresses);
   const context = {
     addressBook,
     providerRouter,
     cache,
-    transport: options.transport,
+    executionSource: options.executionSource,
     signerFactory: options.signerFactory,
   };
 
@@ -33,4 +37,3 @@ export function createUspeaksClient(options: UspeaksClientOptions) {
     subsystems: subsystemRegistry,
   };
 }
-

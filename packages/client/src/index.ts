@@ -1,8 +1,11 @@
 export { createUspeaksClient } from "./client.js";
 export { readConfigFromEnv } from "./runtime/config.js";
 export { getMethodMetadata } from "./runtime/method-policy.js";
+export { getAbiMethodDefinition, getAbiEventDefinition, getAllAbiMethodDefinitions, getAllAbiEventDefinitions } from "./runtime/abi-registry.js";
 export { ProviderRouter } from "./runtime/provider-router.js";
 export { AddressBook } from "./runtime/address-book.js";
-export { JsonRpcHttpTransport } from "./transports/json-rpc.js";
+export { LocalCache } from "./runtime/cache.js";
+export { decodeParamsFromWire, decodeResultFromWire, serializeParamsToWire, serializeResultToWire, validateWireParams } from "./runtime/abi-codec.js";
+export { invokeRead, invokeWrite, queryEvent, decodeLog } from "./runtime/invoke.js";
 export * from "./types.js";
 export * from "./generated/index.js";

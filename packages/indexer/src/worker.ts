@@ -5,6 +5,8 @@ import { ProviderRouter, readConfigFromEnv } from "../../client/src/index.js";
 import { buildEventRegistry, decodeEvent } from "./events.js";
 import { IndexerDatabase } from "./db.js";
 import { projectEvent } from "./projections/index.js";
+import { rebuildCurrentRows } from "./projections/common.js";
+import { projectionTables } from "./projections/tables.js";
 
 const envSchema = z.object({
   SUPABASE_DB_URL: z.string().min(1),
@@ -82,6 +84,24 @@ export class EventIndexer {
       `,
       [this.config.chainId, fromBlock.toString()],
     );
+    await this.db.withTransaction(async (client) => {
+      for (const table of projectionTables) {
+        await client.query(
+          `
+            UPDATE ${table}
+            SET canonical_status = 'orphaned',
+                is_orphaned = TRUE,
+                is_current = FALSE,
+                updated_at = timezone('utc', now())
+            WHERE chain_id = $1
+              AND last_updated_block >= $2
+              AND canonical_status != 'orphaned'
+          `,
+          [this.config.chainId, fromBlock.toString()],
+        );
+        await rebuildCurrentRows(client, table);
+      }
+    });
   }
 
   private async detectReorg(checkpoint: { cursorBlock: bigint; cursorBlockHash: string | null }): Promise<boolean> {
@@ -171,6 +191,7 @@ export class EventIndexer {
       }
       await this.db.withTransaction(async (client) => {
         await projectEvent({
+          chainId: this.config.chainId,
           client,
           rawEventId,
           txHash: log.transactionHash,

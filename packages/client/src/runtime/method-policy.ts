@@ -1,37 +1,9 @@
-import contractManifest from "../../../../generated/manifests/contract-manifest.json";
+import { getAllAbiMethodDefinitions, getAbiMethodDefinition, type AbiMethodDefinition } from "./abi-registry.js";
 
-export type MethodMetadata = {
-  facetName: string;
-  name: string;
-  signature: string;
-  wrapperKey: string;
-  category: "read" | "write";
-  liveRequired: boolean;
-  cacheTtlSeconds: number | null;
-};
+export type MethodMetadata = AbiMethodDefinition;
 
-const methodMetadata = new Map<string, MethodMetadata>();
-const typedContractManifest = contractManifest as unknown as {
-  facets: Array<{
-    facetName: string;
-    functions: Array<Omit<MethodMetadata, "facetName">>;
-  }>;
-};
-
-for (const facet of typedContractManifest.facets) {
-  for (const method of facet.functions) {
-    methodMetadata.set(`${facet.facetName}.${method.wrapperKey}`, {
-      facetName: facet.facetName,
-      name: method.name,
-      signature: method.signature,
-      wrapperKey: method.wrapperKey,
-      category: method.category,
-      liveRequired: method.liveRequired,
-      cacheTtlSeconds: method.cacheTtlSeconds,
-    });
-  }
-}
+const methodMetadata = new Map<string, MethodMetadata>(Object.entries(getAllAbiMethodDefinitions()));
 
 export function getMethodMetadata(method: string): MethodMetadata | null {
-  return methodMetadata.get(method) ?? null;
+  return methodMetadata.get(method) ?? getAbiMethodDefinition(method);
 }

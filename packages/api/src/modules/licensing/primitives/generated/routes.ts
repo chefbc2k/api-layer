@@ -1,0 +1,52 @@
+import { Router } from "express";
+
+import type { ApiExecutionContext } from "../../../../shared/execution-context.js";
+import { registerRoute } from "../../../../shared/route-factory.js";
+import { createLicensingPrimitiveController } from "./controller.js";
+import { licensingEventDefinitions, licensingMethodDefinitions } from "./mapping.js";
+
+export function createLicensingPrimitiveRouter(context: ApiExecutionContext): Router {
+  const router = Router();
+  const controller = createLicensingPrimitiveController(context);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicense")!, controller["createLicense"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseFromTemplate")!, controller["createLicenseFromTemplate"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseWithMarketplace")!, controller["createLicenseWithMarketplace"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createTemplate")!, controller["createTemplate"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!, controller["facetFunctionSelectors"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getCreatorTemplates")!, controller["getCreatorTemplates"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getLicense")!, controller["getLicense"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getLicensees")!, controller["getLicensees"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getLicenseHistory")!, controller["getLicenseHistory"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getLicenseTerms")!, controller["getLicenseTerms"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getPendingRevenue")!, controller["getPendingRevenue"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!, controller["getSelectors"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getTemplate")!, controller["getTemplate"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getUsageCount")!, controller["getUsageCount"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "issueLicense")!, controller["issueLicense"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "isTemplateActive")!, controller["isTemplateActive"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "isUsageRefUsed")!, controller["isUsageRefUsed"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "recordLicensedUsage")!, controller["recordLicensedUsage"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "recordUsage")!, controller["recordUsage"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "revokeLicense")!, controller["revokeLicense"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "setTemplateStatus")!, controller["setTemplateStatus"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "transferLicense")!, controller["transferLicense"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "updateLicenseTerms")!, controller["updateLicenseTerms"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "updateTemplate")!, controller["updateTemplate"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "validateLicense")!, controller["validateLicense"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "withdrawLicenseRevenue")!, controller["withdrawLicenseRevenue"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "debugEventQuery")!, controller["debugEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseBatchGrantedEventQuery")!, controller["licenseBatchGrantedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery")!, controller["licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery")!, controller["licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseCreatedEventQuery")!, controller["licenseCreatedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseEndedEventQuery")!, controller["licenseEndedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseRenewedEventQuery")!, controller["licenseRenewedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseRevokedEventQuery")!, controller["licenseRevokedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseTermsUpdatedEventQuery")!, controller["licenseTermsUpdatedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseTransferredEventQuery")!, controller["licenseTransferredEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "licenseUsedEventQuery")!, controller["licenseUsedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "voiceAssetUsedEventQuery")!, controller["voiceAssetUsedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "voiceLicenseTemplateTemplateUpdatedEventQuery")!, controller["voiceLicenseTemplateTemplateUpdatedEventQuery"]);
+  registerRoute(router, licensingEventDefinitions.find((definition) => definition.operationId === "voiceLicenseTemplateUpdatedEventQuery")!, controller["voiceLicenseTemplateUpdatedEventQuery"]);
+  return router;
+}
