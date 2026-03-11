@@ -176,13 +176,27 @@ function classifyRateLimit(definition: Pick<HttpMethodDefinition, "rateLimitKind
   return definition.rateLimitKind === "read" ? "read" : "write";
 }
 
+function redactRpcUrl(rpcUrl: string | undefined): string | undefined {
+  if (!rpcUrl) {
+    return undefined;
+  }
+  try {
+    const url = new URL(rpcUrl);
+    // Only expose the origin (scheme + host + optional port), stripping path/query/fragment
+    return url.origin;
+  } catch {
+    // If it's not a valid URL, avoid echoing potentially sensitive data back
+    return undefined;
+  }
+}
+
 function alchemySummary(context: ApiExecutionContext): Record<string, unknown> {
   return {
     enabled: context.config.alchemyDiagnosticsEnabled,
     simulationEnabled: context.config.alchemySimulationEnabled,
     simulationEnforced: context.config.alchemySimulationEnforced,
     endpointDetected: context.config.alchemyEndpointDetected,
-    rpcUrl: context.config.alchemyRpcUrl,
+    rpcUrl: redactRpcUrl(context.config.alchemyRpcUrl),
     available: Boolean(context.alchemy),
   };
 }

@@ -22,7 +22,7 @@ pnpm run build
 
 ## Environment
 
-The API runtime reads the repo [`.env`](/Users/chef/Public/api-layer/.env) directly. The deployed proof path is bound to the values already verified there:
+The API runtime reads the repo [`.env`](./.env) directly, if present. In environments where a `.env` file is not used (for example, CI), provide the same values via standard environment variables. The deployed proof path is bound to the values already verified there:
 
 - `DIAMOND_ADDRESS`
 - `RPC_URL`
@@ -34,6 +34,7 @@ The API runtime reads the repo [`.env`](/Users/chef/Public/api-layer/.env) direc
 - `ORACLE_WALLET_PRIVATE_KEY`
 - `API_LAYER_KEYS_JSON`
 - `API_LAYER_SIGNER_MAP_JSON`
+- `API_LAYER_EXPOSE_DIAGNOSTICS` — set to `true` to include internal diagnostic details in HTTP error responses (off by default)
 
 For Base Sepolia proof runs, use the repo `.env` instead of hand-pointing the test harness:
 

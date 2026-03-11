@@ -9,7 +9,7 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoEnvPath = path.resolve(currentDir, "../../../../.env");
 let cachedRepoEnv: NodeJS.ProcessEnv | null = null;
 
-export type ConfigValueSource = ".env" | "missing";
+export type ConfigValueSource = ".env" | "env" | "missing";
 
 export type RuntimeConfigSources = {
   envPath: string;
@@ -45,6 +45,7 @@ const configSchema = z.object({
   alchemySimulationBlock: z.enum(["latest", "pending"]).default("pending"),
   alchemyTraceTimeout: z.string().default("5s"),
   alchemyEndpointDetected: z.coerce.boolean().default(false),
+  exposeDiagnostics: z.coerce.boolean().default(false),
 });
 
 export type ApiLayerConfig = z.infer<typeof configSchema>;
@@ -61,6 +62,10 @@ export function loadRepoEnv(): NodeJS.ProcessEnv {
   return cachedRepoEnv;
 }
 
+function mergedEnv(): NodeJS.ProcessEnv {
+  return { ...loadRepoEnv(), ...process.env };
+}
+
 function resolveValue(repoEnv: NodeJS.ProcessEnv, ...keys: string[]): string | undefined {
   for (const key of keys) {
     if (repoEnv[key] !== undefined) {
@@ -70,32 +75,36 @@ function resolveValue(repoEnv: NodeJS.ProcessEnv, ...keys: string[]): string | u
   return undefined;
 }
 
-function resolveSource(repoEnv: NodeJS.ProcessEnv, ...keys: string[]): { value?: string; source: ConfigValueSource } {
+function resolveSource(...keys: string[]): { value?: string; source: ConfigValueSource } {
+  const repoEnvOnly = loadRepoEnv();
   for (const key of keys) {
-    if (repoEnv[key] !== undefined) {
-      return { value: repoEnv[key], source: ".env" };
+    if (process.env[key] !== undefined) {
+      return { value: process.env[key], source: "env" };
+    }
+    if (repoEnvOnly[key] !== undefined) {
+      return { value: repoEnvOnly[key], source: ".env" };
     }
   }
   return { source: "missing" };
 }
 
-export function readRuntimeConfigSources(env: NodeJS.ProcessEnv = loadRepoEnv()): RuntimeConfigSources {
+export function readRuntimeConfigSources(env: NodeJS.ProcessEnv = mergedEnv()): RuntimeConfigSources {
   return {
     envPath: repoEnvPath,
     values: {
-      RPC_URL: resolveSource(env, "RPC_URL", "CBDP_RPC_URL"),
-      ALCHEMY_RPC_URL: resolveSource(env, "ALCHEMY_RPC_URL"),
-      ALCHEMY_API_KEY: resolveSource(env, "ALCHEMY_API_KEY"),
-      CHAIN_ID: resolveSource(env, "CHAIN_ID"),
-      NETWORK: resolveSource(env, "NETWORK"),
-      DIAMOND_ADDRESS: resolveSource(env, "DIAMOND_ADDRESS"),
-      PRIVATE_KEY: resolveSource(env, "PRIVATE_KEY"),
-      ORACLE_WALLET_PRIVATE_KEY: resolveSource(env, "ORACLE_WALLET_PRIVATE_KEY"),
+      RPC_URL: resolveSource("RPC_URL", "CBDP_RPC_URL"),
+      ALCHEMY_RPC_URL: resolveSource("ALCHEMY_RPC_URL"),
+      ALCHEMY_API_KEY: resolveSource("ALCHEMY_API_KEY"),
+      CHAIN_ID: resolveSource("CHAIN_ID"),
+      NETWORK: resolveSource("NETWORK"),
+      DIAMOND_ADDRESS: resolveSource("DIAMOND_ADDRESS"),
+      PRIVATE_KEY: resolveSource("PRIVATE_KEY"),
+      ORACLE_WALLET_PRIVATE_KEY: resolveSource("ORACLE_WALLET_PRIVATE_KEY"),
     },
   };
 }
 
-export function readConfigFromEnv(env: NodeJS.ProcessEnv = loadRepoEnv()): ApiLayerConfig {
+export function readConfigFromEnv(env: NodeJS.ProcessEnv = mergedEnv()): ApiLayerConfig {
   const cbdpRpcUrl =
     resolveValue(env, "RPC_URL", "CBDP_RPC_URL");
   const alchemyRpcUrl =
@@ -124,5 +133,6 @@ export function readConfigFromEnv(env: NodeJS.ProcessEnv = loadRepoEnv()): ApiLa
     alchemySimulationBlock: resolveValue(env, "API_LAYER_ALCHEMY_SIMULATION_BLOCK") ?? "pending",
     alchemyTraceTimeout: resolveValue(env, "API_LAYER_ALCHEMY_TRACE_TIMEOUT") ?? "5s",
     alchemyEndpointDetected,
+    exposeDiagnostics: resolveValue(env, "API_LAYER_EXPOSE_DIAGNOSTICS") ?? false,
   });
 }
