@@ -10,7 +10,8 @@ import { createDatasetAndListForSaleSchema, runCreateDatasetAndListForSaleWorkfl
 import { onboardRightsHolderSchema, runOnboardRightsHolderWorkflow } from "./onboard-rights-holder.js";
 import { registerWhisperBlockSchema, runRegisterWhisperBlockWorkflow } from "./register-whisper-block.js";
 import { stakeAndDelegateSchema, runStakeAndDelegateWorkflow } from "./stake-and-delegate.js";
-import { runSubmitProposalAndVoteWorkflow, submitProposalAndVoteSchema } from "./submit-proposal-and-vote.js";
+import { runSubmitProposalWorkflow, submitProposalWorkflowSchema } from "./submit-proposal.js";
+import { runVoteOnProposalWorkflow, voteOnProposalWorkflowSchema } from "./vote-on-proposal.js";
 
 function createWorkflowHandler<T extends z.ZodTypeAny>(
   context: ApiExecutionContext,
@@ -40,6 +41,7 @@ export function createWorkflowRouter(context: ApiExecutionContext): Router {
   router.post("/v1/workflows/create-dataset-and-list-for-sale", createWorkflowHandler(context, createDatasetAndListForSaleSchema, (auth, walletAddress, body) => runCreateDatasetAndListForSaleWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/onboard-rights-holder", createWorkflowHandler(context, onboardRightsHolderSchema, (auth, walletAddress, body) => runOnboardRightsHolderWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/stake-and-delegate", createWorkflowHandler(context, stakeAndDelegateSchema, (auth, walletAddress, body) => runStakeAndDelegateWorkflow(context, auth, walletAddress, body)));
-  router.post("/v1/workflows/submit-proposal-and-vote", createWorkflowHandler(context, submitProposalAndVoteSchema, (auth, walletAddress, body) => runSubmitProposalAndVoteWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/submit-proposal", createWorkflowHandler(context, submitProposalWorkflowSchema, (auth, walletAddress, body) => runSubmitProposalWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/vote-on-proposal", createWorkflowHandler(context, voteOnProposalWorkflowSchema, (auth, walletAddress, body) => runVoteOnProposalWorkflow(context, auth, walletAddress, body)));
   return router;
 }

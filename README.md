@@ -39,10 +39,38 @@ For Base Sepolia proof runs, use the repo `.env` instead of hand-pointing the te
 
 ```bash
 pnpm run baseline:show
+pnpm run setup:base-sepolia
 pnpm run test:contract:base-sepolia
 ```
 
 Those commands read the repo `.env`, verify the configured chain id from the live RPC, and fail loudly if the repo config is incomplete.
+
+## Base Sepolia Semantics
+
+Licensing is split into two lifecycles:
+
+- Template lifecycle: `createTemplate -> updateTemplate/setTemplateStatus -> createLicenseFromTemplate`
+  This derives voice-specific terms and does not create a caller-scoped active license.
+- Active license lifecycle: `issueLicense` or `createLicense`
+  This creates the caller-scoped license that powers `get-license-terms`, `record-licensed-usage`, and `transfer-license`.
+
+Caller-scoped licensing reads and actions must use the licensee actor, not a generic read/admin actor.
+
+Governance workflows are also split by live chain timing:
+
+- `POST /v1/workflows/submit-proposal`
+- `POST /v1/workflows/vote-on-proposal`
+
+The API no longer treats proposal submission and voting as a single happy-path workflow because the live Base Sepolia governance baseline enforces a non-zero voting delay.
+
+`pnpm run setup:base-sepolia` writes a best-effort fixture report to [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). That setup pack uses the repo `.env` signers to inspect and prepare:
+
+- buyer funding and USDC allowance
+- licensee/transferee actors
+- aged marketplace listing fixtures
+- proposer role and voting-power state
+
+It reports which fixtures are actually ready, which are partial, and which still require upstream contract state or additional testnet funding.
 
 ## Scenario Adapter
 

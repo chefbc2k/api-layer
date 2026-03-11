@@ -137,6 +137,43 @@ function serializeScalarToWire(param: AbiParameter, value: unknown): unknown {
   return value;
 }
 
+function tupleToNamedObject(param: AbiParameter, value: unknown): unknown {
+  const components = param.components ?? [];
+  if (Array.isArray(value)) {
+    return Object.fromEntries(
+      components.map((component, index) => [
+        component.name && component.name.length > 0 ? component.name : String(index),
+        normalizeTupleOutputs(component, value[index]),
+      ]),
+    );
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return Object.fromEntries(
+      components.map((component, index) => {
+        const key = component.name && component.name.length > 0 ? component.name : String(index);
+        return [key, normalizeTupleOutputs(component, record[key] ?? record[String(index)])];
+      }),
+    );
+  }
+  return value;
+}
+
+function normalizeTupleOutputs(param: AbiParameter, value: unknown): unknown {
+  const { baseType, lengths } = parseArrayType(param.type);
+  if (lengths.length > 0) {
+    if (!Array.isArray(value)) {
+      return value;
+    }
+    const childType = `${baseType}${lengths.slice(1).map((length) => `[${length == null ? "" : length}]`).join("")}`;
+    return value.map((entry) => normalizeTupleOutputs({ ...param, type: childType }, entry));
+  }
+  if (param.type === "tuple") {
+    return tupleToNamedObject(param, value);
+  }
+  return value;
+}
+
 export function serializeToWire(param: AbiParameter, value: unknown): unknown {
   const { baseType, lengths } = parseArrayType(param.type);
   if (lengths.length === 0) {
@@ -224,12 +261,9 @@ export function serializeResultToWire(
     const output = definition.outputs[0];
     let serialized = serializeToWire(output, result);
     if (output.type === "tuple" && definition.outputShape?.kind === "object" && Array.isArray(serialized)) {
-      serialized = Object.fromEntries(
-        (output.components ?? []).map((component, index) => [
-          component.name && component.name.length > 0 ? component.name : String(index),
-          serialized[index],
-        ]),
-      );
+      serialized = tupleToNamedObject(output, serialized);
+    } else if (output.type === "tuple" && definition.outputShape?.kind === "object") {
+      serialized = normalizeTupleOutputs(output, serialized);
     }
     const validation = buildWireSchema(definition.outputs[0]).safeParse(serialized);
     if (!validation.success) {

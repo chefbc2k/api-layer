@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import type { AbiParameter, EventRequestSchema, HttpEventDefinition, HttpMethodDefinition, RequestSchemas } from "./route-types.js";
 
+const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
 function parseArrayType(type: string): { baseType: string; lengths: Array<number | null> } {
   const lengths: Array<number | null> = [];
   let current = type;
@@ -35,7 +37,14 @@ function buildWireScalarSchema(param: AbiParameter): z.ZodTypeAny {
   }
   if (param.type === "tuple") {
     const componentSchemas = Object.fromEntries(
-      (param.components ?? []).map((component, index) => [component.name && component.name.length > 0 ? component.name : String(index), buildWireSchema(component)]),
+      (param.components ?? []).map((component, index) => {
+        const key = component.name && component.name.length > 0 ? component.name : String(index);
+        let schema = buildWireSchema(component);
+        if (component.name === "licenseHash" && component.type === "bytes32") {
+          schema = schema.optional().default(ZERO_HASH);
+        }
+        return [key, schema];
+      }),
     );
     return z.record(z.string(), z.unknown()).and(z.object(componentSchemas));
   }

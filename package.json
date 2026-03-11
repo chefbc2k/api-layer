@@ -21,6 +21,7 @@
     "test": "vitest run",
     "baseline:show": "tsx scripts/show-validated-baseline.ts",
     "baseline:verify": "tsx scripts/verify-validated-baseline.ts",
+    "setup:base-sepolia": "tsx scripts/base-sepolia-operator-setup.ts",
     "test:contract:base-sepolia": "tsx scripts/run-base-sepolia-contract-proof.ts",
     "debug:tx": "tsx scripts/debug-tx.ts",
     "debug:simulate": "tsx scripts/debug-simulate.ts",

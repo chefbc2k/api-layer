@@ -34,7 +34,10 @@ function isRetryableError(error: unknown): boolean {
   return (
     message.includes("timeout") ||
     message.includes("429") ||
+    message.includes("rate limit") ||
     message.includes("too many requests") ||
+    message.includes("compute units per second") ||
+    message.includes("throughput limit") ||
     message.includes("5xx") ||
     message.includes("bad gateway") ||
     message.includes("service unavailable")
