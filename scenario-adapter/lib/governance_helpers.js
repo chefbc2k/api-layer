@@ -14,6 +14,13 @@ const ONE_DAY = 24 * 60 * 60;
 const ONE_DAY_BLOCKS = 5760n;
 const TIMESTAMP_BUFFER = 5 * 60;
 
+async function assertLocalGovernanceChain(provider, label) {
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error(`${label} requires local block/time controls; Base Sepolia parity is blocked until the scenario is rewritten without anvil/evm helpers`);
+  }
+}
+
 function walletAt(provider, index) {
   return new ethers.NonceManager(
     ethers.HDNodeWallet.fromPhrase(MNEMONIC, undefined, `m/44'/60'/0'/0/${index}`).connect(provider)
@@ -22,6 +29,7 @@ function walletAt(provider, index) {
 
 async function mineBlocks(provider, count) {
   if (count <= 0) return;
+  await assertLocalGovernanceChain(provider, "governance_helpers.mineBlocks");
   try {
     await provider.send("anvil_mine", [`0x${count.toString(16)}`]);
   } catch {
@@ -56,6 +64,7 @@ async function ensureVotingPower(votingPower, account, amount, label) {
 
 async function bootstrapActors(rpcUrl, diamondAddress) {
   const provider = createProvider(rpcUrl);
+  await assertLocalGovernanceChain(provider, "governance_helpers.bootstrapActors");
   const founder = walletAt(provider, 0);
   const voter1 = walletAt(provider, 1);
   const voter2 = walletAt(provider, 2);
@@ -143,6 +152,7 @@ async function passStandardProposal(proposal, proposalId, founder, voter1, voter
 async function queueAndExecute(provider, proposal, timelock, proposalId, founder) {
   await sendAndWait(proposal.connect(founder).prQueue(proposalId, { gasLimit: 5_000_000 }), "proposal:queue");
   const delay = await timelock.getMinDelay();
+  await assertLocalGovernanceChain(provider, "governance_helpers.queueAndExecute");
   await provider.send("evm_increaseTime", [Number(delay) + TIMESTAMP_BUFFER + 1]);
   await provider.send("evm_mine", []);
   await sendAndWait(proposal.connect(founder).prExecute(proposalId, { gasLimit: 8_000_000 }), "proposal:execute");

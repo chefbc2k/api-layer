@@ -12,7 +12,7 @@ const {
   expectRevert
 } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const MNEMONIC = process.env.MNEMONIC || "test test test test test test test test test test test junk";
 
 function walletAt(provider, index) {
@@ -51,6 +51,10 @@ function ownershipBootstrapSelectors() {
 }
 
 async function bootstrapUpgradeDiamond(provider) {
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_upgrade_init_boundaries is local-only on 31337; it bootstraps a fresh local diamond and cannot prove Base Sepolia parity yet");
+  }
   const founder = walletAt(provider, 0);
   const outsider = walletAt(provider, 9);
   const founderAddress = await founder.getAddress();

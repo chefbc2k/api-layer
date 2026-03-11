@@ -16,7 +16,7 @@ const {
   expectedFeeBreakdown
 } = require("./lib/marketplace_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 
 function assertEq(actual, expected, label) {
   if (actual !== expected) {
@@ -25,6 +25,11 @@ function assertEq(actual, expected, label) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
+  const network = await new ethers.JsonRpcProvider(RPC_URL).getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_marketplace_staking_buyback is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten to use the deployed baseline instead of deployMarketplaceStack/advanceTime");
+  }
   const feeConfig = {
     platformFee: 700n,
     referralFee: 0n,

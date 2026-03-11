@@ -8,7 +8,7 @@ require("dotenv").config();
 const { scenarioFundingWei } = require("./lib/runtime_config");
 const { uniqueScenarioText, ensureEthBalance } = require("./lib/validation_safety");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DIAMOND_ADDRESS = process.env.DIAMOND_ADDRESS;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const ONE_DAY = 24n * 60n * 60n;
@@ -75,6 +75,7 @@ function buildTemplate(creator, now, name) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
   if (!DIAMOND_ADDRESS) throw new Error("DIAMOND_ADDRESS is required");
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 

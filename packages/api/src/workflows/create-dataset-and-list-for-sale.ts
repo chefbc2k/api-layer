@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 import { createDatasetsPrimitiveService } from "../modules/datasets/primitives/generated/index.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
+import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
 export const createDatasetAndListForSaleSchema = z.object({
   title: z.string(),
@@ -28,6 +29,7 @@ export async function runCreateDatasetAndListForSaleWorkflow(
     walletAddress,
     wireParams: [body.title, body.assetIds, body.licenseTemplateId, body.metadataURI, body.royaltyBps],
   });
+  await waitForWorkflowWriteReceipt(context, dataset.body, "createDatasetAndListForSale.dataset");
   const datasetId = dataset.body && typeof dataset.body === "object" && "result" in (dataset.body as Record<string, unknown>)
     ? ((dataset.body as Record<string, unknown>).result as string | null)
     : null;

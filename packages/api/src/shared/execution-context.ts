@@ -1,10 +1,19 @@
-import { Interface, Wallet, type ContractRunner, type Provider } from "ethers";
-import { Alchemy, Network } from "alchemy-sdk";
+import { Interface, VoidSigner, Wallet, type Provider, type TransactionRequest } from "ethers";
 
 import { AddressBook, LocalCache, ProviderRouter, facetRegistry, readConfigFromEnv } from "../../../client/src/index.js";
+import type { ApiLayerConfig } from "../../../client/src/runtime/config.js";
 import { decodeParamsFromWire, serializeResultToWire, validateWireParams } from "../../../client/src/runtime/abi-codec.js";
 import { invokeRead, queryEvent } from "../../../client/src/runtime/invoke.js";
 import type { AuthContext } from "./auth.js";
+import {
+  buildDebugTransaction,
+  createAlchemyClient,
+  decodeReceiptLogs,
+  readActorStates,
+  simulateTransactionWithAlchemy,
+  traceCallWithAlchemy,
+  traceTransactionWithAlchemy,
+} from "./alchemy-diagnostics.js";
 import { loadApiKeys } from "./auth.js";
 import { submitSmartWalletCall } from "./cdp-smart-wallet.js";
 import { RateLimiter } from "./rate-limit.js";
@@ -12,13 +21,32 @@ import type { ApiRequestOptions, EventInvocationRequest, HttpEventDefinition, Ht
 import { TxRequestStore } from "./tx-store.js";
 
 export type ApiExecutionContext = {
+  config: ApiLayerConfig;
   apiKeys: Record<string, AuthContext>;
   providerRouter: ProviderRouter;
   addressBook: AddressBook;
   cache: LocalCache;
   txStore: TxRequestStore;
   rateLimiter: RateLimiter;
-  alchemy: Alchemy | null;
+  alchemy: ReturnType<typeof createAlchemyClient>;
+  signerRunners: Map<string, Wallet>;
+  signerQueues: Map<string, Promise<void>>;
+  signerNonces: Map<string, number>;
+};
+
+class ExecutionDiagnosticError extends Error {
+  constructor(message: string, readonly diagnostics: unknown) {
+    super(message);
+  }
+}
+
+type PreparedWriteInvocation = {
+  provider: Provider;
+  providerName: string;
+  signer: Wallet;
+  signerAddress: string;
+  queueKey: string;
+  responseTemplate: TransactionRequest;
 };
 
 function signerMap(): Record<string, string> {
@@ -29,7 +57,12 @@ function signerMap(): Record<string, string> {
   return JSON.parse(raw) as Record<string, string>;
 }
 
-function signerFactoryFor(auth: AuthContext): ((provider: Provider) => Promise<ContractRunner>) | undefined {
+async function signerRunnerFor(
+  context: ApiExecutionContext,
+  auth: AuthContext,
+  provider: Provider,
+  providerName: string,
+): Promise<Wallet | undefined> {
   if (!auth.signerId) {
     return undefined;
   }
@@ -37,7 +70,67 @@ function signerFactoryFor(auth: AuthContext): ((provider: Provider) => Promise<C
   if (!privateKey) {
     throw new Error(`missing private key for signer ${auth.signerId}`);
   }
-  return async (provider: Provider) => new Wallet(privateKey, provider);
+  const cacheKey = `${auth.signerId}:${providerName}`;
+  const cached = context.signerRunners.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  const signer = new Wallet(privateKey, provider);
+  context.signerRunners.set(cacheKey, signer);
+  return signer;
+}
+
+function signerQueueKey(auth: AuthContext, providerName: string): string {
+  return `${auth.signerId ?? "anonymous"}:${providerName}`;
+}
+
+function isNonceExpiredError(error: unknown): boolean {
+  const message = String((error as { message?: string })?.message ?? error).toLowerCase();
+  return message.includes("nonce too low") || message.includes("nonce has already been used") || message.includes("nonce expired");
+}
+
+async function withSignerQueue<T>(context: ApiExecutionContext, key: string, work: () => Promise<T>): Promise<T> {
+  const previous = context.signerQueues.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const current = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  context.signerQueues.set(key, current);
+  await previous.catch(() => undefined);
+  try {
+    return await work();
+  } finally {
+    release();
+    if (context.signerQueues.get(key) === current) {
+      context.signerQueues.delete(key);
+    }
+  }
+}
+
+function formatCanonicalAbiType(type: string, components?: Array<{ type: string; components?: Array<{ type: string; components?: Array<unknown> }> }>): string {
+  const arraySuffixMatch = type.match(/(\[[^\]]*\])+$/u);
+  const arraySuffix = arraySuffixMatch?.[0] ?? "";
+  if (!type.startsWith("tuple")) {
+    return type;
+  }
+  const tupleComponents = (components ?? []).map((component) => formatCanonicalAbiType(component.type, component.components as Array<{ type: string; components?: Array<{ type: string; components?: Array<unknown> }> }> | undefined));
+  return `(${tupleComponents.join(",")})${arraySuffix}`;
+}
+
+function canonicalMethodSignature(definition: HttpMethodDefinition): string {
+  return `${definition.methodName}(${definition.inputs.map((input) => formatCanonicalAbiType(input.type, input.components as Array<{ type: string; components?: Array<{ type: string; components?: Array<unknown> }> }> | undefined)).join(",")})`;
+}
+
+function resolveContractMethod(contract: import("ethers").Contract, definition: HttpMethodDefinition) {
+  try {
+    return contract.getFunction(definition.signature);
+  } catch (error) {
+    const message = String((error as { message?: string })?.message ?? error);
+    if (!message.includes("invalid function fragment")) {
+      throw error;
+    }
+    return contract.getFunction(canonicalMethodSignature(definition));
+  }
 }
 
 function parseGaslessAllowlist(): Set<string> {
@@ -83,45 +176,211 @@ function classifyRateLimit(definition: Pick<HttpMethodDefinition, "rateLimitKind
   return definition.rateLimitKind === "read" ? "read" : "write";
 }
 
-async function staticCallPreview(context: ApiExecutionContext, definition: HttpMethodDefinition, runtimeArgs: unknown[]): Promise<unknown> {
+function alchemySummary(context: ApiExecutionContext): Record<string, unknown> {
+  return {
+    enabled: context.config.alchemyDiagnosticsEnabled,
+    simulationEnabled: context.config.alchemySimulationEnabled,
+    simulationEnforced: context.config.alchemySimulationEnforced,
+    endpointDetected: context.config.alchemyEndpointDetected,
+    rpcUrl: context.config.alchemyRpcUrl,
+    available: Boolean(context.alchemy),
+  };
+}
+
+async function prepareWriteInvocationOnProvider(
+  context: ApiExecutionContext,
+  definition: HttpMethodDefinition,
+  runtimeArgs: unknown[],
+  auth: AuthContext,
+  provider: Provider,
+  providerName: string,
+): Promise<PreparedWriteInvocation> {
+  const signer = await signerRunnerFor(context, auth, provider, providerName);
+  if (!signer) {
+    throw new Error(`write method ${definition.key} requires signerFactory`);
+  }
+  const contract = new (await import("ethers")).Contract(
+    context.addressBook.resolveFacetAddress(definition.facetName),
+    facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
+    signer,
+  );
+  const method = resolveContractMethod(contract, definition);
+  const signerAddress = await signer.getAddress();
+  const responseTemplate = await method.populateTransaction(...runtimeArgs);
+  return {
+    provider,
+    providerName,
+    signer,
+    signerAddress,
+    queueKey: signerQueueKey(auth, providerName),
+    responseTemplate,
+  };
+}
+
+async function prepareWriteInvocation(
+  context: ApiExecutionContext,
+  definition: HttpMethodDefinition,
+  runtimeArgs: unknown[],
+  auth: AuthContext,
+): Promise<PreparedWriteInvocation> {
+  return context.providerRouter.withProvider(
+    "write",
+    `${definition.key}.prepare`,
+    (provider: Provider, providerName) => prepareWriteInvocationOnProvider(context, definition, runtimeArgs, auth, provider, providerName),
+  );
+}
+
+async function buildFailureDiagnostics(
+  context: ApiExecutionContext,
+  definition: HttpMethodDefinition,
+  prepared: PreparedWriteInvocation | null,
+  error: unknown,
+  walletAddress?: string,
+): Promise<Record<string, unknown>> {
+  const actorAddresses = [
+    prepared?.signerAddress,
+    walletAddress,
+  ].filter((value): value is string => Boolean(value));
+  const trace = context.config.alchemyDiagnosticsEnabled && prepared
+    ? await traceCallWithAlchemy(
+        context.alchemy,
+        buildDebugTransaction(prepared.responseTemplate, prepared.signerAddress),
+        context.config.alchemySimulationBlock,
+      )
+    : { status: "disabled" as const };
+  const actors = prepared
+    ? await readActorStates(prepared.provider, actorAddresses)
+    : [];
+  return {
+    route: {
+      httpMethod: definition.httpMethod,
+      path: definition.path,
+      operationId: definition.operationId,
+      contractFunction: `${definition.facetName}.${definition.signature}`,
+    },
+    alchemy: alchemySummary(context),
+    signer: prepared?.signerAddress ?? walletAddress ?? null,
+    provider: prepared?.providerName ?? null,
+    actors,
+    trace,
+    cause: String((error as { message?: string })?.message ?? error),
+  };
+}
+
+async function staticCallPreview(
+  context: ApiExecutionContext,
+  definition: HttpMethodDefinition,
+  runtimeArgs: unknown[],
+  auth: AuthContext,
+  walletAddress?: string,
+): Promise<unknown> {
   if (definition.outputs.length === 0) {
     return null;
   }
-  return context.providerRouter.withProvider("read", `${definition.key}.preview`, async (provider: Provider) => {
+  return context.providerRouter.withProvider("read", `${definition.key}.preview`, async (provider: Provider, providerName) => {
+    const runner = await signerRunnerFor(context, auth, provider, providerName) ?? (walletAddress ? new VoidSigner(walletAddress, provider) : provider);
     const contract = new (await import("ethers")).Contract(
       context.addressBook.resolveFacetAddress(definition.facetName),
       facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
-      provider,
+      runner,
     );
-    const method = contract.getFunction(definition.signature);
+    const method = resolveContractMethod(contract, definition);
     return method.staticCall(...runtimeArgs);
   });
 }
 
 async function sendTransaction(context: ApiExecutionContext, definition: HttpMethodDefinition, runtimeArgs: unknown[], auth: AuthContext): Promise<{ hash?: string; response: unknown }> {
-  const signerFactory = signerFactoryFor(auth);
-  if (!signerFactory) {
+  if (!auth.signerId) {
     throw new Error(`write method ${definition.key} requires signerFactory`);
   }
-  return context.providerRouter.withProvider("write", definition.key, async (provider: Provider) => {
-    const signer = await signerFactory(provider);
-    const contract = new (await import("ethers")).Contract(
-      context.addressBook.resolveFacetAddress(definition.facetName),
-      facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
-      signer,
-    );
-    const method = contract.getFunction(definition.signature);
-    const response = await method(...runtimeArgs);
-    const hash = response && typeof response === "object" && "hash" in (response as Record<string, unknown>)
-      ? String((response as Record<string, unknown>).hash)
-      : undefined;
-    return { hash, response };
+  return context.providerRouter.withProvider("write", definition.key, async (provider: Provider, providerName) => {
+    const prepared = await prepareWriteInvocationOnProvider(context, definition, runtimeArgs, auth, provider, providerName);
+    return withSignerQueue(context, prepared.queueKey, async () => {
+      const debugTransaction = buildDebugTransaction(prepared.responseTemplate, prepared.signerAddress);
+      let simulationDiagnostics: unknown;
+
+      if (context.config.alchemySimulationEnabled) {
+        simulationDiagnostics = await simulateTransactionWithAlchemy(
+          context.alchemy,
+          debugTransaction,
+          context.config.alchemySimulationBlock,
+        );
+        const simulationError =
+          simulationDiagnostics &&
+          typeof simulationDiagnostics === "object" &&
+          "topLevelCall" in simulationDiagnostics &&
+          simulationDiagnostics.topLevelCall &&
+          typeof simulationDiagnostics.topLevelCall === "object" &&
+          "error" in simulationDiagnostics.topLevelCall
+            ? String((simulationDiagnostics.topLevelCall as { error?: string }).error ?? "")
+            : "";
+        if (context.config.alchemySimulationEnforced && simulationError) {
+          throw new ExecutionDiagnosticError(
+            simulationError,
+            {
+              route: {
+                httpMethod: definition.httpMethod,
+                path: definition.path,
+                operationId: definition.operationId,
+                contractFunction: `${definition.facetName}.${definition.signature}`,
+              },
+              alchemy: alchemySummary(context),
+              simulation: simulationDiagnostics,
+              signer: prepared.signerAddress,
+              provider: prepared.providerName,
+            },
+          );
+        }
+      }
+
+      const submit = async (forcedNonce?: number) => {
+        const chainNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+        const nextNonce = forcedNonce ?? Math.max(chainNonce, context.signerNonces.get(prepared.queueKey) ?? 0);
+        const response = await prepared.signer.sendTransaction({
+          ...prepared.responseTemplate,
+          nonce: nextNonce,
+        });
+        context.signerNonces.set(prepared.queueKey, nextNonce + 1);
+        const hash = response && typeof response === "object" && "hash" in (response as Record<string, unknown>)
+          ? String((response as Record<string, unknown>).hash)
+          : undefined;
+        return { hash, response };
+      };
+
+      try {
+        return await submit();
+      } catch (error) {
+        if (!isNonceExpiredError(error)) {
+          throw new ExecutionDiagnosticError(
+            String((error as { message?: string })?.message ?? error),
+            {
+              ...(await buildFailureDiagnostics(context, definition, prepared, error)),
+              ...(simulationDiagnostics === undefined ? {} : { simulation: simulationDiagnostics }),
+            },
+          );
+        }
+        const refreshedNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+        context.signerNonces.set(prepared.queueKey, refreshedNonce);
+        try {
+          return await submit(refreshedNonce);
+        } catch (retryError) {
+          throw new ExecutionDiagnosticError(
+            String((retryError as { message?: string })?.message ?? retryError),
+            {
+              ...(await buildFailureDiagnostics(context, definition, prepared, retryError)),
+              ...(simulationDiagnostics === undefined ? {} : { simulation: simulationDiagnostics }),
+            },
+          );
+        }
+      }
+    });
   });
 }
 
 export function createApiExecutionContext(): ApiExecutionContext {
   const config = readConfigFromEnv();
   return {
+    config,
     apiKeys: loadApiKeys(),
     providerRouter: new ProviderRouter({
       chainId: config.chainId,
@@ -137,12 +396,10 @@ export function createApiExecutionContext(): ApiExecutionContext {
     cache: new LocalCache(),
     txStore: new TxRequestStore(),
     rateLimiter: new RateLimiter(),
-    alchemy: process.env.ALCHEMY_API_KEY
-      ? new Alchemy({
-          apiKey: process.env.ALCHEMY_API_KEY,
-          network: (process.env.API_LAYER_CHAIN_ID ?? process.env.CHAIN_ID ?? "84532") === "8453" ? Network.BASE_MAINNET : Network.BASE_SEPOLIA,
-        })
-      : null,
+    signerRunners: new Map(),
+    signerQueues: new Map(),
+    signerNonces: new Map(),
+    alchemy: createAlchemyClient(config),
   };
 }
 
@@ -192,7 +449,22 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
     };
   }
 
-  const preview = await staticCallPreview(context, definition, runtimeArgs);
+  if (request.api.gaslessMode === "none" && !request.auth.signerId) {
+    throw new Error(`write method ${definition.key} requires signerFactory`);
+  }
+
+  let preview: unknown;
+  try {
+    preview = await staticCallPreview(context, definition, runtimeArgs, request.auth, request.walletAddress);
+  } catch (error) {
+    const prepared = request.auth.signerId
+      ? await prepareWriteInvocation(context, definition, runtimeArgs, request.auth).catch(() => null)
+      : null;
+    throw new ExecutionDiagnosticError(
+      String((error as { message?: string })?.message ?? error),
+      await buildFailureDiagnostics(context, definition, prepared, error, request.walletAddress),
+    );
+  }
 
   if (request.api.gaslessMode === "cdpSmartWallet") {
     const allowlist = parseGaslessAllowlist();
@@ -286,8 +558,26 @@ export async function getTransactionRequest(context: ApiExecutionContext, reques
 export async function getTransactionStatus(context: ApiExecutionContext, txHash: string): Promise<unknown> {
   if (context.alchemy) {
     const receipt = await context.alchemy.core.getTransactionReceipt(txHash);
-    return toJsonValue({ source: "alchemy", receipt });
+    return toJsonValue({
+      source: "alchemy",
+      receipt,
+      diagnostics: {
+        alchemy: alchemySummary(context),
+        decodedLogs: receipt ? decodeReceiptLogs({ logs: receipt.logs }) : [],
+        trace: context.config.alchemyDiagnosticsEnabled
+          ? await traceTransactionWithAlchemy(context.alchemy, txHash, context.config.alchemyTraceTimeout)
+          : { status: "disabled" },
+      },
+    });
   }
   const receipt = await context.providerRouter.withProvider("read", "tx.status", (provider: Provider) => provider.getTransactionReceipt(txHash));
-  return toJsonValue({ source: "rpc", receipt });
+  return toJsonValue({
+    source: "rpc",
+    receipt,
+    diagnostics: {
+      alchemy: alchemySummary(context),
+      decodedLogs: receipt ? decodeReceiptLogs(receipt) : [],
+      trace: { status: "disabled" },
+    },
+  });
 }

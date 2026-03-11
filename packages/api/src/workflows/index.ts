@@ -24,7 +24,10 @@ function createWorkflowHandler<T extends z.ZodTypeAny>(
       response.status(202).json(await run(auth, request.header("x-wallet-address") ?? undefined, body));
     } catch (error) {
       const httpError = toHttpError(error);
-      response.status(httpError.statusCode).json({ error: httpError.message });
+      response.status(httpError.statusCode).json({
+        error: httpError.message,
+        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+      });
     }
   };
 }

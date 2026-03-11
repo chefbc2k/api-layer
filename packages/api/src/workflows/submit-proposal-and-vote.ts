@@ -9,8 +9,8 @@ export const submitProposalAndVoteSchema = z.object({
   targets: z.array(z.string().regex(/^0x[a-fA-F0-9]{40}$/u)),
   values: z.array(z.string().regex(/^\d+$/u)),
   calldatas: z.array(z.string().regex(/^0x[0-9a-fA-F]*$/u)),
-  proposalType: z.number().int().nonnegative(),
-  support: z.number().int().nonnegative(),
+  proposalType: z.string().regex(/^\d+$/u),
+  support: z.string().regex(/^\d+$/u),
   reason: z.string().default("workflow vote"),
 });
 

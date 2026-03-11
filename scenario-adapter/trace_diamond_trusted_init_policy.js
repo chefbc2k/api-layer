@@ -6,7 +6,7 @@ const { ethers } = require("ethers");
 const { loadArtifact, selectorsForAbi, sendAndWait, deploy } = require("./lib/reentrancy_real_helpers");
 const { expectRevert } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const FOUNDER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("FOUNDER_ROLE"));
 
 async function main() {

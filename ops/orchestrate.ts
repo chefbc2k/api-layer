@@ -55,11 +55,15 @@ async function main(): Promise<void> {
   } catch {
     console.warn("redis-server not available; skipped Redis startup");
   }
-  console.log("Start RPC and indexer in separate shells:");
-  console.log("  pnpm run dev:rpc");
+  console.log("Start API and indexer in separate shells:");
+  console.log("  pnpm run dev:api");
   console.log("  pnpm run dev:indexer");
-  console.log("Run API-mode scenarios:");
-  console.log("  pnpm run scenario:api");
+  console.log("Run API-mode scenarios with an explicit command:");
+  console.log("  API_LAYER_SCENARIO_COMMAND='node scenario-adapter/trace_access_bootstrap_invariants.js' pnpm run scenario:api");
+  console.log("Resolve the validated Base Sepolia baseline:");
+  console.log("  pnpm run baseline:show");
+  console.log("Run the contract-real HTTP proof suite on Base Sepolia:");
+  console.log("  pnpm run test:contract:base-sepolia");
 }
 
 main().catch((error) => {

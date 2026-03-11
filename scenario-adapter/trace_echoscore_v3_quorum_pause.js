@@ -13,7 +13,7 @@ const {
 const { resolveOracleContext } = require("./lib/echo_live_config");
 const { assertLiveMutationAllowed, uniqueScenarioBytes32, readContractAtReceiptBlock } = require("./lib/validation_safety");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DIAMOND_ADDRESS = process.env.DIAMOND_ADDRESS;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const TIMELOCK_ROLE = ethers.keccak256(ethers.toUtf8Bytes("TIMELOCK_ROLE"));

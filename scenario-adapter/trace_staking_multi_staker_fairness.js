@@ -13,7 +13,7 @@ const {
   transferAndApprove
 } = require("./lib/staking_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DIAMOND_ADDRESS = process.env.DIAMOND_ADDRESS;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
@@ -26,6 +26,10 @@ async function main() {
     diamondAddress: DIAMOND_ADDRESS,
     privateKey: PRIVATE_KEY
   });
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_staking_multi_staker_fairness is local-only on 31337; it uses evm_increaseTime/evm_mine and cannot prove Base Sepolia workflow parity yet");
+  }
 
   await ensurePlatformAdmin(access, founder, founderAddress);
 

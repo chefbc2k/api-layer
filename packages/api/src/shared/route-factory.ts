@@ -37,7 +37,10 @@ export function createMethodRequestHandler(
       response.status(result.statusCode).json(result.body);
     } catch (error) {
       const httpError = toHttpError(error);
-      response.status(httpError.statusCode).json({ error: httpError.message });
+      response.status(httpError.statusCode).json({
+        error: httpError.message,
+        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+      });
     }
   };
 }
@@ -61,7 +64,10 @@ export function createEventRequestHandler(
       response.status(result.statusCode).json(result.body);
     } catch (error) {
       const httpError = toHttpError(error);
-      response.status(httpError.statusCode).json({ error: httpError.message });
+      response.status(httpError.statusCode).json({
+        error: httpError.message,
+        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+      });
     }
   };
 }

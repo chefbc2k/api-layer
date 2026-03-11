@@ -12,10 +12,15 @@ const {
   deployBaseDiamondWithAccess
 } = require("./lib/reentrancy_real_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DAY = 24 * 60 * 60;
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
+  const network = await new ethers.JsonRpcProvider(RPC_URL).getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_marketplace_purchase_receiver_proof is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten to use the deployed baseline instead of deployBaseDiamondWithAccess/advanceTime");
+  }
   const { provider, founder, founderAddress, diamondAddress, diamondCut } = await deployBaseDiamondWithAccess(RPC_URL);
 
   const voiceAssetArtifact = loadArtifact("out/VoiceAssetFacet.sol/VoiceAssetFacet.json");

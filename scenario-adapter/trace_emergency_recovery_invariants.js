@@ -13,7 +13,7 @@ const {
   fundEth
 } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DIAMOND_ADDRESS = process.env.DIAMOND_ADDRESS;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
@@ -38,6 +38,10 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 
   const provider = createProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_emergency_recovery_invariants is local-only on 31337; it uses evm_increaseTime/evm_mine and cannot prove Base Sepolia parity yet");
+  }
   const founder = new ethers.NonceManager(new ethers.Wallet(PRIVATE_KEY, provider));
   const founderAddress = await founder.getAddress();
   const emergencyAdmin = plainRandomWallet(provider);

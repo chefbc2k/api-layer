@@ -5,7 +5,7 @@ const { bootstrapGovernance } = require("./bootstrap_local_governance");
 const { walletAt } = require("./lib/governance_helpers");
 const { sendAndWait } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const TOKEN_UNIT = 10n ** 10n;
 const TRANSFER_AMOUNT = 1_000n * TOKEN_UNIT;
 const YEAR = 365n * 24n * 60n * 60n;

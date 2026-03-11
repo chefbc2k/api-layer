@@ -9,7 +9,7 @@ const {
   sendAndWait
 } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DIAMOND_ADDRESS = process.env.DIAMOND_ADDRESS;
 const MNEMONIC = process.env.MNEMONIC || "test test test test test test test test test test test junk";
 
@@ -41,6 +41,10 @@ async function main() {
   if (!DIAMOND_ADDRESS) throw new Error("DIAMOND_ADDRESS is required");
 
   const provider = createProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_proposal_lifecycle requires local block/time controls; Base Sepolia parity is blocked until the scenario is rewritten without anvil/evm helpers");
+  }
   const founder = walletAt(provider, 0);
   const voter1 = walletAt(provider, 1);
   const voter2 = walletAt(provider, 2);

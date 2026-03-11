@@ -11,6 +11,7 @@ export const generatedAbiDir = path.join(generatedDir, "abis");
 export const generatedManifestDir = path.join(generatedDir, "manifests");
 export const localAbiSourceDir = path.join(rootDir, "abis");
 export const localScenarioSnapshotDir = path.join(rootDir, "scenario-adapter");
+export const localScenarioOverrideDir = path.join(rootDir, "scenario-adapter-overrides");
 
 export async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true });

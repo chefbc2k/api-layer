@@ -213,12 +213,24 @@ export function decodeParamsFromWire(definition: Pick<AbiMethodDefinition, "inpu
   return definition.inputs.map((input, index) => decodeFromWire(input, params[index]));
 }
 
-export function serializeResultToWire(definition: Pick<AbiMethodDefinition, "outputs" | "signature">, result: unknown): unknown {
+export function serializeResultToWire(
+  definition: Pick<AbiMethodDefinition, "outputs" | "signature"> & { outputShape?: { kind?: string } },
+  result: unknown,
+): unknown {
   if (definition.outputs.length === 0) {
     return null;
   }
   if (definition.outputs.length === 1) {
-    const serialized = serializeToWire(definition.outputs[0], result);
+    const output = definition.outputs[0];
+    let serialized = serializeToWire(output, result);
+    if (output.type === "tuple" && definition.outputShape?.kind === "object" && Array.isArray(serialized)) {
+      serialized = Object.fromEntries(
+        (output.components ?? []).map((component, index) => [
+          component.name && component.name.length > 0 ? component.name : String(index),
+          serialized[index],
+        ]),
+      );
+    }
     const validation = buildWireSchema(definition.outputs[0]).safeParse(serialized);
     if (!validation.success) {
       throw new Error(`invalid result for ${definition.signature}: ${validation.error.issues[0]?.message ?? "validation failed"}`);

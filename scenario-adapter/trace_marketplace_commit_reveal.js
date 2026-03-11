@@ -12,7 +12,7 @@ const {
   expectedFeeBreakdown
 } = require("./lib/marketplace_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 
 function assertEq(actual, expected, label) {
   if (actual !== expected) throw new Error(`${label}: expected ${expected.toString()} got ${actual.toString()}`);
@@ -35,6 +35,11 @@ async function mine(provider, count) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
+  const network = await new ethers.JsonRpcProvider(RPC_URL).getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_marketplace_commit_reveal is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten without evm_mine/advanceTime and deployMarketplaceStack");
+  }
   const feeConfig = {
     platformFee: 400n,
     referralFee: 0n,

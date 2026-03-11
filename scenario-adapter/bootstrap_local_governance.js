@@ -13,12 +13,24 @@ const {
   ensureRole
 } = require("./lib/reentrancy_real_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const EXECUTOR_ROLE = ethers.keccak256(ethers.toUtf8Bytes("EXECUTOR_ROLE"));
 const PROPOSER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("PROPOSER_ROLE"));
 const TOKEN_UNIT = 10n ** 10n;
 const ONE_DAY = 24 * 60 * 60;
 const ONE_DAY_BLOCKS = 5760n;
+
+async function assertLocalGovernanceChain(rpcUrl) {
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  try {
+    const network = await provider.getNetwork();
+    if (network.chainId !== 31337n) {
+      throw new Error("bootstrap_local_governance is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten to use the deployed baseline without local bootstrap");
+    }
+  } finally {
+    await provider.destroy();
+  }
+}
 
 function linkBytecode(artifact, libraries) {
   let bytecode = artifact.bytecode.object;
@@ -51,6 +63,8 @@ const DEFAULT_VOTING_POWER_INIT = Object.freeze({
 });
 
 async function bootstrapGovernance(rpcUrl = RPC_URL, options = {}) {
+  if (!rpcUrl) throw new Error("RPC_URL is required");
+  await assertLocalGovernanceChain(rpcUrl);
   const { provider, founder, founderAddress, diamondAddress, diamondCut, access } = await deployBaseDiamondWithAccess(rpcUrl);
 
   await ensureRole(access, founder, ROLE.TIMELOCK_ROLE, "TIMELOCK_ROLE");

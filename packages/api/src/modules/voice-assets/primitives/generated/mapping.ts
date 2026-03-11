@@ -239,9 +239,9 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
           "field": "voiceHash"
         },
         {
-          "name": "royaltyPercent",
+          "name": "royaltyRate",
           "source": "body",
-          "field": "royaltyPercent"
+          "field": "royaltyRate"
         }
       ]
     },

@@ -5,7 +5,7 @@ const { ethers } = require("ethers");
 const { bootstrapGovernance } = require("./bootstrap_local_governance");
 const { loadArtifact, expectRevert, sendAndWait } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const PROPOSAL_TYPE = {
   STANDARD: 0,
   EMERGENCY: 1,

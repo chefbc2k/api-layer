@@ -6,7 +6,7 @@ const { bootstrapGovernance } = require("./bootstrap_local_governance");
 const { walletAt } = require("./lib/governance_helpers");
 const { ROLE, sendAndWait, expectRevert } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const TOKEN_UNIT = 10n ** 10n;
 const BOARD_MULTIPLIER = 20_000n;
 const TRANSFER_AMOUNT = 1_000n * TOKEN_UNIT;
