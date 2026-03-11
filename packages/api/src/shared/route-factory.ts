@@ -19,9 +19,9 @@ export function createMethodRequestHandler(
   invoke: (request: import("./route-types.js").PrimitiveInvocationRequest) => Promise<import("./route-types.js").RouteResult>,
 ): RequestHandler {
   return async (request, response) => {
+    const apiExecutionContext = request.app.get("apiExecutionContext") as ApiExecutionContext;
     try {
-      const auth = authenticate((request.app.get("apiExecutionContext") as ApiExecutionContext).apiKeys, request.header("x-api-key") ?? undefined);
-      const apiExecutionContext = request.app.get("apiExecutionContext") as ApiExecutionContext;
+      const auth = authenticate(apiExecutionContext.apiKeys, request.header("x-api-key") ?? undefined);
       const api = apiOptionsFromRequest(request);
       const path = schemas.path.parse(request.params) as Record<string, unknown>;
       const query = schemas.query.parse(request.query) as Record<string, unknown>;
@@ -39,7 +39,7 @@ export function createMethodRequestHandler(
       const httpError = toHttpError(error);
       response.status(httpError.statusCode).json({
         error: httpError.message,
-        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+        ...(httpError.diagnostics !== undefined && apiExecutionContext.config.exposeDiagnostics ? { diagnostics: httpError.diagnostics } : {}),
       });
     }
   };
@@ -51,8 +51,8 @@ export function createEventRequestHandler(
   invoke: (request: import("./route-types.js").EventInvocationRequest) => Promise<import("./route-types.js").RouteResult>,
 ): RequestHandler {
   return async (request, response) => {
+    const apiExecutionContext = request.app.get("apiExecutionContext") as ApiExecutionContext;
     try {
-      const apiExecutionContext = request.app.get("apiExecutionContext") as ApiExecutionContext;
       const auth = authenticate(apiExecutionContext.apiKeys, request.header("x-api-key") ?? undefined);
       const body = schema.body.parse((request.body ?? {}) as Record<string, unknown>) as { fromBlock?: string; toBlock?: string | "latest" };
       await enforceRateLimit(apiExecutionContext, { rateLimitKind: "read" }, auth, { gaslessMode: "none", executionSource: "auto" }, undefined);
@@ -66,7 +66,7 @@ export function createEventRequestHandler(
       const httpError = toHttpError(error);
       response.status(httpError.statusCode).json({
         error: httpError.message,
-        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+        ...(httpError.diagnostics !== undefined && apiExecutionContext.config.exposeDiagnostics ? { diagnostics: httpError.diagnostics } : {}),
       });
     }
   };
