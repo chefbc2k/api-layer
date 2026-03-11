@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-10T22:45:26.418Z",
+  "generatedAt": "2026-03-11T02:41:46.994Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
@@ -8407,9 +8407,9 @@
             "field": "voiceHash"
           },
           {
-            "name": "royaltyPercent",
+            "name": "royaltyRate",
             "source": "body",
-            "field": "royaltyPercent"
+            "field": "royaltyRate"
           }
         ]
       },

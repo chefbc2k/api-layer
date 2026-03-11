@@ -439,7 +439,7 @@ function overrideVoiceAssetMethod(method: AbiMethodDefinition, entry: ApiSurface
         kind: "path+body",
         bindings: [
           { name: "voiceHash", source: "path", field: "voiceHash" },
-          { name: "royaltyPercent", source: "body", field: "royaltyPercent" },
+          { name: "royaltyRate", source: "body", field: "royaltyRate" },
         ],
       },
     },

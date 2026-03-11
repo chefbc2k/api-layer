@@ -68,8 +68,9 @@ function buildObjectSchema(definition: HttpMethodDefinition, source: "path" | "q
     return z.object({}).passthrough();
   }
   const shape = Object.fromEntries(
-    fields.map((binding, index) => {
-      const input = definition.inputs.find((candidate) => candidate.name === binding.name) ?? definition.inputs[index];
+    fields.map((binding) => {
+      const inputIndex = definition.inputShape.bindings.findIndex((candidate) => candidate === binding);
+      const input = definition.inputs.find((candidate) => candidate.name === binding.name) ?? definition.inputs[inputIndex];
       if (!input || source !== "body") {
         return [binding.field, z.unknown()];
       }

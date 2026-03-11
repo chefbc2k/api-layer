@@ -1,4 +1,4 @@
-import { Interface, Wallet, type ContractRunner, type Provider } from "ethers";
+import { Interface, VoidSigner, Wallet, type ContractRunner, type Provider } from "ethers";
 import { Alchemy, Network } from "alchemy-sdk";
 
 import { AddressBook, LocalCache, ProviderRouter, facetRegistry, readConfigFromEnv } from "../../../client/src/index.js";
@@ -19,6 +19,8 @@ export type ApiExecutionContext = {
   txStore: TxRequestStore;
   rateLimiter: RateLimiter;
   alchemy: Alchemy | null;
+  signerRunners: Map<string, Wallet>;
+  signerQueues: Map<string, Promise<void>>;
 };
 
 function signerMap(): Record<string, string> {
@@ -29,7 +31,12 @@ function signerMap(): Record<string, string> {
   return JSON.parse(raw) as Record<string, string>;
 }
 
-function signerFactoryFor(auth: AuthContext): ((provider: Provider) => Promise<ContractRunner>) | undefined {
+async function signerRunnerFor(
+  context: ApiExecutionContext,
+  auth: AuthContext,
+  provider: Provider,
+  providerName: string,
+): Promise<Wallet | undefined> {
   if (!auth.signerId) {
     return undefined;
   }
@@ -37,7 +44,62 @@ function signerFactoryFor(auth: AuthContext): ((provider: Provider) => Promise<C
   if (!privateKey) {
     throw new Error(`missing private key for signer ${auth.signerId}`);
   }
-  return async (provider: Provider) => new Wallet(privateKey, provider);
+  const cacheKey = `${auth.signerId}:${providerName}`;
+  const cached = context.signerRunners.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  const signer = new Wallet(privateKey, provider);
+  context.signerRunners.set(cacheKey, signer);
+  return signer;
+}
+
+function signerQueueKey(auth: AuthContext, providerName: string): string {
+  return `${auth.signerId ?? "anonymous"}:${providerName}`;
+}
+
+async function withSignerQueue<T>(context: ApiExecutionContext, key: string, work: () => Promise<T>): Promise<T> {
+  const previous = context.signerQueues.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const current = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  context.signerQueues.set(key, current);
+  await previous.catch(() => undefined);
+  try {
+    return await work();
+  } finally {
+    release();
+    if (context.signerQueues.get(key) === current) {
+      context.signerQueues.delete(key);
+    }
+  }
+}
+
+function formatCanonicalAbiType(type: string, components?: Array<{ type: string; components?: Array<{ type: string; components?: Array<unknown> }> }>): string {
+  const arraySuffixMatch = type.match(/(\[[^\]]*\])+$/u);
+  const arraySuffix = arraySuffixMatch?.[0] ?? "";
+  if (!type.startsWith("tuple")) {
+    return type;
+  }
+  const tupleComponents = (components ?? []).map((component) => formatCanonicalAbiType(component.type, component.components as Array<{ type: string; components?: Array<{ type: string; components?: Array<unknown> }> }> | undefined));
+  return `(${tupleComponents.join(",")})${arraySuffix}`;
+}
+
+function canonicalMethodSignature(definition: HttpMethodDefinition): string {
+  return `${definition.methodName}(${definition.inputs.map((input) => formatCanonicalAbiType(input.type, input.components as Array<{ type: string; components?: Array<{ type: string; components?: Array<unknown> }> }> | undefined)).join(",")})`;
+}
+
+function resolveContractMethod(contract: import("ethers").Contract, definition: HttpMethodDefinition) {
+  try {
+    return contract.getFunction(definition.signature);
+  } catch (error) {
+    const message = String((error as { message?: string })?.message ?? error);
+    if (!message.includes("invalid function fragment")) {
+      throw error;
+    }
+    return contract.getFunction(canonicalMethodSignature(definition));
+  }
 }
 
 function parseGaslessAllowlist(): Set<string> {
@@ -83,39 +145,54 @@ function classifyRateLimit(definition: Pick<HttpMethodDefinition, "rateLimitKind
   return definition.rateLimitKind === "read" ? "read" : "write";
 }
 
-async function staticCallPreview(context: ApiExecutionContext, definition: HttpMethodDefinition, runtimeArgs: unknown[]): Promise<unknown> {
+async function staticCallPreview(
+  context: ApiExecutionContext,
+  definition: HttpMethodDefinition,
+  runtimeArgs: unknown[],
+  auth: AuthContext,
+  walletAddress?: string,
+): Promise<unknown> {
   if (definition.outputs.length === 0) {
     return null;
   }
-  return context.providerRouter.withProvider("read", `${definition.key}.preview`, async (provider: Provider) => {
+  return context.providerRouter.withProvider("read", `${definition.key}.preview`, async (provider: Provider, providerName) => {
+    const runner = await signerRunnerFor(context, auth, provider, providerName) ?? (walletAddress ? new VoidSigner(walletAddress, provider) : provider);
     const contract = new (await import("ethers")).Contract(
       context.addressBook.resolveFacetAddress(definition.facetName),
       facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
-      provider,
+      runner,
     );
-    const method = contract.getFunction(definition.signature);
+    const method = resolveContractMethod(contract, definition);
     return method.staticCall(...runtimeArgs);
   });
 }
 
 async function sendTransaction(context: ApiExecutionContext, definition: HttpMethodDefinition, runtimeArgs: unknown[], auth: AuthContext): Promise<{ hash?: string; response: unknown }> {
-  const signerFactory = signerFactoryFor(auth);
-  if (!signerFactory) {
+  if (!auth.signerId) {
     throw new Error(`write method ${definition.key} requires signerFactory`);
   }
-  return context.providerRouter.withProvider("write", definition.key, async (provider: Provider) => {
-    const signer = await signerFactory(provider);
-    const contract = new (await import("ethers")).Contract(
-      context.addressBook.resolveFacetAddress(definition.facetName),
-      facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
-      signer,
-    );
-    const method = contract.getFunction(definition.signature);
-    const response = await method(...runtimeArgs);
-    const hash = response && typeof response === "object" && "hash" in (response as Record<string, unknown>)
-      ? String((response as Record<string, unknown>).hash)
-      : undefined;
-    return { hash, response };
+  return context.providerRouter.withProvider("write", definition.key, async (provider: Provider, providerName) => {
+    const signer = await signerRunnerFor(context, auth, provider, providerName);
+    if (!signer) {
+      throw new Error(`write method ${definition.key} requires signerFactory`);
+    }
+    return withSignerQueue(context, signerQueueKey(auth, providerName), async () => {
+      const contract = new (await import("ethers")).Contract(
+        context.addressBook.resolveFacetAddress(definition.facetName),
+        facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
+        signer,
+      );
+      const method = resolveContractMethod(contract, definition);
+      const responseTemplate = await method.populateTransaction(...runtimeArgs);
+      const response = await signer.sendTransaction({
+        ...responseTemplate,
+        nonce: await provider.getTransactionCount(await signer.getAddress(), "pending"),
+      });
+      const hash = response && typeof response === "object" && "hash" in (response as Record<string, unknown>)
+        ? String((response as Record<string, unknown>).hash)
+        : undefined;
+      return { hash, response };
+    });
   });
 }
 
@@ -137,6 +214,8 @@ export function createApiExecutionContext(): ApiExecutionContext {
     cache: new LocalCache(),
     txStore: new TxRequestStore(),
     rateLimiter: new RateLimiter(),
+    signerRunners: new Map(),
+    signerQueues: new Map(),
     alchemy: process.env.ALCHEMY_API_KEY
       ? new Alchemy({
           apiKey: process.env.ALCHEMY_API_KEY,
@@ -192,7 +271,11 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
     };
   }
 
-  const preview = await staticCallPreview(context, definition, runtimeArgs);
+  if (request.api.gaslessMode === "none" && !request.auth.signerId) {
+    throw new Error(`write method ${definition.key} requires signerFactory`);
+  }
+
+  const preview = await staticCallPreview(context, definition, runtimeArgs, request.auth, request.walletAddress);
 
   if (request.api.gaslessMode === "cdpSmartWallet") {
     const allowlist = parseGaslessAllowlist();
