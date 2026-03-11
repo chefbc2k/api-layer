@@ -11,7 +11,7 @@ const {
   advanceTime
 } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const TIMELOCK_ADDRESS = process.env.TIMELOCK_ADDRESS;
 const TARGET_ADDRESS = process.env.TARGET_ADDRESS;
 const MNEMONIC = process.env.MNEMONIC || "test test test test test test test test test test test junk";

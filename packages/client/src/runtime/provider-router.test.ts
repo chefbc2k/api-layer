@@ -6,8 +6,8 @@ describe("ProviderRouter", () => {
   it("falls back to the secondary provider on retryable errors", async () => {
     const router = new ProviderRouter({
       chainId: 84532,
-      cbdpRpcUrl: "http://127.0.0.1:8545",
-      alchemyRpcUrl: "http://127.0.0.1:8546",
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
       errorThreshold: 1,
       errorWindowMs: 60_000,
       recoveryCooldownMs: 60_000,
@@ -28,8 +28,8 @@ describe("ProviderRouter", () => {
   it("recovers the primary provider after cooldown when health probe succeeds", async () => {
     const router = new ProviderRouter({
       chainId: 84532,
-      cbdpRpcUrl: "http://127.0.0.1:8545",
-      alchemyRpcUrl: "http://127.0.0.1:8546",
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
       errorThreshold: 1,
       errorWindowMs: 60_000,
       recoveryCooldownMs: 0,

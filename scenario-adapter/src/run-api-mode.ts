@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(currentDir, "..");
 const registerPath = path.join(rootDir, "register.cjs");
-const localScenarioRoot = rootDir;
 
 function resolveContractsRoot(): string {
   const explicit = process.env.API_LAYER_PARENT_REPO_DIR;
@@ -15,8 +14,8 @@ function resolveContractsRoot(): string {
   }
 
   const candidates = [
-    path.resolve(rootDir, ".."),
-    path.resolve(rootDir, "..", "CONTRACTS"),
+    path.resolve(rootDir, "..", ".."),
+    path.resolve(rootDir, "..", "..", "CONTRACTS"),
   ];
 
   for (const candidate of candidates) {
@@ -30,9 +29,12 @@ function resolveContractsRoot(): string {
   );
 }
 
-const command =
-  process.env.API_LAYER_SCENARIO_COMMAND ??
-  `node ${path.join(localScenarioRoot, "run_anvil_happy_paths.js")}`;
+const command = process.env.API_LAYER_SCENARIO_COMMAND;
+if (!command) {
+  throw new Error(
+    "missing API_LAYER_SCENARIO_COMMAND; local Anvil defaults are disabled. Use pnpm run scenario:api:base-sepolia with an explicit scenario command.",
+  );
+}
 const [bin, ...args] = command.split(" ");
 
 const child = spawn(bin, args, {

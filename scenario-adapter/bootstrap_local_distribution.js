@@ -4,7 +4,7 @@
 require("dotenv").config();
 const { bootstrapDistribution } = require("./lib/distribution_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 
 async function main() {
   const { diamondAddress } = await bootstrapDistribution(RPC_URL);

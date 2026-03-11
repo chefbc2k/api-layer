@@ -36,7 +36,10 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
       response.json(await getTransactionRequest(apiExecutionContext, String(request.params.requestId)));
     } catch (error) {
       const httpError = toHttpError(error);
-      response.status(httpError.statusCode).json({ error: httpError.message });
+      response.status(httpError.statusCode).json({
+        error: httpError.message,
+        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+      });
     }
   });
 
@@ -45,7 +48,10 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
       response.json(await getTransactionStatus(apiExecutionContext, String(request.params.txHash)));
     } catch (error) {
       const httpError = toHttpError(error);
-      response.status(httpError.statusCode).json({ error: httpError.message });
+      response.status(httpError.statusCode).json({
+        error: httpError.message,
+        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+      });
     }
   });
 

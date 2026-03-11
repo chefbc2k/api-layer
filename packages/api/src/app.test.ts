@@ -26,9 +26,6 @@ describe("createApiServer", () => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "test-key": { label: "test", roles: ["service"], allowGasless: true },
     });
-    process.env.CBDP_RPC_URL = "http://127.0.0.1:8545";
-    process.env.ALCHEMY_RPC_URL = "http://127.0.0.1:8546";
-    process.env.API_LAYER_DIAMOND_ADDRESS = "0x0000000000000000000000000000000000000001";
 
     const server = createApiServer({ port: 0 }).listen();
     const address = server.address();
@@ -53,9 +50,6 @@ describe("createApiServer", () => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "test-key": { label: "test", roles: ["service"], allowGasless: true },
     });
-    process.env.CBDP_RPC_URL = "http://127.0.0.1:8545";
-    process.env.ALCHEMY_RPC_URL = "http://127.0.0.1:8546";
-    process.env.API_LAYER_DIAMOND_ADDRESS = "0x0000000000000000000000000000000000000001";
 
     const server = createApiServer({ port: 0 }).listen();
     const address = server.address();
@@ -74,9 +68,6 @@ describe("createApiServer", () => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "test-key": { label: "test", roles: ["service"], allowGasless: true },
     });
-    process.env.CBDP_RPC_URL = "http://127.0.0.1:8545";
-    process.env.ALCHEMY_RPC_URL = "http://127.0.0.1:8546";
-    process.env.API_LAYER_DIAMOND_ADDRESS = "0x0000000000000000000000000000000000000001";
 
     const server = createApiServer({ port: 0 }).listen();
     const address = server.address();

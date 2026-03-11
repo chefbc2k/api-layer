@@ -6,7 +6,7 @@ const { ethers } = require("ethers");
 const { bootstrapDistribution } = require("./lib/distribution_helpers");
 const { expectRevert, sendAndWait } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 
 async function main() {
   const { provider, rewards, user1, TOKEN_UNIT, hashLeaf, buildMerkle } = await bootstrapDistribution(RPC_URL);

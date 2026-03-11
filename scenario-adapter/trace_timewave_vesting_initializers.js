@@ -5,7 +5,7 @@ const { ethers } = require("ethers");
 require("dotenv").config();
 const { loadArtifact, sendAndWait, expectRevert } = require("./lib/vesting_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const DIAMOND_ADDRESS = process.env.DIAMOND_ADDRESS;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 

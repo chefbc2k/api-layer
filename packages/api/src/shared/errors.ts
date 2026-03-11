@@ -2,6 +2,7 @@ export class HttpError extends Error {
   constructor(
     readonly statusCode: number,
     message: string,
+    readonly diagnostics?: unknown,
   ) {
     super(message);
   }
@@ -12,14 +13,15 @@ export function toHttpError(error: unknown): HttpError {
     return error;
   }
   const message = String((error as { message?: string })?.message ?? error);
+  const diagnostics = (error as { diagnostics?: unknown })?.diagnostics;
   if (message.includes("missing x-api-key") || message.includes("invalid x-api-key")) {
-    return new HttpError(401, message);
+    return new HttpError(401, message, diagnostics);
   }
   if (message.includes("API key not permitted")) {
-    return new HttpError(403, message);
+    return new HttpError(403, message, diagnostics);
   }
   if (message.includes("rate limit exceeded")) {
-    return new HttpError(429, message);
+    return new HttpError(429, message, diagnostics);
   }
   if (
     message.includes("unsupported") ||
@@ -29,7 +31,7 @@ export function toHttpError(error: unknown): HttpError {
     message.includes("requires live chain execution") ||
     message.includes("indexed execution is not implemented")
   ) {
-    return new HttpError(400, message);
+    return new HttpError(400, message, diagnostics);
   }
-  return new HttpError(500, message);
+  return new HttpError(500, message, diagnostics);
 }

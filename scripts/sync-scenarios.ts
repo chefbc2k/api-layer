@@ -1,7 +1,7 @@
 import path from "node:path";
 import { rm } from "node:fs/promises";
 
-import { copyTree, ensureDir, localScenarioSnapshotDir, resolveScenarioSourceDir } from "./utils.js";
+import { copyTree, ensureDir, fileExists, localScenarioOverrideDir, localScenarioSnapshotDir, resolveScenarioSourceDir } from "./utils.js";
 
 async function main(): Promise<void> {
   const sourceDir = await resolveScenarioSourceDir();
@@ -16,6 +16,9 @@ async function main(): Promise<void> {
   }
   await ensureDir(targetDir);
   await copyTree(sourceDir, targetDir);
+  if (await fileExists(localScenarioOverrideDir)) {
+    await copyTree(localScenarioOverrideDir, targetDir);
+  }
   console.log(`synced scenarios from ${sourceDir} -> ${targetDir}`);
 }
 

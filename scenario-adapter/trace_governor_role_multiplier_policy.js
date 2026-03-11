@@ -5,7 +5,7 @@ require("dotenv").config();
 const { ethers } = require("ethers");
 const { bootstrapGovernance } = require("./bootstrap_local_governance");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 
 const ROLE = {
   FOUNDER_ROLE: ethers.keccak256(ethers.toUtf8Bytes("FOUNDER_ROLE")),

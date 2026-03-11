@@ -15,7 +15,7 @@ const {
   ensureRole
 } = require("./lib/marketplace_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 
 async function expectRevert(promiseFactory, label) {
   let err;

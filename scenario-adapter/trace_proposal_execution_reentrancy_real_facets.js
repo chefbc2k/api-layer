@@ -13,7 +13,7 @@ const {
   ensureRole
 } = require("./lib/reentrancy_real_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const UNAUTHORIZED_REENTRANT_SELECTOR = ethers.id("UnauthorizedReentrantCall()").slice(0, 10);
 const MIN_DELAY = 172800;
 const EXECUTOR_ROLE = ethers.keccak256(ethers.toUtf8Bytes("EXECUTOR_ROLE"));

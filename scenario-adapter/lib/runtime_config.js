@@ -2,10 +2,6 @@
 
 const { ethers } = require("ethers");
 
-function rpcUrl() {
-  return (process.env.RPC_URL || "").trim().toLowerCase();
-}
-
 function networkName() {
   return (process.env.NETWORK || "").replace(/"/g, "").trim().toLowerCase();
 }
@@ -18,9 +14,7 @@ function chainId() {
 function isLiveNetwork() {
   const name = networkName();
   const id = chainId();
-  const rpc = rpcUrl();
-  const isLoopbackRpc = rpc.includes("127.0.0.1") || rpc.includes("localhost");
-  return name !== "local" && id !== 31337 && !isLoopbackRpc;
+  return name !== "local" && id !== 31337;
 }
 
 function scenarioFundingEth(localAmount = "1", liveAmount = "0.00005") {

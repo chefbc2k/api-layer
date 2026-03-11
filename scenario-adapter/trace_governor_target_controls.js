@@ -13,7 +13,7 @@ const {
   walletAt
 } = require("./lib/governance_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const GOVERNANCE_STORAGE_SLOT = ethers.keccak256(ethers.toUtf8Bytes("speak.governance.storage"));
 const SLOT_TRUSTED_TARGETS = 13n;
 const SLOT_TARGET_GAS_LIMITS = 14n;

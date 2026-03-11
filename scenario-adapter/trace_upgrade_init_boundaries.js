@@ -12,7 +12,7 @@ const {
   expectRevert
 } = require("./lib/access_helpers");
 
-const RPC_URL = process.env.RPC_URL || "http://127.0.0.1:8545";
+const RPC_URL = process.env.RPC_URL;
 const MNEMONIC = process.env.MNEMONIC || "test test test test test test test test test test test junk";
 
 function walletAt(provider, index) {
