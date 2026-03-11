@@ -24,6 +24,7 @@ export type AlchemyLogMatch = {
 export type AlchemySimulationReport = {
   status: "available" | "disabled" | "unavailable" | "failed";
   blockTag?: "latest" | "pending";
+  fallbackBlockTag?: "latest";
   callCount?: number;
   logCount?: number;
   topLevelCall?: {
@@ -126,6 +127,20 @@ function toJsonValue(value: unknown): unknown {
     );
   }
   return value;
+}
+
+function errorMessage(error: unknown): string {
+  return String((error as { message?: string })?.message ?? error);
+}
+
+function isPendingSimulationUnsupported(message: string): boolean {
+  return message.includes("tracing on top of pending is not supported");
+}
+
+function isAlchemyTraceUnavailable(message: string): boolean {
+  return message.includes("debug_traceCall is not available on the Free tier")
+    || message.includes("debug_traceTransaction is not available on the Free tier")
+    || message.includes("upgrade to Pay As You Go, or Enterprise for access");
 }
 
 function describeTrace(trace: DebugCallTrace | undefined) {
@@ -268,10 +283,42 @@ export async function simulateTransactionWithAlchemy(
       decodedLogs: simulation.logs.map((log) => decodeLog(log)),
     };
   } catch (error) {
+    const message = errorMessage(error);
+    if (blockTag === "pending" && isPendingSimulationUnsupported(message)) {
+      try {
+        const fallbackSimulation = await alchemy.transact.simulateExecution(transaction, "latest");
+        const topLevelCall = fallbackSimulation.calls[0];
+        return {
+          status: "available",
+          blockTag,
+          fallbackBlockTag: "latest",
+          callCount: fallbackSimulation.calls.length,
+          logCount: fallbackSimulation.logs.length,
+          topLevelCall: topLevelCall
+            ? {
+                from: topLevelCall.from,
+                to: topLevelCall.to,
+                gasUsed: topLevelCall.gasUsed,
+                type: topLevelCall.type,
+                revertReason: topLevelCall.error,
+                error: topLevelCall.error,
+              }
+            : undefined,
+          decodedLogs: fallbackSimulation.logs.map((log) => decodeLog(log)),
+        };
+      } catch (fallbackError) {
+        return {
+          status: "failed",
+          blockTag,
+          fallbackBlockTag: "latest",
+          error: errorMessage(fallbackError),
+        };
+      }
+    }
     return {
       status: "failed",
       blockTag,
-      error: String((error as { message?: string })?.message ?? error),
+      error: message,
     };
   }
 }
@@ -301,10 +348,18 @@ export async function traceTransactionWithAlchemy(
       callTree: flattenTrace(trace),
     };
   } catch (error) {
+    const message = errorMessage(error);
+    if (isAlchemyTraceUnavailable(message)) {
+      return {
+        status: "unavailable",
+        txHash,
+        error: message,
+      };
+    }
     return {
       status: "failed",
       txHash,
-      error: String((error as { message?: string })?.message ?? error),
+      error: message,
     };
   }
 }
@@ -332,9 +387,16 @@ export async function traceCallWithAlchemy(
       callTree: flattenTrace(trace),
     };
   } catch (error) {
+    const message = errorMessage(error);
+    if (isAlchemyTraceUnavailable(message)) {
+      return {
+        status: "unavailable",
+        error: message,
+      };
+    }
     return {
       status: "failed",
-      error: String((error as { message?: string })?.message ?? error),
+      error: message,
     };
   }
 }

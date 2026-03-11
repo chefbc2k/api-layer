@@ -429,13 +429,30 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
   }
 
   const runtimeArgs = decodeParamsFromWire(definition, request.wireParams);
-  if (definition.category === "read") {
+  if (definition.mutability === "view" || definition.mutability === "pure" || definition.rateLimitKind === "read") {
     const result = await invokeRead(
       {
         addressBook: context.addressBook,
         providerRouter: context.providerRouter,
         cache: context.cache,
         executionSource: request.api.executionSource,
+        signerFactory: request.auth.signerId || request.walletAddress
+          ? async (provider) => {
+              const signer = await signerRunnerFor(
+                context,
+                request.auth,
+                provider,
+                "read",
+              );
+              if (signer) {
+                return signer;
+              }
+              if (request.walletAddress) {
+                return new VoidSigner(request.walletAddress, provider);
+              }
+              return provider;
+            }
+          : undefined,
       },
       definition.facetName as keyof typeof facetRegistry,
       definition.wrapperKey,

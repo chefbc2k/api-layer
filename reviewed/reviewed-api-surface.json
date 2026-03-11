@@ -10205,7 +10205,7 @@
       "operationId": "getLicenseTerms",
       "rateLimitKind": "read",
       "supportsGasless": false,
-      "notes": "VoiceLicenseFacet.getLicenseTerms"
+      "notes": "VoiceLicenseFacet.getLicenseTerms; caller-scoped read that resolves the active license for _msgSender()"
     },
     "VoiceLicenseFacet.getPendingRevenue": {
       "facetName": "VoiceLicenseFacet",
@@ -10303,7 +10303,7 @@
       "operationId": "issueLicense",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "VoiceLicenseFacet.issueLicense"
+      "notes": "VoiceLicenseFacet.issueLicense; starts the active license lifecycle for a licensee using template or derived voice-specific terms"
     },
     "VoiceLicenseFacet.isUsageRefUsed": {
       "facetName": "VoiceLicenseFacet",
@@ -10473,7 +10473,7 @@
       "operationId": "transferLicense",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "VoiceLicenseFacet.transferLicense"
+      "notes": "VoiceLicenseFacet.transferLicense; caller-scoped action that must be executed by the active licensee using the stored license templateHash"
     },
     "VoiceLicenseFacet.updateLicenseTerms": {
       "facetName": "VoiceLicenseFacet",
@@ -10611,7 +10611,7 @@
       "operationId": "createLicenseFromTemplate",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "VoiceLicenseTemplateFacet.createLicenseFromTemplate"
+      "notes": "VoiceLicenseTemplateFacet.createLicenseFromTemplate; derives and stores voice-specific template terms only, it does not issue an active license"
     },
     "VoiceLicenseTemplateFacet.createTemplate": {
       "facetName": "VoiceLicenseTemplateFacet",

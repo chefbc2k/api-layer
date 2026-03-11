@@ -7,6 +7,6 @@ coverage/
 generated/typechain/
 generated/abis/
 generated/manifests/
+.runtime/
 pnpm-lock.yaml
 *.log
-

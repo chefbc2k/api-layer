@@ -29,7 +29,8 @@ export async function invokeRead(
   }
 
   const value = await context.providerRouter.withProvider("read", `${String(facetName)}.${String(methodName)}`, async (provider) => {
-    const contract = connectContract(context, facetName, provider);
+    const runner = context.signerFactory ? await context.signerFactory(provider) : provider;
+    const contract = connectContract(context, facetName, runner);
     return contract.getFunction(String(methodName))(...args) as Promise<unknown>;
   });
 
