@@ -35,10 +35,15 @@ async function registerVoice(voiceAsset, signer, uri, royalty) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
   if (!DIAMOND_ADDRESS) throw new Error("DIAMOND_ADDRESS is required");
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 
   const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_license_rights_sellthrough requires local time-travel support; Base Sepolia parity is blocked until the scenario is rewritten without evm_increaseTime/evm_mine");
+  }
   const owner = new ethers.Wallet(PRIVATE_KEY, provider);
   const licensee = new ethers.Wallet(ethers.keccak256(ethers.toUtf8Bytes("LICENSEE_1")), provider);
   const buyer = new ethers.Wallet(ethers.keccak256(ethers.toUtf8Bytes("BUYER_RIGHTS_1")), provider);

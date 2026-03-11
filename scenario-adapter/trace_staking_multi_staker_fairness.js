@@ -26,6 +26,10 @@ async function main() {
     diamondAddress: DIAMOND_ADDRESS,
     privateKey: PRIVATE_KEY
   });
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_staking_multi_staker_fairness is local-only on 31337; it uses evm_increaseTime/evm_mine and cannot prove Base Sepolia workflow parity yet");
+  }
 
   await ensurePlatformAdmin(access, founder, founderAddress);
 

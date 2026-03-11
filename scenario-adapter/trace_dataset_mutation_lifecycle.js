@@ -75,6 +75,7 @@ function buildTemplate(creator, now, name) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
   if (!DIAMOND_ADDRESS) throw new Error("DIAMOND_ADDRESS is required");
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 

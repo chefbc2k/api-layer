@@ -55,6 +55,10 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 
   const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("upgrade_vesting_live.js requires local block-time control and is blocked on Base Sepolia");
+  }
   const owner = new ethers.NonceManager(new ethers.Wallet(PRIVATE_KEY, provider));
   const artifact = loadArtifact("out/VestingFacet.sol/VestingFacet.json");
   const selectors = getSelectors(artifact.abi);

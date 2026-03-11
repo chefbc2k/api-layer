@@ -20,6 +20,18 @@ const TOKEN_UNIT = 10n ** 10n;
 const ONE_DAY = 24 * 60 * 60;
 const ONE_DAY_BLOCKS = 5760n;
 
+async function assertLocalGovernanceChain(rpcUrl) {
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  try {
+    const network = await provider.getNetwork();
+    if (network.chainId !== 31337n) {
+      throw new Error("bootstrap_local_governance is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten to use the deployed baseline without local bootstrap");
+    }
+  } finally {
+    await provider.destroy();
+  }
+}
+
 function linkBytecode(artifact, libraries) {
   let bytecode = artifact.bytecode.object;
   for (const [sourceName, sourceRefs] of Object.entries(artifact.bytecode.linkReferences || {})) {
@@ -51,6 +63,8 @@ const DEFAULT_VOTING_POWER_INIT = Object.freeze({
 });
 
 async function bootstrapGovernance(rpcUrl = RPC_URL, options = {}) {
+  if (!rpcUrl) throw new Error("RPC_URL is required");
+  await assertLocalGovernanceChain(rpcUrl);
   const { provider, founder, founderAddress, diamondAddress, diamondCut, access } = await deployBaseDiamondWithAccess(rpcUrl);
 
   await ensureRole(access, founder, ROLE.TIMELOCK_ROLE, "TIMELOCK_ROLE");

@@ -35,6 +35,10 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 
   const provider = createProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_emergency_withdrawal_circuit_breaker is local-only on 31337; it uses advanceTime and cannot prove Base Sepolia parity yet");
+  }
   const founder = new ethers.NonceManager(new ethers.Wallet(PRIVATE_KEY, provider));
   const timelock = randomWallet(provider);
   const emergencyAdmin1 = randomWallet(provider);

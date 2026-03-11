@@ -28,6 +28,11 @@ async function expectRevert(promiseFactory, label) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
+  const network = await new ethers.JsonRpcProvider(RPC_URL).getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_marketplace_multisig_negative is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten to use the deployed baseline instead of deployMarketplaceStack/advanceTime");
+  }
   const feeConfig = {
     platformFee: 700n,
     referralFee: 0n,

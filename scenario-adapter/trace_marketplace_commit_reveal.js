@@ -35,6 +35,11 @@ async function mine(provider, count) {
 }
 
 async function main() {
+  if (!RPC_URL) throw new Error("RPC_URL is required");
+  const network = await new ethers.JsonRpcProvider(RPC_URL).getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_marketplace_commit_reveal is local-stack only; Base Sepolia parity is blocked until this scenario is rewritten without evm_mine/advanceTime and deployMarketplaceStack");
+  }
   const feeConfig = {
     platformFee: 400n,
     referralFee: 0n,

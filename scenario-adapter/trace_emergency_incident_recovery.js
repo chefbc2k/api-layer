@@ -34,6 +34,10 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 
   const provider = createProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_emergency_incident_recovery is local-only on 31337; it uses evm_increaseTime/evm_mine and cannot prove Base Sepolia parity yet");
+  }
   const founder = new ethers.NonceManager(new ethers.Wallet(PRIVATE_KEY, provider));
   const founderAddress = await founder.getAddress();
   const emergencyAdmin = randomWallet(provider);

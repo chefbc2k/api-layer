@@ -36,6 +36,10 @@ async function main() {
   if (!PRIVATE_KEY) throw new Error("PRIVATE_KEY is required");
 
   const { provider, founder, access } = await setupCore(RPC_URL, DIAMOND_ADDRESS, PRIVATE_KEY);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_timewave_vesting_lifecycle.js requires local block-time control and is blocked on Base Sepolia");
+  }
   await ensureVestingRoles(access, founder);
 
   const timewave = new ethers.Contract(

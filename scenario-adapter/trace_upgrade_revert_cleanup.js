@@ -32,6 +32,10 @@ function eventArg(receipt, iface, name, key) {
 async function main() {
   if (!DIAMOND_ADDRESS) throw new Error("DIAMOND_ADDRESS is required");
   const provider = createProvider(RPC_URL);
+  const network = await provider.getNetwork();
+  if (network.chainId !== 31337n) {
+    throw new Error("trace_upgrade_revert_cleanup is local-only on 31337; it uses mnemonic-derived local signers and advanceTime and cannot prove Base Sepolia parity yet");
+  }
   const founder = walletAt(provider, 0);
   const signer1 = walletAt(provider, 1);
   const signer2 = walletAt(provider, 2);
