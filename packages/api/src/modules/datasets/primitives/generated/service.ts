@@ -12,7 +12,6 @@ export function createDatasetsPrimitiveService(context: ApiExecutionContext) {
     getDataset: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "getDataset")!, request),
     getDatasetsByCreator: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "getDatasetsByCreator")!, request),
     getMaxAssetsPerDataset: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "getMaxAssetsPerDataset")!, request),
-    getSelectors: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!, request),
     getTotalDatasets: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "getTotalDatasets")!, request),
     removeAsset: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "removeAsset")!, request),
     royaltyInfo: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, datasetsMethodDefinitions.find((definition) => definition.operationId === "royaltyInfo")!, request),

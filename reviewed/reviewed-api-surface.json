@@ -1,38 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-12T21:32:06.168Z",
+  "generatedAt": "2026-03-12T23:22:50.155Z",
   "methods": {
-    "AccessControlFacet.configureRole": {
-      "facetName": "AccessControlFacet",
-      "wrapperKey": "configureRole",
-      "domain": "access-control",
-      "resource": "access-control",
-      "classification": "admin",
-      "httpMethod": "POST",
-      "path": "/v1/access-control/admin/configure-role",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "role",
-            "source": "body",
-            "field": "role"
-          },
-          {
-            "name": "config",
-            "source": "body",
-            "field": "config"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "configureRole",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "AccessControlFacet.configureRole"
-    },
     "AccessControlFacet.debugRoleIndexState": {
       "facetName": "AccessControlFacet",
       "wrapperKey": "debugRoleIndexState",
@@ -850,6 +819,320 @@
       "supportsGasless": false,
       "notes": "BurnThresholdFacet.thresholdSetBurnLimit"
     },
+    "CommunityRewardsFacet.campaignCount": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "campaignCount",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "read",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/campaign-count",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "campaignCount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.campaignCount"
+    },
+    "CommunityRewardsFacet.claim": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "claim",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/claim",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "body",
+            "field": "campaignId"
+          },
+          {
+            "name": "totalAllocation",
+            "source": "body",
+            "field": "totalAllocation"
+          },
+          {
+            "name": "proof",
+            "source": "body",
+            "field": "proof"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "claim",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.claim"
+    },
+    "CommunityRewardsFacet.claimableAmount": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "claimableAmount",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "read",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/claimable-amount",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "body",
+            "field": "campaignId"
+          },
+          {
+            "name": "account",
+            "source": "body",
+            "field": "account"
+          },
+          {
+            "name": "totalAllocation",
+            "source": "body",
+            "field": "totalAllocation"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "claimableAmount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.claimableAmount"
+    },
+    "CommunityRewardsFacet.claimed": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "claimed",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/claimed",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "query",
+            "field": "campaignId"
+          },
+          {
+            "name": "account",
+            "source": "query",
+            "field": "account"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "claimed",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.claimed"
+    },
+    "CommunityRewardsFacet.createCampaign": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "createCampaign",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/community-rewards",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "merkleRoot",
+            "source": "body",
+            "field": "merkleRoot"
+          },
+          {
+            "name": "startTime",
+            "source": "body",
+            "field": "startTime"
+          },
+          {
+            "name": "cliffSeconds",
+            "source": "body",
+            "field": "cliffSeconds"
+          },
+          {
+            "name": "durationSeconds",
+            "source": "body",
+            "field": "durationSeconds"
+          },
+          {
+            "name": "tgeUnlockBps",
+            "source": "body",
+            "field": "tgeUnlockBps"
+          },
+          {
+            "name": "maxTotalClaimable",
+            "source": "body",
+            "field": "maxTotalClaimable"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "createCampaign",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.createCampaign"
+    },
+    "CommunityRewardsFacet.getCampaign": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "getCampaign",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-campaign",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "query",
+            "field": "campaignId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "object"
+      },
+      "operationId": "getCampaign",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.getCampaign"
+    },
+    "CommunityRewardsFacet.pauseCampaign": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "pauseCampaign",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/pause-campaign",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "body",
+            "field": "campaignId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "pauseCampaign",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.pauseCampaign"
+    },
+    "CommunityRewardsFacet.setMerkleRoot": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "setMerkleRoot",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/tokenomics/commands/set-merkle-root",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "body",
+            "field": "campaignId"
+          },
+          {
+            "name": "newRoot",
+            "source": "body",
+            "field": "newRoot"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setMerkleRoot",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.setMerkleRoot"
+    },
+    "CommunityRewardsFacet.unpauseCampaign": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "unpauseCampaign",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/unpause-campaign",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "body",
+            "field": "campaignId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "unpauseCampaign",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.unpauseCampaign"
+    },
+    "CommunityRewardsFacet.vestedAmount": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "vestedAmount",
+      "domain": "tokenomics",
+      "resource": "community-rewards",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/vested-amount",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "campaignId",
+            "source": "query",
+            "field": "campaignId"
+          },
+          {
+            "name": "totalAllocation",
+            "source": "query",
+            "field": "totalAllocation"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "vestedAmount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "CommunityRewardsFacet.vestedAmount"
+    },
     "DelegationFacet.delegate": {
       "facetName": "DelegationFacet",
       "wrapperKey": "delegate",
@@ -1019,32 +1302,6 @@
       "supportsGasless": false,
       "notes": "DelegationFacet.getCurrentVotes"
     },
-    "DelegationFacet.getDelegatedVotingPower": {
-      "facetName": "DelegationFacet",
-      "wrapperKey": "getDelegatedVotingPower",
-      "domain": "staking",
-      "resource": "delegations",
-      "classification": "read",
-      "httpMethod": "GET",
-      "path": "/v1/staking/queries/get-delegated-voting-power/delegation-get-delegated-voting-power",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "account",
-            "source": "query",
-            "field": "account"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "delegationGetDelegatedVotingPower",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "DelegationFacet.getDelegatedVotingPower"
-    },
     "DelegationFacet.getPriorVotes": {
       "facetName": "DelegationFacet",
       "wrapperKey": "getPriorVotes",
@@ -1154,42 +1411,6 @@
       "supportsGasless": false,
       "notes": "DelegationFacet.updateDelegatedVotingPowerBatch"
     },
-    "DiamondCutFacet.diamondCut": {
-      "facetName": "DiamondCutFacet",
-      "wrapperKey": "diamondCut",
-      "domain": "diamond-admin",
-      "resource": "diamond-admin",
-      "classification": "admin",
-      "httpMethod": "POST",
-      "path": "/v1/diamond-admin/admin/diamond-cut",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "facetCuts",
-            "source": "body",
-            "field": "facetCuts"
-          },
-          {
-            "name": "initContract",
-            "source": "body",
-            "field": "initContract"
-          },
-          {
-            "name": "initCalldata",
-            "source": "body",
-            "field": "initCalldata"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "diamondCut",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "DiamondCutFacet.diamondCut"
-    },
     "DiamondCutFacet.FOUNDER_ROLE": {
       "facetName": "DiamondCutFacet",
       "wrapperKey": "FOUNDER_ROLE",
@@ -1243,7 +1464,7 @@
       "resource": "diamond-admin",
       "classification": "query",
       "httpMethod": "GET",
-      "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-cut-is-immutable-selector-reserved",
+      "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved",
       "inputShape": {
         "kind": "query",
         "bindings": [
@@ -1257,7 +1478,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "diamondCutIsImmutableSelectorReserved",
+      "operationId": "isImmutableSelectorReserved",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "DiamondCutFacet.isImmutableSelectorReserved"
@@ -1508,84 +1729,6 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "DiamondLoupeFacet.facets"
-    },
-    "DiamondLoupeFacet.isImmutableSelectorReserved": {
-      "facetName": "DiamondLoupeFacet",
-      "wrapperKey": "isImmutableSelectorReserved",
-      "domain": "diamond-admin",
-      "resource": "diamond-admin",
-      "classification": "query",
-      "httpMethod": "GET",
-      "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-loupe-is-immutable-selector-reserved",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "selector",
-            "source": "query",
-            "field": "selector"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "diamondLoupeIsImmutableSelectorReserved",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "DiamondLoupeFacet.isImmutableSelectorReserved"
-    },
-    "DiamondLoupeFacet.supportsInterface": {
-      "facetName": "DiamondLoupeFacet",
-      "wrapperKey": "supportsInterface",
-      "domain": "diamond-admin",
-      "resource": "diamond-admin",
-      "classification": "query",
-      "httpMethod": "GET",
-      "path": "/v1/diamond-admin/queries/supports-interface",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "interfaceId",
-            "source": "query",
-            "field": "interfaceId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "supportsInterface",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "DiamondLoupeFacet.supportsInterface"
-    },
-    "EchoScoreFacetV3.batchUpdateScores": {
-      "facetName": "EchoScoreFacetV3",
-      "wrapperKey": "batchUpdateScores",
-      "domain": "staking",
-      "resource": "echo-scores",
-      "classification": "action",
-      "httpMethod": "POST",
-      "path": "/v1/staking/commands/batch-update-scores",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "updates",
-            "source": "body",
-            "field": "updates"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "batchUpdateScores",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "EchoScoreFacetV3.batchUpdateScores"
     },
     "EchoScoreFacetV3.getEchoScoreOracleV3": {
       "facetName": "EchoScoreFacetV3",
@@ -1907,32 +2050,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "EchoScoreFacetV3.unpauseEchoScoreV3"
-    },
-    "EchoScoreFacetV3.updateScore": {
-      "facetName": "EchoScoreFacetV3",
-      "wrapperKey": "updateScore",
-      "domain": "staking",
-      "resource": "echo-scores",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/staking/commands/update-score",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "update",
-            "source": "body",
-            "field": "update"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "updateScore",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "EchoScoreFacetV3.updateScore"
     },
     "EmergencyFacet.approveRecovery": {
       "facetName": "EmergencyFacet",
@@ -2748,6 +2865,223 @@
       "supportsGasless": false,
       "notes": "EmergencyWithdrawalFacet.updateWithdrawalConfig"
     },
+    "EscrowFacet.escrowAsset": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "escrowAsset",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/commands/escrow-asset",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "tokenId",
+            "source": "body",
+            "field": "tokenId"
+          },
+          {
+            "name": "owner",
+            "source": "body",
+            "field": "owner"
+          },
+          {
+            "name": "state",
+            "source": "body",
+            "field": "state"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "escrowAsset",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.escrowAsset"
+    },
+    "EscrowFacet.getAssetState": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "getAssetState",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/marketplace/queries/get-asset-state",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "tokenId",
+            "source": "query",
+            "field": "tokenId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getAssetState",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.getAssetState"
+    },
+    "EscrowFacet.getOriginalOwner": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "getOriginalOwner",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/marketplace/queries/get-original-owner",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "tokenId",
+            "source": "query",
+            "field": "tokenId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getOriginalOwner",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.getOriginalOwner"
+    },
+    "EscrowFacet.isInEscrow": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "isInEscrow",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/marketplace/queries/is-in-escrow",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "tokenId",
+            "source": "query",
+            "field": "tokenId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "isInEscrow",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.isInEscrow"
+    },
+    "EscrowFacet.onERC721Received": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "onERC721Received",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/commands/on-erc721-received",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "arg0",
+            "source": "body",
+            "field": "arg0"
+          },
+          {
+            "name": "arg1",
+            "source": "body",
+            "field": "arg1"
+          },
+          {
+            "name": "arg2",
+            "source": "body",
+            "field": "arg2"
+          },
+          {
+            "name": "arg3",
+            "source": "body",
+            "field": "arg3"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "onErc721Received",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.onERC721Received"
+    },
+    "EscrowFacet.releaseAsset": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "releaseAsset",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/commands/release-asset",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "tokenId",
+            "source": "body",
+            "field": "tokenId"
+          },
+          {
+            "name": "to",
+            "source": "body",
+            "field": "to"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "releaseAsset",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.releaseAsset"
+    },
+    "EscrowFacet.updateAssetState": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "updateAssetState",
+      "domain": "marketplace",
+      "resource": "escrow",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/marketplace/commands/update-asset-state",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "tokenId",
+            "source": "body",
+            "field": "tokenId"
+          },
+          {
+            "name": "newState",
+            "source": "body",
+            "field": "newState"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateAssetState",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "EscrowFacet.updateAssetState"
+    },
     "GovernorFacet.getRoleMultiplier": {
       "facetName": "GovernorFacet",
       "wrapperKey": "getRoleMultiplier",
@@ -2793,26 +3127,6 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "GovernorFacet.getVotingConfig"
-    },
-    "GovernorFacet.GOVERNANCE_PROPOSER_ROLE": {
-      "facetName": "GovernorFacet",
-      "wrapperKey": "GOVERNANCE_PROPOSER_ROLE",
-      "domain": "governance",
-      "resource": "governance",
-      "classification": "query",
-      "httpMethod": "POST",
-      "path": "/v1/governance/queries/governance-proposer-role/governor-governance-proposer-role",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "governorGovernanceProposerRole",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "GovernorFacet.GOVERNANCE_PROPOSER_ROLE"
     },
     "GovernorFacet.setDefaultGasLimit": {
       "facetName": "GovernorFacet",
@@ -2979,6 +3293,436 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "GovernorFacet.updateVotingPeriod"
+    },
+    "LegacyExecutionFacet.approveInheritance": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "approveInheritance",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/approve-inheritance",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "approveInheritance",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyExecutionFacet.approveInheritance"
+    },
+    "LegacyExecutionFacet.delegateRights": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "delegateRights",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/delegate-rights",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "delegatee",
+            "source": "body",
+            "field": "delegatee"
+          },
+          {
+            "name": "duration",
+            "source": "body",
+            "field": "duration"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "delegateRights",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyExecutionFacet.delegateRights"
+    },
+    "LegacyExecutionFacet.executeInheritance": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "executeInheritance",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/execute-inheritance",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "owner",
+            "source": "body",
+            "field": "owner"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "executeInheritance",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyExecutionFacet.executeInheritance"
+    },
+    "LegacyExecutionFacet.initiateInheritance": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "initiateInheritance",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/legacy/initiate-inheritance",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "proofDocuments",
+            "source": "body",
+            "field": "proofDocuments"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "initiateInheritance",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyExecutionFacet.initiateInheritance"
+    },
+    "LegacyFacet.addBeneficiary": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "addBeneficiary",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/add-beneficiary",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "account",
+            "source": "body",
+            "field": "account"
+          },
+          {
+            "name": "share",
+            "source": "body",
+            "field": "share"
+          },
+          {
+            "name": "canDelegate",
+            "source": "body",
+            "field": "canDelegate"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "addBeneficiary",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.addBeneficiary"
+    },
+    "LegacyFacet.addDatasets": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "addDatasets",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/add-datasets",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "datasetIds",
+            "source": "body",
+            "field": "datasetIds"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "addDatasets",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.addDatasets"
+    },
+    "LegacyFacet.addInheritanceRequirement": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "addInheritanceRequirement",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/add-inheritance-requirement",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "doc",
+            "source": "body",
+            "field": "doc"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "addInheritanceRequirement",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.addInheritanceRequirement"
+    },
+    "LegacyFacet.addVoiceAssets": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "addVoiceAssets",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/add-voice-assets",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceAssets",
+            "source": "body",
+            "field": "voiceAssets"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "addVoiceAssets",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.addVoiceAssets"
+    },
+    "LegacyFacet.createLegacyPlan": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "createLegacyPlan",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/legacy/create-legacy-plan",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "memo",
+            "source": "body",
+            "field": "memo"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createLegacyPlan",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.createLegacyPlan"
+    },
+    "LegacyFacet.setBeneficiaryRelationship": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "setBeneficiaryRelationship",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/set-beneficiary-relationship",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "account",
+            "source": "body",
+            "field": "account"
+          },
+          {
+            "name": "relationship",
+            "source": "body",
+            "field": "relationship"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setBeneficiaryRelationship",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.setBeneficiaryRelationship"
+    },
+    "LegacyFacet.setInheritanceConditions": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "setInheritanceConditions",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/set-inheritance-conditions",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "timelock",
+            "source": "body",
+            "field": "timelock"
+          },
+          {
+            "name": "requiresProof",
+            "source": "body",
+            "field": "requiresProof"
+          },
+          {
+            "name": "approvers",
+            "source": "body",
+            "field": "approvers"
+          },
+          {
+            "name": "minApprovals",
+            "source": "body",
+            "field": "minApprovals"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setInheritanceConditions",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.setInheritanceConditions"
+    },
+    "LegacyFacet.setMaxBeneficiaries": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "setMaxBeneficiaries",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/set-max-beneficiaries",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "max",
+            "source": "body",
+            "field": "max"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setMaxBeneficiaries",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.setMaxBeneficiaries"
+    },
+    "LegacyFacet.setMinTimelockPeriod": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "setMinTimelockPeriod",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/set-min-timelock-period",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "period",
+            "source": "body",
+            "field": "period"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setMinTimelockPeriod",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.setMinTimelockPeriod"
+    },
+    "LegacyViewFacet.getLegacyPlan": {
+      "facetName": "LegacyViewFacet",
+      "wrapperKey": "getLegacyPlan",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/voice-assets/queries/get-legacy-plan",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "owner",
+            "source": "query",
+            "field": "owner"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "object"
+      },
+      "operationId": "getLegacyPlan",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "LegacyViewFacet.getLegacyPlan"
+    },
+    "LegacyViewFacet.isInheritanceReady": {
+      "facetName": "LegacyViewFacet",
+      "wrapperKey": "isInheritanceReady",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/voice-assets/queries/is-inheritance-ready",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "query",
+            "field": "voiceHash"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "tuple"
+      },
+      "operationId": "isInheritanceReady",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "LegacyViewFacet.isInheritanceReady"
     },
     "MarketplaceFacet.cancelListing": {
       "facetName": "MarketplaceFacet",
@@ -3382,32 +4126,6 @@
       "supportsGasless": false,
       "notes": "MultiSigFacet.executeOperation"
     },
-    "MultiSigFacet.getOperation": {
-      "facetName": "MultiSigFacet",
-      "wrapperKey": "getOperation",
-      "domain": "multisig",
-      "resource": "multisig",
-      "classification": "read",
-      "httpMethod": "GET",
-      "path": "/v1/multisig/queries/get-operation",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "operationId",
-            "source": "query",
-            "field": "operationId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "tuple"
-      },
-      "operationId": "getOperation",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "MultiSigFacet.getOperation"
-    },
     "MultiSigFacet.getOperationConfig": {
       "facetName": "MultiSigFacet",
       "wrapperKey": "getOperationConfig",
@@ -3599,37 +4317,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "MultiSigFacet.removeOperator"
-    },
-    "MultiSigFacet.setOperationConfig": {
-      "facetName": "MultiSigFacet",
-      "wrapperKey": "setOperationConfig",
-      "domain": "multisig",
-      "resource": "multisig",
-      "classification": "admin",
-      "httpMethod": "POST",
-      "path": "/v1/multisig/admin/set-operation-config",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "operationType",
-            "source": "body",
-            "field": "operationType"
-          },
-          {
-            "name": "config",
-            "source": "body",
-            "field": "config"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "setOperationConfig",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "MultiSigFacet.setOperationConfig"
     },
     "MultiSigFacet.submitTransaction": {
       "facetName": "MultiSigFacet",
@@ -4631,32 +5318,6 @@
       "supportsGasless": false,
       "notes": "PaymentFacet.revealDistribution"
     },
-    "PaymentFacet.revealDistributionStruct": {
-      "facetName": "PaymentFacet",
-      "wrapperKey": "revealDistributionStruct",
-      "domain": "marketplace",
-      "resource": "payments",
-      "classification": "action",
-      "httpMethod": "POST",
-      "path": "/v1/marketplace/commands/reveal-distribution-struct",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "params",
-            "source": "body",
-            "field": "params"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "revealDistributionStruct",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "PaymentFacet.revealDistributionStruct"
-    },
     "PaymentFacet.revealWithdraw": {
       "facetName": "PaymentFacet",
       "wrapperKey": "revealWithdraw",
@@ -4748,32 +5409,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "PaymentFacet.setBuybackConfig"
-    },
-    "PaymentFacet.setBuybackConfigStruct": {
-      "facetName": "PaymentFacet",
-      "wrapperKey": "setBuybackConfigStruct",
-      "domain": "marketplace",
-      "resource": "payments",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/marketplace/commands/set-buyback-config-struct",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "config",
-            "source": "body",
-            "field": "config"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "setBuybackConfigStruct",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "PaymentFacet.setBuybackConfigStruct"
     },
     "PaymentFacet.setMevProtectionConfig": {
       "facetName": "PaymentFacet",
@@ -5069,9 +5704,9 @@
       "supportsGasless": false,
       "notes": "PaymentFacet.updateUnionTreasuryAddress"
     },
-    "PaymentFacet.withdrawPayments()": {
+    "PaymentFacet.withdrawPayments": {
       "facetName": "PaymentFacet",
-      "wrapperKey": "withdrawPayments()",
+      "wrapperKey": "withdrawPayments",
       "domain": "marketplace",
       "resource": "payments",
       "classification": "action",
@@ -5087,98 +5722,16 @@
       "operationId": "withdrawPayments",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "PaymentFacet.withdrawPayments()"
+      "notes": "PaymentFacet.withdrawPayments"
     },
-    "PaymentFacet.withdrawPayments(address,uint256)": {
+    "PaymentFacet.withdrawPaymentsWithDeadline": {
       "facetName": "PaymentFacet",
-      "wrapperKey": "withdrawPayments(address,uint256)",
+      "wrapperKey": "withdrawPaymentsWithDeadline",
       "domain": "marketplace",
       "resource": "payments",
       "classification": "action",
       "httpMethod": "POST",
-      "path": "/v1/marketplace/commands/withdraw-payments-address-uint256",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "token",
-            "source": "body",
-            "field": "token"
-          },
-          {
-            "name": "amount",
-            "source": "body",
-            "field": "amount"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "withdrawPaymentsAddressUint256",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "PaymentFacet.withdrawPayments(address,uint256)"
-    },
-    "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)": {
-      "facetName": "PaymentFacet",
-      "wrapperKey": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
-      "domain": "marketplace",
-      "resource": "payments",
-      "classification": "action",
-      "httpMethod": "POST",
-      "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-address-uint256-uint256-uint8-bytes32-bytes32",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "token",
-            "source": "body",
-            "field": "token"
-          },
-          {
-            "name": "amount",
-            "source": "body",
-            "field": "amount"
-          },
-          {
-            "name": "deadline",
-            "source": "body",
-            "field": "deadline"
-          },
-          {
-            "name": "v",
-            "source": "body",
-            "field": "v"
-          },
-          {
-            "name": "r",
-            "source": "body",
-            "field": "r"
-          },
-          {
-            "name": "s",
-            "source": "body",
-            "field": "s"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)"
-    },
-    "PaymentFacet.withdrawPaymentsWithDeadline(uint256)": {
-      "facetName": "PaymentFacet",
-      "wrapperKey": "withdrawPaymentsWithDeadline(uint256)",
-      "domain": "marketplace",
-      "resource": "payments",
-      "classification": "action",
-      "httpMethod": "POST",
-      "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-uint256",
+      "path": "/v1/marketplace/commands/withdraw-payments-with-deadline",
       "inputShape": {
         "kind": "body",
         "bindings": [
@@ -5192,36 +5745,10 @@
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "withdrawPaymentsWithDeadlineUint256",
+      "operationId": "withdrawPaymentsWithDeadline",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "PaymentFacet.withdrawPaymentsWithDeadline(uint256)"
-    },
-    "ProposalFacet.cancel": {
-      "facetName": "ProposalFacet",
-      "wrapperKey": "cancel",
-      "domain": "governance",
-      "resource": "proposals",
-      "classification": "read",
-      "httpMethod": "GET",
-      "path": "/v1/governance/queries/cancel",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "proposalId",
-            "source": "query",
-            "field": "proposalId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "proposalCancel",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "ProposalFacet.cancel"
+      "notes": "PaymentFacet.withdrawPaymentsWithDeadline"
     },
     "ProposalFacet.cancelProposal": {
       "facetName": "ProposalFacet",
@@ -5248,52 +5775,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "ProposalFacet.cancelProposal"
-    },
-    "ProposalFacet.execute": {
-      "facetName": "ProposalFacet",
-      "wrapperKey": "execute",
-      "domain": "governance",
-      "resource": "proposals",
-      "classification": "read",
-      "httpMethod": "GET",
-      "path": "/v1/governance/queries/execute",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "proposalId",
-            "source": "query",
-            "field": "proposalId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "proposalExecute",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "ProposalFacet.execute"
-    },
-    "ProposalFacet.EXECUTOR_ROLE": {
-      "facetName": "ProposalFacet",
-      "wrapperKey": "EXECUTOR_ROLE",
-      "domain": "governance",
-      "resource": "proposals",
-      "classification": "query",
-      "httpMethod": "POST",
-      "path": "/v1/governance/queries/executor-role/proposal-executor-role",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "proposalExecutorRole",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "ProposalFacet.EXECUTOR_ROLE"
     },
     "ProposalFacet.getActiveProposals": {
       "facetName": "ProposalFacet",
@@ -5405,7 +5886,7 @@
       "resource": "proposals",
       "classification": "query",
       "httpMethod": "POST",
-      "path": "/v1/governance/queries/governance-proposer-role/proposal-governance-proposer-role",
+      "path": "/v1/governance/queries/governance-proposer-role",
       "inputShape": {
         "kind": "none",
         "bindings": []
@@ -5413,7 +5894,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "proposalGovernanceProposerRole",
+      "operationId": "governanceProposerRole",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "ProposalFacet.GOVERNANCE_PROPOSER_ROLE"
@@ -5591,7 +6072,7 @@
       "resource": "proposals",
       "classification": "create",
       "httpMethod": "POST",
-      "path": "/v1/governance/proposals/propose-address-array-uint256-array-bytes-array-string-uint8",
+      "path": "/v1/governance/proposals",
       "inputShape": {
         "kind": "body",
         "bindings": [
@@ -5629,57 +6110,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)"
-    },
-    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)": {
-      "facetName": "ProposalFacet",
-      "wrapperKey": "propose(string,string,address[],uint256[],bytes[],uint8)",
-      "domain": "governance",
-      "resource": "proposals",
-      "classification": "create",
-      "httpMethod": "POST",
-      "path": "/v1/governance/proposals/propose-string-string-address-array-uint256-array-bytes-array-uint8",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "title",
-            "source": "body",
-            "field": "title"
-          },
-          {
-            "name": "description",
-            "source": "body",
-            "field": "description"
-          },
-          {
-            "name": "targets",
-            "source": "body",
-            "field": "targets"
-          },
-          {
-            "name": "values",
-            "source": "body",
-            "field": "values"
-          },
-          {
-            "name": "calldatas",
-            "source": "body",
-            "field": "calldatas"
-          },
-          {
-            "name": "proposalType",
-            "source": "body",
-            "field": "proposalType"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"
     },
     "ProposalFacet.prQueue": {
       "facetName": "ProposalFacet",
@@ -5845,6 +6275,404 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "ProposalFacet.TIMELOCK_ROLE"
+    },
+    "RightsFacet.addCollaborator": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "addCollaborator",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/commands/add-collaborator",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "collaborator",
+            "source": "body",
+            "field": "collaborator"
+          },
+          {
+            "name": "share",
+            "source": "body",
+            "field": "share"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "addCollaborator",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.addCollaborator"
+    },
+    "RightsFacet.getCategoryContracts": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "getCategoryContracts",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/get-category-contracts",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "category",
+            "source": "query",
+            "field": "category"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "array"
+      },
+      "operationId": "getCategoryContracts",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.getCategoryContracts"
+    },
+    "RightsFacet.getCollaborator": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "getCollaborator",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/get-collaborator",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "query",
+            "field": "voiceHash"
+          },
+          {
+            "name": "collaborator",
+            "source": "query",
+            "field": "collaborator"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "tuple"
+      },
+      "operationId": "getCollaborator",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.getCollaborator"
+    },
+    "RightsFacet.getRightCategory": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "getRightCategory",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/get-right-category",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "rightId",
+            "source": "query",
+            "field": "rightId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getRightCategory",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.getRightCategory"
+    },
+    "RightsFacet.getRightContract": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "getRightContract",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/get-right-contract",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "rightId",
+            "source": "query",
+            "field": "rightId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getRightContract",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.getRightContract"
+    },
+    "RightsFacet.getRightsGroup": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "getRightsGroup",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/get-rights-group",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "query",
+            "field": "voiceHash"
+          },
+          {
+            "name": "groupIndex",
+            "source": "query",
+            "field": "groupIndex"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "object"
+      },
+      "operationId": "getRightsGroup",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.getRightsGroup"
+    },
+    "RightsFacet.getUserRights": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "getUserRights",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/get-user-rights",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "query",
+            "field": "voiceHash"
+          },
+          {
+            "name": "user",
+            "source": "query",
+            "field": "user"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "array"
+      },
+      "operationId": "getUserRights",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.getUserRights"
+    },
+    "RightsFacet.registerRightContract": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "registerRightContract",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/rights",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "category",
+            "source": "body",
+            "field": "category"
+          },
+          {
+            "name": "contractAddress",
+            "source": "body",
+            "field": "contractAddress"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "registerRightContract",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.registerRightContract"
+    },
+    "RightsFacet.removeCollaborator": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "removeCollaborator",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "delete",
+      "httpMethod": "DELETE",
+      "path": "/v1/licensing/commands/remove-collaborator",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "collaborator",
+            "source": "body",
+            "field": "collaborator"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "removeCollaborator",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.removeCollaborator"
+    },
+    "RightsFacet.revokeRight": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "revokeRight",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "delete",
+      "httpMethod": "DELETE",
+      "path": "/v1/licensing/commands/revoke-right",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "holder",
+            "source": "body",
+            "field": "holder"
+          },
+          {
+            "name": "rightType",
+            "source": "body",
+            "field": "rightType"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "revokeRight",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.revokeRight"
+    },
+    "RightsFacet.rightIdExists": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "rightIdExists",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/licensing/queries/right-id-exists",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "rightId",
+            "source": "query",
+            "field": "rightId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "rightIdExists",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "RightsFacet.rightIdExists"
+    },
+    "RightsFacet.updateCollaboratorShare": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "updateCollaboratorShare",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/licensing/commands/update-collaborator-share",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "collaborator",
+            "source": "body",
+            "field": "collaborator"
+          },
+          {
+            "name": "newShare",
+            "source": "body",
+            "field": "newShare"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateCollaboratorShare",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.updateCollaboratorShare"
+    },
+    "RightsFacet.updateRightContract": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "updateRightContract",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/licensing/commands/update-right-contract",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "rightId",
+            "source": "body",
+            "field": "rightId"
+          },
+          {
+            "name": "newContractAddress",
+            "source": "body",
+            "field": "newContractAddress"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateRightContract",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.updateRightContract"
     },
     "StakingFacet.advanceEpoch": {
       "facetName": "StakingFacet",
@@ -6523,7 +7351,7 @@
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "timelockCancel",
+      "operationId": "cancel",
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "TimelockFacet.cancel"
@@ -6579,7 +7407,7 @@
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "timelockExecute",
+      "operationId": "execute",
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "TimelockFacet.execute"
@@ -6591,7 +7419,7 @@
       "resource": "timelock-operations",
       "classification": "query",
       "httpMethod": "POST",
-      "path": "/v1/governance/queries/executor-role/timelock-executor-role",
+      "path": "/v1/governance/queries/executor-role",
       "inputShape": {
         "kind": "none",
         "bindings": []
@@ -6599,7 +7427,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "timelockExecutorRole",
+      "operationId": "executorRole",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "TimelockFacet.EXECUTOR_ROLE"
@@ -6915,7 +7743,7 @@
       "resource": "vesting",
       "classification": "create",
       "httpMethod": "POST",
-      "path": "/v1/tokenomics/vesting",
+      "path": "/v1/tokenomics/vesting/create-usdc-vesting-schedule",
       "inputShape": {
         "kind": "body",
         "bindings": [
@@ -7495,26 +8323,6 @@
       "supportsGasless": false,
       "notes": "TokenSupplyFacet.initializeToken"
     },
-    "TokenSupplyFacet.name": {
-      "facetName": "TokenSupplyFacet",
-      "wrapperKey": "name",
-      "domain": "tokenomics",
-      "resource": "token-supply",
-      "classification": "read",
-      "httpMethod": "POST",
-      "path": "/v1/tokenomics/queries/name",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "name",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "TokenSupplyFacet.name"
-    },
     "TokenSupplyFacet.supplyFinishMinting": {
       "facetName": "TokenSupplyFacet",
       "wrapperKey": "supplyFinishMinting",
@@ -7631,26 +8439,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "TokenSupplyFacet.supplySetMaximum"
-    },
-    "TokenSupplyFacet.symbol": {
-      "facetName": "TokenSupplyFacet",
-      "wrapperKey": "symbol",
-      "domain": "tokenomics",
-      "resource": "token-supply",
-      "classification": "read",
-      "httpMethod": "POST",
-      "path": "/v1/tokenomics/queries/symbol",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "symbol",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "TokenSupplyFacet.symbol"
     },
     "TokenSupplyFacet.tokenAllowance": {
       "facetName": "TokenSupplyFacet",
@@ -7929,47 +8717,6 @@
       "supportsGasless": false,
       "notes": "UpgradeControllerFacet.approveUpgrade"
     },
-    "UpgradeControllerFacet.executeUpgrade": {
-      "facetName": "UpgradeControllerFacet",
-      "wrapperKey": "executeUpgrade",
-      "domain": "diamond-admin",
-      "resource": "diamond-admin",
-      "classification": "admin",
-      "httpMethod": "POST",
-      "path": "/v1/diamond-admin/admin/execute-upgrade",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "facetCuts",
-            "source": "body",
-            "field": "facetCuts"
-          },
-          {
-            "name": "initContract",
-            "source": "body",
-            "field": "initContract"
-          },
-          {
-            "name": "initCalldata",
-            "source": "body",
-            "field": "initCalldata"
-          },
-          {
-            "name": "upgradeId",
-            "source": "body",
-            "field": "upgradeId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "executeUpgrade",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "UpgradeControllerFacet.executeUpgrade"
-    },
     "UpgradeControllerFacet.freezeUpgradeControl": {
       "facetName": "UpgradeControllerFacet",
       "wrapperKey": "freezeUpgradeControl",
@@ -8209,42 +8956,6 @@
       "supportsGasless": false,
       "notes": "UpgradeControllerFacet.isUpgradeSigner"
     },
-    "UpgradeControllerFacet.proposeDiamondCut": {
-      "facetName": "UpgradeControllerFacet",
-      "wrapperKey": "proposeDiamondCut",
-      "domain": "diamond-admin",
-      "resource": "diamond-admin",
-      "classification": "admin",
-      "httpMethod": "POST",
-      "path": "/v1/diamond-admin/admin/propose-diamond-cut",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "facetCuts",
-            "source": "body",
-            "field": "facetCuts"
-          },
-          {
-            "name": "initContract",
-            "source": "body",
-            "field": "initContract"
-          },
-          {
-            "name": "initCalldata",
-            "source": "body",
-            "field": "initCalldata"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "proposeDiamondCut",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "UpgradeControllerFacet.proposeDiamondCut"
-    },
     "UpgradeControllerFacet.setUpgradeControlEnforced": {
       "facetName": "UpgradeControllerFacet",
       "wrapperKey": "setUpgradeControlEnforced",
@@ -8271,36 +8982,858 @@
       "supportsGasless": false,
       "notes": "UpgradeControllerFacet.setUpgradeControlEnforced"
     },
-    "VoiceAssetFacet.approve": {
-      "facetName": "VoiceAssetFacet",
-      "wrapperKey": "approve",
-      "domain": "voice-assets",
-      "resource": "voice-assets",
-      "classification": "action",
+    "VestingFacet.calculateCexVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "calculateCexVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
       "httpMethod": "POST",
-      "path": "/v1/voice-assets/commands/approve",
+      "path": "/v1/tokenomics/queries/calculate-cex-vesting",
       "inputShape": {
         "kind": "body",
         "bindings": [
           {
-            "name": "to",
+            "name": "amount",
             "source": "body",
-            "field": "to"
+            "field": "amount"
           },
           {
-            "name": "tokenId",
+            "name": "startTime",
             "source": "body",
-            "field": "tokenId"
+            "field": "startTime"
+          },
+          {
+            "name": "timestamp",
+            "source": "body",
+            "field": "timestamp"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "calculateCexVesting",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.calculateCexVesting"
+    },
+    "VestingFacet.calculateDevFundVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "calculateDevFundVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/calculate-dev-fund-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          },
+          {
+            "name": "startTime",
+            "source": "body",
+            "field": "startTime"
+          },
+          {
+            "name": "timestamp",
+            "source": "body",
+            "field": "timestamp"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "calculateDevFundVesting",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.calculateDevFundVesting"
+    },
+    "VestingFacet.calculateFounderVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "calculateFounderVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/calculate-founder-vesting",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "amount",
+            "source": "query",
+            "field": "amount"
+          },
+          {
+            "name": "timestamp",
+            "source": "query",
+            "field": "timestamp"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "calculateFounderVesting",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.calculateFounderVesting"
+    },
+    "VestingFacet.calculatePublicVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "calculatePublicVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/calculate-public-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          },
+          {
+            "name": "startTime",
+            "source": "body",
+            "field": "startTime"
+          },
+          {
+            "name": "timestamp",
+            "source": "body",
+            "field": "timestamp"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "calculatePublicVesting",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.calculatePublicVesting"
+    },
+    "VestingFacet.calculateTeamVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "calculateTeamVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/calculate-team-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          },
+          {
+            "name": "startTime",
+            "source": "body",
+            "field": "startTime"
+          },
+          {
+            "name": "timestamp",
+            "source": "body",
+            "field": "timestamp"
+          },
+          {
+            "name": "vestingType",
+            "source": "body",
+            "field": "vestingType"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "calculateTeamVesting",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.calculateTeamVesting"
+    },
+    "VestingFacet.createCexVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "createCexVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/vesting/create-cex-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
           }
         ]
       },
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "approve",
+      "operationId": "createCexVesting",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "VoiceAssetFacet.approve"
+      "notes": "VestingFacet.createCexVesting"
+    },
+    "VestingFacet.createDevFundVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "createDevFundVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/vesting/create-dev-fund-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createDevFundVesting",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.createDevFundVesting"
+    },
+    "VestingFacet.createFounderVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "createFounderVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/vesting/create-founder-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createFounderVesting",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.createFounderVesting"
+    },
+    "VestingFacet.createPublicVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "createPublicVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/vesting/create-public-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createPublicVesting",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.createPublicVesting"
+    },
+    "VestingFacet.createTeamVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "createTeamVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/vesting/create-team-vesting",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          },
+          {
+            "name": "vestingType",
+            "source": "body",
+            "field": "vestingType"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createTeamVesting",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.createTeamVesting"
+    },
+    "VestingFacet.getSellableAmount": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getSellableAmount",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-sellable-amount",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getSellableAmount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getSellableAmount"
+    },
+    "VestingFacet.getStandardVestedAmount": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getStandardVestedAmount",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-standard-vested-amount",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "tuple"
+      },
+      "operationId": "getStandardVestedAmount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getStandardVestedAmount"
+    },
+    "VestingFacet.getStandardVestingReleasable": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getStandardVestingReleasable",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-standard-vesting-releasable",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getStandardVestingReleasable",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getStandardVestingReleasable"
+    },
+    "VestingFacet.getStandardVestingSchedule": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getStandardVestingSchedule",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-standard-vesting-schedule",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "object"
+      },
+      "operationId": "getStandardVestingSchedule",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getStandardVestingSchedule"
+    },
+    "VestingFacet.getVestingDetails": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getVestingDetails",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-vesting-details",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "object"
+      },
+      "operationId": "getVestingDetails",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getVestingDetails"
+    },
+    "VestingFacet.getVestingReleasableAmount": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getVestingReleasableAmount",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-vesting-releasable-amount",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getVestingReleasableAmount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getVestingReleasableAmount"
+    },
+    "VestingFacet.getVestingTotalAmount": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getVestingTotalAmount",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-vesting-total-amount",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "tuple"
+      },
+      "operationId": "getVestingTotalAmount",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getVestingTotalAmount"
+    },
+    "VestingFacet.getVestingType": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "getVestingType",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/get-vesting-type",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "getVestingType",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.getVestingType"
+    },
+    "VestingFacet.hasVestingSchedule": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "hasVestingSchedule",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/has-vesting-schedule",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "hasVestingSchedule",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.hasVestingSchedule"
+    },
+    "VestingFacet.releaseStandardVesting": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "releaseStandardVesting",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/release-standard-vesting",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "releaseStandardVesting",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.releaseStandardVesting"
+    },
+    "VestingFacet.releaseStandardVestingFor": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "releaseStandardVestingFor",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/release-standard-vesting-for",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "releaseStandardVestingFor",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.releaseStandardVestingFor"
+    },
+    "VestingFacet.releaseTokensFor": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "releaseTokensFor",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/release-tokens-for",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "releaseTokensFor",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.releaseTokensFor"
+    },
+    "VestingFacet.releaseVestedTokens": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "releaseVestedTokens",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/release-vested-tokens",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "releaseVestedTokens",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.releaseVestedTokens"
+    },
+    "VestingFacet.revokeVestingSchedule": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "revokeVestingSchedule",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "delete",
+      "httpMethod": "DELETE",
+      "path": "/v1/tokenomics/commands/revoke-vesting-schedule",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "revokeVestingSchedule",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.revokeVestingSchedule"
+    },
+    "VestingFacet.setMinimumVestingDuration": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "setMinimumVestingDuration",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/tokenomics/commands/set-minimum-vesting-duration",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "duration",
+            "source": "body",
+            "field": "duration"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setMinimumVestingDuration",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.setMinimumVestingDuration"
+    },
+    "VestingFacet.transferVestingSchedule": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "transferVestingSchedule",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/commands/transfer-vesting-schedule",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "newBeneficiary",
+            "source": "body",
+            "field": "newBeneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "transferVestingSchedule",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VestingFacet.transferVestingSchedule"
+    },
+    "VestingFacet.veGetRoleAdmin": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "veGetRoleAdmin",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/ve-get-role-admin",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "role",
+            "source": "query",
+            "field": "role"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "veGetRoleAdmin",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.veGetRoleAdmin"
+    },
+    "VestingFacet.veGetVestingSchedule": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "veGetVestingSchedule",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/ve-get-vesting-schedule",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "query",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "object"
+      },
+      "operationId": "veGetVestingSchedule",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.veGetVestingSchedule"
+    },
+    "VestingFacet.veHasRole": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "veHasRole",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/ve-has-role",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "role",
+            "source": "query",
+            "field": "role"
+          },
+          {
+            "name": "account",
+            "source": "query",
+            "field": "account"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "veHasRole",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.veHasRole"
+    },
+    "VestingFacet.veSupportsInterface": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "veSupportsInterface",
+      "domain": "tokenomics",
+      "resource": "vesting",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/tokenomics/queries/ve-supports-interface",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "interfaceId",
+            "source": "query",
+            "field": "interfaceId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "veSupportsInterface",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VestingFacet.veSupportsInterface"
     },
     "VoiceAssetFacet.approveVoiceAsset": {
       "facetName": "VoiceAssetFacet",
@@ -8363,32 +9896,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "VoiceAssetFacet.authorizeUser"
-    },
-    "VoiceAssetFacet.balanceOf": {
-      "facetName": "VoiceAssetFacet",
-      "wrapperKey": "balanceOf",
-      "domain": "voice-assets",
-      "resource": "voice-assets",
-      "classification": "read",
-      "httpMethod": "GET",
-      "path": "/v1/voice-assets/queries/balance-of",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "owner",
-            "source": "query",
-            "field": "owner"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "balanceOf",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "VoiceAssetFacet.balanceOf"
     },
     "VoiceAssetFacet.customizeRoyaltyRate": {
       "facetName": "VoiceAssetFacet",
@@ -9297,32 +10804,6 @@
       "supportsGasless": false,
       "notes": "VoiceAssetFacet.setRegistrationPaused"
     },
-    "VoiceAssetFacet.supportsInterface": {
-      "facetName": "VoiceAssetFacet",
-      "wrapperKey": "supportsInterface",
-      "domain": "voice-assets",
-      "resource": "voice-assets",
-      "classification": "query",
-      "httpMethod": "GET",
-      "path": "/v1/voice-assets/queries/supports-interface",
-      "inputShape": {
-        "kind": "query",
-        "bindings": [
-          {
-            "name": "interfaceId",
-            "source": "query",
-            "field": "interfaceId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "supportsInterface",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "VoiceAssetFacet.supportsInterface"
-    },
     "VoiceAssetFacet.symbol": {
       "facetName": "VoiceAssetFacet",
       "wrapperKey": "symbol",
@@ -9368,42 +10849,6 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "VoiceAssetFacet.tokenURI"
-    },
-    "VoiceAssetFacet.transferFrom": {
-      "facetName": "VoiceAssetFacet",
-      "wrapperKey": "transferFrom",
-      "domain": "voice-assets",
-      "resource": "voice-assets",
-      "classification": "action",
-      "httpMethod": "POST",
-      "path": "/v1/voice-assets/commands/transfer-from",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "from",
-            "source": "body",
-            "field": "from"
-          },
-          {
-            "name": "to",
-            "source": "body",
-            "field": "to"
-          },
-          {
-            "name": "tokenId",
-            "source": "body",
-            "field": "tokenId"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "transferFrom",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceAssetFacet.transferFrom"
     },
     "VoiceAssetFacet.transferFromVoiceAsset": {
       "facetName": "VoiceAssetFacet",
@@ -9739,26 +11184,6 @@
       "supportsGasless": false,
       "notes": "VoiceDatasetFacet.getMaxAssetsPerDataset"
     },
-    "VoiceDatasetFacet.getSelectors": {
-      "facetName": "VoiceDatasetFacet",
-      "wrapperKey": "getSelectors",
-      "domain": "datasets",
-      "resource": "datasets",
-      "classification": "query",
-      "httpMethod": "POST",
-      "path": "/v1/datasets/queries/get-selectors",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "array"
-      },
-      "operationId": "getSelectors",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "VoiceDatasetFacet.getSelectors"
-    },
     "VoiceDatasetFacet.getTotalDatasets": {
       "facetName": "VoiceDatasetFacet",
       "wrapperKey": "getTotalDatasets",
@@ -9991,42 +11416,6 @@
       "supportsGasless": false,
       "notes": "VoiceDatasetFacet.setRoyalty"
     },
-    "VoiceLicenseFacet.createLicense": {
-      "facetName": "VoiceLicenseFacet",
-      "wrapperKey": "createLicense",
-      "domain": "licensing",
-      "resource": "licenses",
-      "classification": "create",
-      "httpMethod": "POST",
-      "path": "/v1/licensing/licenses/create-license",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "licensee",
-            "source": "body",
-            "field": "licensee"
-          },
-          {
-            "name": "voiceHash",
-            "source": "body",
-            "field": "voiceHash"
-          },
-          {
-            "name": "terms",
-            "source": "body",
-            "field": "terms"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "createLicense",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseFacet.createLicense"
-    },
     "VoiceLicenseFacet.createLicenseWithMarketplace": {
       "facetName": "VoiceLicenseFacet",
       "wrapperKey": "createLicenseWithMarketplace",
@@ -10077,26 +11466,6 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "VoiceLicenseFacet.createLicenseWithMarketplace"
-    },
-    "VoiceLicenseFacet.facetFunctionSelectors": {
-      "facetName": "VoiceLicenseFacet",
-      "wrapperKey": "facetFunctionSelectors",
-      "domain": "licensing",
-      "resource": "licenses",
-      "classification": "query",
-      "httpMethod": "POST",
-      "path": "/v1/licensing/queries/facet-function-selectors",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "array"
-      },
-      "operationId": "facetFunctionSelectors",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseFacet.facetFunctionSelectors"
     },
     "VoiceLicenseFacet.getLicense": {
       "facetName": "VoiceLicenseFacet",
@@ -10367,37 +11736,6 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseFacet.recordLicensedUsage"
     },
-    "VoiceLicenseFacet.recordUsage": {
-      "facetName": "VoiceLicenseFacet",
-      "wrapperKey": "recordUsage",
-      "domain": "licensing",
-      "resource": "licenses",
-      "classification": "action",
-      "httpMethod": "POST",
-      "path": "/v1/licensing/commands/record-usage",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "voiceHash",
-            "source": "body",
-            "field": "voiceHash"
-          },
-          {
-            "name": "usageRef",
-            "source": "body",
-            "field": "usageRef"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "recordUsage",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseFacet.recordUsage"
-    },
     "VoiceLicenseFacet.revokeLicense": {
       "facetName": "VoiceLicenseFacet",
       "wrapperKey": "revokeLicense",
@@ -10577,68 +11915,6 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseFacet.withdrawLicenseRevenue"
     },
-    "VoiceLicenseTemplateFacet.createLicenseFromTemplate": {
-      "facetName": "VoiceLicenseTemplateFacet",
-      "wrapperKey": "createLicenseFromTemplate",
-      "domain": "licensing",
-      "resource": "license-templates",
-      "classification": "create",
-      "httpMethod": "POST",
-      "path": "/v1/licensing/license-templates/create-license-from-template",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "voiceHash",
-            "source": "body",
-            "field": "voiceHash"
-          },
-          {
-            "name": "templateHash",
-            "source": "body",
-            "field": "templateHash"
-          },
-          {
-            "name": "customizations",
-            "source": "body",
-            "field": "customizations"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "createLicenseFromTemplate",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseTemplateFacet.createLicenseFromTemplate"
-    },
-    "VoiceLicenseTemplateFacet.createTemplate": {
-      "facetName": "VoiceLicenseTemplateFacet",
-      "wrapperKey": "createTemplate",
-      "domain": "licensing",
-      "resource": "license-templates",
-      "classification": "create",
-      "httpMethod": "POST",
-      "path": "/v1/licensing/license-templates/create-template",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "template",
-            "source": "body",
-            "field": "template"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "scalar"
-      },
-      "operationId": "createTemplate",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseTemplateFacet.createTemplate"
-    },
     "VoiceLicenseTemplateFacet.getCreatorTemplates": {
       "facetName": "VoiceLicenseTemplateFacet",
       "wrapperKey": "getCreatorTemplates",
@@ -10664,26 +11940,6 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "VoiceLicenseTemplateFacet.getCreatorTemplates"
-    },
-    "VoiceLicenseTemplateFacet.getSelectors": {
-      "facetName": "VoiceLicenseTemplateFacet",
-      "wrapperKey": "getSelectors",
-      "domain": "licensing",
-      "resource": "license-templates",
-      "classification": "query",
-      "httpMethod": "POST",
-      "path": "/v1/licensing/queries/get-selectors",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "array"
-      },
-      "operationId": "getSelectors",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseTemplateFacet.getSelectors"
     },
     "VoiceLicenseTemplateFacet.getTemplate": {
       "facetName": "VoiceLicenseTemplateFacet",
@@ -10768,37 +12024,6 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseTemplateFacet.setTemplateStatus"
     },
-    "VoiceLicenseTemplateFacet.updateTemplate": {
-      "facetName": "VoiceLicenseTemplateFacet",
-      "wrapperKey": "updateTemplate",
-      "domain": "licensing",
-      "resource": "license-templates",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/licensing/commands/update-template",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "templateHash",
-            "source": "body",
-            "field": "templateHash"
-          },
-          {
-            "name": "template",
-            "source": "body",
-            "field": "template"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "updateTemplate",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceLicenseTemplateFacet.updateTemplate"
-    },
     "VoiceMetadataFacet.getBasicAcousticFeatures": {
       "facetName": "VoiceMetadataFacet",
       "wrapperKey": "getBasicAcousticFeatures",
@@ -10850,26 +12075,6 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "VoiceMetadataFacet.getGeographicData"
-    },
-    "VoiceMetadataFacet.getSelectors": {
-      "facetName": "VoiceMetadataFacet",
-      "wrapperKey": "getSelectors",
-      "domain": "voice-assets",
-      "resource": "metadata",
-      "classification": "query",
-      "httpMethod": "POST",
-      "path": "/v1/voice-assets/queries/get-selectors",
-      "inputShape": {
-        "kind": "none",
-        "bindings": []
-      },
-      "outputShape": {
-        "kind": "array"
-      },
-      "operationId": "getSelectors",
-      "rateLimitKind": "read",
-      "supportsGasless": false,
-      "notes": "VoiceMetadataFacet.getSelectors"
     },
     "VoiceMetadataFacet.getVoiceCategories": {
       "facetName": "VoiceMetadataFacet",
@@ -11041,140 +12246,6 @@
       "supportsGasless": false,
       "notes": "VoiceMetadataFacet.setAnalysisVersion"
     },
-    "VoiceMetadataFacet.updateBasicAcousticFeatures": {
-      "facetName": "VoiceMetadataFacet",
-      "wrapperKey": "updateBasicAcousticFeatures",
-      "domain": "voice-assets",
-      "resource": "metadata",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/voice-assets/:voiceHash/metadata/acoustic-features",
-      "inputShape": {
-        "kind": "path+body",
-        "bindings": [
-          {
-            "name": "voiceHash",
-            "source": "path",
-            "field": "voiceHash"
-          },
-          {
-            "name": "features",
-            "source": "body",
-            "field": "features"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "updateBasicAcousticFeatures",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceMetadataFacet.updateBasicAcousticFeatures"
-    },
-    "VoiceMetadataFacet.updateClassificationCategory": {
-      "facetName": "VoiceMetadataFacet",
-      "wrapperKey": "updateClassificationCategory",
-      "domain": "voice-assets",
-      "resource": "metadata",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/voice-assets/commands/update-classification-category",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "voiceHash",
-            "source": "body",
-            "field": "voiceHash"
-          },
-          {
-            "name": "category",
-            "source": "body",
-            "field": "category"
-          },
-          {
-            "name": "classifications",
-            "source": "body",
-            "field": "classifications"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "updateClassificationCategory",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceMetadataFacet.updateClassificationCategory"
-    },
-    "VoiceMetadataFacet.updateGeographicData": {
-      "facetName": "VoiceMetadataFacet",
-      "wrapperKey": "updateGeographicData",
-      "domain": "voice-assets",
-      "resource": "metadata",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/voice-assets/commands/update-geographic-data",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "voiceHash",
-            "source": "body",
-            "field": "voiceHash"
-          },
-          {
-            "name": "geographic",
-            "source": "body",
-            "field": "geographic"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "updateGeographicData",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceMetadataFacet.updateGeographicData"
-    },
-    "VoiceMetadataFacet.updateVoiceClassifications": {
-      "facetName": "VoiceMetadataFacet",
-      "wrapperKey": "updateVoiceClassifications",
-      "domain": "voice-assets",
-      "resource": "metadata",
-      "classification": "update",
-      "httpMethod": "PATCH",
-      "path": "/v1/voice-assets/commands/update-voice-classifications",
-      "inputShape": {
-        "kind": "body",
-        "bindings": [
-          {
-            "name": "voiceHash",
-            "source": "body",
-            "field": "voiceHash"
-          },
-          {
-            "name": "classifications",
-            "source": "body",
-            "field": "classifications"
-          },
-          {
-            "name": "categoryData",
-            "source": "body",
-            "field": "categoryData"
-          }
-        ]
-      },
-      "outputShape": {
-        "kind": "void"
-      },
-      "operationId": "updateVoiceClassifications",
-      "rateLimitKind": "write",
-      "supportsGasless": false,
-      "notes": "VoiceMetadataFacet.updateVoiceClassifications"
-    },
     "VotingPowerFacet.calculateBaseRoleMultiplier": {
       "facetName": "VotingPowerFacet",
       "wrapperKey": "calculateBaseRoleMultiplier",
@@ -11208,7 +12279,7 @@
       "resource": "voting-power",
       "classification": "read",
       "httpMethod": "GET",
-      "path": "/v1/staking/queries/get-delegated-voting-power/voting-power-get-delegated-voting-power",
+      "path": "/v1/staking/queries/get-delegated-voting-power",
       "inputShape": {
         "kind": "query",
         "bindings": [
@@ -11222,7 +12293,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "votingPowerGetDelegatedVotingPower",
+      "operationId": "getDelegatedVotingPower",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "VotingPowerFacet.getDelegatedVotingPower"
@@ -12195,6 +13266,69 @@
       "path": "/v1/tokenomics/events/transfer/query/burn-threshold",
       "notes": "BurnThresholdFacet.Transfer"
     },
+    "CommunityRewardsFacet.CampaignCapConfig": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "CampaignCapConfig",
+      "domain": "tokenomics",
+      "operationId": "campaignCapConfigEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/campaign-cap-config/query",
+      "notes": "CommunityRewardsFacet.CampaignCapConfig"
+    },
+    "CommunityRewardsFacet.CampaignCreated": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "CampaignCreated",
+      "domain": "tokenomics",
+      "operationId": "campaignCreatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/campaign-created/query",
+      "notes": "CommunityRewardsFacet.CampaignCreated"
+    },
+    "CommunityRewardsFacet.CampaignMerkleRootUpdated": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "CampaignMerkleRootUpdated",
+      "domain": "tokenomics",
+      "operationId": "campaignMerkleRootUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/campaign-merkle-root-updated/query",
+      "notes": "CommunityRewardsFacet.CampaignMerkleRootUpdated"
+    },
+    "CommunityRewardsFacet.CampaignPaused": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "CampaignPaused",
+      "domain": "tokenomics",
+      "operationId": "campaignPausedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/campaign-paused/query",
+      "notes": "CommunityRewardsFacet.CampaignPaused"
+    },
+    "CommunityRewardsFacet.CampaignUnpaused": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "CampaignUnpaused",
+      "domain": "tokenomics",
+      "operationId": "campaignUnpausedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/campaign-unpaused/query",
+      "notes": "CommunityRewardsFacet.CampaignUnpaused"
+    },
+    "CommunityRewardsFacet.CampaignVestingConfig": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "CampaignVestingConfig",
+      "domain": "tokenomics",
+      "operationId": "campaignVestingConfigEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/campaign-vesting-config/query",
+      "notes": "CommunityRewardsFacet.CampaignVestingConfig"
+    },
+    "CommunityRewardsFacet.Claimed": {
+      "facetName": "CommunityRewardsFacet",
+      "wrapperKey": "Claimed",
+      "domain": "tokenomics",
+      "operationId": "claimedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/claimed/query",
+      "notes": "CommunityRewardsFacet.Claimed"
+    },
     "DelegationFacet.DelegateChanged(address,address,address)": {
       "facetName": "DelegationFacet",
       "wrapperKey": "DelegateChanged(address,address,address)",
@@ -12510,6 +13644,33 @@
       "path": "/v1/emergency/events/withdrawal-config-updated/query",
       "notes": "EmergencyWithdrawalFacet.WithdrawalConfigUpdated"
     },
+    "EscrowFacet.AssetEscrowed": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "AssetEscrowed",
+      "domain": "marketplace",
+      "operationId": "escrowAssetEscrowedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/events/asset-escrowed/query/escrow",
+      "notes": "EscrowFacet.AssetEscrowed"
+    },
+    "EscrowFacet.AssetReleased": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "AssetReleased",
+      "domain": "marketplace",
+      "operationId": "assetReleasedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/events/asset-released/query",
+      "notes": "EscrowFacet.AssetReleased"
+    },
+    "EscrowFacet.AssetStateUpdated": {
+      "facetName": "EscrowFacet",
+      "wrapperKey": "AssetStateUpdated",
+      "domain": "marketplace",
+      "operationId": "assetStateUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/events/asset-state-updated/query",
+      "notes": "EscrowFacet.AssetStateUpdated"
+    },
     "GovernorFacet.TargetGasLimitUpdated": {
       "facetName": "GovernorFacet",
       "wrapperKey": "TargetGasLimitUpdated",
@@ -12528,13 +13689,67 @@
       "path": "/v1/governance/events/trusted-target-updated/query",
       "notes": "GovernorFacet.TrustedTargetUpdated"
     },
+    "LegacyExecutionFacet.InheritanceActivated": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "InheritanceActivated",
+      "domain": "voice-assets",
+      "operationId": "inheritanceActivatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/events/inheritance-activated/query",
+      "notes": "LegacyExecutionFacet.InheritanceActivated"
+    },
+    "LegacyExecutionFacet.InheritanceApproved": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "InheritanceApproved",
+      "domain": "voice-assets",
+      "operationId": "inheritanceApprovedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/events/inheritance-approved/query",
+      "notes": "LegacyExecutionFacet.InheritanceApproved"
+    },
+    "LegacyExecutionFacet.RightsDelegated": {
+      "facetName": "LegacyExecutionFacet",
+      "wrapperKey": "RightsDelegated",
+      "domain": "voice-assets",
+      "operationId": "rightsDelegatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/events/rights-delegated/query",
+      "notes": "LegacyExecutionFacet.RightsDelegated"
+    },
+    "LegacyFacet.BeneficiaryUpdated": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "BeneficiaryUpdated",
+      "domain": "voice-assets",
+      "operationId": "beneficiaryUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/events/beneficiary-updated/query",
+      "notes": "LegacyFacet.BeneficiaryUpdated"
+    },
+    "LegacyFacet.InheritanceConditionsUpdated": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "InheritanceConditionsUpdated",
+      "domain": "voice-assets",
+      "operationId": "inheritanceConditionsUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/events/inheritance-conditions-updated/query",
+      "notes": "LegacyFacet.InheritanceConditionsUpdated"
+    },
+    "LegacyFacet.LegacyPlanCreated": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "LegacyPlanCreated",
+      "domain": "voice-assets",
+      "operationId": "legacyPlanCreatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/events/legacy-plan-created/query",
+      "notes": "LegacyFacet.LegacyPlanCreated"
+    },
     "MarketplaceFacet.AssetEscrowed": {
       "facetName": "MarketplaceFacet",
       "wrapperKey": "AssetEscrowed",
       "domain": "marketplace",
-      "operationId": "assetEscrowedEventQuery",
+      "operationId": "marketplaceAssetEscrowedEventQuery",
       "httpMethod": "POST",
-      "path": "/v1/marketplace/events/asset-escrowed/query",
+      "path": "/v1/marketplace/events/asset-escrowed/query/marketplace",
       "notes": "MarketplaceFacet.AssetEscrowed"
     },
     "MarketplaceFacet.AssetListed": {
@@ -12924,6 +14139,60 @@
       "path": "/v1/governance/events/vote-cast/query",
       "notes": "ProposalFacet.VoteCast"
     },
+    "RightsFacet.CollaboratorUpdated": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "CollaboratorUpdated",
+      "domain": "licensing",
+      "operationId": "collaboratorUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/events/collaborator-updated/query",
+      "notes": "RightsFacet.CollaboratorUpdated"
+    },
+    "RightsFacet.RightContractRegistered": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "RightContractRegistered",
+      "domain": "licensing",
+      "operationId": "rightContractRegisteredEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/events/right-contract-registered/query",
+      "notes": "RightsFacet.RightContractRegistered"
+    },
+    "RightsFacet.RightContractUpdated": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "RightContractUpdated",
+      "domain": "licensing",
+      "operationId": "rightContractUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/events/right-contract-updated/query",
+      "notes": "RightsFacet.RightContractUpdated"
+    },
+    "RightsFacet.RightGranted": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "RightGranted",
+      "domain": "licensing",
+      "operationId": "rightGrantedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/events/right-granted/query",
+      "notes": "RightsFacet.RightGranted"
+    },
+    "RightsFacet.RightRevoked": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "RightRevoked",
+      "domain": "licensing",
+      "operationId": "rightRevokedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/events/right-revoked/query",
+      "notes": "RightsFacet.RightRevoked"
+    },
+    "RightsFacet.RightsGroupCreated": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "RightsGroupCreated",
+      "domain": "licensing",
+      "operationId": "rightsGroupCreatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/events/rights-group-created/query",
+      "notes": "RightsFacet.RightsGroupCreated"
+    },
     "StakingFacet.EpochAdvanced": {
       "facetName": "StakingFacet",
       "wrapperKey": "EpochAdvanced",
@@ -13110,7 +14379,7 @@
       "domain": "tokenomics",
       "operationId": "vestingScheduleCreatedAddressUint256Uint256Uint256Uint256BoolEventQuery",
       "httpMethod": "POST",
-      "path": "/v1/tokenomics/events/vesting-schedule-created/query",
+      "path": "/v1/tokenomics/events/vesting-schedule-created/query/timewave-gift",
       "notes": "TimewaveGiftFacet.VestingScheduleCreated(address,uint256,uint256,uint256,uint256,bool)"
     },
     "TimewaveGiftFacet.VestingTransferred": {
@@ -13211,6 +14480,78 @@
       "httpMethod": "POST",
       "path": "/v1/diamond-admin/events/upgrade-proposed/query",
       "notes": "UpgradeControllerFacet.UpgradeProposed"
+    },
+    "VestingFacet.BeneficiaryTransferred": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "BeneficiaryTransferred",
+      "domain": "tokenomics",
+      "operationId": "beneficiaryTransferredEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/beneficiary-transferred/query",
+      "notes": "VestingFacet.BeneficiaryTransferred"
+    },
+    "VestingFacet.SaleRestrictionUpdated": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "SaleRestrictionUpdated",
+      "domain": "tokenomics",
+      "operationId": "saleRestrictionUpdatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/sale-restriction-updated/query",
+      "notes": "VestingFacet.SaleRestrictionUpdated"
+    },
+    "VestingFacet.TokensReleased": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "TokensReleased",
+      "domain": "tokenomics",
+      "operationId": "tokensReleasedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/tokens-released/query",
+      "notes": "VestingFacet.TokensReleased"
+    },
+    "VestingFacet.VestingInitialized": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "VestingInitialized",
+      "domain": "tokenomics",
+      "operationId": "vestingInitializedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/vesting-initialized/query",
+      "notes": "VestingFacet.VestingInitialized"
+    },
+    "VestingFacet.VestingPaused": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "VestingPaused",
+      "domain": "tokenomics",
+      "operationId": "vestingPausedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/vesting-paused/query",
+      "notes": "VestingFacet.VestingPaused"
+    },
+    "VestingFacet.VestingScheduleCreated": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "VestingScheduleCreated",
+      "domain": "tokenomics",
+      "operationId": "vestingScheduleCreatedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/vesting-schedule-created/query/vesting",
+      "notes": "VestingFacet.VestingScheduleCreated"
+    },
+    "VestingFacet.VestingScheduleRevoked": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "VestingScheduleRevoked",
+      "domain": "tokenomics",
+      "operationId": "vestingScheduleRevokedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/vesting-schedule-revoked/query",
+      "notes": "VestingFacet.VestingScheduleRevoked"
+    },
+    "VestingFacet.VestingUnpaused": {
+      "facetName": "VestingFacet",
+      "wrapperKey": "VestingUnpaused",
+      "domain": "tokenomics",
+      "operationId": "vestingUnpausedEventQuery",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/events/vesting-unpaused/query",
+      "notes": "VestingFacet.VestingUnpaused"
     },
     "VoiceAssetFacet.Approval": {
       "facetName": "VoiceAssetFacet",

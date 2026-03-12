@@ -2,10 +2,6 @@ import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../
 import { diamondAdminEventDefinitions, diamondAdminMethodDefinitions } from "./mapping.js";
 
 export const approveUpgradeRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!);
-export const diamondCutRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!);
-export const diamondCutIsImmutableSelectorReservedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCutIsImmutableSelectorReserved")!);
-export const diamondLoupeIsImmutableSelectorReservedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondLoupeIsImmutableSelectorReserved")!);
-export const executeUpgradeRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!);
 export const facetAddressRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!);
 export const facetAddressesRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!);
 export const facetFunctionSelectorsRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!);
@@ -19,17 +15,16 @@ export const getUpgradeControlStatusRequestSchemas = buildMethodRequestSchemas(d
 export const getUpgradeDelayRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeDelay")!);
 export const getUpgradeThresholdRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeThreshold")!);
 export const initUpgradeControllerRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "initUpgradeController")!);
+export const isImmutableSelectorReservedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isImmutableSelectorReserved")!);
 export const isTrustedInitSelectorRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelector")!);
 export const isTrustedInitSelectorPolicyEnabledRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelectorPolicyEnabled")!);
 export const isUpgradeApprovedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!);
 export const isUpgradeControlFrozenRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeControlFrozen")!);
 export const isUpgradeSignerRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeSigner")!);
-export const proposeDiamondCutRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "proposeDiamondCut")!);
 export const setTrustedInitCodehashRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitCodehash")!);
 export const setTrustedInitContractRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!);
 export const setTrustedInitSelectorRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!);
 export const setUpgradeControlEnforcedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setUpgradeControlEnforced")!);
-export const supportsInterfaceRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!);
 export const diamondCutEventEventQueryRequestSchema = buildEventRequestSchema(diamondAdminEventDefinitions.find((definition) => definition.operationId === "diamondCutEventEventQuery")!);
 export const diamondCutEventQueryRequestSchema = buildEventRequestSchema(diamondAdminEventDefinitions.find((definition) => definition.operationId === "diamondCutEventQuery")!);
 export const trustedInitCodehashSetEventQueryRequestSchema = buildEventRequestSchema(diamondAdminEventDefinitions.find((definition) => definition.operationId === "trustedInitCodehashSetEventQuery")!);

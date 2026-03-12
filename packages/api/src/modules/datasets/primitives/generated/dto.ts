@@ -6,7 +6,6 @@ import {
   getDatasetRequestSchemas,
   getDatasetsByCreatorRequestSchemas,
   getMaxAssetsPerDatasetRequestSchemas,
-  getSelectorsRequestSchemas,
   getTotalDatasetsRequestSchemas,
   removeAssetRequestSchemas,
   royaltyInfoRequestSchemas,
@@ -48,9 +47,6 @@ export type GetDatasetsByCreatorBody = import("zod").infer<typeof getDatasetsByC
 export type GetMaxAssetsPerDatasetPath = import("zod").infer<typeof getMaxAssetsPerDatasetRequestSchemas.path>;
 export type GetMaxAssetsPerDatasetQuery = import("zod").infer<typeof getMaxAssetsPerDatasetRequestSchemas.query>;
 export type GetMaxAssetsPerDatasetBody = import("zod").infer<typeof getMaxAssetsPerDatasetRequestSchemas.body>;
-export type GetSelectorsPath = import("zod").infer<typeof getSelectorsRequestSchemas.path>;
-export type GetSelectorsQuery = import("zod").infer<typeof getSelectorsRequestSchemas.query>;
-export type GetSelectorsBody = import("zod").infer<typeof getSelectorsRequestSchemas.body>;
 export type GetTotalDatasetsPath = import("zod").infer<typeof getTotalDatasetsRequestSchemas.path>;
 export type GetTotalDatasetsQuery = import("zod").infer<typeof getTotalDatasetsRequestSchemas.query>;
 export type GetTotalDatasetsBody = import("zod").infer<typeof getTotalDatasetsRequestSchemas.body>;

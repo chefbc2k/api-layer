@@ -12,6 +12,7 @@ export const generatedManifestDir = path.join(generatedDir, "manifests");
 export const localAbiSourceDir = path.join(rootDir, "abis");
 export const localScenarioSnapshotDir = path.join(rootDir, "scenario-adapter");
 export const localScenarioOverrideDir = path.join(rootDir, "scenario-adapter-overrides");
+export const localDeploymentManifestPath = path.join(rootDir, "deployment-manifest.json");
 
 export async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true });
@@ -109,4 +110,26 @@ export async function resolveScenarioSourceDir(): Promise<string | null> {
   ].filter((value): value is string => Boolean(value));
 
   return firstExistingDirectory(candidates);
+}
+
+export async function resolveDeploymentManifestPath(): Promise<string | null> {
+  const explicit = process.env.API_LAYER_DEPLOYMENT_MANIFEST;
+  const candidates = [
+    explicit ? normalizeCandidate(explicit) : null,
+    localDeploymentManifestPath,
+    path.join(parentRepoDir, "artifacts", "release-readiness", "deployment-manifest.json"),
+    path.join(path.dirname(rootDir), "CONTRACTS", "artifacts", "release-readiness", "deployment-manifest.json"),
+  ].filter((value): value is string => Boolean(value));
+
+  for (const candidate of candidates) {
+    try {
+      if ((await stat(candidate)).isFile()) {
+        return candidate;
+      }
+    } catch {
+      // ignore missing candidates
+    }
+  }
+
+  return null;
 }

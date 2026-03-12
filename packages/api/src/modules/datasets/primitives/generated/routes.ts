@@ -15,7 +15,6 @@ export function createDatasetsPrimitiveRouter(context: ApiExecutionContext): Rou
   registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "getDataset")!, controller["getDataset"]);
   registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "getDatasetsByCreator")!, controller["getDatasetsByCreator"]);
   registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "getMaxAssetsPerDataset")!, controller["getMaxAssetsPerDataset"]);
-  registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!, controller["getSelectors"]);
   registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "getTotalDatasets")!, controller["getTotalDatasets"]);
   registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "removeAsset")!, controller["removeAsset"]);
   registerRoute(router, datasetsMethodDefinitions.find((definition) => definition.operationId === "royaltyInfo")!, controller["royaltyInfo"]);

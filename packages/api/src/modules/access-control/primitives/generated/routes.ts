@@ -8,7 +8,6 @@ import { accessControlEventDefinitions, accessControlMethodDefinitions } from ".
 export function createAccessControlPrimitiveRouter(context: ApiExecutionContext): Router {
   const router = Router();
   const controller = createAccessControlPrimitiveController(context);
-  registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "configureRole")!, controller["configureRole"]);
   registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "debugRoleIndexState")!, controller["debugRoleIndexState"]);
   registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "emergencyForceAdd")!, controller["emergencyForceAdd"]);
   registerRoute(router, accessControlMethodDefinitions.find((definition) => definition.operationId === "executeFounderSunset")!, controller["executeFounderSunset"]);

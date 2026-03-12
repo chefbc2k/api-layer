@@ -2,43 +2,43 @@ import type { HttpEventDefinition, HttpMethodDefinition } from "../../../../shar
 
 export const licensingMethodDefinitions: HttpMethodDefinition[] = [
   {
-    "key": "VoiceLicenseFacet.createLicense",
-    "facetName": "VoiceLicenseFacet",
-    "wrapperKey": "createLicense",
+    "key": "RightsFacet.addCollaborator",
+    "facetName": "RightsFacet",
+    "wrapperKey": "addCollaborator",
     "domain": "licensing",
-    "resource": "licenses",
-    "classification": "create",
+    "resource": "rights",
+    "classification": "action",
     "httpMethod": "POST",
-    "path": "/v1/licensing/licenses/create-license",
+    "path": "/v1/licensing/commands/add-collaborator",
     "inputShape": {
       "kind": "body",
       "bindings": [
-        {
-          "name": "licensee",
-          "source": "body",
-          "field": "licensee"
-        },
         {
           "name": "voiceHash",
           "source": "body",
           "field": "voiceHash"
         },
         {
-          "name": "terms",
+          "name": "collaborator",
           "source": "body",
-          "field": "terms"
+          "field": "collaborator"
+        },
+        {
+          "name": "share",
+          "source": "body",
+          "field": "share"
         }
       ]
     },
     "outputShape": {
       "kind": "void"
     },
-    "operationId": "createLicense",
+    "operationId": "addCollaborator",
     "rateLimitKind": "write",
     "supportsGasless": false,
-    "notes": "VoiceLicenseFacet.createLicense",
-    "methodName": "createLicense",
-    "signature": "createLicense(address,bytes32,tuple)",
+    "notes": "RightsFacet.addCollaborator",
+    "methodName": "addCollaborator",
+    "signature": "addCollaborator(bytes32,address,uint256)",
     "category": "write",
     "mutability": "nonpayable",
     "liveRequired": false,
@@ -50,56 +50,815 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
     "gaslessModes": [],
     "inputs": [
       {
-        "name": "licensee",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
+        "internalType": "bytes32",
         "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
+        "type": "bytes32"
       },
       {
-        "name": "terms",
-        "type": "tuple",
-        "internalType": "struct VoiceLicenseStorage.LicenseTerms",
+        "internalType": "address",
+        "name": "collaborator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "share",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "RightsFacet.getCategoryContracts",
+    "facetName": "RightsFacet",
+    "wrapperKey": "getCategoryContracts",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/get-category-contracts",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "category",
+          "source": "query",
+          "field": "category"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "array"
+    },
+    "operationId": "getCategoryContracts",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.getCategoryContracts",
+    "methodName": "getCategoryContracts",
+    "signature": "getCategoryContracts(string)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "category",
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "rightIds",
+        "type": "string[]"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.getCollaborator",
+    "facetName": "RightsFacet",
+    "wrapperKey": "getCollaborator",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/get-collaborator",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "query",
+          "field": "voiceHash"
+        },
+        {
+          "name": "collaborator",
+          "source": "query",
+          "field": "collaborator"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "tuple"
+    },
+    "operationId": "getCollaborator",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.getCollaborator",
+    "methodName": "getCollaborator",
+    "signature": "getCollaborator(bytes32,address)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "collaborator",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "share",
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.getRightCategory",
+    "facetName": "RightsFacet",
+    "wrapperKey": "getRightCategory",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/get-right-category",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "rightId",
+          "source": "query",
+          "field": "rightId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "getRightCategory",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.getRightCategory",
+    "methodName": "getRightCategory",
+    "signature": "getRightCategory(string)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "category",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.getRightContract",
+    "facetName": "RightsFacet",
+    "wrapperKey": "getRightContract",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/get-right-contract",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "rightId",
+          "source": "query",
+          "field": "rightId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "getRightContract",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.getRightContract",
+    "methodName": "getRightContract",
+    "signature": "getRightContract(string)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.getRightsGroup",
+    "facetName": "RightsFacet",
+    "wrapperKey": "getRightsGroup",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/get-rights-group",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "query",
+          "field": "voiceHash"
+        },
+        {
+          "name": "groupIndex",
+          "source": "query",
+          "field": "groupIndex"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "object"
+    },
+    "operationId": "getRightsGroup",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.getRightsGroup",
+    "methodName": "getRightsGroup",
+    "signature": "getRightsGroup(bytes32,uint256)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "groupIndex",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
         "components": [
           {
-            "name": "licenseHash",
-            "type": "bytes32",
-            "internalType": "bytes32"
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
           },
           {
-            "name": "duration",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "price",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "maxUses",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "transferable",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
+            "components": [
+              {
+                "internalType": "string",
+                "name": "rightType",
+                "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "startTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "endTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "transferable",
+                "type": "bool"
+              },
+              {
+                "internalType": "string[]",
+                "name": "restrictions",
+                "type": "string[]"
+              },
+              {
+                "internalType": "bool",
+                "name": "revocable",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct RightsStorage.UsageRight[]",
             "name": "rights",
-            "type": "string[]",
-            "internalType": "string[]"
+            "type": "tuple[]"
           },
           {
-            "name": "restrictions",
-            "type": "string[]",
-            "internalType": "string[]"
+            "internalType": "address[]",
+            "name": "members",
+            "type": "address[]"
+          },
+          {
+            "internalType": "bool",
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
           }
-        ]
+        ],
+        "internalType": "struct RightsStorage.RightsGroup",
+        "name": "group",
+        "type": "tuple"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.getUserRights",
+    "facetName": "RightsFacet",
+    "wrapperKey": "getUserRights",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/get-user-rights",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "query",
+          "field": "voiceHash"
+        },
+        {
+          "name": "user",
+          "source": "query",
+          "field": "user"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "array"
+    },
+    "operationId": "getUserRights",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.getUserRights",
+    "methodName": "getUserRights",
+    "signature": "getUserRights(bytes32,address)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "rightType",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "transferable",
+            "type": "bool"
+          },
+          {
+            "internalType": "string[]",
+            "name": "restrictions",
+            "type": "string[]"
+          },
+          {
+            "internalType": "bool",
+            "name": "revocable",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct RightsStorage.UsageRight[]",
+        "name": "rights",
+        "type": "tuple[]"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.registerRightContract",
+    "facetName": "RightsFacet",
+    "wrapperKey": "registerRightContract",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "create",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/rights",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "category",
+          "source": "body",
+          "field": "category"
+        },
+        {
+          "name": "contractAddress",
+          "source": "body",
+          "field": "contractAddress"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "registerRightContract",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "RightsFacet.registerRightContract",
+    "methodName": "registerRightContract",
+    "signature": "registerRightContract(string,address)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "category",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.removeCollaborator",
+    "facetName": "RightsFacet",
+    "wrapperKey": "removeCollaborator",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "delete",
+    "httpMethod": "DELETE",
+    "path": "/v1/licensing/commands/remove-collaborator",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "body",
+          "field": "voiceHash"
+        },
+        {
+          "name": "collaborator",
+          "source": "body",
+          "field": "collaborator"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "removeCollaborator",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "RightsFacet.removeCollaborator",
+    "methodName": "removeCollaborator",
+    "signature": "removeCollaborator(bytes32,address)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "collaborator",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "RightsFacet.revokeRight",
+    "facetName": "RightsFacet",
+    "wrapperKey": "revokeRight",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "delete",
+    "httpMethod": "DELETE",
+    "path": "/v1/licensing/commands/revoke-right",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "body",
+          "field": "voiceHash"
+        },
+        {
+          "name": "holder",
+          "source": "body",
+          "field": "holder"
+        },
+        {
+          "name": "rightType",
+          "source": "body",
+          "field": "rightType"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "revokeRight",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "RightsFacet.revokeRight",
+    "methodName": "revokeRight",
+    "signature": "revokeRight(bytes32,address,string)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "holder",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "rightType",
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "RightsFacet.rightIdExists",
+    "facetName": "RightsFacet",
+    "wrapperKey": "rightIdExists",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/licensing/queries/right-id-exists",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "rightId",
+          "source": "query",
+          "field": "rightId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "rightIdExists",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "RightsFacet.rightIdExists",
+    "methodName": "rightIdExists",
+    "signature": "rightIdExists(string)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "key": "RightsFacet.updateCollaboratorShare",
+    "facetName": "RightsFacet",
+    "wrapperKey": "updateCollaboratorShare",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/licensing/commands/update-collaborator-share",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "body",
+          "field": "voiceHash"
+        },
+        {
+          "name": "collaborator",
+          "source": "body",
+          "field": "collaborator"
+        },
+        {
+          "name": "newShare",
+          "source": "body",
+          "field": "newShare"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "updateCollaboratorShare",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "RightsFacet.updateCollaboratorShare",
+    "methodName": "updateCollaboratorShare",
+    "signature": "updateCollaboratorShare(bytes32,address,uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "collaborator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "newShare",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "RightsFacet.updateRightContract",
+    "facetName": "RightsFacet",
+    "wrapperKey": "updateRightContract",
+    "domain": "licensing",
+    "resource": "rights",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/licensing/commands/update-right-contract",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "rightId",
+          "source": "body",
+          "field": "rightId"
+        },
+        {
+          "name": "newContractAddress",
+          "source": "body",
+          "field": "newContractAddress"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "updateRightContract",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "RightsFacet.updateRightContract",
+    "methodName": "updateRightContract",
+    "signature": "updateRightContract(string,address)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "newContractAddress",
+        "type": "address"
       }
     ],
     "outputs": []
@@ -199,47 +958,6 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
-  },
-  {
-    "key": "VoiceLicenseFacet.facetFunctionSelectors",
-    "facetName": "VoiceLicenseFacet",
-    "wrapperKey": "facetFunctionSelectors",
-    "domain": "licensing",
-    "resource": "licenses",
-    "classification": "query",
-    "httpMethod": "POST",
-    "path": "/v1/licensing/queries/facet-function-selectors",
-    "inputShape": {
-      "kind": "none",
-      "bindings": []
-    },
-    "outputShape": {
-      "kind": "array"
-    },
-    "operationId": "facetFunctionSelectors",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "VoiceLicenseFacet.facetFunctionSelectors",
-    "methodName": "facetFunctionSelectors",
-    "signature": "facetFunctionSelectors()",
-    "category": "read",
-    "mutability": "pure",
-    "liveRequired": false,
-    "cacheClass": "short",
-    "cacheTtlSeconds": 5,
-    "executionSources": [
-      "live",
-      "cache"
-    ],
-    "gaslessModes": [],
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "selectors",
-        "type": "bytes4[]",
-        "internalType": "bytes4[]"
-      }
-    ]
   },
   {
     "key": "VoiceLicenseFacet.getLicense",
@@ -894,62 +1612,6 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "VoiceLicenseFacet.recordUsage",
-    "facetName": "VoiceLicenseFacet",
-    "wrapperKey": "recordUsage",
-    "domain": "licensing",
-    "resource": "licenses",
-    "classification": "action",
-    "httpMethod": "POST",
-    "path": "/v1/licensing/commands/record-usage",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "voiceHash",
-          "source": "body",
-          "field": "voiceHash"
-        },
-        {
-          "name": "usageRef",
-          "source": "body",
-          "field": "usageRef"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "recordUsage",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceLicenseFacet.recordUsage",
-    "methodName": "recordUsage",
-    "signature": "recordUsage(bytes32,bytes32)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "usageRef",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": []
-  },
-  {
     "key": "VoiceLicenseFacet.revokeLicense",
     "facetName": "VoiceLicenseFacet",
     "wrapperKey": "revokeLicense",
@@ -1290,271 +1952,6 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "VoiceLicenseTemplateFacet.createLicenseFromTemplate",
-    "facetName": "VoiceLicenseTemplateFacet",
-    "wrapperKey": "createLicenseFromTemplate",
-    "domain": "licensing",
-    "resource": "license-templates",
-    "classification": "create",
-    "httpMethod": "POST",
-    "path": "/v1/licensing/license-templates/create-license-from-template",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "voiceHash",
-          "source": "body",
-          "field": "voiceHash"
-        },
-        {
-          "name": "templateHash",
-          "source": "body",
-          "field": "templateHash"
-        },
-        {
-          "name": "customizations",
-          "source": "body",
-          "field": "customizations"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "createLicenseFromTemplate",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceLicenseTemplateFacet.createLicenseFromTemplate",
-    "methodName": "createLicenseFromTemplate",
-    "signature": "createLicenseFromTemplate(bytes32,bytes32,tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "templateHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "customizations",
-        "type": "tuple",
-        "internalType": "struct VoiceLicenseStorage.LicenseTerms",
-        "components": [
-          {
-            "name": "licenseHash",
-            "type": "bytes32",
-            "internalType": "bytes32"
-          },
-          {
-            "name": "duration",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "price",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "maxUses",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "transferable",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "rights",
-            "type": "string[]",
-            "internalType": "string[]"
-          },
-          {
-            "name": "restrictions",
-            "type": "string[]",
-            "internalType": "string[]"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "licenseHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ]
-  },
-  {
-    "key": "VoiceLicenseTemplateFacet.createTemplate",
-    "facetName": "VoiceLicenseTemplateFacet",
-    "wrapperKey": "createTemplate",
-    "domain": "licensing",
-    "resource": "license-templates",
-    "classification": "create",
-    "httpMethod": "POST",
-    "path": "/v1/licensing/license-templates/create-template",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "template",
-          "source": "body",
-          "field": "template"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "createTemplate",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceLicenseTemplateFacet.createTemplate",
-    "methodName": "createTemplate",
-    "signature": "createTemplate(tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "template",
-        "type": "tuple",
-        "internalType": "struct VoiceLicenseStorage.LicenseTemplate",
-        "components": [
-          {
-            "name": "creator",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "isActive",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "transferable",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "createdAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "updatedAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "defaultDuration",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "defaultPrice",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "maxUses",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "name",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "description",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "defaultRights",
-            "type": "string[]",
-            "internalType": "string[]"
-          },
-          {
-            "name": "defaultRestrictions",
-            "type": "string[]",
-            "internalType": "string[]"
-          },
-          {
-            "name": "terms",
-            "type": "tuple",
-            "internalType": "struct VoiceLicenseStorage.LicenseTerms",
-            "components": [
-              {
-                "name": "licenseHash",
-                "type": "bytes32",
-                "internalType": "bytes32"
-              },
-              {
-                "name": "duration",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "price",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "maxUses",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "transferable",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "rights",
-                "type": "string[]",
-                "internalType": "string[]"
-              },
-              {
-                "name": "restrictions",
-                "type": "string[]",
-                "internalType": "string[]"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "templateHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ]
-  },
-  {
     "key": "VoiceLicenseTemplateFacet.getCreatorTemplates",
     "facetName": "VoiceLicenseTemplateFacet",
     "wrapperKey": "getCreatorTemplates",
@@ -1604,47 +2001,6 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
         "name": "",
         "type": "bytes32[]",
         "internalType": "bytes32[]"
-      }
-    ]
-  },
-  {
-    "key": "VoiceLicenseTemplateFacet.getSelectors",
-    "facetName": "VoiceLicenseTemplateFacet",
-    "wrapperKey": "getSelectors",
-    "domain": "licensing",
-    "resource": "license-templates",
-    "classification": "query",
-    "httpMethod": "POST",
-    "path": "/v1/licensing/queries/get-selectors",
-    "inputShape": {
-      "kind": "none",
-      "bindings": []
-    },
-    "outputShape": {
-      "kind": "array"
-    },
-    "operationId": "getSelectors",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "VoiceLicenseTemplateFacet.getSelectors",
-    "methodName": "getSelectors",
-    "signature": "getSelectors()",
-    "category": "read",
-    "mutability": "pure",
-    "liveRequired": false,
-    "cacheClass": "static",
-    "cacheTtlSeconds": 600,
-    "executionSources": [
-      "live",
-      "cache"
-    ],
-    "gaslessModes": [],
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "selectors",
-        "type": "bytes4[]",
-        "internalType": "bytes4[]"
       }
     ]
   },
@@ -1913,169 +2269,285 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
-  },
-  {
-    "key": "VoiceLicenseTemplateFacet.updateTemplate",
-    "facetName": "VoiceLicenseTemplateFacet",
-    "wrapperKey": "updateTemplate",
-    "domain": "licensing",
-    "resource": "license-templates",
-    "classification": "update",
-    "httpMethod": "PATCH",
-    "path": "/v1/licensing/commands/update-template",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "templateHash",
-          "source": "body",
-          "field": "templateHash"
-        },
-        {
-          "name": "template",
-          "source": "body",
-          "field": "template"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "updateTemplate",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceLicenseTemplateFacet.updateTemplate",
-    "methodName": "updateTemplate",
-    "signature": "updateTemplate(bytes32,tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "templateHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "template",
-        "type": "tuple",
-        "internalType": "struct VoiceLicenseStorage.LicenseTemplate",
-        "components": [
-          {
-            "name": "creator",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "isActive",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "transferable",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "createdAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "updatedAt",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "defaultDuration",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "defaultPrice",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "maxUses",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "name",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "description",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "defaultRights",
-            "type": "string[]",
-            "internalType": "string[]"
-          },
-          {
-            "name": "defaultRestrictions",
-            "type": "string[]",
-            "internalType": "string[]"
-          },
-          {
-            "name": "terms",
-            "type": "tuple",
-            "internalType": "struct VoiceLicenseStorage.LicenseTerms",
-            "components": [
-              {
-                "name": "licenseHash",
-                "type": "bytes32",
-                "internalType": "bytes32"
-              },
-              {
-                "name": "duration",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "price",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "maxUses",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "transferable",
-                "type": "bool",
-                "internalType": "bool"
-              },
-              {
-                "name": "rights",
-                "type": "string[]",
-                "internalType": "string[]"
-              },
-              {
-                "name": "restrictions",
-                "type": "string[]",
-                "internalType": "string[]"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "outputs": []
   }
 ] as HttpMethodDefinition[];
 export const licensingEventDefinitions: HttpEventDefinition[] = [
+  {
+    "key": "RightsFacet.CollaboratorUpdated",
+    "facetName": "RightsFacet",
+    "wrapperKey": "CollaboratorUpdated",
+    "domain": "licensing",
+    "operationId": "collaboratorUpdatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/events/collaborator-updated/query",
+    "notes": "RightsFacet.CollaboratorUpdated",
+    "eventName": "CollaboratorUpdated",
+    "signature": "CollaboratorUpdated(bytes32,address,uint256,bool)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "collaborator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "share",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
+      }
+    ],
+    "projection": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "RightsFacet.RightContractRegistered",
+    "facetName": "RightsFacet",
+    "wrapperKey": "RightContractRegistered",
+    "domain": "licensing",
+    "operationId": "rightContractRegisteredEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/events/right-contract-registered/query",
+    "notes": "RightsFacet.RightContractRegistered",
+    "eventName": "RightContractRegistered",
+    "signature": "RightContractRegistered(string,string,address,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "category",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "RightsFacet.RightContractUpdated",
+    "facetName": "RightsFacet",
+    "wrapperKey": "RightContractUpdated",
+    "domain": "licensing",
+    "operationId": "rightContractUpdatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/events/right-contract-updated/query",
+    "notes": "RightsFacet.RightContractUpdated",
+    "eventName": "RightContractUpdated",
+    "signature": "RightContractUpdated(string,address,address,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "rightId",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldContract",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "RightsFacet.RightGranted",
+    "facetName": "RightsFacet",
+    "wrapperKey": "RightGranted",
+    "domain": "licensing",
+    "operationId": "rightGrantedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/events/right-granted/query",
+    "notes": "RightsFacet.RightGranted",
+    "eventName": "RightGranted",
+    "signature": "RightGranted(bytes32,address,string,uint256,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "grantee",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "rightType",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "RightsFacet.RightRevoked",
+    "facetName": "RightsFacet",
+    "wrapperKey": "RightRevoked",
+    "domain": "licensing",
+    "operationId": "rightRevokedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/events/right-revoked/query",
+    "notes": "RightsFacet.RightRevoked",
+    "eventName": "RightRevoked",
+    "signature": "RightRevoked(bytes32,address,string,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "holder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "rightType",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "RightsFacet.RightsGroupCreated",
+    "facetName": "RightsFacet",
+    "wrapperKey": "RightsGroupCreated",
+    "domain": "licensing",
+    "operationId": "rightsGroupCreatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/events/rights-group-created/query",
+    "notes": "RightsFacet.RightsGroupCreated",
+    "eventName": "RightsGroupCreated",
+    "signature": "RightsGroupCreated(bytes32,string,uint256,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "memberCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
   {
     "key": "VoiceLicenseFacet.Debug",
     "facetName": "VoiceLicenseFacet",

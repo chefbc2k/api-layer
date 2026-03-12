@@ -1,5 +1,8 @@
 import {
+  cancelRequestSchemas,
   cancelProposalRequestSchemas,
+  executeRequestSchemas,
+  executorRoleRequestSchemas,
   getActiveProposalsRequestSchemas,
   getMinDelayRequestSchemas,
   getOperationRequestSchemas,
@@ -9,23 +12,18 @@ import {
   getRoleMultiplierRequestSchemas,
   getTimestampRequestSchemas,
   getVotingConfigRequestSchemas,
-  governorGovernanceProposerRoleRequestSchemas,
+  governanceProposerRoleRequestSchemas,
   isOperationExecutedRequestSchemas,
   isOperationPendingRequestSchemas,
   isOperationReadyRequestSchemas,
   prCastVoteRequestSchemas,
   prExecuteRequestSchemas,
-  proposalCancelRequestSchemas,
   proposalDeadlineRequestSchemas,
-  proposalExecuteRequestSchemas,
-  proposalExecutorRoleRequestSchemas,
   proposalExistsRequestSchemas,
-  proposalGovernanceProposerRoleRequestSchemas,
   proposalSnapshotRequestSchemas,
   proposalVotesRequestSchemas,
   proposeAddressArrayUint256ArrayBytesArrayStringUint8RequestSchemas,
   proposerRoleRequestSchemas,
-  proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas,
   prQueueRequestSchemas,
   prStateRequestSchemas,
   queueRequestSchemas,
@@ -34,9 +32,6 @@ import {
   setProposalTypeConfigRequestSchemas,
   setTrustedTargetRequestSchemas,
   stateRequestSchemas,
-  timelockCancelRequestSchemas,
-  timelockExecuteRequestSchemas,
-  timelockExecutorRoleRequestSchemas,
   timelockRoleRequestSchemas,
   updateMinDelayRequestSchemas,
   updateProposalThresholdRequestSchemas,
@@ -61,9 +56,18 @@ import {
   voteCastEventQueryRequestSchema,
 } from "./schemas.js";
 
+export type CancelPath = import("zod").infer<typeof cancelRequestSchemas.path>;
+export type CancelQuery = import("zod").infer<typeof cancelRequestSchemas.query>;
+export type CancelBody = import("zod").infer<typeof cancelRequestSchemas.body>;
 export type CancelProposalPath = import("zod").infer<typeof cancelProposalRequestSchemas.path>;
 export type CancelProposalQuery = import("zod").infer<typeof cancelProposalRequestSchemas.query>;
 export type CancelProposalBody = import("zod").infer<typeof cancelProposalRequestSchemas.body>;
+export type ExecutePath = import("zod").infer<typeof executeRequestSchemas.path>;
+export type ExecuteQuery = import("zod").infer<typeof executeRequestSchemas.query>;
+export type ExecuteBody = import("zod").infer<typeof executeRequestSchemas.body>;
+export type ExecutorRolePath = import("zod").infer<typeof executorRoleRequestSchemas.path>;
+export type ExecutorRoleQuery = import("zod").infer<typeof executorRoleRequestSchemas.query>;
+export type ExecutorRoleBody = import("zod").infer<typeof executorRoleRequestSchemas.body>;
 export type GetActiveProposalsPath = import("zod").infer<typeof getActiveProposalsRequestSchemas.path>;
 export type GetActiveProposalsQuery = import("zod").infer<typeof getActiveProposalsRequestSchemas.query>;
 export type GetActiveProposalsBody = import("zod").infer<typeof getActiveProposalsRequestSchemas.body>;
@@ -91,9 +95,9 @@ export type GetTimestampBody = import("zod").infer<typeof getTimestampRequestSch
 export type GetVotingConfigPath = import("zod").infer<typeof getVotingConfigRequestSchemas.path>;
 export type GetVotingConfigQuery = import("zod").infer<typeof getVotingConfigRequestSchemas.query>;
 export type GetVotingConfigBody = import("zod").infer<typeof getVotingConfigRequestSchemas.body>;
-export type GovernorGovernanceProposerRolePath = import("zod").infer<typeof governorGovernanceProposerRoleRequestSchemas.path>;
-export type GovernorGovernanceProposerRoleQuery = import("zod").infer<typeof governorGovernanceProposerRoleRequestSchemas.query>;
-export type GovernorGovernanceProposerRoleBody = import("zod").infer<typeof governorGovernanceProposerRoleRequestSchemas.body>;
+export type GovernanceProposerRolePath = import("zod").infer<typeof governanceProposerRoleRequestSchemas.path>;
+export type GovernanceProposerRoleQuery = import("zod").infer<typeof governanceProposerRoleRequestSchemas.query>;
+export type GovernanceProposerRoleBody = import("zod").infer<typeof governanceProposerRoleRequestSchemas.body>;
 export type IsOperationExecutedPath = import("zod").infer<typeof isOperationExecutedRequestSchemas.path>;
 export type IsOperationExecutedQuery = import("zod").infer<typeof isOperationExecutedRequestSchemas.query>;
 export type IsOperationExecutedBody = import("zod").infer<typeof isOperationExecutedRequestSchemas.body>;
@@ -109,24 +113,12 @@ export type PrCastVoteBody = import("zod").infer<typeof prCastVoteRequestSchemas
 export type PrExecutePath = import("zod").infer<typeof prExecuteRequestSchemas.path>;
 export type PrExecuteQuery = import("zod").infer<typeof prExecuteRequestSchemas.query>;
 export type PrExecuteBody = import("zod").infer<typeof prExecuteRequestSchemas.body>;
-export type ProposalCancelPath = import("zod").infer<typeof proposalCancelRequestSchemas.path>;
-export type ProposalCancelQuery = import("zod").infer<typeof proposalCancelRequestSchemas.query>;
-export type ProposalCancelBody = import("zod").infer<typeof proposalCancelRequestSchemas.body>;
 export type ProposalDeadlinePath = import("zod").infer<typeof proposalDeadlineRequestSchemas.path>;
 export type ProposalDeadlineQuery = import("zod").infer<typeof proposalDeadlineRequestSchemas.query>;
 export type ProposalDeadlineBody = import("zod").infer<typeof proposalDeadlineRequestSchemas.body>;
-export type ProposalExecutePath = import("zod").infer<typeof proposalExecuteRequestSchemas.path>;
-export type ProposalExecuteQuery = import("zod").infer<typeof proposalExecuteRequestSchemas.query>;
-export type ProposalExecuteBody = import("zod").infer<typeof proposalExecuteRequestSchemas.body>;
-export type ProposalExecutorRolePath = import("zod").infer<typeof proposalExecutorRoleRequestSchemas.path>;
-export type ProposalExecutorRoleQuery = import("zod").infer<typeof proposalExecutorRoleRequestSchemas.query>;
-export type ProposalExecutorRoleBody = import("zod").infer<typeof proposalExecutorRoleRequestSchemas.body>;
 export type ProposalExistsPath = import("zod").infer<typeof proposalExistsRequestSchemas.path>;
 export type ProposalExistsQuery = import("zod").infer<typeof proposalExistsRequestSchemas.query>;
 export type ProposalExistsBody = import("zod").infer<typeof proposalExistsRequestSchemas.body>;
-export type ProposalGovernanceProposerRolePath = import("zod").infer<typeof proposalGovernanceProposerRoleRequestSchemas.path>;
-export type ProposalGovernanceProposerRoleQuery = import("zod").infer<typeof proposalGovernanceProposerRoleRequestSchemas.query>;
-export type ProposalGovernanceProposerRoleBody = import("zod").infer<typeof proposalGovernanceProposerRoleRequestSchemas.body>;
 export type ProposalSnapshotPath = import("zod").infer<typeof proposalSnapshotRequestSchemas.path>;
 export type ProposalSnapshotQuery = import("zod").infer<typeof proposalSnapshotRequestSchemas.query>;
 export type ProposalSnapshotBody = import("zod").infer<typeof proposalSnapshotRequestSchemas.body>;
@@ -139,9 +131,6 @@ export type ProposeAddressArrayUint256ArrayBytesArrayStringUint8Body = import("z
 export type ProposerRolePath = import("zod").infer<typeof proposerRoleRequestSchemas.path>;
 export type ProposerRoleQuery = import("zod").infer<typeof proposerRoleRequestSchemas.query>;
 export type ProposerRoleBody = import("zod").infer<typeof proposerRoleRequestSchemas.body>;
-export type ProposeStringStringAddressArrayUint256ArrayBytesArrayUint8Path = import("zod").infer<typeof proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas.path>;
-export type ProposeStringStringAddressArrayUint256ArrayBytesArrayUint8Query = import("zod").infer<typeof proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas.query>;
-export type ProposeStringStringAddressArrayUint256ArrayBytesArrayUint8Body = import("zod").infer<typeof proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas.body>;
 export type PrQueuePath = import("zod").infer<typeof prQueueRequestSchemas.path>;
 export type PrQueueQuery = import("zod").infer<typeof prQueueRequestSchemas.query>;
 export type PrQueueBody = import("zod").infer<typeof prQueueRequestSchemas.body>;
@@ -166,15 +155,6 @@ export type SetTrustedTargetBody = import("zod").infer<typeof setTrustedTargetRe
 export type StatePath = import("zod").infer<typeof stateRequestSchemas.path>;
 export type StateQuery = import("zod").infer<typeof stateRequestSchemas.query>;
 export type StateBody = import("zod").infer<typeof stateRequestSchemas.body>;
-export type TimelockCancelPath = import("zod").infer<typeof timelockCancelRequestSchemas.path>;
-export type TimelockCancelQuery = import("zod").infer<typeof timelockCancelRequestSchemas.query>;
-export type TimelockCancelBody = import("zod").infer<typeof timelockCancelRequestSchemas.body>;
-export type TimelockExecutePath = import("zod").infer<typeof timelockExecuteRequestSchemas.path>;
-export type TimelockExecuteQuery = import("zod").infer<typeof timelockExecuteRequestSchemas.query>;
-export type TimelockExecuteBody = import("zod").infer<typeof timelockExecuteRequestSchemas.body>;
-export type TimelockExecutorRolePath = import("zod").infer<typeof timelockExecutorRoleRequestSchemas.path>;
-export type TimelockExecutorRoleQuery = import("zod").infer<typeof timelockExecutorRoleRequestSchemas.query>;
-export type TimelockExecutorRoleBody = import("zod").infer<typeof timelockExecutorRoleRequestSchemas.body>;
 export type TimelockRolePath = import("zod").infer<typeof timelockRoleRequestSchemas.path>;
 export type TimelockRoleQuery = import("zod").infer<typeof timelockRoleRequestSchemas.query>;
 export type TimelockRoleBody = import("zod").infer<typeof timelockRoleRequestSchemas.body>;

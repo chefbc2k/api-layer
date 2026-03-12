@@ -6,7 +6,6 @@ export function createMultiSigFacetWrapper(context: FacetWrapperContext) {
     facetName: "MultiSigFacet" as const,
     read: {
     canExecuteOperation: (...args: unknown[]) => invokeRead(context, "MultiSigFacet", "canExecuteOperation", args, false, 5),
-    getOperation: (...args: unknown[]) => invokeRead(context, "MultiSigFacet", "getOperation", args, false, 30),
     getOperationConfig: (...args: unknown[]) => invokeRead(context, "MultiSigFacet", "getOperationConfig", args, false, 30),
     getOperationStatus: (...args: unknown[]) => invokeRead(context, "MultiSigFacet", "getOperationStatus", args, false, 30),
     hasApprovedOperation: (...args: unknown[]) => invokeRead(context, "MultiSigFacet", "hasApprovedOperation", args, true, null),
@@ -22,7 +21,6 @@ export function createMultiSigFacetWrapper(context: FacetWrapperContext) {
     muSetPaused: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "muSetPaused", args),
     proposeOperation: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "proposeOperation", args),
     removeOperator: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "removeOperator", args),
-    setOperationConfig: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "setOperationConfig", args),
     submitTransaction: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "submitTransaction", args),
     },
     events: {

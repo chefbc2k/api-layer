@@ -33,11 +33,8 @@ function isManagedTemplateIdentityField(definition: HttpMethodDefinition, path: 
     ["creator", "createdAt", "updatedAt"].includes(component.name ?? "");
 }
 
-function normalizeManagedTemplateIdentityField(component: AbiParameter): z.ZodTypeAny {
-  if (component.type === "address") {
-    return z.unknown().optional().transform(() => ZERO_ADDRESS);
-  }
-  return z.unknown().optional().transform(() => "0");
+function isManagedTemplateTuple(definition: HttpMethodDefinition, path: string[]): boolean {
+  return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) && path[0] === "template";
 }
 
 function buildWireScalarSchema(definition: HttpMethodDefinition, param: AbiParameter, path: string[]): z.ZodTypeAny {
@@ -55,18 +52,30 @@ function buildWireScalarSchema(definition: HttpMethodDefinition, param: AbiParam
   }
   if (param.type === "tuple") {
     const componentSchemas = Object.fromEntries(
-      (param.components ?? []).map((component, index) => {
-        const key = component.name && component.name.length > 0 ? component.name : String(index);
-        let schema = isManagedTemplateIdentityField(definition, [...path, key], component)
-          ? normalizeManagedTemplateIdentityField(component)
-          : buildWireSchema(definition, component, [...path, key]);
-        if (component.name === "licenseHash" && component.type === "bytes32") {
-          schema = schema.optional().default(ZERO_HASH);
-        }
-        return [key, schema];
-      }),
+      (param.components ?? [])
+        .filter((component, index) => {
+          const key = component.name && component.name.length > 0 ? component.name : String(index);
+          return !isManagedTemplateIdentityField(definition, [...path, key], component);
+        })
+        .map((component, index) => {
+          const key = component.name && component.name.length > 0 ? component.name : String(index);
+          let schema = buildWireSchema(definition, component, [...path, key]);
+          if (component.name === "licenseHash" && component.type === "bytes32") {
+            schema = schema.optional().default(ZERO_HASH);
+          }
+          return [key, schema];
+        }),
     );
-    return z.record(z.string(), z.unknown()).and(z.object(componentSchemas));
+    const objectSchema = z.object(componentSchemas).passthrough();
+    if (isManagedTemplateTuple(definition, path)) {
+      return objectSchema.transform((value) => ({
+        creator: ZERO_ADDRESS,
+        createdAt: "0",
+        updatedAt: "0",
+        ...value,
+      }));
+    }
+    return objectSchema;
   }
   if (/^bytes(\d+)?$/u.test(param.type)) {
     return z.string().regex(/^0x[0-9a-fA-F]*$/u, "invalid hex string");

@@ -179,7 +179,7 @@ async function readListingWithStabilization(
   for (let attempt = 0; attempt < 20; attempt += 1) {
     lastRead = await marketplace.getListing({
       auth,
-      api: { executionSource: "auto", gaslessMode: "none" },
+      api: { executionSource: "live", gaslessMode: "none" },
       walletAddress,
       wireParams: [datasetId],
     });

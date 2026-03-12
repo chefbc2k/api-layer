@@ -1,0 +1,426 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "datasetId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "actualCreator",
+        "type": "address"
+      }
+    ],
+    "name": "DatasetNotOwnedByCaller",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DuplicateVoiceAsset",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "datasetId",
+        "type": "uint256"
+      }
+    ],
+    "name": "EmptyDatasetInLegacyPlan",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidApprovalThreshold",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBeneficiaryAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBeneficiaryCount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "InvalidParameter",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidShareAllocation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidSharePercentage",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTimelockPeriod",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "NotVoiceOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PlanNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SystemInRecovery",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SystemLocked",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SystemPaused",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyVoiceAssets",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UnauthorizedReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "UnauthorizedUser",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "sharePercentage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "BeneficiaryUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timelock",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "minApprovals",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "InheritanceConditionsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "beneficiaryCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "LegacyPlanCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "share",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "canDelegate",
+        "type": "bool"
+      }
+    ],
+    "name": "addBeneficiary",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "datasetIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "addDatasets",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "doc",
+        "type": "string"
+      }
+    ],
+    "name": "addInheritanceRequirement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "voiceAssets",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "addVoiceAssets",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "memo",
+        "type": "string"
+      }
+    ],
+    "name": "createLegacyPlan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "relationship",
+        "type": "string"
+      }
+    ],
+    "name": "setBeneficiaryRelationship",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "timelock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "requiresProof",
+        "type": "bool"
+      },
+      {
+        "internalType": "address[]",
+        "name": "approvers",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minApprovals",
+        "type": "uint256"
+      }
+    ],
+    "name": "setInheritanceConditions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxBeneficiaries",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "period",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMinTimelockPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "sharePercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "activationTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "canDelegate",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "relationship",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct LegacyStorage.Beneficiary",
+        "name": "beneficiary",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateBeneficiary",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

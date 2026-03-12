@@ -15,7 +15,6 @@ export function createMultisigPrimitiveRouter(context: ApiExecutionContext): Rou
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "canExecuteOperation")!, controller["canExecuteOperation"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "execute")!, controller["execute"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "executeOperation")!, controller["executeOperation"]);
-  registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperation")!, controller["getOperation"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationConfig")!, controller["getOperationConfig"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationStatus")!, controller["getOperationStatus"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "hasApprovedOperation")!, controller["hasApprovedOperation"]);
@@ -23,7 +22,6 @@ export function createMultisigPrimitiveRouter(context: ApiExecutionContext): Rou
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "muSetPaused")!, controller["muSetPaused"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "proposeOperation")!, controller["proposeOperation"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "removeOperator")!, controller["removeOperator"]);
-  registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "setOperationConfig")!, controller["setOperationConfig"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "submitTransaction")!, controller["submitTransaction"]);
   registerRoute(router, multisigEventDefinitions.find((definition) => definition.operationId === "actionExecutedEventQuery")!, controller["actionExecutedEventQuery"]);
   registerRoute(router, multisigEventDefinitions.find((definition) => definition.operationId === "batchCompletedEventQuery")!, controller["batchCompletedEventQuery"]);

@@ -91,6 +91,41 @@
       "projectionMode": "rawOnly",
       "targets": []
     },
+    "CommunityRewardsFacet.CampaignCapConfig": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "CommunityRewardsFacet.CampaignCreated": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "CommunityRewardsFacet.CampaignMerkleRootUpdated": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "CommunityRewardsFacet.CampaignPaused": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "CommunityRewardsFacet.CampaignUnpaused": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "CommunityRewardsFacet.CampaignVestingConfig": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "CommunityRewardsFacet.Claimed": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
     "DelegationFacet.DelegateChanged(address,address,address)": {
       "domain": "governance",
       "projectionMode": "mixed",
@@ -376,6 +411,21 @@
         }
       ]
     },
+    "EscrowFacet.AssetEscrowed": {
+      "domain": "marketplace",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EscrowFacet.AssetReleased": {
+      "domain": "marketplace",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "EscrowFacet.AssetStateUpdated": {
+      "domain": "marketplace",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
     "GovernorFacet.TargetGasLimitUpdated": {
       "domain": "rawOnly",
       "projectionMode": "rawOnly",
@@ -383,6 +433,36 @@
     },
     "GovernorFacet.TrustedTargetUpdated": {
       "domain": "rawOnly",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "LegacyExecutionFacet.InheritanceActivated": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "LegacyExecutionFacet.InheritanceApproved": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "LegacyExecutionFacet.RightsDelegated": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "LegacyFacet.BeneficiaryUpdated": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "LegacyFacet.InheritanceConditionsUpdated": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "LegacyFacet.LegacyPlanCreated": {
+      "domain": "voice-assets",
       "projectionMode": "rawOnly",
       "targets": []
     },
@@ -726,6 +806,16 @@
         }
       ]
     },
+    "PaymentFacet.UnionTreasuryAddressUpdated": {
+      "domain": "payment",
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "payment_flows",
+          "mode": "ledger"
+        }
+      ]
+    },
     "PaymentFacet.USDCPaymentWithdrawn": {
       "domain": "payment",
       "projectionMode": "ledger",
@@ -734,16 +824,6 @@
           "table": "payment_withdrawals",
           "mode": "ledger"
         },
-        {
-          "table": "payment_flows",
-          "mode": "ledger"
-        }
-      ]
-    },
-    "PaymentFacet.UnionTreasuryAddressUpdated": {
-      "domain": "payment",
-      "projectionMode": "ledger",
-      "targets": [
         {
           "table": "payment_flows",
           "mode": "ledger"
@@ -838,6 +918,36 @@
         }
       ]
     },
+    "RightsFacet.CollaboratorUpdated": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "RightsFacet.RightContractRegistered": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "RightsFacet.RightContractUpdated": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "RightsFacet.RightGranted": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "RightsFacet.RightRevoked": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "RightsFacet.RightsGroupCreated": {
+      "domain": "licensing",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
     "StakingFacet.EpochAdvanced": {
       "domain": "staking",
       "projectionMode": "mixed",
@@ -926,7 +1036,7 @@
         }
       ]
     },
-    "StakingFacet.UnstakeRequested": {
+    "StakingFacet.Unstaked": {
       "domain": "staking",
       "projectionMode": "mixed",
       "targets": [
@@ -936,7 +1046,7 @@
         }
       ]
     },
-    "StakingFacet.Unstaked": {
+    "StakingFacet.UnstakeRequested": {
       "domain": "staking",
       "projectionMode": "mixed",
       "targets": [
@@ -1149,6 +1259,46 @@
           "mode": "current"
         }
       ]
+    },
+    "VestingFacet.BeneficiaryTransferred": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.SaleRestrictionUpdated": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.TokensReleased": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.VestingInitialized": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.VestingPaused": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.VestingScheduleCreated": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.VestingScheduleRevoked": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
+    },
+    "VestingFacet.VestingUnpaused": {
+      "domain": "tokenomics",
+      "projectionMode": "rawOnly",
+      "targets": []
     },
     "VoiceAssetFacet.Approval": {
       "domain": "voice",
@@ -1408,7 +1558,7 @@
         }
       ]
     },
-    "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)": {
+    "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)": {
       "domain": "voice",
       "projectionMode": "mixed",
       "targets": [
@@ -1418,7 +1568,7 @@
         }
       ]
     },
-    "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)": {
+    "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)": {
       "domain": "voice",
       "projectionMode": "mixed",
       "targets": [

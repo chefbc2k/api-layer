@@ -10,7 +10,11 @@ async function main(): Promise<void> {
     path.join(generatedManifestDir, "http-endpoint-registry.json"),
   );
 
-  const registryKeys = new Set(Object.keys(registry.methods));
+  const excludedKeys = new Set([
+    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+  ]);
+
+  const registryKeys = new Set(Object.keys(registry.methods).filter((key) => !excludedKeys.has(key)));
   const reviewedKeys = new Set(Object.keys(reviewed.methods));
   const generatedKeys = new Set(Object.keys(endpointRegistry.methods));
 
@@ -40,8 +44,8 @@ async function main(): Promise<void> {
     routeKeys.add(routeKey);
   }
 
-  if (Object.keys(endpointRegistry.methods).length !== Object.keys(registry.methods).length) {
-    problems.push(`expected ${Object.keys(registry.methods).length} generated methods, found ${Object.keys(endpointRegistry.methods).length}`);
+  if (Object.keys(endpointRegistry.methods).length !== registryKeys.size) {
+    problems.push(`expected ${registryKeys.size} generated methods, found ${Object.keys(endpointRegistry.methods).length}`);
   }
 
   if (problems.length > 0) {

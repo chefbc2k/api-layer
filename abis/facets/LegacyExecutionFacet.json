@@ -1,0 +1,247 @@
+[
+  {
+    "inputs": [],
+    "name": "DuplicateProofDocument",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "InheritanceAlreadyExecuted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBeneficiaryAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBeneficiaryCount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidProofCount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "InvalidProofDocument",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTimelockPeriod",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "docType",
+        "type": "string"
+      }
+    ],
+    "name": "MissingRequiredProof",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotApprover",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotBeneficiary",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PlanNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SystemInRecovery",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SystemLocked",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SystemPaused",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TimelockActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TimelockOverflow",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyProofDocuments",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "UnauthorizedReentrantCall",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "InheritanceActivated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "approver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "InheritanceApproved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "original",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "delegated",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "expiryTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "RightsDelegated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "approveInheritance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "delegatee",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "delegateRights",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "executeInheritance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string[]",
+        "name": "proofDocuments",
+        "type": "string[]"
+      }
+    ],
+    "name": "initiateInheritance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -1,0 +1,271 @@
+[
+  {
+    "inputs": [],
+    "name": "InvalidBeneficiaryAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidBeneficiaryCount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidShareAllocation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidSharePercentage",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "getLegacyPlan",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32[]",
+            "name": "voiceAssets",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "datasetIds",
+            "type": "uint256[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "sharePercentage",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "activationTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "isActive",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "canDelegate",
+                "type": "bool"
+              },
+              {
+                "internalType": "string",
+                "name": "relationship",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LegacyStorage.Beneficiary[]",
+            "name": "beneficiaries",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "timelock",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "requiresProof",
+                "type": "bool"
+              },
+              {
+                "internalType": "string[]",
+                "name": "requiredDocs",
+                "type": "string[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "approvers",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "minApprovals",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct LegacyStorage.InheritanceCondition",
+            "name": "conditions",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "updatedAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isExecuted",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "memo",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct LegacyStorage.LegacyPlan",
+        "name": "plan",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isInheritanceReady",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "ready",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "approvalCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "requiredApprovals",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "sharePercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "activationTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "canDelegate",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "relationship",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct LegacyStorage.Beneficiary[]",
+        "name": "beneficiaries",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxBeneficiaries",
+        "type": "uint256"
+      }
+    ],
+    "name": "validateBeneficiaries",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "sharePercentage",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "activationTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "canDelegate",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "relationship",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct LegacyStorage.Beneficiary",
+        "name": "beneficiary",
+        "type": "tuple"
+      }
+    ],
+    "name": "validateBeneficiary",
+    "outputs": [],
+    "stateMutability": "pure",
+    "type": "function"
+  }
+]

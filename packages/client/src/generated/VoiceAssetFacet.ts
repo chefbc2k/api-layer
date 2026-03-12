@@ -5,7 +5,6 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
   return {
     facetName: "VoiceAssetFacet" as const,
     read: {
-    balanceOf: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "balanceOf", args, true, null),
     getApproved: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "getApproved", args, true, null),
     getDefaultPlatformFee: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "getDefaultPlatformFee", args, true, null),
     getDefaultRoyaltyRate: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "getDefaultRoyaltyRate", args, false, 5),
@@ -23,7 +22,6 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
     isRegistrationPaused: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "isRegistrationPaused", args, false, 5),
     name: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "name", args, false, 600),
     ownerOf: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "ownerOf", args, false, 5),
-    supportsInterface: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "supportsInterface", args, false, 5),
     symbol: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "symbol", args, false, 600),
     tokenURI: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "tokenURI", args, false, 5),
     voiceAssetBalanceOf: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "voiceAssetBalanceOf", args, true, null),
@@ -31,7 +29,6 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
     voiceAssetSymbol: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "voiceAssetSymbol", args, false, 600),
     },
     write: {
-    approve: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "approve", args),
     approveVoiceAsset: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "approveVoiceAsset", args),
     authorizeUser: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "authorizeUser", args),
     customizeRoyaltyRate: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "customizeRoyaltyRate", args),
@@ -49,7 +46,6 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
     setDefaultPlatformFee: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "setDefaultPlatformFee", args),
     setDefaultRoyaltyRate: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "setDefaultRoyaltyRate", args),
     setRegistrationPaused: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "setRegistrationPaused", args),
-    transferFrom: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "transferFrom", args),
     transferFromVoiceAsset: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "transferFromVoiceAsset", args),
     unlockVoiceAsset: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "unlockVoiceAsset", args),
     },

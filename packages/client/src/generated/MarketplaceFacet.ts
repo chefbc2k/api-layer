@@ -5,7 +5,7 @@ export function createMarketplaceFacetWrapper(context: FacetWrapperContext) {
   return {
     facetName: "MarketplaceFacet" as const,
     read: {
-    getListing: (...args: unknown[]) => invokeRead(context, "MarketplaceFacet", "getListing", args, false, 30),
+    getListing: (...args: unknown[]) => invokeRead(context, "MarketplaceFacet", "getListing", args, false, null),
     isPaused: (...args: unknown[]) => invokeRead(context, "MarketplaceFacet", "isPaused", args, false, 5),
     },
     write: {

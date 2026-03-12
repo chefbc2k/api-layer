@@ -6,7 +6,6 @@ import {
   canExecuteOperationRequestSchemas,
   executeRequestSchemas,
   executeOperationRequestSchemas,
-  getOperationRequestSchemas,
   getOperationConfigRequestSchemas,
   getOperationStatusRequestSchemas,
   hasApprovedOperationRequestSchemas,
@@ -14,7 +13,6 @@ import {
   muSetPausedRequestSchemas,
   proposeOperationRequestSchemas,
   removeOperatorRequestSchemas,
-  setOperationConfigRequestSchemas,
   submitTransactionRequestSchemas,
   actionExecutedEventQueryRequestSchema,
   batchCompletedEventQueryRequestSchema,
@@ -46,9 +44,6 @@ export type ExecuteBody = import("zod").infer<typeof executeRequestSchemas.body>
 export type ExecuteOperationPath = import("zod").infer<typeof executeOperationRequestSchemas.path>;
 export type ExecuteOperationQuery = import("zod").infer<typeof executeOperationRequestSchemas.query>;
 export type ExecuteOperationBody = import("zod").infer<typeof executeOperationRequestSchemas.body>;
-export type GetOperationPath = import("zod").infer<typeof getOperationRequestSchemas.path>;
-export type GetOperationQuery = import("zod").infer<typeof getOperationRequestSchemas.query>;
-export type GetOperationBody = import("zod").infer<typeof getOperationRequestSchemas.body>;
 export type GetOperationConfigPath = import("zod").infer<typeof getOperationConfigRequestSchemas.path>;
 export type GetOperationConfigQuery = import("zod").infer<typeof getOperationConfigRequestSchemas.query>;
 export type GetOperationConfigBody = import("zod").infer<typeof getOperationConfigRequestSchemas.body>;
@@ -70,9 +65,6 @@ export type ProposeOperationBody = import("zod").infer<typeof proposeOperationRe
 export type RemoveOperatorPath = import("zod").infer<typeof removeOperatorRequestSchemas.path>;
 export type RemoveOperatorQuery = import("zod").infer<typeof removeOperatorRequestSchemas.query>;
 export type RemoveOperatorBody = import("zod").infer<typeof removeOperatorRequestSchemas.body>;
-export type SetOperationConfigPath = import("zod").infer<typeof setOperationConfigRequestSchemas.path>;
-export type SetOperationConfigQuery = import("zod").infer<typeof setOperationConfigRequestSchemas.query>;
-export type SetOperationConfigBody = import("zod").infer<typeof setOperationConfigRequestSchemas.body>;
 export type SubmitTransactionPath = import("zod").infer<typeof submitTransactionRequestSchemas.path>;
 export type SubmitTransactionQuery = import("zod").infer<typeof submitTransactionRequestSchemas.query>;
 export type SubmitTransactionBody = import("zod").infer<typeof submitTransactionRequestSchemas.body>;

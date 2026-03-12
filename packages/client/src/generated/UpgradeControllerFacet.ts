@@ -16,10 +16,8 @@ export function createUpgradeControllerFacetWrapper(context: FacetWrapperContext
     },
     write: {
     approveUpgrade: (...args: unknown[]) => invokeWrite(context, "UpgradeControllerFacet", "approveUpgrade", args),
-    executeUpgrade: (...args: unknown[]) => invokeWrite(context, "UpgradeControllerFacet", "executeUpgrade", args),
     freezeUpgradeControl: (...args: unknown[]) => invokeWrite(context, "UpgradeControllerFacet", "freezeUpgradeControl", args),
     initUpgradeController: (...args: unknown[]) => invokeWrite(context, "UpgradeControllerFacet", "initUpgradeController", args),
-    proposeDiamondCut: (...args: unknown[]) => invokeWrite(context, "UpgradeControllerFacet", "proposeDiamondCut", args),
     setUpgradeControlEnforced: (...args: unknown[]) => invokeWrite(context, "UpgradeControllerFacet", "setUpgradeControlEnforced", args),
     },
     events: {

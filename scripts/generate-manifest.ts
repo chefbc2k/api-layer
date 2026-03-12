@@ -1,7 +1,8 @@
 import path from "node:path";
 import { readdir } from "node:fs/promises";
+import { id } from "ethers";
 
-import { generatedAbiDir, generatedManifestDir, pascalToCamel, readJson, writeJson } from "./utils.js";
+import { generatedAbiDir, generatedManifestDir, pascalToCamel, readJson, resolveDeploymentManifestPath, writeJson } from "./utils.js";
 
 type AbiInput = {
   type: string;
@@ -52,6 +53,13 @@ type ReviewedMethodPolicyFile = {
   methods: Record<string, ReviewedMethodPolicy>;
 };
 
+type DeploymentManifest = {
+  selectorToFacet: Array<{
+    selector: string;
+    facetName: string;
+  }>;
+};
+
 const reviewedMethodPolicyPath = path.resolve("reviewed", "reviewed-method-policy.json");
 
 function signatureFor(entry: AbiInput): string {
@@ -61,6 +69,10 @@ function signatureFor(entry: AbiInput): string {
 
 function isRead(entry: AbiInput): boolean {
   return entry.type === "function" && (entry.stateMutability === "view" || entry.stateMutability === "pure");
+}
+
+function selectorFor(entry: AbiInput): string {
+  return id(signatureFor(entry)).slice(0, 10).toLowerCase();
 }
 
 function cacheTtlSeconds(cacheClass: ReviewedMethodPolicy["cacheClass"]): number | null {
@@ -84,6 +96,16 @@ async function main(): Promise<void> {
   const facetFiles = (await readdir(facetsDir)).filter((name) => name.endsWith(".json")).sort();
   const subsystemFiles = (await readdir(subsystemsDir)).filter((name) => name.endsWith(".json")).sort();
   const reviewedMethodPolicy = await readJson<ReviewedMethodPolicyFile>(reviewedMethodPolicyPath);
+  const deploymentManifestPath = await resolveDeploymentManifestPath();
+  const deploymentManifest = deploymentManifestPath
+    ? await readJson<DeploymentManifest>(deploymentManifestPath)
+    : null;
+  const mountedSelectorsByFacet = new Map<string, Set<string>>();
+  for (const entry of deploymentManifest?.selectorToFacet ?? []) {
+    const selectors = mountedSelectorsByFacet.get(entry.facetName) ?? new Set<string>();
+    selectors.add(entry.selector.toLowerCase());
+    mountedSelectorsByFacet.set(entry.facetName, selectors);
+  }
 
   const facets: FacetManifest[] = [];
   let totalFunctions = 0;
@@ -93,7 +115,12 @@ async function main(): Promise<void> {
   for (const fileName of facetFiles) {
     const abi = await readJson<AbiInput[]>(path.join(facetsDir, fileName));
     const facetName = fileName.replace(/\.json$/u, "");
-    const functionEntries = abi.filter((entry) => entry.type === "function" && entry.name);
+    const mountedSelectors = mountedSelectorsByFacet.get(facetName) ?? null;
+    const functionEntries = abi.filter((entry) =>
+      entry.type === "function" &&
+      entry.name &&
+      (mountedSelectors === null || mountedSelectors.has(selectorFor(entry))),
+    );
     const eventEntries = abi.filter((entry) => entry.type === "event" && entry.name);
     const functionNameCounts = new Map<string, number>();
     const eventNameCounts = new Map<string, number>();
@@ -180,6 +207,9 @@ async function main(): Promise<void> {
   }
 
   await writeJson(path.join(generatedManifestDir, "contract-manifest.json"), manifest);
+  if (deploymentManifestPath) {
+    console.log(`filtered manifest functions against ${deploymentManifestPath}`);
+  }
   console.log(`generated manifest with ${totalFunctions} functions and ${totalEvents} events`);
 }
 

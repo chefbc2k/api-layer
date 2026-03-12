@@ -111,8 +111,10 @@ export const domainByFacet: Record<string, string> = {
   VoiceDatasetFacet: "datasets",
   VoiceLicenseFacet: "licensing",
   VoiceLicenseTemplateFacet: "licensing",
+  RightsFacet: "licensing",
   MarketplaceFacet: "marketplace",
   PaymentFacet: "marketplace",
+  EscrowFacet: "marketplace",
   GovernorFacet: "governance",
   ProposalFacet: "governance",
   TimelockFacet: "governance",
@@ -123,6 +125,11 @@ export const domainByFacet: Record<string, string> = {
   TokenSupplyFacet: "tokenomics",
   BurnThresholdFacet: "tokenomics",
   TimewaveGiftFacet: "tokenomics",
+  CommunityRewardsFacet: "tokenomics",
+  VestingFacet: "tokenomics",
+  LegacyFacet: "voice-assets",
+  LegacyViewFacet: "voice-assets",
+  LegacyExecutionFacet: "voice-assets",
   WhisperBlockFacet: "whisperblock",
 };
 
@@ -222,16 +229,34 @@ export function buildOperationId(method: Pick<AbiMethodDefinition, "wrapperKey" 
 
 function inferResource(domain: string, method: AbiMethodDefinition): string {
   if (domain === "voice-assets") {
-    return method.facetName === "VoiceMetadataFacet" ? "metadata" : "voice-assets";
+    if (method.facetName === "VoiceMetadataFacet") {
+      return "metadata";
+    }
+    if (method.facetName.startsWith("Legacy")) {
+      return "legacy";
+    }
+    return "voice-assets";
   }
   if (domain === "datasets") {
     return "datasets";
   }
   if (domain === "licensing") {
-    return method.facetName === "VoiceLicenseTemplateFacet" ? "license-templates" : "licenses";
+    if (method.facetName === "VoiceLicenseTemplateFacet") {
+      return "license-templates";
+    }
+    if (method.facetName === "RightsFacet") {
+      return "rights";
+    }
+    return "licenses";
   }
   if (domain === "marketplace") {
-    return method.facetName === "PaymentFacet" ? "payments" : "listings";
+    if (method.facetName === "PaymentFacet") {
+      return "payments";
+    }
+    if (method.facetName === "EscrowFacet") {
+      return "escrow";
+    }
+    return "listings";
   }
   if (domain === "governance") {
     if (method.facetName === "ProposalFacet") {
@@ -255,6 +280,12 @@ function inferResource(domain: string, method: AbiMethodDefinition): string {
     return "stakes";
   }
   if (domain === "tokenomics") {
+    if (method.facetName === "VestingFacet") {
+      return "vesting";
+    }
+    if (method.facetName === "CommunityRewardsFacet") {
+      return "community-rewards";
+    }
     if (method.facetName === "TimewaveGiftFacet") {
       return "vesting";
     }

@@ -2,41 +2,36 @@ import type { HttpEventDefinition, HttpMethodDefinition } from "../../../../shar
 
 export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
   {
-    "key": "VoiceAssetFacet.approve",
-    "facetName": "VoiceAssetFacet",
-    "wrapperKey": "approve",
+    "key": "LegacyExecutionFacet.approveInheritance",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "approveInheritance",
     "domain": "voice-assets",
-    "resource": "voice-assets",
+    "resource": "legacy",
     "classification": "action",
     "httpMethod": "POST",
-    "path": "/v1/voice-assets/commands/approve",
+    "path": "/v1/voice-assets/commands/approve-inheritance",
     "inputShape": {
       "kind": "body",
       "bindings": [
         {
-          "name": "to",
+          "name": "voiceHash",
           "source": "body",
-          "field": "to"
-        },
-        {
-          "name": "tokenId",
-          "source": "body",
-          "field": "tokenId"
+          "field": "voiceHash"
         }
       ]
     },
     "outputShape": {
       "kind": "void"
     },
-    "operationId": "approve",
+    "operationId": "approveInheritance",
     "rateLimitKind": "write",
     "supportsGasless": false,
-    "notes": "VoiceAssetFacet.approve",
-    "methodName": "approve",
-    "signature": "approve(address,uint256)",
+    "notes": "LegacyExecutionFacet.approveInheritance",
+    "methodName": "approveInheritance",
+    "signature": "approveInheritance(bytes32)",
     "category": "write",
     "mutability": "nonpayable",
-    "liveRequired": true,
+    "liveRequired": false,
     "cacheClass": "none",
     "cacheTtlSeconds": null,
     "executionSources": [
@@ -45,17 +40,864 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
     "gaslessModes": [],
     "inputs": [
       {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
       }
     ],
     "outputs": []
+  },
+  {
+    "key": "LegacyExecutionFacet.delegateRights",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "delegateRights",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/delegate-rights",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "delegatee",
+          "source": "body",
+          "field": "delegatee"
+        },
+        {
+          "name": "duration",
+          "source": "body",
+          "field": "duration"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "delegateRights",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyExecutionFacet.delegateRights",
+    "methodName": "delegateRights",
+    "signature": "delegateRights(address,uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "delegatee",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "duration",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyExecutionFacet.executeInheritance",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "executeInheritance",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/execute-inheritance",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "owner",
+          "source": "body",
+          "field": "owner"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "executeInheritance",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyExecutionFacet.executeInheritance",
+    "methodName": "executeInheritance",
+    "signature": "executeInheritance(address)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyExecutionFacet.initiateInheritance",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "initiateInheritance",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "create",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/legacy/initiate-inheritance",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "body",
+          "field": "voiceHash"
+        },
+        {
+          "name": "proofDocuments",
+          "source": "body",
+          "field": "proofDocuments"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "initiateInheritance",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyExecutionFacet.initiateInheritance",
+    "methodName": "initiateInheritance",
+    "signature": "initiateInheritance(bytes32,string[])",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string[]",
+        "name": "proofDocuments",
+        "type": "string[]"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.addBeneficiary",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "addBeneficiary",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/add-beneficiary",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "account",
+          "source": "body",
+          "field": "account"
+        },
+        {
+          "name": "share",
+          "source": "body",
+          "field": "share"
+        },
+        {
+          "name": "canDelegate",
+          "source": "body",
+          "field": "canDelegate"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "addBeneficiary",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.addBeneficiary",
+    "methodName": "addBeneficiary",
+    "signature": "addBeneficiary(address,uint256,bool)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "share",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "canDelegate",
+        "type": "bool"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.addDatasets",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "addDatasets",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/add-datasets",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "datasetIds",
+          "source": "body",
+          "field": "datasetIds"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "addDatasets",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.addDatasets",
+    "methodName": "addDatasets",
+    "signature": "addDatasets(uint256[])",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "datasetIds",
+        "type": "uint256[]"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.addInheritanceRequirement",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "addInheritanceRequirement",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/add-inheritance-requirement",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "doc",
+          "source": "body",
+          "field": "doc"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "addInheritanceRequirement",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.addInheritanceRequirement",
+    "methodName": "addInheritanceRequirement",
+    "signature": "addInheritanceRequirement(string)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "doc",
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.addVoiceAssets",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "addVoiceAssets",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/add-voice-assets",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "voiceAssets",
+          "source": "body",
+          "field": "voiceAssets"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "addVoiceAssets",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.addVoiceAssets",
+    "methodName": "addVoiceAssets",
+    "signature": "addVoiceAssets(bytes32[])",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "voiceAssets",
+        "type": "bytes32[]"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.createLegacyPlan",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "createLegacyPlan",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "create",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/legacy/create-legacy-plan",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "memo",
+          "source": "body",
+          "field": "memo"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "createLegacyPlan",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.createLegacyPlan",
+    "methodName": "createLegacyPlan",
+    "signature": "createLegacyPlan(string)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "memo",
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.setBeneficiaryRelationship",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "setBeneficiaryRelationship",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/voice-assets/commands/set-beneficiary-relationship",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "account",
+          "source": "body",
+          "field": "account"
+        },
+        {
+          "name": "relationship",
+          "source": "body",
+          "field": "relationship"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "setBeneficiaryRelationship",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.setBeneficiaryRelationship",
+    "methodName": "setBeneficiaryRelationship",
+    "signature": "setBeneficiaryRelationship(address,string)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "relationship",
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.setInheritanceConditions",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "setInheritanceConditions",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/voice-assets/commands/set-inheritance-conditions",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "timelock",
+          "source": "body",
+          "field": "timelock"
+        },
+        {
+          "name": "requiresProof",
+          "source": "body",
+          "field": "requiresProof"
+        },
+        {
+          "name": "approvers",
+          "source": "body",
+          "field": "approvers"
+        },
+        {
+          "name": "minApprovals",
+          "source": "body",
+          "field": "minApprovals"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "setInheritanceConditions",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.setInheritanceConditions",
+    "methodName": "setInheritanceConditions",
+    "signature": "setInheritanceConditions(uint256,bool,address[],uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "timelock",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "requiresProof",
+        "type": "bool"
+      },
+      {
+        "internalType": "address[]",
+        "name": "approvers",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minApprovals",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.setMaxBeneficiaries",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "setMaxBeneficiaries",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/voice-assets/commands/set-max-beneficiaries",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "max",
+          "source": "body",
+          "field": "max"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "setMaxBeneficiaries",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.setMaxBeneficiaries",
+    "methodName": "setMaxBeneficiaries",
+    "signature": "setMaxBeneficiaries(uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "max",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyFacet.setMinTimelockPeriod",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "setMinTimelockPeriod",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/voice-assets/commands/set-min-timelock-period",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "period",
+          "source": "body",
+          "field": "period"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "setMinTimelockPeriod",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "LegacyFacet.setMinTimelockPeriod",
+    "methodName": "setMinTimelockPeriod",
+    "signature": "setMinTimelockPeriod(uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "period",
+        "type": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "LegacyViewFacet.getLegacyPlan",
+    "facetName": "LegacyViewFacet",
+    "wrapperKey": "getLegacyPlan",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/voice-assets/queries/get-legacy-plan",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "owner",
+          "source": "query",
+          "field": "owner"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "object"
+    },
+    "operationId": "getLegacyPlan",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "LegacyViewFacet.getLegacyPlan",
+    "methodName": "getLegacyPlan",
+    "signature": "getLegacyPlan(address)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32[]",
+            "name": "voiceAssets",
+            "type": "bytes32[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "datasetIds",
+            "type": "uint256[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "sharePercentage",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "activationTime",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "isActive",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "canDelegate",
+                "type": "bool"
+              },
+              {
+                "internalType": "string",
+                "name": "relationship",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LegacyStorage.Beneficiary[]",
+            "name": "beneficiaries",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "timelock",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bool",
+                "name": "requiresProof",
+                "type": "bool"
+              },
+              {
+                "internalType": "string[]",
+                "name": "requiredDocs",
+                "type": "string[]"
+              },
+              {
+                "internalType": "address[]",
+                "name": "approvers",
+                "type": "address[]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "minApprovals",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct LegacyStorage.InheritanceCondition",
+            "name": "conditions",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createdAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "updatedAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isExecuted",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "memo",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct LegacyStorage.LegacyPlan",
+        "name": "plan",
+        "type": "tuple"
+      }
+    ]
+  },
+  {
+    "key": "LegacyViewFacet.isInheritanceReady",
+    "facetName": "LegacyViewFacet",
+    "wrapperKey": "isInheritanceReady",
+    "domain": "voice-assets",
+    "resource": "legacy",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/voice-assets/queries/is-inheritance-ready",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "query",
+          "field": "voiceHash"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "tuple"
+    },
+    "operationId": "isInheritanceReady",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "LegacyViewFacet.isInheritanceReady",
+    "methodName": "isInheritanceReady",
+    "signature": "isInheritanceReady(bytes32)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "ready",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "approvalCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "requiredApprovals",
+        "type": "uint256"
+      }
+    ]
   },
   {
     "key": "VoiceAssetFacet.approveVoiceAsset",
@@ -168,58 +1010,6 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
-  },
-  {
-    "key": "VoiceAssetFacet.balanceOf",
-    "facetName": "VoiceAssetFacet",
-    "wrapperKey": "balanceOf",
-    "domain": "voice-assets",
-    "resource": "voice-assets",
-    "classification": "read",
-    "httpMethod": "GET",
-    "path": "/v1/voice-assets/queries/balance-of",
-    "inputShape": {
-      "kind": "query",
-      "bindings": [
-        {
-          "name": "owner",
-          "source": "query",
-          "field": "owner"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "balanceOf",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "VoiceAssetFacet.balanceOf",
-    "methodName": "balanceOf",
-    "signature": "balanceOf(address)",
-    "category": "read",
-    "mutability": "view",
-    "liveRequired": true,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "owner",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
   },
   {
     "key": "VoiceAssetFacet.customizeRoyaltyRate",
@@ -2029,59 +2819,6 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "VoiceAssetFacet.supportsInterface",
-    "facetName": "VoiceAssetFacet",
-    "wrapperKey": "supportsInterface",
-    "domain": "voice-assets",
-    "resource": "voice-assets",
-    "classification": "query",
-    "httpMethod": "GET",
-    "path": "/v1/voice-assets/queries/supports-interface",
-    "inputShape": {
-      "kind": "query",
-      "bindings": [
-        {
-          "name": "interfaceId",
-          "source": "query",
-          "field": "interfaceId"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "supportsInterface",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "VoiceAssetFacet.supportsInterface",
-    "methodName": "supportsInterface",
-    "signature": "supportsInterface(bytes4)",
-    "category": "read",
-    "mutability": "view",
-    "liveRequired": false,
-    "cacheClass": "short",
-    "cacheTtlSeconds": 5,
-    "executionSources": [
-      "live",
-      "cache"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "interfaceId",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ]
-  },
-  {
     "key": "VoiceAssetFacet.symbol",
     "facetName": "VoiceAssetFacet",
     "wrapperKey": "symbol",
@@ -2174,72 +2911,6 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
         "internalType": "string"
       }
     ]
-  },
-  {
-    "key": "VoiceAssetFacet.transferFrom",
-    "facetName": "VoiceAssetFacet",
-    "wrapperKey": "transferFrom",
-    "domain": "voice-assets",
-    "resource": "voice-assets",
-    "classification": "action",
-    "httpMethod": "POST",
-    "path": "/v1/voice-assets/commands/transfer-from",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "from",
-          "source": "body",
-          "field": "from"
-        },
-        {
-          "name": "to",
-          "source": "body",
-          "field": "to"
-        },
-        {
-          "name": "tokenId",
-          "source": "body",
-          "field": "tokenId"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "transferFrom",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceAssetFacet.transferFrom",
-    "methodName": "transferFrom",
-    "signature": "transferFrom(address,address,uint256)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "from",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": []
   },
   {
     "key": "VoiceAssetFacet.transferFromVoiceAsset",
@@ -2658,47 +3329,6 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
-    "key": "VoiceMetadataFacet.getSelectors",
-    "facetName": "VoiceMetadataFacet",
-    "wrapperKey": "getSelectors",
-    "domain": "voice-assets",
-    "resource": "metadata",
-    "classification": "query",
-    "httpMethod": "POST",
-    "path": "/v1/voice-assets/queries/get-selectors",
-    "inputShape": {
-      "kind": "none",
-      "bindings": []
-    },
-    "outputShape": {
-      "kind": "array"
-    },
-    "operationId": "getSelectors",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "VoiceMetadataFacet.getSelectors",
-    "methodName": "getSelectors",
-    "signature": "getSelectors()",
-    "category": "read",
-    "mutability": "pure",
-    "liveRequired": false,
-    "cacheClass": "static",
-    "cacheTtlSeconds": 600,
-    "executionSources": [
-      "live",
-      "cache"
-    ],
-    "gaslessModes": [],
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "selectors",
-        "type": "bytes4[]",
-        "internalType": "bytes4[]"
-      }
-    ]
-  },
-  {
     "key": "VoiceMetadataFacet.getVoiceCategories",
     "facetName": "VoiceMetadataFacet",
     "wrapperKey": "getVoiceCategories",
@@ -3067,410 +3697,255 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
-  },
-  {
-    "key": "VoiceMetadataFacet.updateBasicAcousticFeatures",
-    "facetName": "VoiceMetadataFacet",
-    "wrapperKey": "updateBasicAcousticFeatures",
-    "domain": "voice-assets",
-    "resource": "metadata",
-    "classification": "update",
-    "httpMethod": "PATCH",
-    "path": "/v1/voice-assets/:voiceHash/metadata/acoustic-features",
-    "inputShape": {
-      "kind": "path+body",
-      "bindings": [
-        {
-          "name": "voiceHash",
-          "source": "path",
-          "field": "voiceHash"
-        },
-        {
-          "name": "features",
-          "source": "body",
-          "field": "features"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "updateBasicAcousticFeatures",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceMetadataFacet.updateBasicAcousticFeatures",
-    "methodName": "updateBasicAcousticFeatures",
-    "signature": "updateBasicAcousticFeatures(bytes32,tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "features",
-        "type": "tuple",
-        "internalType": "struct IVoiceMetadata.BasicAcousticFeatures",
-        "components": [
-          {
-            "name": "pitch",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "volume",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "speechRate",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "timbre",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "formants",
-            "type": "uint256[]",
-            "internalType": "uint256[]"
-          },
-          {
-            "name": "harmonicsToNoise",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "dynamicRange",
-            "type": "uint256",
-            "internalType": "uint256"
-          }
-        ]
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "VoiceMetadataFacet.updateClassificationCategory",
-    "facetName": "VoiceMetadataFacet",
-    "wrapperKey": "updateClassificationCategory",
-    "domain": "voice-assets",
-    "resource": "metadata",
-    "classification": "update",
-    "httpMethod": "PATCH",
-    "path": "/v1/voice-assets/commands/update-classification-category",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "voiceHash",
-          "source": "body",
-          "field": "voiceHash"
-        },
-        {
-          "name": "category",
-          "source": "body",
-          "field": "category"
-        },
-        {
-          "name": "classifications",
-          "source": "body",
-          "field": "classifications"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "updateClassificationCategory",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceMetadataFacet.updateClassificationCategory",
-    "methodName": "updateClassificationCategory",
-    "signature": "updateClassificationCategory(bytes32,string,tuple[])",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "category",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "classifications",
-        "type": "tuple[]",
-        "internalType": "struct IVoiceMetadata.ClassificationResult[]",
-        "components": [
-          {
-            "name": "name",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "score",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "category",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "level",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "metadata",
-            "type": "string",
-            "internalType": "string"
-          }
-        ]
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "VoiceMetadataFacet.updateGeographicData",
-    "facetName": "VoiceMetadataFacet",
-    "wrapperKey": "updateGeographicData",
-    "domain": "voice-assets",
-    "resource": "metadata",
-    "classification": "update",
-    "httpMethod": "PATCH",
-    "path": "/v1/voice-assets/commands/update-geographic-data",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "voiceHash",
-          "source": "body",
-          "field": "voiceHash"
-        },
-        {
-          "name": "geographic",
-          "source": "body",
-          "field": "geographic"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "updateGeographicData",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceMetadataFacet.updateGeographicData",
-    "methodName": "updateGeographicData",
-    "signature": "updateGeographicData(bytes32,tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "geographic",
-        "type": "tuple",
-        "internalType": "struct IVoiceMetadata.GeographicData",
-        "components": [
-          {
-            "name": "latitude",
-            "type": "int256",
-            "internalType": "int256"
-          },
-          {
-            "name": "longitude",
-            "type": "int256",
-            "internalType": "int256"
-          },
-          {
-            "name": "region",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "country",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "locality",
-            "type": "string",
-            "internalType": "string"
-          }
-        ]
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "VoiceMetadataFacet.updateVoiceClassifications",
-    "facetName": "VoiceMetadataFacet",
-    "wrapperKey": "updateVoiceClassifications",
-    "domain": "voice-assets",
-    "resource": "metadata",
-    "classification": "update",
-    "httpMethod": "PATCH",
-    "path": "/v1/voice-assets/commands/update-voice-classifications",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "voiceHash",
-          "source": "body",
-          "field": "voiceHash"
-        },
-        {
-          "name": "classifications",
-          "source": "body",
-          "field": "classifications"
-        },
-        {
-          "name": "categoryData",
-          "source": "body",
-          "field": "categoryData"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "updateVoiceClassifications",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "VoiceMetadataFacet.updateVoiceClassifications",
-    "methodName": "updateVoiceClassifications",
-    "signature": "updateVoiceClassifications(bytes32,tuple,tuple[])",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "voiceHash",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "classifications",
-        "type": "tuple",
-        "internalType": "struct IVoiceMetadata.VoiceClassifications",
-        "components": [
-          {
-            "name": "analysisVersion",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "timestamp",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "processingTimeMs",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "componentsRun",
-            "type": "string[]",
-            "internalType": "string[]"
-          },
-          {
-            "name": "categories",
-            "type": "string[]",
-            "internalType": "string[]"
-          }
-        ]
-      },
-      {
-        "name": "categoryData",
-        "type": "tuple[]",
-        "internalType": "struct IVoiceMetadata.CategoryClassifications[]",
-        "components": [
-          {
-            "name": "category",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "classifications",
-            "type": "tuple[]",
-            "internalType": "struct IVoiceMetadata.ClassificationResult[]",
-            "components": [
-              {
-                "name": "name",
-                "type": "string",
-                "internalType": "string"
-              },
-              {
-                "name": "score",
-                "type": "uint256",
-                "internalType": "uint256"
-              },
-              {
-                "name": "category",
-                "type": "string",
-                "internalType": "string"
-              },
-              {
-                "name": "level",
-                "type": "string",
-                "internalType": "string"
-              },
-              {
-                "name": "metadata",
-                "type": "string",
-                "internalType": "string"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "outputs": []
   }
 ] as HttpMethodDefinition[];
 export const voiceAssetsEventDefinitions: HttpEventDefinition[] = [
+  {
+    "key": "LegacyExecutionFacet.InheritanceActivated",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "InheritanceActivated",
+    "domain": "voice-assets",
+    "operationId": "inheritanceActivatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/events/inheritance-activated/query",
+    "notes": "LegacyExecutionFacet.InheritanceActivated",
+    "eventName": "InheritanceActivated",
+    "signature": "InheritanceActivated(bytes32,address,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "LegacyExecutionFacet.InheritanceApproved",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "InheritanceApproved",
+    "domain": "voice-assets",
+    "operationId": "inheritanceApprovedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/events/inheritance-approved/query",
+    "notes": "LegacyExecutionFacet.InheritanceApproved",
+    "eventName": "InheritanceApproved",
+    "signature": "InheritanceApproved(bytes32,address,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "voiceHash",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "approver",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "LegacyExecutionFacet.RightsDelegated",
+    "facetName": "LegacyExecutionFacet",
+    "wrapperKey": "RightsDelegated",
+    "domain": "voice-assets",
+    "operationId": "rightsDelegatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/events/rights-delegated/query",
+    "notes": "LegacyExecutionFacet.RightsDelegated",
+    "eventName": "RightsDelegated",
+    "signature": "RightsDelegated(address,address,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "original",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "delegated",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "expiryTime",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "LegacyFacet.BeneficiaryUpdated",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "BeneficiaryUpdated",
+    "domain": "voice-assets",
+    "operationId": "beneficiaryUpdatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/events/beneficiary-updated/query",
+    "notes": "LegacyFacet.BeneficiaryUpdated",
+    "eventName": "BeneficiaryUpdated",
+    "signature": "BeneficiaryUpdated(address,address,uint256,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "sharePercentage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "LegacyFacet.InheritanceConditionsUpdated",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "InheritanceConditionsUpdated",
+    "domain": "voice-assets",
+    "operationId": "inheritanceConditionsUpdatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/events/inheritance-conditions-updated/query",
+    "notes": "LegacyFacet.InheritanceConditionsUpdated",
+    "eventName": "InheritanceConditionsUpdated",
+    "signature": "InheritanceConditionsUpdated(address,uint256,uint256,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timelock",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "minApprovals",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "LegacyFacet.LegacyPlanCreated",
+    "facetName": "LegacyFacet",
+    "wrapperKey": "LegacyPlanCreated",
+    "domain": "voice-assets",
+    "operationId": "legacyPlanCreatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/events/legacy-plan-created/query",
+    "notes": "LegacyFacet.LegacyPlanCreated",
+    "eventName": "LegacyPlanCreated",
+    "signature": "LegacyPlanCreated(address,uint256,uint256)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "beneficiaryCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "projection": {
+      "domain": "voice-assets",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
   {
     "key": "VoiceAssetFacet.Approval",
     "facetName": "VoiceAssetFacet",

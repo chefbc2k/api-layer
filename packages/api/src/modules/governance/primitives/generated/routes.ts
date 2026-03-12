@@ -8,7 +8,10 @@ import { governanceEventDefinitions, governanceMethodDefinitions } from "./mappi
 export function createGovernancePrimitiveRouter(context: ApiExecutionContext): Router {
   const router = Router();
   const controller = createGovernancePrimitiveController(context);
+  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "cancel")!, controller["cancel"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "cancelProposal")!, controller["cancelProposal"]);
+  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "execute")!, controller["execute"]);
+  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "executorRole")!, controller["executorRole"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "getActiveProposals")!, controller["getActiveProposals"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "getMinDelay")!, controller["getMinDelay"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "getOperation")!, controller["getOperation"]);
@@ -18,23 +21,18 @@ export function createGovernancePrimitiveRouter(context: ApiExecutionContext): R
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "getRoleMultiplier")!, controller["getRoleMultiplier"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "getTimestamp")!, controller["getTimestamp"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "getVotingConfig")!, controller["getVotingConfig"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "governorGovernanceProposerRole")!, controller["governorGovernanceProposerRole"]);
+  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "governanceProposerRole")!, controller["governanceProposerRole"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "isOperationExecuted")!, controller["isOperationExecuted"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "isOperationPending")!, controller["isOperationPending"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "isOperationReady")!, controller["isOperationReady"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "prCastVote")!, controller["prCastVote"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "prExecute")!, controller["prExecute"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalCancel")!, controller["proposalCancel"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalDeadline")!, controller["proposalDeadline"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalExecute")!, controller["proposalExecute"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalExecutorRole")!, controller["proposalExecutorRole"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalExists")!, controller["proposalExists"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalGovernanceProposerRole")!, controller["proposalGovernanceProposerRole"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalSnapshot")!, controller["proposalSnapshot"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalVotes")!, controller["proposalVotes"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposeAddressArrayUint256ArrayBytesArrayStringUint8")!, controller["proposeAddressArrayUint256ArrayBytesArrayStringUint8"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposerRole")!, controller["proposerRole"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8")!, controller["proposeStringStringAddressArrayUint256ArrayBytesArrayUint8"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "prQueue")!, controller["prQueue"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "prState")!, controller["prState"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "queue")!, controller["queue"]);
@@ -43,9 +41,6 @@ export function createGovernancePrimitiveRouter(context: ApiExecutionContext): R
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "setProposalTypeConfig")!, controller["setProposalTypeConfig"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "setTrustedTarget")!, controller["setTrustedTarget"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "state")!, controller["state"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "timelockCancel")!, controller["timelockCancel"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "timelockExecute")!, controller["timelockExecute"]);
-  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "timelockExecutorRole")!, controller["timelockExecutorRole"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "timelockRole")!, controller["timelockRole"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "updateMinDelay")!, controller["updateMinDelay"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "updateProposalThreshold")!, controller["updateProposalThreshold"]);

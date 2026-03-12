@@ -9,7 +9,6 @@ export function createVoiceDatasetFacetWrapper(context: FacetWrapperContext) {
     getDataset: (...args: unknown[]) => invokeRead(context, "VoiceDatasetFacet", "getDataset", args, false, 5),
     getDatasetsByCreator: (...args: unknown[]) => invokeRead(context, "VoiceDatasetFacet", "getDatasetsByCreator", args, false, 5),
     getMaxAssetsPerDataset: (...args: unknown[]) => invokeRead(context, "VoiceDatasetFacet", "getMaxAssetsPerDataset", args, false, 5),
-    getSelectors: (...args: unknown[]) => invokeRead(context, "VoiceDatasetFacet", "getSelectors", args, false, 600),
     getTotalDatasets: (...args: unknown[]) => invokeRead(context, "VoiceDatasetFacet", "getTotalDatasets", args, false, 5),
     royaltyInfo: (...args: unknown[]) => invokeRead(context, "VoiceDatasetFacet", "royaltyInfo", args, false, 5),
     },

@@ -1,27 +1,34 @@
-import { createAccessControlFacetWrapper, createBurnThresholdFacetWrapper, createDelegationFacetWrapper, createDiamondCutFacetWrapper, createDiamondLoupeFacetWrapper, createEchoScoreFacetV3Wrapper, createEmergencyFacetWrapper, createEmergencyWithdrawalFacetWrapper, createGovernorFacetWrapper, createMarketplaceFacetWrapper, createMultiSigFacetWrapper, createOwnershipFacetWrapper, createPaymentFacetWrapper, createProposalFacetWrapper, createStakingFacetWrapper, createTimelockFacetWrapper, createTimewaveGiftFacetWrapper, createTokenSupplyFacetWrapper, createUpgradeControllerFacetWrapper, createVoiceAssetFacetWrapper, createVoiceDatasetFacetWrapper, createVoiceLicenseFacetWrapper, createVoiceLicenseTemplateFacetWrapper, createVoiceMetadataFacetWrapper, createVotingPowerFacetWrapper, createWhisperBlockFacetWrapper } from "./index.js";
+import { createAccessControlFacetWrapper, createBurnThresholdFacetWrapper, createCommunityRewardsFacetWrapper, createDelegationFacetWrapper, createDiamondCutFacetWrapper, createDiamondLoupeFacetWrapper, createEchoScoreFacetV3Wrapper, createEmergencyFacetWrapper, createEmergencyWithdrawalFacetWrapper, createEscrowFacetWrapper, createGovernorFacetWrapper, createLegacyExecutionFacetWrapper, createLegacyFacetWrapper, createLegacyViewFacetWrapper, createMarketplaceFacetWrapper, createMultiSigFacetWrapper, createOwnershipFacetWrapper, createPaymentFacetWrapper, createProposalFacetWrapper, createRightsFacetWrapper, createStakingFacetWrapper, createTimelockFacetWrapper, createTimewaveGiftFacetWrapper, createTokenSupplyFacetWrapper, createUpgradeControllerFacetWrapper, createVestingFacetWrapper, createVoiceAssetFacetWrapper, createVoiceDatasetFacetWrapper, createVoiceLicenseFacetWrapper, createVoiceLicenseTemplateFacetWrapper, createVoiceMetadataFacetWrapper, createVotingPowerFacetWrapper, createWhisperBlockFacetWrapper } from "./index.js";
 import type { FacetWrapperContext } from "../types.js";
 
 export function createFacetWrappers(context: FacetWrapperContext) {
   return {
     accessControl: createAccessControlFacetWrapper(context),
     burnThreshold: createBurnThresholdFacetWrapper(context),
+    communityRewards: createCommunityRewardsFacetWrapper(context),
     delegation: createDelegationFacetWrapper(context),
     diamondCut: createDiamondCutFacetWrapper(context),
     diamondLoupe: createDiamondLoupeFacetWrapper(context),
     echoScoreFacetV3: createEchoScoreFacetV3Wrapper(context),
     emergency: createEmergencyFacetWrapper(context),
     emergencyWithdrawal: createEmergencyWithdrawalFacetWrapper(context),
+    escrow: createEscrowFacetWrapper(context),
     governor: createGovernorFacetWrapper(context),
+    legacyExecution: createLegacyExecutionFacetWrapper(context),
+    legacy: createLegacyFacetWrapper(context),
+    legacyView: createLegacyViewFacetWrapper(context),
     marketplace: createMarketplaceFacetWrapper(context),
     multiSig: createMultiSigFacetWrapper(context),
     ownership: createOwnershipFacetWrapper(context),
     payment: createPaymentFacetWrapper(context),
     proposal: createProposalFacetWrapper(context),
+    rights: createRightsFacetWrapper(context),
     staking: createStakingFacetWrapper(context),
     timelock: createTimelockFacetWrapper(context),
     timewaveGift: createTimewaveGiftFacetWrapper(context),
     tokenSupply: createTokenSupplyFacetWrapper(context),
     upgradeController: createUpgradeControllerFacetWrapper(context),
+    vesting: createVestingFacetWrapper(context),
     voiceAsset: createVoiceAssetFacetWrapper(context),
     voiceDataset: createVoiceDatasetFacetWrapper(context),
     voiceLicense: createVoiceLicenseFacetWrapper(context),

@@ -7,14 +7,17 @@ import {
   distributePaymentFromRequestSchemas,
   distributePaymentFromWithDeadlineRequestSchemas,
   distributePaymentWithDeadlineRequestSchemas,
+  escrowAssetRequestSchemas,
   executeMultisigWithdrawalRequestSchemas,
   executeQuarterlyBuybackRequestSchemas,
   getAssetRevenueRequestSchemas,
+  getAssetStateRequestSchemas,
   getBuybackStatusRequestSchemas,
   getDevFundAddressRequestSchemas,
   getFeeConfigurationRequestSchemas,
   getListingRequestSchemas,
   getMevProtectionConfigRequestSchemas,
+  getOriginalOwnerRequestSchemas,
   getPendingPaymentsRequestSchemas,
   getPendingTimewaveGiftRequestSchemas,
   getRevenueMetricsRequestSchemas,
@@ -22,35 +25,36 @@ import {
   getTreasuryWithdrawalLimitRequestSchemas,
   getUnionTreasuryAddressRequestSchemas,
   getUsdcTokenRequestSchemas,
+  isInEscrowRequestSchemas,
   isPausedRequestSchemas,
   listAssetRequestSchemas,
+  onErc721ReceivedRequestSchemas,
   pauseRequestSchemas,
   pauseBuybacksRequestSchemas,
   paymentPausedRequestSchemas,
   purchaseAssetRequestSchemas,
+  releaseAssetRequestSchemas,
   revealDistributionRequestSchemas,
-  revealDistributionStructRequestSchemas,
   revealWithdrawRequestSchemas,
   setBuybackConfigRequestSchemas,
-  setBuybackConfigStructRequestSchemas,
   setMevProtectionConfigRequestSchemas,
   setPaymentPausedRequestSchemas,
   setStakingConfigRequestSchemas,
   setTreasuryWithdrawalLimitRequestSchemas,
   setUsdcTokenRequestSchemas,
   unpauseRequestSchemas,
+  updateAssetStateRequestSchemas,
   updateDevFundAddressRequestSchemas,
   updateFeeConfigurationRequestSchemas,
   updateListingPriceRequestSchemas,
   updateTreasuryAddressRequestSchemas,
   updateUnionTreasuryAddressRequestSchemas,
   withdrawPaymentsRequestSchemas,
-  withdrawPaymentsAddressUint256RequestSchemas,
-  withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas,
-  withdrawPaymentsWithDeadlineUint256RequestSchemas,
-  assetEscrowedEventQueryRequestSchema,
+  withdrawPaymentsWithDeadlineRequestSchemas,
   assetListedEventQueryRequestSchema,
   assetPurchasedEventQueryRequestSchema,
+  assetReleasedEventQueryRequestSchema,
+  assetStateUpdatedEventQueryRequestSchema,
   buybackAccumulatorUpdatedEventQueryRequestSchema,
   buybackConfigUpdatedEventQueryRequestSchema,
   buybackExecutedEventQueryRequestSchema,
@@ -59,10 +63,12 @@ import {
   claimRevealedEventQueryRequestSchema,
   datasetRoyaltyAccruedEventQueryRequestSchema,
   devFundAddressUpdatedEventQueryRequestSchema,
+  escrowAssetEscrowedEventQueryRequestSchema,
   feeConfigurationUpdatedEventQueryRequestSchema,
   flashbotsSuggestedEventQueryRequestSchema,
   listingCancelledEventQueryRequestSchema,
   listingPriceUpdatedEventQueryRequestSchema,
+  marketplaceAssetEscrowedEventQueryRequestSchema,
   marketplacePausedEventQueryRequestSchema,
   marketplaceUnpausedEventQueryRequestSchema,
   metadataAccessedEventQueryRequestSchema,
@@ -100,6 +106,9 @@ export type DistributePaymentFromWithDeadlineBody = import("zod").infer<typeof d
 export type DistributePaymentWithDeadlinePath = import("zod").infer<typeof distributePaymentWithDeadlineRequestSchemas.path>;
 export type DistributePaymentWithDeadlineQuery = import("zod").infer<typeof distributePaymentWithDeadlineRequestSchemas.query>;
 export type DistributePaymentWithDeadlineBody = import("zod").infer<typeof distributePaymentWithDeadlineRequestSchemas.body>;
+export type EscrowAssetPath = import("zod").infer<typeof escrowAssetRequestSchemas.path>;
+export type EscrowAssetQuery = import("zod").infer<typeof escrowAssetRequestSchemas.query>;
+export type EscrowAssetBody = import("zod").infer<typeof escrowAssetRequestSchemas.body>;
 export type ExecuteMultisigWithdrawalPath = import("zod").infer<typeof executeMultisigWithdrawalRequestSchemas.path>;
 export type ExecuteMultisigWithdrawalQuery = import("zod").infer<typeof executeMultisigWithdrawalRequestSchemas.query>;
 export type ExecuteMultisigWithdrawalBody = import("zod").infer<typeof executeMultisigWithdrawalRequestSchemas.body>;
@@ -109,6 +118,9 @@ export type ExecuteQuarterlyBuybackBody = import("zod").infer<typeof executeQuar
 export type GetAssetRevenuePath = import("zod").infer<typeof getAssetRevenueRequestSchemas.path>;
 export type GetAssetRevenueQuery = import("zod").infer<typeof getAssetRevenueRequestSchemas.query>;
 export type GetAssetRevenueBody = import("zod").infer<typeof getAssetRevenueRequestSchemas.body>;
+export type GetAssetStatePath = import("zod").infer<typeof getAssetStateRequestSchemas.path>;
+export type GetAssetStateQuery = import("zod").infer<typeof getAssetStateRequestSchemas.query>;
+export type GetAssetStateBody = import("zod").infer<typeof getAssetStateRequestSchemas.body>;
 export type GetBuybackStatusPath = import("zod").infer<typeof getBuybackStatusRequestSchemas.path>;
 export type GetBuybackStatusQuery = import("zod").infer<typeof getBuybackStatusRequestSchemas.query>;
 export type GetBuybackStatusBody = import("zod").infer<typeof getBuybackStatusRequestSchemas.body>;
@@ -124,6 +136,9 @@ export type GetListingBody = import("zod").infer<typeof getListingRequestSchemas
 export type GetMevProtectionConfigPath = import("zod").infer<typeof getMevProtectionConfigRequestSchemas.path>;
 export type GetMevProtectionConfigQuery = import("zod").infer<typeof getMevProtectionConfigRequestSchemas.query>;
 export type GetMevProtectionConfigBody = import("zod").infer<typeof getMevProtectionConfigRequestSchemas.body>;
+export type GetOriginalOwnerPath = import("zod").infer<typeof getOriginalOwnerRequestSchemas.path>;
+export type GetOriginalOwnerQuery = import("zod").infer<typeof getOriginalOwnerRequestSchemas.query>;
+export type GetOriginalOwnerBody = import("zod").infer<typeof getOriginalOwnerRequestSchemas.body>;
 export type GetPendingPaymentsPath = import("zod").infer<typeof getPendingPaymentsRequestSchemas.path>;
 export type GetPendingPaymentsQuery = import("zod").infer<typeof getPendingPaymentsRequestSchemas.query>;
 export type GetPendingPaymentsBody = import("zod").infer<typeof getPendingPaymentsRequestSchemas.body>;
@@ -145,12 +160,18 @@ export type GetUnionTreasuryAddressBody = import("zod").infer<typeof getUnionTre
 export type GetUsdcTokenPath = import("zod").infer<typeof getUsdcTokenRequestSchemas.path>;
 export type GetUsdcTokenQuery = import("zod").infer<typeof getUsdcTokenRequestSchemas.query>;
 export type GetUsdcTokenBody = import("zod").infer<typeof getUsdcTokenRequestSchemas.body>;
+export type IsInEscrowPath = import("zod").infer<typeof isInEscrowRequestSchemas.path>;
+export type IsInEscrowQuery = import("zod").infer<typeof isInEscrowRequestSchemas.query>;
+export type IsInEscrowBody = import("zod").infer<typeof isInEscrowRequestSchemas.body>;
 export type IsPausedPath = import("zod").infer<typeof isPausedRequestSchemas.path>;
 export type IsPausedQuery = import("zod").infer<typeof isPausedRequestSchemas.query>;
 export type IsPausedBody = import("zod").infer<typeof isPausedRequestSchemas.body>;
 export type ListAssetPath = import("zod").infer<typeof listAssetRequestSchemas.path>;
 export type ListAssetQuery = import("zod").infer<typeof listAssetRequestSchemas.query>;
 export type ListAssetBody = import("zod").infer<typeof listAssetRequestSchemas.body>;
+export type OnErc721ReceivedPath = import("zod").infer<typeof onErc721ReceivedRequestSchemas.path>;
+export type OnErc721ReceivedQuery = import("zod").infer<typeof onErc721ReceivedRequestSchemas.query>;
+export type OnErc721ReceivedBody = import("zod").infer<typeof onErc721ReceivedRequestSchemas.body>;
 export type PausePath = import("zod").infer<typeof pauseRequestSchemas.path>;
 export type PauseQuery = import("zod").infer<typeof pauseRequestSchemas.query>;
 export type PauseBody = import("zod").infer<typeof pauseRequestSchemas.body>;
@@ -163,21 +184,18 @@ export type PaymentPausedBody = import("zod").infer<typeof paymentPausedRequestS
 export type PurchaseAssetPath = import("zod").infer<typeof purchaseAssetRequestSchemas.path>;
 export type PurchaseAssetQuery = import("zod").infer<typeof purchaseAssetRequestSchemas.query>;
 export type PurchaseAssetBody = import("zod").infer<typeof purchaseAssetRequestSchemas.body>;
+export type ReleaseAssetPath = import("zod").infer<typeof releaseAssetRequestSchemas.path>;
+export type ReleaseAssetQuery = import("zod").infer<typeof releaseAssetRequestSchemas.query>;
+export type ReleaseAssetBody = import("zod").infer<typeof releaseAssetRequestSchemas.body>;
 export type RevealDistributionPath = import("zod").infer<typeof revealDistributionRequestSchemas.path>;
 export type RevealDistributionQuery = import("zod").infer<typeof revealDistributionRequestSchemas.query>;
 export type RevealDistributionBody = import("zod").infer<typeof revealDistributionRequestSchemas.body>;
-export type RevealDistributionStructPath = import("zod").infer<typeof revealDistributionStructRequestSchemas.path>;
-export type RevealDistributionStructQuery = import("zod").infer<typeof revealDistributionStructRequestSchemas.query>;
-export type RevealDistributionStructBody = import("zod").infer<typeof revealDistributionStructRequestSchemas.body>;
 export type RevealWithdrawPath = import("zod").infer<typeof revealWithdrawRequestSchemas.path>;
 export type RevealWithdrawQuery = import("zod").infer<typeof revealWithdrawRequestSchemas.query>;
 export type RevealWithdrawBody = import("zod").infer<typeof revealWithdrawRequestSchemas.body>;
 export type SetBuybackConfigPath = import("zod").infer<typeof setBuybackConfigRequestSchemas.path>;
 export type SetBuybackConfigQuery = import("zod").infer<typeof setBuybackConfigRequestSchemas.query>;
 export type SetBuybackConfigBody = import("zod").infer<typeof setBuybackConfigRequestSchemas.body>;
-export type SetBuybackConfigStructPath = import("zod").infer<typeof setBuybackConfigStructRequestSchemas.path>;
-export type SetBuybackConfigStructQuery = import("zod").infer<typeof setBuybackConfigStructRequestSchemas.query>;
-export type SetBuybackConfigStructBody = import("zod").infer<typeof setBuybackConfigStructRequestSchemas.body>;
 export type SetMevProtectionConfigPath = import("zod").infer<typeof setMevProtectionConfigRequestSchemas.path>;
 export type SetMevProtectionConfigQuery = import("zod").infer<typeof setMevProtectionConfigRequestSchemas.query>;
 export type SetMevProtectionConfigBody = import("zod").infer<typeof setMevProtectionConfigRequestSchemas.body>;
@@ -196,6 +214,9 @@ export type SetUsdcTokenBody = import("zod").infer<typeof setUsdcTokenRequestSch
 export type UnpausePath = import("zod").infer<typeof unpauseRequestSchemas.path>;
 export type UnpauseQuery = import("zod").infer<typeof unpauseRequestSchemas.query>;
 export type UnpauseBody = import("zod").infer<typeof unpauseRequestSchemas.body>;
+export type UpdateAssetStatePath = import("zod").infer<typeof updateAssetStateRequestSchemas.path>;
+export type UpdateAssetStateQuery = import("zod").infer<typeof updateAssetStateRequestSchemas.query>;
+export type UpdateAssetStateBody = import("zod").infer<typeof updateAssetStateRequestSchemas.body>;
 export type UpdateDevFundAddressPath = import("zod").infer<typeof updateDevFundAddressRequestSchemas.path>;
 export type UpdateDevFundAddressQuery = import("zod").infer<typeof updateDevFundAddressRequestSchemas.query>;
 export type UpdateDevFundAddressBody = import("zod").infer<typeof updateDevFundAddressRequestSchemas.body>;
@@ -214,18 +235,13 @@ export type UpdateUnionTreasuryAddressBody = import("zod").infer<typeof updateUn
 export type WithdrawPaymentsPath = import("zod").infer<typeof withdrawPaymentsRequestSchemas.path>;
 export type WithdrawPaymentsQuery = import("zod").infer<typeof withdrawPaymentsRequestSchemas.query>;
 export type WithdrawPaymentsBody = import("zod").infer<typeof withdrawPaymentsRequestSchemas.body>;
-export type WithdrawPaymentsAddressUint256Path = import("zod").infer<typeof withdrawPaymentsAddressUint256RequestSchemas.path>;
-export type WithdrawPaymentsAddressUint256Query = import("zod").infer<typeof withdrawPaymentsAddressUint256RequestSchemas.query>;
-export type WithdrawPaymentsAddressUint256Body = import("zod").infer<typeof withdrawPaymentsAddressUint256RequestSchemas.body>;
-export type WithdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32Path = import("zod").infer<typeof withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas.path>;
-export type WithdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32Query = import("zod").infer<typeof withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas.query>;
-export type WithdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32Body = import("zod").infer<typeof withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas.body>;
-export type WithdrawPaymentsWithDeadlineUint256Path = import("zod").infer<typeof withdrawPaymentsWithDeadlineUint256RequestSchemas.path>;
-export type WithdrawPaymentsWithDeadlineUint256Query = import("zod").infer<typeof withdrawPaymentsWithDeadlineUint256RequestSchemas.query>;
-export type WithdrawPaymentsWithDeadlineUint256Body = import("zod").infer<typeof withdrawPaymentsWithDeadlineUint256RequestSchemas.body>;
-export type AssetEscrowedEventQueryBody = import("zod").infer<typeof assetEscrowedEventQueryRequestSchema.body>;
+export type WithdrawPaymentsWithDeadlinePath = import("zod").infer<typeof withdrawPaymentsWithDeadlineRequestSchemas.path>;
+export type WithdrawPaymentsWithDeadlineQuery = import("zod").infer<typeof withdrawPaymentsWithDeadlineRequestSchemas.query>;
+export type WithdrawPaymentsWithDeadlineBody = import("zod").infer<typeof withdrawPaymentsWithDeadlineRequestSchemas.body>;
 export type AssetListedEventQueryBody = import("zod").infer<typeof assetListedEventQueryRequestSchema.body>;
 export type AssetPurchasedEventQueryBody = import("zod").infer<typeof assetPurchasedEventQueryRequestSchema.body>;
+export type AssetReleasedEventQueryBody = import("zod").infer<typeof assetReleasedEventQueryRequestSchema.body>;
+export type AssetStateUpdatedEventQueryBody = import("zod").infer<typeof assetStateUpdatedEventQueryRequestSchema.body>;
 export type BuybackAccumulatorUpdatedEventQueryBody = import("zod").infer<typeof buybackAccumulatorUpdatedEventQueryRequestSchema.body>;
 export type BuybackConfigUpdatedEventQueryBody = import("zod").infer<typeof buybackConfigUpdatedEventQueryRequestSchema.body>;
 export type BuybackExecutedEventQueryBody = import("zod").infer<typeof buybackExecutedEventQueryRequestSchema.body>;
@@ -234,10 +250,12 @@ export type ClaimCommittedEventQueryBody = import("zod").infer<typeof claimCommi
 export type ClaimRevealedEventQueryBody = import("zod").infer<typeof claimRevealedEventQueryRequestSchema.body>;
 export type DatasetRoyaltyAccruedEventQueryBody = import("zod").infer<typeof datasetRoyaltyAccruedEventQueryRequestSchema.body>;
 export type DevFundAddressUpdatedEventQueryBody = import("zod").infer<typeof devFundAddressUpdatedEventQueryRequestSchema.body>;
+export type EscrowAssetEscrowedEventQueryBody = import("zod").infer<typeof escrowAssetEscrowedEventQueryRequestSchema.body>;
 export type FeeConfigurationUpdatedEventQueryBody = import("zod").infer<typeof feeConfigurationUpdatedEventQueryRequestSchema.body>;
 export type FlashbotsSuggestedEventQueryBody = import("zod").infer<typeof flashbotsSuggestedEventQueryRequestSchema.body>;
 export type ListingCancelledEventQueryBody = import("zod").infer<typeof listingCancelledEventQueryRequestSchema.body>;
 export type ListingPriceUpdatedEventQueryBody = import("zod").infer<typeof listingPriceUpdatedEventQueryRequestSchema.body>;
+export type MarketplaceAssetEscrowedEventQueryBody = import("zod").infer<typeof marketplaceAssetEscrowedEventQueryRequestSchema.body>;
 export type MarketplacePausedEventQueryBody = import("zod").infer<typeof marketplacePausedEventQueryRequestSchema.body>;
 export type MarketplaceUnpausedEventQueryBody = import("zod").infer<typeof marketplaceUnpausedEventQueryRequestSchema.body>;
 export type MetadataAccessedEventQueryBody = import("zod").infer<typeof metadataAccessedEventQueryRequestSchema.body>;

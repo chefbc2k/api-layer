@@ -1,17 +1,23 @@
 import {
-  approveRequestSchemas,
+  addBeneficiaryRequestSchemas,
+  addDatasetsRequestSchemas,
+  addInheritanceRequirementRequestSchemas,
+  addVoiceAssetsRequestSchemas,
+  approveInheritanceRequestSchemas,
   approveVoiceAssetRequestSchemas,
   authorizeUserRequestSchemas,
-  balanceOfRequestSchemas,
+  createLegacyPlanRequestSchemas,
   customizeRoyaltyRateRequestSchemas,
+  delegateRightsRequestSchemas,
+  executeInheritanceRequestSchemas,
   getApprovedRequestSchemas,
   getBasicAcousticFeaturesRequestSchemas,
   getDefaultPlatformFeeRequestSchemas,
   getDefaultRoyaltyRateRequestSchemas,
   getGeographicDataRequestSchemas,
+  getLegacyPlanRequestSchemas,
   getMaxRoyaltyRateRequestSchemas,
   getRoyaltyHistoryRequestSchemas,
-  getSelectorsRequestSchemas,
   getTokenIdRequestSchemas,
   getUserVoicesRequestSchemas,
   getVoiceAssetRequestSchemas,
@@ -21,8 +27,10 @@ import {
   getVoiceClassificationsRequestSchemas,
   getVoiceHashRequestSchemas,
   getVoiceHashFromTokenIdRequestSchemas,
+  initiateInheritanceRequestSchemas,
   isApprovedForAllRequestSchemas,
   isAuthorizedRequestSchemas,
+  isInheritanceReadyRequestSchemas,
   isRegistrationPausedRequestSchemas,
   lockVoiceAssetRequestSchemas,
   nameRequestSchemas,
@@ -40,19 +48,17 @@ import {
   searchVoicesByClassificationPaginatedRequestSchemas,
   setAnalysisVersionRequestSchemas,
   setApprovalForAllRequestSchemas,
+  setBeneficiaryRelationshipRequestSchemas,
   setDefaultPlatformFeeRequestSchemas,
   setDefaultRoyaltyRateRequestSchemas,
+  setInheritanceConditionsRequestSchemas,
+  setMaxBeneficiariesRequestSchemas,
+  setMinTimelockPeriodRequestSchemas,
   setRegistrationPausedRequestSchemas,
-  supportsInterfaceRequestSchemas,
   symbolRequestSchemas,
   tokenUriRequestSchemas,
-  transferFromRequestSchemas,
   transferFromVoiceAssetRequestSchemas,
   unlockVoiceAssetRequestSchemas,
-  updateBasicAcousticFeaturesRequestSchemas,
-  updateClassificationCategoryRequestSchemas,
-  updateGeographicDataRequestSchemas,
-  updateVoiceClassificationsRequestSchemas,
   voiceAssetBalanceOfRequestSchemas,
   voiceAssetNameRequestSchemas,
   voiceAssetSymbolRequestSchemas,
@@ -60,11 +66,17 @@ import {
   approvalEventQueryRequestSchema,
   approvalForAllEventQueryRequestSchema,
   basicAcousticFeaturesUpdatedEventQueryRequestSchema,
+  beneficiaryUpdatedEventQueryRequestSchema,
   classificationCategoryUpdatedEventQueryRequestSchema,
   defaultPlatformFeeUpdatedEventQueryRequestSchema,
   defaultRoyaltyRateUpdatedEventQueryRequestSchema,
   geographicDataUpdatedEventQueryRequestSchema,
+  inheritanceActivatedEventQueryRequestSchema,
+  inheritanceApprovedEventQueryRequestSchema,
+  inheritanceConditionsUpdatedEventQueryRequestSchema,
+  legacyPlanCreatedEventQueryRequestSchema,
   registrationPauseChangedEventQueryRequestSchema,
+  rightsDelegatedEventQueryRequestSchema,
   royaltyPaidEventQueryRequestSchema,
   royaltyRateChangedEventQueryRequestSchema,
   royaltyRateUpdatedEventQueryRequestSchema,
@@ -76,21 +88,39 @@ import {
   voiceClassificationsUpdatedEventQueryRequestSchema,
 } from "./schemas.js";
 
-export type ApprovePath = import("zod").infer<typeof approveRequestSchemas.path>;
-export type ApproveQuery = import("zod").infer<typeof approveRequestSchemas.query>;
-export type ApproveBody = import("zod").infer<typeof approveRequestSchemas.body>;
+export type AddBeneficiaryPath = import("zod").infer<typeof addBeneficiaryRequestSchemas.path>;
+export type AddBeneficiaryQuery = import("zod").infer<typeof addBeneficiaryRequestSchemas.query>;
+export type AddBeneficiaryBody = import("zod").infer<typeof addBeneficiaryRequestSchemas.body>;
+export type AddDatasetsPath = import("zod").infer<typeof addDatasetsRequestSchemas.path>;
+export type AddDatasetsQuery = import("zod").infer<typeof addDatasetsRequestSchemas.query>;
+export type AddDatasetsBody = import("zod").infer<typeof addDatasetsRequestSchemas.body>;
+export type AddInheritanceRequirementPath = import("zod").infer<typeof addInheritanceRequirementRequestSchemas.path>;
+export type AddInheritanceRequirementQuery = import("zod").infer<typeof addInheritanceRequirementRequestSchemas.query>;
+export type AddInheritanceRequirementBody = import("zod").infer<typeof addInheritanceRequirementRequestSchemas.body>;
+export type AddVoiceAssetsPath = import("zod").infer<typeof addVoiceAssetsRequestSchemas.path>;
+export type AddVoiceAssetsQuery = import("zod").infer<typeof addVoiceAssetsRequestSchemas.query>;
+export type AddVoiceAssetsBody = import("zod").infer<typeof addVoiceAssetsRequestSchemas.body>;
+export type ApproveInheritancePath = import("zod").infer<typeof approveInheritanceRequestSchemas.path>;
+export type ApproveInheritanceQuery = import("zod").infer<typeof approveInheritanceRequestSchemas.query>;
+export type ApproveInheritanceBody = import("zod").infer<typeof approveInheritanceRequestSchemas.body>;
 export type ApproveVoiceAssetPath = import("zod").infer<typeof approveVoiceAssetRequestSchemas.path>;
 export type ApproveVoiceAssetQuery = import("zod").infer<typeof approveVoiceAssetRequestSchemas.query>;
 export type ApproveVoiceAssetBody = import("zod").infer<typeof approveVoiceAssetRequestSchemas.body>;
 export type AuthorizeUserPath = import("zod").infer<typeof authorizeUserRequestSchemas.path>;
 export type AuthorizeUserQuery = import("zod").infer<typeof authorizeUserRequestSchemas.query>;
 export type AuthorizeUserBody = import("zod").infer<typeof authorizeUserRequestSchemas.body>;
-export type BalanceOfPath = import("zod").infer<typeof balanceOfRequestSchemas.path>;
-export type BalanceOfQuery = import("zod").infer<typeof balanceOfRequestSchemas.query>;
-export type BalanceOfBody = import("zod").infer<typeof balanceOfRequestSchemas.body>;
+export type CreateLegacyPlanPath = import("zod").infer<typeof createLegacyPlanRequestSchemas.path>;
+export type CreateLegacyPlanQuery = import("zod").infer<typeof createLegacyPlanRequestSchemas.query>;
+export type CreateLegacyPlanBody = import("zod").infer<typeof createLegacyPlanRequestSchemas.body>;
 export type CustomizeRoyaltyRatePath = import("zod").infer<typeof customizeRoyaltyRateRequestSchemas.path>;
 export type CustomizeRoyaltyRateQuery = import("zod").infer<typeof customizeRoyaltyRateRequestSchemas.query>;
 export type CustomizeRoyaltyRateBody = import("zod").infer<typeof customizeRoyaltyRateRequestSchemas.body>;
+export type DelegateRightsPath = import("zod").infer<typeof delegateRightsRequestSchemas.path>;
+export type DelegateRightsQuery = import("zod").infer<typeof delegateRightsRequestSchemas.query>;
+export type DelegateRightsBody = import("zod").infer<typeof delegateRightsRequestSchemas.body>;
+export type ExecuteInheritancePath = import("zod").infer<typeof executeInheritanceRequestSchemas.path>;
+export type ExecuteInheritanceQuery = import("zod").infer<typeof executeInheritanceRequestSchemas.query>;
+export type ExecuteInheritanceBody = import("zod").infer<typeof executeInheritanceRequestSchemas.body>;
 export type GetApprovedPath = import("zod").infer<typeof getApprovedRequestSchemas.path>;
 export type GetApprovedQuery = import("zod").infer<typeof getApprovedRequestSchemas.query>;
 export type GetApprovedBody = import("zod").infer<typeof getApprovedRequestSchemas.body>;
@@ -106,15 +136,15 @@ export type GetDefaultRoyaltyRateBody = import("zod").infer<typeof getDefaultRoy
 export type GetGeographicDataPath = import("zod").infer<typeof getGeographicDataRequestSchemas.path>;
 export type GetGeographicDataQuery = import("zod").infer<typeof getGeographicDataRequestSchemas.query>;
 export type GetGeographicDataBody = import("zod").infer<typeof getGeographicDataRequestSchemas.body>;
+export type GetLegacyPlanPath = import("zod").infer<typeof getLegacyPlanRequestSchemas.path>;
+export type GetLegacyPlanQuery = import("zod").infer<typeof getLegacyPlanRequestSchemas.query>;
+export type GetLegacyPlanBody = import("zod").infer<typeof getLegacyPlanRequestSchemas.body>;
 export type GetMaxRoyaltyRatePath = import("zod").infer<typeof getMaxRoyaltyRateRequestSchemas.path>;
 export type GetMaxRoyaltyRateQuery = import("zod").infer<typeof getMaxRoyaltyRateRequestSchemas.query>;
 export type GetMaxRoyaltyRateBody = import("zod").infer<typeof getMaxRoyaltyRateRequestSchemas.body>;
 export type GetRoyaltyHistoryPath = import("zod").infer<typeof getRoyaltyHistoryRequestSchemas.path>;
 export type GetRoyaltyHistoryQuery = import("zod").infer<typeof getRoyaltyHistoryRequestSchemas.query>;
 export type GetRoyaltyHistoryBody = import("zod").infer<typeof getRoyaltyHistoryRequestSchemas.body>;
-export type GetSelectorsPath = import("zod").infer<typeof getSelectorsRequestSchemas.path>;
-export type GetSelectorsQuery = import("zod").infer<typeof getSelectorsRequestSchemas.query>;
-export type GetSelectorsBody = import("zod").infer<typeof getSelectorsRequestSchemas.body>;
 export type GetTokenIdPath = import("zod").infer<typeof getTokenIdRequestSchemas.path>;
 export type GetTokenIdQuery = import("zod").infer<typeof getTokenIdRequestSchemas.query>;
 export type GetTokenIdBody = import("zod").infer<typeof getTokenIdRequestSchemas.body>;
@@ -142,12 +172,18 @@ export type GetVoiceHashBody = import("zod").infer<typeof getVoiceHashRequestSch
 export type GetVoiceHashFromTokenIdPath = import("zod").infer<typeof getVoiceHashFromTokenIdRequestSchemas.path>;
 export type GetVoiceHashFromTokenIdQuery = import("zod").infer<typeof getVoiceHashFromTokenIdRequestSchemas.query>;
 export type GetVoiceHashFromTokenIdBody = import("zod").infer<typeof getVoiceHashFromTokenIdRequestSchemas.body>;
+export type InitiateInheritancePath = import("zod").infer<typeof initiateInheritanceRequestSchemas.path>;
+export type InitiateInheritanceQuery = import("zod").infer<typeof initiateInheritanceRequestSchemas.query>;
+export type InitiateInheritanceBody = import("zod").infer<typeof initiateInheritanceRequestSchemas.body>;
 export type IsApprovedForAllPath = import("zod").infer<typeof isApprovedForAllRequestSchemas.path>;
 export type IsApprovedForAllQuery = import("zod").infer<typeof isApprovedForAllRequestSchemas.query>;
 export type IsApprovedForAllBody = import("zod").infer<typeof isApprovedForAllRequestSchemas.body>;
 export type IsAuthorizedPath = import("zod").infer<typeof isAuthorizedRequestSchemas.path>;
 export type IsAuthorizedQuery = import("zod").infer<typeof isAuthorizedRequestSchemas.query>;
 export type IsAuthorizedBody = import("zod").infer<typeof isAuthorizedRequestSchemas.body>;
+export type IsInheritanceReadyPath = import("zod").infer<typeof isInheritanceReadyRequestSchemas.path>;
+export type IsInheritanceReadyQuery = import("zod").infer<typeof isInheritanceReadyRequestSchemas.query>;
+export type IsInheritanceReadyBody = import("zod").infer<typeof isInheritanceReadyRequestSchemas.body>;
 export type IsRegistrationPausedPath = import("zod").infer<typeof isRegistrationPausedRequestSchemas.path>;
 export type IsRegistrationPausedQuery = import("zod").infer<typeof isRegistrationPausedRequestSchemas.query>;
 export type IsRegistrationPausedBody = import("zod").infer<typeof isRegistrationPausedRequestSchemas.body>;
@@ -199,45 +235,39 @@ export type SetAnalysisVersionBody = import("zod").infer<typeof setAnalysisVersi
 export type SetApprovalForAllPath = import("zod").infer<typeof setApprovalForAllRequestSchemas.path>;
 export type SetApprovalForAllQuery = import("zod").infer<typeof setApprovalForAllRequestSchemas.query>;
 export type SetApprovalForAllBody = import("zod").infer<typeof setApprovalForAllRequestSchemas.body>;
+export type SetBeneficiaryRelationshipPath = import("zod").infer<typeof setBeneficiaryRelationshipRequestSchemas.path>;
+export type SetBeneficiaryRelationshipQuery = import("zod").infer<typeof setBeneficiaryRelationshipRequestSchemas.query>;
+export type SetBeneficiaryRelationshipBody = import("zod").infer<typeof setBeneficiaryRelationshipRequestSchemas.body>;
 export type SetDefaultPlatformFeePath = import("zod").infer<typeof setDefaultPlatformFeeRequestSchemas.path>;
 export type SetDefaultPlatformFeeQuery = import("zod").infer<typeof setDefaultPlatformFeeRequestSchemas.query>;
 export type SetDefaultPlatformFeeBody = import("zod").infer<typeof setDefaultPlatformFeeRequestSchemas.body>;
 export type SetDefaultRoyaltyRatePath = import("zod").infer<typeof setDefaultRoyaltyRateRequestSchemas.path>;
 export type SetDefaultRoyaltyRateQuery = import("zod").infer<typeof setDefaultRoyaltyRateRequestSchemas.query>;
 export type SetDefaultRoyaltyRateBody = import("zod").infer<typeof setDefaultRoyaltyRateRequestSchemas.body>;
+export type SetInheritanceConditionsPath = import("zod").infer<typeof setInheritanceConditionsRequestSchemas.path>;
+export type SetInheritanceConditionsQuery = import("zod").infer<typeof setInheritanceConditionsRequestSchemas.query>;
+export type SetInheritanceConditionsBody = import("zod").infer<typeof setInheritanceConditionsRequestSchemas.body>;
+export type SetMaxBeneficiariesPath = import("zod").infer<typeof setMaxBeneficiariesRequestSchemas.path>;
+export type SetMaxBeneficiariesQuery = import("zod").infer<typeof setMaxBeneficiariesRequestSchemas.query>;
+export type SetMaxBeneficiariesBody = import("zod").infer<typeof setMaxBeneficiariesRequestSchemas.body>;
+export type SetMinTimelockPeriodPath = import("zod").infer<typeof setMinTimelockPeriodRequestSchemas.path>;
+export type SetMinTimelockPeriodQuery = import("zod").infer<typeof setMinTimelockPeriodRequestSchemas.query>;
+export type SetMinTimelockPeriodBody = import("zod").infer<typeof setMinTimelockPeriodRequestSchemas.body>;
 export type SetRegistrationPausedPath = import("zod").infer<typeof setRegistrationPausedRequestSchemas.path>;
 export type SetRegistrationPausedQuery = import("zod").infer<typeof setRegistrationPausedRequestSchemas.query>;
 export type SetRegistrationPausedBody = import("zod").infer<typeof setRegistrationPausedRequestSchemas.body>;
-export type SupportsInterfacePath = import("zod").infer<typeof supportsInterfaceRequestSchemas.path>;
-export type SupportsInterfaceQuery = import("zod").infer<typeof supportsInterfaceRequestSchemas.query>;
-export type SupportsInterfaceBody = import("zod").infer<typeof supportsInterfaceRequestSchemas.body>;
 export type SymbolPath = import("zod").infer<typeof symbolRequestSchemas.path>;
 export type SymbolQuery = import("zod").infer<typeof symbolRequestSchemas.query>;
 export type SymbolBody = import("zod").infer<typeof symbolRequestSchemas.body>;
 export type TokenUriPath = import("zod").infer<typeof tokenUriRequestSchemas.path>;
 export type TokenUriQuery = import("zod").infer<typeof tokenUriRequestSchemas.query>;
 export type TokenUriBody = import("zod").infer<typeof tokenUriRequestSchemas.body>;
-export type TransferFromPath = import("zod").infer<typeof transferFromRequestSchemas.path>;
-export type TransferFromQuery = import("zod").infer<typeof transferFromRequestSchemas.query>;
-export type TransferFromBody = import("zod").infer<typeof transferFromRequestSchemas.body>;
 export type TransferFromVoiceAssetPath = import("zod").infer<typeof transferFromVoiceAssetRequestSchemas.path>;
 export type TransferFromVoiceAssetQuery = import("zod").infer<typeof transferFromVoiceAssetRequestSchemas.query>;
 export type TransferFromVoiceAssetBody = import("zod").infer<typeof transferFromVoiceAssetRequestSchemas.body>;
 export type UnlockVoiceAssetPath = import("zod").infer<typeof unlockVoiceAssetRequestSchemas.path>;
 export type UnlockVoiceAssetQuery = import("zod").infer<typeof unlockVoiceAssetRequestSchemas.query>;
 export type UnlockVoiceAssetBody = import("zod").infer<typeof unlockVoiceAssetRequestSchemas.body>;
-export type UpdateBasicAcousticFeaturesPath = import("zod").infer<typeof updateBasicAcousticFeaturesRequestSchemas.path>;
-export type UpdateBasicAcousticFeaturesQuery = import("zod").infer<typeof updateBasicAcousticFeaturesRequestSchemas.query>;
-export type UpdateBasicAcousticFeaturesBody = import("zod").infer<typeof updateBasicAcousticFeaturesRequestSchemas.body>;
-export type UpdateClassificationCategoryPath = import("zod").infer<typeof updateClassificationCategoryRequestSchemas.path>;
-export type UpdateClassificationCategoryQuery = import("zod").infer<typeof updateClassificationCategoryRequestSchemas.query>;
-export type UpdateClassificationCategoryBody = import("zod").infer<typeof updateClassificationCategoryRequestSchemas.body>;
-export type UpdateGeographicDataPath = import("zod").infer<typeof updateGeographicDataRequestSchemas.path>;
-export type UpdateGeographicDataQuery = import("zod").infer<typeof updateGeographicDataRequestSchemas.query>;
-export type UpdateGeographicDataBody = import("zod").infer<typeof updateGeographicDataRequestSchemas.body>;
-export type UpdateVoiceClassificationsPath = import("zod").infer<typeof updateVoiceClassificationsRequestSchemas.path>;
-export type UpdateVoiceClassificationsQuery = import("zod").infer<typeof updateVoiceClassificationsRequestSchemas.query>;
-export type UpdateVoiceClassificationsBody = import("zod").infer<typeof updateVoiceClassificationsRequestSchemas.body>;
 export type VoiceAssetBalanceOfPath = import("zod").infer<typeof voiceAssetBalanceOfRequestSchemas.path>;
 export type VoiceAssetBalanceOfQuery = import("zod").infer<typeof voiceAssetBalanceOfRequestSchemas.query>;
 export type VoiceAssetBalanceOfBody = import("zod").infer<typeof voiceAssetBalanceOfRequestSchemas.body>;
@@ -251,11 +281,17 @@ export type AnalysisVersionUpdatedEventQueryBody = import("zod").infer<typeof an
 export type ApprovalEventQueryBody = import("zod").infer<typeof approvalEventQueryRequestSchema.body>;
 export type ApprovalForAllEventQueryBody = import("zod").infer<typeof approvalForAllEventQueryRequestSchema.body>;
 export type BasicAcousticFeaturesUpdatedEventQueryBody = import("zod").infer<typeof basicAcousticFeaturesUpdatedEventQueryRequestSchema.body>;
+export type BeneficiaryUpdatedEventQueryBody = import("zod").infer<typeof beneficiaryUpdatedEventQueryRequestSchema.body>;
 export type ClassificationCategoryUpdatedEventQueryBody = import("zod").infer<typeof classificationCategoryUpdatedEventQueryRequestSchema.body>;
 export type DefaultPlatformFeeUpdatedEventQueryBody = import("zod").infer<typeof defaultPlatformFeeUpdatedEventQueryRequestSchema.body>;
 export type DefaultRoyaltyRateUpdatedEventQueryBody = import("zod").infer<typeof defaultRoyaltyRateUpdatedEventQueryRequestSchema.body>;
 export type GeographicDataUpdatedEventQueryBody = import("zod").infer<typeof geographicDataUpdatedEventQueryRequestSchema.body>;
+export type InheritanceActivatedEventQueryBody = import("zod").infer<typeof inheritanceActivatedEventQueryRequestSchema.body>;
+export type InheritanceApprovedEventQueryBody = import("zod").infer<typeof inheritanceApprovedEventQueryRequestSchema.body>;
+export type InheritanceConditionsUpdatedEventQueryBody = import("zod").infer<typeof inheritanceConditionsUpdatedEventQueryRequestSchema.body>;
+export type LegacyPlanCreatedEventQueryBody = import("zod").infer<typeof legacyPlanCreatedEventQueryRequestSchema.body>;
 export type RegistrationPauseChangedEventQueryBody = import("zod").infer<typeof registrationPauseChangedEventQueryRequestSchema.body>;
+export type RightsDelegatedEventQueryBody = import("zod").infer<typeof rightsDelegatedEventQueryRequestSchema.body>;
 export type RoyaltyPaidEventQueryBody = import("zod").infer<typeof royaltyPaidEventQueryRequestSchema.body>;
 export type RoyaltyRateChangedEventQueryBody = import("zod").infer<typeof royaltyRateChangedEventQueryRequestSchema.body>;
 export type RoyaltyRateUpdatedEventQueryBody = import("zod").infer<typeof royaltyRateUpdatedEventQueryRequestSchema.body>;

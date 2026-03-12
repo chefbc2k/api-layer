@@ -1,7 +1,10 @@
 import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../shared/validation.js";
 import { governanceEventDefinitions, governanceMethodDefinitions } from "./mapping.js";
 
+export const cancelRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "cancel")!);
 export const cancelProposalRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "cancelProposal")!);
+export const executeRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "execute")!);
+export const executorRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "executorRole")!);
 export const getActiveProposalsRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "getActiveProposals")!);
 export const getMinDelayRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "getMinDelay")!);
 export const getOperationRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "getOperation")!);
@@ -11,23 +14,18 @@ export const getReceiptRequestSchemas = buildMethodRequestSchemas(governanceMeth
 export const getRoleMultiplierRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "getRoleMultiplier")!);
 export const getTimestampRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "getTimestamp")!);
 export const getVotingConfigRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "getVotingConfig")!);
-export const governorGovernanceProposerRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "governorGovernanceProposerRole")!);
+export const governanceProposerRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "governanceProposerRole")!);
 export const isOperationExecutedRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "isOperationExecuted")!);
 export const isOperationPendingRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "isOperationPending")!);
 export const isOperationReadyRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "isOperationReady")!);
 export const prCastVoteRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "prCastVote")!);
 export const prExecuteRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "prExecute")!);
-export const proposalCancelRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalCancel")!);
 export const proposalDeadlineRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalDeadline")!);
-export const proposalExecuteRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalExecute")!);
-export const proposalExecutorRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalExecutorRole")!);
 export const proposalExistsRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalExists")!);
-export const proposalGovernanceProposerRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalGovernanceProposerRole")!);
 export const proposalSnapshotRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalSnapshot")!);
 export const proposalVotesRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalVotes")!);
 export const proposeAddressArrayUint256ArrayBytesArrayStringUint8RequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposeAddressArrayUint256ArrayBytesArrayStringUint8")!);
 export const proposerRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposerRole")!);
-export const proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8")!);
 export const prQueueRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "prQueue")!);
 export const prStateRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "prState")!);
 export const queueRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "queue")!);
@@ -36,9 +34,6 @@ export const setDefaultGasLimitRequestSchemas = buildMethodRequestSchemas(govern
 export const setProposalTypeConfigRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "setProposalTypeConfig")!);
 export const setTrustedTargetRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "setTrustedTarget")!);
 export const stateRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "state")!);
-export const timelockCancelRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "timelockCancel")!);
-export const timelockExecuteRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "timelockExecute")!);
-export const timelockExecutorRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "timelockExecutorRole")!);
 export const timelockRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "timelockRole")!);
 export const updateMinDelayRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "updateMinDelay")!);
 export const updateProposalThresholdRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "updateProposalThreshold")!);

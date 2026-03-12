@@ -8,7 +8,6 @@ export const createDatasetRequestSchemas = buildMethodRequestSchemas(datasetsMet
 export const getDatasetRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "getDataset")!);
 export const getDatasetsByCreatorRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "getDatasetsByCreator")!);
 export const getMaxAssetsPerDatasetRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "getMaxAssetsPerDataset")!);
-export const getSelectorsRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!);
 export const getTotalDatasetsRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "getTotalDatasets")!);
 export const removeAssetRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "removeAsset")!);
 export const royaltyInfoRequestSchemas = buildMethodRequestSchemas(datasetsMethodDefinitions.find((definition) => definition.operationId === "royaltyInfo")!);

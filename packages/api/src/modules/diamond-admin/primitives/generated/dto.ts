@@ -1,9 +1,5 @@
 import {
   approveUpgradeRequestSchemas,
-  diamondCutRequestSchemas,
-  diamondCutIsImmutableSelectorReservedRequestSchemas,
-  diamondLoupeIsImmutableSelectorReservedRequestSchemas,
-  executeUpgradeRequestSchemas,
   facetAddressRequestSchemas,
   facetAddressesRequestSchemas,
   facetFunctionSelectorsRequestSchemas,
@@ -17,17 +13,16 @@ import {
   getUpgradeDelayRequestSchemas,
   getUpgradeThresholdRequestSchemas,
   initUpgradeControllerRequestSchemas,
+  isImmutableSelectorReservedRequestSchemas,
   isTrustedInitSelectorRequestSchemas,
   isTrustedInitSelectorPolicyEnabledRequestSchemas,
   isUpgradeApprovedRequestSchemas,
   isUpgradeControlFrozenRequestSchemas,
   isUpgradeSignerRequestSchemas,
-  proposeDiamondCutRequestSchemas,
   setTrustedInitCodehashRequestSchemas,
   setTrustedInitContractRequestSchemas,
   setTrustedInitSelectorRequestSchemas,
   setUpgradeControlEnforcedRequestSchemas,
-  supportsInterfaceRequestSchemas,
   diamondCutEventEventQueryRequestSchema,
   diamondCutEventQueryRequestSchema,
   trustedInitCodehashSetEventQueryRequestSchema,
@@ -44,18 +39,6 @@ import {
 export type ApproveUpgradePath = import("zod").infer<typeof approveUpgradeRequestSchemas.path>;
 export type ApproveUpgradeQuery = import("zod").infer<typeof approveUpgradeRequestSchemas.query>;
 export type ApproveUpgradeBody = import("zod").infer<typeof approveUpgradeRequestSchemas.body>;
-export type DiamondCutPath = import("zod").infer<typeof diamondCutRequestSchemas.path>;
-export type DiamondCutQuery = import("zod").infer<typeof diamondCutRequestSchemas.query>;
-export type DiamondCutBody = import("zod").infer<typeof diamondCutRequestSchemas.body>;
-export type DiamondCutIsImmutableSelectorReservedPath = import("zod").infer<typeof diamondCutIsImmutableSelectorReservedRequestSchemas.path>;
-export type DiamondCutIsImmutableSelectorReservedQuery = import("zod").infer<typeof diamondCutIsImmutableSelectorReservedRequestSchemas.query>;
-export type DiamondCutIsImmutableSelectorReservedBody = import("zod").infer<typeof diamondCutIsImmutableSelectorReservedRequestSchemas.body>;
-export type DiamondLoupeIsImmutableSelectorReservedPath = import("zod").infer<typeof diamondLoupeIsImmutableSelectorReservedRequestSchemas.path>;
-export type DiamondLoupeIsImmutableSelectorReservedQuery = import("zod").infer<typeof diamondLoupeIsImmutableSelectorReservedRequestSchemas.query>;
-export type DiamondLoupeIsImmutableSelectorReservedBody = import("zod").infer<typeof diamondLoupeIsImmutableSelectorReservedRequestSchemas.body>;
-export type ExecuteUpgradePath = import("zod").infer<typeof executeUpgradeRequestSchemas.path>;
-export type ExecuteUpgradeQuery = import("zod").infer<typeof executeUpgradeRequestSchemas.query>;
-export type ExecuteUpgradeBody = import("zod").infer<typeof executeUpgradeRequestSchemas.body>;
 export type FacetAddressPath = import("zod").infer<typeof facetAddressRequestSchemas.path>;
 export type FacetAddressQuery = import("zod").infer<typeof facetAddressRequestSchemas.query>;
 export type FacetAddressBody = import("zod").infer<typeof facetAddressRequestSchemas.body>;
@@ -95,6 +78,9 @@ export type GetUpgradeThresholdBody = import("zod").infer<typeof getUpgradeThres
 export type InitUpgradeControllerPath = import("zod").infer<typeof initUpgradeControllerRequestSchemas.path>;
 export type InitUpgradeControllerQuery = import("zod").infer<typeof initUpgradeControllerRequestSchemas.query>;
 export type InitUpgradeControllerBody = import("zod").infer<typeof initUpgradeControllerRequestSchemas.body>;
+export type IsImmutableSelectorReservedPath = import("zod").infer<typeof isImmutableSelectorReservedRequestSchemas.path>;
+export type IsImmutableSelectorReservedQuery = import("zod").infer<typeof isImmutableSelectorReservedRequestSchemas.query>;
+export type IsImmutableSelectorReservedBody = import("zod").infer<typeof isImmutableSelectorReservedRequestSchemas.body>;
 export type IsTrustedInitSelectorPath = import("zod").infer<typeof isTrustedInitSelectorRequestSchemas.path>;
 export type IsTrustedInitSelectorQuery = import("zod").infer<typeof isTrustedInitSelectorRequestSchemas.query>;
 export type IsTrustedInitSelectorBody = import("zod").infer<typeof isTrustedInitSelectorRequestSchemas.body>;
@@ -110,9 +96,6 @@ export type IsUpgradeControlFrozenBody = import("zod").infer<typeof isUpgradeCon
 export type IsUpgradeSignerPath = import("zod").infer<typeof isUpgradeSignerRequestSchemas.path>;
 export type IsUpgradeSignerQuery = import("zod").infer<typeof isUpgradeSignerRequestSchemas.query>;
 export type IsUpgradeSignerBody = import("zod").infer<typeof isUpgradeSignerRequestSchemas.body>;
-export type ProposeDiamondCutPath = import("zod").infer<typeof proposeDiamondCutRequestSchemas.path>;
-export type ProposeDiamondCutQuery = import("zod").infer<typeof proposeDiamondCutRequestSchemas.query>;
-export type ProposeDiamondCutBody = import("zod").infer<typeof proposeDiamondCutRequestSchemas.body>;
 export type SetTrustedInitCodehashPath = import("zod").infer<typeof setTrustedInitCodehashRequestSchemas.path>;
 export type SetTrustedInitCodehashQuery = import("zod").infer<typeof setTrustedInitCodehashRequestSchemas.query>;
 export type SetTrustedInitCodehashBody = import("zod").infer<typeof setTrustedInitCodehashRequestSchemas.body>;
@@ -125,9 +108,6 @@ export type SetTrustedInitSelectorBody = import("zod").infer<typeof setTrustedIn
 export type SetUpgradeControlEnforcedPath = import("zod").infer<typeof setUpgradeControlEnforcedRequestSchemas.path>;
 export type SetUpgradeControlEnforcedQuery = import("zod").infer<typeof setUpgradeControlEnforcedRequestSchemas.query>;
 export type SetUpgradeControlEnforcedBody = import("zod").infer<typeof setUpgradeControlEnforcedRequestSchemas.body>;
-export type SupportsInterfacePath = import("zod").infer<typeof supportsInterfaceRequestSchemas.path>;
-export type SupportsInterfaceQuery = import("zod").infer<typeof supportsInterfaceRequestSchemas.query>;
-export type SupportsInterfaceBody = import("zod").infer<typeof supportsInterfaceRequestSchemas.body>;
 export type DiamondCutEventEventQueryBody = import("zod").infer<typeof diamondCutEventEventQueryRequestSchema.body>;
 export type DiamondCutEventQueryBody = import("zod").infer<typeof diamondCutEventQueryRequestSchema.body>;
 export type TrustedInitCodehashSetEventQueryBody = import("zod").infer<typeof trustedInitCodehashSetEventQueryRequestSchema.body>;

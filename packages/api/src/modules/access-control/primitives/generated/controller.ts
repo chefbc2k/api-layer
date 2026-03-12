@@ -2,7 +2,6 @@ import type { ApiExecutionContext } from "../../../../shared/execution-context.j
 import { createEventRequestHandler, createMethodRequestHandler } from "../../../../shared/route-factory.js";
 import { createAccessControlPrimitiveService } from "./service.js";
 import {
-  configureRoleRequestSchemas,
   debugRoleIndexStateRequestSchemas,
   emergencyForceAddRequestSchemas,
   executeFounderSunsetRequestSchemas,
@@ -48,7 +47,6 @@ import { accessControlEventDefinitions, accessControlMethodDefinitions } from ".
 export function createAccessControlPrimitiveController(context: ApiExecutionContext): Record<string, import("express").RequestHandler> {
   const service = createAccessControlPrimitiveService(context);
   return {
-    configureRole: createMethodRequestHandler(accessControlMethodDefinitions.find((definition) => definition.operationId === "configureRole")!, configureRoleRequestSchemas, service.configureRole),
     debugRoleIndexState: createMethodRequestHandler(accessControlMethodDefinitions.find((definition) => definition.operationId === "debugRoleIndexState")!, debugRoleIndexStateRequestSchemas, service.debugRoleIndexState),
     emergencyForceAdd: createMethodRequestHandler(accessControlMethodDefinitions.find((definition) => definition.operationId === "emergencyForceAdd")!, emergencyForceAddRequestSchemas, service.emergencyForceAdd),
     executeFounderSunset: createMethodRequestHandler(accessControlMethodDefinitions.find((definition) => definition.operationId === "executeFounderSunset")!, executeFounderSunsetRequestSchemas, service.executeFounderSunset),

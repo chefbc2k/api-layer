@@ -7,7 +7,6 @@ export function createVoiceMetadataFacetWrapper(context: FacetWrapperContext) {
     read: {
     getBasicAcousticFeatures: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getBasicAcousticFeatures", args, false, 3600),
     getGeographicData: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getGeographicData", args, false, 3600),
-    getSelectors: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getSelectors", args, false, 600),
     getVoiceCategories: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getVoiceCategories", args, false, 5),
     getVoiceClassifications: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getVoiceClassifications", args, false, 3600),
     searchVoicesByClassification: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "searchVoicesByClassification", args, false, 5),
@@ -15,10 +14,6 @@ export function createVoiceMetadataFacetWrapper(context: FacetWrapperContext) {
     },
     write: {
     setAnalysisVersion: (...args: unknown[]) => invokeWrite(context, "VoiceMetadataFacet", "setAnalysisVersion", args),
-    updateBasicAcousticFeatures: (...args: unknown[]) => invokeWrite(context, "VoiceMetadataFacet", "updateBasicAcousticFeatures", args),
-    updateClassificationCategory: (...args: unknown[]) => invokeWrite(context, "VoiceMetadataFacet", "updateClassificationCategory", args),
-    updateGeographicData: (...args: unknown[]) => invokeWrite(context, "VoiceMetadataFacet", "updateGeographicData", args),
-    updateVoiceClassifications: (...args: unknown[]) => invokeWrite(context, "VoiceMetadataFacet", "updateVoiceClassifications", args),
     },
     events: {
     AnalysisVersionUpdated: { query: (fromBlock?: bigint | number, toBlock?: bigint | number | "latest") => queryEvent(context, "VoiceMetadataFacet", "AnalysisVersionUpdated", fromBlock, toBlock) },

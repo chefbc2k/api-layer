@@ -1,7 +1,6 @@
 import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../shared/validation.js";
 import { accessControlEventDefinitions, accessControlMethodDefinitions } from "./mapping.js";
 
-export const configureRoleRequestSchemas = buildMethodRequestSchemas(accessControlMethodDefinitions.find((definition) => definition.operationId === "configureRole")!);
 export const debugRoleIndexStateRequestSchemas = buildMethodRequestSchemas(accessControlMethodDefinitions.find((definition) => definition.operationId === "debugRoleIndexState")!);
 export const emergencyForceAddRequestSchemas = buildMethodRequestSchemas(accessControlMethodDefinitions.find((definition) => definition.operationId === "emergencyForceAdd")!);
 export const executeFounderSunsetRequestSchemas = buildMethodRequestSchemas(accessControlMethodDefinitions.find((definition) => definition.operationId === "executeFounderSunset")!);

@@ -5,11 +5,8 @@ export function createProposalFacetWrapper(context: FacetWrapperContext) {
   return {
     facetName: "ProposalFacet" as const,
     read: {
-    EXECUTOR_ROLE: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "EXECUTOR_ROLE", args, false, 5),
     GOVERNANCE_PROPOSER_ROLE: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "GOVERNANCE_PROPOSER_ROLE", args, false, 5),
     TIMELOCK_ROLE: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "TIMELOCK_ROLE", args, false, 5),
-    cancel: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "cancel", args, false, 5),
-    execute: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "execute", args, false, 5),
     getActiveProposals: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "getActiveProposals", args, false, 30),
     getProposalTypeConfig: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "getProposalTypeConfig", args, false, 30),
     getProposerProposals: (...args: unknown[]) => invokeRead(context, "ProposalFacet", "getProposerProposals", args, false, 30),

@@ -3,6 +3,10 @@ import path from "node:path";
 import { buildEventSurface, buildMethodSurface, loadAbiRegistry, sortObject, toCamelCase, toKebabCase, type ApiSurfaceEvent, type ApiSurfaceMethod, type ReviewedApiSurfaceFile } from "./api-surface-lib.js";
 import { writeJson } from "./utils.js";
 
+const EXCLUDED_METHOD_KEYS = new Set([
+  "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+]);
+
 function ensureUniqueOperationIds<T extends ApiSurfaceMethod | ApiSurfaceEvent>(
   entries: Record<string, T>,
   facetNameKey: "facetName",
@@ -101,7 +105,9 @@ function ensureUniqueEventPaths(events: Record<string, ApiSurfaceEvent>): Record
 async function main(): Promise<void> {
   const registry = await loadAbiRegistry();
   const methods = ensureUniquePaths(ensureUniqueOperationIds(Object.fromEntries(
-    Object.entries(registry.methods).map(([key, method]) => [key, buildMethodSurface(method)]),
+    Object.entries(registry.methods)
+      .filter(([key]) => !EXCLUDED_METHOD_KEYS.has(key))
+      .map(([key, method]) => [key, buildMethodSurface(method)]),
   ), "facetName"));
   const events = ensureUniqueEventPaths(ensureUniqueOperationIds(Object.fromEntries(
     Object.entries(registry.events).map(([key, event]) => [key, buildEventSurface(event)]),

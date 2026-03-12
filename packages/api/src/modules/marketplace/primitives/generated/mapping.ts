@@ -2,6 +2,422 @@ import type { HttpEventDefinition, HttpMethodDefinition } from "../../../../shar
 
 export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
   {
+    "key": "EscrowFacet.escrowAsset",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "escrowAsset",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/commands/escrow-asset",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "tokenId",
+          "source": "body",
+          "field": "tokenId"
+        },
+        {
+          "name": "owner",
+          "source": "body",
+          "field": "owner"
+        },
+        {
+          "name": "state",
+          "source": "body",
+          "field": "state"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "escrowAsset",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.escrowAsset",
+    "methodName": "escrowAsset",
+    "signature": "escrowAsset(uint256,address,uint8)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "state",
+        "type": "uint8"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "EscrowFacet.getAssetState",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "getAssetState",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/marketplace/queries/get-asset-state",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "tokenId",
+          "source": "query",
+          "field": "tokenId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "getAssetState",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.getAssetState",
+    "methodName": "getAssetState",
+    "signature": "getAssetState(uint256)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ]
+  },
+  {
+    "key": "EscrowFacet.getOriginalOwner",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "getOriginalOwner",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/marketplace/queries/get-original-owner",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "tokenId",
+          "source": "query",
+          "field": "tokenId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "getOriginalOwner",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.getOriginalOwner",
+    "methodName": "getOriginalOwner",
+    "signature": "getOriginalOwner(uint256)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "key": "EscrowFacet.isInEscrow",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "isInEscrow",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/marketplace/queries/is-in-escrow",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "tokenId",
+          "source": "query",
+          "field": "tokenId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "isInEscrow",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.isInEscrow",
+    "methodName": "isInEscrow",
+    "signature": "isInEscrow(uint256)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ]
+  },
+  {
+    "key": "EscrowFacet.onERC721Received",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "onERC721Received",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/commands/on-erc721-received",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "arg0",
+          "source": "body",
+          "field": "arg0"
+        },
+        {
+          "name": "arg1",
+          "source": "body",
+          "field": "arg1"
+        },
+        {
+          "name": "arg2",
+          "source": "body",
+          "field": "arg2"
+        },
+        {
+          "name": "arg3",
+          "source": "body",
+          "field": "arg3"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "onErc721Received",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.onERC721Received",
+    "methodName": "onERC721Received",
+    "signature": "onERC721Received(address,address,uint256,bytes)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ]
+  },
+  {
+    "key": "EscrowFacet.releaseAsset",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "releaseAsset",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/commands/release-asset",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "tokenId",
+          "source": "body",
+          "field": "tokenId"
+        },
+        {
+          "name": "to",
+          "source": "body",
+          "field": "to"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "releaseAsset",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.releaseAsset",
+    "methodName": "releaseAsset",
+    "signature": "releaseAsset(uint256,address)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "EscrowFacet.updateAssetState",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "updateAssetState",
+    "domain": "marketplace",
+    "resource": "escrow",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/marketplace/commands/update-asset-state",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "tokenId",
+          "source": "body",
+          "field": "tokenId"
+        },
+        {
+          "name": "newState",
+          "source": "body",
+          "field": "newState"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "updateAssetState",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "EscrowFacet.updateAssetState",
+    "methodName": "updateAssetState",
+    "signature": "updateAssetState(uint256,uint8)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "newState",
+        "type": "uint8"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "MarketplaceFacet.cancelListing",
     "facetName": "MarketplaceFacet",
     "wrapperKey": "cancelListing",
@@ -78,8 +494,8 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "category": "read",
     "mutability": "view",
     "liveRequired": false,
-    "cacheClass": "queryJoin",
-    "cacheTtlSeconds": 30,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
     "executionSources": [
       "live",
       "cache"
@@ -2037,100 +2453,6 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
-    "key": "PaymentFacet.revealDistributionStruct",
-    "facetName": "PaymentFacet",
-    "wrapperKey": "revealDistributionStruct",
-    "domain": "marketplace",
-    "resource": "payments",
-    "classification": "action",
-    "httpMethod": "POST",
-    "path": "/v1/marketplace/commands/reveal-distribution-struct",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "params",
-          "source": "body",
-          "field": "params"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "revealDistributionStruct",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "PaymentFacet.revealDistributionStruct",
-    "methodName": "revealDistributionStruct",
-    "signature": "revealDistributionStruct(tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "params",
-        "type": "tuple",
-        "internalType": "struct PaymentStorage.RevealParams",
-        "components": [
-          {
-            "name": "tokenId",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "amount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "seller",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "referrer",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "isLicensePayment",
-            "type": "bool",
-            "internalType": "bool"
-          },
-          {
-            "name": "payer",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "nonce",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "deadline",
-            "type": "uint256",
-            "internalType": "uint256"
-          }
-        ]
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ]
-  },
-  {
     "key": "PaymentFacet.revealWithdraw",
     "facetName": "PaymentFacet",
     "wrapperKey": "revealWithdraw",
@@ -2298,89 +2620,6 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
         "name": "burnAddress",
         "type": "address",
         "internalType": "address"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "PaymentFacet.setBuybackConfigStruct",
-    "facetName": "PaymentFacet",
-    "wrapperKey": "setBuybackConfigStruct",
-    "domain": "marketplace",
-    "resource": "payments",
-    "classification": "update",
-    "httpMethod": "PATCH",
-    "path": "/v1/marketplace/commands/set-buyback-config-struct",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "config",
-          "source": "body",
-          "field": "config"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "setBuybackConfigStruct",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "PaymentFacet.setBuybackConfigStruct",
-    "methodName": "setBuybackConfigStruct",
-    "signature": "setBuybackConfigStruct(tuple)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": true,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "config",
-        "type": "tuple",
-        "internalType": "struct PaymentStorage.BuybackConfig",
-        "components": [
-          {
-            "name": "buybackBps",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "minMonthlyRevenue",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "requiredMonths",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "cadence",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "buybackRouter",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "uspkToken",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "burnAddress",
-            "type": "address",
-            "internalType": "address"
-          }
-        ]
       }
     ],
     "outputs": []
@@ -2920,9 +3159,9 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "PaymentFacet.withdrawPayments()",
+    "key": "PaymentFacet.withdrawPayments",
     "facetName": "PaymentFacet",
-    "wrapperKey": "withdrawPayments()",
+    "wrapperKey": "withdrawPayments",
     "domain": "marketplace",
     "resource": "payments",
     "classification": "action",
@@ -2938,12 +3177,12 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "operationId": "withdrawPayments",
     "rateLimitKind": "write",
     "supportsGasless": false,
-    "notes": "PaymentFacet.withdrawPayments()",
+    "notes": "PaymentFacet.withdrawPayments",
     "methodName": "withdrawPayments",
     "signature": "withdrawPayments()",
     "category": "write",
     "mutability": "nonpayable",
-    "liveRequired": true,
+    "liveRequired": false,
     "cacheClass": "none",
     "cacheTtlSeconds": null,
     "executionSources": [
@@ -2954,166 +3193,14 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "PaymentFacet.withdrawPayments(address,uint256)",
+    "key": "PaymentFacet.withdrawPaymentsWithDeadline",
     "facetName": "PaymentFacet",
-    "wrapperKey": "withdrawPayments(address,uint256)",
+    "wrapperKey": "withdrawPaymentsWithDeadline",
     "domain": "marketplace",
     "resource": "payments",
     "classification": "action",
     "httpMethod": "POST",
-    "path": "/v1/marketplace/commands/withdraw-payments-address-uint256",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "token",
-          "source": "body",
-          "field": "token"
-        },
-        {
-          "name": "amount",
-          "source": "body",
-          "field": "amount"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "withdrawPaymentsAddressUint256",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "PaymentFacet.withdrawPayments(address,uint256)",
-    "methodName": "withdrawPayments",
-    "signature": "withdrawPayments(address,uint256)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": true,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "token",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
-    "facetName": "PaymentFacet",
-    "wrapperKey": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
-    "domain": "marketplace",
-    "resource": "payments",
-    "classification": "action",
-    "httpMethod": "POST",
-    "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-address-uint256-uint256-uint8-bytes32-bytes32",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "token",
-          "source": "body",
-          "field": "token"
-        },
-        {
-          "name": "amount",
-          "source": "body",
-          "field": "amount"
-        },
-        {
-          "name": "deadline",
-          "source": "body",
-          "field": "deadline"
-        },
-        {
-          "name": "v",
-          "source": "body",
-          "field": "v"
-        },
-        {
-          "name": "r",
-          "source": "body",
-          "field": "r"
-        },
-        {
-          "name": "s",
-          "source": "body",
-          "field": "s"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
-    "methodName": "withdrawPaymentsWithDeadline",
-    "signature": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": true,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "token",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "amount",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "deadline",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "v",
-        "type": "uint8",
-        "internalType": "uint8"
-      },
-      {
-        "name": "r",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      },
-      {
-        "name": "s",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "PaymentFacet.withdrawPaymentsWithDeadline(uint256)",
-    "facetName": "PaymentFacet",
-    "wrapperKey": "withdrawPaymentsWithDeadline(uint256)",
-    "domain": "marketplace",
-    "resource": "payments",
-    "classification": "action",
-    "httpMethod": "POST",
-    "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-uint256",
+    "path": "/v1/marketplace/commands/withdraw-payments-with-deadline",
     "inputShape": {
       "kind": "body",
       "bindings": [
@@ -3127,15 +3214,15 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "void"
     },
-    "operationId": "withdrawPaymentsWithDeadlineUint256",
+    "operationId": "withdrawPaymentsWithDeadline",
     "rateLimitKind": "write",
     "supportsGasless": false,
-    "notes": "PaymentFacet.withdrawPaymentsWithDeadline(uint256)",
+    "notes": "PaymentFacet.withdrawPaymentsWithDeadline",
     "methodName": "withdrawPaymentsWithDeadline",
     "signature": "withdrawPaymentsWithDeadline(uint256)",
     "category": "write",
     "mutability": "nonpayable",
-    "liveRequired": true,
+    "liveRequired": false,
     "cacheClass": "none",
     "cacheTtlSeconds": null,
     "executionSources": [
@@ -3154,13 +3241,118 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
 ] as HttpMethodDefinition[];
 export const marketplaceEventDefinitions: HttpEventDefinition[] = [
   {
+    "key": "EscrowFacet.AssetEscrowed",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "AssetEscrowed",
+    "domain": "marketplace",
+    "operationId": "escrowAssetEscrowedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/events/asset-escrowed/query/escrow",
+    "notes": "EscrowFacet.AssetEscrowed",
+    "eventName": "AssetEscrowed",
+    "signature": "AssetEscrowed(uint256,address,uint8)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IEscrowFacet.EscrowState",
+        "name": "state",
+        "type": "uint8"
+      }
+    ],
+    "projection": {
+      "domain": "marketplace",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "EscrowFacet.AssetReleased",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "AssetReleased",
+    "domain": "marketplace",
+    "operationId": "assetReleasedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/events/asset-released/query",
+    "notes": "EscrowFacet.AssetReleased",
+    "eventName": "AssetReleased",
+    "signature": "AssetReleased(uint256,address)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "projection": {
+      "domain": "marketplace",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
+    "key": "EscrowFacet.AssetStateUpdated",
+    "facetName": "EscrowFacet",
+    "wrapperKey": "AssetStateUpdated",
+    "domain": "marketplace",
+    "operationId": "assetStateUpdatedEventQuery",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/events/asset-state-updated/query",
+    "notes": "EscrowFacet.AssetStateUpdated",
+    "eventName": "AssetStateUpdated",
+    "signature": "AssetStateUpdated(uint256,uint8)",
+    "topicHash": null,
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IEscrowFacet.EscrowState",
+        "name": "newState",
+        "type": "uint8"
+      }
+    ],
+    "projection": {
+      "domain": "marketplace",
+      "projectionMode": "rawOnly",
+      "targets": []
+    }
+  },
+  {
     "key": "MarketplaceFacet.AssetEscrowed",
     "facetName": "MarketplaceFacet",
     "wrapperKey": "AssetEscrowed",
     "domain": "marketplace",
-    "operationId": "assetEscrowedEventQuery",
+    "operationId": "marketplaceAssetEscrowedEventQuery",
     "httpMethod": "POST",
-    "path": "/v1/marketplace/events/asset-escrowed/query",
+    "path": "/v1/marketplace/events/asset-escrowed/query/marketplace",
     "notes": "MarketplaceFacet.AssetEscrowed",
     "eventName": "AssetEscrowed",
     "signature": "AssetEscrowed(uint256,address,uint8)",

@@ -2,89 +2,6 @@ import type { HttpEventDefinition, HttpMethodDefinition } from "../../../../shar
 
 export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
   {
-    "key": "DiamondCutFacet.diamondCut",
-    "facetName": "DiamondCutFacet",
-    "wrapperKey": "diamondCut",
-    "domain": "diamond-admin",
-    "resource": "diamond-admin",
-    "classification": "admin",
-    "httpMethod": "POST",
-    "path": "/v1/diamond-admin/admin/diamond-cut",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "facetCuts",
-          "source": "body",
-          "field": "facetCuts"
-        },
-        {
-          "name": "initContract",
-          "source": "body",
-          "field": "initContract"
-        },
-        {
-          "name": "initCalldata",
-          "source": "body",
-          "field": "initCalldata"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "diamondCut",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "DiamondCutFacet.diamondCut",
-    "methodName": "diamondCut",
-    "signature": "diamondCut(tuple[],address,bytes)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "facetCuts",
-        "type": "tuple[]",
-        "internalType": "struct IDiamondCut.FacetCut[]",
-        "components": [
-          {
-            "name": "facetAddress",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "action",
-            "type": "uint8",
-            "internalType": "enum IDiamondCut.FacetCutAction"
-          },
-          {
-            "name": "functionSelectors",
-            "type": "bytes4[]",
-            "internalType": "bytes4[]"
-          }
-        ]
-      },
-      {
-        "name": "initContract",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "initCalldata",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": []
-  },
-  {
     "key": "DiamondCutFacet.FOUNDER_ROLE",
     "facetName": "DiamondCutFacet",
     "wrapperKey": "FOUNDER_ROLE",
@@ -186,7 +103,7 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     "resource": "diamond-admin",
     "classification": "query",
     "httpMethod": "GET",
-    "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-cut-is-immutable-selector-reserved",
+    "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved",
     "inputShape": {
       "kind": "query",
       "bindings": [
@@ -200,7 +117,7 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "scalar"
     },
-    "operationId": "diamondCutIsImmutableSelectorReserved",
+    "operationId": "isImmutableSelectorReserved",
     "rateLimitKind": "read",
     "supportsGasless": false,
     "notes": "DiamondCutFacet.isImmutableSelectorReserved",
@@ -726,112 +643,6 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
-    "key": "DiamondLoupeFacet.isImmutableSelectorReserved",
-    "facetName": "DiamondLoupeFacet",
-    "wrapperKey": "isImmutableSelectorReserved",
-    "domain": "diamond-admin",
-    "resource": "diamond-admin",
-    "classification": "query",
-    "httpMethod": "GET",
-    "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-loupe-is-immutable-selector-reserved",
-    "inputShape": {
-      "kind": "query",
-      "bindings": [
-        {
-          "name": "selector",
-          "source": "query",
-          "field": "selector"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "diamondLoupeIsImmutableSelectorReserved",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "DiamondLoupeFacet.isImmutableSelectorReserved",
-    "methodName": "isImmutableSelectorReserved",
-    "signature": "isImmutableSelectorReserved(bytes4)",
-    "category": "read",
-    "mutability": "view",
-    "liveRequired": false,
-    "cacheClass": "short",
-    "cacheTtlSeconds": 5,
-    "executionSources": [
-      "live",
-      "cache"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "selector",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ]
-  },
-  {
-    "key": "DiamondLoupeFacet.supportsInterface",
-    "facetName": "DiamondLoupeFacet",
-    "wrapperKey": "supportsInterface",
-    "domain": "diamond-admin",
-    "resource": "diamond-admin",
-    "classification": "query",
-    "httpMethod": "GET",
-    "path": "/v1/diamond-admin/queries/supports-interface",
-    "inputShape": {
-      "kind": "query",
-      "bindings": [
-        {
-          "name": "interfaceId",
-          "source": "query",
-          "field": "interfaceId"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "supportsInterface",
-    "rateLimitKind": "read",
-    "supportsGasless": false,
-    "notes": "DiamondLoupeFacet.supportsInterface",
-    "methodName": "supportsInterface",
-    "signature": "supportsInterface(bytes4)",
-    "category": "read",
-    "mutability": "view",
-    "liveRequired": false,
-    "cacheClass": "short",
-    "cacheTtlSeconds": 5,
-    "executionSources": [
-      "live",
-      "cache"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "interfaceId",
-        "type": "bytes4",
-        "internalType": "bytes4"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ]
-  },
-  {
     "key": "UpgradeControllerFacet.approveUpgrade",
     "facetName": "UpgradeControllerFacet",
     "wrapperKey": "approveUpgrade",
@@ -869,99 +680,6 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     ],
     "gaslessModes": [],
     "inputs": [
-      {
-        "name": "upgradeId",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "outputs": []
-  },
-  {
-    "key": "UpgradeControllerFacet.executeUpgrade",
-    "facetName": "UpgradeControllerFacet",
-    "wrapperKey": "executeUpgrade",
-    "domain": "diamond-admin",
-    "resource": "diamond-admin",
-    "classification": "admin",
-    "httpMethod": "POST",
-    "path": "/v1/diamond-admin/admin/execute-upgrade",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "facetCuts",
-          "source": "body",
-          "field": "facetCuts"
-        },
-        {
-          "name": "initContract",
-          "source": "body",
-          "field": "initContract"
-        },
-        {
-          "name": "initCalldata",
-          "source": "body",
-          "field": "initCalldata"
-        },
-        {
-          "name": "upgradeId",
-          "source": "body",
-          "field": "upgradeId"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "void"
-    },
-    "operationId": "executeUpgrade",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "UpgradeControllerFacet.executeUpgrade",
-    "methodName": "executeUpgrade",
-    "signature": "executeUpgrade(tuple[],address,bytes,bytes32)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "facetCuts",
-        "type": "tuple[]",
-        "internalType": "struct IDiamondCut.FacetCut[]",
-        "components": [
-          {
-            "name": "facetAddress",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "action",
-            "type": "uint8",
-            "internalType": "enum IDiamondCut.FacetCutAction"
-          },
-          {
-            "name": "functionSelectors",
-            "type": "bytes4[]",
-            "internalType": "bytes4[]"
-          }
-        ]
-      },
-      {
-        "name": "initContract",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "initCalldata",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
       {
         "name": "upgradeId",
         "type": "bytes32",
@@ -1505,95 +1223,6 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
         "name": "",
         "type": "bool",
         "internalType": "bool"
-      }
-    ]
-  },
-  {
-    "key": "UpgradeControllerFacet.proposeDiamondCut",
-    "facetName": "UpgradeControllerFacet",
-    "wrapperKey": "proposeDiamondCut",
-    "domain": "diamond-admin",
-    "resource": "diamond-admin",
-    "classification": "admin",
-    "httpMethod": "POST",
-    "path": "/v1/diamond-admin/admin/propose-diamond-cut",
-    "inputShape": {
-      "kind": "body",
-      "bindings": [
-        {
-          "name": "facetCuts",
-          "source": "body",
-          "field": "facetCuts"
-        },
-        {
-          "name": "initContract",
-          "source": "body",
-          "field": "initContract"
-        },
-        {
-          "name": "initCalldata",
-          "source": "body",
-          "field": "initCalldata"
-        }
-      ]
-    },
-    "outputShape": {
-      "kind": "scalar"
-    },
-    "operationId": "proposeDiamondCut",
-    "rateLimitKind": "write",
-    "supportsGasless": false,
-    "notes": "UpgradeControllerFacet.proposeDiamondCut",
-    "methodName": "proposeDiamondCut",
-    "signature": "proposeDiamondCut(tuple[],address,bytes)",
-    "category": "write",
-    "mutability": "nonpayable",
-    "liveRequired": false,
-    "cacheClass": "none",
-    "cacheTtlSeconds": null,
-    "executionSources": [
-      "live"
-    ],
-    "gaslessModes": [],
-    "inputs": [
-      {
-        "name": "facetCuts",
-        "type": "tuple[]",
-        "internalType": "struct IDiamondCut.FacetCut[]",
-        "components": [
-          {
-            "name": "facetAddress",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "action",
-            "type": "uint8",
-            "internalType": "enum IDiamondCut.FacetCutAction"
-          },
-          {
-            "name": "functionSelectors",
-            "type": "bytes4[]",
-            "internalType": "bytes4[]"
-          }
-        ]
-      },
-      {
-        "name": "initContract",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "initCalldata",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "upgradeId",
-        "type": "bytes32",
-        "internalType": "bytes32"
       }
     ]
   },

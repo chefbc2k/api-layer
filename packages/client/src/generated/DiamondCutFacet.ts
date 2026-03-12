@@ -12,7 +12,6 @@ export function createDiamondCutFacetWrapper(context: FacetWrapperContext) {
     isTrustedInitSelectorPolicyEnabled: (...args: unknown[]) => invokeRead(context, "DiamondCutFacet", "isTrustedInitSelectorPolicyEnabled", args, false, 5),
     },
     write: {
-    diamondCut: (...args: unknown[]) => invokeWrite(context, "DiamondCutFacet", "diamondCut", args),
     setTrustedInitCodehash: (...args: unknown[]) => invokeWrite(context, "DiamondCutFacet", "setTrustedInitCodehash", args),
     setTrustedInitContract: (...args: unknown[]) => invokeWrite(context, "DiamondCutFacet", "setTrustedInitContract", args),
     setTrustedInitSelector: (...args: unknown[]) => invokeWrite(context, "DiamondCutFacet", "setTrustedInitSelector", args),

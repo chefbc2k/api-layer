@@ -1,15 +1,6 @@
 {
   "version": 1,
   "methods": {
-    "AccessControlFacet.configureRole": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "AccessControlFacet.debugRoleIndexState": {
       "category": "read",
       "liveRequired": false,
@@ -295,23 +286,93 @@
       ],
       "gaslessModes": []
     },
-    "DelegationFacet.DELEGATION_TYPEHASH": {
+    "CommunityRewardsFacet.campaignCount": {
       "category": "read",
       "liveRequired": false,
-      "cacheClass": "short",
+      "cacheClass": "none",
       "executionSources": [
-        "live",
-        "cache"
+        "live"
       ],
       "gaslessModes": []
     },
-    "DelegationFacet.DOMAIN_TYPEHASH": {
+    "CommunityRewardsFacet.claim": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.claimableAmount": {
       "category": "read",
       "liveRequired": false,
-      "cacheClass": "short",
+      "cacheClass": "none",
       "executionSources": [
-        "live",
-        "cache"
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.claimed": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.createCampaign": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.getCampaign": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.pauseCampaign": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.setMerkleRoot": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.unpauseCampaign": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "CommunityRewardsFacet.vestedAmount": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
       ],
       "gaslessModes": []
     },
@@ -348,7 +409,7 @@
       ],
       "gaslessModes": []
     },
-    "DelegationFacet.getCurrentVotes": {
+    "DelegationFacet.DELEGATION_TYPEHASH": {
       "category": "read",
       "liveRequired": false,
       "cacheClass": "short",
@@ -358,7 +419,17 @@
       ],
       "gaslessModes": []
     },
-    "DelegationFacet.getDelegatedVotingPower": {
+    "DelegationFacet.DOMAIN_TYPEHASH": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
+      ],
+      "gaslessModes": []
+    },
+    "DelegationFacet.getCurrentVotes": {
       "category": "read",
       "liveRequired": false,
       "cacheClass": "short",
@@ -413,15 +484,6 @@
       "executionSources": [
         "live",
         "cache"
-      ],
-      "gaslessModes": []
-    },
-    "DiamondCutFacet.diamondCut": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
       ],
       "gaslessModes": []
     },
@@ -529,35 +591,6 @@
       "executionSources": [
         "live",
         "cache"
-      ],
-      "gaslessModes": []
-    },
-    "DiamondLoupeFacet.isImmutableSelectorReserved": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "DiamondLoupeFacet.supportsInterface": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "EchoScoreFacetV3.batchUpdateScores": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
       ],
       "gaslessModes": []
     },
@@ -687,15 +720,6 @@
       "gaslessModes": []
     },
     "EchoScoreFacetV3.unpauseEchoScoreV3": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "EchoScoreFacetV3.updateScore": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
@@ -982,13 +1006,66 @@
       ],
       "gaslessModes": []
     },
-    "GovernorFacet.GOVERNANCE_PROPOSER_ROLE": {
+    "EscrowFacet.escrowAsset": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "EscrowFacet.getAssetState": {
       "category": "read",
       "liveRequired": false,
-      "cacheClass": "short",
+      "cacheClass": "none",
       "executionSources": [
-        "live",
-        "cache"
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "EscrowFacet.getOriginalOwner": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "EscrowFacet.isInEscrow": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "EscrowFacet.onERC721Received": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "EscrowFacet.releaseAsset": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "EscrowFacet.updateAssetState": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
       ],
       "gaslessModes": []
     },
@@ -1066,6 +1143,141 @@
       ],
       "gaslessModes": []
     },
+    "LegacyExecutionFacet.approveInheritance": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyExecutionFacet.delegateRights": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyExecutionFacet.executeInheritance": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyExecutionFacet.initiateInheritance": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.addBeneficiary": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.addDatasets": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.addInheritanceRequirement": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.addVoiceAssets": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.createLegacyPlan": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.setBeneficiaryRelationship": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.setInheritanceConditions": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.setMaxBeneficiaries": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyFacet.setMinTimelockPeriod": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyViewFacet.getLegacyPlan": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "LegacyViewFacet.isInheritanceReady": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
     "MarketplaceFacet.cancelListing": {
       "category": "write",
       "liveRequired": false,
@@ -1078,7 +1290,7 @@
     "MarketplaceFacet.getListing": {
       "category": "read",
       "liveRequired": false,
-      "cacheClass": "queryJoin",
+      "cacheClass": "none",
       "executionSources": [
         "live",
         "cache"
@@ -1167,6 +1379,15 @@
       ],
       "gaslessModes": []
     },
+    "MultiSigFacet.cancelOperation": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
     "MultiSigFacet.canExecuteOperation": {
       "category": "read",
       "liveRequired": false,
@@ -1174,15 +1395,6 @@
       "executionSources": [
         "live",
         "cache"
-      ],
-      "gaslessModes": []
-    },
-    "MultiSigFacet.cancelOperation": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
       ],
       "gaslessModes": []
     },
@@ -1201,16 +1413,6 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
-      ],
-      "gaslessModes": []
-    },
-    "MultiSigFacet.getOperation": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "queryJoin",
-      "executionSources": [
-        "live",
-        "cache"
       ],
       "gaslessModes": []
     },
@@ -1280,15 +1482,6 @@
       ],
       "gaslessModes": []
     },
-    "MultiSigFacet.setOperationConfig": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "MultiSigFacet.submitTransaction": {
       "category": "write",
       "liveRequired": false,
@@ -1316,15 +1509,6 @@
       ],
       "gaslessModes": []
     },
-    "OwnershipFacet.isOwnerTargetApproved": {
-      "category": "read",
-      "liveRequired": true,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "OwnershipFacet.isOwnershipPolicyEnforced": {
       "category": "read",
       "liveRequired": false,
@@ -1332,6 +1516,15 @@
       "executionSources": [
         "live",
         "cache"
+      ],
+      "gaslessModes": []
+    },
+    "OwnershipFacet.isOwnerTargetApproved": {
+      "category": "read",
+      "liveRequired": true,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
       ],
       "gaslessModes": []
     },
@@ -1615,15 +1808,6 @@
       ],
       "gaslessModes": []
     },
-    "PaymentFacet.revealDistributionStruct": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "PaymentFacet.revealWithdraw": {
       "category": "write",
       "liveRequired": true,
@@ -1634,15 +1818,6 @@
       "gaslessModes": []
     },
     "PaymentFacet.setBuybackConfig": {
-      "category": "write",
-      "liveRequired": true,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "PaymentFacet.setBuybackConfigStruct": {
       "category": "write",
       "liveRequired": true,
       "cacheClass": "none",
@@ -1732,79 +1907,21 @@
       ],
       "gaslessModes": []
     },
-    "PaymentFacet.withdrawPayments(address,uint256)": {
+    "PaymentFacet.withdrawPayments": {
       "category": "write",
-      "liveRequired": true,
+      "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [
         "live"
       ],
       "gaslessModes": []
     },
-    "PaymentFacet.withdrawPayments()": {
+    "PaymentFacet.withdrawPaymentsWithDeadline": {
       "category": "write",
-      "liveRequired": true,
+      "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [
         "live"
-      ],
-      "gaslessModes": []
-    },
-    "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)": {
-      "category": "write",
-      "liveRequired": true,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "PaymentFacet.withdrawPaymentsWithDeadline(uint256)": {
-      "category": "write",
-      "liveRequired": true,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.EXECUTOR_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.GOVERNANCE_PROPOSER_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.TIMELOCK_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.cancel": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
       ],
       "gaslessModes": []
     },
@@ -1814,16 +1931,6 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.execute": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
       ],
       "gaslessModes": []
     },
@@ -1867,6 +1974,16 @@
       ],
       "gaslessModes": []
     },
+    "ProposalFacet.GOVERNANCE_PROPOSER_ROLE": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
+      ],
+      "gaslessModes": []
+    },
     "ProposalFacet.prCastVote": {
       "category": "write",
       "liveRequired": false,
@@ -1884,25 +2001,6 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.prQueue": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "ProposalFacet.prState": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
       ],
       "gaslessModes": []
     },
@@ -1946,6 +2044,15 @@
       ],
       "gaslessModes": []
     },
+    "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
     "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)": {
       "category": "write",
       "liveRequired": false,
@@ -1955,12 +2062,22 @@
       ],
       "gaslessModes": []
     },
-    "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)": {
+    "ProposalFacet.prQueue": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [
         "live"
+      ],
+      "gaslessModes": []
+    },
+    "ProposalFacet.prState": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
       ],
       "gaslessModes": []
     },
@@ -1990,6 +2107,133 @@
       "executionSources": [
         "live",
         "cache"
+      ],
+      "gaslessModes": []
+    },
+    "ProposalFacet.TIMELOCK_ROLE": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.addCollaborator": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.getCategoryContracts": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.getCollaborator": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.getRightCategory": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.getRightContract": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.getRightsGroup": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.getUserRights": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.registerRightContract": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.removeCollaborator": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.revokeRight": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.rightIdExists": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.updateCollaboratorShare": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "RightsFacet.updateRightContract": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
       ],
       "gaslessModes": []
     },
@@ -2206,26 +2450,6 @@
       ],
       "gaslessModes": []
     },
-    "TimelockFacet.EXECUTOR_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "TimelockFacet.PROPOSER_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
     "TimelockFacet.cancel": {
       "category": "write",
       "liveRequired": false,
@@ -2241,6 +2465,16 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
+      ],
+      "gaslessModes": []
+    },
+    "TimelockFacet.EXECUTOR_ROLE": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
       ],
       "gaslessModes": []
     },
@@ -2295,6 +2529,16 @@
       "gaslessModes": []
     },
     "TimelockFacet.isOperationReady": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
+      ],
+      "gaslessModes": []
+    },
+    "TimelockFacet.PROPOSER_ROLE": {
       "category": "read",
       "liveRequired": false,
       "cacheClass": "short",
@@ -2548,16 +2792,6 @@
       ],
       "gaslessModes": []
     },
-    "TokenSupplyFacet.name": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "static",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
     "TokenSupplyFacet.supplyFinishMinting": {
       "category": "write",
       "liveRequired": false,
@@ -2602,16 +2836,6 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
-      ],
-      "gaslessModes": []
-    },
-    "TokenSupplyFacet.symbol": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "static",
-      "executionSources": [
-        "live",
-        "cache"
       ],
       "gaslessModes": []
     },
@@ -2702,15 +2926,6 @@
     "UpgradeControllerFacet.approveUpgrade": {
       "category": "write",
       "liveRequired": true,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "UpgradeControllerFacet.executeUpgrade": {
-      "category": "write",
-      "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [
         "live"
@@ -2814,15 +3029,6 @@
       ],
       "gaslessModes": []
     },
-    "UpgradeControllerFacet.proposeDiamondCut": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "UpgradeControllerFacet.setUpgradeControlEnforced": {
       "category": "write",
       "liveRequired": false,
@@ -2832,9 +3038,270 @@
       ],
       "gaslessModes": []
     },
-    "VoiceAssetFacet.approve": {
+    "VestingFacet.calculateCexVesting": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.calculateDevFundVesting": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.calculateFounderVesting": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.calculatePublicVesting": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.calculateTeamVesting": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.createCexVesting": {
       "category": "write",
-      "liveRequired": true,
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.createDevFundVesting": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.createFounderVesting": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.createPublicVesting": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.createTeamVesting": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getSellableAmount": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getStandardVestedAmount": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getStandardVestingReleasable": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getStandardVestingSchedule": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getVestingDetails": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getVestingReleasableAmount": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getVestingTotalAmount": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.getVestingType": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.hasVestingSchedule": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.releaseStandardVesting": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.releaseStandardVestingFor": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.releaseTokensFor": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.releaseVestedTokens": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.revokeVestingSchedule": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.setMinimumVestingDuration": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.transferVestingSchedule": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.veGetRoleAdmin": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.veGetVestingSchedule": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.veHasRole": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VestingFacet.veSupportsInterface": {
+      "category": "read",
+      "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [
         "live"
@@ -2853,15 +3320,6 @@
     "VoiceAssetFacet.authorizeUser": {
       "category": "write",
       "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceAssetFacet.balanceOf": {
-      "category": "read",
-      "liveRequired": true,
       "cacheClass": "none",
       "executionSources": [
         "live"
@@ -3116,7 +3574,7 @@
       ],
       "gaslessModes": []
     },
-    "VoiceAssetFacet.safeTransferFrom(address,address,uint256)": {
+    "VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
@@ -3125,7 +3583,7 @@
       ],
       "gaslessModes": []
     },
-    "VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)": {
+    "VoiceAssetFacet.safeTransferFrom(address,address,uint256)": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
@@ -3170,16 +3628,6 @@
       ],
       "gaslessModes": []
     },
-    "VoiceAssetFacet.supportsInterface": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
     "VoiceAssetFacet.symbol": {
       "category": "read",
       "liveRequired": false,
@@ -3197,15 +3645,6 @@
       "executionSources": [
         "live",
         "cache"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceAssetFacet.transferFrom": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
       ],
       "gaslessModes": []
     },
@@ -3323,16 +3762,6 @@
       ],
       "gaslessModes": []
     },
-    "VoiceDatasetFacet.getSelectors": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "static",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
     "VoiceDatasetFacet.getTotalDatasets": {
       "category": "read",
       "liveRequired": false,
@@ -3407,15 +3836,6 @@
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseFacet.createLicense": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "VoiceLicenseFacet.createLicenseWithMarketplace": {
       "category": "write",
       "liveRequired": false,
@@ -3425,17 +3845,17 @@
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseFacet.facetFunctionSelectors": {
+    "VoiceLicenseFacet.getLicense": {
       "category": "read",
       "liveRequired": false,
-      "cacheClass": "short",
+      "cacheClass": "queryJoin",
       "executionSources": [
         "live",
         "cache"
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseFacet.getLicense": {
+    "VoiceLicenseFacet.getLicensees": {
       "category": "read",
       "liveRequired": false,
       "cacheClass": "queryJoin",
@@ -3465,16 +3885,6 @@
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseFacet.getLicensees": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "queryJoin",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
     "VoiceLicenseFacet.getPendingRevenue": {
       "category": "read",
       "liveRequired": false,
@@ -3495,6 +3905,15 @@
       ],
       "gaslessModes": []
     },
+    "VoiceLicenseFacet.issueLicense": {
+      "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
     "VoiceLicenseFacet.isUsageRefUsed": {
       "category": "read",
       "liveRequired": false,
@@ -3505,25 +3924,7 @@
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseFacet.issueLicense": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "VoiceLicenseFacet.recordLicensedUsage": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceLicenseFacet.recordUsage": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
@@ -3578,38 +3979,10 @@
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseTemplateFacet.createLicenseFromTemplate": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceLicenseTemplateFacet.createTemplate": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "VoiceLicenseTemplateFacet.getCreatorTemplates": {
       "category": "read",
       "liveRequired": false,
       "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceLicenseTemplateFacet.getSelectors": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "static",
       "executionSources": [
         "live",
         "cache"
@@ -3645,15 +4018,6 @@
       ],
       "gaslessModes": []
     },
-    "VoiceLicenseTemplateFacet.updateTemplate": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
     "VoiceMetadataFacet.getBasicAcousticFeatures": {
       "category": "read",
       "liveRequired": false,
@@ -3668,16 +4032,6 @@
       "category": "read",
       "liveRequired": false,
       "cacheClass": "assetMetadata",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceMetadataFacet.getSelectors": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "static",
       "executionSources": [
         "live",
         "cache"
@@ -3730,52 +4084,6 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceMetadataFacet.updateBasicAcousticFeatures": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceMetadataFacet.updateClassificationCategory": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceMetadataFacet.updateGeographicData": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VoiceMetadataFacet.updateVoiceClassifications": {
-      "category": "write",
-      "liveRequired": false,
-      "cacheClass": "none",
-      "executionSources": [
-        "live"
-      ],
-      "gaslessModes": []
-    },
-    "VotingPowerFacet.MAX_BATCH_SIZE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
       ],
       "gaslessModes": []
     },
@@ -3869,6 +4177,16 @@
       ],
       "gaslessModes": []
     },
+    "VotingPowerFacet.MAX_BATCH_SIZE": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
+      ],
+      "gaslessModes": []
+    },
     "VotingPowerFacet.setMaxLockDuration": {
       "category": "write",
       "liveRequired": false,
@@ -3887,7 +4205,7 @@
       ],
       "gaslessModes": []
     },
-    "VotingPowerFacet.setZeroLockDuration": {
+    "VotingPowerFacet.setupInitialVotingPower": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
@@ -3896,7 +4214,7 @@
       ],
       "gaslessModes": []
     },
-    "VotingPowerFacet.setupInitialVotingPower": {
+    "VotingPowerFacet.setZeroLockDuration": {
       "category": "write",
       "liveRequired": false,
       "cacheClass": "none",
@@ -3942,26 +4260,6 @@
       ],
       "gaslessModes": []
     },
-    "WhisperBlockFacet.OWNER_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
-    "WhisperBlockFacet.VOICE_OPERATOR_ROLE": {
-      "category": "read",
-      "liveRequired": false,
-      "cacheClass": "short",
-      "executionSources": [
-        "live",
-        "cache"
-      ],
-      "gaslessModes": []
-    },
     "WhisperBlockFacet.generateAndSetEncryptionKey": {
       "category": "write",
       "liveRequired": false,
@@ -3997,6 +4295,16 @@
       "cacheClass": "none",
       "executionSources": [
         "live"
+      ],
+      "gaslessModes": []
+    },
+    "WhisperBlockFacet.OWNER_ROLE": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
       ],
       "gaslessModes": []
     },
@@ -4055,6 +4363,16 @@
       "gaslessModes": []
     },
     "WhisperBlockFacet.verifyVoiceAuthenticity": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "short",
+      "executionSources": [
+        "live",
+        "cache"
+      ],
+      "gaslessModes": []
+    },
+    "WhisperBlockFacet.VOICE_OPERATOR_ROLE": {
       "category": "read",
       "liveRequired": false,
       "cacheClass": "short",

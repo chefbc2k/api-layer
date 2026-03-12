@@ -9,7 +9,6 @@ export function createDelegationFacetWrapper(context: FacetWrapperContext) {
     DOMAIN_TYPEHASH: (...args: unknown[]) => invokeRead(context, "DelegationFacet", "DOMAIN_TYPEHASH", args, false, 5),
     delegates: (...args: unknown[]) => invokeRead(context, "DelegationFacet", "delegates", args, false, 5),
     getCurrentVotes: (...args: unknown[]) => invokeRead(context, "DelegationFacet", "getCurrentVotes", args, false, 5),
-    getDelegatedVotingPower: (...args: unknown[]) => invokeRead(context, "DelegationFacet", "getDelegatedVotingPower", args, false, 5),
     getPriorVotes: (...args: unknown[]) => invokeRead(context, "DelegationFacet", "getPriorVotes", args, false, 5),
     getTotalVotingPower: (...args: unknown[]) => invokeRead(context, "DelegationFacet", "getTotalVotingPower", args, false, 5),
     },
