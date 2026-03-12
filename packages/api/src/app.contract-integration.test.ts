@@ -1345,6 +1345,7 @@ describeLive("HTTP API contract integration", () => {
       body: { tokenId },
     });
     expect(purchaseAttemptResponse.status).toBe(500);
+    expect(JSON.stringify(purchaseAttemptResponse.payload)).toMatch(/TradingLocked|CALL_EXCEPTION/u);
 
     const cancelResponse = await apiCall(port, "DELETE", "/v1/marketplace/commands/cancel-listing", {
       apiKey: "licensing-owner-key",
@@ -1558,28 +1559,15 @@ describeLive("HTTP API contract integration", () => {
     expect(JSON.stringify(emptyTargetsResponse.payload)).toMatch(/EmptyTargets|d51c7d26/u);
 
     const thresholdCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [6000n]);
-    let directThresholdError = "";
-    try {
-      await proposalFacet.connect(founderWallet)["propose(string,string,address[],uint256[],bytes[],uint8)"].staticCall(
-        `API governance threshold ${Date.now()}`,
-        "governance threshold proof",
-        [diamondAddress],
-        [0n],
-        [thresholdCalldata],
-        0,
-      );
-    } catch (error) {
-      directThresholdError = extractRevertMarker(error);
-    }
-    expect(directThresholdError).toContain("0x2261c87d");
+    const threshold = await governorFacet.getVotingConfig().then((tuple) => tuple[2]);
+    expect(await delegationFacet.getCurrentVotes(founderAddress)).toBeGreaterThanOrEqual(threshold);
 
-    const thresholdFailureResponse = await apiCall(
+    const thresholdReadyResponse = await apiCall(
       port,
       "POST",
-      "/v1/governance/proposals/propose-string-string-address-array-uint256-array-bytes-array-uint8",
+      "/v1/governance/proposals/propose-address-array-uint256-array-bytes-array-string-uint8",
       {
         body: {
-          title: `API governance threshold ${Date.now()}`,
           description: "governance threshold proof",
           targets: [diamondAddress],
           values: ["0"],
@@ -1588,8 +1576,7 @@ describeLive("HTTP API contract integration", () => {
         },
       },
     );
-    expect(thresholdFailureResponse.status).toBe(500);
-    expect(JSON.stringify(thresholdFailureResponse.payload)).toMatch(/InvalidProposalThreshold|2261c87d/u);
+    expect(thresholdReadyResponse.status).toBe(202);
   }, 60_000);
 
   it("proves tokenomics reads and reversible admin/token flows through HTTP on Base Sepolia", async () => {
@@ -1920,20 +1907,12 @@ describeLive("HTTP API contract integration", () => {
     expect(founderRoleResponses[2].status).toBe(200);
     expect(founderRoleResponses[2].payload).toBe(await whisperBlockFacet.VOICE_OPERATOR_ROLE());
 
-    let directSelectorsError = "";
-    try {
-      await whisperBlockFacet.getSelectors();
-    } catch (error) {
-      directSelectorsError = extractRevertMarker(error);
-    }
-    expect(directSelectorsError).toContain("0x276030b5");
-
     const selectorsResponse = await apiCall(port, "POST", "/v1/whisperblock/queries/get-selectors", {
       apiKey: "read-key",
       body: {},
     });
-    expect(selectorsResponse.status).toBe(500);
-    expect(JSON.stringify(selectorsResponse.payload)).toMatch(/SelectorNotFound|276030b5/u);
+    expect(selectorsResponse.status).toBe(200);
+    expect(selectorsResponse.payload).toEqual(normalize(await whisperBlockFacet.getSelectors()));
 
     const originalWhisperConfig = await readWhisperConfig(provider, diamondAddress);
     try {
@@ -2317,7 +2296,14 @@ describeLive("HTTP API contract integration", () => {
 
     const createTemplateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
       apiKey: "licensing-owner-key",
-      body: { template: normalize(baseTemplate) },
+      body: {
+        template: normalize({
+          ...baseTemplate,
+          creator: undefined,
+          createdAt: undefined,
+          updatedAt: undefined,
+        }),
+      },
     });
     expect(createTemplateResponse.status).toBe(202);
     expect(createTemplateResponse.payload).toMatchObject({
@@ -2399,7 +2385,12 @@ describeLive("HTTP API contract integration", () => {
       apiKey: "licensing-owner-key",
       body: {
         templateHash,
-        template: normalize(updatedTemplate),
+        template: normalize({
+          ...updatedTemplate,
+          creator: undefined,
+          createdAt: undefined,
+          updatedAt: undefined,
+        }),
       },
     });
     expect(updateTemplateResponse.status).toBe(202);
@@ -2506,7 +2497,14 @@ describeLive("HTTP API contract integration", () => {
     };
     const freshTemplateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
       apiKey: "licensing-owner-key",
-      body: { template: normalize(freshTemplate) },
+      body: {
+        template: normalize({
+          ...freshTemplate,
+          creator: undefined,
+          createdAt: undefined,
+          updatedAt: undefined,
+        }),
+      },
     });
     expect(freshTemplateResponse.status).toBe(202);
     const freshTemplateHash = String((freshTemplateResponse.payload as Record<string, unknown>).result);
@@ -2546,9 +2544,12 @@ describeLive("HTTP API contract integration", () => {
         }),
       },
     });
-    expect(createFromTemplateResponse.status).toBe(500);
-    expect(JSON.stringify(createFromTemplateResponse.payload)).toMatch(/TemplateNotFound|CALL_EXCEPTION/u);
-    expect(directTemplateDerivationError).toMatch(/TemplateNotFound|CALL_EXCEPTION/u);
+    expect(createFromTemplateResponse.status).toBe(202);
+    expect(createFromTemplateResponse.payload).toMatchObject({
+      result: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+    });
+    await expectReceipt(extractTxHash(createFromTemplateResponse.payload));
+    expect(directTemplateDerivationError).toBe("");
 
     const createLicenseResponse = await apiCall(port, "POST", "/v1/licensing/licenses/create-license", {
       apiKey: "licensing-owner-key",
@@ -2848,8 +2849,8 @@ describeLive("HTTP API contract integration", () => {
       apiKey: "read-key",
       body: {},
     });
-    expect(founderRoleResponse.status).toBe(500);
-    expect(JSON.stringify(founderRoleResponse.payload)).toMatch(/SelectorNotFound/u);
+    expect(founderRoleResponse.status).toBe(200);
+    expect(founderRoleResponse.payload).toBe(await diamondCutFacet.FOUNDER_ROLE());
 
     const facetAddressResponse = await apiCall(
       port,
@@ -3361,6 +3362,7 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(listingResponse.status).toBe(200);
     expect((listingResponse.payload as Record<string, unknown>).isActive).toBe(true);
+    expect((createDatasetWorkflow.payload as Record<string, unknown>).tradeReadiness).toBe("listed-and-tradable");
 
     const datasetWorkflowPayload = createDatasetWorkflow.payload as Record<string, unknown>;
     const datasetWorkflowWrite = datasetWorkflowPayload.dataset as Record<string, unknown>;
@@ -3395,23 +3397,8 @@ describeLive("HTTP API contract integration", () => {
     await expectReceipt(extractTxHash((stakeWorkflowResponse.payload as Record<string, unknown>).delegation));
 
     const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [6000n]);
-    let directProposalError = "";
-    try {
-      await proposalFacet.getFunction("propose(string,string,address[],uint256[],bytes[],uint8)").staticCall(
-        `Workflow Proposal ${Date.now()}`,
-        "workflow governance proof",
-        [diamondAddress],
-        [0n],
-        [proposalCalldata],
-        0n,
-        { from: founderAddress },
-      );
-    } catch (error) {
-      directProposalError = extractRevertMarker(error);
-    }
     const proposalWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/submit-proposal", {
       body: {
-        title: `Workflow Proposal ${Date.now()}`,
         description: "workflow governance proof",
         targets: [diamondAddress],
         values: ["0"],
@@ -3419,9 +3406,8 @@ describeLive("HTTP API contract integration", () => {
         proposalType: "0",
       },
     });
-    expect(proposalWorkflowResponse.status).toBe(500);
-    expect(JSON.stringify(proposalWorkflowResponse.payload)).toMatch(/InvalidProposalThreshold|2261c87d|CALL_EXCEPTION/u);
-    expect(directProposalError).toMatch(/InvalidProposalThreshold|2261c87d|CALL_EXCEPTION/u);
+    expect(proposalWorkflowResponse.status).toBe(202);
+    expect((proposalWorkflowResponse.payload as Record<string, unknown>).proposalId).toEqual(expect.any(String));
   }, 120_000);
 
   it("fails correctly for validation, signer, and provider errors", async () => {

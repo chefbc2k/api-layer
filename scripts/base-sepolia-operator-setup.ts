@@ -277,10 +277,11 @@ async function main(): Promise<void> {
 
     const sellerVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(seller.address);
     const latestBlock = await provider.getBlock("latest");
-    const agedFixture = {
+  const agedFixture = {
     voiceHash: null as string | null,
     tokenId: null as string | null,
     activeListing: false,
+    purchaseReadiness: "unverified" as "unverified" | "listed-not-yet-purchase-proven",
     status: "blocked" as FixtureStatus,
     reason: "missing aged seller asset",
   };
@@ -331,8 +332,11 @@ async function main(): Promise<void> {
       { apiKey: "read-key" },
     );
     agedFixture.activeListing = refreshedListing.status === 200 && (refreshedListing.payload as Record<string, unknown>)?.isActive === true;
-    agedFixture.status = agedFixture.activeListing ? "ready" : "partial";
-    agedFixture.reason = agedFixture.activeListing ? "ready" : "listing could not be activated";
+    agedFixture.purchaseReadiness = agedFixture.activeListing ? "listed-not-yet-purchase-proven" : "unverified";
+    agedFixture.status = agedFixture.activeListing ? "partial" : "partial";
+    agedFixture.reason = agedFixture.activeListing
+      ? "listing is present; purchaseability still requires live verification and must not be inferred from listing state alone"
+      : "listing could not be activated";
     break;
   }
     status.marketplace = {
@@ -341,9 +345,6 @@ async function main(): Promise<void> {
   };
 
     const proposerRole = roleId("PROPOSER_ROLE");
-    const timelockRole = roleId("TIMELOCK_ROLE");
-    const platformAdminRole = roleId("PLATFORM_ADMIN_ROLE");
-    const minterRole = roleId("MINTER_ROLE");
     const votingConfig = await governorFacet.getVotingConfig();
     const threshold = BigInt(votingConfig[2]);
     const governanceStatus: Record<string, unknown> = {
@@ -353,47 +354,14 @@ async function main(): Promise<void> {
       currentVotes: (await delegationFacet.getCurrentVotes(founder.address)).toString(),
     tokenBalance: (await tokenSupply.tokenBalanceOf(founder.address)).toString(),
     mintingFinished: await tokenSupply.supplyIsMintingFinished(),
+    bootstrapRepairAttempted: false,
   };
-    if (!governanceStatus.proposerRolePresent) {
-    governanceStatus.proposerRoleGrant = await ensureRole(port, proposerRole, founder.address);
-  }
-    if (BigInt(governanceStatus.currentVotes as string) < threshold) {
-    governanceStatus.timelockRole = await ensureRole(port, timelockRole, founder.address);
-    governanceStatus.platformAdminRole = await ensureRole(port, platformAdminRole, founder.address);
-    governanceStatus.minterRole = await ensureRole(port, minterRole, founder.address);
-
-    if (await accessControl.hasRole(minterRole, founder.address) && governanceStatus.mintingFinished === false) {
-      const deficit = threshold - BigInt(governanceStatus.currentVotes as string) + ethers.parseEther("1");
-      const mint = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-mint-tokens", {
-        apiKey: "founder-key",
-        body: { to: founder.address, amount: deficit.toString() },
-      });
-      governanceStatus.mint = mint;
-      if (mint.status === 202) {
-        await waitForReceipt(port, extractTxHash(mint.payload));
-      }
-    }
-
-    const delegate = await apiCall(port, "POST", "/v1/staking/commands/delegate", {
-      apiKey: "founder-key",
-      body: { delegatee: founder.address },
-    });
-    governanceStatus.delegate = delegate;
-    if (delegate.status === 202) {
-      await waitForReceipt(port, extractTxHash(delegate.payload));
-    }
-
-    const updateVotingPower = await apiCall(port, "PATCH", "/v1/staking/commands/update-voting-power", {
-      apiKey: "founder-key",
-      body: { account: founder.address },
-    });
-    governanceStatus.updateVotingPower = updateVotingPower;
-    if (updateVotingPower.status === 202) {
-      await waitForReceipt(port, extractTxHash(updateVotingPower.payload));
-    }
-  }
     governanceStatus.currentVotesAfterSetup = (await delegationFacet.getCurrentVotes(founder.address)).toString();
-    governanceStatus.status = BigInt(governanceStatus.currentVotesAfterSetup as string) >= threshold ? "ready" : "partial";
+    governanceStatus.status = BigInt(governanceStatus.currentVotesAfterSetup as string) >= threshold &&
+      governanceStatus.proposerRolePresent === true ? "ready" : "partial";
+    governanceStatus.reason = governanceStatus.status === "ready"
+      ? "promoted baseline already provides proposer role access and founder voting power"
+      : "promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state";
     status.governance = governanceStatus;
 
     status.licensing = {

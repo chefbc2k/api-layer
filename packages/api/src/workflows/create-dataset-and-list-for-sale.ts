@@ -125,13 +125,27 @@ export async function runCreateDatasetAndListForSaleWorkflow(
   if (listing) {
     await waitForWorkflowWriteReceipt(context, listing.body, "createDatasetAndListForSale.listing");
   }
+  const listingRead = datasetId
+    ? await readListingWithStabilization(marketplace, auth, walletAddress, datasetId)
+    : null;
+  const datasetRecord = asRecord(datasetRead?.body);
+  const listingRecord = asRecord(listingRead?.body);
+  const datasetActive = readBoolean(datasetRecord, "active");
+  const listingActive = readBoolean(listingRecord, "isActive");
+  const tradeReadiness = !listingActive
+    ? "not-actively-listed"
+    : datasetActive
+      ? "listed-and-tradable"
+      : "listed-but-trading-locked-until-dataset-reactivated";
   return {
     dataset: dataset.body,
     datasetRead: datasetRead?.body ?? null,
     owner: ownerRead?.body ?? null,
     approval: approval?.body ?? null,
     listing: listing?.body ?? null,
+    listingRead: listingRead?.body ?? null,
     datasetId,
+    tradeReadiness,
   };
 }
 
@@ -145,4 +159,35 @@ function requestSignerPrivateKey(auth: import("../shared/auth.js").AuthContext):
   }
   const signerMap = JSON.parse(raw) as Record<string, string>;
   return signerMap[auth.signerId] ?? null;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
+}
+
+function readBoolean(value: Record<string, unknown> | null, field: string): boolean {
+  return value?.[field] === true;
+}
+
+async function readListingWithStabilization(
+  marketplace: ReturnType<typeof createMarketplacePrimitiveService>,
+  auth: import("../shared/auth.js").AuthContext,
+  walletAddress: string | undefined,
+  datasetId: string,
+) {
+  let lastRead: Awaited<ReturnType<ReturnType<typeof createMarketplacePrimitiveService>["getListing"]>> | null = null;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    lastRead = await marketplace.getListing({
+      auth,
+      api: { executionSource: "auto", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [datasetId],
+    });
+    const listingRecord = asRecord(lastRead.body);
+    if (listingRecord?.tokenId === datasetId || listingRecord?.isActive === true) {
+      return lastRead;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  return lastRead;
 }

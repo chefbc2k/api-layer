@@ -2,7 +2,12 @@ import { z } from "zod";
 
 import type { AbiParameter, EventRequestSchema, HttpEventDefinition, HttpMethodDefinition, RequestSchemas } from "./route-types.js";
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
+const TEMPLATE_IDENTITY_MANAGED_KEYS = new Set([
+  "VoiceLicenseTemplateFacet.createTemplate",
+  "VoiceLicenseTemplateFacet.updateTemplate",
+]);
 
 function parseArrayType(type: string): { baseType: string; lengths: Array<number | null> } {
   const lengths: Array<number | null> = [];
@@ -22,7 +27,20 @@ function integerWireSchema(type: string): z.ZodType<string> {
   return z.string().regex(type.startsWith("uint") ? /^\d+$/u : /^-?\d+$/u, `invalid ${type} decimal string`);
 }
 
-function buildWireScalarSchema(param: AbiParameter): z.ZodTypeAny {
+function isManagedTemplateIdentityField(definition: HttpMethodDefinition, path: string[], component: AbiParameter): boolean {
+  return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) &&
+    path[0] === "template" &&
+    ["creator", "createdAt", "updatedAt"].includes(component.name ?? "");
+}
+
+function normalizeManagedTemplateIdentityField(component: AbiParameter): z.ZodTypeAny {
+  if (component.type === "address") {
+    return z.unknown().optional().transform(() => ZERO_ADDRESS);
+  }
+  return z.unknown().optional().transform(() => "0");
+}
+
+function buildWireScalarSchema(definition: HttpMethodDefinition, param: AbiParameter, path: string[]): z.ZodTypeAny {
   if (/^u?int\d*$/u.test(param.type)) {
     return integerWireSchema(param.type);
   }
@@ -39,7 +57,9 @@ function buildWireScalarSchema(param: AbiParameter): z.ZodTypeAny {
     const componentSchemas = Object.fromEntries(
       (param.components ?? []).map((component, index) => {
         const key = component.name && component.name.length > 0 ? component.name : String(index);
-        let schema = buildWireSchema(component);
+        let schema = isManagedTemplateIdentityField(definition, [...path, key], component)
+          ? normalizeManagedTemplateIdentityField(component)
+          : buildWireSchema(definition, component, [...path, key]);
         if (component.name === "licenseHash" && component.type === "bytes32") {
           schema = schema.optional().default(ZERO_HASH);
         }
@@ -54,10 +74,10 @@ function buildWireScalarSchema(param: AbiParameter): z.ZodTypeAny {
   return z.unknown();
 }
 
-export function buildWireSchema(param: AbiParameter): z.ZodTypeAny {
+export function buildWireSchema(definition: HttpMethodDefinition, param: AbiParameter, path: string[] = []): z.ZodTypeAny {
   const { baseType, lengths } = parseArrayType(param.type);
   const scalarParam = { ...param, type: baseType };
-  let schema = buildWireScalarSchema(scalarParam);
+  let schema = buildWireScalarSchema(definition, scalarParam, path);
   for (const length of lengths) {
     schema = z.array(schema).superRefine((value, ctx) => {
       if (length !== null && value.length !== length) {
@@ -83,7 +103,7 @@ function buildObjectSchema(definition: HttpMethodDefinition, source: "path" | "q
       if (!input || source !== "body") {
         return [binding.field, z.unknown()];
       }
-      return [binding.field, buildWireSchema(input)];
+      return [binding.field, buildWireSchema(definition, input, [binding.field])];
     }),
   );
   return z.object(shape).passthrough();
