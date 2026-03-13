@@ -3411,14 +3411,6 @@ describeLive("HTTP API contract integration", () => {
     expect(Array.isArray(datasetCreatedEvents.payload)).toBe(true);
     expect((datasetCreatedEvents.payload as Array<Record<string, unknown>>).length).toBeGreaterThan(0);
 
-    const approveStakeResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
-      body: {
-        spender: diamondAddress,
-        amount: "10",
-      },
-    });
-    expect(approveStakeResponse.status).toBe(202);
-    await expectReceipt(extractTxHash(approveStakeResponse.payload));
     const stakeWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/stake-and-delegate", {
       body: {
         amount: "1",
@@ -3426,8 +3418,42 @@ describeLive("HTTP API contract integration", () => {
       },
     });
     expect(stakeWorkflowResponse.status).toBe(202);
-    await expectReceipt(extractTxHash((stakeWorkflowResponse.payload as Record<string, unknown>).stake));
-    await expectReceipt(extractTxHash((stakeWorkflowResponse.payload as Record<string, unknown>).delegation));
+    expect(stakeWorkflowResponse.payload).toEqual({
+      approval: {
+        submission: expect.anything(),
+        txHash: expect.anything(),
+        spender: diamondAddress,
+        allowanceBefore: expect.any(String),
+        allowanceAfter: expect.any(String),
+        source: expect.any(String),
+      },
+      stake: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        stakeInfoBefore: expect.anything(),
+        stakeInfoAfter: expect.anything(),
+        eventCount: expect.any(Number),
+      },
+      delegation: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        delegateBefore: expect.anything(),
+        delegateAfter: licenseeWallet.address,
+        currentVotes: expect.anything(),
+        eventCount: expect.any(Number),
+      },
+      summary: {
+        staker: founderAddress,
+        delegatee: licenseeWallet.address,
+        amount: "1",
+      },
+    });
+    await expectReceipt(String(((stakeWorkflowResponse.payload as Record<string, unknown>).stake as Record<string, unknown>).txHash));
+    await expectReceipt(String(((stakeWorkflowResponse.payload as Record<string, unknown>).delegation as Record<string, unknown>).txHash));
 
     const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [6000n]);
     const proposalWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/submit-proposal", {

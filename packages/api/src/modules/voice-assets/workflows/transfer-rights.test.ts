@@ -209,7 +209,6 @@ describe("runTransferRightsWorkflow", () => {
       safeTransferFromAddressAddressUint256Bytes: vi.fn(),
       ownerOf: vi.fn().mockResolvedValue({
         statusCode: 200,
-        body: "0x0000000000000000000000000000000000000001",
       }),
     };
     mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
