@@ -333,11 +333,24 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
         }
       }
 
+      const resolveBufferedGasLimit = async () => {
+        const baseGasLimit =
+          prepared.responseTemplate.gasLimit ??
+          await provider.estimateGas({
+            ...prepared.responseTemplate,
+            from: prepared.signerAddress,
+          });
+        // Give live writes headroom over node estimates to avoid silent status=0 receipts.
+        return baseGasLimit + (baseGasLimit / 5n) + 50_000n;
+      };
+
       const submit = async (forcedNonce?: number) => {
         const chainNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
         const nextNonce = forcedNonce ?? Math.max(chainNonce, context.signerNonces.get(prepared.queueKey) ?? 0);
+        const gasLimit = await resolveBufferedGasLimit();
         const response = await prepared.signer.sendTransaction({
           ...prepared.responseTemplate,
+          gasLimit,
           nonce: nextNonce,
         });
         context.signerNonces.set(prepared.queueKey, nextNonce + 1);
