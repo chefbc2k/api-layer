@@ -825,16 +825,24 @@ describeLive("HTTP API contract integration", () => {
       voiceHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
       registration: {
         txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        voiceAsset: {
+          voiceHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        },
       },
       metadataUpdate: {
         txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        features,
+      },
+      summary: {
+        owner: null,
+        hasFeatures: true,
       },
     });
 
     const workflowPayload = workflowResponse.payload as Record<string, unknown>;
     const workflowVoiceHash = String(workflowPayload.voiceHash);
-    await expectReceipt(String((workflowPayload.registration as Record<string, unknown>).txHash));
-    await expectReceipt(String((workflowPayload.metadataUpdate as Record<string, unknown>).txHash));
+    await expectReceipt(String(((workflowPayload.registration as Record<string, unknown>).txHash)));
+    await expectReceipt(String(((workflowPayload.metadataUpdate as Record<string, unknown>).txHash)));
     const featuresRead = await waitFor(
       () => apiCall(
         port,
@@ -3011,7 +3019,7 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 60_000);
 
-  it("preserves the live transfer-rights workflow failure against the contract path", async () => {
+  it("runs the transfer-rights workflow and persists ownership state", async () => {
     await ensureNativeBalance(founderAddress, ethers.parseEther("0.00008"));
     await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.00003"));
 
@@ -3049,7 +3057,24 @@ describeLive("HTTP API contract integration", () => {
       },
     });
     expect(transferWorkflowResponse.status).toBe(202);
-    await expectReceipt(extractTxHash(transferWorkflowResponse.payload));
+    expect(transferWorkflowResponse.payload).toEqual({
+      transfer: {
+        mode: "transfer",
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        owner: transfereeWallet.address,
+      },
+      summary: {
+        from: founderAddress,
+        to: transfereeWallet.address,
+        tokenId,
+        safe: false,
+        hasData: false,
+      },
+    });
+    await expectReceipt(String(((transferWorkflowResponse.payload as Record<string, unknown>).transfer as Record<string, unknown>).txHash));
     expect(await waitFor(
       () => voiceAsset.ownerOf(BigInt(tokenId)),
       (value) => value === transfereeWallet.address,
@@ -3171,6 +3196,40 @@ describeLive("HTTP API contract integration", () => {
       },
     });
     expect(workflowResponse.status).toBe(202);
+    expect(workflowResponse.payload).toEqual({
+      fingerprint: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        authenticityVerified: true,
+        eventCount: expect.any(Number),
+      },
+      encryptionKey: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        eventCount: expect.any(Number),
+      },
+      accessGrant: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        eventCount: expect.any(Number),
+        grant: {
+          user: outsiderWallet.address,
+          duration: "3600",
+        },
+      },
+      summary: {
+        voiceHash,
+        generateEncryptionKey: true,
+        grantedUser: outsiderWallet.address,
+        grantedDuration: "3600",
+      },
+    });
     const fingerprintTxHash = String((((workflowResponse.payload as Record<string, unknown>).fingerprint) as Record<string, unknown>).txHash);
     const keyTxHash = String((((workflowResponse.payload as Record<string, unknown>).encryptionKey) as Record<string, unknown>).txHash);
     const accessGrantTxHash = String((((workflowResponse.payload as Record<string, unknown>).accessGrant) as Record<string, unknown>).txHash);
@@ -3267,7 +3326,51 @@ describeLive("HTTP API contract integration", () => {
       },
     });
     expect(createDatasetWorkflow.status).toBe(202);
-    await expectReceipt(extractTxHash((createDatasetWorkflow.payload as Record<string, unknown>).dataset));
+    expect(createDatasetWorkflow.payload).toEqual({
+      licenseTemplate: {
+        source: expect.any(String),
+        templateId: expect.any(String),
+        templateHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        created: expect.any(Boolean),
+        template: expect.anything(),
+      },
+      dataset: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        datasetId: expect.any(String),
+        read: expect.anything(),
+      },
+      ownership: {
+        owner: founderAddress,
+        approval: {
+          submission: expect.anything(),
+          txHash: expect.anything(),
+          approvedForAll: true,
+        },
+      },
+      listing: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        read: expect.anything(),
+        listingState: {
+          isActive: true,
+          datasetActive: true,
+        },
+        tradeReadiness: "listed-and-tradable",
+      },
+      summary: {
+        signerAddress: founderAddress,
+        datasetId: expect.any(String),
+        listingActive: true,
+        datasetActive: true,
+        tradeReadiness: "listed-and-tradable",
+      },
+    });
+    await expectReceipt(String(((createDatasetWorkflow.payload as Record<string, unknown>).dataset as Record<string, unknown>).txHash));
 
     const datasetsAfter = await waitFor(
       async () => normalize(await voiceDataset.getDatasetsByCreator(founderAddress)) as string[],
@@ -3291,11 +3394,11 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(listingResponse.status).toBe(200);
     expect((listingResponse.payload as Record<string, unknown>).isActive).toBe(true);
-    expect((createDatasetWorkflow.payload as Record<string, unknown>).tradeReadiness).toBe("listed-and-tradable");
-    expect((createDatasetWorkflow.payload as Record<string, unknown>).licenseTemplateId).toEqual(expect.any(String));
+    expect((((createDatasetWorkflow.payload as Record<string, unknown>).listing as Record<string, unknown>).tradeReadiness)).toBe("listed-and-tradable");
+    expect((((createDatasetWorkflow.payload as Record<string, unknown>).licenseTemplate as Record<string, unknown>).templateId)).toEqual(expect.any(String));
 
     const datasetWorkflowPayload = createDatasetWorkflow.payload as Record<string, unknown>;
-    const datasetWorkflowWrite = datasetWorkflowPayload.dataset as Record<string, unknown>;
+    const datasetWorkflowWrite = (datasetWorkflowPayload.dataset as Record<string, unknown>).submission as Record<string, unknown>;
     const datasetWorkflowReceipt = await provider.getTransactionReceipt(extractTxHash(datasetWorkflowWrite));
     const datasetCreatedEvents = await apiCall(port, "POST", "/v1/datasets/events/dataset-created/query", {
       apiKey: "read-key",
@@ -3337,7 +3440,34 @@ describeLive("HTTP API contract integration", () => {
       },
     });
     expect(proposalWorkflowResponse.status).toBe(202);
-    expect((proposalWorkflowResponse.payload as Record<string, unknown>).proposalId).toEqual(expect.any(String));
+    expect(proposalWorkflowResponse.payload).toEqual({
+      proposal: {
+        submission: expect.objectContaining({
+          txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        }),
+        txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
+        proposalId: expect.any(String),
+        eventCount: expect.any(Number),
+      },
+      readback: {
+        snapshot: expect.any(String),
+        proposalState: expect.any(String),
+        deadline: expect.any(String),
+      },
+      votingWindow: {
+        earliestVotingBlock: expect.any(String),
+        proposalDeadlineBlock: expect.any(String),
+        currentBlock: expect.any(String),
+        latestBlockTimestamp: expect.any(String),
+        estimatedVotingStartTimestamp: expect.any(String),
+      },
+      summary: {
+        proposalId: expect.any(String),
+        proposalType: "0",
+        targetCount: 1,
+        calldataCount: 1,
+      },
+    });
   }, 120_000);
 
   it("fails correctly for validation, signer, and provider errors", async () => {

@@ -14,7 +14,7 @@ export const submitProposalWorkflowSchema = z.object({
   proposalType: z.string().regex(/^\d+$/u),
 });
 
-function extractResult(payload: unknown): string | null {
+export function extractResult(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") {
     return null;
   }
@@ -22,7 +22,7 @@ function extractResult(payload: unknown): string | null {
   return typeof result === "string" ? result : null;
 }
 
-function extractProposalIdFromReceipt(receipt: { logs?: ReadonlyArray<unknown> } | null): string | null {
+export function extractProposalIdFromReceipt(receipt: { logs?: ReadonlyArray<unknown> } | null): string | null {
   if (!receipt?.logs?.length) {
     return null;
   }
@@ -50,38 +50,40 @@ async function readProposalWindow(
   proposalState: Awaited<ReturnType<typeof governance.prState>>;
   deadline: Awaited<ReturnType<typeof governance.proposalDeadline>>;
 }> {
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
       const [snapshot, proposalState, deadline] = await Promise.all([
         governance.proposalSnapshot({
           auth,
-          api: { executionSource: "auto", gaslessMode: "none" },
+          api: { executionSource: "live", gaslessMode: "none" },
           walletAddress,
           wireParams: [proposalId],
         }),
         governance.prState({
           auth,
-          api: { executionSource: "auto", gaslessMode: "none" },
+          api: { executionSource: "live", gaslessMode: "none" },
           walletAddress,
           wireParams: [proposalId],
         }),
         governance.proposalDeadline({
           auth,
-          api: { executionSource: "auto", gaslessMode: "none" },
+          api: { executionSource: "live", gaslessMode: "none" },
           walletAddress,
           wireParams: [proposalId],
         }),
       ]);
-      return { snapshot, proposalState, deadline };
-    } catch (error) {
-      if (attempt === 4) {
-        throw error;
+      if (snapshot.statusCode === 200 && proposalState.statusCode === 200 && deadline.statusCode === 200) {
+        return { snapshot, proposalState, deadline };
       }
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      lastError = { snapshot: snapshot.body, proposalState: proposalState.body, deadline: deadline.body };
+    } catch (error) {
+      lastError = error;
     }
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
-  throw new Error(`proposal ${proposalId} window lookup failed`);
+  throw new Error(`proposal ${proposalId} window lookup failed: ${String((lastError as { message?: string })?.message ?? JSON.stringify(lastError))}`);
 }
 
 export async function runSubmitProposalWorkflow(
@@ -107,21 +109,22 @@ export async function runSubmitProposalWorkflow(
       )
     : null;
   const proposalId = extractProposalIdFromReceipt(proposalReceipt) ?? extractResult(proposal.body);
-
-  let snapshot: Awaited<ReturnType<typeof governance.proposalSnapshot>> | null = null;
-  let proposalState: Awaited<ReturnType<typeof governance.prState>> | null = null;
-  let deadline: Awaited<ReturnType<typeof governance.proposalDeadline>> | null = null;
-  let proposalReadbackError: string | null = null;
-
-  if (proposalId) {
-    try {
-      ({ snapshot, proposalState, deadline } = await readProposalWindow(governance, auth, walletAddress, proposalId));
-    } catch (error) {
-      proposalReadbackError = String((error as { message?: string })?.message ?? error);
-    }
-  } else {
-    proposalReadbackError = "proposal id could not be derived from workflow response or receipt";
+  if (!proposalId) {
+    throw new Error("proposal id could not be derived from workflow response or receipt");
   }
+
+  const { snapshot, proposalState, deadline } = await readProposalWindow(governance, auth, walletAddress, proposalId);
+  const proposalCreatedEvents = proposalReceipt
+    ? await waitForWorkflowEventQuery(
+        () => governance.proposalCreatedEventQuery({
+          auth,
+          fromBlock: BigInt(proposalReceipt.blockNumber),
+          toBlock: BigInt(proposalReceipt.blockNumber),
+        }),
+        (logs) => hasTransactionHash(logs, proposalTxHash),
+        "submitProposal.proposalCreated",
+      )
+    : [];
 
   const currentBlock = await context.providerRouter.withProvider(
     "read",
@@ -140,15 +143,58 @@ export async function runSubmitProposalWorkflow(
     : null;
 
   return {
-    proposal: proposal.body,
-    proposalId,
-    proposalState: proposalState?.body ?? null,
-    proposalReadbackError,
+    proposal: {
+      submission: proposal.body,
+      txHash: proposalTxHash,
+      proposalId,
+      eventCount: proposalCreatedEvents.length,
+    },
+    readback: {
+      snapshot: snapshot.body,
+      proposalState: proposalState.body,
+      deadline: deadline.body,
+    },
     votingWindow: {
       earliestVotingBlock,
-      proposalDeadlineBlock: deadline?.body ?? null,
+      proposalDeadlineBlock: deadline.body,
       currentBlock: String(currentBlock),
+      latestBlockTimestamp: String(latestBlock?.timestamp ?? 0),
       estimatedVotingStartTimestamp,
     },
+    summary: {
+      proposalId,
+      proposalType: body.proposalType,
+      targetCount: body.targets.length,
+      calldataCount: body.calldatas.length,
+    },
   };
+}
+
+async function waitForWorkflowEventQuery(
+  read: () => Promise<unknown[]>,
+  ready: (logs: unknown[]) => boolean,
+  label: string,
+) {
+  let lastLogs: unknown[] = [];
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const logs = await read();
+    lastLogs = logs;
+    if (ready(logs)) {
+      return logs;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`${label} event query timeout: ${JSON.stringify(lastLogs)}`);
+}
+
+function hasTransactionHash(logs: unknown[], txHash: string | null): boolean {
+  if (!txHash) {
+    return false;
+  }
+  return logs.some((entry) => {
+    if (!entry || typeof entry !== "object") {
+      return false;
+    }
+    return (entry as Record<string, unknown>).transactionHash === txHash;
+  });
 }
