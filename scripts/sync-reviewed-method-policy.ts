@@ -9,8 +9,19 @@ type AbiInput = {
   type: string;
   name?: string;
   stateMutability?: string;
-  inputs?: Array<{ type: string }>;
+  inputs?: Array<{ type: string; components?: AbiInput[] }>;
+  components?: AbiInput[];
 };
+
+function canonicalType(input: { type: string; components?: AbiInput[] }): string {
+  if (input.type === "tuple" && input.components) {
+    return "(" + input.components.map(canonicalType).join(",") + ")";
+  }
+  if (input.type === "tuple[]" && input.components) {
+    return "(" + input.components.map(canonicalType).join(",") + ")[]";
+  }
+  return input.type;
+}
 
 type ReviewedMethodPolicy = {
   category: "read" | "write";
@@ -35,7 +46,7 @@ type DeploymentManifest = {
 const reviewedMethodPolicyPath = path.resolve("reviewed", "reviewed-method-policy.json");
 
 function signatureFor(entry: AbiInput): string {
-  const inputs = (entry.inputs ?? []).map((input) => input.type).join(",");
+  const inputs = (entry.inputs ?? []).map(canonicalType).join(",");
   return `${entry.name ?? "anonymous"}(${inputs})`;
 }
 

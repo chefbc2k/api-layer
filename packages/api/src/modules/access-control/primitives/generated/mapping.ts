@@ -2,6 +2,114 @@ import type { HttpEventDefinition, HttpMethodDefinition } from "../../../../shar
 
 export const accessControlMethodDefinitions: HttpMethodDefinition[] = [
   {
+    "key": "AccessControlFacet.configureRole",
+    "facetName": "AccessControlFacet",
+    "wrapperKey": "configureRole",
+    "domain": "access-control",
+    "resource": "access-control",
+    "classification": "admin",
+    "httpMethod": "POST",
+    "path": "/v1/access-control/admin/configure-role",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "role",
+          "source": "body",
+          "field": "role"
+        },
+        {
+          "name": "config",
+          "source": "body",
+          "field": "config"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "configureRole",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "AccessControlFacet.configureRole",
+    "methodName": "configureRole",
+    "signature": "configureRole(bytes32,(uint256,uint256,uint256,uint256,uint256,bytes32,bool,bool,bool,bool))",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "role",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IAccessControl.RoleConfig",
+        "components": [
+          {
+            "name": "memberLimit",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "validityPeriod",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minMemberLimit",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "quorumBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "absoluteMinQuorum",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "adminRole",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "restricted",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "revocable",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "requiresApproval",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "recoveryActive",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "AccessControlFacet.debugRoleIndexState",
     "facetName": "AccessControlFacet",
     "wrapperKey": "debugRoleIndexState",
@@ -1730,7 +1838,7 @@ export const accessControlEventDefinitions: HttpEventDefinition[] = [
     "path": "/v1/access-control/events/role-config-updated/query",
     "notes": "AccessControlFacet.RoleConfigUpdated",
     "eventName": "RoleConfigUpdated",
-    "signature": "RoleConfigUpdated(bytes32,address,tuple)",
+    "signature": "RoleConfigUpdated(bytes32,address,(uint256,uint256,uint256,uint256,uint256,bytes32,bool,bool,bool,bool))",
     "topicHash": null,
     "anonymous": false,
     "inputs": [

@@ -4,10 +4,7 @@ import type { AbiParameter, EventRequestSchema, HttpEventDefinition, HttpMethodD
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
-const TEMPLATE_IDENTITY_MANAGED_KEYS = new Set([
-  "VoiceLicenseTemplateFacet.createTemplate",
-  "VoiceLicenseTemplateFacet.updateTemplate",
-]);
+const TEMPLATE_IDENTITY_MANAGED_KEYS = new Set<string>([]);
 
 function parseArrayType(type: string): { baseType: string; lengths: Array<number | null> } {
   const lengths: Array<number | null> = [];

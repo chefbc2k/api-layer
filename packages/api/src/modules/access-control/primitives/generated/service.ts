@@ -5,6 +5,7 @@ import { accessControlEventDefinitions, accessControlMethodDefinitions } from ".
 
 export function createAccessControlPrimitiveService(context: ApiExecutionContext) {
   return {
+    configureRole: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, accessControlMethodDefinitions.find((definition) => definition.operationId === "configureRole")!, request),
     debugRoleIndexState: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, accessControlMethodDefinitions.find((definition) => definition.operationId === "debugRoleIndexState")!, request),
     emergencyForceAdd: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, accessControlMethodDefinitions.find((definition) => definition.operationId === "emergencyForceAdd")!, request),
     executeFounderSunset: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, accessControlMethodDefinitions.find((definition) => definition.operationId === "executeFounderSunset")!, request),

@@ -15,6 +15,7 @@ export function createVoiceLicenseFacetWrapper(context: FacetWrapperContext) {
     validateLicense: (...args: unknown[]) => invokeRead(context, "VoiceLicenseFacet", "validateLicense", args, false, 5),
     },
     write: {
+    createLicense: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "createLicense", args),
     createLicenseWithMarketplace: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "createLicenseWithMarketplace", args),
     issueLicense: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "issueLicense", args),
     recordLicensedUsage: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "recordLicensedUsage", args),

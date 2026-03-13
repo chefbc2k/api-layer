@@ -13,6 +13,7 @@ import {
   muSetPausedRequestSchemas,
   proposeOperationRequestSchemas,
   removeOperatorRequestSchemas,
+  setOperationConfigRequestSchemas,
   submitTransactionRequestSchemas,
   actionExecutedEventQueryRequestSchema,
   batchCompletedEventQueryRequestSchema,
@@ -65,6 +66,9 @@ export type ProposeOperationBody = import("zod").infer<typeof proposeOperationRe
 export type RemoveOperatorPath = import("zod").infer<typeof removeOperatorRequestSchemas.path>;
 export type RemoveOperatorQuery = import("zod").infer<typeof removeOperatorRequestSchemas.query>;
 export type RemoveOperatorBody = import("zod").infer<typeof removeOperatorRequestSchemas.body>;
+export type SetOperationConfigPath = import("zod").infer<typeof setOperationConfigRequestSchemas.path>;
+export type SetOperationConfigQuery = import("zod").infer<typeof setOperationConfigRequestSchemas.query>;
+export type SetOperationConfigBody = import("zod").infer<typeof setOperationConfigRequestSchemas.body>;
 export type SubmitTransactionPath = import("zod").infer<typeof submitTransactionRequestSchemas.path>;
 export type SubmitTransactionQuery = import("zod").infer<typeof submitTransactionRequestSchemas.query>;
 export type SubmitTransactionBody = import("zod").infer<typeof submitTransactionRequestSchemas.body>;

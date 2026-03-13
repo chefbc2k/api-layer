@@ -59,6 +59,13 @@ import {
   tokenUriRequestSchemas,
   transferFromVoiceAssetRequestSchemas,
   unlockVoiceAssetRequestSchemas,
+  updateBasicAcousticFeaturesRequestSchemas,
+  updateBeneficiaryRequestSchemas,
+  updateClassificationCategoryRequestSchemas,
+  updateGeographicDataRequestSchemas,
+  updateVoiceClassificationsRequestSchemas,
+  validateBeneficiariesRequestSchemas,
+  validateBeneficiaryRequestSchemas,
   voiceAssetBalanceOfRequestSchemas,
   voiceAssetNameRequestSchemas,
   voiceAssetSymbolRequestSchemas,
@@ -268,6 +275,27 @@ export type TransferFromVoiceAssetBody = import("zod").infer<typeof transferFrom
 export type UnlockVoiceAssetPath = import("zod").infer<typeof unlockVoiceAssetRequestSchemas.path>;
 export type UnlockVoiceAssetQuery = import("zod").infer<typeof unlockVoiceAssetRequestSchemas.query>;
 export type UnlockVoiceAssetBody = import("zod").infer<typeof unlockVoiceAssetRequestSchemas.body>;
+export type UpdateBasicAcousticFeaturesPath = import("zod").infer<typeof updateBasicAcousticFeaturesRequestSchemas.path>;
+export type UpdateBasicAcousticFeaturesQuery = import("zod").infer<typeof updateBasicAcousticFeaturesRequestSchemas.query>;
+export type UpdateBasicAcousticFeaturesBody = import("zod").infer<typeof updateBasicAcousticFeaturesRequestSchemas.body>;
+export type UpdateBeneficiaryPath = import("zod").infer<typeof updateBeneficiaryRequestSchemas.path>;
+export type UpdateBeneficiaryQuery = import("zod").infer<typeof updateBeneficiaryRequestSchemas.query>;
+export type UpdateBeneficiaryBody = import("zod").infer<typeof updateBeneficiaryRequestSchemas.body>;
+export type UpdateClassificationCategoryPath = import("zod").infer<typeof updateClassificationCategoryRequestSchemas.path>;
+export type UpdateClassificationCategoryQuery = import("zod").infer<typeof updateClassificationCategoryRequestSchemas.query>;
+export type UpdateClassificationCategoryBody = import("zod").infer<typeof updateClassificationCategoryRequestSchemas.body>;
+export type UpdateGeographicDataPath = import("zod").infer<typeof updateGeographicDataRequestSchemas.path>;
+export type UpdateGeographicDataQuery = import("zod").infer<typeof updateGeographicDataRequestSchemas.query>;
+export type UpdateGeographicDataBody = import("zod").infer<typeof updateGeographicDataRequestSchemas.body>;
+export type UpdateVoiceClassificationsPath = import("zod").infer<typeof updateVoiceClassificationsRequestSchemas.path>;
+export type UpdateVoiceClassificationsQuery = import("zod").infer<typeof updateVoiceClassificationsRequestSchemas.query>;
+export type UpdateVoiceClassificationsBody = import("zod").infer<typeof updateVoiceClassificationsRequestSchemas.body>;
+export type ValidateBeneficiariesPath = import("zod").infer<typeof validateBeneficiariesRequestSchemas.path>;
+export type ValidateBeneficiariesQuery = import("zod").infer<typeof validateBeneficiariesRequestSchemas.query>;
+export type ValidateBeneficiariesBody = import("zod").infer<typeof validateBeneficiariesRequestSchemas.body>;
+export type ValidateBeneficiaryPath = import("zod").infer<typeof validateBeneficiaryRequestSchemas.path>;
+export type ValidateBeneficiaryQuery = import("zod").infer<typeof validateBeneficiaryRequestSchemas.query>;
+export type ValidateBeneficiaryBody = import("zod").infer<typeof validateBeneficiaryRequestSchemas.body>;
 export type VoiceAssetBalanceOfPath = import("zod").infer<typeof voiceAssetBalanceOfRequestSchemas.path>;
 export type VoiceAssetBalanceOfQuery = import("zod").infer<typeof voiceAssetBalanceOfRequestSchemas.query>;
 export type VoiceAssetBalanceOfBody = import("zod").infer<typeof voiceAssetBalanceOfRequestSchemas.body>;

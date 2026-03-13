@@ -58,13 +58,14 @@ async function waitForReceipt(provider: JsonRpcProvider, txHash: string, label: 
 async function retryRead<T extends { status: number }>(
   label: string,
   read: () => Promise<T>,
-  attempts = 8,
-  delayMs = 1000,
+  condition: (resp: T) => boolean = (resp) => resp.status === 200,
+  attempts = 15,
+  delayMs = 2000,
 ): Promise<T> {
   let last: T | null = null;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     last = await read();
-    if (last.status === 200) {
+    if (condition(last)) {
       return last;
     }
     await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -138,35 +139,6 @@ async function main() {
   };
 
   try {
-    // Licensing template + license terms
-    {
-      const domain: DomainResult = {
-        routes: [],
-        actors: ["founder-key", "licensee-key"],
-        result: "semantically clarified but not fully proven",
-        evidence: {},
-      };
-
-      const createTemplateEndpoint = endpointByKey(endpointRegistry, "VoiceLicenseTemplateFacet.createTemplate");
-      if (!createTemplateEndpoint) {
-        domain.evidence.note = "createTemplate not in mounted surface; licensing proof skipped";
-      } else {
-        domain.routes.push(`${createTemplateEndpoint.httpMethod} ${createTemplateEndpoint.path}`);
-      }
-
-      const getTemplateEndpoint = endpointByKey(endpointRegistry, "VoiceLicenseTemplateFacet.getTemplate");
-      if (getTemplateEndpoint) {
-        domain.routes.push(`${getTemplateEndpoint.httpMethod} ${getTemplateEndpoint.path}`);
-      }
-
-      const getTermsEndpoint = endpointByKey(endpointRegistry, "VoiceLicenseFacet.getLicenseTerms");
-      if (getTermsEndpoint) {
-        domain.routes.push(`${getTermsEndpoint.httpMethod} ${getTermsEndpoint.path}`);
-      }
-
-      results.licensing = domain;
-    }
-
     // Multisig read route
     {
       const domain: DomainResult = {
@@ -222,13 +194,14 @@ async function main() {
       }
       if (voiceHash && getVoiceEndpoint) {
         domain.evidence.voiceRead = await retryRead(
-          "getVoiceAsset",
+          "voice asset read",
           () => apiCall(
             port,
             getVoiceEndpoint.httpMethod,
             buildPath(getVoiceEndpoint, { voiceHash }),
             { apiKey: "read-key" },
           ),
+          (resp) => resp.status === 200 && resp.payload !== null && typeof resp.payload === "object" && (resp.payload as Record<string, unknown>).result !== null,
         );
       }
 

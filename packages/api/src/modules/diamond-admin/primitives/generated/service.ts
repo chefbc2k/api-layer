@@ -6,6 +6,8 @@ import { diamondAdminEventDefinitions, diamondAdminMethodDefinitions } from "./m
 export function createDiamondAdminPrimitiveService(context: ApiExecutionContext) {
   return {
     approveUpgrade: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!, request),
+    diamondCut: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!, request),
+    executeUpgrade: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!, request),
     facetAddress: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!, request),
     facetAddresses: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!, request),
     facetFunctionSelectors: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!, request),
@@ -25,6 +27,7 @@ export function createDiamondAdminPrimitiveService(context: ApiExecutionContext)
     isUpgradeApproved: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!, request),
     isUpgradeControlFrozen: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeControlFrozen")!, request),
     isUpgradeSigner: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeSigner")!, request),
+    proposeDiamondCut: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "proposeDiamondCut")!, request),
     setTrustedInitCodehash: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitCodehash")!, request),
     setTrustedInitContract: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!, request),
     setTrustedInitSelector: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!, request),

@@ -2453,6 +2453,100 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "PaymentFacet.revealDistributionStruct",
+    "facetName": "PaymentFacet",
+    "wrapperKey": "revealDistributionStruct",
+    "domain": "marketplace",
+    "resource": "payments",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/commands/reveal-distribution-struct",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "params",
+          "source": "body",
+          "field": "params"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "revealDistributionStruct",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "PaymentFacet.revealDistributionStruct",
+    "methodName": "revealDistributionStruct",
+    "signature": "revealDistributionStruct((uint256,uint256,address,address,bool,address,uint256,uint256))",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "params",
+        "type": "tuple",
+        "internalType": "struct PaymentStorage.RevealParams",
+        "components": [
+          {
+            "name": "tokenId",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "seller",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "referrer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "isLicensePayment",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "nonce",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "deadline",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
     "key": "PaymentFacet.revealWithdraw",
     "facetName": "PaymentFacet",
     "wrapperKey": "revealWithdraw",
@@ -2620,6 +2714,89 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
         "name": "burnAddress",
         "type": "address",
         "internalType": "address"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "PaymentFacet.setBuybackConfigStruct",
+    "facetName": "PaymentFacet",
+    "wrapperKey": "setBuybackConfigStruct",
+    "domain": "marketplace",
+    "resource": "payments",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/marketplace/commands/set-buyback-config-struct",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "config",
+          "source": "body",
+          "field": "config"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "setBuybackConfigStruct",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "PaymentFacet.setBuybackConfigStruct",
+    "methodName": "setBuybackConfigStruct",
+    "signature": "setBuybackConfigStruct((uint256,uint256,uint256,uint256,address,address,address))",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct PaymentStorage.BuybackConfig",
+        "components": [
+          {
+            "name": "buybackBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "minMonthlyRevenue",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "requiredMonths",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "cadence",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "buybackRouter",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "uspkToken",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "burnAddress",
+            "type": "address",
+            "internalType": "address"
+          }
+        ]
       }
     ],
     "outputs": []
@@ -3973,7 +4150,7 @@ export const marketplaceEventDefinitions: HttpEventDefinition[] = [
     "path": "/v1/marketplace/events/fee-configuration-updated/query",
     "notes": "PaymentFacet.FeeConfigurationUpdated",
     "eventName": "FeeConfigurationUpdated",
-    "signature": "FeeConfigurationUpdated(tuple)",
+    "signature": "FeeConfigurationUpdated((uint256,uint256,uint256,uint256,uint256,uint256))",
     "topicHash": null,
     "anonymous": false,
     "inputs": [

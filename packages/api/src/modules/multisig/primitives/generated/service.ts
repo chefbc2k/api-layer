@@ -19,6 +19,7 @@ export function createMultisigPrimitiveService(context: ApiExecutionContext) {
     muSetPaused: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "muSetPaused")!, request),
     proposeOperation: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "proposeOperation")!, request),
     removeOperator: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "removeOperator")!, request),
+    setOperationConfig: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "setOperationConfig")!, request),
     submitTransaction: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "submitTransaction")!, request),
     actionExecutedEventQuery: (request: EventInvocationRequest) => executeHttpEventDefinition(context, multisigEventDefinitions.find((definition) => definition.operationId === "actionExecutedEventQuery")!, request),
     batchCompletedEventQuery: (request: EventInvocationRequest) => executeHttpEventDefinition(context, multisigEventDefinitions.find((definition) => definition.operationId === "batchCompletedEventQuery")!, request),

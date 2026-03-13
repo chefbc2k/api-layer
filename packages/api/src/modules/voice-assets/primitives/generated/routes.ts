@@ -68,6 +68,13 @@ export function createVoiceAssetsPrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "tokenUri")!, controller["tokenUri"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "transferFromVoiceAsset")!, controller["transferFromVoiceAsset"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "unlockVoiceAsset")!, controller["unlockVoiceAsset"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "updateBasicAcousticFeatures")!, controller["updateBasicAcousticFeatures"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "updateBeneficiary")!, controller["updateBeneficiary"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "updateClassificationCategory")!, controller["updateClassificationCategory"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "updateGeographicData")!, controller["updateGeographicData"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "updateVoiceClassifications")!, controller["updateVoiceClassifications"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "validateBeneficiaries")!, controller["validateBeneficiaries"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "validateBeneficiary")!, controller["validateBeneficiary"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "voiceAssetBalanceOf")!, controller["voiceAssetBalanceOf"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "voiceAssetName")!, controller["voiceAssetName"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "voiceAssetSymbol")!, controller["voiceAssetSymbol"]);

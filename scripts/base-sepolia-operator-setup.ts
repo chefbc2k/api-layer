@@ -366,7 +366,7 @@ async function main(): Promise<void> {
 
     status.licensing = {
     lifecycle: {
-      templateLifecycle: "createTemplate -> update/setTemplateStatus -> createLicenseFromTemplate derives voice-specific terms",
+
       activeLicenseLifecycle: "issueLicense/createLicense -> getLicenseTerms/transferLicense as licensee-scoped operations",
     },
     recommendedActors: {

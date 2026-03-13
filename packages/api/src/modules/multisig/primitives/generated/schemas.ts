@@ -15,6 +15,7 @@ export const isOperatorRequestSchemas = buildMethodRequestSchemas(multisigMethod
 export const muSetPausedRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "muSetPaused")!);
 export const proposeOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "proposeOperation")!);
 export const removeOperatorRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "removeOperator")!);
+export const setOperationConfigRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "setOperationConfig")!);
 export const submitTransactionRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "submitTransaction")!);
 export const actionExecutedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "actionExecutedEventQuery")!);
 export const batchCompletedEventQueryRequestSchema = buildEventRequestSchema(multisigEventDefinitions.find((definition) => definition.operationId === "batchCompletedEventQuery")!);

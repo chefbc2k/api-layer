@@ -1,0 +1,57 @@
+USpeaks API listening on 0
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:12:37.397Z","chain":84532,"provider":"cbdp","kind":"read","method":"MultiSigFacet.isOperator","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:12:37.578Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:12:39.599Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:12:42.523Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getVoiceAsset","retryCount":0,"failoverReason":null}
+{
+  "multisig": {
+    "routes": [
+      "GET /v1/multisig/queries/is-operator"
+    ],
+    "actors": [
+      "read-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "isOperator": {
+        "status": 200,
+        "payload": false
+      }
+    }
+  },
+  "voice-assets": {
+    "routes": [
+      "POST /v1/voice-assets",
+      "GET /v1/voice-assets/:voiceHash"
+    ],
+    "actors": [
+      "founder-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "createVoice": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0xe48f6e386fcfcb87394e47e431b148f104b3b29c884826c493816687649de2b6",
+          "result": "0xba2fd39e0d15fa382d3e2862f9d958626413489d2c13e24fb393a4807342732c"
+        }
+      },
+      "createVoiceReceipt": {
+        "status": 1,
+        "blockNumber": 38803437
+      },
+      "voiceRead": {
+        "status": 200,
+        "payload": [
+          "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          "QmLayer1Voice-1773375157405",
+          "175",
+          false,
+          "0",
+          "1773375162"
+        ]
+      }
+    }
+  }
+}

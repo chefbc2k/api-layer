@@ -2,7 +2,11 @@ import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../
 import { licensingEventDefinitions, licensingMethodDefinitions } from "./mapping.js";
 
 export const addCollaboratorRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "addCollaborator")!);
+export const createLicenseRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "createLicense")!);
+export const createLicenseFromTemplateRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseFromTemplate")!);
 export const createLicenseWithMarketplaceRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseWithMarketplace")!);
+export const createRightsGroupRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "createRightsGroup")!);
+export const createTemplateRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "createTemplate")!);
 export const getCategoryContractsRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "getCategoryContracts")!);
 export const getCollaboratorRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "getCollaborator")!);
 export const getCreatorTemplatesRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "getCreatorTemplates")!);
@@ -17,6 +21,7 @@ export const getRightsGroupRequestSchemas = buildMethodRequestSchemas(licensingM
 export const getTemplateRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "getTemplate")!);
 export const getUsageCountRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "getUsageCount")!);
 export const getUserRightsRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "getUserRights")!);
+export const grantRightRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "grantRight")!);
 export const issueLicenseRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "issueLicense")!);
 export const isTemplateActiveRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "isTemplateActive")!);
 export const isUsageRefUsedRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "isUsageRefUsed")!);
@@ -31,6 +36,7 @@ export const transferLicenseRequestSchemas = buildMethodRequestSchemas(licensing
 export const updateCollaboratorShareRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "updateCollaboratorShare")!);
 export const updateLicenseTermsRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "updateLicenseTerms")!);
 export const updateRightContractRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "updateRightContract")!);
+export const updateTemplateRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "updateTemplate")!);
 export const validateLicenseRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "validateLicense")!);
 export const withdrawLicenseRevenueRequestSchemas = buildMethodRequestSchemas(licensingMethodDefinitions.find((definition) => definition.operationId === "withdrawLicenseRevenue")!);
 export const collaboratorUpdatedEventQueryRequestSchema = buildEventRequestSchema(licensingEventDefinitions.find((definition) => definition.operationId === "collaboratorUpdatedEventQuery")!);

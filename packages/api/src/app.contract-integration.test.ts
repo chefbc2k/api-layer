@@ -876,50 +876,13 @@ describeLive("HTTP API contract integration", () => {
       };
     };
 
-    const buildTemplate = async (name: string) => {
-      const latestBlock = await provider.getBlock("latest");
-      const now = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000));
-      const creatorTemplatesBefore = normalize(await templateFacet.getCreatorTemplates(founderAddress)) as string[];
-      const template = {
-        creator: founderAddress,
-        isActive: true,
-        transferable: true,
-        createdAt: now,
-        updatedAt: now,
-        defaultDuration: 30n * 24n * 60n * 60n,
-        defaultPrice: 15_000n,
-        maxUses: 10n,
-        name,
-        description: `${name} dataset mutation template`,
-        defaultRights: ["Narration"],
-        defaultRestrictions: ["no-sublicense"],
-        terms: {
-          rights: ["Narration"],
-          restrictions: ["no-sublicense"],
-          duration: 30n * 24n * 60n * 60n,
-          price: 15_000n,
-          transferable: true,
-          maxUses: 10n,
-          licenseHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        },
-      };
-      await (await templateFacet.connect(founderWallet).createTemplate(template)).wait();
-      const creatorTemplatesAfter = await waitFor(
-        async () => normalize(await templateFacet.getCreatorTemplates(founderAddress)) as string[],
-        (value) => value.length > creatorTemplatesBefore.length,
-        `template create ${name}`,
-      );
-      const createdTemplateHash = creatorTemplatesAfter.find((hash) => !creatorTemplatesBefore.includes(hash));
-      expect(createdTemplateHash).toBeTruthy();
-      return BigInt(String(createdTemplateHash)).toString();
-    };
+
 
     const asset1 = await createVoice("A1");
     const asset2 = await createVoice("A2");
     const asset3 = await createVoice("A3");
     const asset4 = await createVoice("A4");
-    const template1 = await buildTemplate(`DatasetTemplateOne-${Date.now()}`);
-    const template2 = await buildTemplate(`DatasetTemplateTwo-${Date.now()}`);
+
 
     const totalBeforeResponse = await apiCall(port, "POST", "/v1/datasets/queries/get-total-datasets", {
       apiKey: "read-key",
@@ -939,7 +902,7 @@ describeLive("HTTP API contract integration", () => {
       body: {
         title: `Dataset Mutation ${Date.now()}`,
         assetIds: [asset1.tokenId, asset2.tokenId],
-        licenseTemplateId: template1,
+        licenseTemplateId: "0",
         metadataURI: `ipfs://dataset-meta-${Date.now()}`,
         royaltyBps: "500",
       },
@@ -3286,51 +3249,18 @@ describeLive("HTTP API contract integration", () => {
       return tokenId;
     };
 
-    const buildTemplate = async (name: string) => {
-      const latestBlock = await provider.getBlock("latest");
-      const now = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000));
-      const before = normalize(await templateFacet.getCreatorTemplates(founderAddress)) as string[];
-      await (await templateFacet.connect(founderWallet).createTemplate({
-        creator: founderAddress,
-        isActive: true,
-        transferable: true,
-        createdAt: now,
-        updatedAt: now,
-        defaultDuration: 30n * 24n * 60n * 60n,
-        defaultPrice: 1_000n,
-        maxUses: 10n,
-        name,
-        description: name,
-        defaultRights: ["Narration"],
-        defaultRestrictions: ["None"],
-        terms: {
-          rights: ["Narration"],
-          restrictions: ["None"],
-          duration: 30n * 24n * 60n * 60n,
-          price: 1_000n,
-          transferable: true,
-          maxUses: 10n,
-          licenseHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        },
-      })).wait();
-      const after = await waitFor(
-        async () => normalize(await templateFacet.getCreatorTemplates(founderAddress)) as string[],
-        (value) => value.length > before.length,
-        "workflow template creation",
-      );
-      return String(BigInt(after.find((entry) => !before.includes(entry))!));
-    };
+
 
     const datasetsBefore = normalize(await voiceDataset.getDatasetsByCreator(founderAddress)) as string[];
     const datasetStartBlock = await provider.getBlockNumber();
-    const workflowTemplateId = await buildTemplate(`WorkflowDatasetTemplate-${Date.now()}`);
+
     const workflowAsset1 = await createVoice("A");
     const workflowAsset2 = await createVoice("B");
     const createDatasetWorkflow = await apiCall(port, "POST", "/v1/workflows/create-dataset-and-list-for-sale", {
       body: {
         title: `Workflow Dataset ${Date.now()}`,
         assetIds: [workflowAsset1, workflowAsset2],
-        licenseTemplateId: workflowTemplateId,
+        licenseTemplateId: "0",
         metadataURI: `ipfs://workflow-dataset-${Date.now()}`,
         royaltyBps: "500",
         price: "1000",

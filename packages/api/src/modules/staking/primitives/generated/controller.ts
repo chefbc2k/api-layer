@@ -3,6 +3,7 @@ import { createEventRequestHandler, createMethodRequestHandler } from "../../../
 import { createStakingPrimitiveService } from "./service.js";
 import {
   advanceEpochRequestSchemas,
+  batchUpdateScoresRequestSchemas,
   calculateBaseRoleMultiplierRequestSchemas,
   claimRewardsRequestSchemas,
   delegateRequestSchemas,
@@ -64,6 +65,7 @@ import {
   updateDelegatedVotingPowerRequestSchemas,
   updateDelegatedVotingPowerBatchRequestSchemas,
   updateLockDurationRequestSchemas,
+  updateScoreRequestSchemas,
   updateVotingPowerRequestSchemas,
   updateVotingPowerBatchRequestSchemas,
   delegateChangedAddressAddressAddressEventQueryRequestSchema,
@@ -98,6 +100,7 @@ export function createStakingPrimitiveController(context: ApiExecutionContext): 
   const service = createStakingPrimitiveService(context);
   return {
     advanceEpoch: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "advanceEpoch")!, advanceEpochRequestSchemas, service.advanceEpoch),
+    batchUpdateScores: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "batchUpdateScores")!, batchUpdateScoresRequestSchemas, service.batchUpdateScores),
     calculateBaseRoleMultiplier: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "calculateBaseRoleMultiplier")!, calculateBaseRoleMultiplierRequestSchemas, service.calculateBaseRoleMultiplier),
     claimRewards: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "claimRewards")!, claimRewardsRequestSchemas, service.claimRewards),
     delegate: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "delegate")!, delegateRequestSchemas, service.delegate),
@@ -159,6 +162,7 @@ export function createStakingPrimitiveController(context: ApiExecutionContext): 
     updateDelegatedVotingPower: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPower")!, updateDelegatedVotingPowerRequestSchemas, service.updateDelegatedVotingPower),
     updateDelegatedVotingPowerBatch: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPowerBatch")!, updateDelegatedVotingPowerBatchRequestSchemas, service.updateDelegatedVotingPowerBatch),
     updateLockDuration: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "updateLockDuration")!, updateLockDurationRequestSchemas, service.updateLockDuration),
+    updateScore: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "updateScore")!, updateScoreRequestSchemas, service.updateScore),
     updateVotingPower: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPower")!, updateVotingPowerRequestSchemas, service.updateVotingPower),
     updateVotingPowerBatch: createMethodRequestHandler(stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPowerBatch")!, updateVotingPowerBatchRequestSchemas, service.updateVotingPowerBatch),
     delegateChangedAddressAddressAddressEventQuery: createEventRequestHandler(stakingEventDefinitions.find((definition) => definition.operationId === "delegateChangedAddressAddressAddressEventQuery")!, delegateChangedAddressAddressAddressEventQueryRequestSchema, service.delegateChangedAddressAddressAddressEventQuery),

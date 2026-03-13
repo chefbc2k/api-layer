@@ -6,7 +6,11 @@ import { licensingEventDefinitions, licensingMethodDefinitions } from "./mapping
 export function createLicensingPrimitiveService(context: ApiExecutionContext) {
   return {
     addCollaborator: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "addCollaborator")!, request),
+    createLicense: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicense")!, request),
+    createLicenseFromTemplate: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseFromTemplate")!, request),
     createLicenseWithMarketplace: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseWithMarketplace")!, request),
+    createRightsGroup: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "createRightsGroup")!, request),
+    createTemplate: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "createTemplate")!, request),
     getCategoryContracts: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "getCategoryContracts")!, request),
     getCollaborator: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "getCollaborator")!, request),
     getCreatorTemplates: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "getCreatorTemplates")!, request),
@@ -21,6 +25,7 @@ export function createLicensingPrimitiveService(context: ApiExecutionContext) {
     getTemplate: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "getTemplate")!, request),
     getUsageCount: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "getUsageCount")!, request),
     getUserRights: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "getUserRights")!, request),
+    grantRight: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "grantRight")!, request),
     issueLicense: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "issueLicense")!, request),
     isTemplateActive: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "isTemplateActive")!, request),
     isUsageRefUsed: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "isUsageRefUsed")!, request),
@@ -35,6 +40,7 @@ export function createLicensingPrimitiveService(context: ApiExecutionContext) {
     updateCollaboratorShare: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "updateCollaboratorShare")!, request),
     updateLicenseTerms: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "updateLicenseTerms")!, request),
     updateRightContract: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "updateRightContract")!, request),
+    updateTemplate: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "updateTemplate")!, request),
     validateLicense: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "validateLicense")!, request),
     withdrawLicenseRevenue: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, licensingMethodDefinitions.find((definition) => definition.operationId === "withdrawLicenseRevenue")!, request),
     collaboratorUpdatedEventQuery: (request: EventInvocationRequest) => executeHttpEventDefinition(context, licensingEventDefinitions.find((definition) => definition.operationId === "collaboratorUpdatedEventQuery")!, request),

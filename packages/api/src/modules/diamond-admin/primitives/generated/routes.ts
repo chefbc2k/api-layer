@@ -9,6 +9,8 @@ export function createDiamondAdminPrimitiveRouter(context: ApiExecutionContext):
   const router = Router();
   const controller = createDiamondAdminPrimitiveController(context);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!, controller["approveUpgrade"]);
+  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!, controller["diamondCut"]);
+  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!, controller["executeUpgrade"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!, controller["facetAddress"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!, controller["facetAddresses"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!, controller["facetFunctionSelectors"]);
@@ -28,6 +30,7 @@ export function createDiamondAdminPrimitiveRouter(context: ApiExecutionContext):
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!, controller["isUpgradeApproved"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeControlFrozen")!, controller["isUpgradeControlFrozen"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeSigner")!, controller["isUpgradeSigner"]);
+  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "proposeDiamondCut")!, controller["proposeDiamondCut"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitCodehash")!, controller["setTrustedInitCodehash"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!, controller["setTrustedInitContract"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!, controller["setTrustedInitSelector"]);

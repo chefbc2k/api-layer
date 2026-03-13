@@ -1,7 +1,38 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-12T23:22:50.155Z",
+  "generatedAt": "2026-03-13T04:56:18.977Z",
   "methods": {
+    "AccessControlFacet.configureRole": {
+      "facetName": "AccessControlFacet",
+      "wrapperKey": "configureRole",
+      "domain": "access-control",
+      "resource": "access-control",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/access-control/admin/configure-role",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "role",
+            "source": "body",
+            "field": "role"
+          },
+          {
+            "name": "config",
+            "source": "body",
+            "field": "config"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "configureRole",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "AccessControlFacet.configureRole"
+    },
     "AccessControlFacet.debugRoleIndexState": {
       "facetName": "AccessControlFacet",
       "wrapperKey": "debugRoleIndexState",
@@ -1411,6 +1442,42 @@
       "supportsGasless": false,
       "notes": "DelegationFacet.updateDelegatedVotingPowerBatch"
     },
+    "DiamondCutFacet.diamondCut": {
+      "facetName": "DiamondCutFacet",
+      "wrapperKey": "diamondCut",
+      "domain": "diamond-admin",
+      "resource": "diamond-admin",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/diamond-admin/admin/diamond-cut",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "facetCuts",
+            "source": "body",
+            "field": "facetCuts"
+          },
+          {
+            "name": "initContract",
+            "source": "body",
+            "field": "initContract"
+          },
+          {
+            "name": "initCalldata",
+            "source": "body",
+            "field": "initCalldata"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "diamondCut",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "DiamondCutFacet.diamondCut"
+    },
     "DiamondCutFacet.FOUNDER_ROLE": {
       "facetName": "DiamondCutFacet",
       "wrapperKey": "FOUNDER_ROLE",
@@ -1729,6 +1796,32 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "DiamondLoupeFacet.facets"
+    },
+    "EchoScoreFacetV3.batchUpdateScores": {
+      "facetName": "EchoScoreFacetV3",
+      "wrapperKey": "batchUpdateScores",
+      "domain": "staking",
+      "resource": "echo-scores",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/staking/commands/batch-update-scores",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "updates",
+            "source": "body",
+            "field": "updates"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "batchUpdateScores",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "EchoScoreFacetV3.batchUpdateScores"
     },
     "EchoScoreFacetV3.getEchoScoreOracleV3": {
       "facetName": "EchoScoreFacetV3",
@@ -2050,6 +2143,32 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "EchoScoreFacetV3.unpauseEchoScoreV3"
+    },
+    "EchoScoreFacetV3.updateScore": {
+      "facetName": "EchoScoreFacetV3",
+      "wrapperKey": "updateScore",
+      "domain": "staking",
+      "resource": "echo-scores",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/staking/commands/update-score",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "update",
+            "source": "body",
+            "field": "update"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateScore",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "EchoScoreFacetV3.updateScore"
     },
     "EmergencyFacet.approveRecovery": {
       "facetName": "EmergencyFacet",
@@ -3672,6 +3791,37 @@
       "supportsGasless": false,
       "notes": "LegacyFacet.setMinTimelockPeriod"
     },
+    "LegacyFacet.updateBeneficiary": {
+      "facetName": "LegacyFacet",
+      "wrapperKey": "updateBeneficiary",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/update-beneficiary",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          },
+          {
+            "name": "index",
+            "source": "body",
+            "field": "index"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateBeneficiary",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "LegacyFacet.updateBeneficiary"
+    },
     "LegacyViewFacet.getLegacyPlan": {
       "facetName": "LegacyViewFacet",
       "wrapperKey": "getLegacyPlan",
@@ -3723,6 +3873,63 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "LegacyViewFacet.isInheritanceReady"
+    },
+    "LegacyViewFacet.validateBeneficiaries": {
+      "facetName": "LegacyViewFacet",
+      "wrapperKey": "validateBeneficiaries",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/queries/validate-beneficiaries",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiaries",
+            "source": "body",
+            "field": "beneficiaries"
+          },
+          {
+            "name": "maxBeneficiaries",
+            "source": "body",
+            "field": "maxBeneficiaries"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "validateBeneficiaries",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "LegacyViewFacet.validateBeneficiaries"
+    },
+    "LegacyViewFacet.validateBeneficiary": {
+      "facetName": "LegacyViewFacet",
+      "wrapperKey": "validateBeneficiary",
+      "domain": "voice-assets",
+      "resource": "legacy",
+      "classification": "read",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/queries/validate-beneficiary",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "beneficiary",
+            "source": "body",
+            "field": "beneficiary"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "validateBeneficiary",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "LegacyViewFacet.validateBeneficiary"
     },
     "MarketplaceFacet.cancelListing": {
       "facetName": "MarketplaceFacet",
@@ -4317,6 +4524,37 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "MultiSigFacet.removeOperator"
+    },
+    "MultiSigFacet.setOperationConfig": {
+      "facetName": "MultiSigFacet",
+      "wrapperKey": "setOperationConfig",
+      "domain": "multisig",
+      "resource": "multisig",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/multisig/admin/set-operation-config",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "operationType",
+            "source": "body",
+            "field": "operationType"
+          },
+          {
+            "name": "config",
+            "source": "body",
+            "field": "config"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setOperationConfig",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "MultiSigFacet.setOperationConfig"
     },
     "MultiSigFacet.submitTransaction": {
       "facetName": "MultiSigFacet",
@@ -5318,6 +5556,32 @@
       "supportsGasless": false,
       "notes": "PaymentFacet.revealDistribution"
     },
+    "PaymentFacet.revealDistributionStruct": {
+      "facetName": "PaymentFacet",
+      "wrapperKey": "revealDistributionStruct",
+      "domain": "marketplace",
+      "resource": "payments",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/commands/reveal-distribution-struct",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "params",
+            "source": "body",
+            "field": "params"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "revealDistributionStruct",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "PaymentFacet.revealDistributionStruct"
+    },
     "PaymentFacet.revealWithdraw": {
       "facetName": "PaymentFacet",
       "wrapperKey": "revealWithdraw",
@@ -5409,6 +5673,32 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "PaymentFacet.setBuybackConfig"
+    },
+    "PaymentFacet.setBuybackConfigStruct": {
+      "facetName": "PaymentFacet",
+      "wrapperKey": "setBuybackConfigStruct",
+      "domain": "marketplace",
+      "resource": "payments",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/marketplace/commands/set-buyback-config-struct",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "config",
+            "source": "body",
+            "field": "config"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "setBuybackConfigStruct",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "PaymentFacet.setBuybackConfigStruct"
     },
     "PaymentFacet.setMevProtectionConfig": {
       "facetName": "PaymentFacet",
@@ -6312,6 +6602,47 @@
       "supportsGasless": false,
       "notes": "RightsFacet.addCollaborator"
     },
+    "RightsFacet.createRightsGroup": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "createRightsGroup",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/rights/create-rights-group",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "name",
+            "source": "body",
+            "field": "name"
+          },
+          {
+            "name": "rights",
+            "source": "body",
+            "field": "rights"
+          },
+          {
+            "name": "members",
+            "source": "body",
+            "field": "members"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createRightsGroup",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.createRightsGroup"
+    },
     "RightsFacet.getCategoryContracts": {
       "facetName": "RightsFacet",
       "wrapperKey": "getCategoryContracts",
@@ -6483,6 +6814,42 @@
       "supportsGasless": false,
       "notes": "RightsFacet.getUserRights"
     },
+    "RightsFacet.grantRight": {
+      "facetName": "RightsFacet",
+      "wrapperKey": "grantRight",
+      "domain": "licensing",
+      "resource": "rights",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/commands/grant-right",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "grantee",
+            "source": "body",
+            "field": "grantee"
+          },
+          {
+            "name": "right",
+            "source": "body",
+            "field": "right"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "grantRight",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "RightsFacet.grantRight"
+    },
     "RightsFacet.registerRightContract": {
       "facetName": "RightsFacet",
       "wrapperKey": "registerRightContract",
@@ -6490,7 +6857,7 @@
       "resource": "rights",
       "classification": "create",
       "httpMethod": "POST",
-      "path": "/v1/licensing/rights",
+      "path": "/v1/licensing/rights/register-right-contract",
       "inputShape": {
         "kind": "body",
         "bindings": [
@@ -8717,6 +9084,47 @@
       "supportsGasless": false,
       "notes": "UpgradeControllerFacet.approveUpgrade"
     },
+    "UpgradeControllerFacet.executeUpgrade": {
+      "facetName": "UpgradeControllerFacet",
+      "wrapperKey": "executeUpgrade",
+      "domain": "diamond-admin",
+      "resource": "diamond-admin",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/diamond-admin/admin/execute-upgrade",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "facetCuts",
+            "source": "body",
+            "field": "facetCuts"
+          },
+          {
+            "name": "initContract",
+            "source": "body",
+            "field": "initContract"
+          },
+          {
+            "name": "initCalldata",
+            "source": "body",
+            "field": "initCalldata"
+          },
+          {
+            "name": "upgradeId",
+            "source": "body",
+            "field": "upgradeId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "executeUpgrade",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "UpgradeControllerFacet.executeUpgrade"
+    },
     "UpgradeControllerFacet.freezeUpgradeControl": {
       "facetName": "UpgradeControllerFacet",
       "wrapperKey": "freezeUpgradeControl",
@@ -8955,6 +9363,42 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "UpgradeControllerFacet.isUpgradeSigner"
+    },
+    "UpgradeControllerFacet.proposeDiamondCut": {
+      "facetName": "UpgradeControllerFacet",
+      "wrapperKey": "proposeDiamondCut",
+      "domain": "diamond-admin",
+      "resource": "diamond-admin",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/diamond-admin/admin/propose-diamond-cut",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "facetCuts",
+            "source": "body",
+            "field": "facetCuts"
+          },
+          {
+            "name": "initContract",
+            "source": "body",
+            "field": "initContract"
+          },
+          {
+            "name": "initCalldata",
+            "source": "body",
+            "field": "initCalldata"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "proposeDiamondCut",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "UpgradeControllerFacet.proposeDiamondCut"
     },
     "UpgradeControllerFacet.setUpgradeControlEnforced": {
       "facetName": "UpgradeControllerFacet",
@@ -11416,6 +11860,42 @@
       "supportsGasless": false,
       "notes": "VoiceDatasetFacet.setRoyalty"
     },
+    "VoiceLicenseFacet.createLicense": {
+      "facetName": "VoiceLicenseFacet",
+      "wrapperKey": "createLicense",
+      "domain": "licensing",
+      "resource": "licenses",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/licenses/create-license",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "licensee",
+            "source": "body",
+            "field": "licensee"
+          },
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "terms",
+            "source": "body",
+            "field": "terms"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "createLicense",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseFacet.createLicense"
+    },
     "VoiceLicenseFacet.createLicenseWithMarketplace": {
       "facetName": "VoiceLicenseFacet",
       "wrapperKey": "createLicenseWithMarketplace",
@@ -11915,6 +12395,68 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseFacet.withdrawLicenseRevenue"
     },
+    "VoiceLicenseTemplateFacet.createLicenseFromTemplate": {
+      "facetName": "VoiceLicenseTemplateFacet",
+      "wrapperKey": "createLicenseFromTemplate",
+      "domain": "licensing",
+      "resource": "license-templates",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/license-templates/create-license-from-template",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "templateHash",
+            "source": "body",
+            "field": "templateHash"
+          },
+          {
+            "name": "customizations",
+            "source": "body",
+            "field": "customizations"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "createLicenseFromTemplate",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseTemplateFacet.createLicenseFromTemplate"
+    },
+    "VoiceLicenseTemplateFacet.createTemplate": {
+      "facetName": "VoiceLicenseTemplateFacet",
+      "wrapperKey": "createTemplate",
+      "domain": "licensing",
+      "resource": "license-templates",
+      "classification": "create",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/license-templates/create-template",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "template",
+            "source": "body",
+            "field": "template"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "createTemplate",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseTemplateFacet.createTemplate"
+    },
     "VoiceLicenseTemplateFacet.getCreatorTemplates": {
       "facetName": "VoiceLicenseTemplateFacet",
       "wrapperKey": "getCreatorTemplates",
@@ -12023,6 +12565,37 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "VoiceLicenseTemplateFacet.setTemplateStatus"
+    },
+    "VoiceLicenseTemplateFacet.updateTemplate": {
+      "facetName": "VoiceLicenseTemplateFacet",
+      "wrapperKey": "updateTemplate",
+      "domain": "licensing",
+      "resource": "license-templates",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/licensing/commands/update-template",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "templateHash",
+            "source": "body",
+            "field": "templateHash"
+          },
+          {
+            "name": "template",
+            "source": "body",
+            "field": "template"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateTemplate",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseTemplateFacet.updateTemplate"
     },
     "VoiceMetadataFacet.getBasicAcousticFeatures": {
       "facetName": "VoiceMetadataFacet",
@@ -12245,6 +12818,140 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "VoiceMetadataFacet.setAnalysisVersion"
+    },
+    "VoiceMetadataFacet.updateBasicAcousticFeatures": {
+      "facetName": "VoiceMetadataFacet",
+      "wrapperKey": "updateBasicAcousticFeatures",
+      "domain": "voice-assets",
+      "resource": "metadata",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/:voiceHash/metadata/acoustic-features",
+      "inputShape": {
+        "kind": "path+body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "path",
+            "field": "voiceHash"
+          },
+          {
+            "name": "features",
+            "source": "body",
+            "field": "features"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateBasicAcousticFeatures",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceMetadataFacet.updateBasicAcousticFeatures"
+    },
+    "VoiceMetadataFacet.updateClassificationCategory": {
+      "facetName": "VoiceMetadataFacet",
+      "wrapperKey": "updateClassificationCategory",
+      "domain": "voice-assets",
+      "resource": "metadata",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/update-classification-category",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "category",
+            "source": "body",
+            "field": "category"
+          },
+          {
+            "name": "classifications",
+            "source": "body",
+            "field": "classifications"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateClassificationCategory",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceMetadataFacet.updateClassificationCategory"
+    },
+    "VoiceMetadataFacet.updateGeographicData": {
+      "facetName": "VoiceMetadataFacet",
+      "wrapperKey": "updateGeographicData",
+      "domain": "voice-assets",
+      "resource": "metadata",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/update-geographic-data",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "geographic",
+            "source": "body",
+            "field": "geographic"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateGeographicData",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceMetadataFacet.updateGeographicData"
+    },
+    "VoiceMetadataFacet.updateVoiceClassifications": {
+      "facetName": "VoiceMetadataFacet",
+      "wrapperKey": "updateVoiceClassifications",
+      "domain": "voice-assets",
+      "resource": "metadata",
+      "classification": "update",
+      "httpMethod": "PATCH",
+      "path": "/v1/voice-assets/commands/update-voice-classifications",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "classifications",
+            "source": "body",
+            "field": "classifications"
+          },
+          {
+            "name": "categoryData",
+            "source": "body",
+            "field": "categoryData"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "updateVoiceClassifications",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceMetadataFacet.updateVoiceClassifications"
     },
     "VotingPowerFacet.calculateBaseRoleMultiplier": {
       "facetName": "VotingPowerFacet",

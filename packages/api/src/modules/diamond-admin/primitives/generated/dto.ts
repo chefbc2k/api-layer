@@ -1,5 +1,7 @@
 import {
   approveUpgradeRequestSchemas,
+  diamondCutRequestSchemas,
+  executeUpgradeRequestSchemas,
   facetAddressRequestSchemas,
   facetAddressesRequestSchemas,
   facetFunctionSelectorsRequestSchemas,
@@ -19,6 +21,7 @@ import {
   isUpgradeApprovedRequestSchemas,
   isUpgradeControlFrozenRequestSchemas,
   isUpgradeSignerRequestSchemas,
+  proposeDiamondCutRequestSchemas,
   setTrustedInitCodehashRequestSchemas,
   setTrustedInitContractRequestSchemas,
   setTrustedInitSelectorRequestSchemas,
@@ -39,6 +42,12 @@ import {
 export type ApproveUpgradePath = import("zod").infer<typeof approveUpgradeRequestSchemas.path>;
 export type ApproveUpgradeQuery = import("zod").infer<typeof approveUpgradeRequestSchemas.query>;
 export type ApproveUpgradeBody = import("zod").infer<typeof approveUpgradeRequestSchemas.body>;
+export type DiamondCutPath = import("zod").infer<typeof diamondCutRequestSchemas.path>;
+export type DiamondCutQuery = import("zod").infer<typeof diamondCutRequestSchemas.query>;
+export type DiamondCutBody = import("zod").infer<typeof diamondCutRequestSchemas.body>;
+export type ExecuteUpgradePath = import("zod").infer<typeof executeUpgradeRequestSchemas.path>;
+export type ExecuteUpgradeQuery = import("zod").infer<typeof executeUpgradeRequestSchemas.query>;
+export type ExecuteUpgradeBody = import("zod").infer<typeof executeUpgradeRequestSchemas.body>;
 export type FacetAddressPath = import("zod").infer<typeof facetAddressRequestSchemas.path>;
 export type FacetAddressQuery = import("zod").infer<typeof facetAddressRequestSchemas.query>;
 export type FacetAddressBody = import("zod").infer<typeof facetAddressRequestSchemas.body>;
@@ -96,6 +105,9 @@ export type IsUpgradeControlFrozenBody = import("zod").infer<typeof isUpgradeCon
 export type IsUpgradeSignerPath = import("zod").infer<typeof isUpgradeSignerRequestSchemas.path>;
 export type IsUpgradeSignerQuery = import("zod").infer<typeof isUpgradeSignerRequestSchemas.query>;
 export type IsUpgradeSignerBody = import("zod").infer<typeof isUpgradeSignerRequestSchemas.body>;
+export type ProposeDiamondCutPath = import("zod").infer<typeof proposeDiamondCutRequestSchemas.path>;
+export type ProposeDiamondCutQuery = import("zod").infer<typeof proposeDiamondCutRequestSchemas.query>;
+export type ProposeDiamondCutBody = import("zod").infer<typeof proposeDiamondCutRequestSchemas.body>;
 export type SetTrustedInitCodehashPath = import("zod").infer<typeof setTrustedInitCodehashRequestSchemas.path>;
 export type SetTrustedInitCodehashQuery = import("zod").infer<typeof setTrustedInitCodehashRequestSchemas.query>;
 export type SetTrustedInitCodehashBody = import("zod").infer<typeof setTrustedInitCodehashRequestSchemas.body>;

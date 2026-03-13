@@ -15,6 +15,8 @@ export function createRightsFacetWrapper(context: FacetWrapperContext) {
     },
     write: {
     addCollaborator: (...args: unknown[]) => invokeWrite(context, "RightsFacet", "addCollaborator", args),
+    createRightsGroup: (...args: unknown[]) => invokeWrite(context, "RightsFacet", "createRightsGroup", args),
+    grantRight: (...args: unknown[]) => invokeWrite(context, "RightsFacet", "grantRight", args),
     registerRightContract: (...args: unknown[]) => invokeWrite(context, "RightsFacet", "registerRightContract", args),
     removeCollaborator: (...args: unknown[]) => invokeWrite(context, "RightsFacet", "removeCollaborator", args),
     revokeRight: (...args: unknown[]) => invokeWrite(context, "RightsFacet", "revokeRight", args),

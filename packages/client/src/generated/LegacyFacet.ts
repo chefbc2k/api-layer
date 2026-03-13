@@ -17,6 +17,7 @@ export function createLegacyFacetWrapper(context: FacetWrapperContext) {
     setInheritanceConditions: (...args: unknown[]) => invokeWrite(context, "LegacyFacet", "setInheritanceConditions", args),
     setMaxBeneficiaries: (...args: unknown[]) => invokeWrite(context, "LegacyFacet", "setMaxBeneficiaries", args),
     setMinTimelockPeriod: (...args: unknown[]) => invokeWrite(context, "LegacyFacet", "setMinTimelockPeriod", args),
+    updateBeneficiary: (...args: unknown[]) => invokeWrite(context, "LegacyFacet", "updateBeneficiary", args),
     },
     events: {
     BeneficiaryUpdated: { query: (fromBlock?: bigint | number, toBlock?: bigint | number | "latest") => queryEvent(context, "LegacyFacet", "BeneficiaryUpdated", fromBlock, toBlock) },

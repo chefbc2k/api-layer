@@ -35,8 +35,10 @@ import {
   purchaseAssetRequestSchemas,
   releaseAssetRequestSchemas,
   revealDistributionRequestSchemas,
+  revealDistributionStructRequestSchemas,
   revealWithdrawRequestSchemas,
   setBuybackConfigRequestSchemas,
+  setBuybackConfigStructRequestSchemas,
   setMevProtectionConfigRequestSchemas,
   setPaymentPausedRequestSchemas,
   setStakingConfigRequestSchemas,
@@ -190,12 +192,18 @@ export type ReleaseAssetBody = import("zod").infer<typeof releaseAssetRequestSch
 export type RevealDistributionPath = import("zod").infer<typeof revealDistributionRequestSchemas.path>;
 export type RevealDistributionQuery = import("zod").infer<typeof revealDistributionRequestSchemas.query>;
 export type RevealDistributionBody = import("zod").infer<typeof revealDistributionRequestSchemas.body>;
+export type RevealDistributionStructPath = import("zod").infer<typeof revealDistributionStructRequestSchemas.path>;
+export type RevealDistributionStructQuery = import("zod").infer<typeof revealDistributionStructRequestSchemas.query>;
+export type RevealDistributionStructBody = import("zod").infer<typeof revealDistributionStructRequestSchemas.body>;
 export type RevealWithdrawPath = import("zod").infer<typeof revealWithdrawRequestSchemas.path>;
 export type RevealWithdrawQuery = import("zod").infer<typeof revealWithdrawRequestSchemas.query>;
 export type RevealWithdrawBody = import("zod").infer<typeof revealWithdrawRequestSchemas.body>;
 export type SetBuybackConfigPath = import("zod").infer<typeof setBuybackConfigRequestSchemas.path>;
 export type SetBuybackConfigQuery = import("zod").infer<typeof setBuybackConfigRequestSchemas.query>;
 export type SetBuybackConfigBody = import("zod").infer<typeof setBuybackConfigRequestSchemas.body>;
+export type SetBuybackConfigStructPath = import("zod").infer<typeof setBuybackConfigStructRequestSchemas.path>;
+export type SetBuybackConfigStructQuery = import("zod").infer<typeof setBuybackConfigStructRequestSchemas.query>;
+export type SetBuybackConfigStructBody = import("zod").infer<typeof setBuybackConfigStructRequestSchemas.body>;
 export type SetMevProtectionConfigPath = import("zod").infer<typeof setMevProtectionConfigRequestSchemas.path>;
 export type SetMevProtectionConfigQuery = import("zod").infer<typeof setMevProtectionConfigRequestSchemas.query>;
 export type SetMevProtectionConfigBody = import("zod").infer<typeof setMevProtectionConfigRequestSchemas.body>;

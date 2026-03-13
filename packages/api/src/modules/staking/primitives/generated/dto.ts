@@ -1,5 +1,6 @@
 import {
   advanceEpochRequestSchemas,
+  batchUpdateScoresRequestSchemas,
   calculateBaseRoleMultiplierRequestSchemas,
   claimRewardsRequestSchemas,
   delegateRequestSchemas,
@@ -61,6 +62,7 @@ import {
   updateDelegatedVotingPowerRequestSchemas,
   updateDelegatedVotingPowerBatchRequestSchemas,
   updateLockDurationRequestSchemas,
+  updateScoreRequestSchemas,
   updateVotingPowerRequestSchemas,
   updateVotingPowerBatchRequestSchemas,
   delegateChangedAddressAddressAddressEventQueryRequestSchema,
@@ -93,6 +95,9 @@ import {
 export type AdvanceEpochPath = import("zod").infer<typeof advanceEpochRequestSchemas.path>;
 export type AdvanceEpochQuery = import("zod").infer<typeof advanceEpochRequestSchemas.query>;
 export type AdvanceEpochBody = import("zod").infer<typeof advanceEpochRequestSchemas.body>;
+export type BatchUpdateScoresPath = import("zod").infer<typeof batchUpdateScoresRequestSchemas.path>;
+export type BatchUpdateScoresQuery = import("zod").infer<typeof batchUpdateScoresRequestSchemas.query>;
+export type BatchUpdateScoresBody = import("zod").infer<typeof batchUpdateScoresRequestSchemas.body>;
 export type CalculateBaseRoleMultiplierPath = import("zod").infer<typeof calculateBaseRoleMultiplierRequestSchemas.path>;
 export type CalculateBaseRoleMultiplierQuery = import("zod").infer<typeof calculateBaseRoleMultiplierRequestSchemas.query>;
 export type CalculateBaseRoleMultiplierBody = import("zod").infer<typeof calculateBaseRoleMultiplierRequestSchemas.body>;
@@ -276,6 +281,9 @@ export type UpdateDelegatedVotingPowerBatchBody = import("zod").infer<typeof upd
 export type UpdateLockDurationPath = import("zod").infer<typeof updateLockDurationRequestSchemas.path>;
 export type UpdateLockDurationQuery = import("zod").infer<typeof updateLockDurationRequestSchemas.query>;
 export type UpdateLockDurationBody = import("zod").infer<typeof updateLockDurationRequestSchemas.body>;
+export type UpdateScorePath = import("zod").infer<typeof updateScoreRequestSchemas.path>;
+export type UpdateScoreQuery = import("zod").infer<typeof updateScoreRequestSchemas.query>;
+export type UpdateScoreBody = import("zod").infer<typeof updateScoreRequestSchemas.body>;
 export type UpdateVotingPowerPath = import("zod").infer<typeof updateVotingPowerRequestSchemas.path>;
 export type UpdateVotingPowerQuery = import("zod").infer<typeof updateVotingPowerRequestSchemas.query>;
 export type UpdateVotingPowerBody = import("zod").infer<typeof updateVotingPowerRequestSchemas.body>;

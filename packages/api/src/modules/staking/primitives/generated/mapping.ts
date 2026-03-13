@@ -545,6 +545,239 @@ export const stakingMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "EchoScoreFacetV3.batchUpdateScores",
+    "facetName": "EchoScoreFacetV3",
+    "wrapperKey": "batchUpdateScores",
+    "domain": "staking",
+    "resource": "echo-scores",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/staking/commands/batch-update-scores",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "updates",
+          "source": "body",
+          "field": "updates"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "batchUpdateScores",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "EchoScoreFacetV3.batchUpdateScores",
+    "methodName": "batchUpdateScores",
+    "signature": "batchUpdateScores((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes)[])",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "updates",
+        "type": "tuple[]",
+        "internalType": "struct IEchoScoreV3.EchoScoreUpdate[]",
+        "components": [
+          {
+            "name": "voiceHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "qualityData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.VoiceQualityData",
+            "components": [
+              {
+                "name": "completenessPercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "sampleRate",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "speechDuration",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "hnr",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "jitterLocal",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "shimmerLocal",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "engagementData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.CommunityEngagementData",
+            "components": [
+              {
+                "name": "viewCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "likeCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "playCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "ratingAverage",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "ratingCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "assetAge",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "governanceData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.GovernanceData",
+            "components": [
+              {
+                "name": "proposalsCreated",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "proposalsActiveOrSuccess",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "votesCast",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "contributionData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.DatasetContributionData",
+            "components": [
+              {
+                "name": "datasetCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "totalAssetCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "totalDuration",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "hasCommercialDataset",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "hasHighQualityDataset",
+                "type": "bool",
+                "internalType": "bool"
+              }
+            ]
+          },
+          {
+            "name": "marketplaceData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.MarketplaceData",
+            "components": [
+              {
+                "name": "datasetSalesCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "datasetSalesVolume",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "assetSalesCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "assetSalesVolume",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "royaltiesRealized",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "royaltyPaymentsCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "nonce",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "signature",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "EchoScoreFacetV3.getEchoScoreOracleV3",
     "facetName": "EchoScoreFacetV3",
     "wrapperKey": "getEchoScoreOracleV3",
@@ -1220,6 +1453,239 @@ export const stakingMethodDefinitions: HttpMethodDefinition[] = [
     ],
     "gaslessModes": [],
     "inputs": [],
+    "outputs": []
+  },
+  {
+    "key": "EchoScoreFacetV3.updateScore",
+    "facetName": "EchoScoreFacetV3",
+    "wrapperKey": "updateScore",
+    "domain": "staking",
+    "resource": "echo-scores",
+    "classification": "update",
+    "httpMethod": "PATCH",
+    "path": "/v1/staking/commands/update-score",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "update",
+          "source": "body",
+          "field": "update"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "updateScore",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "EchoScoreFacetV3.updateScore",
+    "methodName": "updateScore",
+    "signature": "updateScore((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes))",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "update",
+        "type": "tuple",
+        "internalType": "struct IEchoScoreV3.EchoScoreUpdate",
+        "components": [
+          {
+            "name": "voiceHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "qualityData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.VoiceQualityData",
+            "components": [
+              {
+                "name": "completenessPercentage",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "sampleRate",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "speechDuration",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "hnr",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "jitterLocal",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "shimmerLocal",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "engagementData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.CommunityEngagementData",
+            "components": [
+              {
+                "name": "viewCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "likeCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "playCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "ratingAverage",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "ratingCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "assetAge",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "governanceData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.GovernanceData",
+            "components": [
+              {
+                "name": "proposalsCreated",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "proposalsActiveOrSuccess",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "votesCast",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "contributionData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.DatasetContributionData",
+            "components": [
+              {
+                "name": "datasetCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "totalAssetCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "totalDuration",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "hasCommercialDataset",
+                "type": "bool",
+                "internalType": "bool"
+              },
+              {
+                "name": "hasHighQualityDataset",
+                "type": "bool",
+                "internalType": "bool"
+              }
+            ]
+          },
+          {
+            "name": "marketplaceData",
+            "type": "tuple",
+            "internalType": "struct IEchoScoreV3.MarketplaceData",
+            "components": [
+              {
+                "name": "datasetSalesCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "datasetSalesVolume",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "assetSalesCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "assetSalesVolume",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "royaltiesRealized",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "royaltyPaymentsCount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "nonce",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "timestamp",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "signature",
+            "type": "bytes",
+            "internalType": "bytes"
+          }
+        ]
+      }
+    ],
     "outputs": []
   },
   {

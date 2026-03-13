@@ -3,6 +3,8 @@ import { createEventRequestHandler, createMethodRequestHandler } from "../../../
 import { createDiamondAdminPrimitiveService } from "./service.js";
 import {
   approveUpgradeRequestSchemas,
+  diamondCutRequestSchemas,
+  executeUpgradeRequestSchemas,
   facetAddressRequestSchemas,
   facetAddressesRequestSchemas,
   facetFunctionSelectorsRequestSchemas,
@@ -22,6 +24,7 @@ import {
   isUpgradeApprovedRequestSchemas,
   isUpgradeControlFrozenRequestSchemas,
   isUpgradeSignerRequestSchemas,
+  proposeDiamondCutRequestSchemas,
   setTrustedInitCodehashRequestSchemas,
   setTrustedInitContractRequestSchemas,
   setTrustedInitSelectorRequestSchemas,
@@ -44,6 +47,8 @@ export function createDiamondAdminPrimitiveController(context: ApiExecutionConte
   const service = createDiamondAdminPrimitiveService(context);
   return {
     approveUpgrade: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!, approveUpgradeRequestSchemas, service.approveUpgrade),
+    diamondCut: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!, diamondCutRequestSchemas, service.diamondCut),
+    executeUpgrade: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!, executeUpgradeRequestSchemas, service.executeUpgrade),
     facetAddress: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!, facetAddressRequestSchemas, service.facetAddress),
     facetAddresses: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!, facetAddressesRequestSchemas, service.facetAddresses),
     facetFunctionSelectors: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!, facetFunctionSelectorsRequestSchemas, service.facetFunctionSelectors),
@@ -63,6 +68,7 @@ export function createDiamondAdminPrimitiveController(context: ApiExecutionConte
     isUpgradeApproved: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!, isUpgradeApprovedRequestSchemas, service.isUpgradeApproved),
     isUpgradeControlFrozen: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeControlFrozen")!, isUpgradeControlFrozenRequestSchemas, service.isUpgradeControlFrozen),
     isUpgradeSigner: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeSigner")!, isUpgradeSignerRequestSchemas, service.isUpgradeSigner),
+    proposeDiamondCut: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "proposeDiamondCut")!, proposeDiamondCutRequestSchemas, service.proposeDiamondCut),
     setTrustedInitCodehash: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitCodehash")!, setTrustedInitCodehashRequestSchemas, service.setTrustedInitCodehash),
     setTrustedInitContract: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!, setTrustedInitContractRequestSchemas, service.setTrustedInitContract),
     setTrustedInitSelector: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!, setTrustedInitSelectorRequestSchemas, service.setTrustedInitSelector),

@@ -2,6 +2,8 @@ import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../
 import { diamondAdminEventDefinitions, diamondAdminMethodDefinitions } from "./mapping.js";
 
 export const approveUpgradeRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!);
+export const diamondCutRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!);
+export const executeUpgradeRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!);
 export const facetAddressRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!);
 export const facetAddressesRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!);
 export const facetFunctionSelectorsRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!);
@@ -21,6 +23,7 @@ export const isTrustedInitSelectorPolicyEnabledRequestSchemas = buildMethodReque
 export const isUpgradeApprovedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!);
 export const isUpgradeControlFrozenRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeControlFrozen")!);
 export const isUpgradeSignerRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeSigner")!);
+export const proposeDiamondCutRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "proposeDiamondCut")!);
 export const setTrustedInitCodehashRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitCodehash")!);
 export const setTrustedInitContractRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!);
 export const setTrustedInitSelectorRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!);

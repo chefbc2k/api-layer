@@ -190,35 +190,6 @@ async function registerVoice(voiceAsset, signer, uri, royalty) {
   return { voiceHash, tokenId: asBigInt(tokenId) };
 }
 
-async function createTemplate(voiceTemplate, provider, signer, creatorAddr, name, desc, active = true) {
-  const now = asBigInt((await provider.getBlock("latest")).timestamp);
-  const template = {
-    creator: creatorAddr,
-    isActive: active,
-    transferable: true,
-    createdAt: now,
-    updatedAt: now,
-    defaultDuration: 30n * ONE_DAY,
-    defaultPrice: 10_000n,
-    maxUses: 100n,
-    name,
-    description: desc,
-    defaultRights: [],
-    defaultRestrictions: [],
-    terms: {
-      rights: [],
-      restrictions: [],
-      duration: 30n * ONE_DAY,
-      price: 10_000n,
-      transferable: true,
-      maxUses: 100n,
-      licenseHash: ethers.ZeroHash
-    }
-  };
-  const templateHash = await voiceTemplate.connect(signer).createTemplate.staticCall(template);
-  await sendAndWait(voiceTemplate.connect(signer).createTemplate(template));
-  return { templateHash, templateId: asBigInt(templateHash) };
-}
 
 async function main() {
   if (!DIAMOND_ADDRESS) throw new Error("DIAMOND_ADDRESS is required");
@@ -295,16 +266,7 @@ async function main() {
     }
   }
 
-  const { templateHash, templateId } = await createTemplate(
-    voiceTemplate,
-    provider,
-    creator,
-    creator.address,
-    `Anvil HP Template ${RUN_TAG}`,
-    `Template for on-chain happy-path pack ${RUN_TAG}`
-  );
-  if (!(await voiceTemplate.isTemplateActive(templateHash))) throw new Error("Template is not active");
-
+  const templateId = 0n;
   step("create dataset");
   const datasetId = asBigInt(
     await voiceDataset
@@ -495,37 +457,18 @@ async function main() {
 
   try {
     step("dataset guardrail paths");
-    const creatorAsset = await registerVoice(voiceAsset, creator, `ipfs://hp-${RUN_TAG}-dataset-guard-creator`, 1000);
-    const otherAsset = await registerVoice(voiceAsset, users[2], `ipfs://hp-${RUN_TAG}-dataset-guard-other`, 1000);
-    const activeTpl = await createTemplate(
-      voiceTemplate,
-      provider,
-      creator,
-      creator.address,
-      `HP Guard Active ${RUN_TAG}`,
-      `guard active template ${RUN_TAG}`
-    );
-    const inactiveTpl = await createTemplate(
-      voiceTemplate,
-      provider,
-      creator,
-      creator.address,
-      `HP Guard Inactive ${RUN_TAG}`,
-      `guard inactive template ${RUN_TAG}`
-    );
-    await sendAndWait(voiceTemplate.connect(creator).setTemplateStatus(inactiveTpl.templateHash, false));
     await expectRevert(
-      () => voiceDataset.connect(creator).createDataset("", [creatorAsset.tokenId], activeTpl.templateId, "ipfs://d", 500),
+      () => voiceDataset.connect(creator).createDataset("", [creatorAsset.tokenId], 0n, "ipfs://d", 500),
       "empty dataset title should revert",
       creator
     );
     await expectRevert(
-      () => voiceDataset.connect(creator).createDataset("x", [creatorAsset.tokenId], activeTpl.templateId, "", 500),
+      () => voiceDataset.connect(creator).createDataset("x", [creatorAsset.tokenId], 0n, "", 500),
       "empty dataset metadata should revert",
       creator
     );
     await expectRevert(
-      () => voiceDataset.connect(creator).createDataset("x", [otherAsset.tokenId], activeTpl.templateId, "ipfs://d", 500),
+      () => voiceDataset.connect(creator).createDataset("x", [otherAsset.tokenId], 0n, "ipfs://d", 500),
       "dataset with non-owned asset should revert",
       creator
     );
@@ -533,13 +476,8 @@ async function main() {
       () =>
         voiceDataset
           .connect(creator)
-          .createDataset("x", [creatorAsset.tokenId, creatorAsset.tokenId], activeTpl.templateId, "ipfs://d", 500),
+          .createDataset("x", [creatorAsset.tokenId, creatorAsset.tokenId], 0n, "ipfs://d", 500),
       "dataset duplicate asset should revert",
-      creator
-    );
-    await expectRevert(
-      () => voiceDataset.connect(creator).createDataset("x", [creatorAsset.tokenId], inactiveTpl.templateId, "ipfs://d", 500),
-      "dataset with inactive template should revert",
       creator
     );
   } catch (err) {

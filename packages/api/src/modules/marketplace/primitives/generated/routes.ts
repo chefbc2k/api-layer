@@ -44,8 +44,10 @@ export function createMarketplacePrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "purchaseAsset")!, controller["purchaseAsset"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "releaseAsset")!, controller["releaseAsset"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "revealDistribution")!, controller["revealDistribution"]);
+  registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "revealDistributionStruct")!, controller["revealDistributionStruct"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "revealWithdraw")!, controller["revealWithdraw"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "setBuybackConfig")!, controller["setBuybackConfig"]);
+  registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "setBuybackConfigStruct")!, controller["setBuybackConfigStruct"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "setMevProtectionConfig")!, controller["setMevProtectionConfig"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "setPaymentPaused")!, controller["setPaymentPaused"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "setStakingConfig")!, controller["setStakingConfig"]);

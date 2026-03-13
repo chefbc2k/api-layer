@@ -2,6 +2,89 @@ import type { HttpEventDefinition, HttpMethodDefinition } from "../../../../shar
 
 export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
   {
+    "key": "DiamondCutFacet.diamondCut",
+    "facetName": "DiamondCutFacet",
+    "wrapperKey": "diamondCut",
+    "domain": "diamond-admin",
+    "resource": "diamond-admin",
+    "classification": "admin",
+    "httpMethod": "POST",
+    "path": "/v1/diamond-admin/admin/diamond-cut",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "facetCuts",
+          "source": "body",
+          "field": "facetCuts"
+        },
+        {
+          "name": "initContract",
+          "source": "body",
+          "field": "initContract"
+        },
+        {
+          "name": "initCalldata",
+          "source": "body",
+          "field": "initCalldata"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "diamondCut",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "DiamondCutFacet.diamondCut",
+    "methodName": "diamondCut",
+    "signature": "diamondCut((address,uint8,bytes4[])[],address,bytes)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "facetCuts",
+        "type": "tuple[]",
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "components": [
+          {
+            "name": "facetAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "action",
+            "type": "uint8",
+            "internalType": "enum IDiamondCut.FacetCutAction"
+          },
+          {
+            "name": "functionSelectors",
+            "type": "bytes4[]",
+            "internalType": "bytes4[]"
+          }
+        ]
+      },
+      {
+        "name": "initContract",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "initCalldata",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "DiamondCutFacet.FOUNDER_ROLE",
     "facetName": "DiamondCutFacet",
     "wrapperKey": "FOUNDER_ROLE",
@@ -689,6 +772,99 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "UpgradeControllerFacet.executeUpgrade",
+    "facetName": "UpgradeControllerFacet",
+    "wrapperKey": "executeUpgrade",
+    "domain": "diamond-admin",
+    "resource": "diamond-admin",
+    "classification": "admin",
+    "httpMethod": "POST",
+    "path": "/v1/diamond-admin/admin/execute-upgrade",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "facetCuts",
+          "source": "body",
+          "field": "facetCuts"
+        },
+        {
+          "name": "initContract",
+          "source": "body",
+          "field": "initContract"
+        },
+        {
+          "name": "initCalldata",
+          "source": "body",
+          "field": "initCalldata"
+        },
+        {
+          "name": "upgradeId",
+          "source": "body",
+          "field": "upgradeId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "executeUpgrade",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "UpgradeControllerFacet.executeUpgrade",
+    "methodName": "executeUpgrade",
+    "signature": "executeUpgrade((address,uint8,bytes4[])[],address,bytes,bytes32)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "facetCuts",
+        "type": "tuple[]",
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "components": [
+          {
+            "name": "facetAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "action",
+            "type": "uint8",
+            "internalType": "enum IDiamondCut.FacetCutAction"
+          },
+          {
+            "name": "functionSelectors",
+            "type": "bytes4[]",
+            "internalType": "bytes4[]"
+          }
+        ]
+      },
+      {
+        "name": "initContract",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "initCalldata",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "upgradeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "UpgradeControllerFacet.freezeUpgradeControl",
     "facetName": "UpgradeControllerFacet",
     "wrapperKey": "freezeUpgradeControl",
@@ -1227,6 +1403,95 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "UpgradeControllerFacet.proposeDiamondCut",
+    "facetName": "UpgradeControllerFacet",
+    "wrapperKey": "proposeDiamondCut",
+    "domain": "diamond-admin",
+    "resource": "diamond-admin",
+    "classification": "admin",
+    "httpMethod": "POST",
+    "path": "/v1/diamond-admin/admin/propose-diamond-cut",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "facetCuts",
+          "source": "body",
+          "field": "facetCuts"
+        },
+        {
+          "name": "initContract",
+          "source": "body",
+          "field": "initContract"
+        },
+        {
+          "name": "initCalldata",
+          "source": "body",
+          "field": "initCalldata"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "proposeDiamondCut",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "UpgradeControllerFacet.proposeDiamondCut",
+    "methodName": "proposeDiamondCut",
+    "signature": "proposeDiamondCut((address,uint8,bytes4[])[],address,bytes)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "facetCuts",
+        "type": "tuple[]",
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "components": [
+          {
+            "name": "facetAddress",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "action",
+            "type": "uint8",
+            "internalType": "enum IDiamondCut.FacetCutAction"
+          },
+          {
+            "name": "functionSelectors",
+            "type": "bytes4[]",
+            "internalType": "bytes4[]"
+          }
+        ]
+      },
+      {
+        "name": "initContract",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "initCalldata",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "upgradeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  },
+  {
     "key": "UpgradeControllerFacet.setUpgradeControlEnforced",
     "facetName": "UpgradeControllerFacet",
     "wrapperKey": "setUpgradeControlEnforced",
@@ -1284,7 +1549,7 @@ export const diamondAdminEventDefinitions: HttpEventDefinition[] = [
     "path": "/v1/diamond-admin/events/diamond-cut/query",
     "notes": "DiamondCutFacet.DiamondCut",
     "eventName": "DiamondCut",
-    "signature": "DiamondCut(tuple[],address,bytes)",
+    "signature": "DiamondCut((address,uint8,bytes4[])[],address,bytes)",
     "topicHash": null,
     "anonymous": false,
     "inputs": [
@@ -1340,7 +1605,7 @@ export const diamondAdminEventDefinitions: HttpEventDefinition[] = [
     "path": "/v1/diamond-admin/events/diamond-cut-event/query",
     "notes": "DiamondCutFacet.DiamondCutEvent",
     "eventName": "DiamondCutEvent",
-    "signature": "DiamondCutEvent(tuple[],address,bytes)",
+    "signature": "DiamondCutEvent((address,uint8,bytes4[])[],address,bytes)",
     "topicHash": null,
     "anonymous": false,
     "inputs": [

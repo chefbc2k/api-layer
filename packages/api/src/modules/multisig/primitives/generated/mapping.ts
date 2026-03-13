@@ -764,6 +764,79 @@ export const multisigMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "MultiSigFacet.setOperationConfig",
+    "facetName": "MultiSigFacet",
+    "wrapperKey": "setOperationConfig",
+    "domain": "multisig",
+    "resource": "multisig",
+    "classification": "admin",
+    "httpMethod": "POST",
+    "path": "/v1/multisig/admin/set-operation-config",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "operationType",
+          "source": "body",
+          "field": "operationType"
+        },
+        {
+          "name": "config",
+          "source": "body",
+          "field": "config"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "setOperationConfig",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "MultiSigFacet.setOperationConfig",
+    "methodName": "setOperationConfig",
+    "signature": "setOperationConfig(bytes32,(uint256,uint256,bool))",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "operationType",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "config",
+        "type": "tuple",
+        "internalType": "struct IMultiSig.OperationConfig",
+        "components": [
+          {
+            "name": "minApprovals",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maxApprovals",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "allowsCancellation",
+            "type": "bool",
+            "internalType": "bool"
+          }
+        ]
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "MultiSigFacet.submitTransaction",
     "facetName": "MultiSigFacet",
     "wrapperKey": "submitTransaction",

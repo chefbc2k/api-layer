@@ -10,7 +10,10 @@ export function createVoiceLicenseTemplateFacetWrapper(context: FacetWrapperCont
     isTemplateActive: (...args: unknown[]) => invokeRead(context, "VoiceLicenseTemplateFacet", "isTemplateActive", args, false, 5),
     },
     write: {
+    createLicenseFromTemplate: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseTemplateFacet", "createLicenseFromTemplate", args),
+    createTemplate: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseTemplateFacet", "createTemplate", args),
     setTemplateStatus: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseTemplateFacet", "setTemplateStatus", args),
+    updateTemplate: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseTemplateFacet", "updateTemplate", args),
     },
     events: {
     LicenseCreated: { query: (fromBlock?: bigint | number, toBlock?: bigint | number | "latest") => queryEvent(context, "VoiceLicenseTemplateFacet", "LicenseCreated", fromBlock, toBlock) },

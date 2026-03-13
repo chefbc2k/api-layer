@@ -1,0 +1,308 @@
+USpeaks API listening on 0
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:43.951Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.propose(address[],uint256[],bytes[],string,uint8).preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:44.841Z","chain":84532,"provider":"cbdp","kind":"write","method":"ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:47.162Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.proposalSnapshot","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:47.236Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.prState","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:47.325Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:49.184Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:49.336Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:07.234Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:08.835Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.setApprovalForAll","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:10.100Z","chain":84532,"provider":"cbdp","kind":"write","method":"MarketplaceFacet.listAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:10.804Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:12.873Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:12.944Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:13.671Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:13.739Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:16.965Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:17.178Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:17.247Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:23.449Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:23.524Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.createDataset.prepare","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:23.819Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:24.484Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.354Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.425Z","chain":84532,"provider":"cbdp","kind":"read","method":"TokenSupplyFacet.totalSupply","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.495Z","chain":84532,"provider":"cbdp","kind":"read","method":"CommunityRewardsFacet.campaignCount","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.565Z","chain":84532,"provider":"cbdp","kind":"read","method":"VestingFacet.hasVestingSchedule","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.631Z","chain":84532,"provider":"cbdp","kind":"read","method":"AccessControlFacet.hasRole","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.698Z","chain":84532,"provider":"cbdp","kind":"read","method":"DiamondCutFacet.FOUNDER_ROLE","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.826Z","chain":84532,"provider":"cbdp","kind":"read","method":"EmergencyFacet.getEmergencyState","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.895Z","chain":84532,"provider":"cbdp","kind":"read","method":"MultiSigFacet.isOperator","retryCount":0,"failoverReason":null}
+{
+  "governance": {
+    "routes": [
+      "POST /v1/governance/proposals",
+      "GET /v1/governance/queries/proposal-snapshot",
+      "GET /v1/governance/queries/pr-state"
+    ],
+    "actors": [
+      "founder-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "submit": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0x4b841d3549ec93821d086f7ef4e9f4afbaefc6182ddc8aa5398deb605da79cce",
+          "result": "18"
+        }
+      },
+      "submitTxHash": "0x4b841d3549ec93821d086f7ef4e9f4afbaefc6182ddc8aa5398deb605da79cce",
+      "submitReceipt": {
+        "status": 1,
+        "blockNumber": 38803889
+      },
+      "snapshot": {
+        "status": 200,
+        "payload": "38810609"
+      },
+      "state": {
+        "status": 200,
+        "payload": "0"
+      }
+    }
+  },
+  "marketplace": {
+    "routes": [
+      "POST /v1/voice-assets",
+      "GET /v1/voice-assets/queries/get-token-id",
+      "PATCH /v1/voice-assets/commands/set-approval-for-all",
+      "POST /v1/marketplace/commands/list-asset",
+      "GET /v1/marketplace/queries/get-listing"
+    ],
+    "actors": [
+      "founder-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "createVoice": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0xc729e5dbc6e85c798016f3535448583708427ef82bf6faede33bd9803a71d8d7",
+          "result": "0xc76634ea9148c1fc809068ea6038a7ac77b0d299848d30e87a9e53c9632f0c4e"
+        }
+      },
+      "tokenId": {
+        "status": 200,
+        "payload": "65"
+      },
+      "approval": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0x503f8bb59fd31d94f3ef3cbf291031b928865cd2472446d4807c01a93b4b517e",
+          "result": null
+        }
+      },
+      "list": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0x27349a5ba5dc32fad89b70cb678975d7d72dd208671bc39403822943750573e1",
+          "result": null
+        }
+      },
+      "listReceipt": {
+        "status": 1,
+        "blockNumber": 38803902
+      },
+      "assetListedEvent": {
+        "status": 0,
+        "payload": "missing AssetListed endpoint"
+      },
+      "listingRead": {
+        "status": 200,
+        "payload": {
+          "tokenId": "65",
+          "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          "price": "1000",
+          "createdAt": "1773376092",
+          "createdBlock": "38803902",
+          "lastUpdateBlock": "38803902",
+          "expiresAt": "1775968092",
+          "isActive": true
+        }
+      }
+    }
+  },
+  "datasets": {
+    "routes": [
+      "POST /v1/voice-assets",
+      "GET /v1/voice-assets/queries/get-token-id",
+      "POST /v1/datasets/datasets"
+    ],
+    "actors": [
+      "founder-key"
+    ],
+    "result": "blocked by setup/state",
+    "evidence": {
+      "voiceA": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0xf3b25501950adcdd0d590bd35d3ba03759124e3b4f00ba21e4898c8f782da59c",
+          "result": "0x78a956ed5f9d9206779ac84d7ecfca9df094fa20e60bfb31b8d4455e4c87e374"
+        }
+      },
+      "voiceB": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0xc131c416a8f5f6d52b6ef930f808a15569179f7941de83feb143a5e794c17443",
+          "result": "0x276d7623c108884ace009401c00b366d9292ee6a0b8ddbb65dde4a85a921a733"
+        }
+      },
+      "tokenA": {
+        "status": 200,
+        "payload": "66"
+      },
+      "tokenB": {
+        "status": 200,
+        "payload": "67"
+      },
+      "dataset": {
+        "status": 500,
+        "payload": {
+          "error": "execution reverted: InvalidLicenseTemplate(uint256)",
+          "diagnostics": {
+            "route": {
+              "httpMethod": "POST",
+              "path": "/v1/datasets/datasets",
+              "operationId": "createDataset",
+              "contractFunction": "VoiceDatasetFacet.createDataset(string,uint256[],uint256,string,uint96)"
+            },
+            "alchemy": {
+              "enabled": true,
+              "simulationEnabled": true,
+              "simulationEnforced": false,
+              "endpointDetected": true,
+              "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
+              "available": true
+            },
+            "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "provider": "cbdp",
+            "actors": [
+              {
+                "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                "nonce": "1992",
+                "balance": "476055827731585"
+              }
+            ],
+            "trace": {
+              "status": "unavailable",
+              "error": "bad response (status=400, headers={\"content-type\":\"application/json\",\"date\":\"Fri, 13 Mar 2026 04:28:23 GMT\",\"content-encoding\":\"gzip\",\"x-envoy-upstream-service-time\":\"14\",\"server\":\"istio-envoy\",\"x-alchemy-response-code\":\"400\",\"x-alchemy-trace-id\":\"a312ab47-e6e6-4d25-b1c4-14e698d0b5e8\",\"transfer-encoding\":\"chunked\"}, body=\"{\\\"jsonrpc\\\":\\\"2.0\\\",\\\"id\\\":54,\\\"error\\\":{\\\"code\\\":-32600,\\\"message\\\":\\\"debug_traceCall is not available on the Free tier - upgrade to Pay As You Go, or Enterprise for access.\\\"}}\", requestBody=\"{\\\"method\\\":\\\"debug_traceCall\\\",\\\"params\\\":[{\\\"from\\\":\\\"0x3605020bb497c0ad07635E9ca0021Ba60f1244a2\\\",\\\"to\\\":\\\"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669\\\",\\\"data\\\":\\\"0x2f8104d200000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001f4000000000000000000000000000000000000000000000000000000000000001a4c697665204461746173657420313737333337363130333435310000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000000000000000000000000000000000000000430000000000000000000000000000000000000000000000000000000000000021697066733a2f2f646174617365742d6d6574612d3137373333373631303334353100000000000000000000000000000000000000000000000000000000000000\\\"},\\\"pending\\\",{\\\"tracer\\\":\\\"callTracer\\\"}],\\\"id\\\":54,\\\"jsonrpc\\\":\\\"2.0\\\"}\", requestMethod=\"POST\", url=\"https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4\", code=SERVER_ERROR, version=web/5.8.0)"
+            },
+            "cause": "execution reverted: InvalidLicenseTemplate(uint256)"
+          }
+        }
+      }
+    }
+  },
+  "voice-assets": {
+    "routes": [
+      "POST /v1/voice-assets",
+      "GET /v1/voice-assets/:voiceHash"
+    ],
+    "actors": [
+      "founder-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "createVoice": {
+        "status": 202,
+        "payload": {
+          "requestId": null,
+          "txHash": "0x09306bce6d98f78612c5c9631268643390a52485ef9f485e56614d89b2261156",
+          "result": "0x1038fc5365ec124ffbef1a1d14c6ff3fd3752d4eeed32a1ef9d8fa07fc85a49e"
+        }
+      },
+      "createVoiceReceipt": {
+        "status": 1,
+        "blockNumber": 38803909
+      },
+      "registeredEvent": {
+        "status": 0,
+        "payload": "missing VoiceAssetRegistered endpoint"
+      },
+      "voiceRead": {
+        "status": 200,
+        "payload": [
+          "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          "QmLayer1Voice-1773376103757",
+          "175",
+          false,
+          "0",
+          "1773376106"
+        ]
+      }
+    }
+  },
+  "tokenomics": {
+    "routes": [
+      "POST /v1/tokenomics/queries/total-supply",
+      "POST /v1/tokenomics/queries/campaign-count",
+      "GET /v1/tokenomics/queries/has-vesting-schedule"
+    ],
+    "actors": [
+      "read-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "totalSupply": {
+        "status": 200,
+        "payload": "420000000000000000"
+      },
+      "campaignCount": {
+        "status": 200,
+        "payload": "0"
+      },
+      "vestingSchedule": {
+        "status": 200,
+        "payload": false
+      }
+    }
+  },
+  "access-control": {
+    "routes": [
+      "GET /v1/access-control/queries/has-role"
+    ],
+    "actors": [
+      "read-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "hasRole": {
+        "status": 200,
+        "payload": true
+      }
+    }
+  },
+  "admin/emergency/multisig": {
+    "routes": [
+      "POST /v1/diamond-admin/queries/founder-role",
+      "POST /v1/emergency/queries/get-emergency-state",
+      "GET /v1/multisig/queries/is-operator"
+    ],
+    "actors": [
+      "read-key"
+    ],
+    "result": "proven working",
+    "evidence": {
+      "founderRole": {
+        "status": 200,
+        "payload": "0x7ed687a8f2955bd2ba7ca08227e1e364d132be747f42fb733165f923021b0225"
+      },
+      "emergencyState": {
+        "status": 200,
+        "payload": "0"
+      },
+      "isOperator": {
+        "status": 200,
+        "payload": false
+      }
+    }
+  }
+}

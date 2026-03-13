@@ -9,6 +9,7 @@ export function createStakingPrimitiveRouter(context: ApiExecutionContext): Rout
   const router = Router();
   const controller = createStakingPrimitiveController(context);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "advanceEpoch")!, controller["advanceEpoch"]);
+  registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "batchUpdateScores")!, controller["batchUpdateScores"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "calculateBaseRoleMultiplier")!, controller["calculateBaseRoleMultiplier"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "claimRewards")!, controller["claimRewards"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "delegate")!, controller["delegate"]);
@@ -70,6 +71,7 @@ export function createStakingPrimitiveRouter(context: ApiExecutionContext): Rout
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPower")!, controller["updateDelegatedVotingPower"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPowerBatch")!, controller["updateDelegatedVotingPowerBatch"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateLockDuration")!, controller["updateLockDuration"]);
+  registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateScore")!, controller["updateScore"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPower")!, controller["updateVotingPower"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPowerBatch")!, controller["updateVotingPowerBatch"]);
   registerRoute(router, stakingEventDefinitions.find((definition) => definition.operationId === "delegateChangedAddressAddressAddressEventQuery")!, controller["delegateChangedAddressAddressAddressEventQuery"]);

@@ -6,6 +6,7 @@ import { stakingEventDefinitions, stakingMethodDefinitions } from "./mapping.js"
 export function createStakingPrimitiveService(context: ApiExecutionContext) {
   return {
     advanceEpoch: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "advanceEpoch")!, request),
+    batchUpdateScores: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "batchUpdateScores")!, request),
     calculateBaseRoleMultiplier: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "calculateBaseRoleMultiplier")!, request),
     claimRewards: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "claimRewards")!, request),
     delegate: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "delegate")!, request),
@@ -67,6 +68,7 @@ export function createStakingPrimitiveService(context: ApiExecutionContext) {
     updateDelegatedVotingPower: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPower")!, request),
     updateDelegatedVotingPowerBatch: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPowerBatch")!, request),
     updateLockDuration: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "updateLockDuration")!, request),
+    updateScore: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "updateScore")!, request),
     updateVotingPower: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPower")!, request),
     updateVotingPowerBatch: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPowerBatch")!, request),
     delegateChangedAddressAddressAddressEventQuery: (request: EventInvocationRequest) => executeHttpEventDefinition(context, stakingEventDefinitions.find((definition) => definition.operationId === "delegateChangedAddressAddressAddressEventQuery")!, request),

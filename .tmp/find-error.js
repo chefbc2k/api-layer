@@ -1,0 +1,1 @@
+const fs=require("fs");const p=require("path");const {Interface}=require("ethers");const d=p.join(process.cwd(),"abis/facets");for(const f of fs.readdirSync(d)){const ab=JSON.parse(fs.readFileSync(p.join(d,f)));const iface=new Interface(ab);for(const frag of Object.values(iface.errors)){if(frag.selector==="0x6203af7c")console.log(`Found: ${frag.format()} in ${f}`);}}

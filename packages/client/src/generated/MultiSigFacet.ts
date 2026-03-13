@@ -21,6 +21,7 @@ export function createMultiSigFacetWrapper(context: FacetWrapperContext) {
     muSetPaused: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "muSetPaused", args),
     proposeOperation: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "proposeOperation", args),
     removeOperator: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "removeOperator", args),
+    setOperationConfig: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "setOperationConfig", args),
     submitTransaction: (...args: unknown[]) => invokeWrite(context, "MultiSigFacet", "submitTransaction", args),
     },
     events: {

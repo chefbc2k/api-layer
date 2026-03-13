@@ -1,4 +1,5 @@
 import {
+  configureRoleRequestSchemas,
   debugRoleIndexStateRequestSchemas,
   emergencyForceAddRequestSchemas,
   executeFounderSunsetRequestSchemas,
@@ -40,6 +41,9 @@ import {
   securityActionEventQueryRequestSchema,
 } from "./schemas.js";
 
+export type ConfigureRolePath = import("zod").infer<typeof configureRoleRequestSchemas.path>;
+export type ConfigureRoleQuery = import("zod").infer<typeof configureRoleRequestSchemas.query>;
+export type ConfigureRoleBody = import("zod").infer<typeof configureRoleRequestSchemas.body>;
 export type DebugRoleIndexStatePath = import("zod").infer<typeof debugRoleIndexStateRequestSchemas.path>;
 export type DebugRoleIndexStateQuery = import("zod").infer<typeof debugRoleIndexStateRequestSchemas.query>;
 export type DebugRoleIndexStateBody = import("zod").infer<typeof debugRoleIndexStateRequestSchemas.body>;

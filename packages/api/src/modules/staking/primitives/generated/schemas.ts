@@ -2,6 +2,7 @@ import { buildEventRequestSchema, buildMethodRequestSchemas } from "../../../../
 import { stakingEventDefinitions, stakingMethodDefinitions } from "./mapping.js";
 
 export const advanceEpochRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "advanceEpoch")!);
+export const batchUpdateScoresRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "batchUpdateScores")!);
 export const calculateBaseRoleMultiplierRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "calculateBaseRoleMultiplier")!);
 export const claimRewardsRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "claimRewards")!);
 export const delegateRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "delegate")!);
@@ -63,6 +64,7 @@ export const unpauseEchoScoreV3RequestSchemas = buildMethodRequestSchemas(stakin
 export const updateDelegatedVotingPowerRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPower")!);
 export const updateDelegatedVotingPowerBatchRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "updateDelegatedVotingPowerBatch")!);
 export const updateLockDurationRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "updateLockDuration")!);
+export const updateScoreRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "updateScore")!);
 export const updateVotingPowerRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPower")!);
 export const updateVotingPowerBatchRequestSchemas = buildMethodRequestSchemas(stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPowerBatch")!);
 export const delegateChangedAddressAddressAddressEventQueryRequestSchema = buildEventRequestSchema(stakingEventDefinitions.find((definition) => definition.operationId === "delegateChangedAddressAddressAddressEventQuery")!);

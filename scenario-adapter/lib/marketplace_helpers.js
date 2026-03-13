@@ -33,35 +33,7 @@ async function registerVoice(voiceAsset, signer, uri, royaltyBps) {
   return { voiceHash, tokenId };
 }
 
-async function createTemplate(voiceTemplate, provider, signer, creatorAddr, name, description) {
-  const now = BigInt((await provider.getBlock("latest")).timestamp);
-  const template = {
-    creator: creatorAddr,
-    isActive: true,
-    transferable: true,
-    createdAt: now,
-    updatedAt: now,
-    defaultDuration: BigInt(30 * ONE_DAY),
-    defaultPrice: 10_000n,
-    maxUses: 100n,
-    name,
-    description,
-    defaultRights: [],
-    defaultRestrictions: [],
-    terms: {
-      rights: [],
-      restrictions: [],
-      duration: BigInt(30 * ONE_DAY),
-      price: 10_000n,
-      transferable: true,
-      maxUses: 100n,
-      licenseHash: ethers.ZeroHash
-    }
-  };
-  const templateHash = await voiceTemplate.connect(signer).createTemplate.staticCall(template);
-  await sendAndWait(voiceTemplate.connect(signer).createTemplate(template), `createTemplate:${name}`);
-  return { templateHash, templateId: BigInt(templateHash) };
-}
+
 
 async function createDataset(voiceDataset, signer, title, assetIds, templateId, metadataURI, royaltyBps) {
   const datasetId = await voiceDataset.connect(signer).createDataset.staticCall(
@@ -227,20 +199,6 @@ async function deployMarketplaceStack(rpcUrl, options = {}) {
   let voiceTemplate;
   let voiceDataset;
   if (options.includeDataset !== false) {
-    const templateArtifact = loadArtifact("out/VoiceLicenseTemplateFacet.sol/VoiceLicenseTemplateFacet.json");
-    const templateFacet = await deploy(
-      new ethers.ContractFactory(templateArtifact.abi, templateArtifact.bytecode.object, founder),
-      "VoiceLicenseTemplateFacet"
-    );
-    await sendAndWait(
-      diamondCut.diamondCut(
-        [{ facetAddress: await templateFacet.getAddress(), action: 0, functionSelectors: selectorsForAbi(templateArtifact.abi) }],
-        ethers.ZeroAddress,
-        "0x",
-        { gasLimit: 12_000_000 }
-      ),
-      "diamondCut:addVoiceLicenseTemplateFacet"
-    );
 
     const datasetArtifact = loadArtifact("out/VoiceDatasetFacet.sol/VoiceDatasetFacet.json");
     const datasetInitArtifact = loadArtifact("out/VoiceDatasetInit.sol/VoiceDatasetInit.json");
@@ -271,7 +229,6 @@ async function deployMarketplaceStack(rpcUrl, options = {}) {
       "diamondCut:addVoiceDatasetFacet"
     );
 
-    voiceTemplate = new ethers.Contract(diamondAddress, templateArtifact.abi, founder);
     voiceDataset = new ethers.Contract(diamondAddress, datasetArtifact.abi, founder);
   }
 
@@ -427,7 +384,7 @@ async function deployMarketplaceStack(rpcUrl, options = {}) {
     access,
     usdc,
     voiceAsset,
-    voiceTemplate,
+    voiceDataset,
     voiceDataset,
     payment,
     escrow,
@@ -447,7 +404,7 @@ module.exports = {
   advanceTime,
   deployMarketplaceStack,
   registerVoice,
-  createTemplate,
+
   createDataset,
   listAsset,
   purchaseAsset,

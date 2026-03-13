@@ -20,6 +20,7 @@ export function createAccessControlFacetWrapper(context: FacetWrapperContext) {
     isRoleActive: (...args: unknown[]) => invokeRead(context, "AccessControlFacet", "isRoleActive", args, false, 5),
     },
     write: {
+    configureRole: (...args: unknown[]) => invokeWrite(context, "AccessControlFacet", "configureRole", args),
     emergencyForceAdd: (...args: unknown[]) => invokeWrite(context, "AccessControlFacet", "emergencyForceAdd", args),
     executeFounderSunset: (...args: unknown[]) => invokeWrite(context, "AccessControlFacet", "executeFounderSunset", args),
     grantRole: (...args: unknown[]) => invokeWrite(context, "AccessControlFacet", "grantRole", args),

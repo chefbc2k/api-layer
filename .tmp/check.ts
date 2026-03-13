@@ -1,0 +1,1 @@
+import { Interface } from "ethers"; import fs from "fs"; const files = fs.readdirSync("abis/facets"); files.forEach(f => { try { const iface = new Interface(JSON.parse(fs.readFileSync(`abis/facets/${f}`, "utf8"))); Object.values(iface.errors).forEach(err => { if(err.selector === "0x6203af7c") console.log(`Matched: ${err.format()} in ${f}`); }); } catch (e) {} });

@@ -15,12 +15,14 @@ export function createEchoScoreFacetV3Wrapper(context: FacetWrapperContext) {
     isOracleHealthy: (...args: unknown[]) => invokeRead(context, "EchoScoreFacetV3", "isOracleHealthy", args, false, 5),
     },
     write: {
+    batchUpdateScores: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "batchUpdateScores", args),
     pauseEchoScoreV3: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "pauseEchoScoreV3", args),
     setEchoScoreOracleV3: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "setEchoScoreOracleV3", args),
     setOracleFutureDriftConfig: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "setOracleFutureDriftConfig", args),
     setOracleQuorumSigners: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "setOracleQuorumSigners", args),
     setOracleStalenessConfig: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "setOracleStalenessConfig", args),
     unpauseEchoScoreV3: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "unpauseEchoScoreV3", args),
+    updateScore: (...args: unknown[]) => invokeWrite(context, "EchoScoreFacetV3", "updateScore", args),
     },
     events: {
     OracleFutureDriftConfigUpdated: { query: (fromBlock?: bigint | number, toBlock?: bigint | number | "latest") => queryEvent(context, "EchoScoreFacetV3", "OracleFutureDriftConfigUpdated", fromBlock, toBlock) },

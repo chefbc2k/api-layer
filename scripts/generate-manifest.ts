@@ -8,9 +8,20 @@ type AbiInput = {
   type: string;
   name?: string;
   stateMutability?: string;
-  inputs?: Array<{ name?: string; type: string; indexed?: boolean }>;
+  inputs?: Array<{ name?: string; type: string; indexed?: boolean; components?: AbiInput[] }>;
   anonymous?: boolean;
+  components?: AbiInput[];
 };
+
+function canonicalType(input: { type: string; components?: AbiInput[] }): string {
+  if (input.type === "tuple" && input.components) {
+    return "(" + input.components.map(canonicalType).join(",") + ")";
+  }
+  if (input.type === "tuple[]" && input.components) {
+    return "(" + input.components.map(canonicalType).join(",") + ")[]";
+  }
+  return input.type;
+}
 
 type ManifestFunction = {
   name: string;
@@ -63,7 +74,7 @@ type DeploymentManifest = {
 const reviewedMethodPolicyPath = path.resolve("reviewed", "reviewed-method-policy.json");
 
 function signatureFor(entry: AbiInput): string {
-  const inputs = (entry.inputs ?? []).map((input) => input.type).join(",");
+  const inputs = (entry.inputs ?? []).map(canonicalType).join(",");
   return `${entry.name ?? "anonymous"}(${inputs})`;
 }
 
