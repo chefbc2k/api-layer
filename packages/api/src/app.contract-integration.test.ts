@@ -3260,7 +3260,6 @@ describeLive("HTTP API contract integration", () => {
       body: {
         title: `Workflow Dataset ${Date.now()}`,
         assetIds: [workflowAsset1, workflowAsset2],
-        licenseTemplateId: "0",
         metadataURI: `ipfs://workflow-dataset-${Date.now()}`,
         royaltyBps: "500",
         price: "1000",
@@ -3293,6 +3292,7 @@ describeLive("HTTP API contract integration", () => {
     expect(listingResponse.status).toBe(200);
     expect((listingResponse.payload as Record<string, unknown>).isActive).toBe(true);
     expect((createDatasetWorkflow.payload as Record<string, unknown>).tradeReadiness).toBe("listed-and-tradable");
+    expect((createDatasetWorkflow.payload as Record<string, unknown>).licenseTemplateId).toEqual(expect.any(String));
 
     const datasetWorkflowPayload = createDatasetWorkflow.payload as Record<string, unknown>;
     const datasetWorkflowWrite = datasetWorkflowPayload.dataset as Record<string, unknown>;

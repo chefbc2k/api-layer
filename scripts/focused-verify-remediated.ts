@@ -3,6 +3,8 @@ import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/c
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 import { Contract, JsonRpcProvider, Wallet, ethers } from "ethers";
 
+import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+
 type ApiCallOptions = {
   apiKey?: string;
   body?: unknown;
@@ -34,19 +36,6 @@ function extractTxHash(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") return null;
   const txHash = (payload as Record<string, unknown>).txHash;
   return typeof txHash === "string" ? txHash : null;
-}
-
-function omitTemplateIdentity(template: Record<string, unknown>): Record<string, unknown> {
-  const { creator: _creator, createdAt: _createdAt, updatedAt: _updatedAt, ...rest } = template;
-  return rest;
-}
-
-function payloadError(payload: unknown): string {
-  if (!payload || typeof payload !== "object") {
-    return String(payload);
-  }
-  const error = (payload as Record<string, unknown>).error;
-  return typeof error === "string" ? error : JSON.stringify(payload);
 }
 
 async function expectReceipt(provider: JsonRpcProvider, txHash: string) {
@@ -236,6 +225,49 @@ async function main() {
     );
     const datasetAssetIdA = String(await voiceAssetFacet.getTokenId(founderVoiceHashes.at(-1)!));
     const datasetAssetIdB = String(await voiceAssetFacet.getTokenId(founderVoiceHashes.at(-2)!));
+    const activeTemplate = await ensureActiveLicenseTemplate({
+      port,
+      provider,
+      apiCall,
+      creatorAddress: licensingOwner.address,
+      label: "Focused Dataset Template",
+      readApiKey: "read-key",
+      writeApiKey: "licensing-owner-key",
+    });
+    const createDatasetWorkflow = await apiCall(port, "POST", "/v1/workflows/create-dataset-and-list-for-sale", {
+      body: {
+        title: `Focused Workflow Dataset ${Date.now()}`,
+        assetIds: [datasetAssetIdA, datasetAssetIdB],
+        metadataURI: `ipfs://focused-workflow-dataset-${Date.now()}`,
+        royaltyBps: "500",
+        price: "1000",
+        duration: "0",
+      },
+    });
+    const workflowDatasetPayload = (createDatasetWorkflow.payload as Record<string, unknown> | null) ?? {};
+    const datasetReceipt = extractTxHash(workflowDatasetPayload.dataset)
+      ? await expectReceipt(provider, extractTxHash(workflowDatasetPayload.dataset)!)
+      : null;
+    const createdDatasetId = typeof workflowDatasetPayload.datasetId === "string"
+      ? workflowDatasetPayload.datasetId
+      : null;
+    const createdListing = createdDatasetId
+      ? await waitForValue(
+          () => apiCall(
+            port,
+            "GET",
+            `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(createdDatasetId)}`,
+            { apiKey: "read-key" },
+          ),
+          (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
+        )
+      : null;
+    results.datasetWorkflow = {
+      template: activeTemplate,
+      response: createDatasetWorkflow,
+      datasetReceipt,
+      listingRead: createdListing,
+    };
 
 
     // whisperblock + admin proof

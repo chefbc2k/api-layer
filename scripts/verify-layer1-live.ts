@@ -5,6 +5,8 @@ import { Contract, Interface, JsonRpcProvider, Wallet, ethers } from "ethers";
 import fs from "node:fs";
 import path from "node:path";
 
+import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+
 type ApiCallOptions = {
   apiKey?: string;
   body?: unknown;
@@ -123,15 +125,19 @@ async function main() {
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
   const founderKey = repoEnv.PRIVATE_KEY ?? "";
   const founder = founderKey ? new Wallet(founderKey, provider) : null;
+  const licensingOwnerKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? founderKey;
+  const licensingOwner = licensingOwnerKey ? new Wallet(licensingOwnerKey, provider) : founder;
   const licensee = Wallet.createRandom().connect(provider);
 
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
     "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+    "licensing-owner-key": { label: "licensing-owner", signerId: "licensingOwner", roles: ["service"], allowGasless: false },
     "licensee-key": { label: "licensee", signerId: "licensee", roles: ["service"], allowGasless: false },
   });
   process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
     founder: founderKey,
+    licensingOwner: licensingOwnerKey,
     licensee: licensee.privateKey,
   });
 
@@ -342,7 +348,7 @@ async function main() {
     {
       const domain: DomainResult = {
         routes: [],
-        actors: ["founder-key"],
+        actors: ["founder-key", "licensing-owner-key"],
         result: "deeper issue remains",
         evidence: {},
       };
@@ -388,25 +394,47 @@ async function main() {
         domain.evidence.tokenB = tokenB;
         const createDatasetEndpoint = endpointByKey(endpointRegistry, "VoiceDatasetFacet.createDataset");
         if (createDatasetEndpoint) domain.routes.push(`${createDatasetEndpoint.httpMethod} ${createDatasetEndpoint.path}`);
-        const datasetResp = createDatasetEndpoint
-          ? await apiCall(port, createDatasetEndpoint.httpMethod, createDatasetEndpoint.path, {
-            body: {
-              title: `Live Dataset ${Date.now()}`,
-              assetIds: [String(tokenA.payload), String(tokenB.payload)],
-              licenseTemplateId: "1",
-              metadataURI: `ipfs://dataset-meta-${Date.now()}`,
-              royaltyBps: "500",
+        try {
+          const activeTemplate = await ensureActiveLicenseTemplate({
+            port,
+            provider,
+            apiCall,
+            creatorAddress: licensingOwner?.address ?? actors.founder,
+            label: "Layer1 Dataset Template",
+            readApiKey: "read-key",
+            writeApiKey: "licensing-owner-key",
+            endpointRegistry,
+            buildPath,
+            onRoute: (route) => {
+              if (!domain.routes.includes(route)) {
+                domain.routes.push(route);
+              }
             },
-          })
-          : { status: 0, payload: "missing createDataset endpoint" };
-        domain.evidence.dataset = datasetResp;
+          });
+          domain.evidence.template = activeTemplate;
+          const datasetResp = createDatasetEndpoint
+            ? await apiCall(port, createDatasetEndpoint.httpMethod, createDatasetEndpoint.path, {
+              body: {
+                title: `Live Dataset ${Date.now()}`,
+                assetIds: [String(tokenA.payload), String(tokenB.payload)],
+                licenseTemplateId: activeTemplate.templateIdDecimal,
+                metadataURI: `ipfs://dataset-meta-${Date.now()}`,
+                royaltyBps: "500",
+              },
+            })
+            : { status: 0, payload: "missing createDataset endpoint" };
+          domain.evidence.dataset = datasetResp;
+        } catch (error) {
+          domain.evidence.templateError = error instanceof Error ? error.message : String(error);
+        }
       }
 
       const datasetStatus = (domain.evidence as Record<string, any>).dataset?.status;
       const datasetError = String((domain.evidence as Record<string, any>).dataset?.payload?.error || "");
+      const templateError = String((domain.evidence as Record<string, any>).templateError || "");
       if (datasetStatus === 202) {
         domain.result = "proven working";
-      } else if (datasetError.includes("InvalidLicenseTemplate")) {
+      } else if (datasetError.includes("InvalidLicenseTemplate") || templateError.length > 0) {
         domain.result = "blocked by setup/state";
       } else {
         domain.result = "deeper issue remains";

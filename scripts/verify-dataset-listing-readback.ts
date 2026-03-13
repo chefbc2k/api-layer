@@ -3,6 +3,8 @@ import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/c
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 import { Contract, JsonRpcProvider, Wallet } from "ethers";
 
+import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+
 type ApiCallOptions = {
   apiKey?: string;
   body?: unknown;
@@ -55,11 +57,6 @@ function listingToObject(value: unknown): Record<string, unknown> {
   };
 }
 
-function templateIsActive(value: unknown): boolean {
-  const tuple = value as ArrayLike<unknown>;
-  return tuple[1] === true;
-}
-
 async function waitForReceipt(provider: JsonRpcProvider, txHash: string, label: string) {
   for (let attempt = 0; attempt < 120; attempt += 1) {
     const receipt = await provider.getTransactionReceipt(txHash);
@@ -84,27 +81,6 @@ async function waitFor<T>(read: () => Promise<T>, accept: (value: T) => boolean,
   throw new Error(`timed out waiting for ${label}: ${JSON.stringify(normalize(lastValue))}`);
 }
 
-type ActiveTemplate = {
-  templateHashHex: string;
-  templateIdDecimal: string;
-};
-
-async function pickActiveTemplate(templateFacet: Contract, candidateCreators: string[]): Promise<ActiveTemplate> {
-  for (const creator of candidateCreators) {
-    const ids = Array.from(await templateFacet.getCreatorTemplates(creator), (entry: string) => entry).reverse();
-    for (const templateHashHex of ids) {
-      const template = await templateFacet.getTemplate(templateHashHex);
-      if (templateIsActive(template)) {
-        return {
-          templateHashHex,
-          templateIdDecimal: BigInt(templateHashHex).toString(),
-        };
-      }
-    }
-  }
-  throw new Error(`no active license template found for creators: ${candidateCreators.join(", ")}`);
-}
-
 async function main() {
   const repoEnv = loadRepoEnv();
   const config = readConfigFromEnv(repoEnv);
@@ -114,15 +90,17 @@ async function main() {
     throw new Error("PRIVATE_KEY is required");
   }
   const founder = new Wallet(founderKey, provider);
-  const oracle1 = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1, provider) : null;
-  const oracleWallet = repoEnv.ORACLE_WALLET_PRIVATE_KEY ? new Wallet(repoEnv.ORACLE_WALLET_PRIVATE_KEY, provider) : null;
+  const licensingOwnerKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? founderKey;
+  const licensingOwner = new Wallet(licensingOwnerKey, provider);
 
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
     "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+    "licensing-owner-key": { label: "licensing-owner", signerId: "licensingOwner", roles: ["service"], allowGasless: false },
   });
   process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
     founder: founder.privateKey,
+    licensingOwner: licensingOwner.privateKey,
   });
 
   const server = createApiServer({ port: 0 }).listen();
@@ -130,16 +108,20 @@ async function main() {
   const port = typeof address === "object" && address ? address.port : 8787;
 
   const diamond = config.diamondAddress;
-  const templateFacet = new Contract(diamond, facetRegistry.VoiceLicenseTemplateFacet.abi, provider);
   const voiceAssetFacet = new Contract(diamond, facetRegistry.VoiceAssetFacet.abi, provider);
   const datasetFacet = new Contract(diamond, facetRegistry.VoiceDatasetFacet.abi, provider);
   const marketplaceFacet = new Contract(diamond, facetRegistry.MarketplaceFacet.abi, provider);
 
   try {
-    const activeTemplate = await pickActiveTemplate(
-      templateFacet,
-      [founder.address, oracle1?.address, oracleWallet?.address].filter((value): value is string => Boolean(value)),
-    );
+    const activeTemplate = await ensureActiveLicenseTemplate({
+      port,
+      provider,
+      apiCall,
+      creatorAddress: licensingOwner.address,
+      label: "Dataset Readback Template",
+      readApiKey: "read-key",
+      writeApiKey: "licensing-owner-key",
+    });
 
     const voiceHashes: string[] = [];
     const assetIds: string[] = [];

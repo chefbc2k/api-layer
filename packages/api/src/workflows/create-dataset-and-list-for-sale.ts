@@ -5,12 +5,13 @@ import type { ApiExecutionContext } from "../shared/execution-context.js";
 import { createDatasetsPrimitiveService } from "../modules/datasets/primitives/generated/index.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
 import { createVoiceAssetsPrimitiveService } from "../modules/voice-assets/primitives/generated/index.js";
+import { resolveDatasetLicenseTemplate } from "./license-template.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
 export const createDatasetAndListForSaleSchema = z.object({
   title: z.string(),
   assetIds: z.array(z.string().regex(/^\d+$/u)),
-  licenseTemplateId: z.string().regex(/^\d+$/u),
+  licenseTemplateId: z.string().regex(/^\d+$/u).optional(),
   metadataURI: z.string(),
   royaltyBps: z.string().regex(/^\d+$/u),
   price: z.string().regex(/^\d+$/u),
@@ -39,6 +40,13 @@ export async function runCreateDatasetAndListForSaleWorkflow(
           return new Wallet(privateKey, provider).getAddress();
         },
       );
+  const licenseTemplate = await resolveDatasetLicenseTemplate(
+    context,
+    auth,
+    walletAddress,
+    signerAddress,
+    body.licenseTemplateId,
+  );
   const datasetsBefore = await datasets.getDatasetsByCreator({
     auth,
     api: { executionSource: "auto", gaslessMode: "none" },
@@ -52,7 +60,7 @@ export async function runCreateDatasetAndListForSaleWorkflow(
     auth,
     api: { executionSource: "auto", gaslessMode: "none" },
     walletAddress,
-    wireParams: [body.title, body.assetIds, body.licenseTemplateId, body.metadataURI, body.royaltyBps],
+    wireParams: [body.title, body.assetIds, licenseTemplate.templateId, body.metadataURI, body.royaltyBps],
   });
   await waitForWorkflowWriteReceipt(context, dataset.body, "createDatasetAndListForSale.dataset");
   let datasetId: string | null = null;
@@ -140,6 +148,9 @@ export async function runCreateDatasetAndListForSaleWorkflow(
   return {
     dataset: dataset.body,
     datasetRead: datasetRead?.body ?? null,
+    licenseTemplateId: licenseTemplate.templateId,
+    licenseTemplateHash: licenseTemplate.templateHash,
+    licenseTemplateCreated: licenseTemplate.created,
     owner: ownerRead?.body ?? null,
     approval: approval?.body ?? null,
     listing: listing?.body ?? null,
