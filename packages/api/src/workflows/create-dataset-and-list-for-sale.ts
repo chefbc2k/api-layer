@@ -2,6 +2,7 @@ import { Wallet } from "ethers";
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
+import type { RouteResult } from "../shared/route-types.js";
 import { createDatasetsPrimitiveService } from "../modules/datasets/primitives/generated/index.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
 import { createVoiceAssetsPrimitiveService } from "../modules/voice-assets/primitives/generated/index.js";
@@ -62,80 +63,72 @@ export async function runCreateDatasetAndListForSaleWorkflow(
     walletAddress,
     wireParams: [body.title, body.assetIds, licenseTemplate.templateId, body.metadataURI, body.royaltyBps],
   });
-  await waitForWorkflowWriteReceipt(context, dataset.body, "createDatasetAndListForSale.dataset");
-  let datasetId: string | null = null;
-  for (let attempt = 0; attempt < 40; attempt += 1) {
-    const datasetsAfter = await datasets.getDatasetsByCreator({
+  const datasetTxHash = await waitForWorkflowWriteReceipt(context, dataset.body, "createDatasetAndListForSale.dataset");
+  const datasetId = await waitForCreatedDatasetId(datasets, auth, walletAddress, signerAddress, beforeIds);
+  const datasetRead = await waitForWorkflowReadback(
+    () => datasets.getDataset({
       auth,
-      api: { executionSource: "auto", gaslessMode: "none" },
+      api: { executionSource: "live", gaslessMode: "none" },
       walletAddress,
-      wireParams: [signerAddress],
-    });
-    datasetId = Array.isArray(datasetsAfter.body)
-      ? datasetsAfter.body
-          .map((entry) => String(entry))
-          .find((entry) => !beforeIds.has(entry)) ?? null
-      : null;
-    if (datasetId) {
-      break;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-  if (!datasetId) {
-    throw new Error("create-dataset-and-list-for-sale could not resolve the created dataset id from creator state");
-  }
-  const datasetRead = datasetId
-    ? await datasets.getDataset({
-        auth,
-        api: { executionSource: "auto", gaslessMode: "none" },
-        walletAddress,
-        wireParams: [datasetId],
-      })
-    : null;
-  const ownerRead = datasetId
-    ? await voiceAssets.ownerOf({
-        auth,
-        api: { executionSource: "auto", gaslessMode: "none" },
-        walletAddress,
-        wireParams: [datasetId],
-      })
-    : null;
+      wireParams: [datasetId],
+    }),
+    (result) => result.statusCode === 200,
+    "createDatasetAndListForSale.datasetRead",
+  );
+  const ownerRead = await waitForWorkflowReadback(
+    () => voiceAssets.ownerOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [datasetId],
+    }),
+    (result) => result.statusCode === 200 && typeof result.body === "string",
+    "createDatasetAndListForSale.ownerOf",
+  );
   if (ownerRead?.body && typeof ownerRead.body === "string" && ownerRead.body.toLowerCase() !== signerAddress.toLowerCase()) {
     throw new Error(`dataset ${datasetId} is owned by ${ownerRead.body}, expected signer ${signerAddress}`);
   }
   const diamondAddress = context.addressBook.toJSON().diamond;
-  const approvedForAll = datasetId
-    ? await voiceAssets.isApprovedForAll({
-        auth,
-        api: { executionSource: "auto", gaslessMode: "none" },
-        walletAddress,
-        wireParams: [signerAddress, diamondAddress],
-      })
-    : null;
-  let approval: import("../shared/route-types.js").RouteResult | null = null;
-  if (approvedForAll?.body !== true) {
+  const approvedForAll = await waitForWorkflowReadback(
+    () => voiceAssets.isApprovedForAll({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [signerAddress, diamondAddress],
+    }),
+    (result) => result.statusCode === 200,
+    "createDatasetAndListForSale.initialApprovalRead",
+  );
+  let approval: RouteResult | null = null;
+  let approvalTxHash: string | null = null;
+  let approvalRead = approvedForAll;
+  if (approvedForAll.body !== true) {
     approval = await voiceAssets.setApprovalForAll({
       auth,
       api: { executionSource: "auto", gaslessMode: "none" },
       walletAddress,
       wireParams: [diamondAddress, true],
     });
-    await waitForWorkflowWriteReceipt(context, approval.body, "createDatasetAndListForSale.approval");
-  }
-  const listing = datasetId
-    ? await marketplace.listAsset({
+    approvalTxHash = await waitForWorkflowWriteReceipt(context, approval.body, "createDatasetAndListForSale.approval");
+    approvalRead = await waitForWorkflowReadback(
+      () => voiceAssets.isApprovedForAll({
         auth,
-        api: { executionSource: "auto", gaslessMode: "none" },
+        api: { executionSource: "live", gaslessMode: "none" },
         walletAddress,
-        wireParams: [datasetId, body.price, body.duration],
-      })
-    : null;
-  if (listing) {
-    await waitForWorkflowWriteReceipt(context, listing.body, "createDatasetAndListForSale.listing");
+        wireParams: [signerAddress, diamondAddress],
+      }),
+      (result) => result.statusCode === 200 && result.body === true,
+      "createDatasetAndListForSale.approvalRead",
+    );
   }
-  const listingRead = datasetId
-    ? await readListingWithStabilization(marketplace, auth, walletAddress, datasetId)
-    : null;
+  const listing = await marketplace.listAsset({
+    auth,
+    api: { executionSource: "auto", gaslessMode: "none" },
+    walletAddress,
+    wireParams: [datasetId, body.price, body.duration],
+  });
+  const listingTxHash = await waitForWorkflowWriteReceipt(context, listing.body, "createDatasetAndListForSale.listing");
+  const listingRead = await readListingWithStabilization(marketplace, auth, walletAddress, datasetId);
   const datasetRecord = asRecord(datasetRead?.body);
   const listingRecord = asRecord(listingRead?.body);
   const datasetActive = readBoolean(datasetRecord, "active");
@@ -146,17 +139,44 @@ export async function runCreateDatasetAndListForSaleWorkflow(
       ? "listed-and-tradable"
       : "listed-but-trading-locked-until-dataset-reactivated";
   return {
-    dataset: dataset.body,
-    datasetRead: datasetRead?.body ?? null,
-    licenseTemplateId: licenseTemplate.templateId,
-    licenseTemplateHash: licenseTemplate.templateHash,
-    licenseTemplateCreated: licenseTemplate.created,
-    owner: ownerRead?.body ?? null,
-    approval: approval?.body ?? null,
-    listing: listing?.body ?? null,
-    listingRead: listingRead?.body ?? null,
-    datasetId,
-    tradeReadiness,
+    licenseTemplate: {
+      source: licenseTemplate.source,
+      templateId: licenseTemplate.templateId,
+      templateHash: licenseTemplate.templateHash,
+      created: licenseTemplate.created,
+      template: licenseTemplate.template,
+    },
+    dataset: {
+      submission: dataset.body,
+      txHash: datasetTxHash,
+      datasetId,
+      read: datasetRead.body,
+    },
+    ownership: {
+      owner: ownerRead.body,
+      approval: {
+        submission: approval?.body ?? null,
+        txHash: approvalTxHash,
+        approvedForAll: approvalRead.body,
+      },
+    },
+    listing: {
+      submission: listing.body,
+      txHash: listingTxHash,
+      read: listingRead?.body ?? null,
+      listingState: {
+        isActive: listingActive,
+        datasetActive,
+      },
+      tradeReadiness,
+    },
+    summary: {
+      signerAddress,
+      datasetId,
+      listingActive,
+      datasetActive,
+      tradeReadiness,
+    },
   };
 }
 
@@ -201,4 +221,49 @@ async function readListingWithStabilization(
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
   return lastRead;
+}
+
+async function waitForCreatedDatasetId(
+  datasets: ReturnType<typeof createDatasetsPrimitiveService>,
+  auth: import("../shared/auth.js").AuthContext,
+  walletAddress: string | undefined,
+  signerAddress: string,
+  beforeIds: Set<string>,
+): Promise<string> {
+  let datasetId: string | null = null;
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const datasetsAfter = await datasets.getDatasetsByCreator({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [signerAddress],
+    });
+    datasetId = Array.isArray(datasetsAfter.body)
+      ? datasetsAfter.body
+          .map((entry) => String(entry))
+          .find((entry) => !beforeIds.has(entry)) ?? null
+      : null;
+    if (datasetId) {
+      return datasetId;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error("create-dataset-and-list-for-sale could not resolve the created dataset id from creator state");
+}
+
+async function waitForWorkflowReadback(
+  read: () => Promise<RouteResult>,
+  ready: (result: RouteResult) => boolean,
+  label: string,
+) {
+  let lastResult: RouteResult | null = null;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const result = await read();
+    lastResult = result;
+    if (ready(result)) {
+      return result;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`${label} readback timeout: ${JSON.stringify(lastResult?.body ?? null)}`);
 }

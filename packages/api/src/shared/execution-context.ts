@@ -187,6 +187,21 @@ function alchemySummary(context: ApiExecutionContext): Record<string, unknown> {
   };
 }
 
+export async function resolveBufferedGasLimit(
+  provider: Pick<Provider, "estimateGas">,
+  responseTemplate: TransactionRequest,
+  signerAddress: string,
+): Promise<bigint> {
+  const baseGasLimit =
+    responseTemplate.gasLimit ??
+    await provider.estimateGas({
+      ...responseTemplate,
+      from: signerAddress,
+    });
+  // Give live writes headroom over node estimates to avoid silent status=0 receipts.
+  return baseGasLimit + (baseGasLimit / 5n) + 50_000n;
+}
+
 async function prepareWriteInvocationOnProvider(
   context: ApiExecutionContext,
   definition: HttpMethodDefinition,
@@ -333,21 +348,10 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
         }
       }
 
-      const resolveBufferedGasLimit = async () => {
-        const baseGasLimit =
-          prepared.responseTemplate.gasLimit ??
-          await provider.estimateGas({
-            ...prepared.responseTemplate,
-            from: prepared.signerAddress,
-          });
-        // Give live writes headroom over node estimates to avoid silent status=0 receipts.
-        return baseGasLimit + (baseGasLimit / 5n) + 50_000n;
-      };
-
       const submit = async (forcedNonce?: number) => {
         const chainNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
         const nextNonce = forcedNonce ?? Math.max(chainNonce, context.signerNonces.get(prepared.queueKey) ?? 0);
-        const gasLimit = await resolveBufferedGasLimit();
+        const gasLimit = await resolveBufferedGasLimit(provider, prepared.responseTemplate, prepared.signerAddress);
         const response = await prepared.signer.sendTransaction({
           ...prepared.responseTemplate,
           gasLimit,

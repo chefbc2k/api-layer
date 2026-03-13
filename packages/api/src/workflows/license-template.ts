@@ -11,6 +11,8 @@ export type ResolvedLicenseTemplate = {
   templateHash: string;
   templateId: string;
   created: boolean;
+  source: "requested" | "existing-active" | "created";
+  template: unknown;
 };
 
 export async function resolveDatasetLicenseTemplate(
@@ -20,21 +22,33 @@ export async function resolveDatasetLicenseTemplate(
   creatorAddress: string,
   requestedTemplateId?: string,
 ): Promise<ResolvedLicenseTemplate> {
+  const licensing = createLicensingPrimitiveService(context);
   if (requestedTemplateId) {
+    const templateHash = decimalTemplateIdToHash(requestedTemplateId);
+    const template = await waitForTemplateReadback(
+      licensing,
+      auth,
+      walletAddress,
+      templateHash,
+      "licenseTemplate.requested",
+    );
     return {
-      templateHash: decimalTemplateIdToHash(requestedTemplateId),
+      templateHash,
       templateId: requestedTemplateId,
       created: false,
+      source: "requested",
+      template: template.body,
     };
   }
 
-  const licensing = createLicensingPrimitiveService(context);
-  const activeTemplateHash = await findActiveTemplateHash(licensing, auth, walletAddress, creatorAddress);
-  if (activeTemplateHash) {
+  const activeTemplate = await findActiveTemplate(licensing, auth, walletAddress, creatorAddress);
+  if (activeTemplate) {
     return {
-      templateHash: activeTemplateHash,
-      templateId: templateHashToDecimal(activeTemplateHash),
+      templateHash: activeTemplate.templateHash,
+      templateId: templateHashToDecimal(activeTemplate.templateHash),
       created: false,
+      source: "existing-active",
+      template: activeTemplate.template.body,
     };
   }
 
@@ -50,20 +64,29 @@ export async function resolveDatasetLicenseTemplate(
   if (!templateHash) {
     throw new Error("license template creation did not return a template hash");
   }
+  const template = await waitForTemplateReadback(
+    licensing,
+    auth,
+    walletAddress,
+    templateHash,
+    "licenseTemplate.created",
+  );
 
   return {
     templateHash,
     templateId: templateHashToDecimal(templateHash),
     created: true,
+    source: "created",
+    template: template.body,
   };
 }
 
-async function findActiveTemplateHash(
+async function findActiveTemplate(
   licensing: ReturnType<typeof createLicensingPrimitiveService>,
   auth: AuthContext,
   walletAddress: string | undefined,
   creatorAddress: string,
-): Promise<string | null> {
+): Promise<{ templateHash: string; template: { statusCode: number; body: unknown } } | null> {
   const creatorTemplates = await licensing.getCreatorTemplates({
     auth,
     api: { executionSource: "live", gaslessMode: "none" },
@@ -82,11 +105,34 @@ async function findActiveTemplateHash(
       wireParams: [templateHash],
     });
     if ((template.body as Record<string, unknown> | null)?.isActive === true) {
-      return templateHash;
+      return { templateHash, template };
     }
   }
 
   return null;
+}
+
+async function waitForTemplateReadback(
+  licensing: ReturnType<typeof createLicensingPrimitiveService>,
+  auth: AuthContext,
+  walletAddress: string | undefined,
+  templateHash: string,
+  label: string,
+) {
+  let lastRead: { statusCode: number; body: unknown } | null = null;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    lastRead = await licensing.getTemplate({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [templateHash],
+    });
+    if (lastRead.statusCode === 200) {
+      return lastRead;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`${label} template readback timeout: ${JSON.stringify(lastRead?.body ?? null)}`);
 }
 
 function buildDefaultTemplate() {
