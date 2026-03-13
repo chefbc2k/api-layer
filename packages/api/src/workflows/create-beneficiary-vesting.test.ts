@@ -41,36 +41,20 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
         }),
       getStandardVestingSchedule: vi.fn()
         .mockImplementationOnce(async () => {
-          sequence.push("schedule-before");
-          return { statusCode: 200, body: {} };
-        })
-        .mockImplementationOnce(async () => {
           sequence.push("schedule-after");
           return { statusCode: 200, body: { totalAmount: "1000", revoked: false, releasedAmount: "0" } };
         }),
       getVestingDetails: vi.fn()
-        .mockImplementationOnce(async () => {
-          sequence.push("details-before");
-          return { statusCode: 200, body: {} };
-        })
         .mockImplementationOnce(async () => {
           sequence.push("details-after");
           return { statusCode: 200, body: { totalAmount: "1000", revoked: false, releasedAmount: "0" } };
         }),
       getVestingReleasableAmount: vi.fn()
         .mockImplementationOnce(async () => {
-          sequence.push("releasable-before");
-          return { statusCode: 200, body: "0" };
-        })
-        .mockImplementationOnce(async () => {
           sequence.push("releasable-after");
           return { statusCode: 200, body: "0" };
         }),
       getVestingTotalAmount: vi.fn()
-        .mockImplementationOnce(async () => {
-          sequence.push("totals-before");
-          return { statusCode: 200, body: { totalVested: "0", totalReleased: "0", releasable: "0" } };
-        })
         .mockImplementationOnce(async () => {
           sequence.push("totals-after");
           return { statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } };
@@ -109,10 +93,6 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
 
     expect(sequence).toEqual([
       "exists-before",
-      "schedule-before",
-      "details-before",
-      "releasable-before",
-      "totals-before",
       "create-founder",
       "receipt:workflow.createBeneficiaryVesting.create.receipt",
       "created-events",
@@ -128,6 +108,13 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
       eventCount: 1,
       scheduleKind: "founder",
     });
+    expect(result.vesting.before).toEqual({
+      exists: false,
+      schedule: null,
+      details: null,
+      releasable: "0",
+      totals: { totalVested: "0", totalReleased: "0", releasable: "0" },
+    });
     expect(result.vesting.after.exists).toBe(true);
   });
 
@@ -137,16 +124,12 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
         .mockResolvedValueOnce({ statusCode: 200, body: false })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
       getStandardVestingSchedule: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: {} })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "2000", revoked: false } }),
       getVestingDetails: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: {} })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "2000", revoked: false } }),
       getVestingReleasableAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
         .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
       getVestingTotalAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "0", totalReleased: "0", releasable: "0" } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "2000", totalReleased: "0", releasable: "0" } }),
       createTeamVesting: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xteam" } }),
       vestingScheduleCreatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xteam-receipt" }]),
@@ -179,16 +162,12 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
         .mockResolvedValueOnce({ statusCode: 200, body: false })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
       getStandardVestingSchedule: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: null })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "3000", revoked: false } }),
       getVestingDetails: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: null })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "3000", revoked: false } }),
       getVestingReleasableAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
         .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
       getVestingTotalAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: [0, 0, 0] })
         .mockResolvedValueOnce({ statusCode: 200, body: [3000, 0, 0] }),
       createCexVesting: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xcex" } }),
       vestingScheduleCreatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xcex-receipt" }]),
@@ -212,5 +191,30 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
     });
 
     expect(result.create.txHash).toBe("0xcex-receipt");
+  });
+
+  it("normalizes vesting-manager authority failures into a workflow state block", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getStandardVestingSchedule: vi.fn(),
+      getVestingDetails: vi.fn(),
+      getVestingReleasableAmount: vi.fn(),
+      getVestingTotalAmount: vi.fn(),
+      createFounderVesting: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xa2880f97\"")),
+      vestingScheduleCreatedEventQuery: vi.fn(),
+      createCexVesting: vi.fn(),
+      createDevFundVesting: vi.fn(),
+      createPublicVesting: vi.fn(),
+      createTeamVesting: vi.fn(),
+    });
+
+    await expect(runCreateBeneficiaryVestingWorkflow({} as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000ee",
+      amount: "1000",
+      scheduleKind: "founder",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("VESTING_MANAGER_ROLE"),
+    });
   });
 });

@@ -87,11 +87,13 @@ describe("reward campaign helpers", () => {
     let eventAttempts = 0;
     await expect(waitForWorkflowEventQuery(async () => {
       eventAttempts += 1;
-      return eventAttempts < 2 ? [] : [{ transactionHash: "0xok" }];
+      return eventAttempts < 2
+        ? { statusCode: 200, body: [] }
+        : { statusCode: 200, body: [{ transactionHash: "0xok" }] };
     }, (logs) => hasTransactionHash(logs, "0xok"), "rewardTest.event")).resolves.toEqual([{ transactionHash: "0xok" }]);
 
     await expect(waitForWorkflowReadback(async () => ({ statusCode: 200, body: "stuck" }), () => false, "rewardTest.readbackFail")).rejects.toThrow("rewardTest.readbackFail readback timeout");
-    await expect(waitForWorkflowEventQuery(async () => [], () => false, "rewardTest.eventFail")).rejects.toThrow("rewardTest.eventFail event query timeout");
+    await expect(waitForWorkflowEventQuery(async () => ({ statusCode: 200, body: [] }), () => false, "rewardTest.eventFail")).rejects.toThrow("rewardTest.eventFail event query timeout");
 
     expect(setTimeoutSpy).toHaveBeenCalled();
     setTimeoutSpy.mockRestore();

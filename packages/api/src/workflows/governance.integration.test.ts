@@ -51,7 +51,10 @@ describe("governance workflow routes", () => {
       proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
       prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
       proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
-      proposalCreatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xproposal-receipt" }]),
+      proposalCreatedEventQuery: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [{ transactionHash: "0xproposal-receipt" }],
+      }),
       prCastVote: vi.fn(),
       getReceipt: vi.fn(),
       voteCastEventQuery: vi.fn(),
@@ -162,7 +165,10 @@ describe("governance workflow routes", () => {
         statusCode: 200,
         body: { hasVoted: true, support: "1", reason: "router vote", votes: "8" },
       }),
-      voteCastEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xvote-receipt" }]),
+      voteCastEventQuery: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [{ transactionHash: "0xvote-receipt" }],
+      }),
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xvote-receipt");
 

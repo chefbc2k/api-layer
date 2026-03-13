@@ -201,4 +201,68 @@ describe("marketplace purchase workflow routes", () => {
 
     expect(response.statusCode).toBe(400);
   });
+
+  it("returns a state-blocked response when purchase simulation reports AssetTooNew", async () => {
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getListing: vi.fn().mockResolvedValue({ statusCode: 200, body: { tokenId: "11", seller: "0x00000000000000000000000000000000000000aa", price: "25000000", isActive: true } }),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getAssetRevenue: vi.fn().mockResolvedValue({ statusCode: 200, body: { grossRevenue: "0" } }),
+      getRevenueMetrics: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalVolume: "100" } }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "10" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "20" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "30" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "40" }),
+      purchaseAsset: vi.fn().mockRejectedValue({
+        message: "execution reverted",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "execution reverted: 0x0d9482a2000000000000000000000000000000000000000000000000000000000000000b",
+            },
+          },
+        },
+      }),
+      assetPurchasedEventQuery: vi.fn(),
+      paymentDistributedEventQuery: vi.fn(),
+      assetReleasedEventQuery: vi.fn(),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+      withdrawPayments: vi.fn(),
+      withdrawPaymentsWithDeadline: vi.fn(),
+    });
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x0000000000000000000000000000000000000ddd" }),
+    });
+
+    const router = createWorkflowRouter({
+      apiKeys: { "test-key": { apiKey: "test-key", label: "test", roles: ["service"], allowGasless: false } },
+      providerRouter: { withProvider: vi.fn() },
+    } as never);
+    const layer = router.stack.find((entry) => entry.route?.path === "/v1/workflows/purchase-marketplace-asset");
+    const handler = layer?.route?.stack?.[0]?.handle;
+    const request = {
+      body: { tokenId: "11" },
+      header(name: string) {
+        if (name.toLowerCase() === "x-api-key") return "test-key";
+        if (name.toLowerCase() === "x-wallet-address") return "0x00000000000000000000000000000000000000bb";
+        return undefined;
+      },
+    };
+    const response = { statusCode: 200, payload: undefined as unknown, status(code: number) { this.statusCode = code; return this; }, json(payload: unknown) { this.payload = payload; return this; } };
+
+    await handler(request, response);
+
+    expect(response.statusCode).toBe(409);
+    expect(response.payload).toMatchObject({
+      error: "purchase-marketplace-asset blocked by asset age: token 11 is still within the contract's 1 day trading lock",
+    });
+  });
 });

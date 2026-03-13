@@ -283,6 +283,71 @@ describe("reward campaign workflow routes", () => {
     });
   });
 
+  it("returns a 409 when claim-reward-campaign is blocked by missing campaign funding", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      claim: vi.fn().mockRejectedValue({
+        message: "execution reverted: InsufficientCampaignFunding(uint256,uint256)",
+        diagnostics: { cause: "execution reverted: InsufficientCampaignFunding(uint256,uint256)" },
+      }),
+      claimedEventQuery: vi.fn(),
+    });
+
+    const router = createWorkflowRouter({
+      apiKeys: {
+        "test-key": {
+          apiKey: "test-key",
+          label: "test",
+          roles: ["service"],
+          allowGasless: false,
+        },
+      },
+    } as never);
+    const layer = router.stack.find((entry) => entry.route?.path === "/v1/workflows/claim-reward-campaign");
+    const handler = layer?.route?.stack?.[0]?.handle;
+
+    const request = {
+      body: {
+        campaignId: "5",
+        totalAllocation: "2",
+        proof: [],
+      },
+      header(name: string) {
+        if (name.toLowerCase() === "x-api-key") {
+          return "test-key";
+        }
+        if (name.toLowerCase() === "x-wallet-address") {
+          return "0x00000000000000000000000000000000000000aa";
+        }
+        return undefined;
+      },
+    };
+    const response = {
+      statusCode: 200,
+      payload: undefined as unknown,
+      status(code: number) {
+        this.statusCode = code;
+        return this;
+      },
+      json(payload: unknown) {
+        this.payload = payload;
+        return this;
+      },
+    };
+
+    await handler(request, response);
+
+    expect(response.statusCode).toBe(409);
+    expect(response.payload).toEqual({
+      error: "claim-reward-campaign blocked by setup/state: campaign has no token funding",
+      diagnostics: {
+        cause: "execution reverted: InsufficientCampaignFunding(uint256,uint256)",
+      },
+    });
+  });
+
   it("rejects invalid manage-reward-campaign input before invoking primitives", async () => {
     const router = createWorkflowRouter({
       apiKeys: {

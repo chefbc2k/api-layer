@@ -13,6 +13,7 @@ import {
   waitForWorkflowEventQuery,
   waitForWorkflowReadback,
   hasTransactionHash,
+  normalizeReleaseVestingExecutionError,
 } from "./vesting-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
@@ -32,19 +33,22 @@ export async function runReleaseBeneficiaryVestingWorkflow(
   const releasedBefore = getReleasedAmount(before.schedule.body);
   const releasableBefore = readBigInt(before.releasable.body);
 
-  const release = body.mode === "self"
-    ? await tokenomics.releaseStandardVesting({
+  const releaseOperation = body.mode === "self"
+    ? tokenomics.releaseStandardVesting({
         auth,
         api: { executionSource: "auto", gaslessMode: "none" },
         walletAddress,
         wireParams: [],
       })
-    : await tokenomics.releaseStandardVestingFor({
+    : tokenomics.releaseStandardVestingFor({
         auth,
         api: { executionSource: "auto", gaslessMode: "none" },
         walletAddress,
         wireParams: [body.beneficiary],
       });
+  const release = await releaseOperation.catch((error: unknown) => {
+    throw normalizeReleaseVestingExecutionError(error);
+  });
   const releaseTxHash = await waitForWorkflowWriteReceipt(context, release.body, `releaseBeneficiaryVesting.${body.mode}`);
   const releaseReceipt = releaseTxHash ? await readWorkflowReceipt(context, releaseTxHash, `releaseBeneficiaryVesting.${body.mode}`) : null;
   const releaseEvents = releaseReceipt
@@ -59,7 +63,7 @@ export async function runReleaseBeneficiaryVestingWorkflow(
       )
     : [];
 
-  const releasedNow = extractReleasedAmount(release.body) ?? extractReleasedAmountFromLogs(releaseEvents, releaseTxHash);
+  const releasedNow = extractReleasedAmountFromLogs(releaseEvents, releaseTxHash) ?? extractReleasedAmount(release.body);
   const releasedNowValue = releasedNow === null ? null : readBigInt(releasedNow);
 
   const after = await waitForWorkflowReadback(

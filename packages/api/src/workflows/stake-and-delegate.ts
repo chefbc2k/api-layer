@@ -2,6 +2,7 @@ import { Wallet } from "ethers";
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
+import { HttpError } from "../shared/errors.js";
 import type { RouteResult } from "../shared/route-types.js";
 import { createStakingPrimitiveService } from "../modules/staking/primitives/generated/index.js";
 import { createTokenomicsPrimitiveService } from "../modules/tokenomics/primitives/generated/index.js";
@@ -66,6 +67,8 @@ export async function runStakeAndDelegateWorkflow(
     api: { executionSource: "auto", gaslessMode: "none" },
     walletAddress,
     wireParams: [body.amount],
+  }).catch((error: unknown) => {
+    throw normalizeStakeExecutionError(error, body.amount);
   });
   const stakeTxHash = await waitForWorkflowWriteReceipt(context, stake.body, "stakeAndDelegate.stake");
   const stakeReceipt = stakeTxHash ? await readWorkflowReceipt(context, stakeTxHash, "stakeAndDelegate.stake") : null;
@@ -176,6 +179,94 @@ export async function runStakeAndDelegateWorkflow(
   };
 }
 
+function normalizeStakeExecutionError(error: unknown, amount: string): unknown {
+  const text = collectErrorText(error).toLowerCase();
+  if (text.includes("echoscoretoolow") || text.includes("0xbf5d1cac")) {
+    const args = extractUint256Words(text);
+    const actual = args[0] ?? "unknown";
+    const minimum = args[1] ?? "unknown";
+    return new HttpError(
+      409,
+      `stake-and-delegate blocked by stake rule violation: EchoScore too low (${actual} < ${minimum})`,
+      extractDiagnostics(error),
+    );
+  }
+  if (text.includes("belowminimumstake") || text.includes("0x06a35408")) {
+    const args = extractUint256Words(text);
+    const attempted = args[0] ?? amount;
+    const minimum = args[1] ?? "unknown";
+    return new HttpError(
+      409,
+      `stake-and-delegate blocked by stake rule violation: amount ${attempted} is below minimum stake ${minimum}`,
+      extractDiagnostics(error),
+    );
+  }
+  if (text.includes("exceedsmaximumstake") || text.includes("0x3265e09b")) {
+    const args = extractUint256Words(text);
+    const attempted = args[0] ?? amount;
+    const maximum = args[1] ?? "unknown";
+    return new HttpError(
+      409,
+      `stake-and-delegate blocked by degraded-mode cap or maximum stake rule: ${attempted} exceeds ${maximum}`,
+      extractDiagnostics(error),
+    );
+  }
+  if (text.includes("stakingpaused") || text.includes("0x26d1807b")) {
+    return new HttpError(409, "stake-and-delegate requires staking to be unpaused", extractDiagnostics(error));
+  }
+  if (text.includes("zerostakeamount") || text.includes("0xf69a94d3")) {
+    return new HttpError(409, "stake-and-delegate requires a non-zero amount", extractDiagnostics(error));
+  }
+  return error;
+}
+
+function collectErrorText(error: unknown): string {
+  const parts = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+      parts.add(String(value));
+      return;
+    }
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      visit(nested);
+    }
+  };
+  visit((error as { message?: unknown })?.message ?? error);
+  visit((error as { diagnostics?: unknown })?.diagnostics);
+  return Array.from(parts).join(" ");
+}
+
+function extractDiagnostics(error: unknown): unknown {
+  return (error as { diagnostics?: unknown })?.diagnostics;
+}
+
+function extractUint256Words(text: string): string[] {
+  const blobs = text.match(/0x[0-9a-f]+/g) ?? [];
+  for (const blob of blobs) {
+    const hex = blob.slice(2);
+    if (hex.length < 8 + 64) {
+      continue;
+    }
+    const payload = hex.slice(8);
+    const words: string[] = [];
+    for (let index = 0; index + 64 <= payload.length; index += 64) {
+      const word = payload.slice(index, index + 64);
+      try {
+        words.push(BigInt(`0x${word}`).toString());
+      } catch {
+        break;
+      }
+    }
+    if (words.length > 0) {
+      return words;
+    }
+  }
+  return [];
+}
+
 async function readStakeInfo(
   staking: ReturnType<typeof createStakingPrimitiveService>,
   auth: import("../shared/auth.js").AuthContext,
@@ -270,13 +361,13 @@ async function waitForWorkflowReadback(
 }
 
 async function waitForWorkflowEventQuery(
-  read: () => Promise<unknown[]>,
+  read: () => Promise<unknown[] | RouteResult>,
   ready: (logs: unknown[]) => boolean,
   label: string,
 ) {
   let lastLogs: unknown[] = [];
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    const logs = await read();
+    const logs = normalizeEventLogs(await read());
     lastLogs = logs;
     if (ready(logs)) {
       return logs;
@@ -295,6 +386,14 @@ function hasTransactionHash(logs: unknown[], txHash: string | null): boolean {
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? value as Record<string, unknown> : null;
+}
+
+function normalizeEventLogs(value: unknown[] | RouteResult): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  const record = asRecord(value);
+  return Array.isArray(record?.body) ? record.body : [];
 }
 
 function readBigInt(value: unknown): bigint {

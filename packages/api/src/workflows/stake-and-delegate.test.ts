@@ -84,7 +84,7 @@ describe("runStakeAndDelegateWorkflow", () => {
       }),
       stakedEventQuery: vi.fn().mockImplementation(async () => {
         sequence.push("staked-events");
-        return [{ transactionHash: "0xstake-receipt" }];
+        return { statusCode: 200, body: [{ transactionHash: "0xstake-receipt" }] };
       }),
       delegates: vi.fn()
         .mockImplementationOnce(async () => {
@@ -105,7 +105,7 @@ describe("runStakeAndDelegateWorkflow", () => {
       }),
       delegateChangedAddressAddressAddressEventQuery: vi.fn().mockImplementation(async () => {
         sequence.push("delegate-events");
-        return [{ transactionHash: "0xdelegate-receipt" }];
+        return { statusCode: 200, body: [{ transactionHash: "0xdelegate-receipt" }] };
       }),
     };
     mocks.createTokenomicsPrimitiveService.mockReturnValue(tokenomics);
@@ -385,5 +385,55 @@ describe("runStakeAndDelegateWorkflow", () => {
     expect(result.summary.delegatee).toBe("0x00000000000000000000000000000000000000bb");
     expect(result.stake.stakeInfoBefore).toEqual({ amount: "0" });
     process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
+  });
+
+  it("surfaces EchoScore-too-low stake reverts as an explicit workflow state block", async () => {
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 22 })),
+        })),
+      },
+    } as never;
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      tokenApprove: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove-write" } }),
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      getStakeInfo: vi.fn().mockResolvedValue({ statusCode: 200, body: { amount: "0" } }),
+      stake: vi.fn().mockRejectedValue({
+        message: "execution reverted",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "execution reverted: 0xbf5d1cac000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003e8",
+            },
+          },
+        },
+      }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xapprove-receipt");
+
+    await expect(async () => {
+      try {
+        await runStakeAndDelegateWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+          amount: "1",
+          delegatee: "0x00000000000000000000000000000000000000bb",
+        });
+      } catch (error) {
+        expect(error).toMatchObject({
+          statusCode: 409,
+        });
+        expect((error as Error).message).toBe("stake-and-delegate blocked by stake rule violation: EchoScore too low (0 < 1000)");
+        throw error;
+      }
+    }).rejects.toThrow("stake-and-delegate blocked by stake rule violation: EchoScore too low (0 < 1000)");
   });
 });

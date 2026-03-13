@@ -10,12 +10,16 @@ import { createDatasetAndListForSaleSchema, runCreateDatasetAndListForSaleWorkfl
 import { createBeneficiaryVestingSchema, runCreateBeneficiaryVestingWorkflow } from "./create-beneficiary-vesting.js";
 import { claimRewardCampaignSchema, runClaimRewardCampaignWorkflow } from "./claim-reward-campaign.js";
 import { cancelMarketplaceListingSchema, runCancelMarketplaceListingWorkflow } from "./cancel-marketplace-listing.js";
+import { commercializeVoiceAssetWorkflowSchema, runCommercializeVoiceAssetWorkflow } from "./commercialize-voice-asset.js";
 import { createRewardCampaignSchema, runCreateRewardCampaignWorkflow } from "./create-reward-campaign.js";
 import { createMarketplaceListingSchema, runCreateMarketplaceListingWorkflow } from "./create-marketplace-listing.js";
 import { inspectBeneficiaryVestingSchema, runInspectBeneficiaryVestingWorkflow } from "./inspect-beneficiary-vesting.js";
 import { inspectMarketplaceListingSchema, runInspectMarketplaceListingWorkflow } from "./inspect-marketplace-listing.js";
+import { participantActivationFlowWorkflowSchema, runParticipantActivationFlowWorkflow } from "./participant-activation-flow.js";
+import { governanceAdminFlowWorkflowSchema, runGovernanceAdminFlowWorkflow } from "./governance-admin-flow.js";
 import { manageRewardCampaignSchema, runManageRewardCampaignWorkflow } from "./manage-reward-campaign.js";
 import { onboardRightsHolderSchema, runOnboardRightsHolderWorkflow } from "./onboard-rights-holder.js";
+import { onboardVoiceAssetWorkflowSchema, runOnboardVoiceAssetWorkflow } from "./onboard-voice-asset.js";
 import { purchaseMarketplaceAssetSchema, runPurchaseMarketplaceAssetWorkflow } from "./purchase-marketplace-asset.js";
 import { registerWhisperBlockSchema, runRegisterWhisperBlockWorkflow } from "./register-whisper-block.js";
 import { releaseEscrowedAssetSchema, runReleaseEscrowedAssetWorkflow } from "./release-escrowed-asset.js";
@@ -55,6 +59,7 @@ export function createWorkflowRouter(context: ApiExecutionContext): Router {
   router.post("/v1/workflows/register-whisper-block", createWorkflowHandler(context, registerWhisperBlockSchema, (auth, walletAddress, body) => runRegisterWhisperBlockWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-dataset-and-list-for-sale", createWorkflowHandler(context, createDatasetAndListForSaleSchema, (auth, walletAddress, body) => runCreateDatasetAndListForSaleWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-marketplace-listing", createWorkflowHandler(context, createMarketplaceListingSchema, (auth, walletAddress, body) => runCreateMarketplaceListingWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/commercialize-voice-asset", createWorkflowHandler(context, commercializeVoiceAssetWorkflowSchema, (auth, walletAddress, body) => runCommercializeVoiceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/inspect-marketplace-listing", createWorkflowHandler(context, inspectMarketplaceListingSchema, (auth, walletAddress, body) => runInspectMarketplaceListingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/update-marketplace-listing-price", createWorkflowHandler(context, updateMarketplaceListingPriceSchema, (auth, walletAddress, body) => runUpdateMarketplaceListingPriceWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/cancel-marketplace-listing", createWorkflowHandler(context, cancelMarketplaceListingSchema, (auth, walletAddress, body) => runCancelMarketplaceListingWorkflow(context, auth, walletAddress, body)));
@@ -70,9 +75,12 @@ export function createWorkflowRouter(context: ApiExecutionContext): Router {
   router.post("/v1/workflows/create-reward-campaign", createWorkflowHandler(context, createRewardCampaignSchema, (auth, walletAddress, body) => runCreateRewardCampaignWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/manage-reward-campaign", createWorkflowHandler(context, manageRewardCampaignSchema, (auth, walletAddress, body) => runManageRewardCampaignWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/claim-reward-campaign", createWorkflowHandler(context, claimRewardCampaignSchema, (auth, walletAddress, body) => runClaimRewardCampaignWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/participant-activation-flow", createWorkflowHandler(context, participantActivationFlowWorkflowSchema, (auth, walletAddress, body) => runParticipantActivationFlowWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/onboard-rights-holder", createWorkflowHandler(context, onboardRightsHolderSchema, (auth, walletAddress, body) => runOnboardRightsHolderWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/onboard-voice-asset", createWorkflowHandler(context, onboardVoiceAssetWorkflowSchema, (auth, walletAddress, body) => runOnboardVoiceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/stake-and-delegate", createWorkflowHandler(context, stakeAndDelegateSchema, (auth, walletAddress, body) => runStakeAndDelegateWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/submit-proposal", createWorkflowHandler(context, submitProposalWorkflowSchema, (auth, walletAddress, body) => runSubmitProposalWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/vote-on-proposal", createWorkflowHandler(context, voteOnProposalWorkflowSchema, (auth, walletAddress, body) => runVoteOnProposalWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/governance-admin-flow", createWorkflowHandler(context, governanceAdminFlowWorkflowSchema, (auth, walletAddress, body) => runGovernanceAdminFlowWorkflow(context, auth, walletAddress, body)));
   return router;
 }

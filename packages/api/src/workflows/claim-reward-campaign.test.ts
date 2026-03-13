@@ -204,4 +204,31 @@ describe("runClaimRewardCampaignWorkflow", () => {
     })).rejects.toThrow("claimRewardCampaign.claimedAfter readback timeout");
     setTimeoutSpy.mockRestore();
   });
+
+  it("normalizes insufficient campaign funding into an explicit workflow block", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      claim: vi.fn().mockRejectedValue({
+        message: "execution reverted: InsufficientCampaignFunding(uint256,uint256)",
+        diagnostics: { cause: "execution reverted: InsufficientCampaignFunding(uint256,uint256)" },
+      }),
+      claimedEventQuery: vi.fn(),
+    });
+
+    try {
+      await runClaimRewardCampaignWorkflow({
+        providerRouter: { withProvider: vi.fn() },
+      } as never, auth, "0x00000000000000000000000000000000000000aa", {
+        campaignId: "17",
+        totalAllocation: "2",
+        proof: [],
+      });
+      throw new Error("expected workflow to throw");
+    } catch (error) {
+      expect((error as { statusCode?: number }).statusCode).toBe(409);
+      expect((error as Error).message).toBe("claim-reward-campaign blocked by setup/state: campaign has no token funding");
+    }
+  });
 });

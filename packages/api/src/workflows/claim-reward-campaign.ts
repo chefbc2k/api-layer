@@ -13,6 +13,7 @@ import {
   waitForWorkflowEventQuery,
   waitForWorkflowReadback,
 } from "./reward-campaign-helpers.js";
+import { HttpError } from "../shared/errors.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
 export const claimRewardCampaignSchema = z.object({
@@ -59,6 +60,8 @@ export async function runClaimRewardCampaignWorkflow(
     api: { executionSource: "auto", gaslessMode: "none" },
     walletAddress,
     wireParams: [body.campaignId, body.totalAllocation, body.proof],
+  }).catch((error: unknown) => {
+    throw normalizeClaimRewardCampaignExecutionError(error);
   });
   const claimTxHash = await waitForWorkflowWriteReceipt(context, claim.body, "claimRewardCampaign.claim");
   const claimReceipt = claimTxHash ? await readWorkflowReceipt(context, claimTxHash, "claimRewardCampaign.claim") : null;
@@ -146,6 +149,55 @@ export async function runClaimRewardCampaignWorkflow(
       totalAllocation: body.totalAllocation,
     },
   };
+}
+
+function normalizeClaimRewardCampaignExecutionError(error: unknown): unknown {
+  const text = collectErrorText(error).toLowerCase();
+  if (text.includes("campaignnotfound") || text.includes("0x2c067cd7")) {
+    return new HttpError(409, "claim-reward-campaign blocked by setup/state: campaign not found", extractDiagnostics(error));
+  }
+  if (text.includes("campaignpaused") || text.includes("0xab1902ee")) {
+    return new HttpError(409, "claim-reward-campaign blocked by setup/state: campaign is paused", extractDiagnostics(error));
+  }
+  if (text.includes("invalidmerkleproof") || text.includes("0xb05e92fa")) {
+    return new HttpError(409, "claim-reward-campaign blocked by invalid proof inputs", extractDiagnostics(error));
+  }
+  if (text.includes("nothingtoclaim") || text.includes("0x969bf728")) {
+    return new HttpError(409, "claim-reward-campaign blocked by missing claim eligibility: zero claimable amount", extractDiagnostics(error));
+  }
+  if (text.includes("insufficientcampaignfunding") || text.includes("0x7a36e7a3")) {
+    return new HttpError(409, "claim-reward-campaign blocked by setup/state: campaign has no token funding", extractDiagnostics(error));
+  }
+  if (text.includes("invalidallocation") || text.includes("0x0baf7432")) {
+    return new HttpError(409, "claim-reward-campaign blocked by invalid allocation input", extractDiagnostics(error));
+  }
+  if (text.includes("exceedscampaigncap") || text.includes("0x939fc1db")) {
+    return new HttpError(409, "claim-reward-campaign blocked by campaign cap", extractDiagnostics(error));
+  }
+  return error;
+}
+
+function collectErrorText(error: unknown): string {
+  const parts = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+      parts.add(String(value));
+      return;
+    }
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      visit(nested);
+    }
+  };
+  visit((error as { message?: unknown })?.message ?? error);
+  visit((error as { diagnostics?: unknown })?.diagnostics);
+  return Array.from(parts).join(" ");
+}
+
+function extractDiagnostics(error: unknown): unknown {
+  return (error as { diagnostics?: unknown })?.diagnostics;
 }
 
 async function waitForCampaignRead(

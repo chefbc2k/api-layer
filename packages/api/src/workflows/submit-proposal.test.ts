@@ -96,7 +96,10 @@ describe("submit proposal workflow", () => {
       proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
       prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
       proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
-      proposalCreatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xproposal-receipt" }]),
+      proposalCreatedEventQuery: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [{ transactionHash: "0xproposal-receipt" }],
+      }),
     };
     mocks.createGovernancePrimitiveService.mockReturnValue(governance);
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xproposal-receipt");
@@ -184,8 +187,11 @@ describe("submit proposal workflow", () => {
         .mockResolvedValueOnce({ statusCode: 503, body: { error: "lag" } })
         .mockResolvedValueOnce({ statusCode: 200, body: "200" }),
       proposalCreatedEventQuery: vi.fn()
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([{ transactionHash: "0xproposal-receipt" }]),
+        .mockResolvedValueOnce({ statusCode: 200, body: [] })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: [{ transactionHash: "0xproposal-receipt" }],
+        }),
     };
     mocks.createGovernancePrimitiveService.mockReturnValue(governance);
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xproposal-receipt");

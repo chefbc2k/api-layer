@@ -2,6 +2,7 @@ import { Interface } from "ethers";
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
+import type { RouteResult } from "../shared/route-types.js";
 import { createGovernancePrimitiveService } from "../modules/governance/primitives/generated/index.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 import { facetRegistry } from "../../../client/src/generated/index.js";
@@ -171,13 +172,13 @@ export async function runSubmitProposalWorkflow(
 }
 
 async function waitForWorkflowEventQuery(
-  read: () => Promise<unknown[]>,
+  read: () => Promise<unknown[] | RouteResult>,
   ready: (logs: unknown[]) => boolean,
   label: string,
 ) {
   let lastLogs: unknown[] = [];
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    const logs = await read();
+    const logs = normalizeEventLogs(await read());
     lastLogs = logs;
     if (ready(logs)) {
       return logs;
@@ -197,4 +198,15 @@ function hasTransactionHash(logs: unknown[], txHash: string | null): boolean {
     }
     return (entry as Record<string, unknown>).transactionHash === txHash;
   });
+}
+
+function normalizeEventLogs(value: unknown[] | RouteResult): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+  const body = (value as { body?: unknown }).body;
+  return Array.isArray(body) ? body : [];
 }

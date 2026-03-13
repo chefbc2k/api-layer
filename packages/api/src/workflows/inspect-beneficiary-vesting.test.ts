@@ -44,4 +44,34 @@ describe("runInspectBeneficiaryVestingWorkflow", () => {
       },
     });
   });
+
+  it("returns a stable empty state when no schedule exists", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getStandardVestingSchedule: vi.fn(),
+      getVestingDetails: vi.fn(),
+      getVestingReleasableAmount: vi.fn(),
+      getVestingTotalAmount: vi.fn(),
+    });
+
+    const result = await runInspectBeneficiaryVestingWorkflow({} as never, {
+      apiKey: "test-key",
+    } as never, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000cc",
+    });
+
+    expect(result).toEqual({
+      vesting: {
+        exists: false,
+        schedule: null,
+        details: null,
+        releasable: "0",
+        totals: { totalVested: "0", totalReleased: "0", releasable: "0" },
+      },
+      summary: {
+        beneficiary: "0x00000000000000000000000000000000000000cc",
+        hasSchedule: false,
+      },
+    });
+  });
 });

@@ -6,8 +6,10 @@ import {
   getReleasableFromSummary,
   getReleasedAmount,
   getTotalAmount,
+  isAlreadyRevokedError,
   isVestingSchedulePresent,
   isVestingScheduleRevoked,
+  readVestingState,
 } from "./vesting-helpers.js";
 
 describe("vesting helpers", () => {
@@ -35,5 +37,36 @@ describe("vesting helpers", () => {
     expect(extractReleasedAmountFromLogs([{ transactionHash: "0xaaa", amount: 7n }], "0xaaa")).toBe("7");
     expect(extractReleasedAmountFromLogs([{ transactionHash: "0xaaa" }], "0xaaa")).toBeNull();
     expect(extractReleasedAmountFromLogs([{ transactionHash: "0xaaa", amount: "9" }], "0xbbb")).toBeNull();
+  });
+
+  it("recognizes AlreadyRevoked errors", () => {
+    expect(isAlreadyRevokedError(new Error("execution reverted: AlreadyRevoked(bytes32)"))).toBe(true);
+    expect(isAlreadyRevokedError(new Error("execution reverted (unknown custom error) data=\"0x90315de1\""))).toBe(true);
+    expect(isAlreadyRevokedError(new Error("execution reverted: NoScheduleFound(address)"))).toBe(false);
+  });
+
+  it("normalizes revoked post-state readbacks when amount queries revert", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100", revoked: true } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: true } }),
+      getVestingReleasableAmount: async () => {
+        throw new Error("execution reverted: AlreadyRevoked(bytes32)");
+      },
+      getVestingTotalAmount: async () => {
+        throw new Error("execution reverted (unknown custom error) data=\"0x90315de1\"");
+      },
+    };
+
+    const result = await readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      undefined,
+      "0x00000000000000000000000000000000000000aa",
+    );
+
+    expect(result.schedule.body).toEqual({ totalAmount: "100", revoked: true });
+    expect(result.releasable.body).toBe("0");
+    expect(result.totals.body).toEqual({ totalVested: "0", totalReleased: "0", releasable: "0" });
   });
 });

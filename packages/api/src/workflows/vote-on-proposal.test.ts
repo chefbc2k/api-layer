@@ -58,7 +58,10 @@ describe("vote on proposal workflow", () => {
           votes: "10",
         },
       }),
-      voteCastEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xvote-receipt" }]),
+      voteCastEventQuery: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [{ transactionHash: "0xvote-receipt" }],
+      }),
     };
     mocks.createGovernancePrimitiveService.mockReturnValue(governance);
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xvote-receipt");
@@ -145,8 +148,11 @@ describe("vote on proposal workflow", () => {
           body: { hasVoted: true, support: "1", reason: "workflow vote", votes: "8" },
         }),
       voteCastEventQuery: vi.fn()
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([{ transactionHash: "0xvote-receipt" }]),
+        .mockResolvedValueOnce({ statusCode: 200, body: [] })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: [{ transactionHash: "0xvote-receipt" }],
+        }),
     };
     mocks.createGovernancePrimitiveService.mockReturnValue(governance);
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xvote-receipt");

@@ -179,7 +179,7 @@ async function waitForVoteCastEvents(
       fromBlock: BigInt(voteReceipt.blockNumber),
       toBlock: BigInt(voteReceipt.blockNumber),
     });
-    lastLogs = Array.isArray(response) ? response : [];
+    lastLogs = normalizeEventLogs(response);
     if (lastLogs.some((entry) => asRecord(entry)?.transactionHash === voteTxHash)) {
       return lastLogs;
     }
@@ -224,4 +224,12 @@ function requestSignerPrivateKey(auth: import("../shared/auth.js").AuthContext):
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? value as Record<string, unknown> : null;
+}
+
+function normalizeEventLogs(value: unknown): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  const record = asRecord(value);
+  return Array.isArray(record?.body) ? record.body : [];
 }

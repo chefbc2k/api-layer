@@ -111,7 +111,7 @@ export async function waitForWorkflowReadback(
 }
 
 export async function waitForWorkflowEventQuery(
-  read: () => Promise<unknown[]>,
+  read: () => Promise<unknown[] | RouteResult>,
   ready: (logs: unknown[]) => boolean,
   label: string,
 ) {
@@ -119,7 +119,7 @@ export async function waitForWorkflowEventQuery(
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
-      const logs = await read();
+      const logs = normalizeEventLogs(await read());
       lastLogs = logs;
       if (ready(logs)) {
         return logs;
@@ -168,4 +168,12 @@ function findLogByTransactionHash(logs: unknown[], txHash: string | null): Recor
     }
   }
   return null;
+}
+
+function normalizeEventLogs(value: unknown[] | RouteResult): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  const record = asRecord(value);
+  return Array.isArray(record?.body) ? record.body : [];
 }

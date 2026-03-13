@@ -30,16 +30,12 @@ describe("vesting workflow routes", () => {
         .mockResolvedValueOnce({ statusCode: 200, body: false })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
       getStandardVestingSchedule: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: {} })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "1000", revoked: false } }),
       getVestingDetails: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: {} })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "1000", revoked: false } }),
       getVestingReleasableAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
         .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
       getVestingTotalAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "0", totalReleased: "0", releasable: "0" } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } }),
       createFounderVesting: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xcreate" } }),
       vestingScheduleCreatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xcreate-receipt" }]),

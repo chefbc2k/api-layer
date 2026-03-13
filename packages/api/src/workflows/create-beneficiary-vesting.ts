@@ -9,6 +9,7 @@ import {
   waitForWorkflowEventQuery,
   waitForWorkflowReadback,
   hasTransactionHash,
+  normalizeCreateVestingExecutionError,
 } from "./vesting-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
@@ -35,7 +36,9 @@ export async function runCreateBeneficiaryVestingWorkflow(
 ) {
   const tokenomics = createTokenomicsPrimitiveService(context);
   const before = await readVestingState(tokenomics, auth, walletAddress, body.beneficiary);
-  const create = await runCreate(tokenomics, auth, walletAddress, body);
+  const create = await runCreate(tokenomics, auth, walletAddress, body).catch((error: unknown) => {
+    throw normalizeCreateVestingExecutionError(error, body.scheduleKind);
+  });
   const createTxHash = await waitForWorkflowWriteReceipt(context, create.body, "createBeneficiaryVesting.create");
   const createReceipt = createTxHash ? await readWorkflowReceipt(context, createTxHash, "createBeneficiaryVesting.create") : null;
   const createEvents = createReceipt

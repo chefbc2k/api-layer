@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
+import { HttpError } from "../shared/errors.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
 import {
   hasTransactionHash,
@@ -28,7 +29,7 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
   const paymentConfig = await readMarketplacePaymentConfig(marketplace, auth, walletAddress);
 
   if (paymentConfig.paymentPaused === true) {
-    throw new Error("withdraw-marketplace-payments requires payments to be unpaused");
+    throw new HttpError(409, "withdraw-marketplace-payments requires payments to be unpaused");
   }
 
   const pendingBefore = await waitForWorkflowReadback(
@@ -37,7 +38,7 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
     "withdrawMarketplacePayments.pendingBefore",
   );
   if (readBigInt((pendingBefore.body as { payee?: unknown }).payee) === 0n) {
-    throw new Error("withdraw-marketplace-payments requires pending payments");
+    throw new HttpError(409, "withdraw-marketplace-payments requires pending payments");
   }
 
   const withdrawal = body.deadline

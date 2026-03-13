@@ -152,4 +152,35 @@ describe("vesting admin policy workflows", () => {
     expect(result.timewave.quarterlyUnlockRate.confirmation).toBe("readback-confirmed");
     expect(result.timewave.quarterlyUnlockRate.after).toBe("3000");
   });
+
+  it("normalizes insufficient admin authority failures for standard and twave controls", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getMinTwaveVestingDuration: vi.fn().mockResolvedValue({ statusCode: 200, body: "2592000" }),
+      getQuarterlyUnlockRate: vi.fn().mockResolvedValue({ statusCode: 200, body: "2500" }),
+      setMinimumVestingDuration: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xa2880f97\"")),
+      setMinimumTwaveVestingDuration: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xd954416a\"")),
+      setQuarterlyUnlockRate: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xd954416a\"")),
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      standardMinimumDuration: "86400",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("insufficient admin authority"),
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      twaveMinimumDuration: "2678400",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("insufficient admin authority"),
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      twaveQuarterlyUnlockRate: "2501",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("insufficient admin authority"),
+    });
+  });
 });

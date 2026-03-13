@@ -137,4 +137,63 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
 
     expect(result.release.mode).toBe("self");
   });
+
+  it("prefers the event-confirmed released amount over a stale write result", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "0", totalAmount: "1000", revoked: false } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "48", totalAmount: "1000", revoked: false } }),
+      getVestingDetails: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "0" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "48" } }),
+      getVestingReleasableAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "12" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      getVestingTotalAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "12", totalReleased: "0", releasable: "12" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "48", totalReleased: "48", releasable: "0" } }),
+      releaseStandardVestingFor: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrelease", result: "12" } }),
+      releaseStandardVesting: vi.fn(),
+      tokensReleasedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrelease-receipt", amount: "48" }]),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xrelease-receipt");
+
+    const result = await runReleaseBeneficiaryVestingWorkflow({
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 902 })) })),
+      },
+    } as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000bb",
+      mode: "for",
+    });
+
+    expect(result.release.releasedNow).toBe("48");
+    expect(result.vesting.after.schedule).toMatchObject({ releasedAmount: "48" });
+  });
+
+  it("normalizes missing-schedule release failures into a workflow state block", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getStandardVestingSchedule: vi.fn(),
+      getVestingDetails: vi.fn(),
+      getVestingReleasableAmount: vi.fn(),
+      getVestingTotalAmount: vi.fn(),
+      releaseStandardVestingFor: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xaca36dbe\"")),
+      releaseStandardVesting: vi.fn(),
+      tokensReleasedEventQuery: vi.fn(),
+    });
+
+    await expect(runReleaseBeneficiaryVestingWorkflow({} as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000dd",
+      mode: "for",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("schedule not found"),
+    });
+  });
 });

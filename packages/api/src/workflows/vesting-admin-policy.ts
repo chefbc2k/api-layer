@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
+import { HttpError } from "../shared/errors.js";
 import { createTokenomicsPrimitiveService } from "../modules/tokenomics/primitives/generated/index.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 import { waitForWorkflowReadback } from "./reward-campaign-helpers.js";
@@ -77,6 +78,8 @@ export async function runUpdateVestingAdminPolicyWorkflow(
       api: { executionSource: "auto", gaslessMode: "none" },
       walletAddress,
       wireParams: [body.standardMinimumDuration],
+    }).catch((error: unknown) => {
+      throw normalizeVestingAdminPolicyError(error, "standardMinimumDuration");
     });
     standardMinimumDurationSubmission = update.body;
     standardMinimumDurationTxHash = await waitForWorkflowWriteReceipt(context, update.body, "updateVestingAdminPolicy.standardMinimumDuration");
@@ -91,6 +94,8 @@ export async function runUpdateVestingAdminPolicyWorkflow(
       api: { executionSource: "auto", gaslessMode: "none" },
       walletAddress,
       wireParams: [body.twaveMinimumDuration],
+    }).catch((error: unknown) => {
+      throw normalizeVestingAdminPolicyError(error, "twaveMinimumDuration");
     });
     twaveMinimumDurationSubmission = update.body;
     twaveMinimumDurationTxHash = await waitForWorkflowWriteReceipt(context, update.body, "updateVestingAdminPolicy.twaveMinimumDuration");
@@ -116,6 +121,8 @@ export async function runUpdateVestingAdminPolicyWorkflow(
       api: { executionSource: "auto", gaslessMode: "none" },
       walletAddress,
       wireParams: [body.twaveQuarterlyUnlockRate],
+    }).catch((error: unknown) => {
+      throw normalizeVestingAdminPolicyError(error, "twaveQuarterlyUnlockRate");
     });
     twaveQuarterlyUnlockRateSubmission = update.body;
     twaveQuarterlyUnlockRateTxHash = await waitForWorkflowWriteReceipt(context, update.body, "updateVestingAdminPolicy.twaveQuarterlyUnlockRate");
@@ -168,4 +175,48 @@ export async function runUpdateVestingAdminPolicyWorkflow(
       standardMinimumDurationReadable: false,
     },
   };
+}
+
+function normalizeVestingAdminPolicyError(
+  error: unknown,
+  control: "standardMinimumDuration" | "twaveMinimumDuration" | "twaveQuarterlyUnlockRate",
+): unknown {
+  const text = collectErrorText(error).toLowerCase();
+  const isAuthorityFailure = text.includes("unauthorizeduser") || text.includes("0xa2880f97") || text.includes("invalidrole") || text.includes("0xd954416a");
+  if (isAuthorityFailure) {
+    return new HttpError(409, `update-vesting-admin-policy blocked by insufficient admin authority for ${control}`, extractDiagnostics(error));
+  }
+  if (text.includes("invalidduration") || text.includes("0x4ede0ebc")) {
+    return new HttpError(409, "update-vesting-admin-policy blocked by invalid parameter range for standard minimum duration", extractDiagnostics(error));
+  }
+  if (text.includes("invalidvestingduration") || text.includes("0x2b39f6cb")) {
+    return new HttpError(409, "update-vesting-admin-policy blocked by invalid parameter range for Timewave minimum duration", extractDiagnostics(error));
+  }
+  if (text.includes("invalidtokenamount") || text.includes("0x1bc3a582")) {
+    return new HttpError(409, "update-vesting-admin-policy blocked by invalid parameter range for Timewave quarterly unlock rate", extractDiagnostics(error));
+  }
+  return error;
+}
+
+function collectErrorText(error: unknown): string {
+  const parts = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+      parts.add(String(value));
+      return;
+    }
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      visit(nested);
+    }
+  };
+  visit((error as { message?: unknown })?.message ?? error);
+  visit((error as { diagnostics?: unknown })?.diagnostics);
+  return Array.from(parts).join(" ");
+}
+
+function extractDiagnostics(error: unknown): unknown {
+  return (error as { diagnostics?: unknown })?.diagnostics;
 }

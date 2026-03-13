@@ -9,6 +9,7 @@ import {
   waitForWorkflowEventQuery,
   waitForWorkflowReadback,
   hasTransactionHash,
+  normalizeRevokeVestingExecutionError,
 } from "./vesting-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
@@ -29,6 +30,8 @@ export async function runRevokeBeneficiaryVestingWorkflow(
     api: { executionSource: "auto", gaslessMode: "none" },
     walletAddress,
     wireParams: [body.beneficiary],
+  }).catch((error: unknown) => {
+    throw normalizeRevokeVestingExecutionError(error);
   });
   const revokeTxHash = await waitForWorkflowWriteReceipt(context, revoke.body, "revokeBeneficiaryVesting.revoke");
   const revokeReceipt = revokeTxHash ? await readWorkflowReceipt(context, revokeTxHash, "revokeBeneficiaryVesting.revoke") : null;

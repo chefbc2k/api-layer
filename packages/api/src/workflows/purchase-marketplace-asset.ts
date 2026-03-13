@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
+import { HttpError } from "../shared/errors.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
 import { createVoiceAssetsPrimitiveService } from "../modules/voice-assets/primitives/generated/index.js";
 import {
@@ -105,6 +106,8 @@ export async function runPurchaseMarketplaceAssetWorkflow(
     api: { executionSource: "auto", gaslessMode: "none" },
     walletAddress,
     wireParams: [body.tokenId],
+  }).catch((error: unknown) => {
+    throw normalizePurchaseExecutionError(error, body.tokenId);
   });
   const purchaseTxHash = await waitForWorkflowWriteReceipt(context, purchase.body, "purchaseMarketplaceAsset.purchase");
   const purchaseReceipt = purchaseTxHash ? await readWorkflowReceipt(context, purchaseTxHash, "purchaseMarketplaceAsset.purchase") : null;
@@ -262,6 +265,46 @@ function diffPendingSnapshots(
     devFund: diffPendingValue(before.devFund, after.devFund),
     unionTreasury: diffPendingValue(before.unionTreasury, after.unionTreasury),
   };
+}
+
+function normalizePurchaseExecutionError(error: unknown, tokenId: string): unknown {
+  const text = collectErrorText(error).toLowerCase();
+  if (text.includes("assettoonew") || text.includes("0x0d9482a2")) {
+    return new HttpError(409, `purchase-marketplace-asset blocked by asset age: token ${tokenId} is still within the contract's 1 day trading lock`, extractDiagnostics(error));
+  }
+  if (text.includes("tradinglocked") || text.includes("0xe032e6fb")) {
+    return new HttpError(409, `purchase-marketplace-asset blocked by trading lock for token ${tokenId}`, extractDiagnostics(error));
+  }
+  if (text.includes("insufficientallowance") || text.includes("0x13be252b")) {
+    return new HttpError(409, "purchase-marketplace-asset requires buyer payment-token allowance as an external precondition", extractDiagnostics(error));
+  }
+  if (text.includes("insufficientpayment") || text.includes("insufficientbalance") || text.includes("0xcd1c8867") || text.includes("0xf4d678b8")) {
+    return new HttpError(409, "purchase-marketplace-asset requires buyer payment-token funding as an external precondition", extractDiagnostics(error));
+  }
+  return error;
+}
+
+function collectErrorText(error: unknown): string {
+  const parts = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+      parts.add(String(value));
+      return;
+    }
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      visit(nested);
+    }
+  };
+  visit((error as { message?: unknown })?.message ?? error);
+  visit((error as { diagnostics?: unknown })?.diagnostics);
+  return Array.from(parts).join(" ");
+}
+
+function extractDiagnostics(error: unknown): unknown {
+  return (error as { diagnostics?: unknown })?.diagnostics;
 }
 
 function diffPendingValue(before: unknown, after: unknown): string | null {

@@ -62,4 +62,23 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
     expect(result.revoke.txHash).toBe("0xrevoke-receipt");
     expect(result.summary.revokedAfter).toBe(true);
   });
+
+  it("normalizes vesting-manager authority failures into a workflow state block", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getStandardVestingSchedule: vi.fn(),
+      getVestingDetails: vi.fn(),
+      getVestingReleasableAmount: vi.fn(),
+      getVestingTotalAmount: vi.fn(),
+      revokeVestingSchedule: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xa2880f97\"")),
+      vestingScheduleRevokedEventQuery: vi.fn(),
+    });
+
+    await expect(runRevokeBeneficiaryVestingWorkflow({} as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000dd",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("VESTING_MANAGER_ROLE"),
+    });
+  });
 });
