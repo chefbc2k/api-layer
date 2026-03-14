@@ -100,7 +100,7 @@ async function waitForWorkflowReadback(
   label: string,
 ) {
   let lastResult: import("../../../shared/route-types.js").RouteResult | null = null;
-  for (let attempt = 0; attempt < 20; attempt += 1) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
     const result = await read();
     lastResult = result;
     if (ready(result)) {
