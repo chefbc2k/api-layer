@@ -14,6 +14,7 @@ import {
   waitForWorkflowReadback,
   ZERO_BYTES32,
 } from "./rights-licensing-helpers.js";
+import { resolveWorkflowAccountAddress } from "./reward-campaign-helpers.js";
 
 const bytes32Schema = z.string().regex(/^0x[a-fA-F0-9]{64}$/u);
 const digitsSchema = z.string().regex(/^\d+$/u);
@@ -66,6 +67,7 @@ export async function runManageLicenseTemplateLifecycleWorkflow(
   body: z.infer<typeof manageLicenseTemplateLifecycleWorkflowSchema>,
 ) {
   const licensing = createLicensingPrimitiveService(context);
+  const creatorAddress = await resolveTemplateCreatorAddress(context, auth, walletAddress);
   let templateHash = body.templateHash ?? null;
   let source: "existing" | "created" = templateHash ? "existing" : "created";
   let create: {
@@ -79,7 +81,7 @@ export async function runManageLicenseTemplateLifecycleWorkflow(
       auth,
       api: { executionSource: "live", gaslessMode: "none" },
       walletAddress,
-      wireParams: [body.create?.template ?? buildDefaultTemplate()],
+      wireParams: [hydrateTemplateForWrite(creatorAddress, body.create?.template ?? buildDefaultTemplate())],
     });
     const createTxHash = await waitForWorkflowWriteReceipt(context, templateWrite.body, "manageLicenseTemplateLifecycle.create");
     templateHash = readTemplateHashFromPayload(templateWrite.body);
@@ -129,7 +131,7 @@ export async function runManageLicenseTemplateLifecycleWorkflow(
       auth,
       api: { executionSource: "live", gaslessMode: "none" },
       walletAddress,
-      wireParams: [templateHash, body.update.template],
+      wireParams: [templateHash, hydrateTemplateForWrite(creatorAddress, body.update.template, currentTemplate.body)],
     });
     const updateTxHash = await waitForWorkflowWriteReceipt(context, updateWrite.body, "manageLicenseTemplateLifecycle.update");
     const updateReceipt = updateTxHash
@@ -266,6 +268,47 @@ function buildDefaultTemplate(): z.infer<typeof licenseTemplateInputSchema> {
       restrictions: ["no-sublicense"],
     },
   };
+}
+
+function hydrateTemplateForWrite(
+  creatorAddress: string,
+  template: z.infer<typeof licenseTemplateInputSchema>,
+  currentTemplate?: unknown,
+) {
+  const current = asRecord(currentTemplate);
+  const now = Math.floor(Date.now() / 1000).toString();
+  return {
+    creator: typeof current?.creator === "string" ? current.creator : creatorAddress,
+    isActive: template.isActive,
+    transferable: template.transferable,
+    createdAt: String(current?.createdAt ?? now),
+    updatedAt: now,
+    defaultDuration: template.defaultDuration,
+    defaultPrice: template.defaultPrice,
+    maxUses: template.maxUses,
+    name: template.name,
+    description: template.description,
+    defaultRights: template.defaultRights,
+    defaultRestrictions: template.defaultRestrictions,
+    terms: template.terms,
+  };
+}
+
+async function resolveTemplateCreatorAddress(
+  context: ApiExecutionContext,
+  auth: AuthContext,
+  walletAddress: string | undefined,
+) {
+  if (walletAddress && /^0x[a-fA-F0-9]{40}$/u.test(walletAddress)) {
+    return walletAddress;
+  }
+  try {
+    const resolved = await resolveWorkflowAccountAddress(context, auth, walletAddress, "manageLicenseTemplateLifecycle.creator");
+    if (/^0x[a-fA-F0-9]{40}$/u.test(resolved)) {
+      return resolved;
+    }
+  } catch {}
+  return "0x0000000000000000000000000000000000000000";
 }
 
 function readTemplateActive(value: unknown): boolean {

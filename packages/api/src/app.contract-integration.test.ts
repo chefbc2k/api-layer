@@ -5,6 +5,21 @@ import { Contract, JsonRpcProvider, Wallet, ethers, id } from "ethers";
 
 import { createApiServer, type ApiServer } from "./app.js";
 import { loadRepoEnv, readConfigFromEnv } from "../../client/src/runtime/config.js";
+import {
+  AccessControlFacet,
+  EmergencyFacet,
+  GovernorFacet,
+  MarketplaceFacet,
+  PaymentFacet,
+  ProposalFacet,
+  TimelockFacet,
+  VoiceAssetFacet,
+  VoiceDatasetFacet,
+  VoiceLicenseFacet,
+  VoiceLicenseTemplateFacet,
+  VoiceMetadataFacet,
+  WhisperBlockFacet,
+} from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
 
 const repoEnv = loadRepoEnv();
@@ -300,22 +315,22 @@ describeLive("HTTP API contract integration", () => {
   let transfereeWallet: Wallet;
   let outsiderWallet: Wallet;
   let diamondAddress: string;
-  let voiceAsset: Contract;
-  let voiceMetadata: Contract;
-  let accessControl: Contract;
-  let voiceDataset: Contract;
-  let templateFacet: Contract;
-  let licenseFacet: Contract;
-  let marketplaceFacet: Contract;
-  let paymentFacet: Contract;
-  let governorFacet: Contract;
-  let proposalFacet: Contract;
-  let timelockFacet: Contract;
-  let whisperBlockFacet: Contract;
+  let voiceAsset: VoiceAssetFacet;
+  let voiceMetadata: VoiceMetadataFacet;
+  let accessControl: AccessControlFacet;
+  let voiceDataset: VoiceDatasetFacet;
+  let templateFacet: VoiceLicenseTemplateFacet;
+  let licenseFacet: VoiceLicenseFacet;
+  let marketplaceFacet: MarketplaceFacet;
+  let paymentFacet: PaymentFacet;
+  let governorFacet: GovernorFacet;
+  let proposalFacet: ProposalFacet;
+  let timelockFacet: TimelockFacet;
+  let whisperBlockFacet: WhisperBlockFacet;
   let diamondCutFacet: Contract;
   let diamondLoupeFacet: Contract;
   let upgradeControllerFacet: Contract;
-  let emergencyFacet: Contract;
+  let emergencyFacet: EmergencyFacet;
   let emergencyWithdrawalFacet: Contract;
   let multisigFacet: Contract;
   let stakingFacet: Contract;
@@ -454,22 +469,22 @@ describeLive("HTTP API contract integration", () => {
     transfereeWallet = new Wallet(transfereePrivateKey, provider);
     outsiderWallet = new Wallet(outsiderPrivateKey, provider);
 
-    voiceAsset = new Contract(diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider);
-    voiceMetadata = new Contract(diamondAddress, facetRegistry.VoiceMetadataFacet.abi, provider);
-    accessControl = new Contract(diamondAddress, facetRegistry.AccessControlFacet.abi, provider);
-    voiceDataset = new Contract(diamondAddress, facetRegistry.VoiceDatasetFacet.abi, provider);
-    templateFacet = new Contract(diamondAddress, facetRegistry.VoiceLicenseTemplateFacet.abi, provider);
-    licenseFacet = new Contract(diamondAddress, facetRegistry.VoiceLicenseFacet.abi, provider);
-    marketplaceFacet = new Contract(diamondAddress, facetRegistry.MarketplaceFacet.abi, provider);
-    paymentFacet = new Contract(diamondAddress, facetRegistry.PaymentFacet.abi, provider);
-    governorFacet = new Contract(diamondAddress, facetRegistry.GovernorFacet.abi, provider);
-    proposalFacet = new Contract(diamondAddress, facetRegistry.ProposalFacet.abi, provider);
-    timelockFacet = new Contract(diamondAddress, facetRegistry.TimelockFacet.abi, provider);
-    whisperBlockFacet = new Contract(diamondAddress, facetRegistry.WhisperBlockFacet.abi, provider);
+    voiceAsset = new Contract(diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider) as unknown as VoiceAssetFacet;
+    voiceMetadata = new Contract(diamondAddress, facetRegistry.VoiceMetadataFacet.abi, provider) as unknown as VoiceMetadataFacet;
+    accessControl = new Contract(diamondAddress, facetRegistry.AccessControlFacet.abi, provider) as unknown as AccessControlFacet;
+    voiceDataset = new Contract(diamondAddress, facetRegistry.VoiceDatasetFacet.abi, provider) as unknown as VoiceDatasetFacet;
+    templateFacet = new Contract(diamondAddress, facetRegistry.VoiceLicenseTemplateFacet.abi, provider) as unknown as VoiceLicenseTemplateFacet;
+    licenseFacet = new Contract(diamondAddress, facetRegistry.VoiceLicenseFacet.abi, provider) as unknown as VoiceLicenseFacet;
+    marketplaceFacet = new Contract(diamondAddress, facetRegistry.MarketplaceFacet.abi, provider) as unknown as MarketplaceFacet;
+    paymentFacet = new Contract(diamondAddress, facetRegistry.PaymentFacet.abi, provider) as unknown as PaymentFacet;
+    governorFacet = new Contract(diamondAddress, facetRegistry.GovernorFacet.abi, provider) as unknown as GovernorFacet;
+    proposalFacet = new Contract(diamondAddress, facetRegistry.ProposalFacet.abi, provider) as unknown as ProposalFacet;
+    timelockFacet = new Contract(diamondAddress, facetRegistry.TimelockFacet.abi, provider) as unknown as TimelockFacet;
+    whisperBlockFacet = new Contract(diamondAddress, facetRegistry.WhisperBlockFacet.abi, provider) as unknown as WhisperBlockFacet;
     diamondCutFacet = new Contract(diamondAddress, facetRegistry.DiamondCutFacet.abi, provider);
     diamondLoupeFacet = new Contract(diamondAddress, facetRegistry.DiamondLoupeFacet.abi, provider);
     upgradeControllerFacet = new Contract(diamondAddress, facetRegistry.UpgradeControllerFacet.abi, provider);
-    emergencyFacet = new Contract(diamondAddress, facetRegistry.EmergencyFacet.abi, provider);
+    emergencyFacet = new Contract(diamondAddress, facetRegistry.EmergencyFacet.abi, provider) as unknown as EmergencyFacet;
     emergencyWithdrawalFacet = new Contract(diamondAddress, facetRegistry.EmergencyWithdrawalFacet.abi, provider);
     multisigFacet = new Contract(diamondAddress, facetRegistry.MultiSigFacet.abi, provider);
     stakingFacet = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
@@ -697,11 +712,11 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(readResponse.status).toBe(200);
 
-    const directVoice = await waitFor(
+    const directVoice = (await waitFor(
       () => voiceAsset.getVoiceAsset(primaryVoiceHash),
       () => true,
       "contract voice-asset read",
-    );
+    )) as any;
     expect(readResponse.payload).toEqual([
       directVoice[0],
       directVoice[1],
@@ -768,11 +783,11 @@ describeLive("HTTP API contract integration", () => {
       "contract authorization read",
     )).toBe(true);
 
-    const voiceAfterUpdate = await waitFor(
+    const voiceAfterUpdate = (await waitFor(
       () => voiceAsset.getVoiceAsset(primaryVoiceHash),
-      (value) => value[2] === 200n,
+      (value) => (value as any)[2] === 200n,
       "contract royalty update read",
-    );
+    )) as any;
     expect(voiceAfterUpdate[2]).toBe(200n);
 
     const maxRoyaltyResponse = await apiCall(port, "POST", "/v1/voice-assets/queries/get-max-royalty-rate", {
@@ -875,12 +890,12 @@ describeLive("HTTP API contract integration", () => {
       await expectReceipt(extractTxHash(createResponse.payload));
       const tokenId = await waitFor(
         () => voiceAsset.getTokenId(voiceHash),
-        (value) => BigInt(value) > 0n,
+        (value) => BigInt(value as any) > 0n,
         `voice token id ${suffix}`,
       );
       return {
         voiceHash,
-        tokenId: BigInt(tokenId).toString(),
+        tokenId: BigInt(tokenId as any).toString(),
       };
     };
 
@@ -890,7 +905,17 @@ describeLive("HTTP API contract integration", () => {
     const asset2 = await createVoice("A2");
     const asset3 = await createVoice("A3");
     const asset4 = await createVoice("A4");
-
+    
+    // Create license template for the test
+    const templateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
+      body: { 
+        name: `Mutation Template ${Date.now()}`,
+        metadataURI: "ipfs://test",
+        licenseFee: "0" 
+      },
+    });
+    const template2 = String((templateResponse.payload as Record<string, unknown>).result);
+    await expectReceipt(extractTxHash(templateResponse.payload));
 
     const totalBeforeResponse = await apiCall(port, "POST", "/v1/datasets/queries/get-total-datasets", {
       apiKey: "read-key",
@@ -1154,7 +1179,7 @@ describeLive("HTTP API contract integration", () => {
     await expectReceipt(extractTxHash(createVoiceResponse.payload));
     const tokenId = String(await waitFor(
       () => voiceAsset.getTokenId(voiceHash),
-      (value) => BigInt(value) > 0n,
+      (value) => BigInt(value as any) > 0n,
       "marketplace token id",
     ));
 
@@ -1286,7 +1311,7 @@ describeLive("HTTP API contract integration", () => {
 
       await waitFor(
         () => marketplaceFacet.getListing(BigInt(tokenId)),
-        (value) => value[2] === 30_000_000n,
+        (value) => (value as any)[2] === 30_000_000n,
         "contract marketplace listing after price update",
       );
       const repricedListingResponse = await apiCall(
@@ -1382,7 +1407,7 @@ describeLive("HTTP API contract integration", () => {
       body: {},
     });
     expect(votingConfigResponse.status).toBe(200);
-    expect(votingConfigResponse.payload).toEqual(normalize((await governorFacet.getVotingConfig()).toObject()));
+    expect(votingConfigResponse.payload).toEqual(normalize((await governorFacet.getVotingConfig() as any).toObject()));
 
     for (const [path, expected] of [
       ["/v1/governance/queries/governance-proposer-role/governor-governance-proposer-role", await governorFacet.GOVERNANCE_PROPOSER_ROLE()],
@@ -1458,8 +1483,8 @@ describeLive("HTTP API contract integration", () => {
     const latestBlock = await provider.getBlockNumber();
     const fromBlock = Math.max(0, latestBlock - 9);
     for (const [path, topicHash] of [
-      ["/v1/governance/events/proposal-created/query", proposalFacet.interface.getEvent("ProposalCreated").topicHash],
-      ["/v1/governance/events/vote-cast/query", proposalFacet.interface.getEvent("VoteCast").topicHash],
+      ["/v1/governance/events/proposal-created/query", proposalFacet.interface.getEvent("ProposalCreated")!.topicHash],
+      ["/v1/governance/events/vote-cast/query", proposalFacet.interface.getEvent("VoteCast")!.topicHash],
     ] as const) {
       const eventResponse = await apiCall(port, "POST", path, {
         apiKey: "read-key",
@@ -1974,7 +1999,7 @@ describeLive("HTTP API contract integration", () => {
         (receipt) => receipt !== null,
         "whisperblock encryption key receipt",
       );
-      if (encryptionKeyReceipt.status === 1) {
+      if (encryptionKeyReceipt && encryptionKeyReceipt.status === 1) {
         const keyRotatedEvents = await waitFor(
           () => apiCall(port, "POST", "/v1/whisperblock/events/key-rotated/query", {
             apiKey: "read-key",
@@ -2001,7 +2026,7 @@ describeLive("HTTP API contract integration", () => {
           .filter((log) => log?.name === "KeyRotated").length;
         expect(directKeyRotatedLogCount).toBeGreaterThan(0);
         expect((keyRotatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === encryptionKeyTxHash)).toBe(true);
-      } else {
+      } else if (encryptionKeyReceipt) {
         expect(encryptionKeyReceipt.status).toBe(0);
       }
 
@@ -2724,9 +2749,9 @@ describeLive("HTTP API contract integration", () => {
     const syntheticOperationId = id(`admin-proof-operation-${latestBlock}`);
     const syntheticOperationType = id("MARKETPLACE_WITHDRAWAL");
     const zeroAddress = ethers.ZeroAddress;
-    const ownerOfSelector = voiceAsset.interface.getFunction("ownerOf").selector;
-    const diamondCutSelector = diamondCutFacet.interface.getFunction("diamondCut").selector;
-    const loupeFacetAddressSelector = diamondLoupeFacet.interface.getFunction("facetAddress").selector;
+    const ownerOfSelector = voiceAsset.interface.getFunction("ownerOf")!.selector;
+    const diamondCutSelector = diamondCutFacet.interface.getFunction("diamondCut")!.selector;
+    const loupeFacetAddressSelector = diamondLoupeFacet.interface.getFunction("facetAddress")!.selector;
 
     const ownerOfFacet = await diamondLoupeFacet.facetAddress(ownerOfSelector);
     const diamondReadAssertions: Array<readonly [string, string, ApiCallOptions, unknown]> = [
@@ -2959,12 +2984,12 @@ describeLive("HTTP API contract integration", () => {
     );
 
     const recentEventAssertions: Array<readonly [string, string, string]> = [
-      ["diamond-admin", "/v1/diamond-admin/events/upgrade-proposed/query", upgradeControllerFacet.interface.getEvent("UpgradeProposed").topicHash],
-      ["diamond-admin", "/v1/diamond-admin/events/upgrade-approved/query", upgradeControllerFacet.interface.getEvent("UpgradeApproved").topicHash],
-      ["emergency", "/v1/emergency/events/incident-reported/query", emergencyFacet.interface.getEvent("IncidentReported").topicHash],
-      ["emergency", "/v1/emergency/events/emergency-state-changed/query", emergencyFacet.interface.getEvent("EmergencyStateChanged").topicHash],
-      ["multisig", "/v1/multisig/events/operation-proposed/query", multisigFacet.interface.getEvent("OperationProposed").topicHash],
-      ["multisig", "/v1/multisig/events/operation-approved/query", multisigFacet.interface.getEvent("OperationApproved").topicHash],
+      ["diamond-admin", "/v1/diamond-admin/events/upgrade-proposed/query", upgradeControllerFacet.interface.getEvent("UpgradeProposed")!.topicHash],
+      ["diamond-admin", "/v1/diamond-admin/events/upgrade-approved/query", upgradeControllerFacet.interface.getEvent("UpgradeApproved")!.topicHash],
+      ["emergency", "/v1/emergency/events/incident-reported/query", emergencyFacet.interface.getEvent("IncidentReported")!.topicHash],
+      ["emergency", "/v1/emergency/events/emergency-state-changed/query", emergencyFacet.interface.getEvent("EmergencyStateChanged")!.topicHash],
+      ["multisig", "/v1/multisig/events/operation-proposed/query", multisigFacet.interface.getEvent("OperationProposed")!.topicHash],
+      ["multisig", "/v1/multisig/events/operation-approved/query", multisigFacet.interface.getEvent("OperationApproved")!.topicHash],
     ];
 
     for (const [, path, topic] of recentEventAssertions) {
@@ -2994,10 +3019,13 @@ describeLive("HTTP API contract integration", () => {
       address: diamondAddress,
       fromBlock,
       toBlock: latestBlock,
-      topics: [emergencyFacet.interface.getEvent("IncidentReported").topicHash],
+      topics: [emergencyFacet.interface.getEvent("IncidentReported")!.topicHash],
     });
     if (recentIncidentLogs.length > 0) {
       const parsedIncident = emergencyFacet.interface.parseLog(recentIncidentLogs[0]!);
+      if (!parsedIncident) {
+        throw new Error("failed to parse incident log");
+      }
       const incidentId = String(parsedIncident.args.incidentId);
       const incidentReadResponse = await apiCall(
         port,

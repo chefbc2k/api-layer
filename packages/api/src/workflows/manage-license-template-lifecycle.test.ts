@@ -266,7 +266,12 @@ describe("runManageLicenseTemplateLifecycleWorkflow", () => {
     });
 
     expect(service.createTemplate).toHaveBeenCalledWith(expect.objectContaining({
-      wireParams: [customTemplate],
+      wireParams: [expect.objectContaining({
+        creator: "0x0000000000000000000000000000000000000000",
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        ...customTemplate,
+      })],
     }));
     expect(result.create).toEqual({
       submission: { txHash: "0xcreate-custom", result: `0x${"0".repeat(63)}4` },

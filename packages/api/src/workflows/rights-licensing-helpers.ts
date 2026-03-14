@@ -108,12 +108,12 @@ export function collaboratorReadMatches(
   expectedActive: boolean,
   expectedShare: string,
 ): boolean {
+  if (Array.isArray(value)) {
+    return value[0] === expectedActive && String(value[1] ?? "") === expectedShare;
+  }
   const record = asRecord(value);
   if (record) {
     return record.isActive === expectedActive && String(record.share ?? "") === expectedShare;
-  }
-  if (Array.isArray(value)) {
-    return value[0] === expectedActive && String(value[1] ?? "") === expectedShare;
   }
   return false;
 }

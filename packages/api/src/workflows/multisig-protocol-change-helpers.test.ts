@@ -225,6 +225,9 @@ describe("multisig protocol change helper utilities", () => {
     expect(normalizeProtocolActionError(new Error("Operation already executed"), "wf", "execute")).toMatchObject<HttpError>({
       statusCode: 409,
     });
+    expect(normalizeProtocolActionError(new Error("InvalidOperationType(bytes32)"), "wf", "propose")).toMatchObject<HttpError>({
+      statusCode: 409,
+    });
     const plain = normalizeProtocolActionError("plain failure", "wf", "execute");
     expect(plain).toBeInstanceOf(Error);
     expect((plain as Error).message).toContain("plain failure");

@@ -586,6 +586,8 @@ export function normalizeProtocolActionError(error: unknown, workflowName: strin
     lower.includes("notpending") ||
     lower.includes("operation cancelled") ||
     lower.includes("operation not found") ||
+    lower.includes("invalid operation type") ||
+    lower.includes("invalidoperationtype") ||
     lower.includes("invalidstate") ||
     lower.includes("operationexecuted") ||
     lower.includes("operationnotfound")

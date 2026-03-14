@@ -205,27 +205,27 @@ async function main(): Promise<void> {
 
     for (const entry of availableSpecs) {
     const wallet = new Wallet(entry.privateKey!, provider);
-    status.actors[entry.label] = {
+    (status.actors as Record<string, unknown>)[entry.label] = {
       address: wallet.address,
       nativeBalance: (await provider.getBalance(wallet.address)).toString(),
     };
   }
 
     if (buyer) {
-    status.actors.buyer = {
-      ...(status.actors.buyer as Record<string, unknown>),
+    (status.actors as any).buyer = {
+      ...((status.actors as any).buyer as Record<string, unknown>),
       nativeTopUp: await ensureNativeBalance(seller, buyer, DEFAULT_NATIVE_MINIMUM),
     };
   }
     if (licensee) {
-    status.actors.licensee = {
-      ...(status.actors.licensee as Record<string, unknown>),
+    (status.actors as any).licensee = {
+      ...((status.actors as any).licensee as Record<string, unknown>),
       nativeTopUp: await ensureNativeBalance(seller, licensee, DEFAULT_NATIVE_MINIMUM),
     };
   }
     if (transferee) {
-    status.actors.transferee = {
-      ...(status.actors.transferee as Record<string, unknown>),
+    (status.actors as any).transferee = {
+      ...((status.actors as any).transferee as Record<string, unknown>),
       nativeTopUp: await ensureNativeBalance(seller, transferee, DEFAULT_NATIVE_MINIMUM),
     };
   }
@@ -253,7 +253,7 @@ async function main(): Promise<void> {
     if (buyerBalance < DEFAULT_USDC_MINIMUM && richest && richest.balance > DEFAULT_USDC_MINIMUM && richest.address.toLowerCase() !== buyer.address.toLowerCase()) {
       const richestSpec = availableSpecs.find((entry) => entry.label === richest.label)!;
       const richestWallet = new Wallet(richestSpec.privateKey!, provider);
-      const transferReceipt = await (await erc20.connect(richestWallet).transfer(buyer.address, DEFAULT_USDC_MINIMUM - buyerBalance)).wait();
+      const transferReceipt = await (await (erc20.connect(richestWallet) as any).transfer(buyer.address, DEFAULT_USDC_MINIMUM - buyerBalance)).wait();
       usdcFunding.transferTxHash = transferReceipt?.hash ?? null;
       usdcFunding.buyerBalanceAfterTransfer = (await erc20.balanceOf(buyer.address)).toString();
     }
@@ -284,6 +284,8 @@ async function main(): Promise<void> {
     purchaseReadiness: "unverified" as "unverified" | "listed-not-yet-purchase-proven",
     status: "blocked" as FixtureStatus,
     reason: "missing aged seller asset",
+    approval: null as any,
+    listing: null as any,
   };
     for (const voiceHash of sellerVoiceHashes as string[]) {
     const asset = await voiceAsset.getVoiceAsset(voiceHash);
