@@ -16,7 +16,7 @@ export type MarketplacePendingPaymentsSnapshot = {
   devFund: string | null;
   unionTreasury: string | null;
   payee?: string | null;
-};
+} & Record<string, string | null | undefined>;
 
 export async function readMarketplacePaymentConfig(
   marketplace: {
@@ -93,12 +93,15 @@ export async function readPendingPaymentsSnapshot(
     payee?: string | null;
   },
 ): Promise<MarketplacePendingPaymentsSnapshot> {
-  const [seller, treasury, devFund, unionTreasury, payee] = await Promise.all([
+  const extraEntries = Object.entries(addresses).filter(([key]) => !["seller", "treasury", "devFund", "unionTreasury", "payee"].includes(key));
+
+  const [seller, treasury, devFund, unionTreasury, payee, extras] = await Promise.all([
     readPendingPayment(marketplace, auth, walletAddress, addresses.seller ?? null),
     readPendingPayment(marketplace, auth, walletAddress, addresses.treasury ?? null),
     readPendingPayment(marketplace, auth, walletAddress, addresses.devFund ?? null),
     readPendingPayment(marketplace, auth, walletAddress, addresses.unionTreasury ?? null),
     "payee" in addresses ? readPendingPayment(marketplace, auth, walletAddress, addresses.payee ?? null) : Promise.resolve(undefined),
+    Promise.all(extraEntries.map(async ([key, address]) => [key, await readPendingPayment(marketplace, auth, walletAddress, address ?? null)] as const)),
   ]);
 
   return {
@@ -107,6 +110,7 @@ export async function readPendingPaymentsSnapshot(
     devFund,
     unionTreasury,
     ...(payee === undefined ? {} : { payee }),
+    ...Object.fromEntries(extras),
   };
 }
 

@@ -9,27 +9,48 @@ import { runRegisterVoiceAssetWorkflow, registerVoiceAssetWorkflowSchema, runTra
 import { createDatasetAndListForSaleSchema, runCreateDatasetAndListForSaleWorkflow } from "./create-dataset-and-list-for-sale.js";
 import { createBeneficiaryVestingSchema, runCreateBeneficiaryVestingWorkflow } from "./create-beneficiary-vesting.js";
 import { claimRewardCampaignSchema, runClaimRewardCampaignWorkflow } from "./claim-reward-campaign.js";
+import { collaboratorLicenseLifecycleWorkflowSchema, runCollaboratorLicenseLifecycleWorkflow } from "./collaborator-license-lifecycle.js";
+import { catalogListingOperationsWorkflowSchema, runCatalogListingOperationsWorkflow } from "./catalog-listing-operations.js";
 import { cancelMarketplaceListingSchema, runCancelMarketplaceListingWorkflow } from "./cancel-marketplace-listing.js";
 import { commercializeVoiceAssetWorkflowSchema, runCommercializeVoiceAssetWorkflow } from "./commercialize-voice-asset.js";
 import { rightsAwareCommercializeVoiceAssetWorkflowSchema, runRightsAwareCommercializeVoiceAssetWorkflow } from "./rights-aware-commercialize-voice-asset.js";
+import { emergencyWithdrawalSequenceWorkflowSchema, runEmergencyWithdrawalSequenceWorkflow } from "./emergency-withdrawal-sequence.js";
 import { createRewardCampaignSchema, runCreateRewardCampaignWorkflow } from "./create-reward-campaign.js";
 import { createMarketplaceListingSchema, runCreateMarketplaceListingWorkflow } from "./create-marketplace-listing.js";
 import { inspectBeneficiaryVestingSchema, runInspectBeneficiaryVestingWorkflow } from "./inspect-beneficiary-vesting.js";
+import { inspectEmergencyPostureWorkflowSchema, runInspectEmergencyPostureWorkflow } from "./inspect-emergency-posture.js";
+import { inspectLegacyMigrationPostureWorkflowSchema, runInspectLegacyMigrationPostureWorkflow } from "./inspect-legacy-migration-posture.js";
 import { inspectMarketplaceListingSchema, runInspectMarketplaceListingWorkflow } from "./inspect-marketplace-listing.js";
+import { inspectRevenuePostureWorkflowSchema, runInspectRevenuePostureWorkflow } from "./inspect-revenue-posture.js";
 import { participantActivationFlowWorkflowSchema, runParticipantActivationFlowWorkflow } from "./participant-activation-flow.js";
+import { operatorIncentiveGrantFlowWorkflowSchema, runOperatorIncentiveGrantFlowWorkflow } from "./operator-incentive-grant-flow.js";
 import { governanceAdminFlowWorkflowSchema, runGovernanceAdminFlowWorkflow } from "./governance-admin-flow.js";
 import { governanceExecutionFlowWorkflowSchema, runGovernanceExecutionFlowWorkflow } from "./governance-execution-flow.js";
+import { governanceTimelockConsequenceFlowWorkflowSchema, runGovernanceTimelockConsequenceFlowWorkflow } from "./governance-timelock-consequence-flow.js";
 import { manageRewardCampaignSchema, runManageRewardCampaignWorkflow } from "./manage-reward-campaign.js";
+import { manageLicenseTemplateLifecycleWorkflowSchema, runManageLicenseTemplateLifecycleWorkflow } from "./manage-license-template-lifecycle.js";
+import { legacyMigrationRecoveryWorkflowSchema, runLegacyMigrationRecoveryWorkflow } from "./legacy-migration-recovery.js";
+import {
+  approveMultisigProtocolChangeWorkflowSchema,
+  executeMultisigProtocolChangeWorkflowSchema,
+  proposeMultisigProtocolChangeWorkflowSchema,
+  runApproveMultisigProtocolChangeWorkflow,
+  runExecuteMultisigProtocolChangeWorkflow,
+  runProposeMultisigProtocolChangeWorkflow,
+} from "./multisig-protocol-change.js";
 import { onboardRightsHolderSchema, runOnboardRightsHolderWorkflow } from "./onboard-rights-holder.js";
 import { onboardVoiceAssetWorkflowSchema, runOnboardVoiceAssetWorkflow } from "./onboard-voice-asset.js";
 import { purchaseMarketplaceAssetSchema, runPurchaseMarketplaceAssetWorkflow } from "./purchase-marketplace-asset.js";
 import { registerWhisperBlockSchema, runRegisterWhisperBlockWorkflow } from "./register-whisper-block.js";
 import { releaseEscrowedAssetSchema, runReleaseEscrowedAssetWorkflow } from "./release-escrowed-asset.js";
 import { releaseBeneficiaryVestingSchema, runReleaseBeneficiaryVestingWorkflow } from "./release-beneficiary-vesting.js";
+import { recoverFromEmergencyWorkflowSchema, runRecoverFromEmergencyWorkflow } from "./recover-from-emergency.js";
 import { revokeBeneficiaryVestingSchema, runRevokeBeneficiaryVestingWorkflow } from "./revoke-beneficiary-vesting.js";
 import { stakeAndDelegateSchema, runStakeAndDelegateWorkflow } from "./stake-and-delegate.js";
 import { runSubmitProposalWorkflow, submitProposalWorkflowSchema } from "./submit-proposal.js";
 import { runTransferAndResecureVoiceAssetWorkflow, transferAndResecureVoiceAssetWorkflowSchema } from "./transfer-and-resecure-voice-asset.js";
+import { runTriggerEmergencyWorkflow, triggerEmergencyWorkflowSchema } from "./trigger-emergency.js";
+import { runTreasuryRevenueOperationsWorkflow, treasuryRevenueOperationsWorkflowSchema } from "./treasury-revenue-operations.js";
 import { runUpdateMarketplaceListingPriceWorkflow, updateMarketplaceListingPriceSchema } from "./update-marketplace-listing-price.js";
 import { inspectVestingAdminPolicySchema, runInspectVestingAdminPolicyWorkflow, runUpdateVestingAdminPolicyWorkflow, updateVestingAdminPolicySchema } from "./vesting-admin-policy.js";
 import { runVoteOnProposalWorkflow, voteOnProposalWorkflowSchema } from "./vote-on-proposal.js";
@@ -62,31 +83,47 @@ export function createWorkflowRouter(context: ApiExecutionContext): Router {
   router.post("/v1/workflows/register-whisper-block", createWorkflowHandler(context, registerWhisperBlockSchema, (auth, walletAddress, body) => runRegisterWhisperBlockWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/transfer-and-resecure-voice-asset", createWorkflowHandler(context, transferAndResecureVoiceAssetWorkflowSchema, (auth, walletAddress, body) => runTransferAndResecureVoiceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-dataset-and-list-for-sale", createWorkflowHandler(context, createDatasetAndListForSaleSchema, (auth, walletAddress, body) => runCreateDatasetAndListForSaleWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/manage-license-template-lifecycle", createWorkflowHandler(context, manageLicenseTemplateLifecycleWorkflowSchema, (auth, walletAddress, body) => runManageLicenseTemplateLifecycleWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/collaborator-license-lifecycle", createWorkflowHandler(context, collaboratorLicenseLifecycleWorkflowSchema, (auth, walletAddress, body) => runCollaboratorLicenseLifecycleWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/catalog-listing-operations", createWorkflowHandler(context, catalogListingOperationsWorkflowSchema, (auth, walletAddress, body) => runCatalogListingOperationsWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-marketplace-listing", createWorkflowHandler(context, createMarketplaceListingSchema, (auth, walletAddress, body) => runCreateMarketplaceListingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/commercialize-voice-asset", createWorkflowHandler(context, commercializeVoiceAssetWorkflowSchema, (auth, walletAddress, body) => runCommercializeVoiceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/rights-aware-commercialize-voice-asset", createWorkflowHandler(context, rightsAwareCommercializeVoiceAssetWorkflowSchema, (auth, walletAddress, body) => runRightsAwareCommercializeVoiceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/inspect-marketplace-listing", createWorkflowHandler(context, inspectMarketplaceListingSchema, (auth, walletAddress, body) => runInspectMarketplaceListingWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/inspect-revenue-posture", createWorkflowHandler(context, inspectRevenuePostureWorkflowSchema, (auth, walletAddress, body) => runInspectRevenuePostureWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/update-marketplace-listing-price", createWorkflowHandler(context, updateMarketplaceListingPriceSchema, (auth, walletAddress, body) => runUpdateMarketplaceListingPriceWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/cancel-marketplace-listing", createWorkflowHandler(context, cancelMarketplaceListingSchema, (auth, walletAddress, body) => runCancelMarketplaceListingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/release-escrowed-asset", createWorkflowHandler(context, releaseEscrowedAssetSchema, (auth, walletAddress, body) => runReleaseEscrowedAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/purchase-marketplace-asset", createWorkflowHandler(context, purchaseMarketplaceAssetSchema, (auth, walletAddress, body) => runPurchaseMarketplaceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/withdraw-marketplace-payments", createWorkflowHandler(context, withdrawMarketplacePaymentsSchema, (auth, walletAddress, body) => runWithdrawMarketplacePaymentsWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/treasury-revenue-operations", createWorkflowHandler(context, treasuryRevenueOperationsWorkflowSchema, (auth, walletAddress, body) => runTreasuryRevenueOperationsWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-beneficiary-vesting", createWorkflowHandler(context, createBeneficiaryVestingSchema, (auth, walletAddress, body) => runCreateBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/inspect-beneficiary-vesting", createWorkflowHandler(context, inspectBeneficiaryVestingSchema, (auth, walletAddress, body) => runInspectBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/release-beneficiary-vesting", createWorkflowHandler(context, releaseBeneficiaryVestingSchema, (auth, walletAddress, body) => runReleaseBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/revoke-beneficiary-vesting", createWorkflowHandler(context, revokeBeneficiaryVestingSchema, (auth, walletAddress, body) => runRevokeBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/inspect-emergency-posture", createWorkflowHandler(context, inspectEmergencyPostureWorkflowSchema, (auth, walletAddress, body) => runInspectEmergencyPostureWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/inspect-legacy-migration-posture", createWorkflowHandler(context, inspectLegacyMigrationPostureWorkflowSchema, (auth, walletAddress, body) => runInspectLegacyMigrationPostureWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/trigger-emergency", createWorkflowHandler(context, triggerEmergencyWorkflowSchema, (auth, walletAddress, body) => runTriggerEmergencyWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/recover-from-emergency", createWorkflowHandler(context, recoverFromEmergencyWorkflowSchema, (auth, walletAddress, body) => runRecoverFromEmergencyWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/emergency-withdrawal-sequence", createWorkflowHandler(context, emergencyWithdrawalSequenceWorkflowSchema, (auth, walletAddress, body) => runEmergencyWithdrawalSequenceWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/inspect-vesting-admin-policy", createWorkflowHandler(context, inspectVestingAdminPolicySchema, (auth, walletAddress, body) => runInspectVestingAdminPolicyWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/update-vesting-admin-policy", createWorkflowHandler(context, updateVestingAdminPolicySchema, (auth, walletAddress, body) => runUpdateVestingAdminPolicyWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-reward-campaign", createWorkflowHandler(context, createRewardCampaignSchema, (auth, walletAddress, body) => runCreateRewardCampaignWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/manage-reward-campaign", createWorkflowHandler(context, manageRewardCampaignSchema, (auth, walletAddress, body) => runManageRewardCampaignWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/claim-reward-campaign", createWorkflowHandler(context, claimRewardCampaignSchema, (auth, walletAddress, body) => runClaimRewardCampaignWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/propose-multisig-protocol-change", createWorkflowHandler(context, proposeMultisigProtocolChangeWorkflowSchema, (auth, walletAddress, body) => runProposeMultisigProtocolChangeWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/approve-multisig-protocol-change", createWorkflowHandler(context, approveMultisigProtocolChangeWorkflowSchema, (auth, walletAddress, body) => runApproveMultisigProtocolChangeWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/execute-multisig-protocol-change", createWorkflowHandler(context, executeMultisigProtocolChangeWorkflowSchema, (auth, walletAddress, body) => runExecuteMultisigProtocolChangeWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/participant-activation-flow", createWorkflowHandler(context, participantActivationFlowWorkflowSchema, (auth, walletAddress, body) => runParticipantActivationFlowWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/operator-incentive-grant-flow", createWorkflowHandler(context, operatorIncentiveGrantFlowWorkflowSchema, (auth, walletAddress, body) => runOperatorIncentiveGrantFlowWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/onboard-rights-holder", createWorkflowHandler(context, onboardRightsHolderSchema, (auth, walletAddress, body) => runOnboardRightsHolderWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/onboard-voice-asset", createWorkflowHandler(context, onboardVoiceAssetWorkflowSchema, (auth, walletAddress, body) => runOnboardVoiceAssetWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/legacy-migration-recovery", createWorkflowHandler(context, legacyMigrationRecoveryWorkflowSchema, (auth, walletAddress, body) => runLegacyMigrationRecoveryWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/stake-and-delegate", createWorkflowHandler(context, stakeAndDelegateSchema, (auth, walletAddress, body) => runStakeAndDelegateWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/submit-proposal", createWorkflowHandler(context, submitProposalWorkflowSchema, (auth, walletAddress, body) => runSubmitProposalWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/vote-on-proposal", createWorkflowHandler(context, voteOnProposalWorkflowSchema, (auth, walletAddress, body) => runVoteOnProposalWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/governance-admin-flow", createWorkflowHandler(context, governanceAdminFlowWorkflowSchema, (auth, walletAddress, body) => runGovernanceAdminFlowWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/governance-execution-flow", createWorkflowHandler(context, governanceExecutionFlowWorkflowSchema, (auth, walletAddress, body) => runGovernanceExecutionFlowWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/governance-timelock-consequence-flow", createWorkflowHandler(context, governanceTimelockConsequenceFlowWorkflowSchema, (auth, walletAddress, body) => runGovernanceTimelockConsequenceFlowWorkflow(context, auth, walletAddress, body)));
   return router;
 }
