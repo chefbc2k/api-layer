@@ -48,6 +48,19 @@ export async function runRegisterVoiceAssetWorkflow(
         "registerVoiceAsset.registrationRead",
       )
     : null;
+  const tokenIdRead = voiceHash
+    ? await waitForWorkflowReadback(
+        () => voiceAssets.getTokenId({
+          auth,
+          api: { executionSource: "live", gaslessMode: "none" },
+          walletAddress,
+          wireParams: [voiceHash],
+        }),
+        (result) => result.statusCode === 200 && isNumericLike(result.body),
+        "registerVoiceAsset.tokenIdRead",
+      )
+    : null;
+  const tokenId = numericLikeToString(tokenIdRead?.body);
 
   let metadataUpdate: import("../../../shared/route-types.js").RouteResult | null = null;
   let metadataUpdateTxHash: string | null = null;
@@ -78,6 +91,7 @@ export async function runRegisterVoiceAssetWorkflow(
       submission: registration.body,
       txHash: registrationTxHash,
       voiceAsset: registrationRead?.body ?? null,
+      tokenId,
     },
     metadataUpdate: metadataUpdate
       ? {
@@ -90,6 +104,7 @@ export async function runRegisterVoiceAssetWorkflow(
     summary: {
       owner: body.owner ?? null,
       hasFeatures: Boolean(body.features),
+      tokenId,
     },
   };
 }
@@ -100,13 +115,29 @@ async function waitForWorkflowReadback(
   label: string,
 ) {
   let lastResult: import("../../../shared/route-types.js").RouteResult | null = null;
+  let lastError: unknown = null;
   for (let attempt = 0; attempt < 40; attempt += 1) {
-    const result = await read();
-    lastResult = result;
-    if (ready(result)) {
-      return result;
+    try {
+      const result = await read();
+      lastResult = result;
+      if (ready(result)) {
+        return result;
+      }
+    } catch (error) {
+      lastError = error;
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
+  if (lastError) {
+    throw new Error(`${label} readback timeout after transient read errors: ${String((lastError as Error)?.message ?? lastError)}`);
+  }
   throw new Error(`${label} readback timeout: ${JSON.stringify(lastResult?.body ?? null)}`);
+}
+
+function isNumericLike(value: unknown): boolean {
+  return typeof value === "string" || typeof value === "number" || typeof value === "bigint";
+}
+
+function numericLikeToString(value: unknown): string | null {
+  return isNumericLike(value) ? String(value) : null;
 }
