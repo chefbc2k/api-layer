@@ -13,6 +13,8 @@ const actorOverrideSchema = z.object({
   walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/u).optional(),
 });
 
+// Commercialization requires the acting account to be the current on-chain owner
+// of every asset being packaged. Roles/authorizations do not substitute ownership.
 export const commercializeVoiceAssetWorkflowSchema = z.object({
   packaging: createDatasetAndListForSaleSchema,
   inspectListing: z.boolean().default(false),

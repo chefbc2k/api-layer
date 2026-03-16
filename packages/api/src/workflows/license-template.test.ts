@@ -100,6 +100,9 @@ describe("resolveDatasetLicenseTemplate", () => {
   });
 
   it("creates and confirms a template when no active template exists", async () => {
+    const nowSpy = vi.spyOn(Date, "now")
+      .mockReturnValueOnce(1_700_000_000_123)
+      .mockReturnValueOnce(1_700_000_000_123);
     const licensing = {
       getCreatorTemplates: vi.fn().mockResolvedValue({
         statusCode: 200,
@@ -136,6 +139,35 @@ describe("resolveDatasetLicenseTemplate", () => {
       { txHash: "0xcreate", result: `0x${"0".repeat(63)}a` },
       "licenseTemplate.create",
     );
+    expect(licensing.createTemplate).toHaveBeenCalledWith({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress: undefined,
+      wireParams: [{
+        creator: "0x00000000000000000000000000000000000000cc",
+        isActive: true,
+        transferable: true,
+        createdAt: "1700000000",
+        updatedAt: "1700000000",
+        defaultDuration: "3888000",
+        defaultPrice: "15000",
+        maxUses: "12",
+        name: "Auto Dataset Template 1700000000123",
+        description: "Auto-created for dataset workflow verification",
+        defaultRights: ["Narration", "Ads"],
+        defaultRestrictions: ["no-sublicense"],
+        terms: {
+          licenseHash: `0x${"0".repeat(64)}`,
+          duration: "3888000",
+          price: "15000",
+          maxUses: "12",
+          transferable: true,
+          rights: ["Narration", "Ads"],
+          restrictions: ["no-sublicense"],
+        },
+      }],
+    });
+    nowSpy.mockRestore();
   });
 
   it("throws when requested template readback never stabilizes", async () => {

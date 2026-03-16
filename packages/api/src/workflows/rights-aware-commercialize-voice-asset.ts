@@ -13,6 +13,7 @@ const collaboratorRightsSetupSchema = z.object({
   authorizeVoice: z.boolean().default(true),
 });
 
+// Rights setup does not override ownership requirements for commercialization.
 export const rightsAwareCommercializeVoiceAssetWorkflowSchema = z.object({
   voiceAsset: z.object({
     voiceHash: bytes32Schema,
