@@ -11,6 +11,12 @@ Independent API-layer workspace nested inside the contracts repository.
 - `scenario-adapter`: API-mode shims plus a copied local snapshot of the full contracts deployment-scenario suite.
 - `ops`: Local orchestration and health tooling.
 
+## Changelog & Documentation Mandate
+
+**ALL work MUST be documented in [CHANGELOG.md](./CHANGELOG.md). No exceptions.**
+
+We are committed to a "Building in Public" approach. This means every minor and major milestone, architectural change, or feature addition throughout the project's life must be recorded. Documentation is not just for devs; it's the history of the repo's evolution.
+
 ## Quick Start
 
 ```bash
