@@ -72,6 +72,31 @@ The API no longer treats proposal submission and voting as a single happy-path w
 
 It reports which fixtures are actually ready, which are partial, and which still require upstream contract state or additional testnet funding.
 
+## Commercialization Ownership Rule
+
+Business rule: a voice asset can only be commercialized by the current on-chain owner of that asset.
+
+Not sufficient on their own:
+- collaborator role
+- marketplace seller role
+- per-voice authorization
+- template access
+- approval-style setup without ownership
+
+Commercialization includes:
+- dataset packaging using the asset
+- listing the resulting dataset/asset for sale
+- collaborator-driven commercialization wrappers
+
+UI precondition copy:
+- Only the current asset owner can commercialize this asset.
+- This account is authorized, but not the owner.
+- Transfer ownership first if this collaborator should commercialize.
+
+Validation guidance:
+- Fail early in the workflow/UI when the acting user is not the owner.
+- Suggested error shape: "commercialization requires current asset ownership; actor is authorized but not owner; transfer asset ownership before commercialization".
+
 ## Scenario Adapter
 
 `scenario:api` no longer falls back to local Anvil happy paths. You must supply an explicit scenario command:
