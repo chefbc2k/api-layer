@@ -53,13 +53,13 @@ export async function runCreateDatasetAndListForSaleWorkflow(
         walletAddress,
         wireParams: [assetId],
       }),
-      (result) => result.statusCode === 200,
+      (result) => result.statusCode === 200 && typeof result.body === "string",
       `createDatasetAndListForSale.assetOwner.${assetId}`,
     );
     return { assetId, owner: normalizeAddress(ownerRead.body), ownerRead: ownerRead.body };
   }));
 
-  const ownershipMismatch = ownershipReads.find((entry) => entry.owner && entry.owner !== normalizedSigner);
+  const ownershipMismatch = ownershipReads.find((entry) => entry.owner !== normalizedSigner);
   if (ownershipMismatch) {
     let voiceHash: string | null = null;
     let actorAuthorized: boolean | null = null;
