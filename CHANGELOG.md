@@ -57,8 +57,12 @@
 ### Fixed
 - **Live Contract Harness RPC Resolution:** Updated [packages/api/src/app.contract-integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) to resolve runtime config through the shared fallback loader before booting the embedded API server, so the Base Sepolia contract suite no longer collapses immediately on the dead repo-default `127.0.0.1:8548` RPC.
 - **Base Sepolia Suite Drift Cleanup:** Aligned the long-form contract integration suite with current generated routes and workflow payloads, including marketplace escrow event paths, governance role-query endpoints, tokenomics query names, diamond-admin immutable-selector routes, licensing template creation payloads, and workflow assertions that legitimately return `null` when approval is already in place.
+- **Purchase Proof Artifact Reliability:** Hardened [scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) to write its artifact directly to disk and fall back to creating a fresh listing when the configured fixture has already been consumed, instead of relying on stdout redirection alone.
 
 ### Verified
 - **Marketplace Partial Collapsed:** The previously open marketplace setup partial is now proven working on Base Sepolia. The fixture concern about the buyer’s `5000` USDC balance/allowance was not an actual blocker because the aged listing price was `1000`, and the live `buyer-key` purchase completed successfully.
 - **Event Mismatch Closed:** Confirmed the live artifact mismatch is gone; [verify-live-output.json](/Users/chef/Public/api-layer/verify-live-output.json) no longer reports missing `AssetListed` or `VoiceAssetRegistered` endpoints.
 - **Bounded Full-Suite Pass:** Re-ran `pnpm run test:contract:base-sepolia` after the harness fix and observed the suite progressing through the previously blocked live domains under the normal proof script, including access-control, voice-assets, datasets, marketplace, governance, tokenomics, whisperblock, licensing, admin/emergency/multisig, and workflow tests.
+
+### Known Issues
+- **Fixture Age Regression:** A fresh `pnpm run setup:base-sepolia` now repopulates [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) with an active listing that is still within the marketplace contract’s 1 day purchase lock, so the fixture remains useful for listing-state checks but not as a rerunnable purchase-proof target until the age-selection logic is corrected.

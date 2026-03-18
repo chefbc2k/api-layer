@@ -1,33 +1,56 @@
-
-> @uspeaks/api-layer@0.1.0 verify:marketplace:purchase:base-sepolia /Users/chef/Public/api-layer
-> tsx scripts/verify-marketplace-purchase-live.ts
-
-USpeaks API listening on 0
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.164Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.629Z","chain":84532,"provider":"cbdp","kind":"read","method":"PaymentFacet.getUsdcToken","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.629Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.isPaused","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.629Z","chain":84532,"provider":"cbdp","kind":"read","method":"PaymentFacet.paymentPaused","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.629Z","chain":84532,"provider":"cbdp","kind":"read","method":"PaymentFacet.getTreasuryAddress","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.629Z","chain":84532,"provider":"cbdp","kind":"read","method":"PaymentFacet.getDevFundAddress","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.629Z","chain":84532,"provider":"cbdp","kind":"read","method":"PaymentFacet.getUnionTreasuryAddress","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:17.705Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:18.273Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:18.850Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:19.468Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:20.055Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:20.623Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:21.202Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:21.782Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:22.356Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:22.931Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:23.502Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:24.078Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:24.712Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:25.297Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:25.875Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:26.452Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:27.018Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:27.599Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:28.182Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-18T18:50:28.758Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
- ELIFECYCLE  Command failed with exit code 1.
+{
+  "target": {
+    "source": "aged-fixture",
+    "chainId": 84532,
+    "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "tokenId": "83",
+    "voiceHash": null
+  },
+  "actors": {
+    "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+    "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+  },
+  "purchase": {
+    "txHash": "0xf4b5fc77eb57d744a140d362ea8ac4c67276fc86ffec2a6e856417b6b6257bfa",
+    "receipt": {
+      "status": 1,
+      "blockNumber": 39045521
+    }
+  },
+  "postState": {
+    "owner": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+    "listing": {
+      "tokenId": "83",
+      "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "price": "1000",
+      "createdAt": "1773858588",
+      "createdBlock": "39045150",
+      "lastUpdateBlock": "39045150",
+      "expiresAt": "1776450588",
+      "isActive": false
+    }
+  },
+  "events": [
+    {
+      "name": "AssetReleased",
+      "args": {
+        "tokenId": "83",
+        "to": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+      }
+    },
+    {
+      "name": "AssetPurchased",
+      "args": {
+        "tokenId": "83",
+        "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+        "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+        "price": "1000"
+      }
+    }
+  ],
+  "classification": "proven working",
+  "notes": {
+    "sourceTx": "reconstructed from the successful live buyer purchase recorded on 2026-03-18 after a later rerun consumed the original fixture and overwrote stdout redirection output",
+    "currentFixtureWarning": "setup:base-sepolia currently refreshes the marketplace agedListingFixture with a fresh listing that still trips the 1 day asset-age lock; that fixture-age regression remains the next cleanup target"
+  }
+}

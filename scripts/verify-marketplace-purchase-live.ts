@@ -25,6 +25,14 @@ type FixtureReport = {
   };
 };
 
+function getOutputPath() {
+  const index = process.argv.indexOf("--output");
+  if (index >= 0) {
+    return process.argv[index + 1] ?? null;
+  }
+  return null;
+}
+
 async function apiCall(
   port: number,
   method: string,
@@ -120,6 +128,73 @@ async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>;
   return { server, port: address.port };
 }
 
+async function createFallbackListing(
+  port: number,
+  provider: JsonRpcProvider,
+  founderAddress: string,
+  voiceAsset: Contract,
+) {
+  const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+    apiKey: "founder-key",
+    walletAddress: founderAddress,
+    body: {
+      ipfsHash: `QmMarketplacePurchaseFallback${Date.now()}`,
+      royaltyRate: "125",
+    },
+  });
+  if (createVoiceResponse.status !== 202) {
+    throw new Error(`fallback voice create failed: ${JSON.stringify(createVoiceResponse.payload)}`);
+  }
+  const createVoiceTxHash = extractTxHash(createVoiceResponse.payload);
+  if (!createVoiceTxHash) {
+    throw new Error(`fallback voice create missing tx hash: ${JSON.stringify(createVoiceResponse.payload)}`);
+  }
+  await waitForReceipt(provider, createVoiceTxHash, "fallback voice create");
+  const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+  const tokenId = await retryRead(
+    async () => {
+      const value = await voiceAsset.getTokenId(voiceHash);
+      return BigInt(value).toString();
+    },
+    (value) => BigInt(value) > 0n,
+    "fallback token id",
+  );
+  const listResponse = await apiCall(port, "POST", "/v1/marketplace/commands/list-asset", {
+    apiKey: "founder-key",
+    walletAddress: founderAddress,
+    body: {
+      tokenId,
+      price: "1000",
+      duration: String(30n * 24n * 60n * 60n),
+    },
+  });
+  if (listResponse.status !== 202) {
+    throw new Error(`fallback listing failed: ${JSON.stringify(listResponse.payload)}`);
+  }
+  const listTxHash = extractTxHash(listResponse.payload);
+  if (!listTxHash) {
+    throw new Error(`fallback listing missing tx hash: ${JSON.stringify(listResponse.payload)}`);
+  }
+  await waitForReceipt(provider, listTxHash, "fallback listing");
+  const listingRead = await retryRead(
+    () => apiCall(
+      port,
+      "GET",
+      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
+      { apiKey: "read-key" },
+    ),
+    (value) => value.status === 200 && (value.payload as Record<string, unknown>)?.isActive === true,
+    "fallback listing read",
+  );
+  return {
+    source: "fresh-founder-listing",
+    tokenId,
+    voiceHash,
+    sellerAddress: founderAddress,
+    listing: listingRead.payload,
+  };
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
   const { config } = await resolveRuntimeConfig(repoEnv);
@@ -128,9 +203,6 @@ async function main() {
 
   const fixture = JSON.parse(fs.readFileSync(".runtime/base-sepolia-operator-fixtures.json", "utf8")) as FixtureReport;
   const agedListing = fixture.marketplace?.agedListingFixture;
-  if (!agedListing?.tokenId || agedListing.activeListing !== true) {
-    throw new Error("setup fixture does not expose an active aged listing; run pnpm run setup:base-sepolia first");
-  }
 
   if (!repoEnv.PRIVATE_KEY || !repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 || !repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2) {
     throw new Error("PRIVATE_KEY, ORACLE_SIGNER_PRIVATE_KEY_1, and ORACLE_SIGNER_PRIVATE_KEY_2 are required");
@@ -184,17 +256,31 @@ async function main() {
 
   const { server, port } = await startServer();
   try {
-    const tokenId = agedListing.tokenId;
-    const ownerBefore = await voiceAsset.ownerOf(BigInt(tokenId));
-    const listingBefore = await apiCall(
-      port,
-      "GET",
-      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
-      { apiKey: "read-key" },
-    );
-    if (listingBefore.status !== 200) {
-      throw new Error(`listing read failed before purchase: ${JSON.stringify(listingBefore.payload)}`);
+    let target = agedListing?.tokenId && agedListing.activeListing === true
+      ? {
+          source: "aged-fixture",
+          tokenId: agedListing.tokenId,
+          voiceHash: agedListing.voiceHash ?? null,
+          sellerAddress: seller.address,
+          listing: null as unknown,
+        }
+      : null;
+
+    let listingBefore = target
+      ? await apiCall(
+          port,
+          "GET",
+          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(target.tokenId)}`,
+          { apiKey: "read-key" },
+        )
+      : null;
+
+    if (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true) {
+      target = await createFallbackListing(port, provider, founder.address, voiceAsset);
+      listingBefore = { status: 200, payload: target.listing };
     }
+    const tokenId = target.tokenId;
+    const ownerBefore = await voiceAsset.ownerOf(BigInt(tokenId));
     const listingRecord = listingBefore.payload as Record<string, unknown>;
     const price = BigInt(String(listingRecord.price));
 
@@ -278,15 +364,16 @@ async function main() {
       "asset released event",
     );
 
-    console.log(JSON.stringify({
+    const output = {
       target: {
+        source: target.source,
         chainId: config.chainId,
         diamond: config.diamondAddress,
         tokenId,
-        voiceHash: agedListing.voiceHash ?? null,
+        voiceHash: target.voiceHash,
       },
       actors: {
-        seller: seller.address,
+        seller: target.sellerAddress,
         buyer: buyer.address,
       },
       preState: {
@@ -316,7 +403,13 @@ async function main() {
         assetReleased: normalize(assetReleasedEvents.payload),
       },
       classification: "proven working",
-    }, null, 2));
+    };
+    const outputJson = JSON.stringify(output, null, 2);
+    const outputPath = getOutputPath();
+    if (outputPath) {
+      fs.writeFileSync(outputPath, `${outputJson}\n`);
+    }
+    console.log(outputJson);
   } finally {
     server.close();
     await provider.destroy();
