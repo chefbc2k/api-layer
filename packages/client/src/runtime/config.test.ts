@@ -35,4 +35,16 @@ describe("runtime config", () => {
     expect(isAlchemyRpcUrl("https://base-sepolia.g.alchemy.com/v2/key")).toBe(true);
     expect(isAlchemyRpcUrl("https://rpc.example.com")).toBe(false);
   });
+
+  it("prefers explicit runtime overrides over repo defaults", () => {
+    const config = readConfigFromEnv({
+      CHAIN_ID: "84532",
+      DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+      RPC_URL: "https://override-rpc.example.com/base-sepolia",
+      ALCHEMY_RPC_URL: "https://override-alchemy.example.com/base-sepolia",
+    });
+
+    expect(config.cbdpRpcUrl).toBe("https://override-rpc.example.com/base-sepolia");
+    expect(config.alchemyRpcUrl).toBe("https://override-alchemy.example.com/base-sepolia");
+  });
 });

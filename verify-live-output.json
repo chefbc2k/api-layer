@@ -1,34 +1,37 @@
 USpeaks API listening on 0
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:43.951Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.propose(address[],uint256[],bytes[],string,uint8).preview","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:44.841Z","chain":84532,"provider":"cbdp","kind":"write","method":"ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:47.162Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.proposalSnapshot","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:47.236Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.prState","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:47.325Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:49.184Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:27:49.336Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:07.234Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:08.835Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.setApprovalForAll","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:10.100Z","chain":84532,"provider":"cbdp","kind":"write","method":"MarketplaceFacet.listAsset","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:10.804Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:12.873Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:12.944Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:13.671Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:13.739Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:16.965Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:17.178Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:17.247Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:23.449Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:23.524Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.createDataset.prepare","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:23.819Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:24.484Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.354Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getVoiceAsset","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.425Z","chain":84532,"provider":"cbdp","kind":"read","method":"TokenSupplyFacet.totalSupply","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.495Z","chain":84532,"provider":"cbdp","kind":"read","method":"CommunityRewardsFacet.campaignCount","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.565Z","chain":84532,"provider":"cbdp","kind":"read","method":"VestingFacet.hasVestingSchedule","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.631Z","chain":84532,"provider":"cbdp","kind":"read","method":"AccessControlFacet.hasRole","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.698Z","chain":84532,"provider":"cbdp","kind":"read","method":"DiamondCutFacet.FOUNDER_ROLE","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.826Z","chain":84532,"provider":"cbdp","kind":"read","method":"EmergencyFacet.getEmergencyState","retryCount":0,"failoverReason":null}
-{"level":"info","message":"provider request ok","time":"2026-03-13T04:28:27.895Z","chain":84532,"provider":"cbdp","kind":"read","method":"MultiSigFacet.isOperator","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:12.844Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.propose(address[],uint256[],bytes[],string,uint8).preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:13.385Z","chain":84532,"provider":"cbdp","kind":"write","method":"ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:15.720Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.proposalSnapshot","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:15.871Z","chain":84532,"provider":"cbdp","kind":"read","method":"ProposalFacet.prState","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:15.961Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:16.476Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:16.649Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:22.823Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:23.328Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.setApprovalForAll","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:24.447Z","chain":84532,"provider":"cbdp","kind":"write","method":"MarketplaceFacet.listAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:25.153Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:27.222Z","chain":84532,"provider":"cbdp","kind":"read","method":"MarketplaceFacet.getListing","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:27.340Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:27.788Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:27.914Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:28.397Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:28.609Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:34.837Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:34.906Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getTokenId","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:34.977Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getCreatorTemplates","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:35.050Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:35.205Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.createDataset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:35.654Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.createDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:35.796Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:36.261Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.043Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.getVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.112Z","chain":84532,"provider":"cbdp","kind":"read","method":"TokenSupplyFacet.totalSupply","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.182Z","chain":84532,"provider":"cbdp","kind":"read","method":"CommunityRewardsFacet.campaignCount","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.259Z","chain":84532,"provider":"cbdp","kind":"read","method":"VestingFacet.hasVestingSchedule","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.398Z","chain":84532,"provider":"cbdp","kind":"read","method":"AccessControlFacet.hasRole","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.477Z","chain":84532,"provider":"cbdp","kind":"read","method":"DiamondCutFacet.FOUNDER_ROLE","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.543Z","chain":84532,"provider":"cbdp","kind":"read","method":"EmergencyFacet.getEmergencyState","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T17:18:39.607Z","chain":84532,"provider":"cbdp","kind":"read","method":"MultiSigFacet.isOperator","retryCount":0,"failoverReason":null}
 {
   "governance": {
     "routes": [
@@ -45,18 +48,18 @@ USpeaks API listening on 0
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0x4b841d3549ec93821d086f7ef4e9f4afbaefc6182ddc8aa5398deb605da79cce",
-          "result": "18"
+          "txHash": "0x7f47ae298b9bc1c88ecb292d506fa3cc5790a1e41a8bf5ab03b186c84d552baa",
+          "result": "34"
         }
       },
-      "submitTxHash": "0x4b841d3549ec93821d086f7ef4e9f4afbaefc6182ddc8aa5398deb605da79cce",
+      "submitTxHash": "0x7f47ae298b9bc1c88ecb292d506fa3cc5790a1e41a8bf5ab03b186c84d552baa",
       "submitReceipt": {
         "status": 1,
-        "blockNumber": 38803889
+        "blockNumber": 39043003
       },
       "snapshot": {
         "status": 200,
-        "payload": "38810609"
+        "payload": "39049723"
       },
       "state": {
         "status": 200,
@@ -81,19 +84,19 @@ USpeaks API listening on 0
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0xc729e5dbc6e85c798016f3535448583708427ef82bf6faede33bd9803a71d8d7",
-          "result": "0xc76634ea9148c1fc809068ea6038a7ac77b0d299848d30e87a9e53c9632f0c4e"
+          "txHash": "0x310e64726fbe8cbee1f2423602ad1e4d2a374a60c153a9c7fdf74be11189a4d9",
+          "result": "0x70d15ecb170f172431004b60564c310ccffd8d5319031e428df3abec84fc564e"
         }
       },
       "tokenId": {
         "status": 200,
-        "payload": "65"
+        "payload": "152"
       },
       "approval": {
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0x503f8bb59fd31d94f3ef3cbf291031b928865cd2472446d4807c01a93b4b517e",
+          "txHash": "0x77fde8f7488f52412e54ed3d0383c2fa00930901385b6353350585d13a0d3faa",
           "result": null
         }
       },
@@ -101,13 +104,13 @@ USpeaks API listening on 0
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0x27349a5ba5dc32fad89b70cb678975d7d72dd208671bc39403822943750573e1",
+          "txHash": "0xf14388ba58c7fced417cb68cf182fc92368a8ec7750d93039409fb4c0ceb3ffc",
           "result": null
         }
       },
       "listReceipt": {
         "status": 1,
-        "blockNumber": 38803902
+        "blockNumber": 39043009
       },
       "assetListedEvent": {
         "status": 0,
@@ -116,13 +119,13 @@ USpeaks API listening on 0
       "listingRead": {
         "status": 200,
         "payload": {
-          "tokenId": "65",
+          "tokenId": "152",
           "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
           "price": "1000",
-          "createdAt": "1773376092",
-          "createdBlock": "38803902",
-          "lastUpdateBlock": "38803902",
-          "expiresAt": "1775968092",
+          "createdAt": "1773854306",
+          "createdBlock": "39043009",
+          "lastUpdateBlock": "39043009",
+          "expiresAt": "1776446306",
           "isActive": true
         }
       }
@@ -132,71 +135,52 @@ USpeaks API listening on 0
     "routes": [
       "POST /v1/voice-assets",
       "GET /v1/voice-assets/queries/get-token-id",
-      "POST /v1/datasets/datasets"
+      "POST /v1/datasets/datasets",
+      "GET /v1/licensing/queries/get-creator-templates",
+      "GET /v1/licensing/queries/get-template",
+      "POST /v1/licensing/license-templates/create-template"
     ],
     "actors": [
-      "founder-key"
+      "founder-key",
+      "licensing-owner-key"
     ],
-    "result": "blocked by setup/state",
+    "result": "proven working",
     "evidence": {
       "voiceA": {
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0xf3b25501950adcdd0d590bd35d3ba03759124e3b4f00ba21e4898c8f782da59c",
-          "result": "0x78a956ed5f9d9206779ac84d7ecfca9df094fa20e60bfb31b8d4455e4c87e374"
+          "txHash": "0xa9c9544bca3c340fbc8a2e78971074cc0b79c488bc36049f4615cb26be38cc01",
+          "result": "0x9290388dd0fc9dc981bde093c52334f241ba5db15c4827478052fb802fd89934"
         }
       },
       "voiceB": {
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0xc131c416a8f5f6d52b6ef930f808a15569179f7941de83feb143a5e794c17443",
-          "result": "0x276d7623c108884ace009401c00b366d9292ee6a0b8ddbb65dde4a85a921a733"
+          "txHash": "0x6fd2cb942936b3ba083f38b6a68c59fd58f58846556f5716d388f882af0ca6e7",
+          "result": "0xff324744673bd605f09c26a9986f62a9c4e85f6e14d1d8363f3b9c018f35134b"
         }
       },
       "tokenA": {
         "status": 200,
-        "payload": "66"
+        "payload": "153"
       },
       "tokenB": {
         "status": 200,
-        "payload": "67"
+        "payload": "154"
+      },
+      "template": {
+        "templateHashHex": "0x574e983cea0f79db4d167b3965ca02a5c6bdc619b5da780052e4d5b662499bcc",
+        "templateIdDecimal": "39490082605487844669531936293359255950684333160504307907798626797064716655564",
+        "created": false
       },
       "dataset": {
-        "status": 500,
+        "status": 202,
         "payload": {
-          "error": "execution reverted: InvalidLicenseTemplate(uint256)",
-          "diagnostics": {
-            "route": {
-              "httpMethod": "POST",
-              "path": "/v1/datasets/datasets",
-              "operationId": "createDataset",
-              "contractFunction": "VoiceDatasetFacet.createDataset(string,uint256[],uint256,string,uint96)"
-            },
-            "alchemy": {
-              "enabled": true,
-              "simulationEnabled": true,
-              "simulationEnforced": false,
-              "endpointDetected": true,
-              "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-              "available": true
-            },
-            "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-            "provider": "cbdp",
-            "actors": [
-              {
-                "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "nonce": "1992",
-                "balance": "476055827731585"
-              }
-            ],
-            "trace": {
-              "status": "unavailable",
-              "error": "bad response (status=400, headers={\"content-type\":\"application/json\",\"date\":\"Fri, 13 Mar 2026 04:28:23 GMT\",\"content-encoding\":\"gzip\",\"x-envoy-upstream-service-time\":\"14\",\"server\":\"istio-envoy\",\"x-alchemy-response-code\":\"400\",\"x-alchemy-trace-id\":\"a312ab47-e6e6-4d25-b1c4-14e698d0b5e8\",\"transfer-encoding\":\"chunked\"}, body=\"{\\\"jsonrpc\\\":\\\"2.0\\\",\\\"id\\\":54,\\\"error\\\":{\\\"code\\\":-32600,\\\"message\\\":\\\"debug_traceCall is not available on the Free tier - upgrade to Pay As You Go, or Enterprise for access.\\\"}}\", requestBody=\"{\\\"method\\\":\\\"debug_traceCall\\\",\\\"params\\\":[{\\\"from\\\":\\\"0x3605020bb497c0ad07635E9ca0021Ba60f1244a2\\\",\\\"to\\\":\\\"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669\\\",\\\"data\\\":\\\"0x2f8104d200000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001f4000000000000000000000000000000000000000000000000000000000000001a4c697665204461746173657420313737333337363130333435310000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004200000000000000000000000000000000000000000000000000000000000000430000000000000000000000000000000000000000000000000000000000000021697066733a2f2f646174617365742d6d6574612d3137373333373631303334353100000000000000000000000000000000000000000000000000000000000000\\\"},\\\"pending\\\",{\\\"tracer\\\":\\\"callTracer\\\"}],\\\"id\\\":54,\\\"jsonrpc\\\":\\\"2.0\\\"}\", requestMethod=\"POST\", url=\"https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4\", code=SERVER_ERROR, version=web/5.8.0)"
-            },
-            "cause": "execution reverted: InvalidLicenseTemplate(uint256)"
-          }
+          "requestId": null,
+          "txHash": "0x2cc40b80faae8f1a0315ba55084483960bfd695cc8cdffbb0afb23c188ab079d",
+          "result": "1000000000000000025"
         }
       }
     }
@@ -215,13 +199,13 @@ USpeaks API listening on 0
         "status": 202,
         "payload": {
           "requestId": null,
-          "txHash": "0x09306bce6d98f78612c5c9631268643390a52485ef9f485e56614d89b2261156",
-          "result": "0x1038fc5365ec124ffbef1a1d14c6ff3fd3752d4eeed32a1ef9d8fa07fc85a49e"
+          "txHash": "0xbc7e425897c174b60132d6a4b26093328776595f566152200d08292277d7e468",
+          "result": "0xf5ad6d399419d7608d4674d3095b70610561e0e42a4af28a3085d508189577c4"
         }
       },
       "createVoiceReceipt": {
         "status": 1,
-        "blockNumber": 38803909
+        "blockNumber": 39043015
       },
       "registeredEvent": {
         "status": 0,
@@ -231,11 +215,11 @@ USpeaks API listening on 0
         "status": 200,
         "payload": [
           "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-          "QmLayer1Voice-1773376103757",
+          "QmLayer1Voice-1773854315656",
           "175",
           false,
           "0",
-          "1773376106"
+          "1773854318"
         ]
       }
     }
@@ -257,7 +241,7 @@ USpeaks API listening on 0
       },
       "campaignCount": {
         "status": 200,
-        "payload": "0"
+        "payload": "18"
       },
       "vestingSchedule": {
         "status": 200,
@@ -306,3 +290,111 @@ USpeaks API listening on 0
     }
   }
 }
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)
+JsonRpcProvider failed to detect network and cannot start up; retry in 1s (perhaps the URL is wrong or the node is not started)

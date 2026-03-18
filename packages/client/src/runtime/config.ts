@@ -6,7 +6,7 @@ import { z } from "zod";
 
 const currentDir = __dirname;
 const repoEnvPath = path.resolve(currentDir, "../../../../.env");
-let cachedRepoEnv: NodeJS.ProcessEnv | null = null;
+let cachedRepoFileEnv: NodeJS.ProcessEnv | null = null;
 
 export type ConfigValueSource = ".env" | "missing";
 
@@ -49,15 +49,17 @@ const configSchema = z.object({
 export type ApiLayerConfig = z.infer<typeof configSchema>;
 
 export function loadRepoEnv(): NodeJS.ProcessEnv {
-  if (cachedRepoEnv) {
-    return cachedRepoEnv;
+  if (!cachedRepoFileEnv) {
+    if (!existsSync(repoEnvPath)) {
+      cachedRepoFileEnv = {};
+    } else {
+      cachedRepoFileEnv = parse(readFileSync(repoEnvPath, "utf8"));
+    }
   }
-  if (!existsSync(repoEnvPath)) {
-    cachedRepoEnv = {};
-    return cachedRepoEnv;
-  }
-  cachedRepoEnv = parse(readFileSync(repoEnvPath, "utf8"));
-  return cachedRepoEnv;
+  return {
+    ...cachedRepoFileEnv,
+    ...process.env,
+  };
 }
 
 function resolveValue(repoEnv: NodeJS.ProcessEnv, ...keys: string[]): string | undefined {

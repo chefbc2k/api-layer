@@ -25,3 +25,17 @@
 ### Current Status
 - Core Layer 1 and Layer 2 domains verified on Base Sepolia.
 - Focused on Layer 3 verification and optimizing retry/error-handling workflows.
+
+## [0.1.1] - 2026-03-18
+
+### Added
+- **Live Fixture Refresh:** Re-ran Base Sepolia operator setup and persisted the refreshed fixture report in [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json), including actor balances, governance readiness, and marketplace fixture state.
+- **Live Layer 1 Proof Refresh:** Re-generated [verify-live-output.json](/Users/chef/Public/api-layer/verify-live-output.json) against Base Sepolia and captured fresh tx hashes, receipts, and readbacks for governance, marketplace, datasets, voice-assets, tokenomics, access-control, and admin/emergency/multisig domains.
+
+### Fixed
+- **Runtime Override Handling:** Updated the runtime config loader to let process-level environment overrides take precedence over the repo `.env`, so Base Sepolia proof commands can be redirected to a live RPC without editing committed secrets.
+- **Dataset Verification Completion:** Confirmed the live dataset proof now reuses an active license template and completes successfully on Base Sepolia, collapsing the prior `InvalidLicenseTemplate(uint256)` partial into `proven working`.
+
+### Verified
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept API-surface and wrapper coverage at 489 methods and 218 events.
+- **Config Regression Guard:** Added a runtime-config test that locks in override precedence for `RPC_URL` and `ALCHEMY_RPC_URL`.
