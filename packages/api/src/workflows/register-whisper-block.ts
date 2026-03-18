@@ -155,30 +155,46 @@ async function waitForWorkflowReadback(
   label: string,
 ) {
   let lastResult: RouteResult | null = null;
+  let lastError: unknown = null;
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    const result = await read();
-    lastResult = result;
-    if (ready(result)) {
-      return result;
+    try {
+      const result = await read();
+      lastResult = result;
+      if (ready(result)) {
+        return result;
+      }
+    } catch (error) {
+      lastError = error;
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  if (lastError) {
+    throw new Error(`${label} readback timeout after transient read errors: ${String((lastError as Error)?.message ?? lastError)}`);
   }
   throw new Error(`${label} readback timeout: ${JSON.stringify(lastResult?.body ?? null)}`);
 }
 
 async function waitForWorkflowEventQuery(
-  read: () => Promise<unknown[]>,
+  read: () => Promise<unknown[] | RouteResult>,
   ready: (logs: unknown[]) => boolean,
   label: string,
 ) {
   let lastLogs: unknown[] = [];
+  let lastError: unknown = null;
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    const logs = await read();
-    lastLogs = logs;
-    if (ready(logs)) {
-      return logs;
+    try {
+      const logs = normalizeEventLogs(await read());
+      lastLogs = logs;
+      if (ready(logs)) {
+        return logs;
+      }
+    } catch (error) {
+      lastError = error;
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  if (lastError) {
+    throw new Error(`${label} event query timeout after transient read errors: ${String((lastError as Error)?.message ?? lastError)}`);
   }
   throw new Error(`${label} event query timeout: ${JSON.stringify(lastLogs)}`);
 }
@@ -193,4 +209,15 @@ function hasTransactionHash(logs: unknown[], txHash: string | null): boolean {
     }
     return (entry as Record<string, unknown>).transactionHash === txHash;
   });
+}
+
+function normalizeEventLogs(value: unknown[] | RouteResult): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+  const body = (value as Record<string, unknown>).body;
+  return Array.isArray(body) ? body : [];
 }

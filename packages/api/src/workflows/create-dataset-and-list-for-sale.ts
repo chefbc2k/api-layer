@@ -3,10 +3,12 @@ import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 import type { RouteResult } from "../shared/route-types.js";
+import { HttpError } from "../shared/errors.js";
 import { createDatasetsPrimitiveService } from "../modules/datasets/primitives/generated/index.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
 import { createVoiceAssetsPrimitiveService } from "../modules/voice-assets/primitives/generated/index.js";
 import { resolveDatasetLicenseTemplate } from "./license-template.js";
+import { normalizeAddress } from "./reward-campaign-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
 export const createDatasetAndListForSaleSchema = z.object({
@@ -41,6 +43,64 @@ export async function runCreateDatasetAndListForSaleWorkflow(
           return new Wallet(privateKey, provider).getAddress();
         },
       );
+  const normalizedSigner = normalizeAddress(signerAddress) ?? signerAddress.toLowerCase();
+
+  const ownershipReads = await Promise.all(body.assetIds.map(async (assetId) => {
+    const ownerRead = await waitForWorkflowReadback(
+      () => voiceAssets.ownerOf({
+        auth,
+        api: { executionSource: "live", gaslessMode: "none" },
+        walletAddress,
+        wireParams: [assetId],
+      }),
+      (result) => result.statusCode === 200 && typeof result.body === "string",
+      `createDatasetAndListForSale.assetOwner.${assetId}`,
+    );
+    return { assetId, owner: normalizeAddress(ownerRead.body), ownerRead: ownerRead.body };
+  }));
+
+  const ownershipMismatch = ownershipReads.find((entry) => entry.owner !== normalizedSigner);
+  if (ownershipMismatch) {
+    let voiceHash: string | null = null;
+    let actorAuthorized: boolean | null = null;
+    if (typeof voiceAssets.getVoiceHashFromTokenId === "function") {
+      const voiceHashRead = await voiceAssets.getVoiceHashFromTokenId({
+        auth,
+        api: { executionSource: "live", gaslessMode: "none" },
+        walletAddress,
+        wireParams: [ownershipMismatch.assetId],
+      }).catch(() => null);
+      if (voiceHashRead?.statusCode === 200 && typeof voiceHashRead.body === "string") {
+        voiceHash = voiceHashRead.body;
+        if (typeof voiceAssets.isAuthorized === "function") {
+          const authRead = await voiceAssets.isAuthorized({
+            auth,
+            api: { executionSource: "live", gaslessMode: "none" },
+            walletAddress,
+            wireParams: [voiceHash, signerAddress],
+          }).catch(() => null);
+          if (authRead?.statusCode === 200) {
+            actorAuthorized = authRead.body === true;
+          }
+        }
+      }
+    }
+    const authorizationNote = actorAuthorized === true
+      ? "actor is authorized but not owner"
+      : "actor is not current owner";
+    throw new HttpError(
+      409,
+      `commercialization requires current asset ownership; ${authorizationNote}; transfer asset ownership before commercialization`,
+      {
+        assetId: ownershipMismatch.assetId,
+        owner: ownershipMismatch.owner,
+        actor: signerAddress,
+        actorAuthorized,
+        voiceHash,
+      },
+    );
+  }
+
   const licenseTemplate = await resolveDatasetLicenseTemplate(
     context,
     auth,

@@ -46,6 +46,10 @@ describe("runRegisterVoiceAssetWorkflow", () => {
           owner: "0x0000000000000000000000000000000000000001",
         },
       }),
+      getTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: "104",
+      }),
       updateBasicAcousticFeatures: vi.fn(),
       getBasicAcousticFeatures: vi.fn(),
     };
@@ -82,12 +86,14 @@ describe("runRegisterVoiceAssetWorkflow", () => {
           voiceHash: registrationBody.result,
           owner: "0x0000000000000000000000000000000000000001",
         },
+        tokenId: "104",
       },
       metadataUpdate: null,
       voiceHash: registrationBody.result,
       summary: {
         owner: null,
         hasFeatures: false,
+        tokenId: "104",
       },
     });
     expect(service.registerVoiceAssetForCaller).not.toHaveBeenCalled();
@@ -125,6 +131,13 @@ describe("runRegisterVoiceAssetWorkflow", () => {
           },
         };
       }),
+      getTokenId: vi.fn().mockImplementation(async () => {
+        sequence.push("read-token-id");
+        return {
+          statusCode: 200,
+          body: "205",
+        };
+      }),
       updateBasicAcousticFeatures: vi.fn().mockImplementation(async () => {
         sequence.push("update-features");
         return { statusCode: 202, body: metadataBody };
@@ -156,6 +169,7 @@ describe("runRegisterVoiceAssetWorkflow", () => {
       "register",
       "wait-registration",
       "read-voice",
+      "read-token-id",
       "update-features",
       "wait-metadata",
       "read-features",
@@ -180,6 +194,7 @@ describe("runRegisterVoiceAssetWorkflow", () => {
           voiceHash,
           owner: "0x00000000000000000000000000000000000000aa",
         },
+        tokenId: "205",
       },
       metadataUpdate: {
         submission: metadataBody,
@@ -190,6 +205,7 @@ describe("runRegisterVoiceAssetWorkflow", () => {
       summary: {
         owner: "0x00000000000000000000000000000000000000aa",
         hasFeatures: true,
+        tokenId: "205",
       },
     });
     expect(service.registerVoiceAsset).not.toHaveBeenCalled();
@@ -203,6 +219,7 @@ describe("runRegisterVoiceAssetWorkflow", () => {
       }),
       registerVoiceAssetForCaller: vi.fn(),
       getVoiceAsset: vi.fn(),
+      getTokenId: vi.fn(),
       updateBasicAcousticFeatures: vi.fn(),
       getBasicAcousticFeatures: vi.fn(),
     };
@@ -225,15 +242,18 @@ describe("runRegisterVoiceAssetWorkflow", () => {
         },
         txHash: "0xreceipt-registration",
         voiceAsset: null,
+        tokenId: null,
       },
       metadataUpdate: null,
       voiceHash: null,
       summary: {
         owner: null,
         hasFeatures: true,
+        tokenId: null,
       },
     });
     expect(service.getVoiceAsset).not.toHaveBeenCalled();
+    expect(service.getTokenId).not.toHaveBeenCalled();
     expect(service.updateBasicAcousticFeatures).not.toHaveBeenCalled();
     expect(service.getBasicAcousticFeatures).not.toHaveBeenCalled();
   });
@@ -257,6 +277,15 @@ describe("runRegisterVoiceAssetWorkflow", () => {
         .mockResolvedValueOnce({
           statusCode: 200,
           body: { voiceHash, owner: "0x0000000000000000000000000000000000000001" },
+        }),
+      getTokenId: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 404,
+          body: { error: "not ready" },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: "309",
         }),
       updateBasicAcousticFeatures: vi.fn().mockResolvedValue({
         statusCode: 202,
@@ -284,11 +313,46 @@ describe("runRegisterVoiceAssetWorkflow", () => {
     });
 
     expect(service.getVoiceAsset).toHaveBeenCalledTimes(2);
+    expect(service.getTokenId).toHaveBeenCalledTimes(2);
     expect(service.getBasicAcousticFeatures).toHaveBeenCalledTimes(2);
     expect(result.metadataUpdate).toMatchObject({
       txHash: "0xreceipt-metadata",
       features,
     });
+  });
+
+  it("retries after transient token-id read errors before succeeding", async () => {
+    const voiceHash = "0x6666666666666666666666666666666666666666666666666666666666666666";
+    const service = {
+      registerVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xreg-transient", result: voiceHash },
+      }),
+      registerVoiceAssetForCaller: vi.fn(),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { voiceHash, owner: "0x0000000000000000000000000000000000000001" },
+      }),
+      getTokenId: vi.fn()
+        .mockRejectedValueOnce(new Error("rpc unavailable"))
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: 412n,
+        }),
+      updateBasicAcousticFeatures: vi.fn(),
+      getBasicAcousticFeatures: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xreceipt-registration");
+
+    const result = await runRegisterVoiceAssetWorkflow(context, auth, undefined, {
+      ipfsHash: "QmTransient",
+      royaltyRate: "100",
+    });
+
+    expect(service.getTokenId).toHaveBeenCalledTimes(2);
+    expect(result.registration.tokenId).toBe("412");
+    expect(result.summary.tokenId).toBe("412");
   });
 
   it("throws when registration readback never stabilizes", async () => {
@@ -311,6 +375,7 @@ describe("runRegisterVoiceAssetWorkflow", () => {
         statusCode: 404,
         body: { error: "not ready" },
       }),
+      getTokenId: vi.fn(),
       updateBasicAcousticFeatures: vi.fn(),
       getBasicAcousticFeatures: vi.fn(),
     };
@@ -321,7 +386,43 @@ describe("runRegisterVoiceAssetWorkflow", () => {
       ipfsHash: "QmTimeout",
       royaltyRate: "100",
     })).rejects.toThrow("registerVoiceAsset.registrationRead readback timeout");
-    expect(service.getVoiceAsset).toHaveBeenCalledTimes(20);
+    expect(service.getVoiceAsset).toHaveBeenCalledTimes(40);
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("surfaces transient read errors after token-id retries are exhausted", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const voiceHash = "0x7777777777777777777777777777777777777777777777777777777777777777";
+    const service = {
+      registerVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: {
+          txHash: "0xreg-token-timeout",
+          result: voiceHash,
+        },
+      }),
+      registerVoiceAssetForCaller: vi.fn(),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { voiceHash, owner: "0x0000000000000000000000000000000000000001" },
+      }),
+      getTokenId: vi.fn().mockRejectedValue(new Error("rpc unavailable")),
+      updateBasicAcousticFeatures: vi.fn(),
+      getBasicAcousticFeatures: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xreceipt-registration");
+
+    await expect(runRegisterVoiceAssetWorkflow(context, auth, undefined, {
+      ipfsHash: "QmTokenTimeout",
+      royaltyRate: "100",
+    })).rejects.toThrow("registerVoiceAsset.tokenIdRead readback timeout after transient read errors: rpc unavailable");
+    expect(service.getTokenId).toHaveBeenCalledTimes(40);
     setTimeoutSpy.mockRestore();
   });
 });

@@ -56,7 +56,7 @@ export async function resolveDatasetLicenseTemplate(
     auth,
     api: { executionSource: "live", gaslessMode: "none" },
     walletAddress,
-    wireParams: [buildDefaultTemplate()],
+    wireParams: [buildDefaultTemplate(creatorAddress)],
   });
   await waitForWorkflowWriteReceipt(context, createTemplate.body, "licenseTemplate.create");
 
@@ -135,13 +135,19 @@ async function waitForTemplateReadback(
   throw new Error(`${label} template readback timeout: ${JSON.stringify(lastRead?.body ?? null)}`);
 }
 
-function buildDefaultTemplate() {
+function buildDefaultTemplate(creatorAddress: string) {
   const duration = String(45n * 24n * 60n * 60n);
   const price = "15000";
   const maxUses = "12";
+  const now = Math.floor(Date.now() / 1000);
+  const createdAt = String(now);
+  const updatedAt = String(now);
   return {
+    creator: creatorAddress,
     isActive: true,
     transferable: true,
+    createdAt,
+    updatedAt,
     defaultDuration: duration,
     defaultPrice: price,
     maxUses,
