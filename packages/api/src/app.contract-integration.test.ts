@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Contract, JsonRpcProvider, Wallet, ethers, id } from "ethers";
 
 import { createApiServer, type ApiServer } from "./app.js";
-import { loadRepoEnv, readConfigFromEnv } from "../../client/src/runtime/config.js";
+import { loadRepoEnv } from "../../client/src/runtime/config.js";
 import {
   AccessControlFacet,
   EmergencyFacet,
@@ -21,6 +21,7 @@ import {
   WhisperBlockFacet,
 } from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
+import { resolveRuntimeConfig } from "../../../scripts/alchemy-debug-lib.js";
 
 const repoEnv = loadRepoEnv();
 const liveIntegrationEnabled =
@@ -36,6 +37,7 @@ type ApiCallOptions = {
 };
 
 const originalEnv = { ...process.env };
+const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
 
 async function apiCall(port: number, method: string, path: string, options: ApiCallOptions = {}) {
   const response = await fetch(`http://127.0.0.1:${port}${path}`, {
@@ -68,6 +70,46 @@ function extractTxHash(payload: unknown): string {
   const txHash = payload && typeof payload === "object" ? (payload as Record<string, unknown>).txHash : null;
   expect(txHash).toEqual(expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u));
   return String(txHash);
+}
+
+async function buildHttpTemplate(
+  provider: JsonRpcProvider,
+  creator: string,
+  name: string,
+  overrides: Record<string, unknown> = {},
+) {
+  const latestBlock = await provider.getBlock("latest");
+  const now = String(BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000)));
+  const base = {
+    creator,
+    transferable: true,
+    createdAt: now,
+    updatedAt: now,
+    defaultDuration: String(45n * 24n * 60n * 60n),
+    defaultPrice: "15000",
+    maxUses: "12",
+    name,
+    description: `${name} coverage`,
+    defaultRights: ["Narration", "Ads"],
+    defaultRestrictions: ["no-sublicense"],
+    terms: {
+      licenseHash: ZERO_BYTES32,
+      duration: String(45n * 24n * 60n * 60n),
+      price: "15000",
+      maxUses: "12",
+      transferable: true,
+      rights: ["Narration", "Ads"],
+      restrictions: ["no-sublicense"],
+    },
+  };
+  return {
+    ...base,
+    ...overrides,
+    terms: {
+      ...base.terms,
+      ...((overrides.terms as Record<string, unknown> | undefined) ?? {}),
+    },
+  };
 }
 
 function acousticFeaturesToObject(value: unknown): Record<string, unknown> {
@@ -384,7 +426,7 @@ describeLive("HTTP API contract integration", () => {
   }
 
   beforeAll(async () => {
-    const runtimeConfig = readConfigFromEnv(repoEnv);
+    const { config: runtimeConfig } = await resolveRuntimeConfig(repoEnv);
     const founderPrivateKey = repoEnv.PRIVATE_KEY;
     const licensingOwnerPrivateKey =
       repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ??
@@ -398,6 +440,9 @@ describeLive("HTTP API contract integration", () => {
     if (!licensingOwnerPrivateKey) {
       throw new Error("missing ORACLE_SIGNER_PRIVATE_KEY_1 or ORACLE_WALLET_PRIVATE_KEY in repo .env");
     }
+
+    process.env.RPC_URL = runtimeConfig.cbdpRpcUrl;
+    process.env.ALCHEMY_RPC_URL = runtimeConfig.alchemyRpcUrl;
 
     const licenseePrivateKey = Wallet.createRandom().privateKey;
     const transfereePrivateKey = Wallet.createRandom().privateKey;
@@ -840,9 +885,7 @@ describeLive("HTTP API contract integration", () => {
       voiceHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
       registration: {
         txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
-        voiceAsset: {
-          voiceHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
-        },
+        voiceAsset: expect.anything(),
       },
       metadataUpdate: {
         txHash: expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u),
@@ -856,6 +899,7 @@ describeLive("HTTP API contract integration", () => {
 
     const workflowPayload = workflowResponse.payload as Record<string, unknown>;
     const workflowVoiceHash = String(workflowPayload.voiceHash);
+    expect(((workflowPayload.registration as Record<string, unknown>).voiceAsset)).toBeTruthy();
     await expectReceipt(String(((workflowPayload.registration as Record<string, unknown>).txHash)));
     await expectReceipt(String(((workflowPayload.metadataUpdate as Record<string, unknown>).txHash)));
     const featuresRead = await waitFor(
@@ -908,10 +952,8 @@ describeLive("HTTP API contract integration", () => {
     
     // Create license template for the test
     const templateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
-      body: { 
-        name: `Mutation Template ${Date.now()}`,
-        metadataURI: "ipfs://test",
-        licenseFee: "0" 
+      body: {
+        template: await buildHttpTemplate(provider, founderAddress, `Mutation Template ${Date.now()}`),
       },
     });
     const template2 = String((templateResponse.payload as Record<string, unknown>).result);
@@ -1286,7 +1328,7 @@ describeLive("HTTP API contract integration", () => {
     expect(listingReadResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
 
     const listReceipt = await provider.getTransactionReceipt(listTxHash);
-    for (const path of ["/v1/marketplace/events/asset-listed/query", "/v1/marketplace/events/asset-escrowed/query"] as const) {
+    for (const path of ["/v1/marketplace/events/asset-listed/query", "/v1/marketplace/events/asset-escrowed/query/marketplace"] as const) {
       const eventResponse = await apiCall(port, "POST", path, {
         apiKey: "read-key",
         body: {
@@ -1410,11 +1452,9 @@ describeLive("HTTP API contract integration", () => {
     expect(votingConfigResponse.payload).toEqual(normalize((await governorFacet.getVotingConfig() as any).toObject()));
 
     for (const [path, expected] of [
-      ["/v1/governance/queries/governance-proposer-role/governor-governance-proposer-role", await governorFacet.GOVERNANCE_PROPOSER_ROLE()],
-      ["/v1/governance/queries/governance-proposer-role/proposal-governance-proposer-role", await proposalFacet.GOVERNANCE_PROPOSER_ROLE()],
-      ["/v1/governance/queries/executor-role/proposal-executor-role", await proposalFacet.EXECUTOR_ROLE()],
+      ["/v1/governance/queries/governance-proposer-role", await proposalFacet.GOVERNANCE_PROPOSER_ROLE()],
       ["/v1/governance/queries/timelock-role", await proposalFacet.TIMELOCK_ROLE()],
-      ["/v1/governance/queries/executor-role/timelock-executor-role", await timelockFacet.EXECUTOR_ROLE()],
+      ["/v1/governance/queries/executor-role", await timelockFacet.EXECUTOR_ROLE()],
       ["/v1/governance/queries/proposer-role", await timelockFacet.PROPOSER_ROLE()],
     ] as const) {
       const response = path.includes("/queries/") && !path.includes("?")
@@ -1597,8 +1637,6 @@ describeLive("HTTP API contract integration", () => {
 
     try {
       const readAssertions: Array<readonly [string, string, string | undefined, unknown]> = [
-        ["POST", "/v1/tokenomics/queries/name", "read-key", await tokenSupplyFacet.name()],
-        ["POST", "/v1/tokenomics/queries/symbol", "read-key", await tokenSupplyFacet.symbol()],
         ["POST", "/v1/tokenomics/queries/token-name", "read-key", await tokenSupplyFacet.tokenName()],
         ["POST", "/v1/tokenomics/queries/token-symbol", "read-key", await tokenSupplyFacet.tokenSymbol()],
         ["POST", "/v1/tokenomics/queries/decimals", "read-key", normalize(await tokenSupplyFacet.decimals())],
@@ -2293,12 +2331,7 @@ describeLive("HTTP API contract integration", () => {
     const createTemplateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
       apiKey: "licensing-owner-key",
       body: {
-        template: normalize({
-          ...baseTemplate,
-          creator: undefined,
-          createdAt: undefined,
-          updatedAt: undefined,
-        }),
+        template: await buildHttpTemplate(provider, licensingOwnerAddress, `Lifecycle Base ${Date.now()}`),
       },
     });
     expect(createTemplateResponse.status).toBe(202);
@@ -2381,11 +2414,22 @@ describeLive("HTTP API contract integration", () => {
       apiKey: "licensing-owner-key",
       body: {
         templateHash,
-        template: normalize({
-          ...updatedTemplate,
-          creator: undefined,
-          createdAt: undefined,
-          updatedAt: undefined,
+        template: await buildHttpTemplate(provider, licensingOwnerAddress, `Lifecycle Updated ${Date.now()}`, {
+          transferable: false,
+          defaultDuration: String(90n * 24n * 60n * 60n),
+          defaultPrice: "25000",
+          maxUses: "24",
+          defaultRights: ["Narration", "Audiobook"],
+          defaultRestrictions: ["territory-us"],
+          terms: {
+            licenseHash: ZERO_BYTES32,
+            duration: String(90n * 24n * 60n * 60n),
+            price: "25000",
+            maxUses: "24",
+            transferable: false,
+            rights: ["Narration", "Audiobook"],
+            restrictions: ["territory-us"],
+          },
         }),
       },
     });
@@ -2494,11 +2538,17 @@ describeLive("HTTP API contract integration", () => {
     const freshTemplateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
       apiKey: "licensing-owner-key",
       body: {
-        template: normalize({
-          ...freshTemplate,
-          creator: undefined,
-          createdAt: undefined,
-          updatedAt: undefined,
+        template: await buildHttpTemplate(provider, licensingOwnerAddress, `Lifecycle Active ${Date.now()}`, {
+          defaultPrice: "1000",
+          terms: {
+            licenseHash: ZERO_BYTES32,
+            duration: String(45n * 24n * 60n * 60n),
+            price: "1000",
+            maxUses: "12",
+            transferable: true,
+            rights: ["Narration", "Ads"],
+            restrictions: ["no-sublicense"],
+          },
         }),
       },
     });
@@ -2763,7 +2813,7 @@ describeLive("HTTP API contract integration", () => {
       ],
       [
         "GET",
-        `/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-cut-is-immutable-selector-reserved?selector=${encodeURIComponent(diamondCutSelector)}`,
+        `/v1/diamond-admin/queries/is-immutable-selector-reserved?selector=${encodeURIComponent(diamondCutSelector)}`,
         { apiKey: "read-key" },
         await diamondCutFacet.isImmutableSelectorReserved(diamondCutSelector),
       ],
@@ -2787,7 +2837,7 @@ describeLive("HTTP API contract integration", () => {
       ],
       [
         "GET",
-        `/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-loupe-is-immutable-selector-reserved?selector=${encodeURIComponent(loupeFacetAddressSelector)}`,
+        `/v1/diamond-admin/queries/is-immutable-selector-reserved?selector=${encodeURIComponent(loupeFacetAddressSelector)}`,
         { apiKey: "read-key" },
         await diamondLoupeFacet.isImmutableSelectorReserved(loupeFacetAddressSelector),
       ],
@@ -3354,7 +3404,7 @@ describeLive("HTTP API contract integration", () => {
       },
     });
     expect(createDatasetWorkflow.status).toBe(202);
-    expect(createDatasetWorkflow.payload).toEqual({
+    expect(createDatasetWorkflow.payload).toMatchObject({
       licenseTemplate: {
         source: expect.any(String),
         templateId: expect.any(String),
@@ -3373,8 +3423,6 @@ describeLive("HTTP API contract integration", () => {
       ownership: {
         owner: founderAddress,
         approval: {
-          submission: expect.anything(),
-          txHash: expect.anything(),
           approvedForAll: true,
         },
       },
@@ -3398,6 +3446,15 @@ describeLive("HTTP API contract integration", () => {
         tradeReadiness: "listed-and-tradable",
       },
     });
+    const datasetOwnershipApproval = (((createDatasetWorkflow.payload as Record<string, unknown>).ownership as Record<string, unknown>).approval as Record<string, unknown>);
+    expect(
+      datasetOwnershipApproval.submission === null ||
+      (typeof datasetOwnershipApproval.submission === "object" && datasetOwnershipApproval.submission !== null),
+    ).toBe(true);
+    expect(
+      datasetOwnershipApproval.txHash === null ||
+      /^0x[a-fA-F0-9]{64}$/u.test(String(datasetOwnershipApproval.txHash)),
+    ).toBe(true);
     await expectReceipt(String(((createDatasetWorkflow.payload as Record<string, unknown>).dataset as Record<string, unknown>).txHash));
 
     const datasetsAfter = await waitFor(

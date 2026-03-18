@@ -27,6 +27,7 @@
     "baseline:verify": "tsx scripts/verify-validated-baseline.ts",
     "setup:base-sepolia": "tsx scripts/base-sepolia-operator-setup.ts",
     "test:contract:base-sepolia": "tsx scripts/run-base-sepolia-contract-proof.ts",
+    "verify:marketplace:purchase:base-sepolia": "tsx scripts/verify-marketplace-purchase-live.ts",
     "verify:governance:base-sepolia": "tsx scripts/verify-governance-workflows.ts",
     "debug:tx": "tsx scripts/debug-tx.ts",
     "debug:simulate": "tsx scripts/debug-simulate.ts",

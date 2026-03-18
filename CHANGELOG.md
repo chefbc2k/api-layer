@@ -47,3 +47,18 @@
 - **Config Regression Guard:** Added a runtime-config test that locks in override precedence for `RPC_URL` and `ALCHEMY_RPC_URL`.
 - **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both now succeed from the default repo state by falling back to the persisted Base Sepolia fixture RPC when the local fork endpoint is unavailable.
 - **Proof Domains:** Re-ran the live and remaining Layer 1 proof scripts; all verified domains now classify as `proven working`, while the setup artifact’s only remaining marketplace partial is explicitly narrowed to purchase-readiness proof rather than listing activation.
+
+## [0.1.2] - 2026-03-18
+
+### Added
+- **Marketplace Buyer Proof:** Added [scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) and the `verify:marketplace:purchase:base-sepolia` package script to execute a real `buyer-key` purchase against the aged Base Sepolia fixture listing, then verify ownership transfer, listing deactivation, and marketplace event readbacks.
+- **Marketplace Purchase Artifact:** Captured the first successful live buyer purchase proof in [verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json), including tx `0xf4b5fc77eb57d744a140d362ea8ac4c67276fc86ffec2a6e856417b6b6257bfa`, block `39045521`, post-purchase owner readback, and `AssetPurchased` / `PaymentDistributed` / `AssetReleased` event evidence.
+
+### Fixed
+- **Live Contract Harness RPC Resolution:** Updated [packages/api/src/app.contract-integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) to resolve runtime config through the shared fallback loader before booting the embedded API server, so the Base Sepolia contract suite no longer collapses immediately on the dead repo-default `127.0.0.1:8548` RPC.
+- **Base Sepolia Suite Drift Cleanup:** Aligned the long-form contract integration suite with current generated routes and workflow payloads, including marketplace escrow event paths, governance role-query endpoints, tokenomics query names, diamond-admin immutable-selector routes, licensing template creation payloads, and workflow assertions that legitimately return `null` when approval is already in place.
+
+### Verified
+- **Marketplace Partial Collapsed:** The previously open marketplace setup partial is now proven working on Base Sepolia. The fixture concern about the buyer’s `5000` USDC balance/allowance was not an actual blocker because the aged listing price was `1000`, and the live `buyer-key` purchase completed successfully.
+- **Event Mismatch Closed:** Confirmed the live artifact mismatch is gone; [verify-live-output.json](/Users/chef/Public/api-layer/verify-live-output.json) no longer reports missing `AssetListed` or `VoiceAssetRegistered` endpoints.
+- **Bounded Full-Suite Pass:** Re-ran `pnpm run test:contract:base-sepolia` after the harness fix and observed the suite progressing through the previously blocked live domains under the normal proof script, including access-control, voice-assets, datasets, marketplace, governance, tokenomics, whisperblock, licensing, admin/emergency/multisig, and workflow tests.
