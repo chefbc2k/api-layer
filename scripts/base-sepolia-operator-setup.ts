@@ -5,7 +5,9 @@ import { Contract, JsonRpcProvider, Wallet, ZeroAddress, ethers, id } from "ethe
 
 import { createApiServer } from "../packages/api/src/app.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
-import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
+import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
+
+import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -80,6 +82,26 @@ async function waitForReceipt(port: number, txHash: string): Promise<void> {
   throw new Error(`timed out waiting for receipt ${txHash}`);
 }
 
+async function retryApiRead<T>(
+  read: () => Promise<T>,
+  condition: (value: T) => boolean,
+  attempts = 10,
+  delayMs = 1_000,
+): Promise<T> {
+  let lastValue: T | null = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    lastValue = await read();
+    if (condition(lastValue)) {
+      return lastValue;
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  if (lastValue === null) {
+    throw new Error("retryApiRead received no values");
+  }
+  return lastValue;
+}
+
 function roleId(name: string): string {
   return id(name);
 }
@@ -129,7 +151,9 @@ async function ensureRole(
 
 async function main(): Promise<void> {
   const env = loadRepoEnv();
-  const config = readConfigFromEnv(env);
+  const { config } = await resolveRuntimeConfig(env);
+  process.env.RPC_URL = config.cbdpRpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
 
   const founderSpec: WalletSpec = { label: "founder", privateKey: env.PRIVATE_KEY };
@@ -327,19 +351,28 @@ async function main(): Promise<void> {
         await waitForReceipt(port, extractTxHash(listing.payload));
       }
     }
-    const refreshedListing = await apiCall(
-      port,
-      "GET",
-      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId.toString())}`,
-      { apiKey: "read-key" },
+    const refreshedListing = await retryApiRead(
+      () => apiCall(
+        port,
+        "GET",
+        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId.toString())}`,
+        { apiKey: "read-key" },
+      ),
+      (response) => response.status === 200,
     );
     agedFixture.activeListing = refreshedListing.status === 200 && (refreshedListing.payload as Record<string, unknown>)?.isActive === true;
     agedFixture.purchaseReadiness = agedFixture.activeListing ? "listed-not-yet-purchase-proven" : "unverified";
-    agedFixture.status = agedFixture.activeListing ? "partial" : "partial";
+    agedFixture.status = "partial";
     agedFixture.reason = agedFixture.activeListing
       ? "listing is present; purchaseability still requires live verification and must not be inferred from listing state alone"
       : "listing could not be activated";
-    break;
+    agedFixture.listing = {
+      submission: agedFixture.listing,
+      readback: refreshedListing,
+    };
+    if (agedFixture.activeListing) {
+      break;
+    }
   }
     status.marketplace = {
     ...(status.marketplace as Record<string, unknown>),

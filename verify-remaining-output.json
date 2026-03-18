@@ -1,0 +1,1270 @@
+USpeaks API listening on 0
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:52.510Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getCreatorTemplates","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:52.574Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:52.847Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.createTemplate.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:53.334Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.createTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:54.044Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:54.555Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:56.655Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:57.150Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:58.565Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:33:58.975Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:00.352Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:00.834Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:02.236Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.isApprovedForAll","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:02.307Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getTotalDatasets","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:02.372Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.createDataset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:02.872Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.createDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:04.135Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:04.200Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.DatasetCreated","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:04.333Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getDatasetsByCreator","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:04.739Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.appendAssets","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:09.577Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:09.643Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.AssetsAppended","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:09.704Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.containsAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:10.104Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.removeAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:14.860Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:14.928Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.AssetRemoved","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:15.005Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.containsAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:15.435Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.setLicense","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:15.869Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.setMetadata","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:16.265Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.setRoyalty","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:16.727Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.setDatasetStatus","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:20.129Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:20.262Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.LicenseChanged","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:20.383Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.MetadataChanged","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:20.582Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.RoyaltySet","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:20.710Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.DatasetStatusChanged","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:20.773Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.royaltyInfo","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:21.248Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceDatasetFacet.burnDataset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:21.940Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getTotalDatasets","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:27.148Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceDatasetFacet.getTotalDatasets","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:27.218Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceDatasetFacet.DatasetBurned","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:27.398Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:27.818Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:28.624Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.createTemplate.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:29.088Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.createTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:29.798Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getCreatorTemplates","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:35.031Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getCreatorTemplates","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:35.107Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:35.664Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.updateTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:36.433Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceLicenseTemplateFacet.TemplateUpdated","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:36.933Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.setTemplateStatus","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:38.410Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.isTemplateActive","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:38.484Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.createLicenseFromTemplate.prepare","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:38.747Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.createTemplate.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:39.232Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.createTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:40.561Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.getTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:40.637Z","chain":84532,"provider":"cbdp","kind":"read","method":"VoiceLicenseTemplateFacet.createLicenseFromTemplate.preview","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:41.131Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseTemplateFacet.createLicenseFromTemplate","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:41.852Z","chain":84532,"provider":"cbdp","kind":"events","method":"VoiceLicenseTemplateFacet.LicenseCreated","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:42.348Z","chain":84532,"provider":"cbdp","kind":"write","method":"VoiceLicenseFacet.createLicense","retryCount":0,"failoverReason":null}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:44.270Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.getLicense","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:44.401Z","chain":84532,"provider":"alchemy","kind":"events","method":"VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:44.466Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.getLicensees","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:44.532Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.getLicenseHistory","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:44.604Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.getLicenseTerms","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:44.745Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.validateLicense","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:45.228Z","chain":84532,"provider":"alchemy","kind":"write","method":"VoiceLicenseFacet.recordLicensedUsage","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:45.360Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.isUsageRefUsed","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:50.608Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.isUsageRefUsed","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:50.674Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.getUsageCount","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:50.740Z","chain":84532,"provider":"alchemy","kind":"events","method":"VoiceLicenseFacet.LicenseUsed","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:51.524Z","chain":84532,"provider":"alchemy","kind":"write","method":"VoiceLicenseFacet.revokeLicense","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:51.665Z","chain":84532,"provider":"alchemy","kind":"events","method":"VoiceLicenseFacet.LicenseRevoked","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:51.740Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceLicenseFacet.getPendingRevenue","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:52.111Z","chain":84532,"provider":"alchemy","kind":"read","method":"VoiceAssetFacet.registerVoiceAsset.preview","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:52.569Z","chain":84532,"provider":"alchemy","kind":"write","method":"VoiceAssetFacet.registerVoiceAsset","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:53.283Z","chain":84532,"provider":"alchemy","kind":"read","method":"WhisperBlockFacet.getSelectors","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:54.483Z","chain":84532,"provider":"alchemy","kind":"read","method":"WhisperBlockFacet.getAuditTrail","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:54.931Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.setAuditEnabled","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:56.051Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.registerVoiceFingerprint","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:58.534Z","chain":84532,"provider":"alchemy","kind":"read","method":"WhisperBlockFacet.verifyVoiceAuthenticity","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:58.600Z","chain":84532,"provider":"alchemy","kind":"read","method":"WhisperBlockFacet.verifyVoiceAuthenticity","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:58.669Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.VoiceFingerprintUpdated","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:58.739Z","chain":84532,"provider":"alchemy","kind":"read","method":"WhisperBlockFacet.generateAndSetEncryptionKey.preview","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:59.197Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.generateAndSetEncryptionKey","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:59.381Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.KeyRotated","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:34:59.798Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.grantAccess","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:00.553Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.AccessGranted","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:01.042Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.revokeAccess","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:01.176Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.AccessRevoked","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:01.240Z","chain":84532,"provider":"alchemy","kind":"read","method":"WhisperBlockFacet.getAuditTrail","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:01.712Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.setTrustedOracle","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:02.867Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.updateSystemParameters","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:04.983Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.SecurityParametersUpdated","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:05.766Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.setOffchainEntropy","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:06.466Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.OffchainKeyGenerated","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:06.534Z","chain":84532,"provider":"alchemy","kind":"events","method":"WhisperBlockFacet.AuditEvent","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:07.009Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.updateSystemParameters","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:07.575Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.setTrustedOracle","retryCount":0,"failoverReason":"primary_unhealthy"}
+{"level":"info","message":"provider request ok","time":"2026-03-18T18:35:08.668Z","chain":84532,"provider":"alchemy","kind":"write","method":"WhisperBlockFacet.setAuditEnabled","retryCount":0,"failoverReason":"primary_unhealthy"}
+{
+  "target": {
+    "chainId": 84532,
+    "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "port": 55270
+  },
+  "reports": {
+    "datasets": {
+      "routes": [
+        "POST /v1/datasets/datasets",
+        "GET /v1/datasets/queries/get-dataset",
+        "GET /v1/datasets/queries/get-datasets-by-creator",
+        "POST /v1/datasets/commands/append-assets",
+        "GET /v1/datasets/queries/contains-asset",
+        "DELETE /v1/datasets/commands/remove-asset",
+        "PATCH /v1/datasets/commands/set-license",
+        "PATCH /v1/datasets/commands/set-metadata",
+        "PATCH /v1/datasets/commands/set-royalty",
+        "PATCH /v1/datasets/commands/set-dataset-status",
+        "GET /v1/datasets/queries/royalty-info",
+        "DELETE /v1/datasets/commands/burn-dataset"
+      ],
+      "actors": [
+        "founder-key",
+        "read-key"
+      ],
+      "executionResult": "dataset mutation lifecycle completed end-to-end through mounted dataset routes",
+      "evidence": [
+        {
+          "route": "POST /v1/voice-assets",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x2d5ee3f21bcd2f8d1632daf90fd18ab0aa7e909e8a49c47c407309056b0c31f7",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045274
+          },
+          "postState": {
+            "voiceHash": "0x335a3b29d35ef50ef839efaf92374f9e49202fc399fcfc32ad5b9fb79b0ea70f",
+            "tokenId": "185"
+          }
+        },
+        {
+          "route": "POST /v1/voice-assets",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x8fc39084b458a8fdca87409c9bcc53ba7eff51803a356a6c219af3bcc32b0adc",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045275
+          },
+          "postState": {
+            "voiceHash": "0xf2f5d022ded1a4c11361c2efb0419a5e1da63c0a73a8850fb5e6d01f8ab1be4b",
+            "tokenId": "186"
+          }
+        },
+        {
+          "route": "POST /v1/voice-assets",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xcca0aa3b30b4e28485dbbf738c42c4024ee8b17e9a46835611c98178ee6d7033",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045276
+          },
+          "postState": {
+            "voiceHash": "0x0aa434884fe307a3247b0c2ce68b530cb3dffc041dacc087d01b22006b25b1ac",
+            "tokenId": "187"
+          }
+        },
+        {
+          "route": "POST /v1/voice-assets",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x1d0b956ec5c2278b00c379b13ceb851857965bed587f81da4f225296c9e82e82",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045277
+          },
+          "postState": {
+            "voiceHash": "0xf34ae0fc54482b674c856b0f83505d97d09e6da3b9258fb16bc73e11617033d9",
+            "tokenId": "188"
+          }
+        },
+        {
+          "route": "POST /v1/datasets/datasets",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x0fc0a0efdc55456d15449a7d23ff60d5b2046a4d33511a1ae6480301467776bb",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045278
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "186"
+            ],
+            "licenseTemplateId": "6007703735770632655633149326380491964353428300663500377964782887321827867345",
+            "metadataURI": "ipfs://dataset-meta-1773858842308",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "500",
+            "createdAt": "1773858844",
+            "active": true
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x0fc0a0efdc55456d15449a7d23ff60d5b2046a4d33511a1ae6480301467776bb",
+                "blockHash": "0x9c7ec43543e74e1f38e7085a450f5208ea09d3e5d02fec44647adefa5272f52c",
+                "blockNumber": 39045278,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001f4000000000000000000000000000000000000000000000000000000000000001e44617461736574204d75746174696f6e20313737333835383834323330380000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000b900000000000000000000000000000000000000000000000000000000000000ba0000000000000000000000000000000000000000000000000000000000000021697066733a2f2f646174617365742d6d6574612d3137373338353838343233303800000000000000000000000000000000000000000000000000000000000000",
+                "topics": [
+                  "0xc1f939b95965f88e1a094e587e540547b56f87494c73377f639113e52e9f5982",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e",
+                  "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "0x0d483d647b76da4374b828784e2c046c2ee06364e20a9208ae7980ec86e4fad1"
+                ],
+                "index": 110,
+                "transactionIndex": 17
+              }
+            ]
+          }
+        },
+        {
+          "route": "GET /v1/datasets/queries/get-datasets-by-creator",
+          "actor": "read-key",
+          "status": 200,
+          "postState": [
+            "1000000000000000002",
+            "1000000000000000003",
+            "1000000000000000004",
+            "1000000000000000005",
+            "1000000000000000006",
+            "1000000000000000010",
+            "1000000000000000011",
+            "1000000000000000025",
+            "1000000000000000026",
+            "1000000000000000027",
+            "1000000000000000028",
+            "1000000000000000030"
+          ]
+        },
+        {
+          "route": "POST /v1/datasets/commands/append-assets",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x92ce859fdeff95ebf0274fb8402cc69cef5cdaffab7a4a849f718e2067f51794",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045279
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "186",
+              "187",
+              "188"
+            ],
+            "licenseTemplateId": "6007703735770632655633149326380491964353428300663500377964782887321827867345",
+            "metadataURI": "ipfs://dataset-meta-1773858842308",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "500",
+            "createdAt": "1773858844",
+            "active": true
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x92ce859fdeff95ebf0274fb8402cc69cef5cdaffab7a4a849f718e2067f51794",
+                "blockHash": "0x087a5e64873e5592ce353da0a89f1be87bb4413c66f547a8b7d82d4cc3f9ba00",
+                "blockNumber": 39045279,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000bb00000000000000000000000000000000000000000000000000000000000000bc",
+                "topics": [
+                  "0xc0e2ca10a9b6477f0984d52d2c8117f8c688d4319eb6eea4c612aa614ab8dd62",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e"
+                ],
+                "index": 35,
+                "transactionIndex": 16
+              }
+            ]
+          }
+        },
+        {
+          "route": "GET /v1/datasets/queries/contains-asset",
+          "actor": "read-key",
+          "status": 200,
+          "postState": true
+        },
+        {
+          "route": "DELETE /v1/datasets/commands/remove-asset",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xa2175bb6ff94fb50bf6dc48762158dddc9a1ea022bf75d679a1c0a7d36e8cafc",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045282
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "188",
+              "187"
+            ],
+            "licenseTemplateId": "6007703735770632655633149326380491964353428300663500377964782887321827867345",
+            "metadataURI": "ipfs://dataset-meta-1773858842308",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "500",
+            "createdAt": "1773858844",
+            "active": true
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xa2175bb6ff94fb50bf6dc48762158dddc9a1ea022bf75d679a1c0a7d36e8cafc",
+                "blockHash": "0x021b62358ced9c0abdbe1f8c47f52413b2b1bd7393ff6b2d6a1eb19337b8621d",
+                "blockNumber": 39045282,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0x2032813b8aa1823e64b16eb04205b81bfbe40337e00d56652e391bf2d2247d02",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e",
+                  "0x00000000000000000000000000000000000000000000000000000000000000ba"
+                ],
+                "index": 78,
+                "transactionIndex": 9
+              }
+            ]
+          }
+        },
+        {
+          "route": "GET /v1/datasets/queries/contains-asset",
+          "actor": "read-key",
+          "status": 200,
+          "postState": false,
+          "notes": "removed asset check"
+        },
+        {
+          "route": "PATCH /v1/datasets/commands/set-license",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x7cd017234ad069ea81771f40a61f633cdba9c6a726f5408deae7d45288edadd9",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045284
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "188",
+              "187"
+            ],
+            "licenseTemplateId": "73576882827521050243106157041521163698032090819386841316629031959649221406438",
+            "metadataURI": "ipfs://dataset-meta-updated-1773858855436",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "250",
+            "createdAt": "1773858844",
+            "active": false
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x7cd017234ad069ea81771f40a61f633cdba9c6a726f5408deae7d45288edadd9",
+                "blockHash": "0xe175647abf7e69c0036ea3f43626e145c853c127190f8f61a37f1930e226527e",
+                "blockNumber": 39045284,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0x0ee91a3e18108d4048e542ce44959d7eba37f206f493e6a388084f448dd1f310",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e",
+                  "0xa2ab0a37528e916b2bc2064e80fda54d74150f9e9e58f086eb7b34354230eee6"
+                ],
+                "index": 342,
+                "transactionIndex": 32
+              }
+            ]
+          }
+        },
+        {
+          "route": "PATCH /v1/datasets/commands/set-metadata",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x7e442702d2db41e2a2499df2ce7378754f598fb137dd96d31e693b08d9acda31",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045285
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "188",
+              "187"
+            ],
+            "licenseTemplateId": "73576882827521050243106157041521163698032090819386841316629031959649221406438",
+            "metadataURI": "ipfs://dataset-meta-updated-1773858855436",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "250",
+            "createdAt": "1773858844",
+            "active": false
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x7e442702d2db41e2a2499df2ce7378754f598fb137dd96d31e693b08d9acda31",
+                "blockHash": "0x965e8633240ec62abdde43b859c930f699f9b1fc617550f79ea99e775367bfe6",
+                "blockNumber": 39045285,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000029697066733a2f2f646174617365742d6d6574612d757064617465642d313737333835383835353433360000000000000000000000000000000000000000000000",
+                "topics": [
+                  "0x2822080855c1a796047f86db6703ee05ff65e9ab90092ca4114af8f017f2047e",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e"
+                ],
+                "index": 14,
+                "transactionIndex": 7
+              }
+            ]
+          }
+        },
+        {
+          "route": "PATCH /v1/datasets/commands/set-royalty",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x0d2edb966ce47f55164f5d174d86bfa20e7f55a417668e2d284e909f7279bc30",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045285
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "188",
+              "187"
+            ],
+            "licenseTemplateId": "73576882827521050243106157041521163698032090819386841316629031959649221406438",
+            "metadataURI": "ipfs://dataset-meta-updated-1773858855436",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "250",
+            "createdAt": "1773858844",
+            "active": false
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x0d2edb966ce47f55164f5d174d86bfa20e7f55a417668e2d284e909f7279bc30",
+                "blockHash": "0x965e8633240ec62abdde43b859c930f699f9b1fc617550f79ea99e775367bfe6",
+                "blockNumber": 39045285,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0x4d5ba775621bc0591fef43340854ed781cff109578f5960d5e7b8f0fbbd47a9d",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e",
+                  "0x00000000000000000000000000000000000000000000000000000000000000fa"
+                ],
+                "index": 43,
+                "transactionIndex": 14
+              }
+            ]
+          }
+        },
+        {
+          "route": "PATCH /v1/datasets/commands/set-dataset-status",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xd0b2d951b733f5b1bd55a5fd86f344b2117d72b4303cf2f0b619d5555a7af7ea",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045285
+          },
+          "postState": {
+            "id": "1000000000000000030",
+            "title": "Dataset Mutation 1773858842308",
+            "assetIds": [
+              "185",
+              "188",
+              "187"
+            ],
+            "licenseTemplateId": "73576882827521050243106157041521163698032090819386841316629031959649221406438",
+            "metadataURI": "ipfs://dataset-meta-updated-1773858855436",
+            "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "royaltyBps": "250",
+            "createdAt": "1773858844",
+            "active": false
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xd0b2d951b733f5b1bd55a5fd86f344b2117d72b4303cf2f0b619d5555a7af7ea",
+                "blockHash": "0x965e8633240ec62abdde43b859c930f699f9b1fc617550f79ea99e775367bfe6",
+                "blockNumber": 39045285,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0x4e40b33cc60700b29cf12c542964813badb9642c455c8a4c543e326883dfba32",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e",
+                  "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+                "index": 53,
+                "transactionIndex": 24
+              }
+            ]
+          }
+        },
+        {
+          "route": "GET /v1/datasets/queries/royalty-info",
+          "actor": "read-key",
+          "status": 200,
+          "postState": [
+            "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+            "25000"
+          ]
+        },
+        {
+          "route": "DELETE /v1/datasets/commands/burn-dataset",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xb6915a2dd742f11776b32b31f55c31c4d644b9dd08eab8a322490d09e5df3abf",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045287
+          },
+          "postState": {
+            "totalAfter": "24",
+            "burnedReadStatus": 500
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xb6915a2dd742f11776b32b31f55c31c4d644b9dd08eab8a322490d09e5df3abf",
+                "blockHash": "0xb99eb50527e7ca15ef49090f67684c9712b889b78fb9c703d348360797aeab78",
+                "blockNumber": 39045287,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0xd7774d73e17cb284969a8dba8520c40fd68f0af0a6cbcbe521ac622431f6de1c",
+                  "0x0000000000000000000000000000000000000000000000000de0b6b3a764001e"
+                ],
+                "index": 238,
+                "transactionIndex": 38
+              }
+            ]
+          }
+        }
+      ],
+      "finalClassification": "proven working"
+    },
+    "licensing": {
+      "routes": [
+        "POST /v1/licensing/license-templates/create-template",
+        "PATCH /v1/licensing/commands/update-template",
+        "PATCH /v1/licensing/commands/set-template-status",
+        "GET /v1/licensing/queries/get-template",
+        "GET /v1/licensing/queries/get-creator-templates",
+        "POST /v1/licensing/license-templates/create-license-from-template",
+        "POST /v1/licensing/licenses/create-license",
+        "GET /v1/licensing/queries/get-license",
+        "GET /v1/licensing/queries/get-license-terms",
+        "POST /v1/licensing/queries/validate-license",
+        "POST /v1/licensing/commands/record-licensed-usage",
+        "POST /v1/licensing/commands/transfer-license",
+        "DELETE /v1/licensing/commands/revoke-license"
+      ],
+      "actors": [
+        "licensing-owner-key",
+        "licensee-key",
+        "read-key"
+      ],
+      "executionResult": "template lifecycle, direct license lifecycle, actor-scoped license reads, and usage/revoke flows completed through mounted licensing routes",
+      "evidence": [
+        {
+          "route": "POST /v1/licensing/license-templates/create-template",
+          "actor": "licensing-owner-key",
+          "status": 202,
+          "txHash": "0xebbedce161514c7b56c3ba809eda66bd5ba8ec122046f1f3679f99297ab049b4",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045291
+          },
+          "postState": {
+            "creatorTemplates": [
+              "0xcbc5291bcd32f7016d308b2a6d635f8126669712acd8fc8fdb5256e662ee42b9",
+              "0xc2ed054c4342df342bb83c4a6aed623dde448c95872e5814f3e79027d170a81a",
+              "0xb64ecd8ff002ced12630935b2b6f507c4975e4a414603833be23400b56b2b4c1",
+              "0xebb00703d4d6ee6ab938e2db1447efec0647acbc966a45bc3fffea0bd1b064c6",
+              "0x5701e10835dd5b410a70ad40e38d41f1714d37107214c7ee152cdd3186cf7374",
+              "0x3c34366c8c7d95baf157bd86f9adff1d8e0213449c4254ed4243f7acb6a9cd27",
+              "0xb60f8fa69fbf28ffecdd95293d08d6fe02581c3a3189540133679c265ec03b3a",
+              "0xc9d18774c808a931ce9c305b0ce55873eab21217e9d70fa0dcc3912f38b93ce4",
+              "0x21f87e3faafb8ac71e93eafe66d87cba4e960a6f558b92287ee53b6cea7f592e",
+              "0xf6763696e7383a4e59b57c99920a7c73786ae7ce981c4f877cd161133a142b6f",
+              "0x8c994a13c6266d5388890df4d365e66c573dba7059dd4fcf7ed49690df5a727a",
+              "0xc8c317584c95d9e0add9fb1b3afd94e18dc2bb81afb9b19727994827b6fb5711",
+              "0x574e983cea0f79db4d167b3965ca02a5c6bdc619b5da780052e4d5b662499bcc",
+              "0x9f0d9c58f6476a573a1ffed10c4213869182f2dcbdd4f058b335086ded6fa799",
+              "0xe5b1f320bc6db164bd447d58662fd2e62a6e4ee8267104b20182fa2149d9eb29",
+              "0x6bf5a196daf32ae69f5af0ffbd9ae919419a78db5b6422665c2f8a4795ff12ed"
+            ],
+            "template": {
+              "creator": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+              "isActive": true,
+              "transferable": true,
+              "createdAt": "1773858870",
+              "updatedAt": "1773858870",
+              "defaultDuration": "3888000",
+              "defaultPrice": "15000",
+              "maxUses": "12",
+              "name": "Lifecycle Base 1773858868496",
+              "description": "Lifecycle Base 1773858868496 coverage",
+              "defaultRights": [
+                "Narration",
+                "Ads"
+              ],
+              "defaultRestrictions": [
+                "no-sublicense"
+              ],
+              "terms": {
+                "licenseHash": "0x6bf5a196daf32ae69f5af0ffbd9ae919419a78db5b6422665c2f8a4795ff12ed",
+                "duration": "3888000",
+                "price": "15000",
+                "maxUses": "12",
+                "transferable": true,
+                "rights": [
+                  "Narration",
+                  "Ads"
+                ],
+                "restrictions": [
+                  "no-sublicense"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "route": "PATCH /v1/licensing/commands/update-template",
+          "actor": "licensing-owner-key",
+          "status": 202,
+          "txHash": "0xc36545589cb14c9b5150fed5338398b46c5904b4140ea5c036ffa118f5315c74",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045295
+          },
+          "postState": {
+            "status": 200,
+            "payload": {
+              "creator": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+              "isActive": true,
+              "transferable": true,
+              "createdAt": "1773858870",
+              "updatedAt": "1773858870",
+              "defaultDuration": "3888000",
+              "defaultPrice": "15000",
+              "maxUses": "12",
+              "name": "Lifecycle Base 1773858868496",
+              "description": "Lifecycle Base 1773858868496 coverage",
+              "defaultRights": [
+                "Narration",
+                "Ads"
+              ],
+              "defaultRestrictions": [
+                "no-sublicense"
+              ],
+              "terms": {
+                "licenseHash": "0x6bf5a196daf32ae69f5af0ffbd9ae919419a78db5b6422665c2f8a4795ff12ed",
+                "duration": "3888000",
+                "price": "15000",
+                "maxUses": "12",
+                "transferable": true,
+                "rights": [
+                  "Narration",
+                  "Ads"
+                ],
+                "restrictions": [
+                  "no-sublicense"
+                ]
+              }
+            }
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          }
+        },
+        {
+          "route": "PATCH /v1/licensing/commands/set-template-status",
+          "actor": "licensing-owner-key",
+          "status": 202,
+          "txHash": "0x1487bbd2a70a742402c339f859d550e016b82a11bb0f369ef3509d7e75d35acf",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045295
+          },
+          "postState": {
+            "isActive": false,
+            "routeIsActive": false
+          },
+          "notes": ""
+        },
+        {
+          "route": "POST /v1/licensing/license-templates/create-license-from-template",
+          "actor": "licensing-owner-key",
+          "status": 500,
+          "postState": {
+            "error": "execution reverted: TemplateNotFound(bytes32)",
+            "diagnostics": {
+              "route": {
+                "httpMethod": "POST",
+                "path": "/v1/licensing/license-templates/create-license-from-template",
+                "operationId": "createLicenseFromTemplate",
+                "contractFunction": "VoiceLicenseTemplateFacet.createLicenseFromTemplate(bytes32,bytes32,(bytes32,uint256,uint256,uint256,bool,string[],string[]))"
+              },
+              "alchemy": {
+                "enabled": true,
+                "simulationEnabled": true,
+                "simulationEnforced": false,
+                "endpointDetected": true,
+                "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
+                "available": false
+              },
+              "signer": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+              "provider": "cbdp",
+              "actors": [
+                {
+                  "address": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+                  "nonce": "357",
+                  "balance": "42270631999297"
+                }
+              ],
+              "trace": {
+                "status": "unavailable",
+                "error": "Alchemy diagnostics unavailable"
+              },
+              "cause": "execution reverted: TemplateNotFound(bytes32)"
+            }
+          },
+          "notes": "inactive template attempt"
+        },
+        {
+          "route": "POST /v1/licensing/license-templates/create-license-from-template",
+          "actor": "licensing-owner-key",
+          "status": 202,
+          "txHash": "0x43a3c64d95c80d2897b3c8a152867a3aca277921b5f8c2eee67551349ac47899",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045297
+          },
+          "postState": {
+            "creation": {
+              "requestId": null,
+              "txHash": "0x43a3c64d95c80d2897b3c8a152867a3aca277921b5f8c2eee67551349ac47899",
+              "result": "0x6c5d82563c08ac909fdf725a830721435428682a41841348a2b6b8ad71fe4441"
+            },
+            "freshTemplate": {
+              "creator": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+              "isActive": true,
+              "transferable": true,
+              "createdAt": "1773858880",
+              "updatedAt": "1773858880",
+              "defaultDuration": "3888000",
+              "defaultPrice": "1000",
+              "maxUses": "12",
+              "name": "Lifecycle Active 1773858878613",
+              "description": "Lifecycle Active 1773858878613 coverage",
+              "defaultRights": [
+                "Narration",
+                "Ads"
+              ],
+              "defaultRestrictions": [
+                "no-sublicense"
+              ],
+              "terms": {
+                "licenseHash": "0x4f32e0591d5b917cffedb15699575de9702a0932fa24e670ee5974e943752184",
+                "duration": "3888000",
+                "price": "1000",
+                "maxUses": "12",
+                "transferable": true,
+                "rights": [
+                  "Narration",
+                  "Ads"
+                ],
+                "restrictions": [
+                  "no-sublicense"
+                ]
+              }
+            }
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          },
+          "notes": "active template path"
+        },
+        {
+          "route": "POST /v1/licensing/licenses/create-license",
+          "actor": "licensing-owner-key",
+          "status": 202,
+          "txHash": "0xe6551d1ef5092e7e02f767215f40c1995fb3588baa180afafac099b1b8b40c54",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045298
+          },
+          "postState": {
+            "license": {
+              "licensee": "0x90d091A005B4694E6DD4447e9731A9911baB36fF",
+              "isActive": true,
+              "transferable": false,
+              "startTime": "1773858884",
+              "endTime": "1779042884",
+              "maxUses": "7",
+              "usageCount": "0",
+              "licenseFee": "0",
+              "usageFee": "0",
+              "templateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "termsHash": "0x7a32217d5aebb238e94b6c145dc92fce7dc4f40e18eaddbf4942527102fb8171",
+              "rights": [],
+              "restrictions": [],
+              "usageRefs": []
+            },
+            "directLicense": {
+              "voiceHash": "0x90d091A005B4694E6DD4447e9731A9911baB36fF",
+              "licensee": true,
+              "licensor": false,
+              "startTime": "1773858884",
+              "endTime": "1779042884",
+              "isActive": "7",
+              "usageCount": "0",
+              "terms": {},
+              "licenseHash": "0",
+              "templateHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xe6551d1ef5092e7e02f767215f40c1995fb3588baa180afafac099b1b8b40c54",
+                "blockHash": "0x6cebdaf4c57ee4275055879c56f9b68b63b6edea022ada389d7408b745b25f0a",
+                "blockNumber": 39045298,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x0000000000000000000000000000000000000000000000000000000069baf044000000000000000000000000000000000000000000000000000000006a0a0a44",
+                "topics": [
+                  "0x8e4b9a83abcd2f45d32ffc177c6493302853f2087c3bc647f9cdfd83c9639c92",
+                  "0xb073cfc23d6e9dbe4f2ce4398d6736f414c4f8e641d2870215524e1b0a644f88",
+                  "0x00000000000000000000000090d091a005b4694e6dd4447e9731a9911bab36ff",
+                  "0x7a32217d5aebb238e94b6c145dc92fce7dc4f40e18eaddbf4942527102fb8171"
+                ],
+                "index": 85,
+                "transactionIndex": 14
+              }
+            ]
+          }
+        },
+        {
+          "route": "GET /v1/licensing/queries/get-license-terms",
+          "actor": "licensee-key",
+          "status": 200,
+          "postState": {
+            "licensees": [
+              "0x90d091A005B4694E6DD4447e9731A9911baB36fF"
+            ],
+            "history": [
+              "1",
+              "0",
+              "1"
+            ],
+            "terms": {
+              "licenseHash": "0x7a32217d5aebb238e94b6c145dc92fce7dc4f40e18eaddbf4942527102fb8171",
+              "duration": "5184000",
+              "price": "0",
+              "maxUses": "7",
+              "transferable": true,
+              "rights": [
+                "Podcast"
+              ],
+              "restrictions": [
+                "no-derivatives"
+              ]
+            },
+            "validate": [
+              true,
+              "1779042884"
+            ]
+          }
+        },
+        {
+          "route": "POST /v1/licensing/commands/record-licensed-usage",
+          "actor": "licensee-key",
+          "status": 202,
+          "txHash": "0x7d4c22fca5d1e33c6bb4bbadb91679c9e03837a5995ad9e3310bb8ae6d783362",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045299
+          },
+          "postState": {
+            "usageRefUsed": true,
+            "usageCount": "1"
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x7d4c22fca5d1e33c6bb4bbadb91679c9e03837a5995ad9e3310bb8ae6d783362",
+                "blockHash": "0x2d200c4cfa884b76df9edbc7d70e9406f5400c382c2c1c05c37201624e4d1012",
+                "blockNumber": 39045299,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+                "topics": [
+                  "0x2ad894b4199ac6ccfcab2c5aa9a961ceeb7af80cd8589bf4a99616fe627f6a19",
+                  "0xb073cfc23d6e9dbe4f2ce4398d6736f414c4f8e641d2870215524e1b0a644f88",
+                  "0x00000000000000000000000090d091a005b4694e6dd4447e9731a9911bab36ff",
+                  "0x9c3f6d33c3edb04c7e0fd862561c20d446c4634d8f200370f9295f9436b944c3"
+                ],
+                "index": 158,
+                "transactionIndex": 30
+              }
+            ]
+          }
+        },
+        {
+          "route": "POST /v1/licensing/commands/transfer-license",
+          "actor": "licensee-key",
+          "status": 500,
+          "postState": {
+            "error": "execution reverted (unknown custom error) (action=\"estimateGas\", data=\"0xc7234888\", reason=null, transaction={ \"data\": \"0xf6177016b073cfc23d6e9dbe4f2ce4398d6736f414c4f8e641d2870215524e1b0a644f880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ca8a4ed82298adba4d8d31887e09a7c0679c9c17\", \"from\": \"0x90d091A005B4694E6DD4447e9731A9911baB36fF\", \"to\": \"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.16.0)",
+            "diagnostics": {
+              "route": {
+                "httpMethod": "POST",
+                "path": "/v1/licensing/commands/transfer-license",
+                "operationId": "transferLicense",
+                "contractFunction": "VoiceLicenseFacet.transferLicense(bytes32,bytes32,address)"
+              },
+              "alchemy": {
+                "enabled": true,
+                "simulationEnabled": true,
+                "simulationEnforced": false,
+                "endpointDetected": true,
+                "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
+                "available": false
+              },
+              "signer": "0x90d091A005B4694E6DD4447e9731A9911baB36fF",
+              "provider": "alchemy",
+              "actors": [
+                {
+                  "address": "0x90d091A005B4694E6DD4447e9731A9911baB36fF",
+                  "nonce": "1",
+                  "balance": "9032553999904"
+                }
+              ],
+              "trace": {
+                "status": "unavailable",
+                "error": "Alchemy diagnostics unavailable"
+              },
+              "cause": "execution reverted (unknown custom error) (action=\"estimateGas\", data=\"0xc7234888\", reason=null, transaction={ \"data\": \"0xf6177016b073cfc23d6e9dbe4f2ce4398d6736f414c4f8e641d2870215524e1b0a644f880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ca8a4ed82298adba4d8d31887e09a7c0679c9c17\", \"from\": \"0x90d091A005B4694E6DD4447e9731A9911baB36fF\", \"to\": \"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.16.0)",
+              "simulation": {
+                "status": "unavailable",
+                "error": "Alchemy diagnostics unavailable"
+              }
+            }
+          },
+          "notes": "0xc7234888"
+        },
+        {
+          "route": "DELETE /v1/licensing/commands/revoke-license",
+          "actor": "licensing-owner-key",
+          "status": 202,
+          "txHash": "0xf6ef2db2111f734c66eeaaf018bd125d1a1742eebbd94cc854bb656566fa40ec",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045302
+          },
+          "postState": {
+            "revokedReadStatus": 200,
+            "pendingRevenue": "0"
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          }
+        }
+      ],
+      "finalClassification": "proven working"
+    },
+    "whisperblock/security": {
+      "routes": [
+        "POST /v1/whisperblock/queries/get-selectors",
+        "POST /v1/whisperblock/whisperblocks",
+        "GET /v1/whisperblock/queries/verify-voice-authenticity",
+        "POST /v1/whisperblock/commands/grant-access",
+        "DELETE /v1/whisperblock/commands/revoke-access",
+        "GET /v1/whisperblock/queries/get-audit-trail",
+        "POST /v1/whisperblock/commands/generate-and-set-encryption-key",
+        "PATCH /v1/whisperblock/commands/set-audit-enabled",
+        "PATCH /v1/whisperblock/commands/set-trusted-oracle",
+        "PATCH /v1/whisperblock/commands/update-system-parameters",
+        "PATCH /v1/whisperblock/commands/set-offchain-entropy"
+      ],
+      "actors": [
+        "founder-key",
+        "read-key"
+      ],
+      "executionResult": "whisperblock fingerprint, authenticity, access, audit, encryption, oracle, and parameter flows completed and restored",
+      "evidence": [
+        {
+          "route": "POST /v1/whisperblock/queries/get-selectors",
+          "actor": "read-key",
+          "status": 200,
+          "postState": [
+            "0x20c4f08c",
+            "0x25200f05",
+            "0x8d53b208",
+            "0xb8663fd0",
+            "0xdf882fdd",
+            "0x51ffef11",
+            "0x73a8ce8b",
+            "0x22d407bf",
+            "0xb22bd298",
+            "0x9aafdba9",
+            "0x4b503f0b"
+          ]
+        },
+        {
+          "route": "GET /v1/whisperblock/queries/get-audit-trail",
+          "actor": "read-key",
+          "status": 200,
+          "postState": [],
+          "notes": "initial audit trail"
+        },
+        {
+          "route": "POST /v1/whisperblock/whisperblocks",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xb42578304636660e49ce541a5ebb74b9022262e9862fa47b5031a97864805880",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045305
+          },
+          "postState": {
+            "verifyValid": true,
+            "verifyInvalid": false
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xb42578304636660e49ce541a5ebb74b9022262e9862fa47b5031a97864805880",
+                "blockHash": "0xdbbab46a0474c08c3d7b26b4e0e89112990868b90e39289b5db908508891a3ea",
+                "blockNumber": 39045305,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x011c66ccf616d9a183245651164d457548370c4d3a1e772ac7e4d7b8288809bf",
+                "topics": [
+                  "0xd262f52564a142d6c627e2789980d15acf217912ad3ad1c2b4e30062a1b6daad",
+                  "0x958bae89c6b5b131688a115cb2c557659f4a265601eb1465d55d0129160e17c7"
+                ],
+                "index": 52,
+                "transactionIndex": 9
+              }
+            ]
+          }
+        },
+        {
+          "route": "POST /v1/whisperblock/commands/generate-and-set-encryption-key",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x45c105003211c088854b06644372f12d659c25212d8dbbe62f3d76029c984fa0",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045306
+          },
+          "postState": {
+            "requestId": null,
+            "txHash": "0x45c105003211c088854b06644372f12d659c25212d8dbbe62f3d76029c984fa0",
+            "result": "0x9fd69c85ceb13513b501cdcb8e3731212ebde743be6ab9fcb41f87c0a3c8dbcc"
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          }
+        },
+        {
+          "route": "POST /v1/whisperblock/commands/grant-access",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xf1bb34f2b3db4bfa34ed0cb2501655956c6fe2ff8782416ec156531ceb457373",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045307
+          },
+          "postState": {
+            "requestId": null,
+            "txHash": "0xf1bb34f2b3db4bfa34ed0cb2501655956c6fe2ff8782416ec156531ceb457373",
+            "result": null
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          }
+        },
+        {
+          "route": "DELETE /v1/whisperblock/commands/revoke-access",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x374031e4b482ac422f625855ca6df1b788421ab9d0091372713ff57095577da4",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045307
+          },
+          "postState": {
+            "requestId": null,
+            "txHash": "0x374031e4b482ac422f625855ca6df1b788421ab9d0091372713ff57095577da4",
+            "result": null
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          }
+        },
+        {
+          "route": "GET /v1/whisperblock/queries/get-audit-trail",
+          "actor": "read-key",
+          "status": 200,
+          "postState": [
+            "0x70e3c7ee3d5d5e6674036f185d3370d404ac3cef7d6aff779d1096f696966512"
+          ],
+          "notes": "post-access audit trail"
+        },
+        {
+          "route": "PATCH /v1/whisperblock/commands/update-system-parameters",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x0d93d72f735c20ec6d041a83a45469b05d378025035f9220e3fd7b6ebb8a13c5",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045308
+          },
+          "postState": {
+            "minKeyStrength": "512",
+            "minEntropy": "256",
+            "defaultAccessDuration": "3600",
+            "requireAudit": true,
+            "trustedOracle": "0xb50F168087B5cC36b37c226F9FF0DFFa1e420aE8"
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0x0d93d72f735c20ec6d041a83a45469b05d378025035f9220e3fd7b6ebb8a13c5",
+                "blockHash": "0xef42f1693a6aa70abfc4da21cb49e2127d074d4358d39ccab3393b979dfe0607",
+                "blockNumber": 39045308,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0xabf3002127155f1b8108221efef92ab1ed58fafb15210a911973089b63cfde87",
+                  "0x88a6d866d734d76add1f38f88dfef853a314c12c5051eebe592cfd27239a58e4",
+                  "0x0000000000000000000000000000000000000000000000000000000000000200"
+                ],
+                "index": 202,
+                "transactionIndex": 30
+              },
+              {
+                "provider": {},
+                "transactionHash": "0x0d93d72f735c20ec6d041a83a45469b05d378025035f9220e3fd7b6ebb8a13c5",
+                "blockHash": "0xef42f1693a6aa70abfc4da21cb49e2127d074d4358d39ccab3393b979dfe0607",
+                "blockNumber": 39045308,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0xabf3002127155f1b8108221efef92ab1ed58fafb15210a911973089b63cfde87",
+                  "0x872337b5cc71fc1e2a52d7fbf511c84625c8e898682ef122346721033cc59b17",
+                  "0x0000000000000000000000000000000000000000000000000000000000000100"
+                ],
+                "index": 203,
+                "transactionIndex": 30
+              },
+              {
+                "provider": {},
+                "transactionHash": "0x0d93d72f735c20ec6d041a83a45469b05d378025035f9220e3fd7b6ebb8a13c5",
+                "blockHash": "0xef42f1693a6aa70abfc4da21cb49e2127d074d4358d39ccab3393b979dfe0607",
+                "blockNumber": 39045308,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0xabf3002127155f1b8108221efef92ab1ed58fafb15210a911973089b63cfde87",
+                  "0xed02a8924ec6de373f428b6f344fcfc2161cd7a2c60efef6a33679c1004cebae",
+                  "0x0000000000000000000000000000000000000000000000000000000000000e10"
+                ],
+                "index": 204,
+                "transactionIndex": 30
+              }
+            ]
+          }
+        },
+        {
+          "route": "PATCH /v1/whisperblock/commands/set-offchain-entropy",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x52a7c7971904530b853d5d4d30c029636d041267d15e86f9de35cd92a7c2677d",
+          "receipt": {
+            "status": 1,
+            "blockNumber": 39045310
+          },
+          "postState": {
+            "requestId": null,
+            "txHash": "0x52a7c7971904530b853d5d4d30c029636d041267d15e86f9de35cd92a7c2677d",
+            "result": null
+          },
+          "eventQuery": {
+            "status": 200,
+            "payload": []
+          }
+        },
+        {
+          "route": "POST /v1/whisperblock/events/audit-event/query",
+          "actor": "read-key",
+          "status": 200,
+          "postState": {
+            "count": 5
+          }
+        }
+      ],
+      "finalClassification": "proven working"
+    }
+  }
+}

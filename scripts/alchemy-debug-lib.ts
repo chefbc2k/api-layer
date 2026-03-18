@@ -22,9 +22,18 @@ export type RuntimeEnvironment = {
   env: NodeJS.ProcessEnv;
   config: ReturnType<typeof readConfigFromEnv>;
   configSources: ReturnType<typeof readRuntimeConfigSources>;
+  rpcResolution: RpcResolution;
   provider: JsonRpcProvider;
   alchemy: ReturnType<typeof createAlchemyClient>;
   scenarioCommit: string | null;
+};
+
+export type RpcResolution = {
+  configuredRpcUrl: string;
+  effectiveRpcUrl: string;
+  source: "configured" | "base-sepolia-fixture";
+  fallbackReason: string | null;
+  fixturePath: string | null;
 };
 
 export type ScenarioRunResult = {
@@ -65,6 +74,90 @@ export async function verifyNetwork(rpcUrl: string, expectedChainId: number): Pr
   }
 }
 
+function isLoopbackRpcUrl(rpcUrl: string): boolean {
+  try {
+    const parsed = new URL(rpcUrl);
+    return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+  } catch {
+    return rpcUrl.includes("127.0.0.1") || rpcUrl.includes("localhost");
+  }
+}
+
+async function readFixtureRpcUrl(fixturePath: string): Promise<string | null> {
+  if (!existsSync(fixturePath)) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(await readFile(fixturePath, "utf8")) as {
+      network?: { rpcUrl?: unknown };
+    };
+    return typeof parsed.network?.rpcUrl === "string" && parsed.network.rpcUrl.length > 0
+      ? parsed.network.rpcUrl
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function resolveRuntimeConfig(
+  env: NodeJS.ProcessEnv = loadRepoEnv(),
+  verifyNetworkImpl: typeof verifyNetwork = verifyNetwork,
+): Promise<{
+  config: ReturnType<typeof readConfigFromEnv>;
+  configSources: ReturnType<typeof readRuntimeConfigSources>;
+  rpcResolution: RpcResolution;
+}> {
+  const configSources = readRuntimeConfigSources(env);
+  const config = readConfigFromEnv(env);
+  const fixturePath = path.resolve(rootDir, ".runtime", "base-sepolia-operator-fixtures.json");
+
+  try {
+    await verifyNetworkImpl(config.cbdpRpcUrl, config.chainId);
+    return {
+      config,
+      configSources,
+      rpcResolution: {
+        configuredRpcUrl: config.cbdpRpcUrl,
+        effectiveRpcUrl: config.cbdpRpcUrl,
+        source: "configured",
+        fallbackReason: null,
+        fixturePath: existsSync(fixturePath) ? fixturePath : null,
+      },
+    };
+  } catch (error) {
+    const fallbackRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
+      ? await readFixtureRpcUrl(fixturePath)
+      : null;
+
+    if (!fallbackRpcUrl || fallbackRpcUrl === config.cbdpRpcUrl) {
+      throw error;
+    }
+
+    await verifyNetworkImpl(fallbackRpcUrl, config.chainId);
+    const resolvedConfig = readConfigFromEnv({
+      ...env,
+      RPC_URL: fallbackRpcUrl,
+      ALCHEMY_RPC_URL:
+        env.ALCHEMY_RPC_URL && !isLoopbackRpcUrl(env.ALCHEMY_RPC_URL)
+          ? env.ALCHEMY_RPC_URL
+          : fallbackRpcUrl,
+    });
+
+    return {
+      config: resolvedConfig,
+      configSources,
+      rpcResolution: {
+        configuredRpcUrl: config.cbdpRpcUrl,
+        effectiveRpcUrl: fallbackRpcUrl,
+        source: "base-sepolia-fixture",
+        fallbackReason: error instanceof Error ? error.message : String(error),
+        fixturePath,
+      },
+    };
+  }
+}
+
 function gitCommit(root: string): string | null {
   try {
     return execFileSync("git", ["-C", root, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
@@ -75,9 +168,7 @@ function gitCommit(root: string): string | null {
 
 export async function loadRuntimeEnvironment(): Promise<RuntimeEnvironment> {
   const env = loadRepoEnv();
-  const configSources = readRuntimeConfigSources(env);
-  const config = readConfigFromEnv(env);
-  await verifyNetwork(config.cbdpRpcUrl, config.chainId);
+  const { config, configSources, rpcResolution } = await resolveRuntimeConfig(env);
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
   const contractsRoot = resolveContractsRoot();
   return {
@@ -85,6 +176,7 @@ export async function loadRuntimeEnvironment(): Promise<RuntimeEnvironment> {
     env,
     config,
     configSources,
+    rpcResolution,
     provider,
     alchemy: createAlchemyClient(config),
     scenarioCommit: gitCommit(contractsRoot),
@@ -100,6 +192,9 @@ export function printRuntimeHeader(runtime: RuntimeEnvironment): void {
         chainId: runtime.config.chainId,
         diamondAddress: runtime.config.diamondAddress,
         rpcUrl: runtime.config.cbdpRpcUrl,
+        configuredRpcUrl: runtime.rpcResolution.configuredRpcUrl,
+        rpcSource: runtime.rpcResolution.source,
+        rpcFallbackReason: runtime.rpcResolution.fallbackReason,
         signerAddress: runtime.configSources.values.PRIVATE_KEY.value ? "configured" : "missing",
         scenarioBaselineCommit: runtime.scenarioCommit,
       },

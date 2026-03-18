@@ -1,10 +1,11 @@
 import { createApiServer } from "../packages/api/src/app.js";
-import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
+import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 import { Contract, Interface, JsonRpcProvider, Wallet, ethers } from "ethers";
 import fs from "node:fs";
 import path from "node:path";
 
+import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
 
 type ApiCallOptions = {
@@ -121,7 +122,9 @@ function endpointByKey(registry: Record<string, EndpointDefinition>, key: string
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const config = readConfigFromEnv(repoEnv);
+  const { config } = await resolveRuntimeConfig(repoEnv);
+  process.env.RPC_URL = config.cbdpRpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
   const founderKey = repoEnv.PRIVATE_KEY ?? "";
   const founder = founderKey ? new Wallet(founderKey, provider) : null;
@@ -141,9 +144,13 @@ async function main() {
     licensee: licensee.privateKey,
   });
 
-  const endpointRegistry = JSON.parse(
+  const endpointManifest = JSON.parse(
     fs.readFileSync(path.join("generated", "manifests", "http-endpoint-registry.json"), "utf8"),
-  ).methods as Record<string, EndpointDefinition>;
+  ) as { methods?: Record<string, EndpointDefinition>; events?: Record<string, EndpointDefinition> };
+  const endpointRegistry = {
+    ...(endpointManifest.methods ?? {}),
+    ...(endpointManifest.events ?? {}),
+  } as Record<string, EndpointDefinition>;
 
   const server = createApiServer({ port: 0 }).listen();
   const address = server.address();
@@ -315,10 +322,17 @@ async function main() {
             domain.routes.push(`${eventEndpoint.httpMethod} ${eventEndpoint.path}`);
           }
           const eventResp = eventEndpoint
-            ? await apiCall(port, eventEndpoint.httpMethod, eventEndpoint.path, {
-            apiKey: "read-key",
-            body: { fromBlock: String(listReceipt.blockNumber), toBlock: String(listReceipt.blockNumber) },
-          })
+            ? await retryRead(
+              "asset listed event",
+              () => apiCall(port, eventEndpoint.httpMethod, eventEndpoint.path, {
+                apiKey: "read-key",
+                body: { fromBlock: String(listReceipt.blockNumber), toBlock: String(listReceipt.blockNumber) },
+              }),
+              (resp) =>
+                resp.status === 200 &&
+                Array.isArray(resp.payload) &&
+                resp.payload.some((entry) => (entry as Record<string, unknown>)?.transactionHash === listTxHash),
+            )
             : { status: 0, payload: "missing AssetListed endpoint" };
           domain.evidence.assetListedEvent = eventResp;
         }
@@ -465,10 +479,17 @@ async function main() {
         const eventEndpoint = endpointByKey(endpointRegistry, "VoiceAssetFacet.VoiceAssetRegistered");
         if (eventEndpoint) domain.routes.push(`${eventEndpoint.httpMethod} ${eventEndpoint.path}`);
         const eventResp = eventEndpoint
-          ? await apiCall(port, eventEndpoint.httpMethod, eventEndpoint.path, {
-          apiKey: "read-key",
-          body: { fromBlock: String(receipt.blockNumber), toBlock: String(receipt.blockNumber) },
-        })
+          ? await retryRead(
+            "voice asset registered event",
+            () => apiCall(port, eventEndpoint.httpMethod, eventEndpoint.path, {
+              apiKey: "read-key",
+              body: { fromBlock: String(receipt.blockNumber), toBlock: String(receipt.blockNumber) },
+            }),
+            (resp) =>
+              resp.status === 200 &&
+              Array.isArray(resp.payload) &&
+              resp.payload.some((entry) => (entry as Record<string, unknown>)?.transactionHash === voiceTxHash),
+          )
           : { status: 0, payload: "missing VoiceAssetRegistered endpoint" };
         domain.evidence.registeredEvent = eventResp;
       }

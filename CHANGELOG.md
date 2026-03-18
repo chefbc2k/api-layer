@@ -31,11 +31,19 @@
 ### Added
 - **Live Fixture Refresh:** Re-ran Base Sepolia operator setup and persisted the refreshed fixture report in [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json), including actor balances, governance readiness, and marketplace fixture state.
 - **Live Layer 1 Proof Refresh:** Re-generated [verify-live-output.json](/Users/chef/Public/api-layer/verify-live-output.json) against Base Sepolia and captured fresh tx hashes, receipts, and readbacks for governance, marketplace, datasets, voice-assets, tokenomics, access-control, and admin/emergency/multisig domains.
+- **Remaining Layer 1 Proof Artifact:** Added [verify-remaining-output.json](/Users/chef/Public/api-layer/verify-remaining-output.json) with fresh Base Sepolia proof coverage for the remaining domains: datasets, licensing, and whisperblock/security.
 
 ### Fixed
 - **Runtime Override Handling:** Updated the runtime config loader to let process-level environment overrides take precedence over the repo `.env`, so Base Sepolia proof commands can be redirected to a live RPC without editing committed secrets.
 - **Dataset Verification Completion:** Confirmed the live dataset proof now reuses an active license template and completes successfully on Base Sepolia, collapsing the prior `InvalidLicenseTemplate(uint256)` partial into `proven working`.
+- **Baseline RPC Recovery:** Taught the shared runtime loader to recover from the dead local `127.0.0.1:8548` baseline by reusing the last verified Base Sepolia fixture RPC, and surfaced that fallback provenance in the baseline output.
+- **Proof Script RPC Consistency:** Updated the Base Sepolia setup, live verification, focused verification, and remaining verification scripts to inject the resolved RPC into the embedded API server before boot so contract and HTTP proof paths run against the same chain.
+- **Marketplace Fixture Search:** Reworked the operator setup aged-listing scan to continue across seller-owned aged assets until it finds one that can be listed and read back as active, instead of stopping on the first stale candidate.
+- **Event Proof Readbacks:** Fixed the live verifier’s endpoint registry merge so generated event routes are discoverable, and added event-query retries so `AssetListed` and `VoiceAssetRegistered` proofs capture actual logs instead of transient empty payloads.
+- **Remaining Proof Funding:** Expanded the remaining-domain proof funder pool to the richer configured signer actors and raised preflight native-balance top-ups so dataset, licensing, and whisperblock/security runs can complete on Base Sepolia without mid-run gas exhaustion.
 
 ### Verified
 - **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept API-surface and wrapper coverage at 489 methods and 218 events.
 - **Config Regression Guard:** Added a runtime-config test that locks in override precedence for `RPC_URL` and `ALCHEMY_RPC_URL`.
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both now succeed from the default repo state by falling back to the persisted Base Sepolia fixture RPC when the local fork endpoint is unavailable.
+- **Proof Domains:** Re-ran the live and remaining Layer 1 proof scripts; all verified domains now classify as `proven working`, while the setup artifact’s only remaining marketplace partial is explicitly narrowed to purchase-readiness proof rather than listing activation.

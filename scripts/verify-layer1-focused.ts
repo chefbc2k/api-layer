@@ -1,8 +1,10 @@
 import { createApiServer } from "../packages/api/src/app.js";
-import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
+import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { JsonRpcProvider, Wallet } from "ethers";
 import fs from "node:fs";
 import path from "node:path";
+
+import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -108,7 +110,9 @@ function endpointByKey(registry: Record<string, EndpointDefinition>, key: string
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const config = readConfigFromEnv(repoEnv);
+  const { config } = await resolveRuntimeConfig(repoEnv);
+  process.env.RPC_URL = config.cbdpRpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
   const founderKey = repoEnv.PRIVATE_KEY ?? "";
   const founder = founderKey ? new Wallet(founderKey, provider) : null;

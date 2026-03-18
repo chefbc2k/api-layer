@@ -3,9 +3,10 @@ import { once } from "node:events";
 import { Contract, JsonRpcProvider, Wallet, ethers, id } from "ethers";
 
 import { createApiServer, type ApiServer } from "../packages/api/src/app.js";
-import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
+import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 
+import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
 
 type ApiCallOptions = {
@@ -258,7 +259,9 @@ async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>;
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const config = readConfigFromEnv(repoEnv);
+  const { config } = await resolveRuntimeConfig(repoEnv);
+  process.env.RPC_URL = config.cbdpRpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
 
   if (!repoEnv.PRIVATE_KEY) {
@@ -293,7 +296,15 @@ async function main() {
     licensee: licensee.privateKey,
   });
 
-  const richest = [founder, licensingOwner].reduce(async (currentPromise, candidate) => {
+  const fundingCandidates = [
+    founder,
+    licensingOwner,
+    repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2, provider) : null,
+    repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3, provider) : null,
+    repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4, provider) : null,
+  ].filter((candidate): candidate is Wallet => candidate !== null);
+
+  const richest = fundingCandidates.reduce(async (currentPromise, candidate) => {
     const current = await currentPromise;
     const currentBalance = await provider.getBalance(current.address);
     const candidateBalance = await provider.getBalance(candidate.address);
@@ -302,12 +313,12 @@ async function main() {
 
   const fundingWallet = await richest;
   if (requestedDomains.has("datasets") || requestedDomains.has("whisperblock/security")) {
-    await ensureNativeBalance(provider, fundingWallet, founder.address, ethers.parseEther("0.00003"));
+    await ensureNativeBalance(provider, fundingWallet, founder.address, ethers.parseEther("0.0002"));
   }
   if (requestedDomains.has("licensing")) {
-    await ensureNativeBalance(provider, fundingWallet, licensingOwner.address, ethers.parseEther("0.00003"));
-    await ensureNativeBalance(provider, fundingWallet, licensee.address, ethers.parseEther("0.000005"));
-    await ensureNativeBalance(provider, fundingWallet, transferee.address, ethers.parseEther("0.000002"));
+    await ensureNativeBalance(provider, fundingWallet, licensingOwner.address, ethers.parseEther("0.00005"));
+    await ensureNativeBalance(provider, fundingWallet, licensee.address, ethers.parseEther("0.00001"));
+    await ensureNativeBalance(provider, fundingWallet, transferee.address, ethers.parseEther("0.00001"));
   }
 
   const { server, port } = await startServer();
