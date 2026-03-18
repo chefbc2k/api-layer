@@ -8,20 +8,22 @@ import { facetRegistry } from "../packages/client/src/generated/index.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 
 import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import {
+  type FixtureStatus,
+  isPurchaseReadyListing,
+  selectPreferredMarketplaceFixtureCandidate,
+} from "./base-sepolia-operator-setup.helpers.js";
 
 type ApiCallOptions = {
   apiKey?: string;
   body?: unknown;
 };
 
-type FixtureStatus = "ready" | "partial" | "blocked";
-
 type WalletSpec = {
   label: string;
   privateKey?: string;
 };
 
-const ONE_DAY = 24n * 60n * 60n;
 const DEFAULT_NATIVE_MINIMUM = ethers.parseEther("0.00004");
 const DEFAULT_USDC_MINIMUM = 25_000_000n;
 const RUNTIME_DIR = path.resolve(".runtime");
@@ -301,24 +303,33 @@ async function main(): Promise<void> {
 
     const sellerVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(seller.address);
     const latestBlock = await provider.getBlock("latest");
+    const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
   const agedFixture = {
     voiceHash: null as string | null,
     tokenId: null as string | null,
     activeListing: false,
-    purchaseReadiness: "unverified" as "unverified" | "listed-not-yet-purchase-proven",
+    purchaseReadiness: "unverified" as "unverified" | "listed-not-yet-purchase-proven" | "purchase-ready",
     status: "blocked" as FixtureStatus,
     reason: "missing aged seller asset",
     approval: null as any,
     listing: null as any,
   };
+    const marketplaceCandidates: Array<{
+      voiceHash: string;
+      tokenId: string;
+      listingReadback: { status: number; payload: Record<string, unknown> | null };
+    }> = [];
+    let fallbackAsset: { voiceHash: string; tokenId: string } | null = null;
     for (const voiceHash of sellerVoiceHashes as string[]) {
     const asset = await voiceAsset.getVoiceAsset(voiceHash);
-    if (BigInt(asset.createdAt) + ONE_DAY > BigInt(latestBlock!.timestamp)) {
+    if (BigInt(asset.createdAt) > latestTimestamp) {
       continue;
     }
     const tokenId = await voiceAsset.getTokenId(voiceHash);
-    agedFixture.voiceHash = voiceHash;
-    agedFixture.tokenId = tokenId.toString();
+    const tokenIdString = tokenId.toString();
+    if (!fallbackAsset) {
+      fallbackAsset = { voiceHash, tokenId: tokenIdString };
+    }
     const approvalRead = await apiCall(
       port,
       "GET",
@@ -338,42 +349,91 @@ async function main(): Promise<void> {
     const listingRead = await apiCall(
       port,
       "GET",
-      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId.toString())}`,
+      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenIdString)}`,
       { apiKey: "read-key" },
     );
-    if (listingRead.status !== 200 || !(listingRead.payload as Record<string, unknown>)?.isActive) {
+    const listingPayload = listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
+      ? listingRead.payload as Record<string, unknown>
+      : null;
+    marketplaceCandidates.push({
+      voiceHash,
+      tokenId: tokenIdString,
+      listingReadback: {
+        status: listingRead.status,
+        payload: listingPayload,
+      },
+    });
+    if (isPurchaseReadyListing(listingPayload, latestTimestamp)) {
+      break;
+    }
+  }
+    const preferredCandidate = selectPreferredMarketplaceFixtureCandidate(marketplaceCandidates, latestTimestamp);
+    if (preferredCandidate && preferredCandidate.listingReadback.payload?.isActive === true) {
+      agedFixture.voiceHash = preferredCandidate.voiceHash;
+      agedFixture.tokenId = preferredCandidate.tokenId;
+      agedFixture.activeListing = preferredCandidate.listingReadback.status === 200 &&
+        preferredCandidate.listingReadback.payload?.isActive === true;
+      agedFixture.purchaseReadiness = isPurchaseReadyListing(preferredCandidate.listingReadback.payload, latestTimestamp)
+        ? "purchase-ready"
+        : agedFixture.activeListing
+          ? "listed-not-yet-purchase-proven"
+          : "unverified";
+      agedFixture.status = agedFixture.purchaseReadiness === "purchase-ready"
+        ? "ready"
+        : agedFixture.activeListing
+          ? "partial"
+          : "blocked";
+      agedFixture.reason = agedFixture.purchaseReadiness === "purchase-ready"
+        ? "listing is active and older than the marketplace contract's 1 day trading lock"
+        : agedFixture.activeListing
+          ? "active listing exists, but it is still within the marketplace contract's 1 day trading lock"
+          : "seller owns aged assets, but none currently have an active listing";
+      agedFixture.listing = {
+        submission: null,
+        readback: preferredCandidate.listingReadback,
+      };
+    } else if (fallbackAsset) {
+      agedFixture.voiceHash = fallbackAsset.voiceHash;
+      agedFixture.tokenId = fallbackAsset.tokenId;
       const listing = await apiCall(port, "POST", "/v1/marketplace/commands/list-asset", {
         apiKey: "seller-key",
-        body: { tokenId: tokenId.toString(), price: "1000", duration: "0" },
+        body: { tokenId: fallbackAsset.tokenId, price: "1000", duration: "0" },
       });
       agedFixture.listing = listing;
       if (listing.status === 202) {
         await waitForReceipt(port, extractTxHash(listing.payload));
       }
+      const refreshedListing = await retryApiRead(
+        () => apiCall(
+          port,
+          "GET",
+          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(fallbackAsset.tokenId)}`,
+          { apiKey: "read-key" },
+        ),
+        (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
+      );
+      agedFixture.activeListing = refreshedListing.status === 200 && (refreshedListing.payload as Record<string, unknown>)?.isActive === true;
+      agedFixture.purchaseReadiness = agedFixture.activeListing ? "listed-not-yet-purchase-proven" : "unverified";
+      agedFixture.status = agedFixture.activeListing ? "partial" : "blocked";
+      agedFixture.reason = agedFixture.activeListing
+        ? "listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock"
+        : "listing could not be activated";
+      agedFixture.listing = {
+        submission: listing,
+        readback: refreshedListing,
+      };
+    } else if (preferredCandidate) {
+      agedFixture.voiceHash = preferredCandidate.voiceHash;
+      agedFixture.tokenId = preferredCandidate.tokenId;
+      agedFixture.activeListing = false;
+      agedFixture.purchaseReadiness = "unverified";
+      agedFixture.status = "blocked";
+      agedFixture.reason = "seller owns aged assets, but none currently have an active listing";
+      agedFixture.listing = {
+        submission: null,
+        readback: preferredCandidate.listingReadback,
+      };
     }
-    const refreshedListing = await retryApiRead(
-      () => apiCall(
-        port,
-        "GET",
-        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId.toString())}`,
-        { apiKey: "read-key" },
-      ),
-      (response) => response.status === 200,
-    );
-    agedFixture.activeListing = refreshedListing.status === 200 && (refreshedListing.payload as Record<string, unknown>)?.isActive === true;
-    agedFixture.purchaseReadiness = agedFixture.activeListing ? "listed-not-yet-purchase-proven" : "unverified";
-    agedFixture.status = "partial";
-    agedFixture.reason = agedFixture.activeListing
-      ? "listing is present; purchaseability still requires live verification and must not be inferred from listing state alone"
-      : "listing could not be activated";
-    agedFixture.listing = {
-      submission: agedFixture.listing,
-      readback: refreshedListing,
-    };
-    if (agedFixture.activeListing) {
-      break;
-    }
-  }
     status.marketplace = {
     ...(status.marketplace as Record<string, unknown>),
     agedListingFixture: agedFixture,

@@ -66,3 +66,21 @@
 
 ### Known Issues
 - **Fixture Age Regression:** A fresh `pnpm run setup:base-sepolia` now repopulates [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) with an active listing that is still within the marketplace contract’s 1 day purchase lock, so the fixture remains useful for listing-state checks but not as a rerunnable purchase-proof target until the age-selection logic is corrected.
+
+## [0.1.3] - 2026-03-18
+
+### Added
+- **Marketplace Fixture Selection Guard:** Added [scripts/base-sepolia-operator-setup.helpers.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.ts) plus [scripts/base-sepolia-operator-setup.helpers.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.test.ts) to classify Base Sepolia marketplace fixture candidates by real listing age, prioritize purchase-ready listings over fresh ones, and lock that behavior with a focused regression test.
+
+### Fixed
+- **Setup Listing-Age Classification:** Updated [scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `setup:base-sepolia` no longer mistakes an old asset with a fresh listing for a purchase-ready marketplace fixture. The script now scans seller-owned aged assets for an already-active listing past the contract lock, falls back to creating a new listing only when necessary, and waits for an active listing readback instead of treating any `200` response as success.
+- **Marketplace Partial Narrowing:** Re-ran [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) and confirmed the remaining marketplace block is now accurately scoped to listing age. The emitted fixture is again an active seller listing, but it is explicitly classified as `listed-not-yet-purchase-proven` until the 1 day trading lock expires or an older listing is discovered.
+
+### Verified
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept generated coverage at 489 functions and 218 events, with validated HTTP coverage for 489 methods.
+- **Baseline Stability:** The prior baseline commands remain green from the default repo state (`pnpm run baseline:show` and `pnpm run baseline:verify` from this session’s earlier verification).
+- **Targeted Regression Test:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.helpers.test.ts` to confirm fresh listings are no longer selected as purchase-ready fixtures.
+
+### Known Issues
+- **Marketplace Purchase Proof Still Time-Locked:** The current setup artifact now reports an honest partial instead of a misleading one: the latest seller listing becomes active during setup, but it is still within the marketplace contract’s 1 day trading lock, so `buyer-key` purchase proof remains blocked until the listing ages or an older active listing is available.
+- **Unrelated Suite Debt:** A broad `pnpm test -- scripts/base-sepolia-operator-setup.helpers.test.ts` run still surfaces pre-existing red tests outside this change: stale manifest/HTTP-registry expectation counts and a timeout in `packages/api/src/workflows/register-voice-asset.integration.test.ts`.
