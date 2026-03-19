@@ -4,6 +4,24 @@
 
 ---
 
+## [0.1.9] - 2026-03-19
+
+### Added
+- **Diamond Admin ERC-165 Route:** Forced `DiamondLoupeFacet.supportsInterface(bytes4)` into the generated manifest so the live API and generated client wrappers now expose `GET /v1/diamond-admin/queries/supports-interface`.
+- **Multisig Operation Read Route:** Forced `MultiSigFacet.getOperation(bytes32)` into the generated manifest so the live API now exposes `GET /v1/multisig/queries/get-operation` instead of silently dropping that mounted read during surface generation.
+
+### Fixed
+- **Governance Threshold Route Drift:** Updated [`packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so the threshold-ready governance proof now uses the current `POST /v1/governance/proposals` endpoint instead of the removed overload-specific path.
+- **Live Funding Harness:** Reworked the Base Sepolia contract-integration test funding helper to pool native top-ups across multiple configured wallets, avoid self-funding loops, and allow a long-running `beforeAll` hook without crashing teardown.
+
+### Verified
+- **Surface Coverage Expansion:** Re-ran `pnpm run codegen` and confirmed wrapper + HTTP coverage now validate `492` methods and `218` events, including the new diamond-admin and multisig routes.
+- **Live Contract Progress:** Re-ran `pnpm run test:contract:api:base-sepolia` and improved the live pass count from `2/17` to `6/17`. The suite now proves access-control role grant/revoke, voice-asset registration reads/events, authorization + royalty mutation, register-voice-asset workflow persistence, and validation/signer/provider error handling on Base Sepolia.
+
+### Known Issues
+- **Base Sepolia Gas Exhaustion:** The remaining live failures are now dominated by depleted signer balances in the repo `.env`, not missing routes for the already-fixed diamond-admin/governance cases. Founder and auxiliary wallets no longer have enough ETH to finish the dataset, marketplace, governance write proof, whisperblock encryption-key rotation, licensing, transfer-rights, and later workflow branches.
+- **Tokenomics Long-Path Timeout:** The tokenomics proof still times out at the current `120s` limit under live Base Sepolia conditions, so it remains partial until either the environment is replenished or the proof is split into smaller live branches.
+
 ## [0.1.8] - 2026-03-19
 
 ### Fixed

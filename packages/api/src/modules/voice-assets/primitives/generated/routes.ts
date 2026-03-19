@@ -64,6 +64,7 @@ export function createVoiceAssetsPrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setMaxBeneficiaries")!, controller["setMaxBeneficiaries"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setMinTimelockPeriod")!, controller["setMinTimelockPeriod"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setRegistrationPaused")!, controller["setRegistrationPaused"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!, controller["supportsInterface"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "symbol")!, controller["symbol"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "tokenUri")!, controller["tokenUri"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "transferFromVoiceAsset")!, controller["transferFromVoiceAsset"]);

@@ -55,6 +55,7 @@ import {
   setMaxBeneficiariesRequestSchemas,
   setMinTimelockPeriodRequestSchemas,
   setRegistrationPausedRequestSchemas,
+  supportsInterfaceRequestSchemas,
   symbolRequestSchemas,
   tokenUriRequestSchemas,
   transferFromVoiceAssetRequestSchemas,
@@ -263,6 +264,9 @@ export type SetMinTimelockPeriodBody = import("zod").infer<typeof setMinTimelock
 export type SetRegistrationPausedPath = import("zod").infer<typeof setRegistrationPausedRequestSchemas.path>;
 export type SetRegistrationPausedQuery = import("zod").infer<typeof setRegistrationPausedRequestSchemas.query>;
 export type SetRegistrationPausedBody = import("zod").infer<typeof setRegistrationPausedRequestSchemas.body>;
+export type SupportsInterfacePath = import("zod").infer<typeof supportsInterfaceRequestSchemas.path>;
+export type SupportsInterfaceQuery = import("zod").infer<typeof supportsInterfaceRequestSchemas.query>;
+export type SupportsInterfaceBody = import("zod").infer<typeof supportsInterfaceRequestSchemas.body>;
 export type SymbolPath = import("zod").infer<typeof symbolRequestSchemas.path>;
 export type SymbolQuery = import("zod").infer<typeof symbolRequestSchemas.query>;
 export type SymbolBody = import("zod").infer<typeof symbolRequestSchemas.body>;

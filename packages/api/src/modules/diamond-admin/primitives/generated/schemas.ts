@@ -28,6 +28,7 @@ export const setTrustedInitCodehashRequestSchemas = buildMethodRequestSchemas(di
 export const setTrustedInitContractRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!);
 export const setTrustedInitSelectorRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!);
 export const setUpgradeControlEnforcedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setUpgradeControlEnforced")!);
+export const supportsInterfaceRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!);
 export const diamondCutEventEventQueryRequestSchema = buildEventRequestSchema(diamondAdminEventDefinitions.find((definition) => definition.operationId === "diamondCutEventEventQuery")!);
 export const diamondCutEventQueryRequestSchema = buildEventRequestSchema(diamondAdminEventDefinitions.find((definition) => definition.operationId === "diamondCutEventQuery")!);
 export const trustedInitCodehashSetEventQueryRequestSchema = buildEventRequestSchema(diamondAdminEventDefinitions.find((definition) => definition.operationId === "trustedInitCodehashSetEventQuery")!);

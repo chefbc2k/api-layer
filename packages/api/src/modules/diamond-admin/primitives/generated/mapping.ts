@@ -726,6 +726,58 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "DiamondLoupeFacet.supportsInterface",
+    "facetName": "DiamondLoupeFacet",
+    "wrapperKey": "supportsInterface",
+    "domain": "diamond-admin",
+    "resource": "diamond-admin",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/diamond-admin/queries/supports-interface",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "interfaceId",
+          "source": "query",
+          "field": "interfaceId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "supportsInterface",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "DiamondLoupeFacet.supportsInterface",
+    "methodName": "supportsInterface",
+    "signature": "supportsInterface(bytes4)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "interfaceId",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
     "key": "UpgradeControllerFacet.approveUpgrade",
     "facetName": "UpgradeControllerFacet",
     "wrapperKey": "approveUpgrade",

@@ -57,6 +57,7 @@ export const setInheritanceConditionsRequestSchemas = buildMethodRequestSchemas(
 export const setMaxBeneficiariesRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setMaxBeneficiaries")!);
 export const setMinTimelockPeriodRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setMinTimelockPeriod")!);
 export const setRegistrationPausedRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setRegistrationPaused")!);
+export const supportsInterfaceRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!);
 export const symbolRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "symbol")!);
 export const tokenUriRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "tokenUri")!);
 export const transferFromVoiceAssetRequestSchemas = buildMethodRequestSchemas(voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "transferFromVoiceAsset")!);

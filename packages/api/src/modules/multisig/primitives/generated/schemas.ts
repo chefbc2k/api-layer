@@ -8,6 +8,7 @@ export const cancelOperationRequestSchemas = buildMethodRequestSchemas(multisigM
 export const canExecuteOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "canExecuteOperation")!);
 export const executeRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "execute")!);
 export const executeOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "executeOperation")!);
+export const getOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "getOperation")!);
 export const getOperationConfigRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationConfig")!);
 export const getOperationStatusRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationStatus")!);
 export const hasApprovedOperationRequestSchemas = buildMethodRequestSchemas(multisigMethodDefinitions.find((definition) => definition.operationId === "hasApprovedOperation")!);

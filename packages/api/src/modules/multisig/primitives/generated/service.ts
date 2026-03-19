@@ -12,6 +12,7 @@ export function createMultisigPrimitiveService(context: ApiExecutionContext) {
     canExecuteOperation: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "canExecuteOperation")!, request),
     execute: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "execute")!, request),
     executeOperation: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "executeOperation")!, request),
+    getOperation: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperation")!, request),
     getOperationConfig: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationConfig")!, request),
     getOperationStatus: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationStatus")!, request),
     hasApprovedOperation: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, multisigMethodDefinitions.find((definition) => definition.operationId === "hasApprovedOperation")!, request),

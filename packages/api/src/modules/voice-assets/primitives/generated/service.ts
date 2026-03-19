@@ -61,6 +61,7 @@ export function createVoiceAssetsPrimitiveService(context: ApiExecutionContext) 
     setMaxBeneficiaries: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setMaxBeneficiaries")!, request),
     setMinTimelockPeriod: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setMinTimelockPeriod")!, request),
     setRegistrationPaused: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "setRegistrationPaused")!, request),
+    supportsInterface: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!, request),
     symbol: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "symbol")!, request),
     tokenUri: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "tokenUri")!, request),
     transferFromVoiceAsset: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "transferFromVoiceAsset")!, request),

@@ -381,6 +381,18 @@ describeLive("HTTP API contract integration", () => {
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
   let primaryVoiceHash = "";
+  const nativeTransferReserve = ethers.parseEther("0.000001");
+
+  async function nativeTransferSpendable(wallet: Wallet) {
+    const [balance, feeData] = await Promise.all([
+      provider.getBalance(wallet.address),
+      provider.getFeeData(),
+    ]);
+    const maxFeePerGas = feeData.maxFeePerGas ?? feeData.gasPrice ?? 0n;
+    const estimatedTransferCost = maxFeePerGas * 21_000n;
+    const reserve = nativeTransferReserve + estimatedTransferCost;
+    return balance > reserve ? balance - reserve : 0n;
+  }
 
   async function expectReceipt(txHash: string) {
     for (let attempt = 0; attempt < 80; attempt += 1) {
@@ -402,27 +414,54 @@ describeLive("HTTP API contract integration", () => {
   }
 
   async function ensureNativeBalance(address: string, minimumWei: bigint) {
-    const currentBalance = await provider.getBalance(address);
+    let currentBalance = await provider.getBalance(address);
     if (currentBalance >= minimumWei) {
       return;
     }
-    const topUpAmount = minimumWei - currentBalance + ethers.parseEther("0.00001");
-    const candidates = fundingWallets.length > 0
+    const recipient = address.toLowerCase();
+    const candidates = (fundingWallets.length > 0
       ? fundingWallets
-      : [fundingWallet, founderWallet, licensingOwnerWallet].filter((wallet): wallet is Wallet => Boolean(wallet));
-    let selectedWallet = candidates[0];
-    let selectedBalance = 0n;
-    for (const wallet of candidates) {
-      const balance = await provider.getBalance(wallet.address);
-      if (balance > selectedBalance) {
-        selectedWallet = wallet;
-        selectedBalance = balance;
-      }
-    }
-    if (!selectedWallet) {
+      : [fundingWallet, founderWallet, licensingOwnerWallet].filter((wallet): wallet is Wallet => Boolean(wallet)))
+      .filter((wallet, index, wallets) =>
+        wallet.address.toLowerCase() !== recipient &&
+        wallets.findIndex((candidate) => candidate.address.toLowerCase() === wallet.address.toLowerCase()) === index,
+      );
+    if (candidates.length === 0) {
       throw new Error(`no funding wallet available to top up ${address}`);
     }
-    await (await selectedWallet.sendTransaction({ to: address, value: topUpAmount })).wait();
+
+    while (currentBalance < minimumWei) {
+      let funded = false;
+      const balances = await Promise.all(candidates.map(async (wallet) => ({
+        wallet,
+        balance: await provider.getBalance(wallet.address),
+        spendable: await nativeTransferSpendable(wallet),
+      })));
+      balances.sort((left, right) => (left.spendable === right.spendable ? 0 : left.spendable > right.spendable ? -1 : 1));
+
+      for (const { wallet, spendable } of balances) {
+        if (spendable <= 0n) {
+          continue;
+        }
+        const remaining = minimumWei - currentBalance;
+        const value = spendable >= remaining ? remaining : spendable;
+        const receipt = await (await wallet.sendTransaction({ to: address, value })).wait();
+        if (!receipt || receipt.status !== 1) {
+          throw new Error(`failed to top up ${address} from ${wallet.address}`);
+        }
+        currentBalance = await provider.getBalance(address);
+        funded = true;
+        if (currentBalance >= minimumWei) {
+          return;
+        }
+      }
+
+      if (!funded) {
+        break;
+      }
+    }
+
+    throw new Error(`unable to top up ${address} to ${minimumWei.toString()} wei; current balance ${currentBalance.toString()}`);
   }
 
   beforeAll(async () => {
@@ -541,11 +580,11 @@ describeLive("HTTP API contract integration", () => {
     server = createApiServer({ port: 0 }).listen();
     const address = server.address();
     port = typeof address === "object" && address ? address.port : 8787;
-  });
+  }, 600_000);
 
   afterAll(async () => {
-    server.close();
-    await provider.destroy();
+    server?.close();
+    await provider?.destroy();
     process.env = { ...originalEnv };
   });
 
@@ -1601,7 +1640,7 @@ describeLive("HTTP API contract integration", () => {
     const thresholdReadyResponse = await apiCall(
       port,
       "POST",
-      "/v1/governance/proposals/propose-address-array-uint256-array-bytes-array-string-uint8",
+      "/v1/governance/proposals",
       {
         body: {
           description: "governance threshold proof",
@@ -1630,9 +1669,9 @@ describeLive("HTTP API contract integration", () => {
     const targetQuarterlyRate = originalQuarterlyRate === 2000n ? 2500n : 2000n;
     const targetMinDuration = originalMinDuration === 60n * day ? 90n * day : 60n * day;
 
-    await ensureNativeBalance(founderAddress, ethers.parseEther("0.00002"));
+    await ensureNativeBalance(founderAddress, ethers.parseEther("0.000015"));
     for (const wallet of [licenseeWallet, transfereeWallet, outsiderWallet]) {
-      await ensureNativeBalance(wallet.address, ethers.parseEther("0.00002"));
+      await ensureNativeBalance(wallet.address, ethers.parseEther("0.000003"));
     }
 
     try {
@@ -2287,9 +2326,9 @@ describeLive("HTTP API contract integration", () => {
   }, 120_000);
 
   it("creates templates and licenses through HTTP and matches live licensing state", async () => {
-    await ensureNativeBalance(licensingOwnerAddress, ethers.parseEther("0.00008"));
-    await ensureNativeBalance(licenseeWallet.address, ethers.parseEther("0.00003"));
-    await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.00003"));
+    await ensureNativeBalance(licensingOwnerAddress, ethers.parseEther("0.00001"));
+    await ensureNativeBalance(licenseeWallet.address, ethers.parseEther("0.000003"));
+    await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.000003"));
 
     const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
       apiKey: "licensing-owner-key",
@@ -3098,8 +3137,8 @@ describeLive("HTTP API contract integration", () => {
   }, 60_000);
 
   it("runs the transfer-rights workflow and persists ownership state", async () => {
-    await ensureNativeBalance(founderAddress, ethers.parseEther("0.00008"));
-    await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.00003"));
+    await ensureNativeBalance(founderAddress, ethers.parseEther("0.000008"));
+    await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.000003"));
 
     const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
       body: {
@@ -3161,7 +3200,7 @@ describeLive("HTTP API contract integration", () => {
   }, 60_000);
 
   it("runs the onboard-rights-holder workflow and persists role plus voice authorization state", async () => {
-    await ensureNativeBalance(founderAddress, ethers.parseEther("0.00008"));
+    await ensureNativeBalance(founderAddress, ethers.parseEther("0.000008"));
     const role = id("MARKETPLACE_PURCHASER_ROLE");
     const rightsHolder = outsiderWallet.address;
     const voiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
@@ -3239,7 +3278,7 @@ describeLive("HTTP API contract integration", () => {
   }, 90_000);
 
   it("runs the register-whisper-block workflow and persists whisperblock state when given contract-valid fingerprint data", async () => {
-    await ensureNativeBalance(founderAddress, ethers.parseEther("0.0001"));
+    await ensureNativeBalance(founderAddress, ethers.parseEther("0.00001"));
     const voiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
       body: {
         ipfsHash: `QmWhisperWorkflow${Date.now()}`,
@@ -3356,7 +3395,7 @@ describeLive("HTTP API contract integration", () => {
   }, 120_000);
 
   it("runs the remaining workflows with live lifecycle-correct setup and preserves real contract failures", async () => {
-    await ensureNativeBalance(founderAddress, ethers.parseEther("0.00012"));
+    await ensureNativeBalance(founderAddress, ethers.parseEther("0.000012"));
     const createVoice = async (suffix: string) => {
       const response = await waitFor(
         () => apiCall(port, "POST", "/v1/voice-assets", {

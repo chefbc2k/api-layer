@@ -372,6 +372,88 @@ export const multisigMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "MultiSigFacet.getOperation",
+    "facetName": "MultiSigFacet",
+    "wrapperKey": "getOperation",
+    "domain": "multisig",
+    "resource": "multisig",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/multisig/queries/get-operation",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "operationId",
+          "source": "query",
+          "field": "operationId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "tuple"
+    },
+    "operationId": "getOperation",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "MultiSigFacet.getOperation",
+    "methodName": "getOperation",
+    "signature": "getOperation(bytes32)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "operationId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "proposer",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "actions",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      },
+      {
+        "name": "requiredApprovals",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "currentApprovals",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "proposedAt",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "executed",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "cancelled",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
     "key": "MultiSigFacet.getOperationConfig",
     "facetName": "MultiSigFacet",
     "wrapperKey": "getOperationConfig",

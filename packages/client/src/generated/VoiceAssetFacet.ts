@@ -22,6 +22,7 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
     isRegistrationPaused: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "isRegistrationPaused", args, false, 5),
     name: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "name", args, false, 600),
     ownerOf: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "ownerOf", args, false, 5),
+    supportsInterface: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "supportsInterface", args, false, null),
     symbol: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "symbol", args, false, 600),
     tokenURI: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "tokenURI", args, false, 5),
     voiceAssetBalanceOf: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "voiceAssetBalanceOf", args, true, null),

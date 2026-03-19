@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-13T04:56:18.977Z",
+  "generatedAt": "2026-03-19T05:28:27.721Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
@@ -1796,6 +1796,32 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "DiamondLoupeFacet.facets"
+    },
+    "DiamondLoupeFacet.supportsInterface": {
+      "facetName": "DiamondLoupeFacet",
+      "wrapperKey": "supportsInterface",
+      "domain": "diamond-admin",
+      "resource": "diamond-admin",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/diamond-admin/queries/supports-interface",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "interfaceId",
+            "source": "query",
+            "field": "interfaceId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "supportsInterface",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "DiamondLoupeFacet.supportsInterface"
     },
     "EchoScoreFacetV3.batchUpdateScores": {
       "facetName": "EchoScoreFacetV3",
@@ -4332,6 +4358,32 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "MultiSigFacet.executeOperation"
+    },
+    "MultiSigFacet.getOperation": {
+      "facetName": "MultiSigFacet",
+      "wrapperKey": "getOperation",
+      "domain": "multisig",
+      "resource": "multisig",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/multisig/queries/get-operation",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "operationId",
+            "source": "query",
+            "field": "operationId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "tuple"
+      },
+      "operationId": "getOperation",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "MultiSigFacet.getOperation"
     },
     "MultiSigFacet.getOperationConfig": {
       "facetName": "MultiSigFacet",
@@ -11247,6 +11299,32 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "VoiceAssetFacet.setRegistrationPaused"
+    },
+    "VoiceAssetFacet.supportsInterface": {
+      "facetName": "VoiceAssetFacet",
+      "wrapperKey": "supportsInterface",
+      "domain": "voice-assets",
+      "resource": "voice-assets",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/voice-assets/queries/supports-interface",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "interfaceId",
+            "source": "query",
+            "field": "interfaceId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "supportsInterface",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VoiceAssetFacet.supportsInterface"
     },
     "VoiceAssetFacet.symbol": {
       "facetName": "VoiceAssetFacet",

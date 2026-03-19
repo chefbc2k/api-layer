@@ -35,6 +35,7 @@ export function createDiamondAdminPrimitiveRouter(context: ApiExecutionContext):
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitContract")!, controller["setTrustedInitContract"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setTrustedInitSelector")!, controller["setTrustedInitSelector"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "setUpgradeControlEnforced")!, controller["setUpgradeControlEnforced"]);
+  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!, controller["supportsInterface"]);
   registerRoute(router, diamondAdminEventDefinitions.find((definition) => definition.operationId === "diamondCutEventEventQuery")!, controller["diamondCutEventEventQuery"]);
   registerRoute(router, diamondAdminEventDefinitions.find((definition) => definition.operationId === "diamondCutEventQuery")!, controller["diamondCutEventQuery"]);
   registerRoute(router, diamondAdminEventDefinitions.find((definition) => definition.operationId === "trustedInitCodehashSetEventQuery")!, controller["trustedInitCodehashSetEventQuery"]);

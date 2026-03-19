@@ -3073,6 +3073,58 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "VoiceAssetFacet.supportsInterface",
+    "facetName": "VoiceAssetFacet",
+    "wrapperKey": "supportsInterface",
+    "domain": "voice-assets",
+    "resource": "voice-assets",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/voice-assets/queries/supports-interface",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "interfaceId",
+          "source": "query",
+          "field": "interfaceId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "supportsInterface",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "VoiceAssetFacet.supportsInterface",
+    "methodName": "supportsInterface",
+    "signature": "supportsInterface(bytes4)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "interfaceId",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ]
+  },
+  {
     "key": "VoiceAssetFacet.symbol",
     "facetName": "VoiceAssetFacet",
     "wrapperKey": "symbol",

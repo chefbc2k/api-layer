@@ -26,6 +26,7 @@ import {
   setTrustedInitContractRequestSchemas,
   setTrustedInitSelectorRequestSchemas,
   setUpgradeControlEnforcedRequestSchemas,
+  supportsInterfaceRequestSchemas,
   diamondCutEventEventQueryRequestSchema,
   diamondCutEventQueryRequestSchema,
   trustedInitCodehashSetEventQueryRequestSchema,
@@ -120,6 +121,9 @@ export type SetTrustedInitSelectorBody = import("zod").infer<typeof setTrustedIn
 export type SetUpgradeControlEnforcedPath = import("zod").infer<typeof setUpgradeControlEnforcedRequestSchemas.path>;
 export type SetUpgradeControlEnforcedQuery = import("zod").infer<typeof setUpgradeControlEnforcedRequestSchemas.query>;
 export type SetUpgradeControlEnforcedBody = import("zod").infer<typeof setUpgradeControlEnforcedRequestSchemas.body>;
+export type SupportsInterfacePath = import("zod").infer<typeof supportsInterfaceRequestSchemas.path>;
+export type SupportsInterfaceQuery = import("zod").infer<typeof supportsInterfaceRequestSchemas.query>;
+export type SupportsInterfaceBody = import("zod").infer<typeof supportsInterfaceRequestSchemas.body>;
 export type DiamondCutEventEventQueryBody = import("zod").infer<typeof diamondCutEventEventQueryRequestSchema.body>;
 export type DiamondCutEventQueryBody = import("zod").infer<typeof diamondCutEventQueryRequestSchema.body>;
 export type TrustedInitCodehashSetEventQueryBody = import("zod").infer<typeof trustedInitCodehashSetEventQueryRequestSchema.body>;

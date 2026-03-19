@@ -15,6 +15,7 @@ export function createMultisigPrimitiveRouter(context: ApiExecutionContext): Rou
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "canExecuteOperation")!, controller["canExecuteOperation"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "execute")!, controller["execute"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "executeOperation")!, controller["executeOperation"]);
+  registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperation")!, controller["getOperation"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationConfig")!, controller["getOperationConfig"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "getOperationStatus")!, controller["getOperationStatus"]);
   registerRoute(router, multisigMethodDefinitions.find((definition) => definition.operationId === "hasApprovedOperation")!, controller["hasApprovedOperation"]);

@@ -6,6 +6,7 @@ import {
   canExecuteOperationRequestSchemas,
   executeRequestSchemas,
   executeOperationRequestSchemas,
+  getOperationRequestSchemas,
   getOperationConfigRequestSchemas,
   getOperationStatusRequestSchemas,
   hasApprovedOperationRequestSchemas,
@@ -45,6 +46,9 @@ export type ExecuteBody = import("zod").infer<typeof executeRequestSchemas.body>
 export type ExecuteOperationPath = import("zod").infer<typeof executeOperationRequestSchemas.path>;
 export type ExecuteOperationQuery = import("zod").infer<typeof executeOperationRequestSchemas.query>;
 export type ExecuteOperationBody = import("zod").infer<typeof executeOperationRequestSchemas.body>;
+export type GetOperationPath = import("zod").infer<typeof getOperationRequestSchemas.path>;
+export type GetOperationQuery = import("zod").infer<typeof getOperationRequestSchemas.query>;
+export type GetOperationBody = import("zod").infer<typeof getOperationRequestSchemas.body>;
 export type GetOperationConfigPath = import("zod").infer<typeof getOperationConfigRequestSchemas.path>;
 export type GetOperationConfigQuery = import("zod").infer<typeof getOperationConfigRequestSchemas.query>;
 export type GetOperationConfigBody = import("zod").infer<typeof getOperationConfigRequestSchemas.body>;

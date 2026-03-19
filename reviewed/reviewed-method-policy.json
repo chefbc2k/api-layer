@@ -612,6 +612,15 @@
       ],
       "gaslessModes": []
     },
+    "DiamondLoupeFacet.supportsInterface": {
+      "category": "read",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
     "EchoScoreFacetV3.batchUpdateScores": {
       "category": "write",
       "liveRequired": false,
@@ -1472,6 +1481,15 @@
     },
     "MultiSigFacet.executeOperation": {
       "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "MultiSigFacet.getOperation": {
+      "category": "read",
       "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [
@@ -3747,6 +3765,15 @@
     },
     "VoiceAssetFacet.setRegistrationPaused": {
       "category": "write",
+      "liveRequired": false,
+      "cacheClass": "none",
+      "executionSources": [
+        "live"
+      ],
+      "gaslessModes": []
+    },
+    "VoiceAssetFacet.supportsInterface": {
+      "category": "read",
       "liveRequired": false,
       "cacheClass": "none",
       "executionSources": [

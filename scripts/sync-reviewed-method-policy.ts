@@ -44,6 +44,11 @@ type DeploymentManifest = {
 };
 
 const reviewedMethodPolicyPath = path.resolve("reviewed", "reviewed-method-policy.json");
+const forcedFunctionSignaturesByFacet: Record<string, Set<string>> = {
+  DiamondLoupeFacet: new Set(["supportsInterface(bytes4)"]),
+  MultiSigFacet: new Set(["getOperation(bytes32)"]),
+  VoiceAssetFacet: new Set(["supportsInterface(bytes4)"]),
+};
 
 function signatureFor(entry: AbiInput): string {
   const inputs = (entry.inputs ?? []).map(canonicalType).join(",");
@@ -89,11 +94,12 @@ async function main(): Promise<void> {
     const facetName = fileName.replace(/\.json$/u, "");
     const abi = await readJson<AbiInput[]>(path.join(facetsDir, fileName));
     const mountedSelectors = mountedSelectorsByFacet.get(facetName) ?? null;
+    const forcedSignatures = forcedFunctionSignaturesByFacet[facetName] ?? new Set<string>();
     const functionEntries = abi
       .filter((entry) =>
         entry.type === "function" &&
         entry.name &&
-        (mountedSelectors === null || mountedSelectors.has(selectorFor(entry))),
+        (mountedSelectors === null || mountedSelectors.has(selectorFor(entry)) || forcedSignatures.has(signatureFor(entry))),
       );
 
     const functionNameCounts = new Map<string, number>();
