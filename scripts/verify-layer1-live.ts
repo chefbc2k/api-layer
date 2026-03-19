@@ -89,6 +89,42 @@ async function retryRead<T extends { status: number, payload: unknown }>(
   return last;
 }
 
+async function ensureNativeBalance(
+  provider: JsonRpcProvider,
+  fundingWallets: Wallet[],
+  recipient: string,
+  minimum: bigint,
+) {
+  let balance = await provider.getBalance(recipient);
+  if (balance >= minimum) {
+    return balance;
+  }
+
+  const donorReserve = ethers.parseEther("0.000003");
+  for (const wallet of fundingWallets) {
+    if (wallet.address.toLowerCase() === recipient.toLowerCase()) {
+      continue;
+    }
+    const donorBalance = await provider.getBalance(wallet.address);
+    if (donorBalance <= donorReserve) {
+      continue;
+    }
+    const deficit = minimum - balance;
+    const available = donorBalance - donorReserve;
+    const amount = available >= deficit ? deficit : available;
+    if (amount <= 0n) {
+      continue;
+    }
+    await (await wallet.sendTransaction({ to: recipient, value: amount })).wait();
+    balance = await provider.getBalance(recipient);
+    if (balance >= minimum) {
+      return balance;
+    }
+  }
+
+  return balance;
+}
+
 
 function buildPath(definition: EndpointDefinition, params: Record<string, string>): string {
   let path = definition.path;
@@ -143,6 +179,22 @@ async function main() {
     licensingOwner: licensingOwnerKey,
     licensee: licensee.privateKey,
   });
+
+  const fundingWallets = [
+    founder,
+    licensingOwner,
+    repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2, provider) : null,
+    repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3, provider) : null,
+    repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4, provider) : null,
+    repoEnv.ORACLE_WALLET_PRIVATE_KEY ? new Wallet(repoEnv.ORACLE_WALLET_PRIVATE_KEY, provider) : null,
+  ].filter((candidate): candidate is Wallet => candidate !== null);
+
+  if (founder) {
+    await ensureNativeBalance(provider, fundingWallets, founder.address, ethers.parseEther("0.00005"));
+  }
+  if (licensingOwner) {
+    await ensureNativeBalance(provider, fundingWallets, licensingOwner.address, ethers.parseEther("0.00001"));
+  }
 
   const endpointManifest = JSON.parse(
     fs.readFileSync(path.join("generated", "manifests", "http-endpoint-registry.json"), "utf8"),

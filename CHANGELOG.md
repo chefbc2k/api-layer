@@ -4,6 +4,18 @@
 
 ---
 
+## [0.1.8] - 2026-03-19
+
+### Fixed
+- **Live Layer 1 Funding Preflight:** Updated [scripts/verify-layer1-live.ts](/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts) so the Base Sepolia live verifier no longer assumes a single rich signer exists. It now pools native-gas top-ups across the configured founder/oracle wallets, skips self-funding loops, and preloads the founder plus licensing owner before the governance, marketplace, dataset, and voice-asset proof lifecycles execute.
+
+### Verified
+- **Live Layer 1 Proof Recovery:** Re-ran `pnpm exec tsx scripts/verify-layer1-live.ts` and restored full proof completion for governance, marketplace, datasets, voice-assets, tokenomics, access-control, and admin/emergency/multisig. Fresh proven-working txs from this run include governance submit `0xaacf8c7aa77ffcb90fba14bb109e7655b52ac432a9e8f9f85f221934abee4b7d`, marketplace listing `0x6132c2b08a4d7c31979802fd023e706fad215be671f2e49550e83aafc540fca7`, dataset create `0x2b486e08ef0fdc624638d7a8dc3da40822c84d96c1c7076481c363383ace87a4`, and voice-asset register `0x993264430b3dcfe99c061716bed098c4e8d835c3cbcee074b4a530a35ffdc672`.
+- **Repo Green Guard:** Re-ran `pnpm test -- --runInBand`; the default suite remains green with 88 passing files, 348 passing tests, and 17 intentionally skipped live contract-integration proofs.
+
+### Known Issues
+- **Remaining-Domain Gas Ceiling:** `pnpm exec tsx scripts/verify-layer1-remaining.ts --output verify-remaining-output.json` still fails in the current Base Sepolia environment because the configured signer set now only holds dust balances after live proof execution, and the script’s current preflight target still exceeds the available native gas budget. This is narrowed to an environment limitation rather than the earlier live-verifier lifecycle gap.
+
 ## [0.1.7] - 2026-03-18
 
 ### Added
