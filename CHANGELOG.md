@@ -18,6 +18,24 @@
 ### Known Issues
 - **Live Base Sepolia Signer Depletion:** Focused reruns of `pnpm run test:contract:api:base-sepolia` still block on the first founder-signed writes because the configured founder signer now has only about `2.8e12` wei available, below current Base Sepolia write costs. These failures are environment-limited `INSUFFICIENT_FUNDS` blocks, not missing-route regressions. `pnpm run setup:base-sepolia` is blocked by the same depleted signer pool until the configured operator wallets receive more Base Sepolia ETH.
 
+## [0.1.11] - 2026-03-19
+
+### Added
+- **Structured Remaining-Domain Verifier Output:** Added [`scripts/verify-report.ts`](/Users/chef/Public/api-layer/scripts/verify-report.ts) plus [`scripts/verify-report.test.ts`](/Users/chef/Public/api-layer/scripts/verify-report.test.ts) so live proof scripts can emit uniform `summary`, `totals`, `statusCounts`, and per-domain `classification` / `result` fields while supporting first-class `--output` file writes.
+
+### Fixed
+- **Machine-Readable Remaining Proof Artifacts:** Updated [`scripts/verify-layer1-remaining.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts) to write clean JSON to `--output` targets instead of forcing operators to scrape mixed stdout logs. The script now aliases domain classifications into stable `classification` / `result` fields and preserves the full target report structure in [`verify-remaining-output.json`](/Users/chef/Public/api-layer/verify-remaining-output.json).
+- **Funding-Blocked Proof Preservation:** Hardened [`scripts/verify-layer1-remaining.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts) so signer funding exhaustion no longer aborts without evidence. When Base Sepolia wallets are depleted, the script now emits domain-scoped `blocked by setup/state` reports with preflight balance diagnostics for founder, licensing owner, licensee, and transferee actors.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the repo still verifies cleanly against the Base Sepolia fixture RPC fallback.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; generated coverage still validates `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Verifier Helper Test:** Re-ran `pnpm exec vitest run scripts/verify-report.test.ts`; the new report helper passes its focused parser + summary coverage.
+- **Structured Blocked Artifact:** Re-ran `pnpm exec tsx scripts/verify-layer1-remaining.ts --output verify-remaining-output.json` and confirmed the output file is now pure JSON with `summary: "blocked by setup/state"`, `statusCounts` for all remaining domains, and captured funding balances instead of interleaved server logs.
+
+### Known Issues
+- **Base Sepolia Funding Floor Still Blocks Remaining Domains:** `pnpm run setup:base-sepolia` still fails while attempting to top up `buyer-key` because the richest configured signer only has `2806823057182` wei and the next required transfer path needs `49126000000081` wei. The same limit currently blocks live `datasets`, `licensing`, and `whisperblock/security` proof execution even though the verifier now records that block cleanly.
+
 ## [0.1.9] - 2026-03-19
 
 ### Added

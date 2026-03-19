@@ -8,6 +8,7 @@ import { facetRegistry } from "../packages/client/src/generated/index.js";
 
 import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+import { buildVerifyReportOutput, getOutputPath, type DomainClassification, writeVerifyReportOutput } from "./verify-report.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -19,12 +20,6 @@ type ApiResponse = {
   status: number;
   payload: unknown;
 };
-
-type DomainClassification =
-  | "proven working"
-  | "blocked by setup/state"
-  | "semantically clarified but not fully proven"
-  | "deeper issue remains";
 
 type RouteEvidence = {
   route: string;
@@ -49,6 +44,48 @@ type JsonRecord = Record<string, unknown>;
 
 const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
 const whisperStoragePosition = id("speak.voice.whisperblock.storage");
+const DATASET_ROUTES = [
+  "POST /v1/datasets/datasets",
+  "GET /v1/datasets/queries/get-dataset",
+  "GET /v1/datasets/queries/get-datasets-by-creator",
+  "POST /v1/datasets/commands/append-assets",
+  "GET /v1/datasets/queries/contains-asset",
+  "DELETE /v1/datasets/commands/remove-asset",
+  "PATCH /v1/datasets/commands/set-license",
+  "PATCH /v1/datasets/commands/set-metadata",
+  "PATCH /v1/datasets/commands/set-royalty",
+  "PATCH /v1/datasets/commands/set-dataset-status",
+  "GET /v1/datasets/queries/royalty-info",
+  "DELETE /v1/datasets/commands/burn-dataset",
+] as const;
+const LICENSING_ROUTES = [
+  "POST /v1/licensing/license-templates/create-template",
+  "PATCH /v1/licensing/commands/update-template",
+  "PATCH /v1/licensing/commands/set-template-status",
+  "GET /v1/licensing/queries/get-template",
+  "GET /v1/licensing/queries/get-creator-templates",
+  "POST /v1/licensing/license-templates/create-license-from-template",
+  "POST /v1/licensing/licenses/create-license",
+  "GET /v1/licensing/queries/get-license",
+  "GET /v1/licensing/queries/get-license-terms",
+  "POST /v1/licensing/queries/validate-license",
+  "POST /v1/licensing/commands/record-licensed-usage",
+  "POST /v1/licensing/commands/transfer-license",
+  "DELETE /v1/licensing/commands/revoke-license",
+] as const;
+const WHISPERBLOCK_ROUTES = [
+  "POST /v1/whisperblock/queries/get-selectors",
+  "POST /v1/whisperblock/whisperblocks",
+  "GET /v1/whisperblock/queries/verify-voice-authenticity",
+  "POST /v1/whisperblock/commands/grant-access",
+  "DELETE /v1/whisperblock/commands/revoke-access",
+  "GET /v1/whisperblock/queries/get-audit-trail",
+  "POST /v1/whisperblock/commands/generate-and-set-encryption-key",
+  "PATCH /v1/whisperblock/commands/set-audit-enabled",
+  "PATCH /v1/whisperblock/commands/set-trusted-oracle",
+  "PATCH /v1/whisperblock/commands/update-system-parameters",
+  "PATCH /v1/whisperblock/commands/set-offchain-entropy",
+] as const;
 
 async function apiCall(port: number, method: string, path: string, options: ApiCallOptions = {}): Promise<ApiResponse> {
   const response = await fetch(`http://127.0.0.1:${port}${path}`, {
@@ -241,6 +278,35 @@ async function ensureNativeBalance(provider: JsonRpcProvider, fundingWallet: Wal
   return provider.getBalance(recipient);
 }
 
+async function fundingSnapshot(provider: JsonRpcProvider, wallets: Wallet[]) {
+  return Promise.all(wallets.map(async (wallet) => ({
+    address: wallet.address,
+    balance: (await provider.getBalance(wallet.address)).toString(),
+  })));
+}
+
+function buildBlockedDomainReport(
+  routes: readonly string[],
+  actors: string[],
+  executionResult: string,
+  details: JsonRecord,
+): DomainReport {
+  return {
+    routes: [...routes],
+    actors,
+    executionResult,
+    evidence: [
+      {
+        route: "preflight/native-balance",
+        actor: "system",
+        status: 409,
+        postState: details,
+      },
+    ],
+    finalClassification: "blocked by setup/state",
+  };
+}
+
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -312,13 +378,63 @@ async function main() {
   }, Promise.resolve(founder));
 
   const fundingWallet = await richest;
-  if (requestedDomains.has("datasets") || requestedDomains.has("whisperblock/security")) {
-    await ensureNativeBalance(provider, fundingWallet, founder.address, ethers.parseEther("0.0002"));
-  }
-  if (requestedDomains.has("licensing")) {
-    await ensureNativeBalance(provider, fundingWallet, licensingOwner.address, ethers.parseEther("0.00005"));
-    await ensureNativeBalance(provider, fundingWallet, licensee.address, ethers.parseEther("0.00001"));
-    await ensureNativeBalance(provider, fundingWallet, transferee.address, ethers.parseEther("0.00001"));
+  try {
+    if (requestedDomains.has("datasets") || requestedDomains.has("whisperblock/security")) {
+      await ensureNativeBalance(provider, fundingWallet, founder.address, ethers.parseEther("0.0002"));
+    }
+    if (requestedDomains.has("licensing")) {
+      await ensureNativeBalance(provider, fundingWallet, licensingOwner.address, ethers.parseEther("0.00005"));
+      await ensureNativeBalance(provider, fundingWallet, licensee.address, ethers.parseEther("0.00001"));
+      await ensureNativeBalance(provider, fundingWallet, transferee.address, ethers.parseEther("0.00001"));
+    }
+  } catch (error) {
+    const diagnostics = {
+      error: error instanceof Error ? error.message : String(error),
+      fundingWallet: fundingWallet.address,
+      balances: await fundingSnapshot(provider, fundingCandidates),
+      founder: founder.address,
+      licensingOwner: licensingOwner.address,
+      licensee: licensee.address,
+      transferee: transferee.address,
+    };
+    const blockedReports: Record<string, DomainReport> = {};
+    if (requestedDomains.has("datasets")) {
+      blockedReports.datasets = buildBlockedDomainReport(
+        DATASET_ROUTES,
+        ["founder-key", "read-key"],
+        "dataset lifecycle blocked before execution because signer funding preflight failed",
+        diagnostics,
+      );
+    }
+    if (requestedDomains.has("licensing")) {
+      blockedReports.licensing = buildBlockedDomainReport(
+        LICENSING_ROUTES,
+        ["licensing-owner-key", "licensee-key", "read-key"],
+        "licensing lifecycle blocked before execution because signer funding preflight failed",
+        diagnostics,
+      );
+    }
+    if (requestedDomains.has("whisperblock/security")) {
+      blockedReports["whisperblock/security"] = buildBlockedDomainReport(
+        WHISPERBLOCK_ROUTES,
+        ["founder-key", "read-key"],
+        "whisperblock/security lifecycle blocked before execution because signer funding preflight failed",
+        diagnostics,
+      );
+    }
+    const reportOutput = {
+      target: {
+        chainId: config.chainId,
+        diamond: config.diamondAddress,
+        port: null,
+      },
+      preflight: diagnostics,
+      ...buildVerifyReportOutput(normalize(blockedReports) as Record<string, DomainReport>),
+    };
+    writeVerifyReportOutput(getOutputPath(), reportOutput);
+    console.log(JSON.stringify(reportOutput, null, 2));
+    await provider.destroy();
+    return;
   }
 
   const { server, port } = await startServer();
@@ -372,14 +488,18 @@ async function main() {
     await provider.destroy();
   }
 
-  console.log(JSON.stringify({
+  const reportOutput = {
     target: {
       chainId: config.chainId,
       diamond,
       port,
     },
-    reports: normalize(reports),
-  }, null, 2));
+    ...buildVerifyReportOutput(normalize(reports) as Record<string, DomainReport>),
+  };
+  writeVerifyReportOutput(getOutputPath(), reportOutput);
+  console.log(JSON.stringify(reportOutput,
+    null,
+    2));
 }
 
 async function verifyDatasets(input: {
@@ -393,21 +513,6 @@ async function verifyDatasets(input: {
 }): Promise<DomainReport> {
   const { port, provider, founder, voiceAssetFacet, datasetFacet, diamond } = input;
   const evidence: RouteEvidence[] = [];
-  const routes = [
-    "POST /v1/datasets/datasets",
-    "GET /v1/datasets/queries/get-dataset",
-    "GET /v1/datasets/queries/get-datasets-by-creator",
-    "POST /v1/datasets/commands/append-assets",
-    "GET /v1/datasets/queries/contains-asset",
-    "DELETE /v1/datasets/commands/remove-asset",
-    "PATCH /v1/datasets/commands/set-license",
-    "PATCH /v1/datasets/commands/set-metadata",
-    "PATCH /v1/datasets/commands/set-royalty",
-    "PATCH /v1/datasets/commands/set-dataset-status",
-    "GET /v1/datasets/queries/royalty-info",
-    "DELETE /v1/datasets/commands/burn-dataset",
-  ];
-
   const activeTemplate = await ensureActiveLicenseTemplate({
     port,
     provider,
@@ -763,7 +868,7 @@ async function verifyDatasets(input: {
   });
 
   return {
-    routes,
+    routes: [...DATASET_ROUTES],
     actors: ["founder-key", "read-key"],
     executionResult: "dataset mutation lifecycle completed end-to-end through mounted dataset routes",
     evidence,
@@ -1250,21 +1355,7 @@ async function verifyLicensing(input: {
   });
 
   return {
-    routes: [
-      "POST /v1/licensing/license-templates/create-template",
-      "PATCH /v1/licensing/commands/update-template",
-      "PATCH /v1/licensing/commands/set-template-status",
-      "GET /v1/licensing/queries/get-template",
-      "GET /v1/licensing/queries/get-creator-templates",
-      "POST /v1/licensing/license-templates/create-license-from-template",
-      "POST /v1/licensing/licenses/create-license",
-      "GET /v1/licensing/queries/get-license",
-      "GET /v1/licensing/queries/get-license-terms",
-      "POST /v1/licensing/queries/validate-license",
-      "POST /v1/licensing/commands/record-licensed-usage",
-      "POST /v1/licensing/commands/transfer-license",
-      "DELETE /v1/licensing/commands/revoke-license",
-    ],
+    routes: [...LICENSING_ROUTES],
     actors: ["licensing-owner-key", "licensee-key", "read-key"],
     executionResult: "template lifecycle, direct license lifecycle, actor-scoped license reads, and usage/revoke flows completed through mounted licensing routes",
     evidence,
@@ -1630,19 +1721,7 @@ async function verifyWhisperblock(input: {
   }
 
   return {
-    routes: [
-      "POST /v1/whisperblock/queries/get-selectors",
-      "POST /v1/whisperblock/whisperblocks",
-      "GET /v1/whisperblock/queries/verify-voice-authenticity",
-      "POST /v1/whisperblock/commands/grant-access",
-      "DELETE /v1/whisperblock/commands/revoke-access",
-      "GET /v1/whisperblock/queries/get-audit-trail",
-      "POST /v1/whisperblock/commands/generate-and-set-encryption-key",
-      "PATCH /v1/whisperblock/commands/set-audit-enabled",
-      "PATCH /v1/whisperblock/commands/set-trusted-oracle",
-      "PATCH /v1/whisperblock/commands/update-system-parameters",
-      "PATCH /v1/whisperblock/commands/set-offchain-entropy",
-    ],
+    routes: [...WHISPERBLOCK_ROUTES],
     actors: ["founder-key", "read-key"],
     executionResult: "whisperblock fingerprint, authenticity, access, audit, encryption, oracle, and parameter flows completed and restored",
     evidence,
