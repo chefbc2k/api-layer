@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.7] - 2026-03-18
+
+### Added
+- **Deterministic Coverage Gate:** Added `pnpm run test:coverage` in [package.json](/Users/chef/Public/api-layer/package.json) so the repo now has a first-class coverage command that runs Vitest in single-worker mode, avoiding the worker-RPC timeout and `coverage/.tmp` cleanup race that made the prior ad hoc coverage invocation unreliable.
+- **Explicit Live API Contract Entry Point:** Added `pnpm run test:contract:api:base-sepolia` in [package.json](/Users/chef/Public/api-layer/package.json) to run the Base Sepolia HTTP contract-integration suite directly, instead of relying on the hidden `API_LAYER_RUN_CONTRACT_INTEGRATION=1` toggle.
+
+### Fixed
+- **Governance Integration Route Drift:** Updated [packages/api/src/app.contract-integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so the invalid-governance-input assertions hit the current `POST /v1/governance/proposals` route rather than the removed legacy overload path that was returning `404`.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both still resolve cleanly against the Base Sepolia fixture fallback.
+- **Generated Surface Coverage:** Re-ran `pnpm exec tsx scripts/check-http-api-coverage.ts` and `pnpm exec tsx scripts/check-wrapper-coverage.ts`; coverage remains at 489 HTTP-mapped methods and 489 wrapper functions / 218 events.
+- **Repo Test Guard:** Re-ran `pnpm test -- --coverage` enough to isolate the failure mode, then confirmed `pnpm run test:coverage` succeeds end-to-end with 88 passing files, 348 passing tests, and 17 intentionally skipped live contract-integration proofs.
+
+### Known Issues
+- **Live Contract Suite Partials:** The direct Base Sepolia HTTP contract suite still has unresolved live-environment partials in [packages/api/src/app.contract-integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts), including timeout-sensitive long-path tests, setup-dependent signer funding failures (`INSUFFICIENT_FUNDS` on the transfer helper wallet), and at least one remaining diamond-admin read assertion that still returns `404` during the long-form live run.
+
 ## [0.1.6] - 2026-03-18
 
 ### Fixed

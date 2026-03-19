@@ -1562,7 +1562,7 @@ describeLive("HTTP API contract integration", () => {
     const invalidProposalTypeResponse = await apiCall(
       port,
       "POST",
-      "/v1/governance/proposals/propose-string-string-address-array-uint256-array-bytes-array-uint8",
+      "/v1/governance/proposals",
       {
         body: {
           title: `API governance empty targets ${Date.now()}`,
@@ -1579,7 +1579,7 @@ describeLive("HTTP API contract integration", () => {
     const emptyTargetsResponse = await apiCall(
       port,
       "POST",
-      "/v1/governance/proposals/propose-string-string-address-array-uint256-array-bytes-array-uint8",
+      "/v1/governance/proposals",
       {
         body: {
           title: `API governance empty targets ${Date.now()}`,

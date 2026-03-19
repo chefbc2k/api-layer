@@ -23,6 +23,8 @@
     "codegen": "pnpm run sync:abis && pnpm run sync:method-policy && pnpm run build:manifest && pnpm run sync:event-projections && pnpm run build:typechain && pnpm run build:abi-registry && pnpm run build:rpc-registry && pnpm run seed:api-surface && pnpm run build:http-api && pnpm run build:wrappers && pnpm run coverage:check",
     "build": "pnpm run codegen && pnpm -r build",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage.enabled true --coverage.reporter=text --maxWorkers 1",
+    "test:contract:api:base-sepolia": "API_LAYER_RUN_CONTRACT_INTEGRATION=1 vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1",
     "baseline:show": "tsx scripts/show-validated-baseline.ts",
     "baseline:verify": "tsx scripts/verify-validated-baseline.ts",
     "setup:base-sepolia": "tsx scripts/base-sepolia-operator-setup.ts",
