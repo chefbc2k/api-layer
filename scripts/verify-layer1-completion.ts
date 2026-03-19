@@ -1,5 +1,6 @@
 import { createApiServer } from "../packages/api/src/app.js";
-import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
+import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
+import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { Wallet } from "ethers";
 
 type ApiCallOptions = {
@@ -49,9 +50,11 @@ function buildPath(definition: EndpointDefinition, params: Record<string, string
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const config = readConfigFromEnv(repoEnv);
+  const { config } = await resolveRuntimeConfig(repoEnv);
   const founderKey = repoEnv.PRIVATE_KEY ?? "";
   const founderAddress = founderKey ? new Wallet(founderKey).address : "0x0000000000000000000000000000000000000000";
+  process.env.RPC_URL = config.cbdpRpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
     "read-key": { label: "reader", roles: ["service"], allowGasless: false },
@@ -59,6 +62,18 @@ async function main() {
   process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
     founder: founderKey,
   });
+  process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
+    [founderAddress.toLowerCase()]: {
+      apiKey: "founder-key",
+      signerId: "founder",
+      privateKey: founderKey,
+      label: "founder",
+      roles: ["service"],
+      allowGasless: false,
+    },
+  });
+  process.env.API_LAYER_API_KEY = "founder-key";
+  process.env.API_LAYER_READ_API_KEY = "read-key";
 
   const endpointRegistry = await (await import("../generated/manifests/http-endpoint-registry.json", { assert: { type: "json" } })).default;
   const endpoints = endpointRegistry.methods as Record<string, EndpointDefinition>;
@@ -120,7 +135,7 @@ async function main() {
       initiateInheritance: Boolean(endpoints["LegacyExecutionFacet.initiateInheritance"]),
     };
 
-    results.governanceLegacyProposeExposed = Boolean(endpoints["ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"]);
+    results.governanceLegacyProposeExposed = Boolean(endpoints["ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)"]);
 
     console.log(JSON.stringify(results, null, 2));
   } finally {

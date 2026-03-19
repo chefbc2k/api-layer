@@ -4,6 +4,18 @@
 
 ---
 
+## [0.1.6] - 2026-03-18
+
+### Fixed
+- **Layer 1 Completion Probe RPC Bootstrap:** Updated [scripts/verify-layer1-completion.ts](/Users/chef/Public/api-layer/scripts/verify-layer1-completion.ts) to resolve runtime config through the shared Base Sepolia fallback loader before booting the embedded API server, so completion-surface reads no longer fail with transient `connect ECONNREFUSED 127.0.0.1:8548` responses from the repo-default dead fork URL.
+- **Completion Probe Actor Mapping:** Extended the completion verifier to publish `API_LAYER_SIGNER_API_KEYS_JSON` alongside the existing API key and signer map setup, preserving actor identity through the real API auth path even for this read-heavy completion probe.
+- **Governance Route Probe Drift:** Corrected the completion verifier to probe the current exposed governance proposal overload, `ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)`, instead of the intentionally excluded legacy `string,string,...` signature.
+
+### Verified
+- **Completion Surface Recovery:** Re-ran `pnpm exec tsx scripts/verify-layer1-completion.ts` and confirmed `CommunityRewardsFacet.campaignCount`, `VestingFacet.hasVestingSchedule`, `EscrowFacet.isInEscrow`, `RightsFacet.rightIdExists`, and `LegacyViewFacet.getLegacyPlan` now all return `200` against Base Sepolia with no provider failover errors. The probe now also reports `legacyWriteRoutes.createLegacyPlan = true`, `legacyWriteRoutes.initiateInheritance = true`, and `governanceLegacyProposeExposed = true`.
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the default repo state still verifies cleanly against the persisted Base Sepolia fixture RPC fallback.
+- **Repo Green Guard:** Re-ran `pnpm test -- --runInBand`; the suite remains green with 88 passing files, 348 passing tests, and 17 intentionally skipped live contract-integration proofs.
+
 ## [0.1.0] - 2026-03-17
 
 ### Added
