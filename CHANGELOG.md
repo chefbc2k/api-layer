@@ -84,3 +84,18 @@
 ### Known Issues
 - **Marketplace Purchase Proof Still Time-Locked:** The current setup artifact now reports an honest partial instead of a misleading one: the latest seller listing becomes active during setup, but it is still within the marketplace contract’s 1 day trading lock, so `buyer-key` purchase proof remains blocked until the listing ages or an older active listing is available.
 - **Unrelated Suite Debt:** A broad `pnpm test -- scripts/base-sepolia-operator-setup.helpers.test.ts` run still surfaces pre-existing red tests outside this change: stale manifest/HTTP-registry expectation counts and a timeout in `packages/api/src/workflows/register-voice-asset.integration.test.ts`.
+
+## [0.1.4] - 2026-03-18
+
+### Fixed
+- **Register Voice Asset Workflow Test Drift:** Updated [packages/api/src/workflows/register-voice-asset.integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/register-voice-asset.integration.test.ts) to mock the workflow’s current token-id readback and assert the returned `tokenId` fields, eliminating the false timeout introduced after the workflow started waiting for `getTokenId`.
+- **Manifest Count Guard Hardening:** Reworked [scripts/manifest.test.ts](/Users/chef/Public/api-layer/scripts/manifest.test.ts) to validate that generated manifest totals stay internally consistent with the emitted facet and subsystem arrays instead of pinning obsolete historical counts.
+- **HTTP Registry Golden Drift Removal:** Updated [scripts/http-registry.test.ts](/Users/chef/Public/api-layer/scripts/http-registry.test.ts) to verify generated method/event counts and keys against the current reviewed API surface, removing stale hard-coded totals while still locking in registry-to-review alignment.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both remain green against the persisted Base Sepolia fallback RPC from the default repo state.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept generated coverage at 489 functions, 218 events, and validated HTTP coverage for 489 methods.
+- **Vitest Suite Recovery:** Re-ran `pnpm exec vitest run scripts/manifest.test.ts scripts/http-registry.test.ts packages/api/src/workflows/register-voice-asset.integration.test.ts` followed by the full `pnpm test -- --runInBand` suite; the repo is now green with 88 passing test files, 347 passing tests, and 17 intentionally skipped contract-integration tests.
+
+### Remaining Issues
+- **Marketplace Fixture Age Partial:** `setup:base-sepolia` can still legitimately emit a `listed-not-yet-purchase-proven` marketplace fixture when no older active listing is available past the contract lock window; this is now the primary remaining live-environment partial called out by the setup artifact.

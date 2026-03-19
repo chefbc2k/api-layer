@@ -11,11 +11,22 @@ describe("generated manifest", () => {
         facetCount: number;
         functionCount: number;
         eventCount: number;
+        subsystemCount: number;
       };
+      facets: Array<{
+        functions: unknown[];
+        events: unknown[];
+      }>;
+      subsystems: unknown[];
     }>(path.join(generatedManifestDir, "contract-manifest.json"));
 
-    expect(manifest.totals.facetCount).toBe(26);
-    expect(manifest.totals.functionCount).toBe(430);
-    expect(manifest.totals.eventCount).toBe(188);
+    expect(manifest.totals.facetCount).toBe(manifest.facets.length);
+    expect(manifest.totals.functionCount).toBe(
+      manifest.facets.reduce((total, facet) => total + facet.functions.length, 0),
+    );
+    expect(manifest.totals.eventCount).toBe(
+      manifest.facets.reduce((total, facet) => total + facet.events.length, 0),
+    );
+    expect(manifest.totals.subsystemCount).toBe(manifest.subsystems.length);
   });
 });

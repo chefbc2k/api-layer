@@ -35,6 +35,7 @@ describe("register-voice-asset workflow route", () => {
       dynamicRange: "60",
     };
     const voiceHash = "0x3333333333333333333333333333333333333333333333333333333333333333";
+    const tokenId = "123";
     mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
       registerVoiceAsset: vi.fn().mockResolvedValue({
         statusCode: 202,
@@ -44,6 +45,10 @@ describe("register-voice-asset workflow route", () => {
       getVoiceAsset: vi.fn().mockResolvedValue({
         statusCode: 200,
         body: { voiceHash, owner: "0x0000000000000000000000000000000000000001" },
+      }),
+      getTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: tokenId,
       }),
       updateBasicAcousticFeatures: vi.fn().mockResolvedValue({
         statusCode: 202,
@@ -112,6 +117,7 @@ describe("register-voice-asset workflow route", () => {
           voiceHash,
           owner: "0x0000000000000000000000000000000000000001",
         },
+        tokenId,
       },
       metadataUpdate: {
         submission: {
@@ -124,6 +130,7 @@ describe("register-voice-asset workflow route", () => {
       summary: {
         owner: null,
         hasFeatures: true,
+        tokenId,
       },
     });
   });
