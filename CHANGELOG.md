@@ -191,6 +191,20 @@
 ### Remaining Issues
 - **Marketplace Fixture Age Partial:** `setup:base-sepolia` can still legitimately emit a `listed-not-yet-purchase-proven` marketplace fixture when no older active listing is available past the contract lock window; this is now the primary remaining live-environment partial called out by the setup artifact.
 
+## [0.1.6] - 2026-03-19
+
+### Fixed
+- **Remaining Verifier Local-Fork Funding Repair:** Updated [/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts](/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts) so the remaining-domain proof can execute against a local Base Sepolia fork instead of inheriting drained live signer balances. The verifier now preserves explicit `licensee` and `transferee` actor mappings, publishes `API_LAYER_SIGNER_API_KEYS_JSON`, includes the oracle wallet in funding-candidate selection, and seeds loopback RPC actors to a stable local-fork gas floor before attempting normal signer top-ups.
+- **Remaining Domain Proof Artifact Refresh:** Re-ran the remaining-domain verifier with `--output verify-remaining-output.json`, regenerating [/Users/chef/Public/api-layer/verify-remaining-output.json](/Users/chef/Public/api-layer/verify-remaining-output.json) from a shared preflight block into a full 36-route proof report covering datasets, licensing, and whisperblock/security.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`. Both remained green; `baseline:show` confirmed the active local fork on `http://127.0.0.1:8548` with chain ID `84532`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept API-surface / wrapper coverage at `492` functions, `218` events, and validated HTTP coverage for `492` methods.
+- **Remaining Domains Collapsed:** Re-ran `pnpm tsx scripts/verify-layer1-remaining.ts --output verify-remaining-output.json` on the local Base Sepolia fork. The report now records `summary: "proven working"`, `statusCounts.proven working: 3`, `routeCount: 36`, and `evidenceCount: 36`, with live receipts and readbacks for dataset mutation, licensing lifecycle, and whisperblock security flows.
+
+### Notes
+- **Live Base Sepolia Setup Still Environment-Limited:** `pnpm run setup:base-sepolia` continues to expose a real live-environment constraint when all configured signers are nearly empty. This run resolved the remaining verifier on the forked environment without changing that live-wallet funding condition.
+
 ## [0.1.5] - 2026-03-18
 
 ### Fixed

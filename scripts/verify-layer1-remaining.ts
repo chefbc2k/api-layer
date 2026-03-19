@@ -311,6 +311,33 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isLoopbackRpcUrl(rpcUrl: string): boolean {
+  try {
+    const parsed = new URL(rpcUrl);
+    return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+  } catch {
+    return rpcUrl.includes("127.0.0.1") || rpcUrl.includes("localhost");
+  }
+}
+
+async function seedLocalForkBalance(
+  provider: JsonRpcProvider,
+  rpcUrl: string,
+  recipient: string,
+  minimum: bigint,
+): Promise<bigint> {
+  const balance = await provider.getBalance(recipient);
+  const targetBalance = (minimum > ethers.parseEther("1") ? minimum : ethers.parseEther("1")) + ethers.parseEther("0.01");
+  if (!isLoopbackRpcUrl(rpcUrl)) {
+    return balance;
+  }
+  if (balance >= targetBalance) {
+    return balance;
+  }
+  await provider.send("anvil_setBalance", [recipient, ethers.toQuantity(targetBalance)]);
+  return provider.getBalance(recipient);
+}
+
 async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>; port: number }> {
   const server = createApiServer({ port: 0 }).listen();
   if (!server.listening) {
@@ -337,8 +364,10 @@ async function main() {
   const founder = new Wallet(repoEnv.PRIVATE_KEY, provider);
   const licensingOwnerKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? repoEnv.PRIVATE_KEY;
   const licensingOwner = new Wallet(licensingOwnerKey, provider);
-  const licensee = Wallet.createRandom().connect(provider);
-  const transferee = Wallet.createRandom().connect(provider);
+  const licenseeKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3 ?? repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? repoEnv.PRIVATE_KEY;
+  const transfereeKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4 ?? repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? repoEnv.PRIVATE_KEY;
+  const licensee = new Wallet(licenseeKey, provider);
+  const transferee = new Wallet(transfereeKey, provider);
   const outsider = Wallet.createRandom().connect(provider);
   const domainArg = process.argv
     .slice(2)
@@ -360,6 +389,13 @@ async function main() {
     founder: founder.privateKey,
     licensingOwner: licensingOwner.privateKey,
     licensee: licensee.privateKey,
+    transferee: transferee.privateKey,
+  });
+  process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
+    [founder.address.toLowerCase()]: "founder-key",
+    [licensingOwner.address.toLowerCase()]: "licensing-owner-key",
+    [licensee.address.toLowerCase()]: "licensee-key",
+    [transferee.address.toLowerCase()]: "transferee-key",
   });
 
   const fundingCandidates = [
@@ -368,6 +404,7 @@ async function main() {
     repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2, provider) : null,
     repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_3, provider) : null,
     repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4 ? new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_4, provider) : null,
+    repoEnv.ORACLE_WALLET_PRIVATE_KEY ? new Wallet(repoEnv.ORACLE_WALLET_PRIVATE_KEY, provider) : null,
   ].filter((candidate): candidate is Wallet => candidate !== null);
 
   const richest = fundingCandidates.reduce(async (currentPromise, candidate) => {
@@ -380,9 +417,13 @@ async function main() {
   const fundingWallet = await richest;
   try {
     if (requestedDomains.has("datasets") || requestedDomains.has("whisperblock/security")) {
+      await seedLocalForkBalance(provider, config.cbdpRpcUrl, founder.address, ethers.parseEther("0.0002"));
       await ensureNativeBalance(provider, fundingWallet, founder.address, ethers.parseEther("0.0002"));
     }
     if (requestedDomains.has("licensing")) {
+      await seedLocalForkBalance(provider, config.cbdpRpcUrl, licensingOwner.address, ethers.parseEther("0.00005"));
+      await seedLocalForkBalance(provider, config.cbdpRpcUrl, licensee.address, ethers.parseEther("0.00001"));
+      await seedLocalForkBalance(provider, config.cbdpRpcUrl, transferee.address, ethers.parseEther("0.00001"));
       await ensureNativeBalance(provider, fundingWallet, licensingOwner.address, ethers.parseEther("0.00005"));
       await ensureNativeBalance(provider, fundingWallet, licensee.address, ethers.parseEther("0.00001"));
       await ensureNativeBalance(provider, fundingWallet, transferee.address, ethers.parseEther("0.00001"));
