@@ -4,7 +4,20 @@
 
 ---
 
-## [0.1.10] - 2026-03-19
+## [0.1.12] - 2026-03-19
+
+### Fixed
+- **Live Contract Suite Funding Classification:** Updated [`packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so Base Sepolia write-heavy HTTP contract proofs now preflight real signer balances, emit structured funding snapshots, and dynamically skip when the configured signer pool cannot satisfy the required gas floor. This replaces the prior noisy `INSUFFICIENT_FUNDS` hard failures and prevents the suite from stalling in depleted-wallet conditions.
+- **Read-Only Error Guard Decoupling:** Removed the final validation test’s dependency on a previously-created live voice asset and switched it to the read-only default-royalty query, so the contract suite remains deterministic even when earlier write tests are legitimately skipped.
+
+### Verified
+- **Dedicated Live Contract Suite:** Re-ran `pnpm run test:contract:api:base-sepolia`; the suite now exits cleanly with `3` passing read-oriented proofs and `14` explicitly skipped write-dependent proofs, each skip carrying signer-balance diagnostics instead of raw transaction failures.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite remains green with `89` passing files, `352` passing tests, and `17` intentionally skipped contract-integration tests from the default non-live run.
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves cleanly through the fixture RPC fallback.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP coverage remain complete at `492` functions / methods and `218` events.
+
+### Known Issues
+- **Live Wallet Funding Still External:** The configured Base Sepolia signer set is now below the minimum gas floor for the skipped write proofs. The suite now reports exact balances and candidate top-up wallets, but those flows still require external replenishment before they can be promoted back from `skipped` to live `proven working`.
 
 ### Fixed
 - **Write Nonce Recovery Hardening:** Updated [`packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so API-layer write retries now treat `replacement fee too low`, `replacement transaction underpriced`, `transaction underpriced`, and `already known` as nonce-recovery conditions. Retry nonce selection now advances past the local signer watermark instead of reusing a stale `pending` nonce when Base Sepolia nodes lag on pending nonce propagation.
