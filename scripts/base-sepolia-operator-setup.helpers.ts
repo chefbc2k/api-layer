@@ -66,3 +66,10 @@ export function selectPreferredMarketplaceFixtureCandidate(
     return left.tokenId.localeCompare(right.tokenId);
   })[0] ?? null;
 }
+
+export function mergeMarketplaceCandidateVoiceHashes(
+  sellerOwnedVoiceHashes: string[],
+  sellerEscrowedVoiceHashes: string[],
+): string[] {
+  return [...new Set([...sellerOwnedVoiceHashes, ...sellerEscrowedVoiceHashes])];
+}

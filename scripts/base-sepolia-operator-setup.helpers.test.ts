@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   isPurchaseReadyListing,
+  mergeMarketplaceCandidateVoiceHashes,
   selectPreferredMarketplaceFixtureCandidate,
 } from "./base-sepolia-operator-setup.helpers.js";
 
@@ -55,5 +56,14 @@ describe("base-sepolia marketplace fixture helpers", () => {
     ], 100n + 24n * 60n * 60n + 10n);
 
     expect(candidate?.tokenId).toBe("83");
+  });
+
+  it("merges seller-owned and escrowed voice hashes without dropping escrow-only candidates", () => {
+    expect(
+      mergeMarketplaceCandidateVoiceHashes(
+        ["0xowned-1", "0xowned-2"],
+        ["0xescrow-1", "0xowned-2", "0xescrow-2"],
+      ),
+    ).toEqual(["0xowned-1", "0xowned-2", "0xescrow-1", "0xescrow-2"]);
   });
 });

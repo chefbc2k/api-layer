@@ -11,6 +11,7 @@ import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import {
   type FixtureStatus,
   isPurchaseReadyListing,
+  mergeMarketplaceCandidateVoiceHashes,
   selectPreferredMarketplaceFixtureCandidate,
 } from "./base-sepolia-operator-setup.helpers.js";
 
@@ -197,6 +198,7 @@ async function main(): Promise<void> {
   try {
     const voiceAsset = new Contract(config.diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider);
     const payment = new Contract(config.diamondAddress, facetRegistry.PaymentFacet.abi, provider);
+    const escrow = new Contract(config.diamondAddress, facetRegistry.EscrowFacet.abi, provider);
     const accessControl = new Contract(config.diamondAddress, facetRegistry.AccessControlFacet.abi, provider);
     const governorFacet = new Contract(config.diamondAddress, facetRegistry.GovernorFacet.abi, provider);
     const proposalFacet = new Contract(config.diamondAddress, facetRegistry.ProposalFacet.abi, provider);
@@ -302,6 +304,23 @@ async function main(): Promise<void> {
   }
 
     const sellerVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(seller.address);
+    const escrowVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(config.diamondAddress);
+    const sellerEscrowedVoiceHashes: string[] = [];
+    for (const voiceHash of escrowVoiceHashes as string[]) {
+      const tokenId = await voiceAsset.getTokenId(voiceHash);
+      try {
+        const originalOwner = await escrow.getOriginalOwner(tokenId);
+        if (String(originalOwner).toLowerCase() === seller.address.toLowerCase()) {
+          sellerEscrowedVoiceHashes.push(voiceHash);
+        }
+      } catch {
+        continue;
+      }
+    }
+    const candidateVoiceHashes = mergeMarketplaceCandidateVoiceHashes(
+      [...sellerVoiceHashes as string[]],
+      sellerEscrowedVoiceHashes,
+    );
     const latestBlock = await provider.getBlock("latest");
     const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
   const agedFixture = {
@@ -320,7 +339,7 @@ async function main(): Promise<void> {
       listingReadback: { status: number; payload: Record<string, unknown> | null };
     }> = [];
     let fallbackAsset: { voiceHash: string; tokenId: string } | null = null;
-    for (const voiceHash of sellerVoiceHashes as string[]) {
+    for (const voiceHash of candidateVoiceHashes) {
     const asset = await voiceAsset.getVoiceAsset(voiceHash);
     if (BigInt(asset.createdAt) > latestTimestamp) {
       continue;

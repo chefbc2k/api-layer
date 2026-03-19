@@ -99,3 +99,17 @@
 
 ### Remaining Issues
 - **Marketplace Fixture Age Partial:** `setup:base-sepolia` can still legitimately emit a `listed-not-yet-purchase-proven` marketplace fixture when no older active listing is available past the contract lock window; this is now the primary remaining live-environment partial called out by the setup artifact.
+
+## [0.1.5] - 2026-03-18
+
+### Fixed
+- **Escrow-Aware Marketplace Fixture Discovery:** Updated [scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `setup:base-sepolia` no longer limits marketplace candidate discovery to assets still held in the seller wallet. The setup flow now also scans diamond-escrowed voice assets, filters them through `EscrowFacet.getOriginalOwner`, and includes seller-originated escrow listings in the fixture candidate pool.
+- **Candidate Pool Helper Coverage:** Added [scripts/base-sepolia-operator-setup.helpers.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.ts) support for merging seller-owned and escrowed candidate voice hashes without duplicate loss, and locked that behavior with [scripts/base-sepolia-operator-setup.helpers.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.test.ts).
+
+### Verified
+- **Marketplace Partial Collapsed For Real:** Re-ran `pnpm run setup:base-sepolia` and regenerated [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The marketplace fixture now resolves to token `11` with `purchaseReadiness: "purchase-ready"` and `status: "ready"`, backed by listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1773601130", createdBlock: "38916421", isActive: true }`.
+- **Targeted Regression Test:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.helpers.test.ts`; all helper tests passed.
+- **Repo Green Guard:** Re-ran `pnpm run baseline:show` and the full `pnpm test -- --runInBand` suite; the repo remains green with 88 passing files, 348 passing tests, and 17 intentionally skipped contract-integration proofs.
+
+### Status
+- **Remaining Setup Partials:** None in the current Base Sepolia fixture artifact. Marketplace and governance now both emit `ready` setup state.
