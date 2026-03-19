@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.10] - 2026-03-19
+
+### Fixed
+- **Write Nonce Recovery Hardening:** Updated [`packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so API-layer write retries now treat `replacement fee too low`, `replacement transaction underpriced`, `transaction underpriced`, and `already known` as nonce-recovery conditions. Retry nonce selection now advances past the local signer watermark instead of reusing a stale `pending` nonce when Base Sepolia nodes lag on pending nonce propagation.
+- **Gas-Aware Native Funding Helpers:** Updated [`packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) and [`scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so native-balance top-ups reserve transfer gas before selecting a funder. This removes the prior false-positive funding attempts where a wallet appeared solvent on raw balance but could not actually cover `value + gas`, and `setup:base-sepolia` now fails with a direct spendable-balance message instead of a later `eth_estimateGas` error.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the repo still verifies cleanly against the Base Sepolia fixture RPC fallback.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; generated coverage now validates `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test -- --runInBand`; the default suite remains green with `88` passing files, `348` passing tests, and `17` intentionally skipped live contract-integration proofs.
+
+### Known Issues
+- **Live Base Sepolia Signer Depletion:** Focused reruns of `pnpm run test:contract:api:base-sepolia` still block on the first founder-signed writes because the configured founder signer now has only about `2.8e12` wei available, below current Base Sepolia write costs. These failures are environment-limited `INSUFFICIENT_FUNDS` blocks, not missing-route regressions. `pnpm run setup:base-sepolia` is blocked by the same depleted signer pool until the configured operator wallets receive more Base Sepolia ETH.
+
 ## [0.1.9] - 2026-03-19
 
 ### Added

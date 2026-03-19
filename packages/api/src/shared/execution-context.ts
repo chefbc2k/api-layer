@@ -86,7 +86,15 @@ function signerQueueKey(auth: AuthContext, providerName: string): string {
 
 function isNonceExpiredError(error: unknown): boolean {
   const message = String((error as { message?: string })?.message ?? error).toLowerCase();
-  return message.includes("nonce too low") || message.includes("nonce has already been used") || message.includes("nonce expired");
+  return (
+    message.includes("nonce too low") ||
+    message.includes("nonce has already been used") ||
+    message.includes("nonce expired") ||
+    message.includes("replacement fee too low") ||
+    message.includes("replacement transaction underpriced") ||
+    message.includes("transaction underpriced") ||
+    message.includes("already known")
+  );
 }
 
 async function withSignerQueue<T>(context: ApiExecutionContext, key: string, work: () => Promise<T>): Promise<T> {
@@ -376,7 +384,9 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
             },
           );
         }
-        const refreshedNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+        const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+        const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
+        const refreshedNonce = Math.max(pendingNonce, localNonce + 1);
         context.signerNonces.set(prepared.queueKey, refreshedNonce);
         try {
           return await submit(refreshedNonce);

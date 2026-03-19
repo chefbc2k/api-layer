@@ -30,6 +30,16 @@ const DEFAULT_USDC_MINIMUM = 25_000_000n;
 const RUNTIME_DIR = path.resolve(".runtime");
 const OUTPUT_PATH = path.join(RUNTIME_DIR, "base-sepolia-operator-fixtures.json");
 
+async function nativeTransferSpendable(wallet: Wallet): Promise<bigint> {
+  const [balance, feeData] = await Promise.all([
+    wallet.provider!.getBalance(wallet.address),
+    wallet.provider!.getFeeData(),
+  ]);
+  const maxFeePerGas = feeData.maxFeePerGas ?? feeData.gasPrice ?? 0n;
+  const reserve = ethers.parseEther("0.000001") + maxFeePerGas * 21_000n;
+  return balance > reserve ? balance - reserve : 0n;
+}
+
 function toJsonValue(value: unknown): unknown {
   if (typeof value === "bigint") {
     return value.toString();
@@ -119,6 +129,12 @@ async function ensureNativeBalance(
     return { funded: false, balance: balance.toString() };
   }
   const delta = minimum - balance + ethers.parseEther("0.00001");
+  const spendable = await nativeTransferSpendable(funder);
+  if (spendable < delta) {
+    throw new Error(
+      `insufficient funder balance for ${target.address}: need ${delta.toString()} wei transferable, have ${spendable.toString()} wei`,
+    );
+  }
   const receipt = await (await funder.sendTransaction({ to: target.address, value: delta })).wait();
   if (!receipt || receipt.status !== 1) {
     throw new Error(`failed to top up native balance for ${target.address}`);
