@@ -356,7 +356,7 @@ async function main() {
   const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
   const { config } = runtimeConfig;
   process.env.RPC_URL = forkRuntime.rpcUrl;
-  process.env.ALCHEMY_RPC_URL = forkRuntime.rpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
 
   if (!repoEnv.PRIVATE_KEY) {

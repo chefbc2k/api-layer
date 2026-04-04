@@ -653,7 +653,7 @@ describeLive("HTTP API contract integration", () => {
     activeRpcUrl = rpcUrl;
     localForkProcess = forkRuntime.forkProcess;
     process.env.RPC_URL = rpcUrl;
-    process.env.ALCHEMY_RPC_URL = rpcUrl;
+    process.env.ALCHEMY_RPC_URL = runtimeConfig.alchemyRpcUrl;
 
     const licenseePrivateKey = Wallet.createRandom().privateKey;
     const transfereePrivateKey = Wallet.createRandom().privateKey;

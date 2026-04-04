@@ -372,34 +372,37 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
         return { hash, response };
       };
 
-      try {
-        return await submit();
-      } catch (error) {
-        if (!isNonceExpiredError(error)) {
-          throw new ExecutionDiagnosticError(
-            String((error as { message?: string })?.message ?? error),
-            {
-              ...(await buildFailureDiagnostics(context, definition, prepared, error)),
-              ...(simulationDiagnostics === undefined ? {} : { simulation: simulationDiagnostics }),
-            },
-          );
-        }
-        const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
-        const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
-        const refreshedNonce = Math.max(pendingNonce, localNonce + 1);
-        context.signerNonces.set(prepared.queueKey, refreshedNonce);
+      let forcedNonce: number | undefined;
+      let lastNonceError: unknown;
+      for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
-          return await submit(refreshedNonce);
-        } catch (retryError) {
-          throw new ExecutionDiagnosticError(
-            String((retryError as { message?: string })?.message ?? retryError),
-            {
-              ...(await buildFailureDiagnostics(context, definition, prepared, retryError)),
-              ...(simulationDiagnostics === undefined ? {} : { simulation: simulationDiagnostics }),
-            },
-          );
+          return await submit(forcedNonce);
+        } catch (error) {
+          if (!isNonceExpiredError(error)) {
+            throw new ExecutionDiagnosticError(
+              String((error as { message?: string })?.message ?? error),
+              {
+                ...(await buildFailureDiagnostics(context, definition, prepared, error)),
+                ...(simulationDiagnostics === undefined ? {} : { simulation: simulationDiagnostics }),
+              },
+            );
+          }
+          lastNonceError = error;
+          const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+          const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
+          const lastAttemptedNonce = forcedNonce ?? Math.max(pendingNonce, localNonce);
+          forcedNonce = Math.max(pendingNonce, localNonce + 1, lastAttemptedNonce + 1);
+          context.signerNonces.set(prepared.queueKey, forcedNonce);
         }
       }
+
+      throw new ExecutionDiagnosticError(
+        String((lastNonceError as { message?: string })?.message ?? lastNonceError),
+        {
+          ...(await buildFailureDiagnostics(context, definition, prepared, lastNonceError)),
+          ...(simulationDiagnostics === undefined ? {} : { simulation: simulationDiagnostics }),
+        },
+      );
     });
   });
 }
