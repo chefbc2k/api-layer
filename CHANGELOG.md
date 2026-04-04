@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.16] - 2026-04-04
+
+### Fixed
+- **Self-Bootstrapping Contract Fork Harness:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so `pnpm run test:contract:api:base-sepolia` no longer depends on depleted live signer balances when the configured loopback RPC is unavailable. The suite now auto-starts an Anvil fork from the validated Base Sepolia fallback RPC, rewires the API server onto that fork, and seeds signer balances with `anvil_setBalance` so write-heavy proofs execute instead of short-circuiting on funding skips.
+- **Contract-Proof Payload Corrections:** Repaired multiple live proof assumptions in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts), including missing `isActive` on template create payloads, a short voice-asset proof timeout, cache-sensitive burn-threshold readback assertions, and preservation of the current delegation-overflow failure in the long-path workflow proof instead of incorrectly expecting a successful delegation.
+
+### Verified
+- **Repo Green Guard:** Re-ran `pnpm exec tsc --noEmit` and `pnpm test`; the default repo state remains green with `90` passing files, `361` passing tests, and `17` intentionally skipped live contract-integration proofs outside explicit live runs.
+- **Live Contract Progress:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm run test:contract:api:base-sepolia`; the fork-backed suite now reaches `15/17` passing proofs instead of the prior `3/17` read-only pass count, converting the earlier funding-blocked skips into executable coverage across access-control, voice assets, workflows, governance, tokenomics, whisperblock, admin/emergency/multisig, transfer-rights, onboard-rights-holder, and register-whisper-block paths.
+
+### Known Issues
+- **Dataset Primitive License Update Still Mismatched:** The dataset contract proof now creates datasets on the fork, but [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) still fails on `PATCH /v1/datasets/commands/set-license` with a `400` when attempting to update to the newly created template, indicating the test still is not supplying the exact template identifier shape the primitive expects for `setLicense(uint256,uint256)`.
+- **Licensing Terms Hash Assumption Is Stale:** The licensing proof now creates and reads templates successfully on the fork, but the test still fails because the contract-populated `terms.licenseHash` no longer remains the zero hash after template creation. The proof needs to align with the current contract behavior instead of asserting the legacy zero-hash readback.
+
 ## [0.1.15] - 2026-04-04
 
 ### Fixed
