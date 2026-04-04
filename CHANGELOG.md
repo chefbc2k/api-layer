@@ -4,6 +4,24 @@
 
 ---
 
+## [0.1.13] - 2026-04-04
+
+### Fixed
+- **Treasury Revenue Block-State Coverage:** Expanded [`packages/api/src/workflows/treasury-revenue-operations.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.test.ts) to prove three previously untested control paths: blocked posture inspections before and after payout sweeps, payout label/default wallet inheritance when actor overrides omit a wallet, and the fully idle `not-requested` path. This closes the remaining semantic gap around how treasury revenue orchestration summarizes external preconditions when live payout flows are setup-blocked.
+- **Workflow Receipt Polling Coverage:** Added [`packages/api/src/workflows/wait-for-write.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.test.ts) so shared write-receipt polling is now directly covered for four behaviors: missing tx hashes, retry-until-success receipt polling, revert detection, and timeout exhaustion. This hardens a shared primitive used across marketplace, governance, emergency, licensing, vesting, dataset, and whisperblock workflows.
+
+### Verified
+- **Focused Workflow Tests:** Re-ran `pnpm exec vitest run packages/api/src/workflows/treasury-revenue-operations.test.ts packages/api/src/workflows/wait-for-write.test.ts`; both files passed with `11` tests total.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite remains green with `90` passing files, `359` passing tests, and `17` intentionally skipped live contract-integration proofs.
+- **Coverage Refresh:** Re-ran `pnpm run test:coverage`; overall measured coverage improved to `52.48%` statements, `84.61%` branches, `34.35%` functions, and `52.48%` lines. Within workflow code specifically, [`packages/api/src/workflows/treasury-revenue-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts) improved to `99.32%` statements / `94.33%` branches / `100%` functions, and [`packages/api/src/workflows/wait-for-write.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.ts) improved to `93.75%` statements / `94.11%` branches / `100%` functions.
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still verifies cleanly through the fixture RPC fallback.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; generated surface coverage remains complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Live Contract Suite Classification:** Re-ran `pnpm run test:contract:api:base-sepolia`; the live suite again exited cleanly with `3` passing read-oriented proofs and `14` explicitly skipped write-dependent proofs, confirming the remaining live debt is environmental rather than route drift.
+
+### Known Issues
+- **Base Sepolia Signer Pool Still Depleted:** `pnpm run setup:base-sepolia` still fails immediately while attempting to fund `buyer-key` (`0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`): `need 49126000000081 wei transferable, have 0 wei`. The live HTTP contract suite reports the same condition across founder, seller, and auxiliary actors, with current balances around `1104999999919` wei for `founder-key`, `264176943067` wei for `licensing-owner-key`, and `873999999919` wei for the remaining configured operator wallets.
+- **Remaining Live Write Proofs Still Setup-Blocked:** Access control, voice asset mutation, register-voice-asset workflow, datasets, marketplace writes, governance writes, tokenomics, whisperblock, licensing, transfer-rights, onboard-rights-holder, register-whisper-block, and the remaining workflow lifecycle proof all currently classify as `blocked by setup/state` in practice because the configured Base Sepolia wallets cannot meet their gas floors.
+
 ## [0.1.12] - 2026-03-19
 
 ### Fixed

@@ -149,6 +149,99 @@ describe("runTreasuryRevenueOperationsWorkflow", () => {
     });
   });
 
+  it("summarizes blocked posture checks before and after sweeps", async () => {
+    mocks.runInspectRevenuePostureWorkflow
+      .mockRejectedValueOnce(new HttpError(409, "inspect-revenue-posture requires payment token", { phase: "before" }))
+      .mockRejectedValueOnce(new HttpError(409, "inspect-revenue-posture requires payment token", { phase: "after" }));
+
+    const result = await runTreasuryRevenueOperationsWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      payouts: {
+        sweeps: [
+          { label: "seller" },
+        ],
+      },
+    });
+
+    expect(result.posture.before).toEqual({
+      status: "blocked-by-external-precondition",
+      result: null,
+      block: {
+        statusCode: 409,
+        message: "inspect-revenue-posture requires payment token",
+        diagnostics: { phase: "before" },
+      },
+    });
+    expect(result.posture.after).toEqual({
+      status: "blocked-by-external-precondition",
+      result: null,
+      block: {
+        statusCode: 409,
+        message: "inspect-revenue-posture requires payment token",
+        diagnostics: { phase: "after" },
+      },
+    });
+    expect(result.summary).toEqual({
+      story: "treasury revenue operations",
+      sweepCount: 1,
+      completedSweepCount: 1,
+      blockedSteps: ["posture.postureBefore", "posture.postureAfter"],
+      externalPreconditions: [
+        { step: "posture.postureBefore", message: "inspect-revenue-posture requires payment token" },
+        { step: "posture.postureAfter", message: "inspect-revenue-posture requires payment token" },
+      ],
+      paymentToken: null,
+    });
+  });
+
+  it("defaults payout labels and inherits the parent wallet when an override omits one", async () => {
+    const result = await runTreasuryRevenueOperationsWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      payouts: {
+        sweeps: [{
+          actor: {
+            apiKey: "ops-key",
+          },
+        }],
+      },
+    });
+
+    expect(mocks.runWithdrawMarketplacePaymentsWorkflow).toHaveBeenCalledWith(
+      context,
+      opsAuth,
+      "0x00000000000000000000000000000000000000aa",
+      { deadline: undefined },
+    );
+    expect(result.payouts.sweeps).toEqual([
+      expect.objectContaining({
+        label: "sweep-1",
+        actor: "0x00000000000000000000000000000000000000aa",
+      }),
+    ]);
+  });
+
+  it("returns not-requested posture steps when no work is requested", async () => {
+    const result = await runTreasuryRevenueOperationsWorkflow(context, auth, undefined, {});
+
+    expect(mocks.runInspectRevenuePostureWorkflow).not.toHaveBeenCalled();
+    expect(mocks.runWithdrawMarketplacePaymentsWorkflow).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      posture: {
+        before: { status: "not-requested", result: null, block: null },
+        after: { status: "not-requested", result: null, block: null },
+      },
+      payouts: {
+        sweeps: [],
+      },
+      summary: {
+        story: "treasury revenue operations",
+        sweepCount: 0,
+        completedSweepCount: 0,
+        blockedSteps: [],
+        externalPreconditions: [],
+        paymentToken: null,
+      },
+    });
+  });
+
   it("propagates non-state child workflow failures", async () => {
     mocks.runInspectRevenuePostureWorkflow.mockRejectedValueOnce(new Error("posture exploded"));
 
