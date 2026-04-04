@@ -7,6 +7,7 @@ import { createWorkflowRouter } from "./workflows/index.js";
 
 export type ApiServerOptions = {
   port?: number;
+  quiet?: boolean;
 };
 
 export type ApiServer = {
@@ -63,7 +64,9 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
     listen() {
       const port = options.port ?? Number(process.env.API_LAYER_PORT ?? 8787);
       return app.listen(port, () => {
-        console.log(`USpeaks API listening on ${port}`);
+        if (!options.quiet) {
+          console.log(`USpeaks API listening on ${port}`);
+        }
       });
     },
   };

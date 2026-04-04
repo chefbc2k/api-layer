@@ -2,6 +2,7 @@ import { createApiServer } from "../packages/api/src/app.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { Wallet } from "ethers";
+import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput } from "./verify-report.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -48,6 +49,19 @@ function buildPath(definition: EndpointDefinition, params: Record<string, string
   return query ? `${definition.path}?${query}` : definition.path;
 }
 
+function isCompletionEvidenceHealthy(value: unknown): boolean {
+  if (value && typeof value === "object" && "status" in value) {
+    return (value as { status?: unknown }).status === 200;
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (value && typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).every((entry) => entry === true);
+  }
+  return false;
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
   const { config } = await resolveRuntimeConfig(repoEnv);
@@ -77,8 +91,9 @@ async function main() {
 
   const endpointRegistry = await (await import("../generated/manifests/http-endpoint-registry.json", { assert: { type: "json" } })).default;
   const endpoints = endpointRegistry.methods as Record<string, EndpointDefinition>;
+  const outputPath = getOutputPath();
 
-  const server = createApiServer({ port: 0 }).listen();
+  const server = createApiServer({ port: 0, quiet: true }).listen();
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 8787;
 
@@ -137,7 +152,30 @@ async function main() {
 
     results.governanceLegacyProposeExposed = Boolean(endpoints["ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)"]);
 
-    console.log(JSON.stringify(results, null, 2));
+    const report = buildVerifyReportOutput({
+      completion: {
+        routes: [
+          communityRewards ? `${communityRewards.httpMethod} ${communityRewards.path}` : "missing CommunityRewardsFacet.campaignCount",
+          vesting ? `${vesting.httpMethod} ${vesting.path}` : "missing VestingFacet.hasVestingSchedule",
+          escrow ? `${escrow.httpMethod} ${escrow.path}` : "missing EscrowFacet.isInEscrow",
+          rights ? `${rights.httpMethod} ${rights.path}` : "missing RightsFacet.rightIdExists",
+          legacyView ? `${legacyView.httpMethod} ${legacyView.path}` : "missing LegacyViewFacet.getLegacyPlan",
+        ],
+        actors: ["read-key", "founder-key"],
+        executionResult: "completion readback inspection",
+        evidence: Object.entries(results).map(([route, value]) => ({
+          route,
+          actor: route.includes("legacy") ? "founder-key" : "read-key",
+          status: value && typeof value === "object" && "status" in value && typeof (value as { status?: unknown }).status === "number"
+            ? (value as { status: number }).status
+            : undefined,
+          postState: value,
+        })),
+        finalClassification: Object.values(results).every(isCompletionEvidenceHealthy) ? "proven working" : "deeper issue remains",
+      },
+    });
+    writeVerifyReportOutput(outputPath, report);
+    console.log(JSON.stringify(report, null, 2));
   } finally {
     server.close();
   }

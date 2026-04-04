@@ -4,7 +4,25 @@
 
 ---
 
-## [0.1.13] - 2026-04-04
+## [0.1.14] - 2026-04-04
+
+### Fixed
+- **Structured Focused/Live Verifier Artifacts:** Updated [`/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts), [`/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts), and [`/Users/chef/Public/api-layer/scripts/verify-layer1-completion.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-completion.ts) to emit the shared machine-readable verify-report format behind `--output`, preserving route totals, evidence counts, per-domain classifications, and actor mappings in clean JSON files instead of mixed server-log output.
+- **Verifier Actor Preservation:** Added explicit `API_LAYER_SIGNER_API_KEYS_JSON` population for the focused/live/completion proofs so runtime actor identity stays aligned with the configured API keys during direct Base Sepolia verification runs.
+- **Startup Log Suppression for Proof Scripts:** Extended [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) with a `quiet` startup option and covered it in [`/Users/chef/Public/api-layer/packages/api/src/app.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.test.ts), allowing verifier scripts to start the embedded API server without corrupting saved JSON artifacts.
+- **Partial Classification Repair:** Reclassified insufficient-funds write failures in the focused and live verifiers from `deeper issue remains` to `blocked by setup/state`, so the saved proof artifacts now reflect the actual Base Sepolia blocker instead of overstating the remaining unknowns.
+- **Completion Domain Promotion:** Promoted the completion verifier to `proven working` when its read routes succeed and its boolean route-exposure checks remain true, closing an overstated gap in the legacy/completion readback inspection.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still verifies cleanly through the fixture RPC fallback with Alchemy diagnostics enabled.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; API surface coverage remains complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test`; the repo remains green with `90` passing files, `360` passing tests, and `17` intentionally skipped live contract-integration proofs.
+- **Focused Artifact Refresh:** Re-ran `pnpm tsx scripts/verify-layer1-focused.ts --output verify-focused-output.json`; the refreshed artifact now reports `1` `proven working` domain (`multisig`) and `1` `blocked by setup/state` domain (`voice-assets`) with no remaining `deeper issue remains` classifications.
+- **Live Artifact Refresh:** Re-ran `pnpm tsx scripts/verify-layer1-live.ts --output verify-live-output.json`; the refreshed artifact now reports `3` `proven working` domains (`tokenomics`, `access-control`, `admin/emergency/multisig`) and `4` `blocked by setup/state` domains (`governance`, `marketplace`, `datasets`, `voice-assets`) with no remaining `deeper issue remains` classifications.
+- **Completion Artifact Added:** Re-ran `pnpm tsx scripts/verify-layer1-completion.ts --output verify-completion-output.json`; the new artifact reports `summary: "proven working"` for the completion readback probe and captures the legacy route exposure booleans in machine-readable evidence.
+
+### Known Issues
+- **Base Sepolia Signer Pool Still Depleted:** Founder-signed write proofs remain setup-blocked by live signer balance exhaustion. The refreshed verifier artifacts show `founder-key` balance at `1104999999919` wei, below the current write-cost floor for governance proposal submission, voice-asset registration, dataset setup, and marketplace setup paths.
 
 ### Fixed
 - **Treasury Revenue Block-State Coverage:** Expanded [`packages/api/src/workflows/treasury-revenue-operations.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.test.ts) to prove three previously untested control paths: blocked posture inspections before and after payout sweeps, payout label/default wallet inheritance when actor overrides omit a wallet, and the fully idle `not-requested` path. This closes the remaining semantic gap around how treasury revenue orchestration summarizes external preconditions when live payout flows are setup-blocked.

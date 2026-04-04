@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -23,8 +24,18 @@ type EndpointDefinition = {
 type DomainResult = {
   routes: Array<string>;
   actors: Array<string>;
-  result: "proven working" | "blocked by setup/state" | "semantically clarified but not fully proven" | "deeper issue remains";
+  result: DomainClassification;
   evidence: Record<string, unknown>;
+};
+
+type RouteEvidence = {
+  route: string;
+  actor: string;
+  status?: number;
+  txHash?: string | null;
+  receipt?: unknown;
+  postState?: unknown;
+  notes?: string;
 };
 
 async function apiCall(port: number, method: string, url: string, options: ApiCallOptions = {}) {
@@ -108,6 +119,33 @@ function endpointByKey(registry: Record<string, EndpointDefinition>, key: string
   return registry[key] ?? null;
 }
 
+function isSetupBlocked(value: unknown): boolean {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const payload = (value as { payload?: unknown }).payload;
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+  const error = (payload as { error?: unknown }).error;
+  return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
+}
+
+function toEvidenceEntries(domain: DomainResult): RouteEvidence[] {
+  return Object.entries(domain.evidence).map(([route, value]) => {
+    const record = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+    return {
+      route,
+      actor: domain.actors.join(","),
+      status: typeof record?.status === "number" ? record.status : undefined,
+      txHash: typeof record?.txHash === "string" ? record.txHash : undefined,
+      receipt: record?.receipt,
+      postState: value,
+      notes: record ? undefined : String(value),
+    };
+  });
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
   const { config } = await resolveRuntimeConfig(repoEnv);
@@ -127,12 +165,35 @@ async function main() {
     founder: founderKey,
     licensee: licensee.privateKey,
   });
+  process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
+    ...(founder
+      ? {
+          [founder.address.toLowerCase()]: {
+            apiKey: "founder-key",
+            signerId: "founder",
+            privateKey: founderKey,
+            label: "founder",
+            roles: ["service"],
+            allowGasless: false,
+          },
+        }
+      : {}),
+    [licensee.address.toLowerCase()]: {
+      apiKey: "licensee-key",
+      signerId: "licensee",
+      privateKey: licensee.privateKey,
+      label: "licensee",
+      roles: ["service"],
+      allowGasless: false,
+    },
+  });
 
   const endpointRegistry = JSON.parse(
     fs.readFileSync(path.join("generated", "manifests", "http-endpoint-registry.json"), "utf8"),
   ).methods as Record<string, EndpointDefinition>;
+  const outputPath = getOutputPath();
 
-  const server = createApiServer({ port: 0 }).listen();
+  const server = createApiServer({ port: 0, quiet: true }).listen();
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 8787;
 
@@ -211,14 +272,32 @@ async function main() {
 
       domain.result = voiceResp.status === 202 && (domain.evidence as Record<string, any>).voiceRead?.status === 200
         ? "proven working"
-        : "deeper issue remains";
+        : isSetupBlocked(voiceResp)
+          ? "blocked by setup/state"
+          : "deeper issue remains";
       results["voice-assets"] = domain;
     }
   } finally {
     server.close();
+    await provider.destroy();
   }
 
-  console.log(JSON.stringify(results, null, 2));
+  const output = buildVerifyReportOutput(
+    Object.fromEntries(
+      Object.entries(results).map(([domain, report]) => [
+        domain,
+        {
+          routes: report.routes,
+          actors: report.actors,
+          executionResult: report.result,
+          evidence: toEvidenceEntries(report),
+          finalClassification: report.result,
+        },
+      ]),
+    ),
+  );
+  writeVerifyReportOutput(outputPath, output);
+  console.log(JSON.stringify(output, null, 2));
 }
 
 main().catch((error) => {

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createApiServer } from "./app.js";
 
@@ -88,6 +88,23 @@ describe("createApiServer", () => {
       expect(payload).toMatchObject({ error: expect.stringContaining("does not allow gaslessMode") });
     } finally {
       server.close();
+    }
+  });
+
+  it("suppresses the startup log when quiet mode is enabled", async () => {
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "test-key": { label: "test", roles: ["service"], allowGasless: true },
+    });
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    const server = createApiServer({ port: 0, quiet: true }).listen();
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+      expect(logSpy).not.toHaveBeenCalled();
+    } finally {
+      server.close();
+      logSpy.mockRestore();
     }
   });
 });

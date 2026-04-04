@@ -1,0 +1,109 @@
+{
+  "summary": "proven working",
+  "totals": {
+    "domainCount": 1,
+    "routeCount": 5,
+    "evidenceCount": 7
+  },
+  "statusCounts": {
+    "proven working": 1,
+    "blocked by setup/state": 0,
+    "semantically clarified but not fully proven": 0,
+    "deeper issue remains": 0
+  },
+  "reports": {
+    "completion": {
+      "routes": [
+        "POST /v1/tokenomics/queries/campaign-count",
+        "GET /v1/tokenomics/queries/has-vesting-schedule",
+        "GET /v1/marketplace/queries/is-in-escrow",
+        "GET /v1/licensing/queries/right-id-exists",
+        "GET /v1/voice-assets/queries/get-legacy-plan"
+      ],
+      "actors": [
+        "read-key",
+        "founder-key"
+      ],
+      "executionResult": "completion readback inspection",
+      "evidence": [
+        {
+          "route": "communityRewards",
+          "actor": "read-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "18"
+          }
+        },
+        {
+          "route": "vesting",
+          "actor": "read-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": false
+          }
+        },
+        {
+          "route": "escrow",
+          "actor": "read-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": false
+          }
+        },
+        {
+          "route": "rights",
+          "actor": "read-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": false
+          }
+        },
+        {
+          "route": "legacyView",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": {
+              "voiceAssets": [],
+              "datasetIds": [],
+              "beneficiaries": [],
+              "conditions": {
+                "timelock": "0",
+                "requiresProof": false,
+                "requiredDocs": [],
+                "approvers": [],
+                "minApprovals": "0"
+              },
+              "createdAt": "1773497810",
+              "updatedAt": "1773497810",
+              "isActive": true,
+              "isExecuted": false,
+              "memo": "Legacy recovery probe 1773497806096"
+            }
+          }
+        },
+        {
+          "route": "legacyWriteRoutes",
+          "actor": "founder-key",
+          "postState": {
+            "createLegacyPlan": true,
+            "initiateInheritance": true
+          }
+        },
+        {
+          "route": "governanceLegacyProposeExposed",
+          "actor": "read-key",
+          "postState": true
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    }
+  }
+}

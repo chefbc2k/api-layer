@@ -7,6 +7,7 @@ import path from "node:path";
 
 import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -25,8 +26,18 @@ type EndpointDefinition = {
 type DomainResult = {
   routes: Array<string>;
   actors: Array<string>;
-  result: "proven working" | "blocked by setup/state" | "semantically clarified but not fully proven" | "deeper issue remains";
+  result: DomainClassification;
   evidence: Record<string, unknown>;
+};
+
+type RouteEvidence = {
+  route: string;
+  actor: string;
+  status?: number;
+  txHash?: string | null;
+  receipt?: unknown;
+  postState?: unknown;
+  notes?: string;
 };
 
 async function apiCall(port: number, method: string, url: string, options: ApiCallOptions = {}) {
@@ -156,6 +167,33 @@ function endpointByKey(registry: Record<string, EndpointDefinition>, key: string
   return registry[key] ?? null;
 }
 
+function isSetupBlocked(value: unknown): boolean {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const payload = (value as { payload?: unknown }).payload;
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+  const error = (payload as { error?: unknown }).error;
+  return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
+}
+
+function toEvidenceEntries(domain: DomainResult): RouteEvidence[] {
+  return Object.entries(domain.evidence).map(([route, value]) => {
+    const record = value && typeof value === "object" ? (normalize(value) as Record<string, unknown>) : null;
+    return {
+      route,
+      actor: domain.actors.join(","),
+      status: typeof record?.status === "number" ? record.status : undefined,
+      txHash: typeof record?.txHash === "string" ? record.txHash : undefined,
+      receipt: record?.receipt,
+      postState: record ?? normalize(value),
+      notes: record ? undefined : String(value),
+    };
+  });
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
   const { config } = await resolveRuntimeConfig(repoEnv);
@@ -178,6 +216,40 @@ async function main() {
     founder: founderKey,
     licensingOwner: licensingOwnerKey,
     licensee: licensee.privateKey,
+  });
+  process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
+    ...(founder
+      ? {
+          [founder.address.toLowerCase()]: {
+            apiKey: "founder-key",
+            signerId: "founder",
+            privateKey: founderKey,
+            label: "founder",
+            roles: ["service"],
+            allowGasless: false,
+          },
+        }
+      : {}),
+    ...(licensingOwner
+      ? {
+          [licensingOwner.address.toLowerCase()]: {
+            apiKey: "licensing-owner-key",
+            signerId: "licensingOwner",
+            privateKey: licensingOwnerKey,
+            label: "licensing-owner",
+            roles: ["service"],
+            allowGasless: false,
+          },
+        }
+      : {}),
+    [licensee.address.toLowerCase()]: {
+      apiKey: "licensee-key",
+      signerId: "licensee",
+      privateKey: licensee.privateKey,
+      label: "licensee",
+      roles: ["service"],
+      allowGasless: false,
+    },
   });
 
   const fundingWallets = [
@@ -203,8 +275,9 @@ async function main() {
     ...(endpointManifest.methods ?? {}),
     ...(endpointManifest.events ?? {}),
   } as Record<string, EndpointDefinition>;
+  const outputPath = getOutputPath();
 
-  const server = createApiServer({ port: 0 }).listen();
+  const server = createApiServer({ port: 0, quiet: true }).listen();
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 8787;
 
@@ -289,7 +362,11 @@ async function main() {
             ? "proven working"
             : "blocked by setup/state";
         } else {
-          domain.result = proposeResp.status === 202 ? "semantically clarified but not fully proven" : "deeper issue remains";
+          domain.result = proposeResp.status === 202
+            ? "semantically clarified but not fully proven"
+            : isSetupBlocked(proposeResp)
+              ? "blocked by setup/state"
+              : "deeper issue remains";
         }
       }
       results.governance = domain;
@@ -406,7 +483,11 @@ async function main() {
         }
       }
 
-      domain.result = (domain.evidence as Record<string, any>).list?.status === 202 ? "proven working" : "deeper issue remains";
+      domain.result = (domain.evidence as Record<string, any>).list?.status === 202
+        ? "proven working"
+        : isSetupBlocked(voiceResp)
+          ? "blocked by setup/state"
+          : "deeper issue remains";
       results.marketplace = domain;
     }
 
@@ -500,7 +581,13 @@ async function main() {
       const templateError = String((domain.evidence as Record<string, any>).templateError || "");
       if (datasetStatus === 202) {
         domain.result = "proven working";
-      } else if (datasetError.includes("InvalidLicenseTemplate") || templateError.length > 0) {
+      } else if (
+        datasetError.includes("InvalidLicenseTemplate")
+        || templateError.length > 0
+        || isSetupBlocked((domain.evidence as Record<string, unknown>).voiceA)
+        || isSetupBlocked((domain.evidence as Record<string, unknown>).voiceB)
+        || isSetupBlocked((domain.evidence as Record<string, unknown>).dataset)
+      ) {
         domain.result = "blocked by setup/state";
       } else {
         domain.result = "deeper issue remains";
@@ -562,7 +649,11 @@ async function main() {
           domain.evidence.voiceRead = readResp;
         }
       }
-      domain.result = voiceResp.status === 202 ? "proven working" : "deeper issue remains";
+      domain.result = voiceResp.status === 202
+        ? "proven working"
+        : isSetupBlocked(voiceResp)
+          ? "blocked by setup/state"
+          : "deeper issue remains";
       results["voice-assets"] = domain;
     }
 
@@ -670,7 +761,22 @@ async function main() {
       results["admin/emergency/multisig"] = domain;
     }
 
-    console.log(JSON.stringify(normalize(results), null, 2));
+    const output = buildVerifyReportOutput(
+      Object.fromEntries(
+        Object.entries(results).map(([domain, report]) => [
+          domain,
+          {
+            routes: report.routes,
+            actors: report.actors,
+            executionResult: report.result,
+            evidence: toEvidenceEntries(report),
+            finalClassification: report.result,
+          },
+        ]),
+      ),
+    );
+    writeVerifyReportOutput(outputPath, output);
+    console.log(JSON.stringify(output, null, 2));
   } finally {
     server.close();
     await provider.destroy();
