@@ -5,7 +5,7 @@ import { Contract, Interface, JsonRpcProvider, Wallet, ethers } from "ethers";
 import fs from "node:fs";
 import path from "node:path";
 
-import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
 import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
@@ -102,6 +102,7 @@ async function retryRead<T extends { status: number, payload: unknown }>(
 
 async function ensureNativeBalance(
   provider: JsonRpcProvider,
+  rpcUrl: string,
   fundingWallets: Wallet[],
   recipient: string,
   minimum: bigint,
@@ -109,6 +110,12 @@ async function ensureNativeBalance(
   let balance = await provider.getBalance(recipient);
   if (balance >= minimum) {
     return balance;
+  }
+
+  if (isLoopbackRpcUrl(rpcUrl)) {
+    const targetBalance = (minimum > ethers.parseEther("0.02") ? minimum : ethers.parseEther("0.02")) + ethers.parseEther("0.005");
+    await provider.send("anvil_setBalance", [recipient, ethers.toQuantity(targetBalance)]);
+    return provider.getBalance(recipient);
   }
 
   const donorReserve = ethers.parseEther("0.000003");
@@ -196,10 +203,12 @@ function toEvidenceEntries(domain: DomainResult): RouteEvidence[] {
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const { config } = await resolveRuntimeConfig(repoEnv);
-  process.env.RPC_URL = config.cbdpRpcUrl;
-  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const runtimeConfig = await resolveRuntimeConfig(repoEnv);
+  const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
+  const { config } = runtimeConfig;
+  process.env.RPC_URL = forkRuntime.rpcUrl;
+  process.env.ALCHEMY_RPC_URL = forkRuntime.rpcUrl;
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
   const founderKey = repoEnv.PRIVATE_KEY ?? "";
   const founder = founderKey ? new Wallet(founderKey, provider) : null;
   const licensingOwnerKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? founderKey;
@@ -262,10 +271,10 @@ async function main() {
   ].filter((candidate): candidate is Wallet => candidate !== null);
 
   if (founder) {
-    await ensureNativeBalance(provider, fundingWallets, founder.address, ethers.parseEther("0.00005"));
+    await ensureNativeBalance(provider, forkRuntime.rpcUrl, fundingWallets, founder.address, ethers.parseEther("0.00005"));
   }
   if (licensingOwner) {
-    await ensureNativeBalance(provider, fundingWallets, licensingOwner.address, ethers.parseEther("0.00001"));
+    await ensureNativeBalance(provider, forkRuntime.rpcUrl, fundingWallets, licensingOwner.address, ethers.parseEther("0.00001"));
   }
 
   const endpointManifest = JSON.parse(
@@ -780,6 +789,9 @@ async function main() {
   } finally {
     server.close();
     await provider.destroy();
+    if (forkRuntime.forkProcess && forkRuntime.forkProcess.exitCode === null) {
+      forkRuntime.forkProcess.kill("SIGTERM");
+    }
   }
 }
 

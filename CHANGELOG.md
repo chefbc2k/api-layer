@@ -4,6 +4,25 @@
 
 ---
 
+## [0.1.18] - 2026-04-04
+
+### Fixed
+- **Fork-Reusable Runtime Bootstrap:** Exported loopback fork bootstrapping from [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) so verifier scripts can start the same Base Sepolia Anvil fork flow already used by the contract integration harness instead of duplicating live-only setup.
+- **Fork-Aware Verifier Promotion:** Updated [`/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts), [`/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts), and [`/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts) to bind both the embedded API server and their RPC provider to the forked loopback node when the configured local RPC is unavailable, including `anvil_setBalance` seeding for founder and secondary actors on loopback.
+- **Long-Path Admin Proof Budget Repair:** Raised the admin/emergency/multisig contract integration timeout in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so the read-heavy control-plane proof no longer times out before completing under fork-backed execution.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through the fixture fallback and verifies cleanly with diagnostics enabled.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; generated coverage remains complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test -- --runInBand`; the default suite is green at `90` passing files, `361` passing tests, and `17` intentionally skipped contract-integration proofs.
+- **Focused Artifact Promotion:** Re-ran `pnpm exec tsx scripts/verify-layer1-focused.ts --output verify-focused-output.json`; the focused artifact now reports `summary: "proven working"` with both `multisig` and `voice-assets` proven.
+- **Live Artifact Promotion:** Re-ran `pnpm exec tsx scripts/verify-layer1-live.ts --output verify-live-output.json`; the live artifact now reports `summary: "proven working"` with all `7` live domains (`governance`, `marketplace`, `datasets`, `voice-assets`, `tokenomics`, `access-control`, `admin/emergency/multisig`) promoted to proven.
+- **Remaining Artifact Promotion:** Re-ran `API_LAYER_AUTO_FORK=0 pnpm exec tsx scripts/verify-layer1-remaining.ts --output verify-remaining-output.json` against a manual Base Sepolia Anvil fork; the remaining artifact now reports `summary: "proven working"` with `datasets`, `licensing`, and `whisperblock/security` all proven.
+- **Targeted Contract Proof Refresh:** Re-ran `API_LAYER_AUTO_FORK=0 API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1 -t 'creates and mutates a dataset|creates templates and licenses|proves admin, emergency, and multisig'`; all three previously red fork-backed proofs now pass in a targeted run.
+
+### Known Issues
+- **Parallel Verifier Nonce Contention:** Running multiple fork-backed verifier scripts in parallel against the same founder signer still risks `nonce too low` failures because they share the same fork and signer nonce stream. Serial verifier execution is currently required for deterministic artifacts.
+
 ## [0.1.17] - 2026-04-04
 
 ### Fixed

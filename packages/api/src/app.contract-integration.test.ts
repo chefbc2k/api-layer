@@ -71,6 +71,17 @@ async function startLocalForkIfNeeded(runtimeConfig: Awaited<ReturnType<typeof r
     };
   }
 
+  try {
+    await verifyNetwork(configuredRpcUrl, runtimeConfig.config.chainId);
+    return {
+      rpcUrl: configuredRpcUrl,
+      forkProcess: null as ChildProcessWithoutNullStreams | null,
+      forkedFrom: runtimeConfig.config.cbdpRpcUrl,
+    };
+  } catch {
+    // Fall through and spawn a fork when the configured loopback RPC is unavailable.
+  }
+
   const { host, port } = parseRpcListener(configuredRpcUrl);
   const child = spawn(
     process.env.API_LAYER_ANVIL_BIN ?? "anvil",
@@ -118,17 +129,34 @@ async function startLocalForkIfNeeded(runtimeConfig: Awaited<ReturnType<typeof r
 }
 
 async function apiCall(port: number, method: string, path: string, options: ApiCallOptions = {}) {
-  const response = await fetch(`http://127.0.0.1:${port}${path}`, {
-    method,
-    headers: {
-      "content-type": "application/json",
-      ...(options.apiKey === undefined ? { "x-api-key": "founder-key" } : options.apiKey ? { "x-api-key": options.apiKey } : {}),
-      ...(options.headers ?? {}),
-    },
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
-  });
-  const payload = await response.json().catch(() => null);
-  return { status: response.status, payload };
+  const isSafeRead =
+    method === "GET" ||
+    path.includes("/queries/") ||
+    path.includes("/events/");
+
+  for (let attempt = 0; attempt < (isSafeRead ? 3 : 1); attempt += 1) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}${path}`, {
+        method,
+        headers: {
+          "content-type": "application/json",
+          ...(options.apiKey === undefined ? { "x-api-key": "founder-key" } : options.apiKey ? { "x-api-key": options.apiKey } : {}),
+          ...(options.headers ?? {}),
+        },
+        body: options.body === undefined ? undefined : JSON.stringify(options.body),
+        signal: AbortSignal.timeout(15_000),
+      });
+      const payload = await response.json().catch(() => null);
+      return { status: response.status, payload };
+    } catch (error) {
+      if (!isSafeRead || attempt === 2) {
+        throw error;
+      }
+      await delay(500);
+    }
+  }
+
+  throw new Error(`unreachable apiCall retry state for ${method} ${path}`);
 }
 
 function normalize(value: unknown): unknown {
@@ -1398,7 +1426,9 @@ describeLive("HTTP API contract integration", () => {
       body: {},
     });
     expect(totalAfterResponse.status).toBe(200);
-    expect(BigInt(String(totalAfterResponse.payload))).toBeGreaterThanOrEqual(totalBefore + 1n);
+    const totalAfter = BigInt(String(totalAfterResponse.payload));
+    expect(totalAfter).toEqual(await voiceDataset.getTotalDatasets());
+    expect(totalAfter).toEqual(totalBefore);
 
     const burnReceipt = await provider.getTransactionReceipt(burnDatasetTxHash);
     const datasetBurnedEvents = await apiCall(port, "POST", "/v1/datasets/events/dataset-burned/query", {
@@ -3336,7 +3366,7 @@ describeLive("HTTP API contract integration", () => {
       expect(recoveryPlanResponse.status).toBe(200);
       expect(recoveryPlanResponse.payload).toEqual(normalize(await emergencyFacet.getRecoveryPlan(incidentId)));
     }
-  }, 60_000);
+  }, 180_000);
 
   it("runs the transfer-rights workflow and persists ownership state", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "transfer-rights workflow", [

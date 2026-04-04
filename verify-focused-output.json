@@ -1,13 +1,13 @@
 {
-  "summary": "blocked by setup/state",
+  "summary": "proven working",
   "totals": {
     "domainCount": 2,
     "routeCount": 3,
-    "evidenceCount": 2
+    "evidenceCount": 4
   },
   "statusCounts": {
-    "proven working": 1,
-    "blocked by setup/state": 1,
+    "proven working": 2,
+    "blocked by setup/state": 0,
     "semantically clarified but not fully proven": 0,
     "deeper issue remains": 0
   },
@@ -43,57 +43,50 @@
       "actors": [
         "founder-key"
       ],
-      "executionResult": "blocked by setup/state",
+      "executionResult": "proven working",
       "evidence": [
         {
           "route": "createVoice",
           "actor": "founder-key",
-          "status": 500,
+          "status": 202,
           "postState": {
-            "status": 500,
+            "status": 202,
             "payload": {
-              "error": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737353331383638303435310000000000c080a041682ae418ada3f3409a67d450f1ac5d75c752a2f5253f9706b333accb033a46a023e3ce8d1e084bfac4d9f86ef2f61fba95f8c890b48097a3b0a7313b2b153965\", info={ \"error\": { \"code\": -32000, \"message\": \"insufficient funds for gas * price + value: balance 1104999999919, tx cost 5233789000122, overshot 4128789000203\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-              "diagnostics": {
-                "route": {
-                  "httpMethod": "POST",
-                  "path": "/v1/voice-assets",
-                  "operationId": "registerVoiceAsset",
-                  "contractFunction": "VoiceAssetFacet.registerVoiceAsset(string,uint256)"
-                },
-                "alchemy": {
-                  "enabled": true,
-                  "simulationEnabled": true,
-                  "simulationEnforced": false,
-                  "endpointDetected": true,
-                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-                  "available": false
-                },
-                "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "provider": "alchemy",
-                "actors": [
-                  {
-                    "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                    "nonce": "2553",
-                    "balance": "1104999999919"
-                  }
-                ],
-                "trace": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                },
-                "cause": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737353331383638303435310000000000c080a041682ae418ada3f3409a67d450f1ac5d75c752a2f5253f9706b333accb033a46a023e3ce8d1e084bfac4d9f86ef2f61fba95f8c890b48097a3b0a7313b2b153965\", info={ \"error\": { \"code\": -32000, \"message\": \"insufficient funds for gas * price + value: balance 1104999999919, tx cost 5233789000122, overshot 4128789000203\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-                "simulation": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                }
-              }
+              "requestId": null,
+              "txHash": "0xcd035e392f774a7dd1a7d58e40502357aa7c317d3d1306c2562a2ae83d674bbc",
+              "result": "0x631b68e5b3d79cbb294284a93d61f5cd65acfcdee0591f6be1d06fdce54c3c76"
             }
+          }
+        },
+        {
+          "route": "createVoiceReceipt",
+          "actor": "founder-key",
+          "status": 1,
+          "postState": {
+            "status": 1,
+            "blockNumber": 39784360
+          }
+        },
+        {
+          "route": "voiceRead",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": [
+              "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "QmLayer1Voice-1775337007824",
+              "175",
+              false,
+              "0",
+              "1775337009"
+            ]
           }
         }
       ],
-      "finalClassification": "blocked by setup/state",
-      "classification": "blocked by setup/state",
-      "result": "blocked by setup/state"
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
     }
   }
 }

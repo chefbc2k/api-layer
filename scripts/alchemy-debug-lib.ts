@@ -1,4 +1,4 @@
-import { execFileSync, spawn } from "node:child_process";
+import { execFileSync, spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -45,6 +45,12 @@ export type ScenarioRunResult = {
   diagnostics: Record<string, unknown> | null;
 };
 
+export type ForkRuntime = {
+  rpcUrl: string;
+  forkProcess: ChildProcessWithoutNullStreams | null;
+  forkedFrom: string | null;
+};
+
 function resolveContractsRoot(): string {
   const explicit = process.env.API_LAYER_PARENT_REPO_DIR;
   const candidates = [
@@ -74,13 +80,21 @@ export async function verifyNetwork(rpcUrl: string, expectedChainId: number): Pr
   }
 }
 
-function isLoopbackRpcUrl(rpcUrl: string): boolean {
+export function isLoopbackRpcUrl(rpcUrl: string): boolean {
   try {
     const parsed = new URL(rpcUrl);
     return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
   } catch {
     return rpcUrl.includes("127.0.0.1") || rpcUrl.includes("localhost");
   }
+}
+
+function parseRpcListener(rpcUrl: string): { host: string; port: number } {
+  const parsed = new URL(rpcUrl);
+  return {
+    host: parsed.hostname,
+    port: parsed.port ? Number(parsed.port) : parsed.protocol === "https:" ? 443 : 80,
+  };
 }
 
 async function readFixtureRpcUrl(fixturePath: string): Promise<string | null> {
@@ -156,6 +170,68 @@ export async function resolveRuntimeConfig(
       },
     };
   }
+}
+
+export async function startLocalForkIfNeeded(
+  runtimeConfig: Awaited<ReturnType<typeof resolveRuntimeConfig>>,
+): Promise<ForkRuntime> {
+  const configuredRpcUrl = runtimeConfig.rpcResolution.configuredRpcUrl;
+  if (
+    runtimeConfig.rpcResolution.source !== "base-sepolia-fixture" ||
+    !isLoopbackRpcUrl(configuredRpcUrl) ||
+    process.env.API_LAYER_AUTO_FORK === "0"
+  ) {
+    return {
+      rpcUrl: runtimeConfig.config.cbdpRpcUrl,
+      forkProcess: null,
+      forkedFrom: null,
+    };
+  }
+
+  const { host, port } = parseRpcListener(configuredRpcUrl);
+  const child = spawn(
+    process.env.API_LAYER_ANVIL_BIN ?? "anvil",
+    [
+      "--host",
+      host,
+      "--port",
+      String(port),
+      "--chain-id",
+      String(runtimeConfig.config.chainId),
+      "--fork-url",
+      runtimeConfig.config.cbdpRpcUrl,
+    ],
+    {
+      stdio: ["ignore", "pipe", "pipe"],
+      env: process.env,
+    },
+  );
+  let startupOutput = "";
+  child.stdout.on("data", (chunk) => {
+    startupOutput += chunk.toString();
+  });
+  child.stderr.on("data", (chunk) => {
+    startupOutput += chunk.toString();
+  });
+
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    if (child.exitCode !== null) {
+      throw new Error(`anvil exited before contract integration bootstrap: ${startupOutput.trim() || child.exitCode}`);
+    }
+    try {
+      await verifyNetwork(configuredRpcUrl, runtimeConfig.config.chainId);
+      return {
+        rpcUrl: configuredRpcUrl,
+        forkProcess: child,
+        forkedFrom: runtimeConfig.config.cbdpRpcUrl,
+      };
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+
+  child.kill("SIGTERM");
+  throw new Error(`timed out waiting for anvil fork on ${configuredRpcUrl}: ${startupOutput.trim()}`);
 }
 
 function gitCommit(root: string): string | null {

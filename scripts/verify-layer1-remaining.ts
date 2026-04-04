@@ -6,7 +6,7 @@ import { createApiServer, type ApiServer } from "../packages/api/src/app.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 
-import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import { resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
 import { buildVerifyReportOutput, getOutputPath, type DomainClassification, writeVerifyReportOutput } from "./verify-report.js";
 
@@ -352,10 +352,12 @@ async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>;
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const { config } = await resolveRuntimeConfig(repoEnv);
-  process.env.RPC_URL = config.cbdpRpcUrl;
-  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const runtimeConfig = await resolveRuntimeConfig(repoEnv);
+  const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
+  const { config } = runtimeConfig;
+  process.env.RPC_URL = forkRuntime.rpcUrl;
+  process.env.ALCHEMY_RPC_URL = forkRuntime.rpcUrl;
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
 
   if (!repoEnv.PRIVATE_KEY) {
     throw new Error("PRIVATE_KEY is required");
@@ -417,13 +419,13 @@ async function main() {
   const fundingWallet = await richest;
   try {
     if (requestedDomains.has("datasets") || requestedDomains.has("whisperblock/security")) {
-      await seedLocalForkBalance(provider, config.cbdpRpcUrl, founder.address, ethers.parseEther("0.0002"));
+      await seedLocalForkBalance(provider, forkRuntime.rpcUrl, founder.address, ethers.parseEther("0.0002"));
       await ensureNativeBalance(provider, fundingWallet, founder.address, ethers.parseEther("0.0002"));
     }
     if (requestedDomains.has("licensing")) {
-      await seedLocalForkBalance(provider, config.cbdpRpcUrl, licensingOwner.address, ethers.parseEther("0.00005"));
-      await seedLocalForkBalance(provider, config.cbdpRpcUrl, licensee.address, ethers.parseEther("0.00001"));
-      await seedLocalForkBalance(provider, config.cbdpRpcUrl, transferee.address, ethers.parseEther("0.00001"));
+      await seedLocalForkBalance(provider, forkRuntime.rpcUrl, licensingOwner.address, ethers.parseEther("0.00005"));
+      await seedLocalForkBalance(provider, forkRuntime.rpcUrl, licensee.address, ethers.parseEther("0.00001"));
+      await seedLocalForkBalance(provider, forkRuntime.rpcUrl, transferee.address, ethers.parseEther("0.00001"));
       await ensureNativeBalance(provider, fundingWallet, licensingOwner.address, ethers.parseEther("0.00005"));
       await ensureNativeBalance(provider, fundingWallet, licensee.address, ethers.parseEther("0.00001"));
       await ensureNativeBalance(provider, fundingWallet, transferee.address, ethers.parseEther("0.00001"));
@@ -475,6 +477,9 @@ async function main() {
     writeVerifyReportOutput(getOutputPath(), reportOutput);
     console.log(JSON.stringify(reportOutput, null, 2));
     await provider.destroy();
+    if (forkRuntime.forkProcess && forkRuntime.forkProcess.exitCode === null) {
+      forkRuntime.forkProcess.kill("SIGTERM");
+    }
     return;
   }
 
@@ -527,6 +532,9 @@ async function main() {
   } finally {
     server.close();
     await provider.destroy();
+    if (forkRuntime.forkProcess && forkRuntime.forkProcess.exitCode === null) {
+      forkRuntime.forkProcess.kill("SIGTERM");
+    }
   }
 
   const reportOutput = {

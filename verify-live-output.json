@@ -1,299 +1,366 @@
 {
-  "summary": "blocked by setup/state",
+  "summary": "proven working",
   "totals": {
     "domainCount": 7,
-    "routeCount": 12,
-    "evidenceCount": 12
+    "routeCount": 25,
+    "evidenceCount": 29
   },
   "statusCounts": {
-    "proven working": 3,
-    "blocked by setup/state": 4,
+    "proven working": 7,
+    "blocked by setup/state": 0,
     "semantically clarified but not fully proven": 0,
     "deeper issue remains": 0
   },
   "reports": {
     "governance": {
       "routes": [
-        "POST /v1/governance/proposals"
+        "POST /v1/governance/proposals",
+        "GET /v1/governance/queries/proposal-snapshot",
+        "GET /v1/governance/queries/pr-state"
       ],
       "actors": [
         "founder-key"
       ],
-      "executionResult": "blocked by setup/state",
+      "executionResult": "proven working",
       "evidence": [
         {
           "route": "submit",
           "actor": "founder-key",
-          "status": 500,
+          "status": 202,
           "postState": {
-            "status": 500,
+            "status": 202,
             "payload": {
-              "error": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f9025483014a348209f9830f424083a7d8c08308598094a14088acbf0639ef1c3655768a3001e6b8dc966980b901e49a79018e00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc96690000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000406fdde0300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a4c61796572312070726f6f662031373735333138373237313232000000000000c001a0abff2f815c2b22d27ecd9ae3d248ba94486f0e4f5ab67d92854d251df3e590cca077fe86a89d7fcedb91764e2f83154a8b1983bf0ff889fe0020c8824bfabb6abe\", info={ \"error\": { \"code\": -32003, \"message\": \"insufficient funds for gas * price + value: have 1104999999919 want 6019200000000\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-              "diagnostics": {
-                "route": {
-                  "httpMethod": "POST",
-                  "path": "/v1/governance/proposals",
-                  "operationId": "proposeAddressArrayUint256ArrayBytesArrayStringUint8",
-                  "contractFunction": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)"
-                },
-                "alchemy": {
-                  "enabled": true,
-                  "simulationEnabled": true,
-                  "simulationEnforced": false,
-                  "endpointDetected": true,
-                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-                  "available": false
-                },
-                "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "provider": "cbdp",
-                "actors": [
-                  {
-                    "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                    "nonce": "2553",
-                    "balance": "1104999999919"
-                  }
-                ],
-                "trace": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                },
-                "cause": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f9025483014a348209f9830f424083a7d8c08308598094a14088acbf0639ef1c3655768a3001e6b8dc966980b901e49a79018e00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc96690000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000406fdde0300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a4c61796572312070726f6f662031373735333138373237313232000000000000c001a0abff2f815c2b22d27ecd9ae3d248ba94486f0e4f5ab67d92854d251df3e590cca077fe86a89d7fcedb91764e2f83154a8b1983bf0ff889fe0020c8824bfabb6abe\", info={ \"error\": { \"code\": -32003, \"message\": \"insufficient funds for gas * price + value: have 1104999999919 want 6019200000000\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-                "simulation": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                }
-              }
+              "requestId": null,
+              "txHash": "0x938129d4160c8caef8b2cf378aa0f9ca55a28b0beb3f5aa04867bfb3a19c8c0d",
+              "result": "40"
             }
+          }
+        },
+        {
+          "route": "submitTxHash",
+          "actor": "founder-key",
+          "postState": "0x938129d4160c8caef8b2cf378aa0f9ca55a28b0beb3f5aa04867bfb3a19c8c0d",
+          "notes": "0x938129d4160c8caef8b2cf378aa0f9ca55a28b0beb3f5aa04867bfb3a19c8c0d"
+        },
+        {
+          "route": "submitReceipt",
+          "actor": "founder-key",
+          "status": 1,
+          "postState": {
+            "status": 1,
+            "blockNumber": 39784097
+          }
+        },
+        {
+          "route": "snapshot",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "39790817"
+          }
+        },
+        {
+          "route": "state",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "0"
           }
         }
       ],
-      "finalClassification": "blocked by setup/state",
-      "classification": "blocked by setup/state",
-      "result": "blocked by setup/state"
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
     },
     "marketplace": {
       "routes": [
-        "POST /v1/voice-assets"
+        "POST /v1/voice-assets",
+        "GET /v1/voice-assets/queries/get-token-id",
+        "PATCH /v1/voice-assets/commands/set-approval-for-all",
+        "POST /v1/marketplace/commands/list-asset",
+        "POST /v1/marketplace/events/asset-listed/query",
+        "GET /v1/marketplace/queries/get-listing"
       ],
       "actors": [
         "founder-key"
       ],
-      "executionResult": "blocked by setup/state",
+      "executionResult": "proven working",
       "evidence": [
         {
           "route": "createVoice",
           "actor": "founder-key",
-          "status": 500,
+          "status": 202,
           "postState": {
-            "status": 500,
+            "status": 202,
             "payload": {
-              "error": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c083073aaa94a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af0000000000000000000000000000000000000000000000000000000000000019516d4c61796572314d6b742d3137373533313837323833363400000000000000c001a043ef356dd47b1de6935689ef74951d57f64fc0544772e519c775b33fe6e158b2a05ba4e5a5ef67db98d7d4a59238aa26b29e744f227b62e764b1cb0a8884032bd1\", info={ \"error\": { \"code\": -32003, \"message\": \"insufficient funds for gas * price + value: have 1104999999919 want 5211470000000\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-              "diagnostics": {
-                "route": {
-                  "httpMethod": "POST",
-                  "path": "/v1/voice-assets",
-                  "operationId": "registerVoiceAsset",
-                  "contractFunction": "VoiceAssetFacet.registerVoiceAsset(string,uint256)"
-                },
-                "alchemy": {
-                  "enabled": true,
-                  "simulationEnabled": true,
-                  "simulationEnforced": false,
-                  "endpointDetected": true,
-                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-                  "available": false
-                },
-                "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "provider": "cbdp",
-                "actors": [
-                  {
-                    "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                    "nonce": "2553",
-                    "balance": "1104999999919"
-                  }
+              "requestId": null,
+              "txHash": "0xa7747b6d9c112d0da0ed799b0aeb548349505beaa1d8580c5068dbbe1263ce10",
+              "result": "0x3329a35c01d2d24505cc347277916c26c92887f0d86b200f7b1e7ba3c1f0bb19"
+            }
+          }
+        },
+        {
+          "route": "tokenId",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "252"
+          }
+        },
+        {
+          "route": "approval",
+          "actor": "founder-key",
+          "status": 202,
+          "postState": {
+            "status": 202,
+            "payload": {
+              "requestId": null,
+              "txHash": "0x3fefb43ccf3fbb7fa2cfeb64c63e1b21fe8334841c9df6312ce52ca8404d3b0a",
+              "result": null
+            }
+          }
+        },
+        {
+          "route": "list",
+          "actor": "founder-key",
+          "status": 202,
+          "postState": {
+            "status": 202,
+            "payload": {
+              "requestId": null,
+              "txHash": "0xe11686657178855a9463c87114e0de9bfad7dc0e41390a0657fdca6a5db204be",
+              "result": null
+            }
+          }
+        },
+        {
+          "route": "listReceipt",
+          "actor": "founder-key",
+          "status": 1,
+          "postState": {
+            "status": 1,
+            "blockNumber": 39784104
+          }
+        },
+        {
+          "route": "assetListedEvent",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xe11686657178855a9463c87114e0de9bfad7dc0e41390a0657fdca6a5db204be",
+                "blockHash": "0xb3cb44a27a09ba99b1830c7ebcd376fd593dedd3a3d65dee937e9543b49b887d",
+                "blockNumber": 39784104,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x",
+                "topics": [
+                  "0x476606c547e15093eee9f27111d27bfb5d4a751983dec28c9100eb7bb39b8db1",
+                  "0x00000000000000000000000000000000000000000000000000000000000000fc",
+                  "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "0x00000000000000000000000000000000000000000000000000000000000003e8"
                 ],
-                "trace": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                },
-                "cause": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c083073aaa94a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af0000000000000000000000000000000000000000000000000000000000000019516d4c61796572314d6b742d3137373533313837323833363400000000000000c001a043ef356dd47b1de6935689ef74951d57f64fc0544772e519c775b33fe6e158b2a05ba4e5a5ef67db98d7d4a59238aa26b29e744f227b62e764b1cb0a8884032bd1\", info={ \"error\": { \"code\": -32003, \"message\": \"insufficient funds for gas * price + value: have 1104999999919 want 5211470000000\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-                "simulation": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                }
+                "index": 2,
+                "transactionIndex": 0
               }
+            ]
+          }
+        },
+        {
+          "route": "listingRead",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": {
+              "tokenId": "252",
+              "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "price": "1000",
+              "createdAt": "1775336975",
+              "createdBlock": "39784104",
+              "lastUpdateBlock": "39784104",
+              "expiresAt": "1777928975",
+              "isActive": true
             }
           }
         }
       ],
-      "finalClassification": "blocked by setup/state",
-      "classification": "blocked by setup/state",
-      "result": "blocked by setup/state"
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
     },
     "datasets": {
       "routes": [
         "POST /v1/voice-assets",
-        "GET /v1/voice-assets/queries/get-token-id"
+        "GET /v1/voice-assets/queries/get-token-id",
+        "POST /v1/datasets/datasets",
+        "GET /v1/licensing/queries/get-creator-templates",
+        "GET /v1/licensing/queries/get-template",
+        "POST /v1/licensing/license-templates/create-template"
       ],
       "actors": [
         "founder-key",
         "licensing-owner-key"
       ],
-      "executionResult": "blocked by setup/state",
+      "executionResult": "proven working",
       "evidence": [
         {
           "route": "voiceA",
           "actor": "founder-key,licensing-owner-key",
-          "status": 500,
+          "status": 202,
           "postState": {
-            "status": 500,
+            "status": 202,
             "payload": {
-              "error": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c617965723144617461412d313737353331383732393033300000000000c080a055d542dadde1011e2475fa90a172e7fd4c578d102a4f3f0ebde068626efde5a9a061c6a75a20f9cac70577da6b321a83d1960b8cb6999b4b5dba97887e0efdb68e\", info={ \"error\": { \"code\": -32000, \"message\": \"insufficient funds for gas * price + value: balance 1104999999919, tx cost 5233789000185, overshot 4128789000266\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-              "diagnostics": {
-                "route": {
-                  "httpMethod": "POST",
-                  "path": "/v1/voice-assets",
-                  "operationId": "registerVoiceAsset",
-                  "contractFunction": "VoiceAssetFacet.registerVoiceAsset(string,uint256)"
-                },
-                "alchemy": {
-                  "enabled": true,
-                  "simulationEnabled": true,
-                  "simulationEnforced": false,
-                  "endpointDetected": true,
-                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-                  "available": false
-                },
-                "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "provider": "alchemy",
-                "actors": [
-                  {
-                    "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                    "nonce": "2553",
-                    "balance": "1104999999919"
-                  }
-                ],
-                "trace": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                },
-                "cause": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c617965723144617461412d313737353331383732393033300000000000c080a055d542dadde1011e2475fa90a172e7fd4c578d102a4f3f0ebde068626efde5a9a061c6a75a20f9cac70577da6b321a83d1960b8cb6999b4b5dba97887e0efdb68e\", info={ \"error\": { \"code\": -32000, \"message\": \"insufficient funds for gas * price + value: balance 1104999999919, tx cost 5233789000185, overshot 4128789000266\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-                "simulation": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                }
-              }
+              "requestId": null,
+              "txHash": "0x8660e8ebc5c83324567ef2c3c4d3a323fbc117d123d3d0b487fc49f0b79a6020",
+              "result": "0xfcaf402ed91043b61595dc8bc749c2e337ae1c51c437ea2123f4e2d7ce6cd552"
             }
           }
         },
         {
           "route": "voiceB",
           "actor": "founder-key,licensing-owner-key",
-          "status": 500,
+          "status": 202,
           "postState": {
-            "status": 500,
+            "status": 202,
             "payload": {
-              "error": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c617965723144617461422d313737353331383733303238300000000000c080a0b27f89d614405badc42eca2666668b0ab389b49a69c6fc41bb78ad37dc38b018a075562fa2fd49208c74048b8857a37c8b8f7051445d422099485e83461b75ac7e\", info={ \"error\": { \"code\": -32003, \"message\": \"insufficient funds for gas * price + value: have 1104999999919 want 5233789000000\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-              "diagnostics": {
-                "route": {
-                  "httpMethod": "POST",
-                  "path": "/v1/voice-assets",
-                  "operationId": "registerVoiceAsset",
-                  "contractFunction": "VoiceAssetFacet.registerVoiceAsset(string,uint256)"
-                },
-                "alchemy": {
-                  "enabled": true,
-                  "simulationEnabled": true,
-                  "simulationEnforced": false,
-                  "endpointDetected": true,
-                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-                  "available": false
-                },
-                "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "provider": "alchemy",
-                "actors": [
-                  {
-                    "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                    "nonce": "2553",
-                    "balance": "1104999999919"
-                  }
-                ],
-                "trace": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                },
-                "cause": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c617965723144617461422d313737353331383733303238300000000000c080a0b27f89d614405badc42eca2666668b0ab389b49a69c6fc41bb78ad37dc38b018a075562fa2fd49208c74048b8857a37c8b8f7051445d422099485e83461b75ac7e\", info={ \"error\": { \"code\": -32003, \"message\": \"insufficient funds for gas * price + value: have 1104999999919 want 5233789000000\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-                "simulation": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                }
-              }
+              "requestId": null,
+              "txHash": "0x2e536b8ab8c356ea8edc94475e88d1db6ba0b60723c31174aa9b77ed495703e1",
+              "result": "0xed9e8dbf464bcceaf64df30eebfe53626157575c1fe838e1f73d270808d1def8"
+            }
+          }
+        },
+        {
+          "route": "tokenA",
+          "actor": "founder-key,licensing-owner-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "254"
+          }
+        },
+        {
+          "route": "tokenB",
+          "actor": "founder-key,licensing-owner-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "256"
+          }
+        },
+        {
+          "route": "template",
+          "actor": "founder-key,licensing-owner-key",
+          "postState": {
+            "templateHashHex": "0xd4e43575982caa2eb3f604b3e1586305b14adfaa5c207f4e2d677b39427db3ba",
+            "templateIdDecimal": "96293533993317928275173364416725609570849680995952505144259191288435595654074",
+            "created": false
+          }
+        },
+        {
+          "route": "dataset",
+          "actor": "founder-key,licensing-owner-key",
+          "status": 202,
+          "postState": {
+            "status": 202,
+            "payload": {
+              "requestId": null,
+              "txHash": "0xd1aecaf8427ba15b721bc5871a0352c8fecaa8ba8ed85d6472f68cdabc783cd6",
+              "result": "1000000000000000035"
             }
           }
         }
       ],
-      "finalClassification": "blocked by setup/state",
-      "classification": "blocked by setup/state",
-      "result": "blocked by setup/state"
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
     },
     "voice-assets": {
       "routes": [
-        "POST /v1/voice-assets"
+        "POST /v1/voice-assets",
+        "POST /v1/voice-assets/events/voice-asset-registered/query",
+        "GET /v1/voice-assets/:voiceHash"
       ],
       "actors": [
         "founder-key"
       ],
-      "executionResult": "blocked by setup/state",
+      "executionResult": "proven working",
       "evidence": [
         {
           "route": "createVoice",
           "actor": "founder-key",
-          "status": 500,
+          "status": 202,
           "postState": {
-            "status": 500,
+            "status": 202,
             "payload": {
-              "error": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737353331383733313536360000000000c001a00898a18413107bc838d8ab74ca325df5e4544e4b84ce4cc482b62500da9fd862a046524e62ebafff0b252c26d27182460273c41b33d70c20d08d7a5ce0a32cb1a0\", info={ \"error\": { \"code\": -32000, \"message\": \"insufficient funds for gas * price + value: balance 1104999999919, tx cost 5233789000121, overshot 4128789000202\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-              "diagnostics": {
-                "route": {
-                  "httpMethod": "POST",
-                  "path": "/v1/voice-assets",
-                  "operationId": "registerVoiceAsset",
-                  "contractFunction": "VoiceAssetFacet.registerVoiceAsset(string,uint256)"
-                },
-                "alchemy": {
-                  "enabled": true,
-                  "simulationEnabled": true,
-                  "simulationEnforced": false,
-                  "endpointDetected": true,
-                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
-                  "available": false
-                },
-                "signer": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                "provider": "alchemy",
-                "actors": [
-                  {
-                    "address": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-                    "nonce": "2553",
-                    "balance": "1104999999919"
-                  }
-                ],
-                "trace": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                },
-                "cause": "insufficient funds for intrinsic transaction cost (transaction=\"0x02f8f383014a348209f9830f424083a7d8c08307429794a14088acbf0639ef1c3655768a3001e6b8dc966980b884af421a2d000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000af000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737353331383733313536360000000000c001a00898a18413107bc838d8ab74ca325df5e4544e4b84ce4cc482b62500da9fd862a046524e62ebafff0b252c26d27182460273c41b33d70c20d08d7a5ce0a32cb1a0\", info={ \"error\": { \"code\": -32000, \"message\": \"insufficient funds for gas * price + value: balance 1104999999919, tx cost 5233789000121, overshot 4128789000202\" } }, code=INSUFFICIENT_FUNDS, version=6.16.0)",
-                "simulation": {
-                  "status": "unavailable",
-                  "error": "Alchemy diagnostics unavailable"
-                }
-              }
+              "requestId": null,
+              "txHash": "0xfd98265bc32c71da7d0eb9fc7a3a7b7d6ada9dac7b9349cda2515a248cf47ff2",
+              "result": "0x7be46799e3b76081d06c49ab3039e31b3bfb3e2e5f94332f06cee83577c0b996"
             }
+          }
+        },
+        {
+          "route": "createVoiceReceipt",
+          "actor": "founder-key",
+          "status": 1,
+          "postState": {
+            "status": 1,
+            "blockNumber": 39784113
+          }
+        },
+        {
+          "route": "registeredEvent",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": [
+              {
+                "provider": {},
+                "transactionHash": "0xfd98265bc32c71da7d0eb9fc7a3a7b7d6ada9dac7b9349cda2515a248cf47ff2",
+                "blockHash": "0xdbed154ea05e89ebdc4ca9956f13657ce9a417af48725ef76d7d61533d07e44d",
+                "blockNumber": 39784113,
+                "removed": false,
+                "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737353333363938323436350000000000",
+                "topics": [
+                  "0xb880d056efe78a343939a6e08f89f5bcd42a5b9ce1b09843b0bed78e0a182876",
+                  "0x7be46799e3b76081d06c49ab3039e31b3bfb3e2e5f94332f06cee83577c0b996",
+                  "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "0x00000000000000000000000000000000000000000000000000000000000000af"
+                ],
+                "index": 1,
+                "transactionIndex": 0
+              }
+            ]
+          }
+        },
+        {
+          "route": "voiceRead",
+          "actor": "founder-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": [
+              "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "QmLayer1Voice-1775336982465",
+              "175",
+              false,
+              "0",
+              "1775336981"
+            ]
           }
         }
       ],
-      "finalClassification": "blocked by setup/state",
-      "classification": "blocked by setup/state",
-      "result": "blocked by setup/state"
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
     },
     "tokenomics": {
       "routes": [

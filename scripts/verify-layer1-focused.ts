@@ -4,7 +4,7 @@ import { JsonRpcProvider, Wallet } from "ethers";
 import fs from "node:fs";
 import path from "node:path";
 
-import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiCallOptions = {
@@ -146,12 +146,27 @@ function toEvidenceEntries(domain: DomainResult): RouteEvidence[] {
   });
 }
 
+async function ensureNativeBalance(provider: JsonRpcProvider, rpcUrl: string, recipient: string, minimum: bigint) {
+  const balance = await provider.getBalance(recipient);
+  if (balance >= minimum) {
+    return balance;
+  }
+  if (isLoopbackRpcUrl(rpcUrl)) {
+    const targetBalance = (minimum > 20_000_000_000_000_000n ? minimum : 20_000_000_000_000_000n) + 5_000_000_000_000_000n;
+    await provider.send("anvil_setBalance", [recipient, `0x${targetBalance.toString(16)}`]);
+    return provider.getBalance(recipient);
+  }
+  return balance;
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
-  const { config } = await resolveRuntimeConfig(repoEnv);
-  process.env.RPC_URL = config.cbdpRpcUrl;
-  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const runtimeConfig = await resolveRuntimeConfig(repoEnv);
+  const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
+  const { config } = runtimeConfig;
+  process.env.RPC_URL = forkRuntime.rpcUrl;
+  process.env.ALCHEMY_RPC_URL = forkRuntime.rpcUrl;
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
   const founderKey = repoEnv.PRIVATE_KEY ?? "";
   const founder = founderKey ? new Wallet(founderKey, provider) : null;
   const licensee = Wallet.createRandom().connect(provider);
@@ -204,6 +219,9 @@ async function main() {
   };
 
   try {
+    if (founder) {
+      await ensureNativeBalance(provider, forkRuntime.rpcUrl, founder.address, 8_000_000_000_000n);
+    }
     // Multisig read route
     {
       const domain: DomainResult = {
@@ -280,6 +298,9 @@ async function main() {
   } finally {
     server.close();
     await provider.destroy();
+    if (forkRuntime.forkProcess && forkRuntime.forkProcess.exitCode === null) {
+      forkRuntime.forkProcess.kill("SIGTERM");
+    }
   }
 
   const output = buildVerifyReportOutput(
