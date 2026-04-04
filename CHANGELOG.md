@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.20] - 2026-04-04
+
+### Fixed
+- **Signer Nonce Recovery Hardening:** Updated [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so write execution no longer gives up after a single stale-nonce refresh. The shared sender now retries nonce-expired submissions up to three times with a monotonic nonce bump, which closed the founder-key `nonce too low` failure that surfaced during the dataset `setLicense` live proof.
+- **Contract Harness RPC Separation:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so the live contract harness preserves the configured Alchemy diagnostics RPC while still booting writes against the loopback fork, avoiding the prior test-only override that pointed every provider path at the same local endpoint.
+- **Contract Harness Loopback Reuse + Bounded HTTP Reads:** Hardened [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) to reuse an already-running fork on the configured loopback RPC instead of crashing on `EADDRINUSE`, and added bounded timeout/retry handling for idempotent query/event calls so stuck API reads fail with actionable output instead of consuming the full suite timeout.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still verifies cleanly via fixture fallback when `http://127.0.0.1:8548` is unavailable.
+- **Licensing Lifecycle Proof:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t 'creates templates and licenses through HTTP and matches live licensing state' --maxWorkers 1`; the live licensing workflow passed end-to-end again after the shared nonce recovery fix.
+- **Dataset Failure Reclassification:** Re-ran the targeted dataset lifecycle proof repeatedly and confirmed the prior stale assertions are no longer the blocker. `setLicense` now advances further under founder-key writes, and the remaining failure is an API-side timeout/stall before the append-assets path completes rather than a template identifier mismatch.
+
+### Known Issues
+- **Dataset Lifecycle Still Hangs Before Append-Assets Completion:** [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) still cannot prove `creates and mutates a dataset through HTTP and matches live dataset state` on a clean fork. After the nonce fix, the remaining blocker is an embedded API request stall/timeout between `getDatasetsByCreator` and the subsequent dataset mutation phase, which needs route-level tracing in the dataset primitive/workflow path.
+
 ## [0.1.19] - 2026-04-04
 
 ### Fixed
@@ -52,19 +67,6 @@
 - **Dataset Fork Reruns Still Show Nonce/Timing Flake:** The dataset lifecycle proof’s stale semantic assertions are corrected, but repeated isolated reruns against the auto-forked environment can still trip nonce reuse or prolonged timeout behavior before the proof completes. This currently looks like fork-execution/test-harness flakiness rather than an API contract mismatch because the same dataset path progresses through create/update/burn steps before stalling.
 
 ## [0.1.16] - 2026-04-04
-
-### Fixed
-- **Signer Nonce Recovery Hardening:** Updated [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so write execution no longer gives up after a single stale-nonce refresh. The shared sender now retries nonce-expired submissions up to three times with a monotonic nonce bump, which closed the founder-key `nonce too low` failure that surfaced during the dataset `setLicense` live proof.
-- **Contract Harness RPC Separation:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so the live contract harness preserves the configured Alchemy diagnostics RPC while still booting writes against the loopback fork, avoiding the prior test-only override that pointed every provider path at the same local endpoint.
-- **Contract Harness Loopback Reuse + Bounded HTTP Reads:** Hardened [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) to reuse an already-running fork on the configured loopback RPC instead of crashing on `EADDRINUSE`, and added bounded timeout/retry handling for idempotent query/event calls so stuck API reads fail with actionable output instead of consuming the full suite timeout.
-
-### Verified
-- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still verifies cleanly via fixture fallback when `http://127.0.0.1:8548` is unavailable.
-- **Licensing Lifecycle Proof:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t 'creates templates and licenses through HTTP and matches live licensing state' --maxWorkers 1`; the live licensing workflow passed end-to-end again after the shared nonce recovery fix.
-- **Dataset Failure Reclassification:** Re-ran the targeted dataset lifecycle proof repeatedly and confirmed the prior stale assertions are no longer the blocker. `setLicense` now advances further under founder-key writes, and the remaining failure is an API-side timeout/stall before the append-assets path completes rather than a template identifier mismatch.
-
-### Known Issues
-- **Dataset Lifecycle Still Hangs Before Append-Assets Completion:** [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) still cannot prove `creates and mutates a dataset through HTTP and matches live dataset state` on a clean fork. After the nonce fix, the remaining blocker is an embedded API request stall/timeout between `getDatasetsByCreator` and the subsequent dataset mutation phase, which needs route-level tracing in the dataset primitive/workflow path.
 
 ### Fixed
 - **Self-Bootstrapping Contract Fork Harness:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so `pnpm run test:contract:api:base-sepolia` no longer depends on depleted live signer balances when the configured loopback RPC is unavailable. The suite now auto-starts an Anvil fork from the validated Base Sepolia fallback RPC, rewires the API server onto that fork, and seeds signer balances with `anvil_setBalance` so write-heavy proofs execute instead of short-circuiting on funding skips.

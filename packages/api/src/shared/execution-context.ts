@@ -97,6 +97,15 @@ function isNonceExpiredError(error: unknown): boolean {
   );
 }
 
+export function resolveRetryNonce(
+  pendingNonce: number,
+  localNonce: number,
+  forcedNonce?: number,
+): number {
+  const lastAttemptedNonce = forcedNonce ?? Math.max(pendingNonce, localNonce);
+  return Math.max(pendingNonce, localNonce + 1, lastAttemptedNonce + 1);
+}
+
 async function withSignerQueue<T>(context: ApiExecutionContext, key: string, work: () => Promise<T>): Promise<T> {
   const previous = context.signerQueues.get(key) ?? Promise.resolve();
   let release!: () => void;
@@ -390,8 +399,7 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
           lastNonceError = error;
           const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
           const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
-          const lastAttemptedNonce = forcedNonce ?? Math.max(pendingNonce, localNonce);
-          forcedNonce = Math.max(pendingNonce, localNonce + 1, lastAttemptedNonce + 1);
+          forcedNonce = resolveRetryNonce(pendingNonce, localNonce, forcedNonce);
           context.signerNonces.set(prepared.queueKey, forcedNonce);
         }
       }

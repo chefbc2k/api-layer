@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { resolveBufferedGasLimit } from "./execution-context.js";
+import { resolveBufferedGasLimit, resolveRetryNonce } from "./execution-context.js";
 
 describe("resolveBufferedGasLimit", () => {
   it("buffers a populated gasLimit without re-estimating", async () => {
@@ -41,5 +41,22 @@ describe("resolveBufferedGasLimit", () => {
       from: "0x0000000000000000000000000000000000000002",
     });
     expect(gasLimit).toBe(290_000n);
+  });
+});
+
+describe("resolveRetryNonce", () => {
+  it("advances beyond both pending and local nonce tracking on the first retry", () => {
+    expect(resolveRetryNonce(7, 7)).toBe(8);
+    expect(resolveRetryNonce(7, 9)).toBe(10);
+  });
+
+  it("keeps advancing monotonically across repeated nonce-expired retries", () => {
+    const firstRetryNonce = resolveRetryNonce(12, 12);
+    const secondRetryNonce = resolveRetryNonce(12, firstRetryNonce, firstRetryNonce);
+    const thirdRetryNonce = resolveRetryNonce(13, secondRetryNonce, secondRetryNonce);
+
+    expect(firstRetryNonce).toBe(13);
+    expect(secondRetryNonce).toBe(14);
+    expect(thirdRetryNonce).toBe(15);
   });
 });
