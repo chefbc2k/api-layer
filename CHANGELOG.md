@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.15] - 2026-04-04
+
+### Fixed
+- **Artifact-First Base Sepolia Setup:** Updated [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `pnpm run setup:base-sepolia` no longer aborts on the first depleted donor wallet. The setup flow now attempts founder-aware native top-ups across the full configured signer pool, records exact top-up attempts and shortfalls per actor, and always writes a complete [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) artifact even when Base Sepolia funding is environment-blocked.
+- **Deterministic Funding Selection Helpers:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.ts) with a reusable funding-candidate ranking helper so setup-time funding decisions are explicit, deterministic, and testable instead of being hard-coded to `seller`.
+
+### Verified
+- **Setup Helper Coverage:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.helpers.test.ts`; the helper suite now passes `4` tests, including the new spendable-balance ranking case.
+- **Setup Artifact Refresh:** Re-ran `pnpm run setup:base-sepolia`; the command now exits cleanly and emits a blocked-state fixture artifact instead of throwing. The refreshed artifact shows `setup.status: "blocked"` with concrete deficits for `founder`, `buyer`, `licensee`, and `transferee`, while preserving the existing marketplace `purchase-ready` aged listing fixture and governance readiness snapshot.
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still verifies cleanly through the fixture RPC fallback with Alchemy diagnostics enabled.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; generated coverage remains complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test`; the suite remains green with `90` passing files, `361` passing tests, and `17` intentionally skipped live contract-integration proofs.
+
+### Known Issues
+- **Base Sepolia Native Funding Is Fully Exhausted:** The refreshed setup artifact confirms there is currently no spendable native balance available across the configured signer pool for repair transfers. As of April 4, 2026, `founder-key` is at `1104999999919` wei, `seller-key` at `264176943067` wei, and `buyer-key` / `licensee-key` / `transferee-key` each at `873999999919` wei, which is below the current setup floors for founder-signed and participant-signed live writes.
+
 ## [0.1.14] - 2026-04-04
 
 ### Fixed

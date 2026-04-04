@@ -12,6 +12,7 @@ import {
   type FixtureStatus,
   isPurchaseReadyListing,
   mergeMarketplaceCandidateVoiceHashes,
+  rankFundingCandidates,
   selectPreferredMarketplaceFixtureCandidate,
 } from "./base-sepolia-operator-setup.helpers.js";
 
@@ -23,6 +24,23 @@ type ApiCallOptions = {
 type WalletSpec = {
   label: string;
   privateKey?: string;
+};
+
+type BalanceTopUpResult = {
+  funded: boolean;
+  balance: string;
+  attemptedFunders: Array<{
+    label: string;
+    address: string;
+    spendable: string;
+  }>;
+  fundingTransactions?: Array<{
+    label: string;
+    address: string;
+    txHash: string;
+    amount: string;
+  }>;
+  blockedReason?: string;
 };
 
 const DEFAULT_NATIVE_MINIMUM = ethers.parseEther("0.00004");
@@ -120,27 +138,85 @@ function roleId(name: string): string {
 }
 
 async function ensureNativeBalance(
-  funder: Wallet,
+  funders: Wallet[],
+  funderLabels: Map<string, string>,
   target: Wallet,
   minimum: bigint,
-): Promise<{ funded: boolean; balance: string }> {
+): Promise<BalanceTopUpResult> {
   const balance = await target.provider!.getBalance(target.address);
   if (balance >= minimum) {
-    return { funded: false, balance: balance.toString() };
+    return {
+      funded: false,
+      balance: balance.toString(),
+      attemptedFunders: [],
+    };
   }
-  const delta = minimum - balance + ethers.parseEther("0.00001");
-  const spendable = await nativeTransferSpendable(funder);
-  if (spendable < delta) {
-    throw new Error(
-      `insufficient funder balance for ${target.address}: need ${delta.toString()} wei transferable, have ${spendable.toString()} wei`,
-    );
+
+  let updatedBalance = balance;
+  const transfers: NonNullable<BalanceTopUpResult["fundingTransactions"]> = [];
+  const rankedFunders = rankFundingCandidates(
+    await Promise.all(
+      funders.map(async (wallet) => ({
+        label: wallet.address.toLowerCase() === target.address.toLowerCase() ? "target" : "candidate",
+        address: wallet.address,
+        spendable: await nativeTransferSpendable(wallet),
+      })),
+    ),
+    target.address,
+  );
+
+  const labeledFunders = rankedFunders.map((candidate) => {
+    const funder = funders.find((wallet) => wallet.address.toLowerCase() === candidate.address.toLowerCase());
+    return {
+      label:
+        funder === undefined
+          ? candidate.label
+          : funderLabels.get(funder.address.toLowerCase()) ?? candidate.label,
+      address: candidate.address,
+      spendable: candidate.spendable,
+      wallet: funder!,
+    };
+  });
+
+  for (const funder of labeledFunders) {
+    if (updatedBalance >= minimum) {
+      break;
+    }
+    const deficit = minimum - updatedBalance + ethers.parseEther("0.00001");
+    const amount = funder.spendable >= deficit ? deficit : funder.spendable;
+    if (amount <= 0n) {
+      continue;
+    }
+    const receipt = await (await funder.wallet.sendTransaction({ to: target.address, value: amount })).wait();
+    if (!receipt || receipt.status !== 1) {
+      continue;
+    }
+    transfers.push({
+      label: funder.label,
+      address: funder.address,
+      txHash: receipt.hash,
+      amount: amount.toString(),
+    });
+    updatedBalance = await target.provider!.getBalance(target.address);
   }
-  const receipt = await (await funder.sendTransaction({ to: target.address, value: delta })).wait();
-  if (!receipt || receipt.status !== 1) {
-    throw new Error(`failed to top up native balance for ${target.address}`);
-  }
-  const updated = await target.provider!.getBalance(target.address);
-  return { funded: true, balance: updated.toString() };
+
+  const aggregateSpendable = labeledFunders.reduce((sum, funder) => sum + funder.spendable, 0n);
+  const remainingDeficit = updatedBalance >= minimum ? 0n : minimum - updatedBalance;
+  return {
+    funded: transfers.length > 0,
+    balance: updatedBalance.toString(),
+    attemptedFunders: labeledFunders.map((funder) => ({
+      label: funder.label,
+      address: funder.address,
+      spendable: funder.spendable.toString(),
+    })),
+    ...(transfers.length > 0 ? { fundingTransactions: transfers } : {}),
+    ...(remainingDeficit > 0n
+      ? {
+          blockedReason: `insufficient aggregate spendable balance for ${target.address}: need ${remainingDeficit.toString()} additional wei, all available funders expose ${aggregateSpendable.toString()} wei spendable`,
+        }
+      : {}),
+  };
 }
 
 async function ensureRole(
@@ -191,6 +267,14 @@ async function main(): Promise<void> {
   const licensee = licenseeSpec.privateKey ? new Wallet(licenseeSpec.privateKey, provider) : null;
   const transferee = transfereeSpec.privateKey ? new Wallet(transfereeSpec.privateKey, provider) : null;
 
+  const availableSpecsForFunding = new Map(
+    availableSpecs.map((entry) => {
+      const wallet = new Wallet(entry.privateKey!, provider);
+      return [wallet.address.toLowerCase(), entry.label] as const;
+    }),
+  );
+  const fundingWallets = [founder, seller, buyer, licensee, transferee].filter((wallet): wallet is Wallet => wallet !== null);
+
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
     "read-key": { label: "reader", roles: ["service"], allowGasless: false },
@@ -235,44 +319,75 @@ async function main(): Promise<void> {
     : null;
 
     const status: Record<string, unknown> = {
-    generatedAt: new Date().toISOString(),
-    network: {
-      chainId: config.chainId,
-      rpcUrl: config.cbdpRpcUrl,
-      diamondAddress: config.diamondAddress,
-    },
-    actors: {},
-    marketplace: {},
-    governance: {},
-    licensing: {},
-  };
+      generatedAt: new Date().toISOString(),
+      network: {
+        chainId: config.chainId,
+        rpcUrl: config.cbdpRpcUrl,
+        diamondAddress: config.diamondAddress,
+      },
+      setup: {
+        status: "ready",
+        blockers: [] as string[],
+      },
+      actors: {},
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
 
     for (const entry of availableSpecs) {
-    const wallet = new Wallet(entry.privateKey!, provider);
-    (status.actors as Record<string, unknown>)[entry.label] = {
-      address: wallet.address,
-      nativeBalance: (await provider.getBalance(wallet.address)).toString(),
+      const wallet = new Wallet(entry.privateKey!, provider);
+      (status.actors as Record<string, unknown>)[entry.label] = {
+        address: wallet.address,
+        nativeBalance: (await provider.getBalance(wallet.address)).toString(),
+      };
+    }
+
+    const founderTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, founder, ethers.parseEther("0.00005"));
+    (status.actors as any).founder = {
+      ...((status.actors as any).founder as Record<string, unknown>),
+      nativeTopUp: founderTopUp,
+      nativeBalanceAfterSetup: founderTopUp.balance,
     };
-  }
+    if (founderTopUp.blockedReason) {
+      ((status.setup as Record<string, unknown>).blockers as string[]).push(`founder: ${founderTopUp.blockedReason}`);
+    }
 
     if (buyer) {
-    (status.actors as any).buyer = {
-      ...((status.actors as any).buyer as Record<string, unknown>),
-      nativeTopUp: await ensureNativeBalance(seller, buyer, DEFAULT_NATIVE_MINIMUM),
-    };
-  }
+      const buyerTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, buyer, DEFAULT_NATIVE_MINIMUM);
+      (status.actors as any).buyer = {
+        ...((status.actors as any).buyer as Record<string, unknown>),
+        nativeTopUp: buyerTopUp,
+        nativeBalanceAfterSetup: buyerTopUp.balance,
+      };
+      if (buyerTopUp.blockedReason) {
+        ((status.setup as Record<string, unknown>).blockers as string[]).push(`buyer: ${buyerTopUp.blockedReason}`);
+      }
+    }
     if (licensee) {
-    (status.actors as any).licensee = {
-      ...((status.actors as any).licensee as Record<string, unknown>),
-      nativeTopUp: await ensureNativeBalance(seller, licensee, DEFAULT_NATIVE_MINIMUM),
-    };
-  }
+      const licenseeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, licensee, DEFAULT_NATIVE_MINIMUM);
+      (status.actors as any).licensee = {
+        ...((status.actors as any).licensee as Record<string, unknown>),
+        nativeTopUp: licenseeTopUp,
+        nativeBalanceAfterSetup: licenseeTopUp.balance,
+      };
+      if (licenseeTopUp.blockedReason) {
+        ((status.setup as Record<string, unknown>).blockers as string[]).push(`licensee: ${licenseeTopUp.blockedReason}`);
+      }
+    }
     if (transferee) {
-    (status.actors as any).transferee = {
-      ...((status.actors as any).transferee as Record<string, unknown>),
-      nativeTopUp: await ensureNativeBalance(seller, transferee, DEFAULT_NATIVE_MINIMUM),
-    };
-  }
+      const transfereeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, transferee, DEFAULT_NATIVE_MINIMUM);
+      (status.actors as any).transferee = {
+        ...((status.actors as any).transferee as Record<string, unknown>),
+        nativeTopUp: transfereeTopUp,
+        nativeBalanceAfterSetup: transfereeTopUp.balance,
+      };
+      if (transfereeTopUp.blockedReason) {
+        ((status.setup as Record<string, unknown>).blockers as string[]).push(`transferee: ${transfereeTopUp.blockedReason}`);
+      }
+    }
+    (status.setup as Record<string, unknown>).status =
+      (((status.setup as Record<string, unknown>).blockers as string[]).length > 0 ? "blocked" : "ready");
 
     if (erc20 && buyer) {
     const balances = await Promise.all(

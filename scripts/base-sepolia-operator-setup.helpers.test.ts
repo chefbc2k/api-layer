@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   isPurchaseReadyListing,
   mergeMarketplaceCandidateVoiceHashes,
+  rankFundingCandidates,
   selectPreferredMarketplaceFixtureCandidate,
 } from "./base-sepolia-operator-setup.helpers.js";
 
@@ -65,5 +66,22 @@ describe("base-sepolia marketplace fixture helpers", () => {
         ["0xescrow-1", "0xowned-2", "0xescrow-2"],
       ),
     ).toEqual(["0xowned-1", "0xowned-2", "0xescrow-1", "0xescrow-2"]);
+  });
+
+  it("ranks funding candidates by spendable balance and excludes the recipient", () => {
+    expect(
+      rankFundingCandidates(
+        [
+          { label: "founder", address: "0xaaa", spendable: 5n },
+          { label: "seller", address: "0xbbb", spendable: 0n },
+          { label: "buyer", address: "0xccc", spendable: 9n },
+          { label: "licensee", address: "0xddd", spendable: 7n },
+        ],
+        "0xccc",
+      ),
+    ).toEqual([
+      { label: "licensee", address: "0xddd", spendable: 7n },
+      { label: "founder", address: "0xaaa", spendable: 5n },
+    ]);
   });
 });

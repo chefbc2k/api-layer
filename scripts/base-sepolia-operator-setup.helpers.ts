@@ -1,5 +1,11 @@
 export type FixtureStatus = "ready" | "partial" | "blocked";
 
+export type FundingCandidate = {
+  label: string;
+  address: string;
+  spendable: bigint;
+};
+
 export type ListingReadbackPayload = {
   tokenId?: string;
   seller?: string;
@@ -72,4 +78,19 @@ export function mergeMarketplaceCandidateVoiceHashes(
   sellerEscrowedVoiceHashes: string[],
 ): string[] {
   return [...new Set([...sellerOwnedVoiceHashes, ...sellerEscrowedVoiceHashes])];
+}
+
+export function rankFundingCandidates(
+  candidates: FundingCandidate[],
+  recipient: string,
+): FundingCandidate[] {
+  const recipientAddress = recipient.toLowerCase();
+  return [...candidates]
+    .filter((candidate) => candidate.address.toLowerCase() !== recipientAddress && candidate.spendable > 0n)
+    .sort((left, right) => {
+      if (left.spendable === right.spendable) {
+        return left.label.localeCompare(right.label);
+      }
+      return left.spendable > right.spendable ? -1 : 1;
+    });
 }
