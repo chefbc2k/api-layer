@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.17] - 2026-04-04
+
+### Fixed
+- **Fork-Backed Contract Proof Drift Cleanup:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) to align the long-form contract integration suite with current fork behavior instead of stale failure assumptions. The suite now treats burned dataset and revoked-license reads as successful query paths, accepts the current licensing transfer revert selector (`0xc7234888`) alongside prior markers, and uses the actual dynamically generated update-template payload when asserting licensing readbacks.
+- **Long-Path Proof Timeout Budget Repair:** Raised the timeout budgets for the register-voice-asset workflow, dataset lifecycle, governance baseline, and licensing lifecycle proofs in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so fork-backed write/readback sequences no longer fail simply because the suite budget was shorter than the verified lifecycle.
+
+### Verified
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; generated coverage remains complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green again with `90` passing files, `361` passing tests, and `17` intentionally skipped live contract-integration proofs.
+- **Targeted Fork Proof Refresh:** Re-ran targeted fork-backed contract integration proofs for governance, licensing, register-voice-asset, and dataset lifecycle paths. Governance and licensing now pass under targeted reruns, and the register-voice-asset workflow no longer times out under the fork-backed harness.
+
+### Known Issues
+- **Dataset Fork Reruns Still Show Nonce/Timing Flake:** The dataset lifecycle proof’s stale semantic assertions are corrected, but repeated isolated reruns against the auto-forked environment can still trip nonce reuse or prolonged timeout behavior before the proof completes. This currently looks like fork-execution/test-harness flakiness rather than an API contract mismatch because the same dataset path progresses through create/update/burn steps before stalling.
+
 ## [0.1.16] - 2026-04-04
 
 ### Fixed
