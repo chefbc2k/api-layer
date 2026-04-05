@@ -4,6 +4,16 @@
 
 ---
 
+## [0.1.24] - 2026-04-04
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves via the fixture fallback and verifies cleanly with Alchemy diagnostics and simulation enabled.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` functions / methods and `218` events.
+- **Live HTTP Contract Proof Sweep:** Re-ran `pnpm run test:contract:api:base-sepolia`; the full Base Sepolia HTTP contract integration suite passed `17/17` in `155.33s`, covering access control, voice assets, dataset lifecycle, marketplace lifecycle, governance baseline reads plus proposal-threshold preservation, tokenomics admin flows, whisperblock lifecycle, licensing lifecycle, admin/emergency/multisig reads, transfer-rights, onboard-rights-holder, register-whisper-block, and the remaining workflow bundle.
+
+### Known Issues
+- **No New Runtime Gaps Identified In This Sweep:** This run did not expose new partial or unanswered domains. The remaining automation deficit is the global `100%` standard-test coverage mandate, which is still structurally blocked by the repo-wide coverage baseline rather than by missing API routes, missing generated wrappers, or failing live contract behaviors.
+
 ## [0.1.23] - 2026-04-04
 
 ### Fixed
