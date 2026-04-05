@@ -1,20 +1,56 @@
 import { mkdir, rm } from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(__dirname, "..");
 const coverageDir = path.join(rootDir, "coverage");
 const coverageTmpDir = path.join(coverageDir, ".tmp");
 const coverageFsPatch = path.join(rootDir, "scripts", "coverage-fs-patch.cjs");
 
-async function resetCoverageDir(): Promise<void> {
-  await rm(coverageDir, { recursive: true, force: true });
-  await mkdir(coverageTmpDir, { recursive: true });
+export const coverageVitestArgs = [
+  "exec",
+  "vitest",
+  "run",
+  "--coverage.enabled",
+  "true",
+  "--coverage.reporter=text",
+  "--maxWorkers",
+  "1",
+  "--no-file-parallelism",
+  "--poolOptions.forks.singleFork",
+  "true",
+  "--hookTimeout",
+  "60000",
+  "--teardownTimeout",
+  "60000",
+] as const;
+
+export type CoverageRuntimeDeps = {
+  clearIntervalFn?: typeof clearInterval;
+  env?: NodeJS.ProcessEnv;
+  keepAliveMs?: number;
+  mkdirFn?: typeof mkdir;
+  processExit?: (code?: number) => never;
+  processKill?: typeof process.kill;
+  rmFn?: typeof rm;
+  setIntervalFn?: typeof setInterval;
+  spawnFn?: typeof spawn;
+};
+
+export async function resetCoverageDir(
+  rmFn: typeof rm = rm,
+  mkdirFn: typeof mkdir = mkdir,
+): Promise<void> {
+  await rmFn(coverageDir, { recursive: true, force: true });
+  await mkdirFn(coverageTmpDir, { recursive: true });
 }
 
-async function ensureCoverageTmpDir(): Promise<void> {
+export async function ensureCoverageTmpDir(
+  mkdirFn: typeof mkdir = mkdir,
+): Promise<void> {
   try {
-    await mkdir(coverageTmpDir, { recursive: true });
+    await mkdirFn(coverageTmpDir, { recursive: true });
   } catch (error) {
     if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) {
       throw error;
@@ -22,58 +58,63 @@ async function ensureCoverageTmpDir(): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
-  await resetCoverageDir();
-  const keeper = setInterval(() => {
-    void ensureCoverageTmpDir();
-  }, 50);
-  const existingNodeOptions = process.env.NODE_OPTIONS?.trim();
+export function buildCoverageNodeOptions(existingNodeOptions = process.env.NODE_OPTIONS?.trim()): string {
   const preloadFlag = `--require=${coverageFsPatch}`;
-  const nodeOptions = existingNodeOptions ? `${preloadFlag} ${existingNodeOptions}` : preloadFlag;
+  return existingNodeOptions ? `${preloadFlag} ${existingNodeOptions}` : preloadFlag;
+}
 
-  const child = spawn(
+export async function runCoverage({
+  clearIntervalFn = clearInterval,
+  env = process.env,
+  keepAliveMs = 50,
+  mkdirFn = mkdir,
+  processExit = process.exit,
+  processKill = process.kill,
+  rmFn = rm,
+  setIntervalFn = setInterval,
+  spawnFn = spawn,
+}: CoverageRuntimeDeps = {}): Promise<void> {
+  await resetCoverageDir(rmFn, mkdirFn);
+  const keeper = setIntervalFn(() => {
+    void ensureCoverageTmpDir(mkdirFn);
+  }, keepAliveMs);
+  const nodeOptions = buildCoverageNodeOptions(env.NODE_OPTIONS?.trim());
+
+  const child = spawnFn(
     "pnpm",
-    [
-      "exec",
-      "vitest",
-      "run",
-      "--coverage.enabled",
-      "true",
-      "--coverage.reporter=text",
-      "--maxWorkers",
-      "1",
-      "--no-file-parallelism",
-      "--poolOptions.forks.singleFork",
-      "true",
-      "--hookTimeout",
-      "60000",
-      "--teardownTimeout",
-      "60000",
-    ],
+    [...coverageVitestArgs],
     {
       cwd: rootDir,
       stdio: "inherit",
       env: {
-        ...process.env,
+        ...env,
         NODE_OPTIONS: nodeOptions,
       },
     },
   );
 
   child.on("exit", (code, signal) => {
-    clearInterval(keeper);
+    clearIntervalFn(keeper);
     if (signal) {
-      process.kill(process.pid, signal);
+      processKill(process.pid, signal);
       return;
     }
-    process.exit(code ?? 1);
+    processExit(code ?? 1);
   });
 
   child.on("error", (error) => {
-    clearInterval(keeper);
+    clearIntervalFn(keeper);
     console.error(error);
-    process.exit(1);
+    processExit(1);
   });
 }
 
-void main();
+export async function main(): Promise<void> {
+  await runCoverage();
+}
+
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
+  void main();
+}

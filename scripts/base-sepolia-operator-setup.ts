@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { Contract, JsonRpcProvider, Wallet, ZeroAddress, ethers, id } from "ethers";
 
@@ -48,7 +49,7 @@ const DEFAULT_USDC_MINIMUM = 25_000_000n;
 const RUNTIME_DIR = path.resolve(".runtime");
 const OUTPUT_PATH = path.join(RUNTIME_DIR, "base-sepolia-operator-fixtures.json");
 
-async function nativeTransferSpendable(wallet: Wallet): Promise<bigint> {
+export async function nativeTransferSpendable(wallet: Wallet): Promise<bigint> {
   const [balance, feeData] = await Promise.all([
     wallet.provider!.getBalance(wallet.address),
     wallet.provider!.getFeeData(),
@@ -58,7 +59,7 @@ async function nativeTransferSpendable(wallet: Wallet): Promise<bigint> {
   return balance > reserve ? balance - reserve : 0n;
 }
 
-function toJsonValue(value: unknown): unknown {
+export function toJsonValue(value: unknown): unknown {
   if (typeof value === "bigint") {
     return value.toString();
   }
@@ -71,7 +72,7 @@ function toJsonValue(value: unknown): unknown {
   return value;
 }
 
-async function apiCall(port: number, method: string, route: string, options: ApiCallOptions = {}) {
+export async function apiCall(port: number, method: string, route: string, options: ApiCallOptions = {}) {
   const response = await fetch(`http://127.0.0.1:${port}${route}`, {
     method,
     headers: {
@@ -84,7 +85,7 @@ async function apiCall(port: number, method: string, route: string, options: Api
   return { status: response.status, payload };
 }
 
-function extractTxHash(payload: unknown): string {
+export function extractTxHash(payload: unknown): string {
   if (!payload || typeof payload !== "object") {
     throw new Error("missing tx payload");
   }
@@ -95,7 +96,7 @@ function extractTxHash(payload: unknown): string {
   return txHash;
 }
 
-async function waitForReceipt(port: number, txHash: string): Promise<void> {
+export async function waitForReceipt(port: number, txHash: string): Promise<void> {
   for (let attempt = 0; attempt < 120; attempt += 1) {
     const response = await apiCall(port, "GET", `/v1/transactions/${txHash}`, { apiKey: "read-key" });
     const receipt = response.payload && typeof response.payload === "object"
@@ -113,7 +114,7 @@ async function waitForReceipt(port: number, txHash: string): Promise<void> {
   throw new Error(`timed out waiting for receipt ${txHash}`);
 }
 
-async function retryApiRead<T>(
+export async function retryApiRead<T>(
   read: () => Promise<T>,
   condition: (value: T) => boolean,
   attempts = 10,
@@ -133,11 +134,11 @@ async function retryApiRead<T>(
   return lastValue;
 }
 
-function roleId(name: string): string {
+export function roleId(name: string): string {
   return id(name);
 }
 
-async function ensureNativeBalance(
+export async function ensureNativeBalance(
   funders: Wallet[],
   funderLabels: Map<string, string>,
   target: Wallet,
@@ -219,7 +220,7 @@ async function ensureNativeBalance(
   };
 }
 
-async function ensureRole(
+export async function ensureRole(
   port: number,
   role: string,
   account: string,
@@ -244,7 +245,7 @@ async function ensureRole(
   return { status: "granted" };
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const env = loadRepoEnv();
   const { config } = await resolveRuntimeConfig(env);
   process.env.RPC_URL = config.cbdpRpcUrl;
@@ -630,7 +631,11 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

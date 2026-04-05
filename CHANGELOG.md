@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.34] - 2026-04-05
+
+### Fixed
+- **API Server Coverage Closed:** Added [`/Users/chef/Public/api-layer/packages/api/src/app.routes.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.routes.test.ts) to exercise the health, provider-status, transaction-request, and transaction-status routes through the real Express server with mocked execution-context dependencies. This lifts [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) from `60%` statements / `60%` lines / `42.85%` functions to `100%` statements / `100%` lines / `100%` functions.
+- **Script Harnesses Made Testable:** Updated [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) and [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) to export internal helpers behind import-safe main-module guards, then added [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) and [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove coverage-runner argument wiring, exit/signal handling, bigint JSON serialization, transaction-hash extraction, retry behavior, role hashing, and native-balance reserve calculations.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the setup flow still exits cleanly with `setup.status: "blocked"` while preserving the real funding blockers. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei; the aged marketplace fixture remains `purchase-ready` on token `11` with listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1773601130", createdBlock: "38916421", lastUpdateBlock: "38916421", expiresAt: "1776193130", isActive: true }`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Coverage Proofs:** Re-ran `pnpm exec vitest run packages/api/src/app.routes.test.ts scripts/base-sepolia-operator-setup.test.ts scripts/run-test-coverage.test.ts --maxWorkers 1`; all `14` targeted assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `109` passing files, `451` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `80.11%` to `80.99%` statements, `66.01%` to `66.57%` branches, `88.86%` to `89.86%` functions, and `80.10%` to `80.92%` lines. Script coverage improved from `34.10%` to `39.07%` statements and from `34.44%` to `38.95%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The largest remaining handwritten coverage gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and lower-covered infrastructure helpers such as [`/Users/chef/Public/api-layer/packages/api/src/shared/route-factory.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/route-factory.ts).
+
 ## [0.1.33] - 2026-04-05
 
 ### Fixed
