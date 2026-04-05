@@ -5,6 +5,9 @@ export default defineConfig({
     environment: "node",
     include: ["packages/**/*.test.ts", "scripts/**/*.test.ts", "scenario-adapter/**/*.test.ts"],
     coverage: {
+      provider: "custom",
+      customProviderModule: "./scripts/custom-coverage-provider.ts",
+      clean: false,
       include: [
         "packages/api/src/**/*.ts",
         "packages/client/src/**/*.ts",

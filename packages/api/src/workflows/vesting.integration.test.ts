@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   createTokenomicsPrimitiveService: vi.fn(),
   waitForWorkflowWriteReceipt: vi.fn(),
+  runReleaseBeneficiaryVestingWorkflow: vi.fn(),
 }));
 
 vi.mock("../modules/tokenomics/primitives/generated/index.js", () => ({
@@ -12,6 +13,14 @@ vi.mock("../modules/tokenomics/primitives/generated/index.js", () => ({
 vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
+
+vi.mock("./release-beneficiary-vesting.js", async () => {
+  const actual = await vi.importActual<typeof import("./release-beneficiary-vesting.js")>("./release-beneficiary-vesting.js");
+  return {
+    ...actual,
+    runReleaseBeneficiaryVestingWorkflow: mocks.runReleaseBeneficiaryVestingWorkflow,
+  };
+});
 
 import { createWorkflowRouter } from "./index.js";
 
@@ -114,35 +123,30 @@ describe("vesting workflow routes", () => {
   });
 
   it("returns the structured release-beneficiary-vesting workflow result over the router path", async () => {
-    mocks.createTokenomicsPrimitiveService.mockReturnValue({
-      hasVestingSchedule: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: true })
-        .mockResolvedValueOnce({ statusCode: 200, body: true }),
-      getStandardVestingSchedule: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "10", totalAmount: "1000", revoked: false } })
-        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "30", totalAmount: "1000", revoked: false } }),
-      getVestingDetails: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "10" } })
-        .mockResolvedValueOnce({ statusCode: 200, body: { releasedAmount: "30" } }),
-      getVestingReleasableAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: "20" })
-        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
-      getVestingTotalAmount: vi.fn()
-        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "100", totalReleased: "10", releasable: "20" } })
-        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "120", totalReleased: "30", releasable: "0" } }),
-      releaseStandardVestingFor: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrelease", result: "20" } }),
-      releaseStandardVesting: vi.fn(),
-      tokensReleasedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrelease-receipt", amount: "20" }]),
+    mocks.runReleaseBeneficiaryVestingWorkflow.mockResolvedValue({
+      release: { txHash: "0xrelease-receipt", releasedNow: "20", eventCount: 1, mode: "for" },
+      vesting: {
+        before: {
+          schedule: { releasedAmount: "10", totalAmount: "1000", revoked: false },
+          releasable: "20",
+          totals: { totalVested: "100", totalReleased: "10", releasable: "20" },
+        },
+        after: {
+          schedule: { releasedAmount: "30", totalAmount: "1000", revoked: false },
+          releasable: "0",
+          totals: { totalVested: "120", totalReleased: "30", releasable: "0" },
+        },
+      },
+      summary: {
+        beneficiary: "0x00000000000000000000000000000000000000bb",
+        mode: "for",
+        releasableBefore: "20",
+        releasableAfter: "0",
+      },
     });
-    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xrelease-receipt");
 
     const router = createWorkflowRouter({
       apiKeys: { "test-key": { apiKey: "test-key", label: "test", roles: ["service"], allowGasless: false } },
-      providerRouter: {
-        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
-          getTransactionReceipt: (txHash: string) => Promise<unknown>;
-        }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1002 })) })),
-      },
     } as never);
     const layer = router.stack.find((entry) => entry.route?.path === "/v1/workflows/release-beneficiary-vesting");
     const handler = layer?.route?.stack?.[0]?.handle;
@@ -162,6 +166,15 @@ describe("vesting workflow routes", () => {
     expect(response.payload).toMatchObject({
       release: { txHash: "0xrelease-receipt", releasedNow: "20", eventCount: 1 },
     });
+    expect(mocks.runReleaseBeneficiaryVestingWorkflow).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ apiKey: "test-key" }),
+      undefined,
+      {
+        beneficiary: "0x00000000000000000000000000000000000000bb",
+        mode: "for",
+      },
+    );
   });
 
   it("returns the structured revoke-beneficiary-vesting workflow result over the router path", async () => {

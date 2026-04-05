@@ -31,6 +31,25 @@ export type TxRequestRecord = {
   updated_at: string;
 };
 
+function normalizeJsonValue(value: unknown): unknown {
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeJsonValue(entry));
+  }
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, normalizeJsonValue(entry)]),
+    );
+  }
+  return value;
+}
+
+function serializeJson(value: unknown): string {
+  return JSON.stringify(normalizeJsonValue(value));
+}
+
 export class TxRequestStore {
   private readonly pool: Pool | null;
 
@@ -68,10 +87,10 @@ export class TxRequestStore {
         request.requesterWallet ?? null,
         request.signerId ?? null,
         request.method,
-        JSON.stringify(request.params),
+        serializeJson(request.params),
         request.txHash ?? null,
         request.status,
-        JSON.stringify(request.responsePayload ?? null),
+        serializeJson(request.responsePayload ?? null),
         request.relayMode ?? null,
         request.apiKeyLabel ?? null,
         request.requestHash ?? null,
@@ -99,7 +118,7 @@ export class TxRequestStore {
       [
         id,
         patch.status ?? null,
-        patch.responsePayload === undefined ? null : JSON.stringify(patch.responsePayload),
+        patch.responsePayload === undefined ? null : serializeJson(patch.responsePayload),
         patch.txHash ?? null,
         patch.requestHash ?? null,
         patch.spendCapDecision ?? null,
