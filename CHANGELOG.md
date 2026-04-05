@@ -280,6 +280,23 @@
 - **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both now succeed from the default repo state by falling back to the persisted Base Sepolia fixture RPC when the local fork endpoint is unavailable.
 - **Proof Domains:** Re-ran the live and remaining Layer 1 proof scripts; all verified domains now classify as `proven working`, while the setup artifact’s only remaining marketplace partial is explicitly narrowed to purchase-readiness proof rather than listing activation.
 
+## [0.1.7] - 2026-04-04
+
+### Fixed
+- **Forked Contract Proof Write Routing:** Updated [/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts) so `write` traffic stays pinned to the primary `cbdp` provider even when read/event failover is active. This preserves funded fork-only actors during Base Sepolia integration proofs while still allowing read-side fallback to the upstream Alchemy provider.
+- **Nonce Retry Arithmetic Coverage:** Extracted the retry nonce calculation into [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) and added focused regression cases in [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) for repeated nonce-expired retries.
+- **Provider Failover Guard Coverage:** Added [/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts) coverage proving that retryable write failures do not spill over to the secondary provider.
+- **Upstream Read Fallback Retained In Live Harnesses:** Kept the live/fork verifier and contract harness setup aligned on upstream `ALCHEMY_RPC_URL` in [/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts), [/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts](/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts), [/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts](/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts), and [/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts](/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts) without letting forked writes escape to the live upstream.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both remained green on the local Base Sepolia fork baseline.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept wrapper / HTTP coverage at `492` functions, `218` events, and `492` validated methods.
+- **Focused Unit Regressions:** Re-ran `pnpm exec vitest run packages/client/src/runtime/provider-router.test.ts packages/api/src/shared/execution-context.test.ts`; all `7` tests passed.
+- **Recovered Contract Proof Targets:** Re-ran the previously regressed contract-integration targets individually: tokenomics reversible flows, whisperblock mutation lifecycle, transfer-rights workflow, onboard-rights-holder workflow, register-whisper-block workflow, remaining workflow lifecycle proof, and the validation/signer/provider error assertions. Each target completed successfully when isolated on the forked baseline after the write-routing fix.
+
+### Notes
+- **Filtered Multi-Target Invocation Still Noisy:** A single long filtered `app.contract-integration.test.ts` invocation can still accumulate enough shared state and wall-clock delay to trip timeouts across unrelated cases. The underlying previously failing domains above are now proven individually, but the broad suite still benefits from narrower execution slices when debugging fork/provider drift.
+
 ## [0.1.2] - 2026-03-18
 
 ### Added

@@ -141,8 +141,9 @@ export class ProviderRouter {
 
   async withProvider<T>(kind: RequestKind, method: string, callback: (provider: Provider, providerName: ProviderName) => Promise<T>): Promise<T> {
     await this.maybeRecoverPrimary();
-    const primary = this.providers[this.active];
-    const secondary = this.active === "cbdp" ? this.providers.alchemy : this.providers.cbdp;
+    const primaryName = kind === "write" ? "cbdp" : this.active;
+    const primary = this.providers[primaryName];
+    const secondary = primary.name === "cbdp" ? this.providers.alchemy : this.providers.cbdp;
     let retryCount = 0;
 
     try {
@@ -159,7 +160,7 @@ export class ProviderRouter {
     } catch (error) {
       this.markFailure(primary, method, kind, error);
       this.maybeFailover(primary);
-      if (!isRetryableError(error)) {
+      if (kind === "write" || !isRetryableError(error)) {
         throw error;
       }
       retryCount += 1;

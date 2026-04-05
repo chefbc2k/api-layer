@@ -53,4 +53,25 @@ describe("ProviderRouter", () => {
     expect(result).toBe("cbdp");
     expect(router.getStatus().cbdp.active).toBe(true);
   });
+
+  it("does not fail over writes to the secondary provider", async () => {
+    const router = new ProviderRouter({
+      chainId: 84532,
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
+      errorThreshold: 1,
+      errorWindowMs: 60_000,
+      recoveryCooldownMs: 60_000,
+    });
+
+    const attempts: string[] = [];
+    await expect(
+      router.withProvider("write", "VoiceAssetFacet.registerVoiceAsset", async (_provider, providerName) => {
+        attempts.push(providerName);
+        throw new Error("HTTP 429 from upstream");
+      }),
+    ).rejects.toThrow("HTTP 429 from upstream");
+
+    expect(attempts).toEqual(["cbdp"]);
+  });
 });
