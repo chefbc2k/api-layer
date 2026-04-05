@@ -4,6 +4,34 @@
 
 ---
 
+## [0.1.31] - 2026-04-05
+
+### Fixed
+- **CDP Smart Wallet Coverage Added:** Added [`/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts) to cover missing credential guards, incomplete SDK-shape failures, explicit smart-wallet selection, owner lookup by address and name, network/paymaster overrides, and missing user-operation hash handling in the CDP relay path.
+
+### Verified
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the operator setup still exits cleanly with `setup.status: "blocked"` while preserving the real funding limitations. The current blockers remain founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` needing `48895000000081` additional wei and buyer / licensee / transferee each needing `39126000000081` additional wei, while the aged marketplace fixture stays `purchase-ready` on token `11`.
+- **Full Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `105` passing files, `423` passing tests, and `17` intentionally skipped live contract proofs. The current standard-coverage baseline is `77.01%` statements / `63.51%` branches / `86.59%` functions / `77.00%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `105` passing files, `423` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** Coverage is still materially below the repo mandate. The largest remaining handwritten gaps continue to sit in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/license-template-helper.ts`](/Users/chef/Public/api-layer/scripts/license-template-helper.ts), and lower-covered runtime helpers in [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
+## [0.1.30] - 2026-04-05
+
+### Fixed
+- **CDP Smart Wallet Coverage Added:** Added [`/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts) to prove the Coinbase smart-wallet relay helper across missing-secret validation, incomplete SDK shape detection, explicit smart-wallet address resolution, owner-based smart-account creation, paymaster/network overrides, and missing user-operation-hash failure handling.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains intact on fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`, and `alchemyDiagnosticsEnabled: true` / `alchemySimulationEnabled: true`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the script exits cleanly with `setup.status: "blocked"` and preserves the real environment limitation instead of failing mid-run. The current blockers remain founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` needing `48895000000081` additional wei and buyer / licensee / transferee each needing `39126000000081` additional wei, while the aged marketplace fixture stays `purchase-ready` on token `11`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `105` passing files, `423` passing tests, and `17` intentionally skipped live contract proofs. The current standard-coverage baseline is `77.01%` statements / `63.51%` branches / `86.59%` functions / `77.00%` lines, with [`/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.ts) now at `95.45%` statements / `94%` branches / `100%` functions / `95.45%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `105` passing files, `423` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** Coverage is improved, but the largest remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [`/Users/chef/Public/api-layer/scripts/license-template-helper.ts`](/Users/chef/Public/api-layer/scripts/license-template-helper.ts).
+
 ## [0.1.29] - 2026-04-05
 
 ### Fixed
