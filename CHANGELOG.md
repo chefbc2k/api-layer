@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.35] - 2026-04-05
+
+### Fixed
+- **Shared Request-Plumbing Coverage Expanded:** Added [`/Users/chef/Public/api-layer/packages/api/src/shared/auth.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/auth.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/rate-limit.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/rate-limit.test.ts), and [`/Users/chef/Public/api-layer/packages/api/src/shared/route-factory.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/route-factory.test.ts) to prove API-key loading/authentication defaults, local and Upstash-backed rate-limit enforcement, request-header option wiring, method/event route invocation, error serialization, and HTTP verb registration across the shared API ingress layer.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the setup flow still exits cleanly with `setup.status: "blocked"` while preserving the same real funding blockers. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei; the aged marketplace fixture remains `purchase-ready` on token `11` with listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1773601130", createdBlock: "38916421", lastUpdateBlock: "38916421", expiresAt: "1776193130", isActive: true }`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Shared Tests:** Re-ran `pnpm exec vitest run packages/api/src/shared/auth.test.ts packages/api/src/shared/rate-limit.test.ts packages/api/src/shared/route-factory.test.ts --maxWorkers 1`; all `15` targeted assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `112` passing files, `466` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `80.99%` to `81.49%` statements, `66.57%` to `67.18%` branches, `89.86%` to `90.11%` functions, and `80.92%` to `81.45%` lines. Shared ingress coverage improved materially: [`/Users/chef/Public/api-layer/packages/api/src/shared/auth.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/auth.ts) is now `100/100/100/100`, [`/Users/chef/Public/api-layer/packages/api/src/shared/rate-limit.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/rate-limit.ts) is now `100/100/100/100`, and [`/Users/chef/Public/api-layer/packages/api/src/shared/route-factory.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/route-factory.ts) moved to `100%` statements / `90%` branches / `100%` functions / `100%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The largest remaining handwritten coverage gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and lower-covered workflow helpers such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.ts).
+
 ## [0.1.34] - 2026-04-05
 
 ### Fixed
