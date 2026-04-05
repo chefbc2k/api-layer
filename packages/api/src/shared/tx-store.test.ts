@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const poolState = vi.hoisted(() => ({
   instances: [] as Array<{ query: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn> }>,
@@ -20,12 +20,23 @@ vi.mock("pg", () => {
 import { TxRequestStore } from "./tx-store.js";
 
 describe("TxRequestStore", () => {
+  const originalDbUrl = process.env.SUPABASE_DB_URL;
+
   beforeEach(() => {
     poolState.instances.length = 0;
+    delete process.env.SUPABASE_DB_URL;
+  });
+
+  afterEach(() => {
+    if (originalDbUrl === undefined) {
+      delete process.env.SUPABASE_DB_URL;
+      return;
+    }
+    process.env.SUPABASE_DB_URL = originalDbUrl;
   });
 
   it("stays disabled without a connection string", async () => {
-    const store = new TxRequestStore(undefined);
+    const store = new TxRequestStore("");
 
     expect(store.enabled()).toBe(false);
     await expect(store.insert({ method: "Facet.method", params: [], status: "queued" })).resolves.toBeNull();

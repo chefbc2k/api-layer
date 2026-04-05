@@ -1,4 +1,4 @@
-import { access, readdir, readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 
 import istanbulModule from "@vitest/coverage-istanbul";
 import { IstanbulCoverageProvider } from "@vitest/coverage-istanbul/dist/provider.js";
@@ -11,45 +11,36 @@ class StableIstanbulCoverageProvider extends IstanbulCoverageProvider {
       onDebug: { enabled?: boolean; (message: string): void };
     },
   ): Promise<void> {
-    try {
-      await super.readCoverageFiles(callbacks);
-      return;
-    } catch (error) {
-      if (!isMissingCoverageFileError(error)) {
-        throw error;
-      }
-      callbacks.onDebug?.(`coverage file missing during aggregation; falling back to discovered files in ${this.coverageFilesDirectory}`);
-    }
+    const provider = this as IstanbulCoverageProvider & {
+      pendingPromises: Promise<unknown>[];
+      coverageFilesDirectory: string;
+      ctx: {
+        getProjectByName?: (name: string) => unknown;
+        projects?: unknown[];
+      };
+    };
 
-    const discoveredFiles = (await readdir(this.coverageFilesDirectory))
+    await Promise.all(provider.pendingPromises);
+    provider.pendingPromises = [];
+
+    const discoveredFiles = (await readdir(provider.coverageFilesDirectory))
       .filter((entry) => entry.startsWith("coverage-") && entry.endsWith(".json"))
       .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
 
+    callbacks.onDebug?.(`aggregating ${discoveredFiles.length} discovered coverage files from ${provider.coverageFilesDirectory}`);
+
     for (const entry of discoveredFiles) {
-      const filename = `${this.coverageFilesDirectory}/${entry}`;
-      try {
-        await access(filename);
-      } catch {
-        continue;
-      }
+      const filename = `${provider.coverageFilesDirectory}/${entry}`;
       const contents = await readFile(filename, "utf-8");
       callbacks.onFileRead(JSON.parse(contents));
     }
 
-    await callbacks.onFinished(this.ctx.getProjectByName?.("") ?? this.ctx.projects?.[0], "ssr");
+    await callbacks.onFinished(provider.ctx.getProjectByName?.("") ?? provider.ctx.projects?.[0], "ssr");
   }
 
   override async cleanAfterRun(): Promise<void> {
     this.coverageFiles = new Map();
   }
-}
-
-function isMissingCoverageFileError(error: unknown): boolean {
-  if (!error || typeof error !== "object") {
-    return false;
-  }
-  const record = error as { code?: unknown; path?: unknown };
-  return record.code === "ENOENT" && typeof record.path === "string" && record.path.includes("/coverage/.tmp/coverage-");
 }
 
 export default {

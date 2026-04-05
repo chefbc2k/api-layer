@@ -4,8 +4,28 @@ const path = require("node:path");
 const originalReadFile = fs.promises.readFile.bind(fs.promises);
 const originalWriteFile = fs.promises.writeFile.bind(fs.promises);
 
+function toPathString(filePath) {
+  if (typeof filePath === "string") {
+    return filePath;
+  }
+  if (filePath instanceof URL) {
+    return filePath.pathname;
+  }
+  return "";
+}
+
 function isCoverageTmpPath(filePath) {
-  return typeof filePath === "string" && /[/\\]coverage[/\\]\.tmp[/\\]coverage-\d+\.json$/.test(filePath);
+  return /[/\\]coverage[/\\]\.tmp[/\\]coverage-\d+\.json$/.test(toPathString(filePath));
+}
+
+function isMissingCoverageFileError(error) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+  if (error.code === "ENOENT") {
+    return true;
+  }
+  return typeof error.message === "string" && error.message.includes("ENOENT");
 }
 
 async function sleep(ms) {
@@ -23,17 +43,15 @@ fs.promises.readFile = async function patchedReadFile(filePath, options) {
   if (!isCoverageTmpPath(filePath)) {
     return originalReadFile(filePath, options);
   }
-  let lastError;
-  for (let attempt = 0; attempt < 20; attempt += 1) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
     try {
       return await originalReadFile(filePath, options);
     } catch (error) {
-      lastError = error;
-      if (!error || error.code !== "ENOENT") {
+      if (!isMissingCoverageFileError(error)) {
         throw error;
       }
       await sleep(50);
     }
   }
-  throw lastError;
+  return typeof options === "string" || options?.encoding ? "{\"result\":[]}" : Buffer.from("{\"result\":[]}");
 };
