@@ -13,7 +13,13 @@ async function resetCoverageDir(): Promise<void> {
 }
 
 async function ensureCoverageTmpDir(): Promise<void> {
-  await mkdir(coverageTmpDir, { recursive: true });
+  try {
+    await mkdir(coverageTmpDir, { recursive: true });
+  } catch (error) {
+    if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) {
+      throw error;
+    }
+  }
 }
 
 async function main(): Promise<void> {

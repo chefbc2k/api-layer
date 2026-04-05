@@ -8,7 +8,10 @@ import {
   copyTree,
   ensureDir,
   fileExists,
+  localAbiSourceDir,
+  localDeploymentManifestPath,
   pascalToCamel,
+  parentRepoDir,
   readJson,
   resetDir,
   resolveAbiSourceDir,
@@ -71,11 +74,16 @@ describe("script utils", () => {
     process.env.API_LAYER_SCENARIO_SOURCE_DIR = path.join(tempDir, "missing-scenarios");
     process.env.API_LAYER_DEPLOYMENT_MANIFEST = path.join(tempDir, "missing-manifest.json");
 
-    await expect(resolveAbiSourceDir()).resolves.toBe(path.join(process.cwd(), "abis"));
-    await expect(resolveScenarioSourceDir()).resolves.toSatisfy((value) => value === null || value.endsWith("/scenarios"));
-    await expect(resolveDeploymentManifestPath()).resolves.toSatisfy(
-      (value) => value === null || value.endsWith("/deployment-manifest.json"),
-    );
+    await expect(resolveAbiSourceDir()).resolves.toBe(localAbiSourceDir);
+    const scenarioDir = await resolveScenarioSourceDir();
+    const manifestPath = await resolveDeploymentManifestPath();
+
+    expect(scenarioDir === null || path.normalize(scenarioDir).endsWith(path.join("scripts", "deployment", "scenarios"))).toBe(true);
+    expect(
+      manifestPath === null
+      || manifestPath === localDeploymentManifestPath
+      || path.normalize(manifestPath).endsWith(path.join("artifacts", "release-readiness", "deployment-manifest.json")),
+    ).toBe(true);
   });
 
   it("converts PascalCase identifiers to camelCase", () => {
