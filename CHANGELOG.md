@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.33] - 2026-04-05
+
+### Fixed
+- **Execution Context Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) to prove execution-source gating, gasless authorization checks, read-path serialization, direct-write signer enforcement, CDP smart-wallet allowlist and spend-cap rejection, relay metadata persistence, tx-hash persistence, event-query normalization, and transaction-request lookup behavior for the API execution layer.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the setup flow still exits cleanly with `setup.status: "blocked"` while preserving the same real funding blockers. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei; the aged marketplace fixture remains `purchase-ready` on token `11`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `106` passing files, `437` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved to `80.11%` statements / `66.01%` branches / `88.86%` functions / `80.10%` lines, while [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) now reports `71.50%` statements / `49.72%` branches / `70.45%` functions / `71.91%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `106` passing files, `437` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** Coverage continues to improve, but the largest remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and the still-partial branch surface inside [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.32] - 2026-04-05
 
 ### Fixed
