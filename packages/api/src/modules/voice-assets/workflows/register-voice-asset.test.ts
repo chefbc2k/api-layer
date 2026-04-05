@@ -259,6 +259,12 @@ describe("runRegisterVoiceAssetWorkflow", () => {
   });
 
   it("retries readbacks before succeeding", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
     const features = {
       pitch: "120",
     };
@@ -319,9 +325,16 @@ describe("runRegisterVoiceAssetWorkflow", () => {
       txHash: "0xreceipt-metadata",
       features,
     });
+    setTimeoutSpy.mockRestore();
   });
 
   it("retries after transient token-id read errors before succeeding", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
     const voiceHash = "0x6666666666666666666666666666666666666666666666666666666666666666";
     const service = {
       registerVoiceAsset: vi.fn().mockResolvedValue({
@@ -353,6 +366,7 @@ describe("runRegisterVoiceAssetWorkflow", () => {
     expect(service.getTokenId).toHaveBeenCalledTimes(2);
     expect(result.registration.tokenId).toBe("412");
     expect(result.summary.tokenId).toBe("412");
+    setTimeoutSpy.mockRestore();
   });
 
   it("throws when registration readback never stabilizes", async () => {

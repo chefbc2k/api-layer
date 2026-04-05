@@ -4,6 +4,18 @@
 
 ---
 
+## [0.1.28] - 2026-04-05
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains intact on fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`, and `alchemyDiagnosticsEnabled: true` / `alchemySimulationEnabled: true`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Focused Runtime/Test Guards:** Re-ran `pnpm exec vitest run packages/api/src/shared/tx-store.test.ts packages/client/src/runtime/invoke.test.ts packages/indexer/src/events.test.ts packages/indexer/src/worker.test.ts scripts/vitest-config.test.ts packages/api/src/workflows/onboard-rights-holder.test.ts --maxWorkers 1`; all focused runtime and coverage-runner guards passed.
+- **Full Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `102` passing files, `404` passing tests, and `17` intentionally skipped live contract proofs. The current standard-coverage baseline is `72.75%` statements / `57.04%` branches / `82.74%` functions / `72.74%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `102` passing files, `409` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The remaining deficit is still concentrated in handwritten infrastructure and helper paths, led by [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts). The next run should stay on direct tests here rather than widening exclusions.
+
 ## [0.1.27] - 2026-04-05
 
 ### Fixed
