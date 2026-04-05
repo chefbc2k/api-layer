@@ -27,6 +27,15 @@ describe("runRegisterWhisperBlockWorkflow", () => {
     vi.clearAllMocks();
   });
 
+  function mockImmediateTimeout() {
+    return vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+  }
+
   it("confirms fingerprint authenticity, optional key rotation, and optional access grant in order", async () => {
     const sequence: string[] = [];
     const receiptByTxHash = new Map([
@@ -199,6 +208,7 @@ describe("runRegisterWhisperBlockWorkflow", () => {
   });
 
   it("retries authenticity and event confirmation before succeeding", async () => {
+    const setTimeoutSpy = mockImmediateTimeout();
     const context = {
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
@@ -245,6 +255,7 @@ describe("runRegisterWhisperBlockWorkflow", () => {
       txHash: "0xkey-receipt",
       eventCount: 1,
     });
+    setTimeoutSpy.mockRestore();
   });
 
   it("normalizes event-query route results with body arrays", async () => {
@@ -327,12 +338,7 @@ describe("runRegisterWhisperBlockWorkflow", () => {
   });
 
   it("throws when authenticity verification never stabilizes", async () => {
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
-      if (typeof callback === "function") {
-        callback();
-      }
-      return 0 as ReturnType<typeof setTimeout>;
-    }) as typeof setTimeout);
+    const setTimeoutSpy = mockImmediateTimeout();
     const context = {
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
@@ -368,12 +374,7 @@ describe("runRegisterWhisperBlockWorkflow", () => {
   });
 
   it("surfaces transient event-query errors after retries are exhausted", async () => {
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
-      if (typeof callback === "function") {
-        callback();
-      }
-      return 0 as ReturnType<typeof setTimeout>;
-    }) as typeof setTimeout);
+    const setTimeoutSpy = mockImmediateTimeout();
     const context = {
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({

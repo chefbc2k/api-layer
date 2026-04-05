@@ -4,7 +4,19 @@
 
 ---
 
-## [0.1.20] - 2026-04-04
+## [0.1.21] - 2026-04-04
+
+### Fixed
+- **Whisperblock Coverage Retry Stabilization:** Updated [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts) so the retry-heavy whisperblock workflow assertions no longer sleep through real `500ms` backoff windows under `vitest --coverage`. The test file now uses an immediate timeout shim for retry-path cases, preserving the production retry logic while removing the coverage-only timeout failure.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves via the fixture fallback and verifies cleanly.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` functions / methods and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `90` passing files, `364` passing tests, and `17` intentionally skipped contract-integration proofs.
+- **Coverage-Mode Suite Guard:** Re-ran `pnpm run test:coverage`; the full coverage run now completes successfully instead of timing out in the whisperblock retry workflow. Current repo-wide coverage is `52.29%` statements / `84.64%` branches / `34.39%` functions / `52.29%` lines.
+
+### Known Issues
+- **Standard Coverage Still Far Below The 100% Mandate:** The suite is now coverage-stable, but the repo-wide numbers remain well below the automation target because generated wrappers, typechain output, scenario adapters, and several runtime modules are still included in the report with minimal direct tests. The next run should narrow or segment coverage accounting and add tests around the lowest-value uncovered runtime paths instead of generated code.
 
 ### Fixed
 - **Signer Nonce Recovery Hardening:** Updated [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so write execution no longer gives up after a single stale-nonce refresh. The shared sender now retries nonce-expired submissions up to three times with a monotonic nonce bump, which closed the founder-key `nonce too low` failure that surfaced during the dataset `setLicense` live proof.
