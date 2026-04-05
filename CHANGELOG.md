@@ -7,7 +7,8 @@
 ## [0.1.25] - 2026-04-05
 
 ### Fixed
-- **Coverage Scope Remap Guard:** Updated [`/Users/chef/Public/api-layer/vitest.config.ts`](/Users/chef/Public/api-layer/vitest.config.ts) so V8 coverage now excludes remapped generated and operational artifacts after source-map remap instead of counting them back into the repo totals. The config now scopes measured coverage to runtime TypeScript surfaces, excludes codegen / scenario / ops / verification CLI entrypoints, and enables `json-summary` alongside the text reporter for stable follow-up accounting.
+- **Coverage Scope Remap Guard:** Updated [`/Users/chef/Public/api-layer/vitest.config.ts`](/Users/chef/Public/api-layer/vitest.config.ts) so V8 coverage now excludes remapped generated and operational artifacts after source-map remap instead of counting them back into the repo totals. The config now scopes measured coverage to runtime TypeScript surfaces, excludes codegen / scenario / ops / verification CLI entrypoints, and preserves the existing green `text` reporter path.
+- **Coverage Reporter Regression Avoidance:** Kept [`/Users/chef/Public/api-layer/package.json`](/Users/chef/Public/api-layer/package.json) on the prior `--coverage.reporter=text` path after verifying that adding `json-summary` reintroduced the known `coverage/.tmp/coverage-*.json` race in Vitest. The repo remains green, but machine-readable coverage deltas still need a safer export path in a future run.
 
 ### Verified
 - **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through the fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`, and `alchemyDiagnosticsEnabled: true` / `alchemySimulationEnabled: true`.

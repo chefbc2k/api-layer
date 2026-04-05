@@ -34,7 +34,6 @@ export default defineConfig({
         "scripts/verify-*.ts",
       ],
       excludeAfterRemap: true,
-      reporter: ["text", "json-summary"],
     },
   },
 });
