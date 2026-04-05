@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.25] - 2026-04-05
+
+### Fixed
+- **Coverage Scope Remap Guard:** Updated [`/Users/chef/Public/api-layer/vitest.config.ts`](/Users/chef/Public/api-layer/vitest.config.ts) so V8 coverage now excludes remapped generated and operational artifacts after source-map remap instead of counting them back into the repo totals. The config now scopes measured coverage to runtime TypeScript surfaces, excludes codegen / scenario / ops / verification CLI entrypoints, and enables `json-summary` alongside the text reporter for stable follow-up accounting.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through the fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`, and `alchemyDiagnosticsEnabled: true` / `alchemySimulationEnabled: true`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` functions / methods and `218` events.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `93` passing files, `375` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Accounting Progress:** Re-ran `pnpm run test:coverage`; measured repo coverage improved from `52.30%` statements / `84.67%` branches / `34.43%` functions / `52.30%` lines to `68.24%` statements / `76.95%` branches / `75.49%` functions / `68.24%` lines after excluding remapped generated and operational-only files from the standard-test denominator.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The remaining coverage deficit is now concentrated in real runtime modules rather than generated noise, led by [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts), and the untested indexer event/worker paths. The next run should add direct tests here instead of widening coverage exclusions further.
+
 ## [0.1.24] - 2026-04-04
 
 ### Verified
