@@ -4,6 +4,18 @@
 
 ---
 
+## [0.1.27] - 2026-04-05
+
+### Fixed
+- **Shared Runtime Coverage Expansion:** Added focused assertions in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/projections/common.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.test.ts) to cover rate-limit bucketing, transaction-status fallbacks, Alchemy trace/simulation helpers, tuple wire-shape encoding/decoding, projection sanitization, and current-row rebuild logic.
+
+### Verified
+- **Focused Helper Tests:** Re-ran `pnpm exec vitest run packages/api/src/shared/execution-context.test.ts packages/client/src/runtime/abi-codec.test.ts packages/api/src/shared/alchemy-diagnostics.test.ts packages/indexer/src/projections/common.test.ts --maxWorkers 1`; all `19` targeted assertions pass.
+- **Coverage Sweep Refresh:** Re-ran `pnpm run test:coverage`; the stabilized Istanbul runner remains green at `102` passing files, `404` passing tests, and `17` intentionally skipped live contract proofs. The current standard-coverage baseline is `72.75%` statements / `57.04%` branches / `82.74%` functions / `72.74%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Outstanding:** The next coverage push still needs deeper branch-path tests around [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts) to close the remaining gap to the repo’s 100% mandate.
+
 ## [0.1.26] - 2026-04-05
 
 ### Fixed

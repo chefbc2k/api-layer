@@ -1,0 +1,275 @@
+import { describe, expect, it, vi } from "vitest";
+import { Interface } from "ethers";
+
+const mocks = vi.hoisted(() => {
+  const Alchemy = vi.fn().mockImplementation(function MockAlchemy(this: Record<string, unknown>, options: unknown) {
+    this.options = options;
+  });
+  return {
+    Alchemy,
+    Network: {
+      BASE_MAINNET: "base-mainnet",
+      BASE_SEPOLIA: "base-sepolia",
+    },
+    DebugTracerType: {
+      CALL_TRACER: "callTracer",
+    },
+    facetRegistry: {
+      TestFacet: {
+        abi: [
+          "event TestEvent(address indexed owner, uint256 amount)",
+        ],
+      },
+    },
+  };
+});
+
+vi.mock("alchemy-sdk", () => ({
+  Alchemy: mocks.Alchemy,
+  Network: mocks.Network,
+  DebugTracerType: mocks.DebugTracerType,
+}));
+
+vi.mock("../../../client/src/index.js", () => ({
+  facetRegistry: mocks.facetRegistry,
+}));
+
+import {
+  alchemyNetworkForChainId,
+  buildDebugTransaction,
+  createAlchemyClient,
+  decodeReceiptLogs,
+  readActorStates,
+  simulateTransactionWithAlchemy,
+  traceCallWithAlchemy,
+  traceTransactionWithAlchemy,
+  verifyExpectedEventWithAlchemy,
+} from "./alchemy-diagnostics.js";
+
+describe("alchemy-diagnostics", () => {
+  it("maps chain ids and instantiates the Alchemy client only when configured", () => {
+    expect(alchemyNetworkForChainId(8453)).toBe("base-mainnet");
+    expect(alchemyNetworkForChainId(84532)).toBe("base-sepolia");
+    expect(createAlchemyClient({ alchemyApiKey: "" } as never)).toBeNull();
+
+    const client = createAlchemyClient({
+      alchemyApiKey: "test-key",
+      chainId: 84532,
+    } as never);
+
+    expect(client).toBeTruthy();
+    expect(mocks.Alchemy).toHaveBeenCalledWith({
+      apiKey: "test-key",
+      network: "base-sepolia",
+    });
+  });
+
+  it("builds debug transactions and decodes known and unknown receipt logs", () => {
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 42n]);
+
+    expect(buildDebugTransaction({
+      to: "0x0000000000000000000000000000000000000001",
+      data: "0x1234",
+      value: 7n,
+      gasLimit: 50_000n,
+      maxFeePerGas: 3n,
+    }, "0x0000000000000000000000000000000000000002")).toEqual({
+      from: "0x0000000000000000000000000000000000000002",
+      to: "0x0000000000000000000000000000000000000001",
+      data: "0x1234",
+      value: "0x07",
+      gas: "0xc350",
+      gasPrice: "0x03",
+    });
+
+    expect(decodeReceiptLogs({
+      logs: [
+        {
+          address: "0x0000000000000000000000000000000000000001",
+          data: encoded.data,
+          topics: encoded.topics,
+          logIndex: 0,
+          transactionHash: "0xtx",
+        },
+        {
+          address: "0x0000000000000000000000000000000000000002",
+          data: "0x",
+          topics: ["0xdeadbeef"],
+        },
+      ],
+    } as never)).toEqual([
+      expect.objectContaining({
+        eventName: "TestEvent",
+        signature: "TestEvent(address,uint256)",
+        facetName: "TestFacet",
+        args: {},
+      }),
+      expect.objectContaining({
+        eventName: null,
+        signature: null,
+        topic0: "0xdeadbeef",
+      }),
+    ]);
+  });
+
+  it("simulates transactions, including pending-to-latest fallback behavior", async () => {
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 5n]);
+    const alchemy = {
+      transact: {
+        simulateExecution: vi.fn()
+          .mockRejectedValueOnce(new Error("tracing on top of pending is not supported"))
+          .mockResolvedValueOnce({
+            calls: [{
+              from: "0x1",
+              to: "0x2",
+              gasUsed: "100",
+              type: "CALL",
+              error: "reverted",
+            }],
+            logs: [{
+              address: "0x0000000000000000000000000000000000000001",
+              data: encoded.data,
+              topics: encoded.topics,
+            }],
+          }),
+      },
+    };
+
+    expect(await simulateTransactionWithAlchemy(null, { from: "0x1" } as never, "latest")).toEqual({
+      status: "unavailable",
+      error: "Alchemy diagnostics unavailable",
+    });
+
+    expect(await simulateTransactionWithAlchemy(alchemy as never, { from: "0x1" } as never, "pending")).toEqual(
+      expect.objectContaining({
+        status: "available",
+        blockTag: "pending",
+        fallbackBlockTag: "latest",
+        callCount: 1,
+        logCount: 1,
+        topLevelCall: {
+          from: "0x1",
+          to: "0x2",
+          gasUsed: "100",
+          type: "CALL",
+          revertReason: "reverted",
+          error: "reverted",
+        },
+      }),
+    );
+
+    const failingAlchemy = {
+      transact: {
+        simulateExecution: vi.fn().mockRejectedValue(new Error("boom")),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(failingAlchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "failed",
+      blockTag: "latest",
+      error: "boom",
+    });
+  });
+
+  it("classifies trace availability and hard failures distinctly", async () => {
+    const unavailableAlchemy = {
+      debug: {
+        traceTransaction: vi.fn().mockRejectedValue(new Error("debug_traceTransaction is not available on the Free tier")),
+        traceCall: vi.fn().mockRejectedValue(new Error("upgrade to Pay As You Go, or Enterprise for access")),
+      },
+    };
+    const failingAlchemy = {
+      debug: {
+        traceTransaction: vi.fn().mockRejectedValue(new Error("rpc down")),
+        traceCall: vi.fn().mockRejectedValue(new Error("rpc down")),
+      },
+    };
+
+    await expect(traceTransactionWithAlchemy(unavailableAlchemy as never, "0xtx")).resolves.toEqual({
+      status: "unavailable",
+      txHash: "0xtx",
+      error: "debug_traceTransaction is not available on the Free tier",
+    });
+    await expect(traceCallWithAlchemy(unavailableAlchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "unavailable",
+      error: "upgrade to Pay As You Go, or Enterprise for access",
+    });
+    await expect(traceTransactionWithAlchemy(failingAlchemy as never, "0xtx")).resolves.toEqual({
+      status: "failed",
+      txHash: "0xtx",
+      error: "rpc down",
+    });
+    await expect(traceCallWithAlchemy(failingAlchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "failed",
+      error: "rpc down",
+    });
+  });
+
+  it("verifies expected indexed events and reads actor state snapshots", async () => {
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 7n]);
+    const alchemy = {
+      core: {
+        getLogs: vi.fn().mockResolvedValue([
+          {
+            address: "0x0000000000000000000000000000000000000001",
+            data: encoded.data,
+            topics: encoded.topics,
+          },
+        ]),
+      },
+    };
+
+    await expect(verifyExpectedEventWithAlchemy(alchemy as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: 10,
+    })).resolves.toEqual(expect.objectContaining({
+      status: "available",
+      expectedEvent: "TestFacet.TestEvent",
+      matchedCount: 1,
+    }));
+
+    await expect(verifyExpectedEventWithAlchemy(alchemy as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: 10,
+      indexedMatches: { owner: "0x00000000000000000000000000000000000000BB" },
+    })).resolves.toEqual(expect.objectContaining({
+      status: "mismatch",
+      mismatches: ["expected indexed argument owner=0x00000000000000000000000000000000000000BB"],
+    }));
+
+    await expect(verifyExpectedEventWithAlchemy({
+      core: {
+        getLogs: vi.fn().mockResolvedValue([]),
+      },
+    } as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: 10,
+    })).resolves.toEqual({
+      status: "missing",
+      expectedEvent: "TestFacet.TestEvent",
+      matchedCount: 0,
+      decodedLogs: [],
+    });
+
+    const provider = {
+      getTransactionCount: vi.fn().mockResolvedValueOnce(2).mockResolvedValueOnce(3),
+      getBalance: vi.fn().mockResolvedValueOnce(10n).mockResolvedValueOnce(20n),
+    };
+    await expect(readActorStates(provider as never, ["0x1", "0x2"])).resolves.toEqual([
+      { address: "0x1", nonce: "2", balance: "10" },
+      { address: "0x2", nonce: "3", balance: "20" },
+    ]);
+  });
+});

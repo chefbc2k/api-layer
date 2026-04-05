@@ -63,4 +63,74 @@ describe("abi-codec", () => {
     expect(resultWire).toEqual(["25", "30", "60", "10", "100"]);
     expect(decodeResultFromWire(readDefinition!, resultWire)).toEqual([25n, 30n, 60n, 10n, 100n]);
   });
+
+  it("serializes tuple object outputs into named wire objects", () => {
+    const definition = {
+      signature: "tupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "owner", type: "address" },
+          {
+            name: "nested",
+            type: "tuple",
+            components: [{ name: "flag", type: "bool" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    const wire = serializeResultToWire(definition as never, [9n, "0x0000000000000000000000000000000000000009", [true]]);
+
+    expect(wire).toEqual({
+      count: "9",
+      owner: "0x0000000000000000000000000000000000000009",
+      nested: {
+        flag: true,
+      },
+    });
+    expect(decodeResultFromWire(definition as never, wire)).toEqual({
+      count: 9n,
+      owner: "0x0000000000000000000000000000000000000009",
+      nested: {
+        flag: true,
+      },
+    });
+  });
+
+  it("rejects invalid param and response shapes", () => {
+    const paramsDefinition = {
+      signature: "setTuple((uint256,address)[2])",
+      inputs: [{
+        type: "tuple[2]",
+        components: [
+          { name: "amount", type: "uint256" },
+          { name: "owner", type: "address" },
+        ],
+      }],
+    };
+    const resultDefinition = {
+      signature: "result(uint256,address)",
+      outputs: [
+        { type: "uint256" },
+        { type: "address" },
+      ],
+    };
+
+    expect(() => serializeParamsToWire(paramsDefinition as never, [[{ amount: "1", owner: "0x0000000000000000000000000000000000000001" }]])).toThrow(
+      "expected array length 2 for tuple[2]",
+    );
+    expect(() => serializeParamsToWire({
+      signature: "unsafe(uint256)",
+      inputs: [{ type: "uint256" }],
+    } as never, [Number.MAX_SAFE_INTEGER + 1])).toThrow("unsafe integer for uint256");
+    expect(() => decodeResultFromWire(resultDefinition as never, ["1"])).toThrow(
+      "invalid response for result(uint256,address): expected 2 outputs",
+    );
+    expect(() => decodeResultFromWire(resultDefinition as never, ["abc", "0x0000000000000000000000000000000000000001"])).toThrow(
+      "invalid response item 0 for result(uint256,address): invalid uint256 decimal string",
+    );
+  });
 });
