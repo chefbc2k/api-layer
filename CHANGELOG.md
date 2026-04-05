@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.22] - 2026-04-04
+
+### Fixed
+- **Contract Harness Long-Path Budgeting:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) to raise HTTP request budgets for slow read/event probes, extend tx receipt polling with direct provider fallback, and give the whisperblock lifecycle the same explicit timeout budget as the other fork-backed end-to-end proofs.
+- **Fork Read Failover Classification:** Updated [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts) so expected contract reverts no longer count against provider health. Only retryable upstream/transport failures can now trip the router into Alchemy failover, which keeps later fork read-after-write validations pinned to the same mutable chain view.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves via the fixture fallback and verifies cleanly.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` functions / methods and `218` events.
+- **Provider Router Guard:** Re-ran `pnpm exec vitest run packages/client/src/runtime/provider-router.test.ts`; retryable upstream errors still fail over, while non-retryable contract reverts no longer flip provider health.
+- **Contract Harness Partial Recovery:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1 -t 'creates and mutates a dataset through HTTP and matches live dataset state|mutates whisperblock state through HTTP and matches live whisperblock contract state|runs the transfer-rights workflow and persists ownership state'`; all three previously failing long-path proofs now pass together.
+- **Post-Admin Fork Read Guard:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1 -t 'proves admin, emergency, and multisig control-plane reads through HTTP on Base Sepolia|runs the transfer-rights workflow and persists ownership state|mutates whisperblock state through HTTP and matches live whisperblock contract state'`; the admin/emergency proof no longer forces later transfer-rights reads onto Alchemy, and the subsequent fork-backed ownership workflow passes.
+
+### Known Issues
+- **Fresh Full-Suite Confirmation Still In Flight:** A final full `packages/api/src/app.contract-integration.test.ts` rerun was started after the provider-router fix. This entry only claims the targeted branch recoveries above until that long full-suite rerun is observed end-to-end.
+
 ## [0.1.21] - 2026-04-04
 
 ### Fixed
@@ -17,6 +33,8 @@
 
 ### Known Issues
 - **Standard Coverage Still Far Below The 100% Mandate:** The suite is now coverage-stable, but the repo-wide numbers remain well below the automation target because generated wrappers, typechain output, scenario adapters, and several runtime modules are still included in the report with minimal direct tests. The next run should narrow or segment coverage accounting and add tests around the lowest-value uncovered runtime paths instead of generated code.
+
+## [0.1.20] - 2026-04-04
 
 ### Fixed
 - **Signer Nonce Recovery Hardening:** Updated [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so write execution no longer gives up after a single stale-nonce refresh. The shared sender now retries nonce-expired submissions up to three times with a monotonic nonce bump, which closed the founder-key `nonce too low` failure that surfaced during the dataset `setLicense` live proof.

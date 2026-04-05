@@ -44,6 +44,10 @@ function isRetryableError(error: unknown): boolean {
   );
 }
 
+function shouldAffectProviderHealth(error: unknown): boolean {
+  return isRetryableError(error);
+}
+
 export class ProviderRouter {
   private readonly providers: Record<ProviderName, ProviderRecord>;
   private active: ProviderName = "cbdp";
@@ -158,8 +162,10 @@ export class ProviderRouter {
       });
       return result;
     } catch (error) {
-      this.markFailure(primary, method, kind, error);
-      this.maybeFailover(primary);
+      if (shouldAffectProviderHealth(error)) {
+        this.markFailure(primary, method, kind, error);
+        this.maybeFailover(primary);
+      }
       if (kind === "write" || !isRetryableError(error)) {
         throw error;
       }

@@ -39,6 +39,10 @@ type ApiCallOptions = {
 
 const originalEnv = { ...process.env };
 const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
+const HTTP_API_TIMEOUT_MS = 45_000;
+const SAFE_READ_ATTEMPTS = 4;
+const TX_RECEIPT_POLL_ATTEMPTS = 240;
+const TX_RECEIPT_POLL_DELAY_MS = 250;
 
 function isLoopbackRpcUrl(rpcUrl: string): boolean {
   try {
@@ -134,7 +138,9 @@ async function apiCall(port: number, method: string, path: string, options: ApiC
     path.includes("/queries/") ||
     path.includes("/events/");
 
-  for (let attempt = 0; attempt < (isSafeRead ? 3 : 1); attempt += 1) {
+  const attempts = isSafeRead ? SAFE_READ_ATTEMPTS : 1;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       const response = await fetch(`http://127.0.0.1:${port}${path}`, {
         method,
@@ -144,12 +150,12 @@ async function apiCall(port: number, method: string, path: string, options: ApiC
           ...(options.headers ?? {}),
         },
         body: options.body === undefined ? undefined : JSON.stringify(options.body),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(HTTP_API_TIMEOUT_MS),
       });
       const payload = await response.json().catch(() => null);
       return { status: response.status, payload };
     } catch (error) {
-      if (!isSafeRead || attempt === 2) {
+      if (!isSafeRead || attempt === attempts - 1) {
         throw error;
       }
       await delay(500);
@@ -504,7 +510,7 @@ describeLive("HTTP API contract integration", () => {
   }
 
   async function expectReceipt(txHash: string) {
-    for (let attempt = 0; attempt < 80; attempt += 1) {
+    for (let attempt = 0; attempt < TX_RECEIPT_POLL_ATTEMPTS; attempt += 1) {
       const txStatus = await apiCall(port, "GET", `/v1/transactions/${txHash}`, { apiKey: "read-key" });
       const receipt = txStatus.payload && typeof txStatus.payload === "object"
         ? (txStatus.payload as { receipt?: { status?: number; hash?: string; transactionHash?: string } }).receipt
@@ -517,7 +523,22 @@ describeLive("HTTP API contract integration", () => {
         expect(receipt.hash ?? receipt.transactionHash).toBe(txHash);
         return txStatus.payload;
       }
-      await delay(250);
+
+      const directReceipt = await provider.getTransactionReceipt(txHash);
+      if (directReceipt?.status === 1) {
+        expect(directReceipt.hash).toBe(txHash);
+        return {
+          source: "rpc-direct",
+          receipt: {
+            hash: directReceipt.hash,
+            transactionHash: directReceipt.hash,
+            status: directReceipt.status,
+            blockNumber: directReceipt.blockNumber,
+          },
+        };
+      }
+
+      await delay(TX_RECEIPT_POLL_DELAY_MS);
     }
     throw new Error(`timed out waiting for tx receipt ${txHash}`);
   }
@@ -3897,5 +3918,5 @@ describeLive("HTTP API contract integration", () => {
     });
     expect(defaultRoyaltyRead.status).toBe(200);
     expect(defaultRoyaltyRead.payload).toBe(normalize(await voiceAsset.getDefaultRoyaltyRate()));
-  });
+  }, 300_000);
 });

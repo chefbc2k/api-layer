@@ -74,4 +74,24 @@ describe("ProviderRouter", () => {
 
     expect(attempts).toEqual(["cbdp"]);
   });
+
+  it("does not trip provider failover on non-retryable contract reverts", async () => {
+    const router = new ProviderRouter({
+      chainId: 84532,
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
+      errorThreshold: 1,
+      errorWindowMs: 60_000,
+      recoveryCooldownMs: 60_000,
+    });
+
+    await expect(
+      router.withProvider("read", "UpgradeControllerFacet.getUpgrade", async () => {
+        throw new Error("execution reverted: OperationNotFound(bytes32)");
+      }),
+    ).rejects.toThrow("OperationNotFound");
+
+    expect(router.getStatus().cbdp.active).toBe(true);
+    expect(router.getStatus().cbdp.errorCount).toBe(0);
+  });
 });
