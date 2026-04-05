@@ -4,6 +4,37 @@
 
 ---
 
+## [0.1.30] - 2026-04-05
+
+### Fixed
+- **Coverage Cleanup ENOENT Guard:** Updated [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts) so the custom Istanbul coverage provider now tolerates `ENOENT` during `cleanAfterRun()` instead of failing after a green test sweep when Vitest has already removed the temporary coverage directory.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains intact on fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`, and `alchemyDiagnosticsEnabled: true` / `alchemySimulationEnabled: true`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the script exits cleanly with `setup.status: "blocked"` and preserves the real environment limitation instead of failing mid-run. The current blockers remain founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` needing `48895000000081` additional wei and buyer / licensee / transferee each needing `39126000000081` additional wei, while the aged marketplace fixture stays `purchase-ready` on token `11`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Coverage Sweep Recovery:** Re-ran `pnpm run test:coverage`; the suite is green at `104` passing files, `417` passing tests, and `17` intentionally skipped live contract proofs. The current standard-coverage baseline is `82.11%` statements / `76.88%` branches / `90.44%` functions / `82.11%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `104` passing files, `417` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** Coverage is materially improved but still below the repo mandate. The largest remaining handwritten gaps are concentrated in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/smart-wallet.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/smart-wallet.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [`/Users/chef/Public/api-layer/scripts/license-template-helper.ts`](/Users/chef/Public/api-layer/scripts/license-template-helper.ts).
+
+## [0.1.29] - 2026-04-05
+
+### Fixed
+- **Register Voice Asset Retry Budget:** Updated [`/Users/chef/Public/api-layer/packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts`](/Users/chef/Public/api-layer/packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts) so the readback-retry cases use the same immediate timeout shim as the explicit timeout-path tests. This removes the real `setTimeout` backoff from the default suite and keeps `pnpm test` green while preserving the retry semantics under test.
+- **Shared Helper Coverage Expansion:** Added focused assertions in [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/projections/common.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.test.ts) to cover Alchemy client/trace fallbacks, transaction-status routing, rate-limit bucketing, tuple object encoding/validation, projection sanitization, insert semantics, and current-row rebuild logic.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains intact on fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`, and `alchemyDiagnosticsEnabled: true` / `alchemySimulationEnabled: true`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Focused Helper Tests:** Re-ran `pnpm exec vitest run packages/api/src/shared/alchemy-diagnostics.test.ts packages/indexer/src/projections/common.test.ts packages/api/src/shared/execution-context.test.ts packages/client/src/runtime/abi-codec.test.ts --maxWorkers 1`; all `19` targeted assertions pass.
+- **Full Coverage Sweep:** Re-ran `pnpm run test:coverage`; the stabilized coverage runner is green at `104` passing files, `417` passing tests, and `17` intentionally skipped live contract proofs. The current standard-coverage baseline is `76.22%` statements / `62.33%` branches / `86.32%` functions / `76.18%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `104` passing files, `417` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The remaining deficit is still concentrated in handwritten infrastructure and helper paths, led by [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts), and [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts). The next run should keep adding direct tests here rather than widening exclusions.
+
 ## [0.1.28] - 2026-04-05
 
 ### Verified
