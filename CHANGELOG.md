@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.36] - 2026-04-07
+
+### Fixed
+- **Vesting Failure Classification Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.test.ts) to prove zeroed readbacks when no schedule exists, non-revoked readback rethrow behavior, and workflow-specific normalization for create/release/revoke vesting execution failures including authority, balance, duplicate-schedule, invalid beneficiary/amount, cliff-period, not-revocable, and already-revoked cases.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; the setup flow still exits cleanly with `setup.status: "blocked"` while preserving the same real funding blockers. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei; the aged marketplace fixture remains `purchase-ready` on token `11` with listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1773601130", createdBlock: "38916421", lastUpdateBlock: "38916421", expiresAt: "1776193130", isActive: true }`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Vesting Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/vesting-helpers.test.ts --maxWorkers 1`; all `10` assertions pass. A focused coverage run on the same test lifts [`/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.ts) to `93.26%` statements, `90.82%` branches, `100%` functions, and `93.2%` lines.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `112` passing files, `471` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `81.49%` to `82.31%` statements, `67.18%` to `68.34%` branches, `90.11%` to `90.20%` functions, and `81.45%` to `82.28%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The biggest remaining handwritten coverage gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.35] - 2026-04-05
 
 ### Fixed

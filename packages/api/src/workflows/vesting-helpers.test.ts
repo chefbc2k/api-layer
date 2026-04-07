@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { HttpError } from "../shared/errors.js";
 import {
   extractReleasedAmount,
   extractReleasedAmountFromLogs,
@@ -8,6 +9,9 @@ import {
   getTotalAmount,
   isAlreadyRevokedError,
   isVestingSchedulePresent,
+  normalizeCreateVestingExecutionError,
+  normalizeReleaseVestingExecutionError,
+  normalizeRevokeVestingExecutionError,
   isVestingScheduleRevoked,
   readVestingState,
 } from "./vesting-helpers.js";
@@ -68,5 +72,132 @@ describe("vesting helpers", () => {
     expect(result.schedule.body).toEqual({ totalAmount: "100", revoked: true });
     expect(result.releasable.body).toBe("0");
     expect(result.totals.body).toEqual({ totalVested: "0", totalReleased: "0", releasable: "0" });
+  });
+
+  it("returns zeroed vesting state when a beneficiary has no schedule", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: false }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100" } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: false } }),
+      getVestingReleasableAmount: async () => ({ statusCode: 200, body: "5" }),
+      getVestingTotalAmount: async () => ({ statusCode: 200, body: { totalVested: "10", totalReleased: "2", releasable: "8" } }),
+    };
+
+    const result = await readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      "0x00000000000000000000000000000000000000bb",
+      "0x00000000000000000000000000000000000000aa",
+    );
+
+    expect(result.exists.body).toBe(false);
+    expect(result.schedule.body).toBeNull();
+    expect(result.details.body).toBeNull();
+    expect(result.releasable.body).toBe("0");
+    expect(result.totals.body).toEqual({ totalVested: "0", totalReleased: "0", releasable: "0" });
+  });
+
+  it("rethrows readback failures when the schedule is not revoked", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100", revoked: false } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: false } }),
+      getVestingReleasableAmount: async () => {
+        throw new Error("execution reverted: NoScheduleFound(address)");
+      },
+      getVestingTotalAmount: async () => ({ statusCode: 200, body: { totalVested: "10", totalReleased: "2", releasable: "8" } }),
+    };
+
+    await expect(() => readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      undefined,
+      "0x00000000000000000000000000000000000000aa",
+    )).rejects.toThrow("NoScheduleFound");
+  });
+
+  it("normalizes create-vesting execution errors into workflow-specific HttpErrors", () => {
+    const diagnostics = { txHash: "0xcreate" };
+
+    expect(normalizeCreateVestingExecutionError({ message: "execution reverted: UnauthorizedUser(address)", diagnostics }, "team"))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "create-beneficiary-vesting blocked by insufficient caller authority: signer lacks VESTING_MANAGER_ROLE for team schedules",
+        diagnostics,
+      });
+    expect(normalizeCreateVestingExecutionError({ diagnostics: { data: "0xf4d678b8" } }, "team"))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "create-beneficiary-vesting requires caller token balance to reserve the vesting amount",
+      });
+    expect(normalizeCreateVestingExecutionError(new Error("execution reverted: ScheduleExists(address)"), "team"))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "create-beneficiary-vesting blocked by wrong beneficiary state: beneficiary already has a vesting schedule",
+      });
+    expect(normalizeCreateVestingExecutionError(new Error("execution reverted: InvalidAmount()"), "team"))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "create-beneficiary-vesting requires a non-zero amount",
+      });
+    expect(normalizeCreateVestingExecutionError(new Error("execution reverted (unknown custom error) data=\"0x1a3b45fd\""), "team"))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "create-beneficiary-vesting requires a valid beneficiary address",
+      });
+  });
+
+  it("normalizes release-vesting execution errors, including cliff-period diagnostics", () => {
+    expect(normalizeReleaseVestingExecutionError(new Error("execution reverted: NoScheduleFound(address)")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "release-beneficiary-vesting blocked by wrong beneficiary state: schedule not found",
+      });
+    expect(normalizeReleaseVestingExecutionError(new Error("execution reverted (unknown custom error) data=\"0x90315de1\"")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "release-beneficiary-vesting blocked by wrong beneficiary state: schedule already revoked",
+      });
+    expect(
+      normalizeReleaseVestingExecutionError(
+        new Error(
+          "execution reverted (unknown custom error) data=\"0x4b53d0ef0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002a\"",
+        ),
+      ),
+    ).toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "release-beneficiary-vesting blocked by setup/state: beneficiary is still in cliff period until 42",
+    });
+    expect(normalizeReleaseVestingExecutionError(new Error("execution reverted: NothingToRelease()")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "release-beneficiary-vesting blocked by setup/state: no releasable amount",
+      });
+  });
+
+  it("normalizes revoke-vesting execution errors and preserves unknown failures", () => {
+    expect(normalizeRevokeVestingExecutionError(new Error("execution reverted: UnauthorizedUser(address)")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "revoke-beneficiary-vesting blocked by insufficient caller authority: signer lacks VESTING_MANAGER_ROLE",
+      });
+    expect(normalizeRevokeVestingExecutionError(new Error("execution reverted: NoScheduleFound(address)")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "revoke-beneficiary-vesting blocked by wrong beneficiary state: schedule not found",
+      });
+    expect(normalizeRevokeVestingExecutionError(new Error("execution reverted: NotRevocable()")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "revoke-beneficiary-vesting blocked by wrong beneficiary state: schedule is not revocable",
+      });
+    expect(normalizeRevokeVestingExecutionError(new Error("execution reverted: AlreadyRevoked(bytes32)")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "revoke-beneficiary-vesting blocked by wrong beneficiary state: schedule already revoked",
+      });
+
+    const unknown = new Error("execution reverted: unknown");
+    expect(normalizeRevokeVestingExecutionError(unknown)).toBe(unknown);
   });
 });
