@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.54] - 2026-04-08
+
+### Fixed
+- **Marketplace Purchase Workflow Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.test.ts) to cover the marketplace-paused guard, missing seller readback failure, trading-lock contract revert normalization, buyer allowance and funding precondition reverts, passthrough of unknown/nullish purchase errors, and null pending-payment delta shaping in [`/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured RPC `http://127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; the fixture remains `setup.status: "ready"` on the local Base Sepolia fork. Buyer native gas was reseeded to `50000000000000` wei via `local-rpc-balance-seed`, the aged marketplace listing remains purchase-ready on token `11`, and governance remains `ready` with founder voting power intact.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Marketplace Purchase Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/purchase-marketplace-asset.test.ts --maxWorkers 1` and the matching focused Istanbul pass. All `11` assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts) now reaches `100%` statements, `96.87%` branches, `100%` functions, and `100%` lines in the focused run.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `116` passing files, `579` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `91.84%` to `92.10%` statements, `78.70%` to `79.28%` branches, `96.00%` to `96.00%` functions, and `91.76%` to `92.03%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield handwritten gaps remain concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), and [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.53] - 2026-04-08
 
 ### Fixed
