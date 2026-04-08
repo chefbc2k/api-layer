@@ -8,7 +8,7 @@ import { createApiServer } from "../packages/api/src/app.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 
-import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import {
   type FixtureStatus,
   isPurchaseReadyListing,
@@ -30,6 +30,7 @@ type WalletSpec = {
 type BalanceTopUpResult = {
   funded: boolean;
   balance: string;
+  fundingStrategy?: "transfer" | "local-rpc-balance-seed";
   attemptedFunders: Array<{
     label: string;
     address: string;
@@ -284,12 +285,24 @@ export async function ensureNativeBalance(
   funderLabels: Map<string, string>,
   target: Wallet,
   minimum: bigint,
+  rpcUrl?: string,
 ): Promise<BalanceTopUpResult> {
   const balance = await target.provider!.getBalance(target.address);
   if (balance >= minimum) {
     return {
       funded: false,
       balance: balance.toString(),
+      attemptedFunders: [],
+    };
+  }
+
+  if (rpcUrl && isLoopbackRpcUrl(rpcUrl)) {
+    const targetBalance = minimum + ethers.parseEther("0.00001");
+    await target.provider!.send("anvil_setBalance", [target.address, ethers.toQuantity(targetBalance)]);
+    return {
+      funded: true,
+      balance: (await target.provider!.getBalance(target.address)).toString(),
+      fundingStrategy: "local-rpc-balance-seed",
       attemptedFunders: [],
     };
   }
@@ -347,6 +360,7 @@ export async function ensureNativeBalance(
   return {
     funded: transfers.length > 0,
     balance: updatedBalance.toString(),
+    ...(transfers.length > 0 ? { fundingStrategy: "transfer" as const } : {}),
     attemptedFunders: labeledFunders.map((funder) => ({
       label: funder.label,
       address: funder.address,
@@ -388,10 +402,12 @@ export async function ensureRole(
 
 export async function main(): Promise<void> {
   const env = loadRepoEnv();
-  const { config } = await resolveRuntimeConfig(env);
-  process.env.RPC_URL = config.cbdpRpcUrl;
+  const runtimeConfig = await resolveRuntimeConfig(env);
+  const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
+  const { config } = runtimeConfig;
+  process.env.RPC_URL = forkRuntime.rpcUrl;
   process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
 
   const founderSpec: WalletSpec = { label: "founder", privateKey: env.PRIVATE_KEY };
   const sellerSpec: WalletSpec = { label: "seller", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_1 ?? env.ORACLE_WALLET_PRIVATE_KEY ?? env.PRIVATE_KEY };
@@ -465,6 +481,8 @@ export async function main(): Promise<void> {
       network: {
         chainId: config.chainId,
         rpcUrl: config.cbdpRpcUrl,
+        runtimeRpcUrl: forkRuntime.rpcUrl,
+        forkedFrom: forkRuntime.forkedFrom,
         diamondAddress: config.diamondAddress,
       },
       setup: {
@@ -485,7 +503,7 @@ export async function main(): Promise<void> {
       };
     }
 
-    const founderTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, founder, ethers.parseEther("0.00005"));
+    const founderTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, founder, ethers.parseEther("0.00005"), forkRuntime.rpcUrl);
     (status.actors as any).founder = {
       ...((status.actors as any).founder as Record<string, unknown>),
       nativeTopUp: founderTopUp,
@@ -496,7 +514,7 @@ export async function main(): Promise<void> {
     }
 
     if (buyer) {
-      const buyerTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, buyer, DEFAULT_NATIVE_MINIMUM);
+      const buyerTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, buyer, DEFAULT_NATIVE_MINIMUM, forkRuntime.rpcUrl);
       (status.actors as any).buyer = {
         ...((status.actors as any).buyer as Record<string, unknown>),
         nativeTopUp: buyerTopUp,
@@ -507,7 +525,7 @@ export async function main(): Promise<void> {
       }
     }
     if (licensee) {
-      const licenseeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, licensee, DEFAULT_NATIVE_MINIMUM);
+      const licenseeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, licensee, DEFAULT_NATIVE_MINIMUM, forkRuntime.rpcUrl);
       (status.actors as any).licensee = {
         ...((status.actors as any).licensee as Record<string, unknown>),
         nativeTopUp: licenseeTopUp,
@@ -518,7 +536,7 @@ export async function main(): Promise<void> {
       }
     }
     if (transferee) {
-      const transfereeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, transferee, DEFAULT_NATIVE_MINIMUM);
+      const transfereeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, transferee, DEFAULT_NATIVE_MINIMUM, forkRuntime.rpcUrl);
       (status.actors as any).transferee = {
         ...((status.actors as any).transferee as Record<string, unknown>),
         nativeTopUp: transfereeTopUp,
@@ -724,6 +742,7 @@ export async function main(): Promise<void> {
     console.log(JSON.stringify(toJsonValue(status), null, 2));
   } finally {
     server.close();
+    forkRuntime.forkProcess?.kill("SIGTERM");
     await provider.destroy();
   }
 }

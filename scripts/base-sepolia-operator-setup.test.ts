@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -363,6 +364,7 @@ describe("base sepolia operator setup helpers", () => {
     expect(result).toEqual({
       funded: true,
       balance: "1000000000085",
+      fundingStrategy: "transfer",
       attemptedFunders: [
         { label: "founder", address: "0xfunder-b", spendable: "80" },
         { label: "seller", address: "0xfunder-a", spendable: "50" },
@@ -373,6 +375,29 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(funderA.sendTransaction).not.toHaveBeenCalled();
     expect(funderB.sendTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("seeds the target balance directly on a loopback fork", async () => {
+    const provider = {
+      getBalance: vi.fn()
+        .mockResolvedValueOnce(5n)
+        .mockResolvedValueOnce(60n),
+      send: vi.fn().mockResolvedValue(undefined),
+    };
+    const target = { address: "0xtarget", provider } as any;
+
+    const result = await ensureNativeBalance([], new Map(), target, 50n, "http://127.0.0.1:8545");
+
+    expect(provider.send).toHaveBeenCalledWith("anvil_setBalance", [
+      "0xtarget",
+      ethers.toQuantity(50n + ethers.parseEther("0.00001")),
+    ]);
+    expect(result).toEqual({
+      funded: true,
+      balance: "60",
+      fundingStrategy: "local-rpc-balance-seed",
+      attemptedFunders: [],
+    });
   });
 
   it("reports funding blockers when no available signer can satisfy the deficit", async () => {

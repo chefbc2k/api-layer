@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.48] - 2026-04-08
+
+### Fixed
+- **Setup Artifact Bootstrap Consistency:** Updated [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `pnpm run setup:base-sepolia` now boots through the same Base Sepolia auto-fork path as the live verifiers when `http://127.0.0.1:8548` is absent. The setup flow now seeds actor gas with `anvil_setBalance` on loopback forks, records whether balances came from signer transfer vs. local RPC seeding, and emits both the live fallback RPC (`network.rpcUrl`) and the fork runtime endpoint (`network.runtimeRpcUrl`) without poisoning the fixture fallback path.
+- **Loopback Funding Test Coverage:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to assert the new loopback seeding branch and the `fundingStrategy` metadata returned by native balance repair.
+- **Marketplace Purchase Proof Refresh:** Regenerated [`/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json`](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) from the refreshed Base Sepolia fork fixture, keeping the aged-listing purchase proof on token `11` current.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show`; the repo still resolves through the fixture fallback to live Base Sepolia with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured loopback RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Setup Partial Collapsed On Forked Environment:** Re-ran `pnpm run setup:base-sepolia`; the refreshed fixture now reports `setup.status: "ready"`, `network.rpcUrl: "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4"`, `network.runtimeRpcUrl: "http://127.0.0.1:8548"`, and a `purchase-ready` aged marketplace listing for token `11`.
+- **Marketplace Lifecycle Proof:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia`; the verifier remains `classification: "proven working"` with tx hash `0xf43875ea1aba2cdf4b267ad021369dbe83f1f6b2d7a0f3a274fc96d707408322`, receipt status `1`, owner transition to buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, listing deactivation, buyer USDC movement `4000 -> 3000`, allowance movement `4000 -> 3000`, and event counts `AssetPurchased: 1`, `PaymentDistributed: 2`, `AssetReleased: 1`.
+- **Regression Guards:** Re-ran `pnpm exec tsc --noEmit`, `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`, and `pnpm run coverage:check`; all passed, with API surface coverage unchanged at `492` functions, `492` HTTP methods, and `218` events.
+
+### Remaining Issues
+- **Repo-Wide Standard Coverage Still Below 100%:** `pnpm run test:coverage` remains below the stated branch/functional/line/statement target at `89.48%` statements, `76.51%` branches, `95.00%` functions, and `89.38%` lines. This run removed a false setup-state blocker but did not yet close the broader coverage gap.
+
 ## [0.1.47] - 2026-04-08
 
 ### Fixed
