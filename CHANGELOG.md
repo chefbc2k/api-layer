@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.51] - 2026-04-08
+
+### Fixed
+- **Governance Verifier Fork Parity:** Updated [`/Users/chef/Public/api-layer/scripts/verify-governance-workflows.ts`](/Users/chef/Public/api-layer/scripts/verify-governance-workflows.ts) to resolve runtime RPC the same way as the other Base Sepolia verifiers, auto-start the local Anvil fork when `http://127.0.0.1:8548` is unavailable, publish `API_LAYER_SIGNER_API_KEYS_JSON`, seed founder gas on loopback forks, and mine the fork forward to the proposal snapshot block so the workflow can cross non-zero voting delay and complete the real submit-plus-vote lifecycle.
+- **Governance Proof Classification Repair:** Fixed the governance verifier’s proposal-id extraction to read the nested workflow payload shape (`payload.proposal.proposalId` / `payload.summary.proposalId`) and record the raw submit payload when submission fails, eliminating the false `broken` classification that previously masked a successful proposal submission.
+- **Governance Verifier Regression Coverage:** Added [`/Users/chef/Public/api-layer/scripts/verify-governance-workflows.test.ts`](/Users/chef/Public/api-layer/scripts/verify-governance-workflows.test.ts) to lock in nested proposal-id extraction and insufficient-funds payload classification behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Governance Verifier Unit Guard:** Re-ran `pnpm exec vitest run scripts/verify-governance-workflows.test.ts scripts/alchemy-debug-lib.test.ts`; all `23` focused assertions pass.
+- **Live Governance Workflow Proof:** Re-ran `pnpm run verify:governance:base-sepolia` on the loopback Base Sepolia fork. The verifier now completes end-to-end with `F: "proven working"`, proposal submit tx `0xe7b9ae3fc776f2c97d69b259ed5fa11acec43eb948c7abf6c8c8a39091aa20a7` (receipt status `1`, block `39956490`), proposal activation mined through snapshot block `39963210` into Active state `1`, and vote tx `0xff8185a4c4721f24a90286c98a49ea5f7178277f504c7f28d97d76adf2a4cc99` (receipt status `1`, block `39963212`).
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** `pnpm run test:coverage` remains below the stated branch/functional/line/statement target. The biggest handwritten gap is still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), while branch-heavy workflow files such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts) remain the next obvious standard-coverage targets.
+
 ## [0.1.50] - 2026-04-08
 
 ### Fixed

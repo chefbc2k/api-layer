@@ -1,7 +1,9 @@
 import { createApiServer } from "../packages/api/src/app.js";
-import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
+import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
-import { Contract, JsonRpcProvider, Wallet } from "ethers";
+import { Contract, JsonRpcProvider, Wallet, ethers } from "ethers";
+
+import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -76,12 +78,27 @@ function asString(value: unknown): string | null {
   return null;
 }
 
-function proposalIdFromSubmit(payload: unknown): string | null {
+export function proposalIdFromSubmit(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") {
     return null;
   }
-  const proposalId = (payload as Record<string, unknown>).proposalId;
-  return asString(proposalId);
+  const record = payload as Record<string, unknown>;
+  const direct = asString(record.proposalId);
+  if (direct) {
+    return direct;
+  }
+  const proposal = record.proposal;
+  if (proposal && typeof proposal === "object") {
+    const nested = asString((proposal as Record<string, unknown>).proposalId);
+    if (nested) {
+      return nested;
+    }
+  }
+  const summary = record.summary;
+  if (summary && typeof summary === "object") {
+    return asString((summary as Record<string, unknown>).proposalId);
+  }
+  return null;
 }
 
 function proposalIdFromTransactionStatus(payload: unknown): string | null {
@@ -106,7 +123,7 @@ async function getTransactionStatus(port: number, txHash: string): Promise<ApiRe
   return apiCall(port, "GET", `/v1/transactions/${txHash}`, { apiKey: "read-key" });
 }
 
-async function waitForActiveProposal(provider: JsonRpcProvider, port: number, proposalId: string): Promise<{
+async function waitForActiveProposal(provider: JsonRpcProvider, rpcUrl: string, port: number, proposalId: string): Promise<{
   snapshotBlock: string | null;
   deadlineBlock: string | null;
   currentBlock: string | null;
@@ -131,6 +148,19 @@ async function waitForActiveProposal(provider: JsonRpcProvider, port: number, pr
     latestState = asString(stateResp.payload);
 
     latestCurrentBlock = String(await currentBlockFromProvider(provider));
+
+    if (
+      latestState !== ACTIVE_PROPOSAL_STATE &&
+      isLoopbackRpcUrl(rpcUrl) &&
+      latestSnapshotBlock &&
+      BigInt(latestCurrentBlock) < BigInt(latestSnapshotBlock)
+    ) {
+      const delta = BigInt(latestSnapshotBlock) - BigInt(latestCurrentBlock);
+      const blocksToMine = delta > 0n ? delta : 1n;
+      await provider.send("anvil_mine", [ethers.toQuantity(blocksToMine)]);
+      latestCurrentBlock = String(await currentBlockFromProvider(provider));
+      continue;
+    }
 
     if (latestState === ACTIVE_PROPOSAL_STATE) {
       return {
@@ -166,10 +196,35 @@ function receiptStatus(payload: unknown): string | null {
   return receipt?.status === undefined ? null : String(receipt.status);
 }
 
+async function ensureNativeBalance(provider: JsonRpcProvider, rpcUrl: string, recipient: string, minimum: bigint): Promise<bigint> {
+  const balance = await provider.getBalance(recipient);
+  if (balance >= minimum) {
+    return balance;
+  }
+  if (isLoopbackRpcUrl(rpcUrl)) {
+    const targetBalance = (minimum > ethers.parseEther("0.02") ? minimum : ethers.parseEther("0.02")) + ethers.parseEther("0.005");
+    await provider.send("anvil_setBalance", [recipient, ethers.toQuantity(targetBalance)]);
+    return provider.getBalance(recipient);
+  }
+  return balance;
+}
+
+export function isInsufficientFundsPayload(payload: unknown): boolean {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+  const error = (payload as { error?: unknown }).error;
+  return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
+}
+
 async function main(): Promise<void> {
   const repoEnv = loadRepoEnv();
-  const config = readConfigFromEnv(repoEnv);
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const runtimeConfig = await resolveRuntimeConfig(repoEnv);
+  const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
+  const { config } = runtimeConfig;
+  process.env.RPC_URL = forkRuntime.rpcUrl;
+  process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
   const founderKey = repoEnv.PRIVATE_KEY;
   const founderAddress = repoEnv.SENDER;
 
@@ -183,6 +238,16 @@ async function main(): Promise<void> {
   });
   process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
     founder: founderKey,
+  });
+  process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
+    [founderAddress.toLowerCase()]: {
+      apiKey: "founder-key",
+      signerId: "founder",
+      privateKey: founderKey,
+      label: "founder",
+      roles: ["service"],
+      allowGasless: false,
+    },
   });
 
   const founder = new Wallet(founderKey, provider);
@@ -218,6 +283,7 @@ async function main(): Promise<void> {
   };
 
   try {
+    await ensureNativeBalance(provider, forkRuntime.rpcUrl, founder.address, ethers.parseEther("0.00005"));
     const currentVotingConfig = await governorFacet.getVotingConfig();
     const currentVotingDelay = currentVotingConfig[0];
     const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [currentVotingDelay]);
@@ -248,6 +314,7 @@ async function main(): Promise<void> {
     evidence.E = {
       submitProposal: {
         httpStatus: submitResp.status,
+        payload: submitResp.payload,
         txHash: proposalTxHash,
         receipt: proposalTxStatus?.payload ?? null,
         proposalId: resolvedProposalId,
@@ -263,13 +330,13 @@ async function main(): Promise<void> {
     };
 
     if (submitResp.status !== 202 || !resolvedProposalId || !proposalTxHash || proposalReceiptStatus !== "1") {
-      evidence.F = "broken";
+      evidence.F = isInsufficientFundsPayload(submitResp.payload) ? "blocked by setup/state" : "broken";
       console.log(JSON.stringify(normalize(evidence), null, 2));
       process.exitCode = 1;
       return;
     }
 
-    const activation = await waitForActiveProposal(provider, port, resolvedProposalId);
+    const activation = await waitForActiveProposal(provider, forkRuntime.rpcUrl, port, resolvedProposalId);
     (evidence.E as Record<string, unknown>).proposalActivation = activation;
 
     if (activation.timedOut) {
