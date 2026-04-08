@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.50] - 2026-04-08
+
+### Fixed
+- **Coverage Provider False Negative Removed:** Updated [`/Users/chef/Public/api-layer/vitest.config.ts`](/Users/chef/Public/api-layer/vitest.config.ts) to exclude [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts) from Istanbul collection. The file is the coverage runtime itself, so counting it as an application source file kept an artificial `0%` bucket in every repo-wide sweep despite its direct unit coverage.
+- **Setup Helper Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to cover the blocked fallback-listing classification path and the null-early-return branches in `buildUsdcFundingStatus` when the buyer or ERC20 dependency is unavailable.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **API Surface Coverage:** Re-ran `pnpm run coverage:check`; wrapper and HTTP route coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Regression Guard:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/custom-coverage-provider.test.ts scripts/vitest-config.test.ts --maxWorkers 1`; all `29` focused assertions pass.
+- **Live Contract Proof Guard:** Re-ran `pnpm run test:contract:api:base-sepolia`; all `17` live Base Sepolia contract integration tests passed end-to-end, including access control, datasets, marketplace, governance, tokenomics, whisperblock, licensing, control-plane, and workflow lifecycle proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `115` passing files, `560` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `90.26%` to `90.54%` statements, from `77.14%` to `77.31%` branches, from `95.26%` to `95.65%` functions, and from `90.14%` to `90.44%` lines. Within `scripts/`, coverage improved from `76.15%` to `77.98%` statements, from `75.27%` to `76.57%` branches, from `89.34%` to `93.16%` functions, and from `75.67%` to `77.56%` lines; [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) improved from `53.05%` to `53.43%` statements, from `58.01%` to `59.90%` branches, and from `51.40%` to `51.80%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** `pnpm run test:coverage` remains below the stated branch/functional/line/statement target. The largest remaining handwritten gap in `scripts/` is still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts); outside `scripts/`, branch-heavy workflow modules such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) remain the most obvious next targets.
+
 ## [0.1.49] - 2026-04-08
 
 ### Fixed

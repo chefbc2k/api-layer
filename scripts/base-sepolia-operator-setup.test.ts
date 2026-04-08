@@ -172,6 +172,27 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("marks fallback listings blocked when activation never succeeds", () => {
+    expect(createFallbackMarketplaceFixture(
+      { voiceHash: "0xvoice", tokenId: "101" },
+      { status: 500, payload: { error: "listing failed" } },
+      { status: 404, payload: null },
+      null,
+    )).toMatchObject({
+      voiceHash: "0xvoice",
+      tokenId: "101",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing could not be activated",
+      approval: null,
+      listing: {
+        submission: { status: 500, payload: { error: "listing failed" } },
+        readback: { status: 404, payload: null },
+      },
+    });
+  });
+
   it("classifies governance readiness from proposer role and voting power", () => {
     expect(createGovernanceStatus({
       founderAddress: "0xfounder",
@@ -629,5 +650,40 @@ describe("base sepolia operator setup helpers", () => {
     expect(erc20.connect).not.toHaveBeenCalled();
     expect(apiCallFn).not.toHaveBeenCalled();
     expect(waitForReceiptFn).not.toHaveBeenCalled();
+  });
+
+  it("returns null USDC funding status when the ERC20 contract or buyer is unavailable", async () => {
+    const provider = {} as any;
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+
+    await expect(buildUsdcFundingStatus({
+      erc20: null,
+      availableSpecs: [],
+      buyer,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+    })).resolves.toBeNull();
+
+    const erc20 = {
+      balanceOf: vi.fn(),
+      allowance: vi.fn(),
+      connect: vi.fn(),
+    };
+
+    await expect(buildUsdcFundingStatus({
+      erc20,
+      availableSpecs: [],
+      buyer: null,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+    })).resolves.toBeNull();
+
+    expect(erc20.balanceOf).not.toHaveBeenCalled();
+    expect(erc20.allowance).not.toHaveBeenCalled();
+    expect(erc20.connect).not.toHaveBeenCalled();
   });
 });

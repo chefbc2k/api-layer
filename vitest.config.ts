@@ -25,6 +25,7 @@ export default defineConfig({
         "scenario-adapter-overrides/**",
         "ops/**",
         "scripts/check-*.ts",
+        "scripts/custom-coverage-provider.ts",
         "scripts/debug-*.ts",
         "scripts/force-*.ts",
         "scripts/focused-*.ts",
