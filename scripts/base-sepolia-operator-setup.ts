@@ -27,6 +27,8 @@ type WalletSpec = {
   privateKey?: string;
 };
 
+type RepoEnv = ReturnType<typeof loadRepoEnv>;
+
 type BalanceTopUpResult = {
   funded: boolean;
   balance: string;
@@ -404,6 +406,24 @@ type SetupStatus = {
   actors: Record<string, unknown>;
   setup: { status: string; blockers: string[] };
   marketplace: Record<string, unknown>;
+  governance?: Record<string, unknown>;
+  licensing?: Record<string, unknown>;
+};
+
+export type WalletContext = {
+  founderSpec: WalletSpec;
+  sellerSpec: WalletSpec;
+  buyerSpec: WalletSpec;
+  licenseeSpec: WalletSpec;
+  transfereeSpec: WalletSpec;
+  availableSpecs: WalletSpec[];
+  availableSpecsForFunding: Map<string, string>;
+  founder: Wallet;
+  seller: Wallet;
+  buyer: Wallet | null;
+  licensee: Wallet | null;
+  transferee: Wallet | null;
+  fundingWallets: Wallet[];
 };
 
 function assignActorTopUp(
@@ -462,6 +482,72 @@ export async function applyNativeSetupTopUps(args: {
   }
 
   args.status.setup.status = args.status.setup.blockers.length > 0 ? "blocked" : "ready";
+}
+
+export function buildWalletContext(env: RepoEnv, provider: JsonRpcProvider): WalletContext {
+  const founderSpec: WalletSpec = { label: "founder", privateKey: env.PRIVATE_KEY };
+  const sellerSpec: WalletSpec = { label: "seller", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_1 ?? env.ORACLE_WALLET_PRIVATE_KEY ?? env.PRIVATE_KEY };
+  const buyerSpec: WalletSpec = { label: "buyer", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_2 };
+  const licenseeSpec: WalletSpec = { label: "licensee", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_3 };
+  const transfereeSpec: WalletSpec = { label: "transferee", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_4 };
+  const availableSpecs = [founderSpec, sellerSpec, buyerSpec, licenseeSpec, transfereeSpec].filter((entry) => entry.privateKey);
+  if (!founderSpec.privateKey) {
+    throw new Error("missing PRIVATE_KEY in repo .env");
+  }
+
+  const founder = new Wallet(founderSpec.privateKey, provider);
+  const seller = new Wallet(sellerSpec.privateKey!, provider);
+  const buyer = buyerSpec.privateKey ? new Wallet(buyerSpec.privateKey, provider) : null;
+  const licensee = licenseeSpec.privateKey ? new Wallet(licenseeSpec.privateKey, provider) : null;
+  const transferee = transfereeSpec.privateKey ? new Wallet(transfereeSpec.privateKey, provider) : null;
+
+  const availableSpecsForFunding = new Map(
+    availableSpecs.map((entry) => {
+      const wallet = new Wallet(entry.privateKey!, provider);
+      return [wallet.address.toLowerCase(), entry.label] as const;
+    }),
+  );
+  const fundingWallets = [founder, seller, buyer, licensee, transferee].filter((wallet): wallet is Wallet => wallet !== null);
+
+  return {
+    founderSpec,
+    sellerSpec,
+    buyerSpec,
+    licenseeSpec,
+    transfereeSpec,
+    availableSpecs,
+    availableSpecsForFunding,
+    founder,
+    seller,
+    buyer,
+    licensee,
+    transferee,
+    fundingWallets,
+  };
+}
+
+export function setApiLayerActorEnvironment(args: {
+  founder: Wallet;
+  seller: Wallet;
+  buyer: Wallet | null;
+  licensee: Wallet | null;
+  transferee: Wallet | null;
+}): void {
+  process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+    "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
+    "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+    ...(args.seller ? { "seller-key": { label: "seller", signerId: "seller", roles: ["service"], allowGasless: false } } : {}),
+    ...(args.buyer ? { "buyer-key": { label: "buyer", signerId: "buyer", roles: ["service"], allowGasless: false } } : {}),
+    ...(args.licensee ? { "licensee-key": { label: "licensee", signerId: "licensee", roles: ["service"], allowGasless: false } } : {}),
+    ...(args.transferee ? { "transferee-key": { label: "transferee", signerId: "transferee", roles: ["service"], allowGasless: false } } : {}),
+  });
+  process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
+    founder: args.founder.privateKey,
+    seller: args.seller.privateKey,
+    ...(args.buyer ? { buyer: args.buyer.privateKey } : {}),
+    ...(args.licensee ? { licensee: args.licensee.privateKey } : {}),
+    ...(args.transferee ? { transferee: args.transferee.privateKey } : {}),
+  });
 }
 
 export async function buildUsdcFundingStatus(args: {
@@ -684,6 +770,184 @@ export function createLicensingStatus(args: {
   };
 }
 
+export async function createInitialStatus(args: {
+  chainId: number;
+  cbdpRpcUrl: string;
+  runtimeRpcUrl: string;
+  forkedFrom: string | null;
+  diamondAddress: string;
+  availableSpecs: WalletSpec[];
+  provider: { getBalance(address: string): Promise<bigint> };
+}): Promise<Record<string, unknown>> {
+  const status: Record<string, unknown> = {
+    generatedAt: new Date().toISOString(),
+    network: {
+      chainId: args.chainId,
+      rpcUrl: args.cbdpRpcUrl,
+      runtimeRpcUrl: args.runtimeRpcUrl,
+      forkedFrom: args.forkedFrom,
+      diamondAddress: args.diamondAddress,
+    },
+    setup: {
+      status: "ready",
+      blockers: [] as string[],
+    },
+    actors: {},
+    marketplace: {},
+    governance: {},
+    licensing: {},
+  };
+
+  for (const entry of args.availableSpecs) {
+    const wallet = new Wallet(entry.privateKey!, args.provider as JsonRpcProvider);
+    (status.actors as Record<string, unknown>)[entry.label] = {
+      address: wallet.address,
+      nativeBalance: (await args.provider.getBalance(wallet.address)).toString(),
+    };
+  }
+
+  return status;
+}
+
+export async function populateSetupStatus(args: {
+  status: SetupStatus;
+  fundingWallets: Wallet[];
+  availableSpecsForFunding: Map<string, string>;
+  founder: Wallet;
+  seller: Wallet;
+  buyer: Wallet | null;
+  licensee: Wallet | null;
+  transferee: Wallet | null;
+  rpcUrl: string;
+  erc20: {
+    balanceOf(address: string): Promise<bigint | number | string>;
+    allowance(owner: string, spender: string): Promise<bigint | number | string>;
+    connect(wallet: Wallet): { transfer(to: string, amount: bigint): Promise<{ wait(): Promise<{ hash?: string | null } | null> }> };
+  } | null;
+  availableSpecs: WalletSpec[];
+  provider: JsonRpcProvider & { getBlock(blockTag: string): Promise<{ timestamp?: number | string | bigint } | null> };
+  port: number;
+  diamondAddress: string;
+  usdcAddress: string | null;
+  voiceAsset: {
+    getVoiceAssetsByOwner(address: string): Promise<string[]>;
+    getVoiceAsset(voiceHash: string): Promise<{ createdAt: bigint | number | string }>;
+    getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
+  };
+  escrow: { getOriginalOwner(tokenId: unknown): Promise<unknown> };
+  accessControl: { hasRole(role: string, account: string): Promise<boolean> };
+  governorFacet: { getVotingConfig(): Promise<Array<bigint | number | string>> };
+  delegationFacet: { getCurrentVotes(account: string): Promise<bigint | number | string> };
+  tokenSupply: {
+    tokenBalanceOf(account: string): Promise<bigint | number | string>;
+    supplyIsMintingFinished(): Promise<boolean>;
+  };
+  applyNativeSetupTopUpsFn?: typeof applyNativeSetupTopUps;
+  buildUsdcFundingStatusFn?: typeof buildUsdcFundingStatus;
+  collectSellerEscrowedVoiceHashesFn?: typeof collectSellerEscrowedVoiceHashes;
+  prepareAgedListingFixtureFn?: typeof prepareAgedListingFixture;
+}): Promise<void> {
+  const applyTopUps = args.applyNativeSetupTopUpsFn ?? applyNativeSetupTopUps;
+  const buildUsdcStatus = args.buildUsdcFundingStatusFn ?? buildUsdcFundingStatus;
+  const collectEscrowedVoiceHashes = args.collectSellerEscrowedVoiceHashesFn ?? collectSellerEscrowedVoiceHashes;
+  const prepareFixture = args.prepareAgedListingFixtureFn ?? prepareAgedListingFixture;
+
+  await applyTopUps({
+    status: args.status,
+    fundingWallets: args.fundingWallets,
+    availableSpecsForFunding: args.availableSpecsForFunding,
+    founder: args.founder,
+    buyer: args.buyer,
+    licensee: args.licensee,
+    transferee: args.transferee,
+    rpcUrl: args.rpcUrl,
+  });
+
+  const usdcFunding = await buildUsdcStatus({
+    erc20: args.erc20,
+    availableSpecs: args.availableSpecs,
+    buyer: args.buyer,
+    provider: args.provider,
+    port: args.port,
+    diamondAddress: args.diamondAddress,
+    usdcAddress: args.usdcAddress,
+  });
+  if (usdcFunding) {
+    args.status.marketplace = {
+      ...(args.status.marketplace as Record<string, unknown>),
+      usdcFunding,
+    };
+  }
+
+  const sellerVoiceHashes = await args.voiceAsset.getVoiceAssetsByOwner(args.seller.address);
+  const escrowVoiceHashes = await args.voiceAsset.getVoiceAssetsByOwner(args.diamondAddress);
+  const sellerEscrowedVoiceHashes = await collectEscrowedVoiceHashes({
+    escrowVoiceHashes,
+    voiceAsset: args.voiceAsset as unknown as { getTokenId(voiceHash: string): Promise<unknown> },
+    escrow: args.escrow,
+    sellerAddress: args.seller.address,
+  });
+  const candidateVoiceHashes = mergeMarketplaceCandidateVoiceHashes(
+    [...sellerVoiceHashes],
+    sellerEscrowedVoiceHashes,
+  );
+  const latestBlock = await args.provider.getBlock("latest");
+  const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
+  const agedFixture = await prepareFixture({
+    candidateVoiceHashes,
+    voiceAsset: args.voiceAsset,
+    sellerAddress: args.seller.address,
+    diamondAddress: args.diamondAddress,
+    port: args.port,
+    latestTimestamp,
+  });
+  args.status.marketplace = {
+    ...(args.status.marketplace as Record<string, unknown>),
+    agedListingFixture: agedFixture,
+  };
+
+  const proposerRole = roleId("PROPOSER_ROLE");
+  const votingConfig = await args.governorFacet.getVotingConfig();
+  const threshold = BigInt(votingConfig[2]);
+  const proposerRolePresent = await args.accessControl.hasRole(proposerRole, args.founder.address);
+  const currentVotes = BigInt(await args.delegationFacet.getCurrentVotes(args.founder.address));
+  const tokenBalance = BigInt(await args.tokenSupply.tokenBalanceOf(args.founder.address));
+  const mintingFinished = await args.tokenSupply.supplyIsMintingFinished();
+  const currentVotesAfterSetup = BigInt(await args.delegationFacet.getCurrentVotes(args.founder.address));
+  args.status.governance = createGovernanceStatus({
+    founderAddress: args.founder.address,
+    proposerRolePresent,
+    threshold,
+    currentVotes,
+    currentVotesAfterSetup,
+    tokenBalance,
+    mintingFinished,
+  });
+
+  args.status.licensing = createLicensingStatus({
+    sellerAddress: args.seller.address,
+    licenseeAddress: args.licensee?.address ?? null,
+    transfereeAddress: args.transferee?.address ?? null,
+  });
+}
+
+export async function persistSetupStatus(
+  status: Record<string, unknown>,
+  args: {
+    mkdirFn?: typeof mkdir;
+    writeFileFn?: typeof writeFile;
+    logFn?: (message: string) => void;
+  } = {},
+): Promise<void> {
+  const mkdirFn = args.mkdirFn ?? mkdir;
+  const writeFileFn = args.writeFileFn ?? writeFile;
+  const logFn = args.logFn ?? console.log;
+  const serialized = `${JSON.stringify(toJsonValue(status), null, 2)}\n`;
+  await mkdirFn(RUNTIME_DIR, { recursive: true });
+  await writeFileFn(OUTPUT_PATH, serialized, "utf8");
+  logFn(JSON.stringify(toJsonValue(status), null, 2));
+}
+
 export async function main(): Promise<void> {
   const env = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(env);
@@ -692,46 +956,8 @@ export async function main(): Promise<void> {
   process.env.RPC_URL = forkRuntime.rpcUrl;
   process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
   const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
-
-  const founderSpec: WalletSpec = { label: "founder", privateKey: env.PRIVATE_KEY };
-  const sellerSpec: WalletSpec = { label: "seller", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_1 ?? env.ORACLE_WALLET_PRIVATE_KEY ?? env.PRIVATE_KEY };
-  const buyerSpec: WalletSpec = { label: "buyer", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_2 };
-  const licenseeSpec: WalletSpec = { label: "licensee", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_3 };
-  const transfereeSpec: WalletSpec = { label: "transferee", privateKey: env.ORACLE_SIGNER_PRIVATE_KEY_4 };
-  const availableSpecs = [founderSpec, sellerSpec, buyerSpec, licenseeSpec, transfereeSpec].filter((entry) => entry.privateKey);
-  if (!founderSpec.privateKey) {
-    throw new Error("missing PRIVATE_KEY in repo .env");
-  }
-
-  const founder = new Wallet(founderSpec.privateKey, provider);
-  const seller = new Wallet(sellerSpec.privateKey!, provider);
-  const buyer = buyerSpec.privateKey ? new Wallet(buyerSpec.privateKey, provider) : null;
-  const licensee = licenseeSpec.privateKey ? new Wallet(licenseeSpec.privateKey, provider) : null;
-  const transferee = transfereeSpec.privateKey ? new Wallet(transfereeSpec.privateKey, provider) : null;
-
-  const availableSpecsForFunding = new Map(
-    availableSpecs.map((entry) => {
-      const wallet = new Wallet(entry.privateKey!, provider);
-      return [wallet.address.toLowerCase(), entry.label] as const;
-    }),
-  );
-  const fundingWallets = [founder, seller, buyer, licensee, transferee].filter((wallet): wallet is Wallet => wallet !== null);
-
-  process.env.API_LAYER_KEYS_JSON = JSON.stringify({
-    "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
-    "read-key": { label: "reader", roles: ["service"], allowGasless: false },
-    ...(seller ? { "seller-key": { label: "seller", signerId: "seller", roles: ["service"], allowGasless: false } } : {}),
-    ...(buyer ? { "buyer-key": { label: "buyer", signerId: "buyer", roles: ["service"], allowGasless: false } } : {}),
-    ...(licensee ? { "licensee-key": { label: "licensee", signerId: "licensee", roles: ["service"], allowGasless: false } } : {}),
-    ...(transferee ? { "transferee-key": { label: "transferee", signerId: "transferee", roles: ["service"], allowGasless: false } } : {}),
-  });
-  process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
-    founder: founder.privateKey,
-    seller: seller.privateKey,
-    ...(buyer ? { buyer: buyer.privateKey } : {}),
-    ...(licensee ? { licensee: licensee.privateKey } : {}),
-    ...(transferee ? { transferee: transferee.privateKey } : {}),
-  });
+  const walletContext = buildWalletContext(env, provider);
+  setApiLayerActorEnvironment(walletContext);
 
   const server = createApiServer({ port: 0 }).listen();
   const address = server.address();
@@ -759,119 +985,48 @@ export async function main(): Promise<void> {
         provider,
       )
     : null;
-
-    const status: Record<string, unknown> = {
-      generatedAt: new Date().toISOString(),
-      network: {
-        chainId: config.chainId,
-        rpcUrl: config.cbdpRpcUrl,
-        runtimeRpcUrl: forkRuntime.rpcUrl,
-        forkedFrom: forkRuntime.forkedFrom,
-        diamondAddress: config.diamondAddress,
-      },
-      setup: {
-        status: "ready",
-        blockers: [] as string[],
-      },
-      actors: {},
-      marketplace: {},
-      governance: {},
-      licensing: {},
-    };
-
-    for (const entry of availableSpecs) {
-      const wallet = new Wallet(entry.privateKey!, provider);
-      (status.actors as Record<string, unknown>)[entry.label] = {
-        address: wallet.address,
-        nativeBalance: (await provider.getBalance(wallet.address)).toString(),
-      };
-    }
-
-    await applyNativeSetupTopUps({
-      status: status as SetupStatus,
-      fundingWallets,
-      availableSpecsForFunding,
-      founder,
-      buyer,
-      licensee,
-      transferee,
-      rpcUrl: forkRuntime.rpcUrl,
+    const status = await createInitialStatus({
+      chainId: config.chainId,
+      cbdpRpcUrl: config.cbdpRpcUrl,
+      runtimeRpcUrl: forkRuntime.rpcUrl,
+      forkedFrom: forkRuntime.forkedFrom ?? null,
+      diamondAddress: config.diamondAddress,
+      availableSpecs: walletContext.availableSpecs,
+      provider,
     });
 
-    const usdcFunding = await buildUsdcFundingStatus({
+    await populateSetupStatus({
+      status: status as SetupStatus,
+      fundingWallets: walletContext.fundingWallets,
+      availableSpecsForFunding: walletContext.availableSpecsForFunding,
+      founder: walletContext.founder,
+      seller: walletContext.seller,
+      buyer: walletContext.buyer,
+      licensee: walletContext.licensee,
+      transferee: walletContext.transferee,
+      rpcUrl: forkRuntime.rpcUrl,
       erc20: erc20 as any,
-      availableSpecs,
-      buyer,
-      provider,
+      availableSpecs: walletContext.availableSpecs,
+      provider: provider as JsonRpcProvider & { getBlock(blockTag: string): Promise<{ timestamp?: number | string | bigint } | null> },
       port,
       diamondAddress: config.diamondAddress,
       usdcAddress,
-    });
-    if (usdcFunding) {
-      status.marketplace = {
-        ...(status.marketplace as Record<string, unknown>),
-        usdcFunding,
-      };
-    }
-
-    const sellerVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(seller.address);
-    const escrowVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(config.diamondAddress);
-    const sellerEscrowedVoiceHashes = await collectSellerEscrowedVoiceHashes({
-      escrowVoiceHashes: escrowVoiceHashes as string[],
-      voiceAsset: voiceAsset as unknown as { getTokenId(voiceHash: string): Promise<unknown> },
-      escrow: escrow as unknown as { getOriginalOwner(tokenId: unknown): Promise<unknown> },
-      sellerAddress: seller.address,
-    });
-    const candidateVoiceHashes = mergeMarketplaceCandidateVoiceHashes(
-      [...sellerVoiceHashes as string[]],
-      sellerEscrowedVoiceHashes,
-    );
-    const latestBlock = await provider.getBlock("latest");
-    const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
-    const agedFixture = await prepareAgedListingFixture({
-      candidateVoiceHashes,
       voiceAsset: voiceAsset as unknown as {
+        getVoiceAssetsByOwner(address: string): Promise<string[]>;
         getVoiceAsset(voiceHash: string): Promise<{ createdAt: bigint | number | string }>;
         getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
       },
-      sellerAddress: seller.address,
-      diamondAddress: config.diamondAddress,
-      port,
-      latestTimestamp,
-    });
-    status.marketplace = {
-      ...(status.marketplace as Record<string, unknown>),
-      agedListingFixture: agedFixture,
-    };
-
-    const proposerRole = roleId("PROPOSER_ROLE");
-    const votingConfig = await governorFacet.getVotingConfig();
-    const threshold = BigInt(votingConfig[2]);
-    const proposerRolePresent = await accessControl.hasRole(proposerRole, founder.address);
-    const currentVotes = BigInt(await delegationFacet.getCurrentVotes(founder.address));
-    const tokenBalance = BigInt(await tokenSupply.tokenBalanceOf(founder.address));
-    const mintingFinished = await tokenSupply.supplyIsMintingFinished();
-    const currentVotesAfterSetup = BigInt(await delegationFacet.getCurrentVotes(founder.address));
-    const governanceStatus = createGovernanceStatus({
-      founderAddress: founder.address,
-      proposerRolePresent,
-      threshold,
-      currentVotes,
-      currentVotesAfterSetup,
-      tokenBalance,
-      mintingFinished,
-    });
-    status.governance = governanceStatus;
-
-    status.licensing = createLicensingStatus({
-      sellerAddress: seller.address,
-      licenseeAddress: licensee?.address ?? null,
-      transfereeAddress: transferee?.address ?? null,
+      escrow: escrow as unknown as { getOriginalOwner(tokenId: unknown): Promise<unknown> },
+      accessControl: accessControl as unknown as { hasRole(role: string, account: string): Promise<boolean> },
+      governorFacet: governorFacet as unknown as { getVotingConfig(): Promise<Array<bigint | number | string>> },
+      delegationFacet: delegationFacet as unknown as { getCurrentVotes(account: string): Promise<bigint | number | string> },
+      tokenSupply: tokenSupply as unknown as {
+        tokenBalanceOf(account: string): Promise<bigint | number | string>;
+        supplyIsMintingFinished(): Promise<boolean>;
+      },
     });
 
-    await mkdir(RUNTIME_DIR, { recursive: true });
-    await writeFile(OUTPUT_PATH, `${JSON.stringify(toJsonValue(status), null, 2)}\n`, "utf8");
-    console.log(JSON.stringify(toJsonValue(status), null, 2));
+    await persistSetupStatus(status);
   } finally {
     server.close();
     forkRuntime.forkProcess?.kill("SIGTERM");

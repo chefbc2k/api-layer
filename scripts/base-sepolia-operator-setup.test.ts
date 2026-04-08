@@ -4,11 +4,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   apiCall,
   applyNativeSetupTopUps,
+  buildWalletContext,
   buildUsdcFundingStatus,
   collectSellerEscrowedVoiceHashes,
   createEmptyAgedListingFixture,
   createFallbackMarketplaceFixture,
   createGovernanceStatus,
+  createInitialStatus,
   createInactivePreferredMarketplaceFixture,
   createLicensingStatus,
   createPreferredMarketplaceFixture,
@@ -16,9 +18,12 @@ import {
   ensureRole,
   extractTxHash,
   nativeTransferSpendable,
+  persistSetupStatus,
+  populateSetupStatus,
   prepareAgedListingFixture,
   retryApiRead,
   roleId,
+  setApiLayerActorEnvironment,
   toJsonValue,
   waitForReceipt,
 } from "./base-sepolia-operator-setup.js";
@@ -570,6 +575,229 @@ describe("base sepolia operator setup helpers", () => {
       status: "blocked",
       blockers: ["buyer: buyer still short"],
     });
+  });
+
+  it("builds wallet context and actor env mappings from repo env keys", () => {
+    const provider = {
+      getBalance: vi.fn(),
+    } as any;
+    const founder = ethers.Wallet.createRandom();
+    const seller = ethers.Wallet.createRandom();
+    const buyer = ethers.Wallet.createRandom();
+    const licensee = ethers.Wallet.createRandom();
+
+    const context = buildWalletContext({
+      PRIVATE_KEY: founder.privateKey,
+      ORACLE_SIGNER_PRIVATE_KEY_1: seller.privateKey,
+      ORACLE_SIGNER_PRIVATE_KEY_2: buyer.privateKey,
+      ORACLE_SIGNER_PRIVATE_KEY_3: licensee.privateKey,
+    } as any, provider);
+
+    expect(context.availableSpecs.map((entry) => entry.label)).toEqual(["founder", "seller", "buyer", "licensee"]);
+    expect(context.availableSpecsForFunding.get(context.founder.address.toLowerCase())).toBe("founder");
+    expect(context.availableSpecsForFunding.get(context.seller.address.toLowerCase())).toBe("seller");
+    expect(context.transferee).toBeNull();
+
+    setApiLayerActorEnvironment(context);
+    expect(JSON.parse(process.env.API_LAYER_KEYS_JSON ?? "{}")).toMatchObject({
+      "founder-key": { signerId: "founder" },
+      "seller-key": { signerId: "seller" },
+      "buyer-key": { signerId: "buyer" },
+      "licensee-key": { signerId: "licensee" },
+    });
+    expect(JSON.parse(process.env.API_LAYER_SIGNER_MAP_JSON ?? "{}")).toMatchObject({
+      founder: founder.privateKey,
+      seller: seller.privateKey,
+      buyer: buyer.privateKey,
+      licensee: licensee.privateKey,
+    });
+  });
+
+  it("rejects repo envs that omit the founder private key", () => {
+    expect(() => buildWalletContext({} as any, {} as any)).toThrow("missing PRIVATE_KEY in repo .env");
+  });
+
+  it("creates the initial status payload with actor native balances", async () => {
+    const founder = ethers.Wallet.createRandom();
+    const seller = ethers.Wallet.createRandom();
+    const balances = new Map<string, bigint>([
+      [founder.address, 111n],
+      [seller.address, 222n],
+    ]);
+
+    const status = await createInitialStatus({
+      chainId: 84532,
+      cbdpRpcUrl: "https://rpc.example",
+      runtimeRpcUrl: "http://127.0.0.1:8548",
+      forkedFrom: "https://fork.example",
+      diamondAddress: "0xdiamond",
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+        { label: "seller", privateKey: seller.privateKey },
+      ],
+      provider: {
+        getBalance: vi.fn(async (address: string) => balances.get(address) ?? 0n),
+      },
+    });
+
+    expect(status).toMatchObject({
+      network: {
+        chainId: 84532,
+        rpcUrl: "https://rpc.example",
+        runtimeRpcUrl: "http://127.0.0.1:8548",
+        forkedFrom: "https://fork.example",
+        diamondAddress: "0xdiamond",
+      },
+      setup: {
+        status: "ready",
+        blockers: [],
+      },
+      actors: {
+        founder: {
+          address: founder.address,
+          nativeBalance: "111",
+        },
+        seller: {
+          address: seller.address,
+          nativeBalance: "222",
+        },
+      },
+    });
+  });
+
+  it("populates marketplace, governance, and licensing status through injected setup helpers", async () => {
+    const provider = {} as any;
+    const founder = ethers.Wallet.createRandom().connect(provider);
+    const seller = ethers.Wallet.createRandom().connect(provider);
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+    const licensee = ethers.Wallet.createRandom().connect(provider);
+    const transferee = ethers.Wallet.createRandom().connect(provider);
+
+    const status = {
+      actors: {},
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
+    const applyNativeSetupTopUpsFn = vi.fn(async ({ status: setupStatus }: { status: typeof status }) => {
+      setupStatus.setup.status = "ready";
+    });
+    const buildUsdcFundingStatusFn = vi.fn().mockResolvedValue({ buyerBalanceAfterTransfer: "25000000" });
+    const collectSellerEscrowedVoiceHashesFn = vi.fn().mockResolvedValue(["0xescrowed"]);
+    const prepareAgedListingFixtureFn = vi.fn().mockResolvedValue({ tokenId: "11", status: "ready" });
+    const getCurrentVotes = vi.fn()
+      .mockResolvedValueOnce(123n)
+      .mockResolvedValueOnce(456n);
+    const providerWithBlock = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 1000 }),
+    } as any;
+
+    await populateSetupStatus({
+      status,
+      fundingWallets: [founder, seller, buyer, licensee, transferee],
+      availableSpecsForFunding: new Map([[founder.address.toLowerCase(), "founder"]]),
+      founder,
+      seller,
+      buyer,
+      licensee,
+      transferee,
+      rpcUrl: "http://127.0.0.1:8548",
+      erc20: null,
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+        { label: "seller", privateKey: seller.privateKey },
+      ],
+      provider: providerWithBlock,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+      voiceAsset: {
+        getVoiceAssetsByOwner: vi.fn(async (address: string) => (address === seller.address ? ["0xseller"] : ["0xescrowed"])),
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      escrow: {
+        getOriginalOwner: vi.fn().mockResolvedValue(seller.address),
+      },
+      accessControl: {
+        hasRole: vi.fn().mockResolvedValue(true),
+      },
+      governorFacet: {
+        getVotingConfig: vi.fn().mockResolvedValue([0n, 0n, 100n]),
+      },
+      delegationFacet: {
+        getCurrentVotes,
+      },
+      tokenSupply: {
+        tokenBalanceOf: vi.fn().mockResolvedValue(999n),
+        supplyIsMintingFinished: vi.fn().mockResolvedValue(true),
+      },
+      applyNativeSetupTopUpsFn: applyNativeSetupTopUpsFn as any,
+      buildUsdcFundingStatusFn: buildUsdcFundingStatusFn as any,
+      collectSellerEscrowedVoiceHashesFn: collectSellerEscrowedVoiceHashesFn as any,
+      prepareAgedListingFixtureFn: prepareAgedListingFixtureFn as any,
+    });
+
+    expect(applyNativeSetupTopUpsFn).toHaveBeenCalledTimes(1);
+    expect(buildUsdcFundingStatusFn).toHaveBeenCalledTimes(1);
+    expect(collectSellerEscrowedVoiceHashesFn).toHaveBeenCalledWith({
+      escrowVoiceHashes: ["0xescrowed"],
+      voiceAsset: expect.any(Object),
+      escrow: expect.any(Object),
+      sellerAddress: seller.address,
+    });
+    expect(prepareAgedListingFixtureFn).toHaveBeenCalledWith({
+      candidateVoiceHashes: ["0xseller", "0xescrowed"],
+      voiceAsset: expect.any(Object),
+      sellerAddress: seller.address,
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 1000n,
+    });
+    expect(status.marketplace).toMatchObject({
+      usdcFunding: { buyerBalanceAfterTransfer: "25000000" },
+      agedListingFixture: { tokenId: "11", status: "ready" },
+    });
+    expect(status.governance).toMatchObject({
+      proposerAddress: founder.address,
+      status: "ready",
+      currentVotes: "123",
+      currentVotesAfterSetup: "456",
+      tokenBalance: "999",
+    });
+    expect(status.licensing).toEqual({
+      lifecycle: {
+        activeLicenseLifecycle: "issueLicense/createLicense -> getLicenseTerms/transferLicense as licensee-scoped operations",
+      },
+      recommendedActors: {
+        licensor: seller.address,
+        licensee: licensee.address,
+        transferee: transferee.address,
+      },
+    });
+  });
+
+  it("persists setup status to disk using JSON-safe serialization", async () => {
+    const mkdirFn = vi.fn().mockResolvedValue(undefined);
+    const writeFileFn = vi.fn().mockResolvedValue(undefined);
+    const logFn = vi.fn();
+
+    await persistSetupStatus(
+      {
+        setup: { status: "ready" },
+        actors: { founder: { nativeBalance: 5n } },
+      },
+      { mkdirFn: mkdirFn as any, writeFileFn: writeFileFn as any, logFn },
+    );
+
+    expect(mkdirFn).toHaveBeenCalledWith(expect.stringContaining(".runtime"), { recursive: true });
+    expect(writeFileFn).toHaveBeenCalledWith(
+      expect.stringContaining("base-sepolia-operator-fixtures.json"),
+      expect.stringContaining("\"nativeBalance\": \"5\""),
+      "utf8",
+    );
+    expect(logFn).toHaveBeenCalledWith(expect.stringContaining("\"status\": \"ready\""));
   });
 
   it("builds USDC funding status with signer transfer and approval repair", async () => {

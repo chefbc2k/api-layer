@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.56] - 2026-04-08
+
+### Fixed
+- **Base Sepolia Setup Orchestration Made Testable:** Refactored [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so the previously monolithic `main()` flow now delegates to exported helper layers for wallet-context construction, actor env wiring, initial status creation, setup-state population, and status persistence. This preserved the live setup behavior while making the fork/setup workflow injectable and unit-testable.
+- **Setup Coverage Expanded Across Real Lifecycle Branches:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) with orchestration-focused proofs for wallet/env assembly, missing-founder-key rejection, initial status hydration, injected setup-state population across marketplace/governance/licensing domains, and persisted JSON-safe fixture output.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; the fixture remains `setup.status: "ready"` with no blockers. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` all remained at or above their native minimums without fresh top-ups; the aged marketplace fixture still resolves to token `11` with `purchaseReadiness: "purchase-ready"` and active seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`; governance remains `ready` with proposer role present, threshold `4200000000000000`, and founder voting power `840000000000000000`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Setup Proofs:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `39` assertions pass with the new orchestration helpers covered.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `116` passing files, `588` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `92.10%` to `93.11%` statements, `79.35%` to `79.68%` branches, `96.00%` to `96.26%` functions, and `92.03%` to `93.03%` lines. [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) improved from `70.00%` to `88.02%` statements, `72.68%` to `78.96%` branches, `85.00%` to `93.33%` functions, and `69.26%` to `87.45%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts).
+
 ## [0.1.55] - 2026-04-08
 
 ### Fixed
