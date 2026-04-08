@@ -18,7 +18,7 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runStakeAndDelegateWorkflow } from "./stake-and-delegate.js";
+import { runStakeAndDelegateWorkflow, stakeAndDelegateSchema } from "./stake-and-delegate.js";
 
 describe("runStakeAndDelegateWorkflow", () => {
   const auth = {
@@ -435,5 +435,122 @@ describe("runStakeAndDelegateWorkflow", () => {
         throw error;
       }
     }).rejects.toThrow("stake-and-delegate blocked by stake rule violation: EchoScore too low (0 < 1000)");
+  });
+
+  it("rejects signerless workflow execution when no wallet address or signer mapping is available", async () => {
+    const previousSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
+    delete process.env.API_LAYER_SIGNER_MAP_JSON;
+
+    await expect(runStakeAndDelegateWorkflow(
+      {
+        addressBook: {
+          toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+        },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: unknown) => Promise<unknown>) => work({})),
+        },
+      } as never,
+      { ...auth, signerId: "missing-signer" },
+      undefined,
+      {
+        amount: "100",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+    )).rejects.toThrow("stake-and-delegate requires signer-backed auth");
+
+    expect(() => stakeAndDelegateSchema.parse({
+      amount: "10",
+      delegatee: "not-an-address",
+    })).toThrow();
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
+  });
+
+  it.each([
+    {
+      label: "below minimum stake",
+      error: {
+        message: "execution reverted",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "execution reverted: 0x06a35408000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000003e8",
+            },
+          },
+        },
+      },
+      expected: "stake-and-delegate blocked by stake rule violation: amount 1 is below minimum stake 1000",
+    },
+    {
+      label: "maximum stake exceeded",
+      error: {
+        message: "execution reverted",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "execution reverted: 0x3265e09b000000000000000000000000000000000000000000000000000000000000138800000000000000000000000000000000000000000000000000000000000003e8",
+            },
+          },
+        },
+      },
+      expected: "stake-and-delegate blocked by degraded-mode cap or maximum stake rule: 5000 exceeds 1000",
+    },
+    {
+      label: "staking paused",
+      error: {
+        message: "execution reverted: 0x26d1807b",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "0x26d1807b",
+            },
+          },
+        },
+      },
+      expected: "stake-and-delegate requires staking to be unpaused",
+    },
+    {
+      label: "zero stake amount",
+      error: {
+        message: "execution reverted: 0xf69a94d3",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "0xf69a94d3",
+            },
+          },
+        },
+      },
+      expected: "stake-and-delegate requires a non-zero amount",
+    },
+  ])("normalizes $label stake failures", async ({ error, expected }) => {
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 22 })),
+        })),
+      },
+    } as never;
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      tokenApprove: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove-write" } }),
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      getStakeInfo: vi.fn().mockResolvedValue({ statusCode: 200, body: { amount: "0" } }),
+      stake: vi.fn().mockRejectedValue(error),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xapprove-receipt");
+
+    await expect(runStakeAndDelegateWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      amount: "1",
+      delegatee: "0x00000000000000000000000000000000000000bb",
+    })).rejects.toThrow(expected);
   });
 });
