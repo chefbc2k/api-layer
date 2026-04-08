@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.44] - 2026-04-08
+
+### Fixed
+- **Provider Router Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts) to cover rolling-threshold failover, error-window pruning, failed cooldown recovery probes, and suite-safe timer bootstrap for the ethers `JsonRpcProvider` path under the full Istanbul sweep.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; setup still exits cleanly with `setup.status: "blocked"` for the same external funding issue only. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei. Marketplace aged listing token `11` remains purchase-ready and governance remains ready.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Focused Provider Router Proofs:** Re-ran `pnpm exec vitest run packages/client/src/runtime/provider-router.test.ts --maxWorkers 1` and a coverage-only pass for [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts); all `7` focused assertions pass and the file now measures `98.03%` statements, `88.57%` branches, `100%` functions, and `98%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `114` passing files, `537` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `114` passing files, `537` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `88.37%` to `88.43%` statements, `75.04%` to `75.18%` branches, and `88.22%` to `88.29%` lines, while functions held at `94.33%`.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The largest remaining gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts), and lower-covered runtime/workflow modules such as [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts).
+- **Coverage Provider Instrumentation Gap Still Open:** [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts) still reports `0%` in Istanbul because it is loaded as the coverage engine itself; focused behavioral tests still pass, but the instrumentation blind spot remains.
+
 ## [0.1.43] - 2026-04-08
 
 ### Fixed
