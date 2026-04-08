@@ -120,6 +120,25 @@ describe("runtime config", () => {
     expect(config.alchemyEndpointDetected).toBe(false);
   });
 
+  it("treats 0, blank, and whitespace boolean env values as explicit disables", () => {
+    const config = readConfigFromEnv({
+      CBDP_RPC_URL: "https://cbdp.example.com/base-sepolia",
+      ALCHEMY_RPC_URL: "https://base-sepolia.g.alchemy.com/v2/test-key",
+      ALCHEMY_API_KEY: "test-key",
+      DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+      API_LAYER_ENABLE_GASLESS: "0",
+      API_LAYER_ENABLE_ALCHEMY_DIAGNOSTICS: "",
+      API_LAYER_ENABLE_ALCHEMY_SIMULATION: "   ",
+      API_LAYER_ENFORCE_ALCHEMY_SIMULATION: " 0 ",
+    });
+
+    expect(config.alchemyEndpointDetected).toBe(true);
+    expect(config.enableGasless).toBe(false);
+    expect(config.alchemyDiagnosticsEnabled).toBe(false);
+    expect(config.alchemySimulationEnabled).toBe(false);
+    expect(config.alchemySimulationEnforced).toBe(false);
+  });
+
   it("loads repo env files once and lets process env override cached file values", async () => {
     const existsSync = vi.fn(() => true);
     const readFileSync = vi.fn(() => [
