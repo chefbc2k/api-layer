@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.57] - 2026-04-08
+
+### Fixed
+- **Shared Validation Coverage Expanded:** Added [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts) to cover wire-schema parsing for scalar, bytes, tuple, fixed-array, event-schema, coercion, and unbound-input branches in [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts).
+- **Shared Error Normalization Fully Covered:** Added [`/Users/chef/Public/api-layer/packages/api/src/shared/errors.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/errors.test.ts) to prove existing `HttpError` passthrough plus Zod, auth, authorization, rate-limit, request-validation, and fallback 500 mapping behavior in [`/Users/chef/Public/api-layer/packages/api/src/shared/errors.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/errors.ts).
+- **Client/Indexer Residual Helper Gaps Closed:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/method-policy.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/method-policy.test.ts) with the unknown-method fallback path and added [`/Users/chef/Public/api-layer/packages/indexer/src/projections/tables.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/tables.test.ts) to lock the projection-table export in [`/Users/chef/Public/api-layer/packages/indexer/src/projections/tables.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/tables.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Proofs:** Re-ran `pnpm exec vitest run packages/api/src/shared/errors.test.ts packages/api/src/shared/validation.test.ts packages/client/src/runtime/method-policy.test.ts packages/indexer/src/projections/tables.test.ts --maxWorkers 1`; all `12` targeted assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `119` passing files, `599` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `93.11%` to `93.38%` statements, `79.68%` to `80.28%` branches, `96.26%` to `96.35%` functions, and `93.03%` to `93.31%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/api/src/shared/errors.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/errors.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/method-policy.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/method-policy.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/projections/tables.ts`](/Users/chef/Public/api-layer/packages/indexer/src/projections/tables.ts) now reach `100%` across reported metrics, while [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts) improved to `96.34%` statements, `89.15%` branches, `95.23%` functions, and `97.40%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), and [`/Users/chef/Public/api-layer/packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts).
+
 ## [0.1.56] - 2026-04-08
 
 ### Fixed

@@ -16,4 +16,8 @@ describe("getMethodMetadata", () => {
       cacheTtlSeconds: 600,
     });
   });
+
+  it("returns null for unknown methods", () => {
+    expect(getMethodMetadata("UnknownFacet.missingMethod")).toBeNull();
+  });
 });
