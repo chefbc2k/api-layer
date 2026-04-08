@@ -61,6 +61,8 @@ describe("api surface helpers", () => {
       wrapperKey: "safeTransferFrom(address,address,uint256)",
       methodName: "safeTransferFrom",
     }))).toBe("safeTransferFromAddressAddressUint256");
+    expect(toKebabCase("Already Clean")).toBe("already-clean");
+    expect(toCamelCase("Already Clean")).toBe("alreadyClean");
   });
 
   it("classifies reads, creates, updates, deletes, admin writes, and actions", () => {
@@ -75,6 +77,9 @@ describe("api surface helpers", () => {
       methodName: "setQuorum",
     }))).toBe("admin");
     expect(classifyMethod("marketplace", method({ category: "write", methodName: "purchaseAsset" }))).toBe("action");
+    expect(classifyMethod("voice-assets", method({ category: "write", methodName: "propose" }))).toBe("create");
+    expect(classifyMethod("voice-assets", method({ methodName: "getVoiceAssetByOwner" }))).toBe("query");
+    expect(classifyMethod("voice-assets", method({ methodName: "URI" }))).toBe("query");
   });
 
   it("builds method surfaces with default and overridden route shapes", () => {
@@ -119,6 +124,240 @@ describe("api surface helpers", () => {
     });
   });
 
+  it("maps resource domains, HTTP verbs, and output shapes across non-voice facets", () => {
+    expect(buildMethodSurface(method({
+      facetName: "VoiceLicenseTemplateFacet",
+      wrapperKey: "createTemplate",
+      methodName: "createTemplate",
+      category: "write",
+      inputs: [{ name: "name", type: "string" }],
+      outputs: [{ name: "templateId", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "licensing",
+      resource: "license-templates",
+      classification: "create",
+      httpMethod: "POST",
+      path: "/v1/licensing/license-templates",
+      outputShape: { kind: "scalar" },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "RightsFacet",
+      wrapperKey: "getRight",
+      methodName: "getRight",
+      inputs: [
+        { name: "holder", type: "tuple", components: [{ name: "owner", type: "address" }] },
+        { name: "id", type: "uint256" },
+        { name: "extra", type: "uint256" },
+      ],
+      outputs: [{ name: "right", type: "tuple", components: [{ name: "id", type: "uint256" }] }],
+    }))).toMatchObject({
+      resource: "rights",
+      httpMethod: "POST",
+      path: "/v1/licensing/queries/get-right",
+      inputShape: { kind: "body" },
+      outputShape: { kind: "object" },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "EscrowFacet",
+      wrapperKey: "cancelEscrow",
+      methodName: "cancelEscrow",
+      category: "write",
+      inputs: [{ name: "escrowId", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "marketplace",
+      resource: "escrow",
+      classification: "delete",
+      httpMethod: "DELETE",
+      path: "/v1/marketplace/commands/cancel-escrow",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "ProposalFacet",
+      wrapperKey: "setProposalThreshold",
+      methodName: "setProposalThreshold",
+      category: "write",
+      inputs: [{ name: "threshold", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "proposals",
+      classification: "update",
+      httpMethod: "PATCH",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "TimelockFacet",
+      wrapperKey: "queueOperation",
+      methodName: "queueOperation",
+      category: "write",
+      inputs: [{ name: "operationId", type: "bytes32" }],
+      outputs: [
+        { name: "scheduledAt", type: "uint256" },
+        { name: "eta", type: "uint256" },
+      ],
+    }))).toMatchObject({
+      resource: "timelock-operations",
+      classification: "action",
+      httpMethod: "POST",
+      outputShape: { kind: "tuple" },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "DelegationFacet",
+      wrapperKey: "delegateVotes",
+      methodName: "delegateVotes",
+      category: "write",
+      inputs: [{ name: "delegatee", type: "address" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "delegations",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VotingPowerFacet",
+      wrapperKey: "getVotingPower",
+      methodName: "getVotingPower",
+      inputs: [{ name: "account", type: "address" }],
+      outputs: [{ name: "power", type: "uint256[]" }],
+    }))).toMatchObject({
+      resource: "voting-power",
+      outputShape: { kind: "array" },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "EchoScoreFacetV3",
+      wrapperKey: "getEchoScore",
+      methodName: "getEchoScore",
+    }))).toMatchObject({
+      resource: "echo-scores",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "CommunityRewardsFacet",
+      wrapperKey: "listCampaigns",
+      methodName: "listCampaigns",
+    }))).toMatchObject({
+      domain: "tokenomics",
+      resource: "community-rewards",
+      classification: "query",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "TimewaveGiftFacet",
+      wrapperKey: "claimGift",
+      methodName: "claimGift",
+      category: "write",
+      inputs: [{ name: "giftId", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      resource: "vesting",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "BurnThresholdFacet",
+      wrapperKey: "getBurnThreshold",
+      methodName: "getBurnThreshold",
+    }))).toMatchObject({
+      resource: "burn-thresholds",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "TokenSupplyFacet",
+      wrapperKey: "getTokenSupply",
+      methodName: "getTokenSupply",
+    }))).toMatchObject({
+      resource: "token-supply",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "WhisperBlockFacet",
+      wrapperKey: "getWhisperBlock",
+      methodName: "getWhisperBlock",
+    }))).toMatchObject({
+      domain: "whisperblock",
+      resource: "whisperblocks",
+    });
+  });
+
+  it("applies voice-asset route overrides for write, read, and transfer variants", () => {
+    expect(buildMethodSurface(method({
+      wrapperKey: "revokeUser",
+      methodName: "revokeUser",
+      category: "write",
+      inputs: [
+        { name: "voiceHash", type: "bytes32" },
+        { name: "user", type: "address" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      httpMethod: "DELETE",
+      path: "/v1/voice-assets/:voiceHash/authorization-grants/:user",
+      inputShape: {
+        kind: "path+body",
+        bindings: [
+          { name: "voiceHash", source: "path", field: "voiceHash" },
+          { name: "user", source: "path", field: "user" },
+        ],
+      },
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "recordRoyaltyPayment",
+      methodName: "recordRoyaltyPayment",
+      category: "write",
+      inputs: [
+        { name: "voiceHash", type: "bytes32" },
+        { name: "amount", type: "uint256" },
+        { name: "usageReference", type: "string" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/:voiceHash/royalty-payments",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "safeTransferFrom(address,address,uint256,bytes)",
+      methodName: "safeTransferFrom",
+      category: "write",
+      inputs: [
+        { name: "from", type: "address" },
+        { name: "to", type: "address" },
+        { name: "tokenId", type: "uint256" },
+        { name: "data", type: "bytes" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/tokens/:tokenId/transfers/safe-with-data",
+      inputShape: {
+        kind: "path+body",
+        bindings: [
+          { name: "from", source: "body", field: "from" },
+          { name: "to", source: "body", field: "to" },
+          { name: "tokenId", source: "path", field: "tokenId" },
+          { name: "data", source: "body", field: "data" },
+        ],
+      },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VoiceMetadataFacet",
+      wrapperKey: "updateBasicAcousticFeatures",
+      methodName: "updateBasicAcousticFeatures",
+      category: "write",
+      inputs: [
+        { name: "voiceHash", type: "bytes32" },
+        { name: "features", type: "tuple", components: [{ name: "tempo", type: "uint256" }] },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/:voiceHash/metadata/acoustic-features",
+    });
+  });
+
   it("builds event surfaces and sorts object keys", () => {
     expect(buildEventSurface(event({
       wrapperKey: "Transfer(address,address,uint256)",
@@ -135,5 +374,10 @@ describe("api surface helpers", () => {
       beta: 2,
       gamma: 3,
     });
+  });
+
+  it("throws for unmapped method or event facets", () => {
+    expect(() => buildMethodSurface(method({ facetName: "UnknownFacet" }))).toThrow("missing domain mapping for UnknownFacet");
+    expect(() => buildEventSurface(event({ facetName: "UnknownFacet" }))).toThrow("missing domain mapping for UnknownFacet");
   });
 });
