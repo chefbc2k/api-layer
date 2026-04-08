@@ -371,6 +371,53 @@ describe("enforceRateLimit", () => {
 });
 
 describe("getTransactionStatus", () => {
+  it("decodes logs and traces Alchemy receipts when diagnostics are enabled", async () => {
+    const receipt = {
+      logs: [{ address: "0x0000000000000000000000000000000000000001" }],
+      status: 1,
+    };
+    mocked.decodeReceiptLogs.mockReturnValueOnce([{ eventName: "AssetRegistered" }]);
+    mocked.traceTransactionWithAlchemy.mockResolvedValueOnce({ status: "ok", steps: 1 });
+    const context = {
+      alchemy: {
+        core: {
+          getTransactionReceipt: vi.fn().mockResolvedValue(receipt),
+        },
+      },
+      config: {
+        alchemyDiagnosticsEnabled: true,
+        alchemySimulationEnabled: true,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemyTraceTimeout: 7_500,
+      },
+    };
+
+    await expect(getTransactionStatus(context as never, "0xtx")).resolves.toEqual({
+      source: "alchemy",
+      receipt: {
+        logs: [{ address: "0x0000000000000000000000000000000000000001" }],
+        status: 1,
+      },
+      diagnostics: {
+        alchemy: {
+          enabled: true,
+          simulationEnabled: true,
+          simulationEnforced: false,
+          endpointDetected: true,
+          rpcUrl: "https://alchemy.example",
+          available: true,
+        },
+        decodedLogs: [{ eventName: "AssetRegistered" }],
+        trace: { status: "ok", steps: 1 },
+      },
+    });
+
+    expect(mocked.decodeReceiptLogs).toHaveBeenCalledWith({ logs: receipt.logs });
+    expect(mocked.traceTransactionWithAlchemy).toHaveBeenCalledWith(context.alchemy, "0xtx", 7_500);
+  });
+
   it("returns Alchemy-backed status when diagnostics are available", async () => {
     const context = {
       alchemy: {
@@ -524,6 +571,39 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.serializeResultToWire).toHaveBeenCalledWith(definition, 9n);
   });
 
+  it("omits signerFactory for reads without signer or wallet context", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
+    mocked.invokeRead.mockResolvedValueOnce("plain-provider-read");
+    mocked.serializeResultToWire.mockReturnValueOnce("plain-provider-read");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: { apiKey: "read-key", label: "reader", allowGasless: false, roles: ["service"] },
+          walletAddress: undefined,
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "plain-provider-read",
+    });
+
+    expect(mocked.invokeRead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        signerFactory: undefined,
+      }),
+      "VoiceAssetFacet",
+      "readMethod",
+      [],
+      false,
+      null,
+    );
+  });
+
   it("uses a wallet-backed signerFactory for wallet-scoped reads", async () => {
     const definition = buildReadDefinition();
     const context = buildContext();
@@ -554,6 +634,37 @@ describe("executeHttpMethodDefinition", () => {
     expect(walletRunner).toMatchObject({
       address: "0x00000000000000000000000000000000000000bb",
     });
+  });
+
+  it("uses signer-backed reads when the API key maps to a private key", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
+    mocked.invokeRead.mockImplementationOnce(async (runtime) => {
+      const runner = await runtime.signerFactory?.({ name: "provider" });
+      return runner;
+    });
+    mocked.serializeResultToWire.mockReturnValueOnce("signer-read");
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          walletAddress: undefined,
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "signer-read",
+    });
+
+    const signerRunner = mocked.serializeResultToWire.mock.calls.at(-1)?.[1];
+    expect(signerRunner).toMatchObject({
+      address: "wallet:0xabc",
+    });
+    expect(context.signerRunners.get("founder:read")).toBe(signerRunner);
   });
 
   it("rejects writes without a signer for direct submission", async () => {
@@ -784,6 +895,29 @@ describe("executeHttpMethodDefinition", () => {
         signer: "0x00000000000000000000000000000000000000aa",
         provider: null,
         trace: { status: "disabled" },
+      }),
+    });
+  });
+
+  it("preserves preview diagnostics when signer preparation also fails", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockRejectedValueOnce(new Error("preview reverted"));
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "missing private key for signer founder",
+      diagnostics: expect.objectContaining({
+        provider: null,
+        signer: "0x00000000000000000000000000000000000000aa",
+        cause: "missing private key for signer founder",
       }),
     });
   });
