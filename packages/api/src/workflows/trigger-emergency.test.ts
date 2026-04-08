@@ -13,7 +13,7 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runTriggerEmergencyWorkflow } from "./trigger-emergency.js";
+import { runTriggerEmergencyWorkflow, triggerEmergencyWorkflowSchema } from "./trigger-emergency.js";
 
 describe("trigger-emergency", () => {
   beforeEach(() => {
@@ -210,5 +210,106 @@ describe("trigger-emergency", () => {
       statusCode: 400,
       message: "trigger-emergency received unknown emergency transition apiKey",
     }));
+  });
+
+  it("accepts an incident id without a report and handles null receipts for recovery transitions", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+
+    const emergency = {
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      triggerEmergency: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrecover" } }),
+      executeResponse: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xresponse" } }),
+      getIncident: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          id: "9",
+          incidentType: "3",
+          description: "restore",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "22",
+          resolved: false,
+          actions: ["4"],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      }),
+      emergencyStateChangedEventQuery: vi.fn(),
+      responseExecutedEventQuery: vi.fn(),
+    };
+    mocks.createEmergencyPrimitiveService.mockReturnValue(emergency);
+
+    const result = await runTriggerEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        emergency: {
+          state: "RECOVERY",
+          reason: "recover safely",
+          useEmergencyStop: false,
+        },
+        incident: {
+          id: "9",
+          responseActions: ["RESTORE_STATE"],
+        },
+        pauseControl: {},
+      },
+    );
+
+    expect(result.incident.report).toBeNull();
+    expect(result.response).toMatchObject({
+      txHash: null,
+      eventCount: 0,
+      incidentId: "9",
+    });
+    expect(result.pauseControl).toEqual({
+      extendPause: null,
+      scheduleResume: null,
+    });
+    expect(result.summary).toEqual({
+      incidentId: "9",
+      requestedState: "RECOVERY",
+      resultingState: "3",
+      resultingStateLabel: "RECOVERY",
+      responseExecuted: true,
+      assetsFrozen: 0,
+      resumeScheduled: false,
+      pauseExtended: false,
+    });
+    expect(emergency.emergencyStateChangedEventQuery).not.toHaveBeenCalled();
+    expect(emergency.responseExecutedEventQuery).not.toHaveBeenCalled();
+  });
+
+  it("enforces schema refinements for emergency-stop state and response action context", () => {
+    const invalidStop = triggerEmergencyWorkflowSchema.safeParse({
+      emergency: {
+        state: "LOCKED_DOWN",
+        reason: "bad",
+        useEmergencyStop: true,
+      },
+    });
+    const missingIncidentContext = triggerEmergencyWorkflowSchema.safeParse({
+      emergency: {
+        state: "PAUSED",
+        reason: "bad",
+        useEmergencyStop: false,
+      },
+      incident: {
+        responseActions: ["PAUSE_TRADING"],
+      },
+    });
+
+    expect(invalidStop.success).toBe(false);
+    expect(missingIncidentContext.success).toBe(false);
+    expect(invalidStop.error?.issues.map((issue) => issue.message)).toContain("trigger-emergency useEmergencyStop requires PAUSED state");
+    expect(missingIncidentContext.error?.issues.map((issue) => issue.message)).toContain(
+      "trigger-emergency responseActions require incident id or incident report",
+    );
   });
 });

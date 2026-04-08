@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.53] - 2026-04-08
+
+### Fixed
+- **Commercialization Workflow Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts) to cover signer-derived execution through `API_LAYER_SIGNER_MAP_JSON`, delayed marketplace listing readback stabilization, missing signer-backed auth failures, and post-create dataset ownership drift in [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts).
+- **Emergency Workflow Validation Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.test.ts) to cover schema-level refinement failures, recovery-mode transitions driven by an existing incident id, null-receipt execution branches, and pause-control no-op shaping in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured RPC `http://127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts packages/api/src/workflows/trigger-emergency.test.ts --maxWorkers 1` and the matching focused Istanbul pass. All `15` targeted assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts) improved to `93.63%` statements, `80.59%` branches, `89.28%` functions, and `94.17%` lines in the focused run, while [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts) improved to `86.72%` statements, `77.10%` branches, `81.25%` functions, and `86.60%` lines.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `116` passing files, `572` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `91.47%` to `91.84%` statements, `78.12%` to `78.70%` branches, `95.75%` to `96.00%` functions, and `91.39%` to `91.76%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts) rose from `81.81%` / `65.67%` / `78.57%` / `82.52%` to `93.63%` / `80.59%` / `89.28%` / `94.17%`, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts) rose from `81.41%` / `55.42%` / `78.12%` / `81.25%` to `86.72%` / `77.10%` / `81.25%` / `86.60%`.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), and [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.52] - 2026-04-08
 
 ### Fixed

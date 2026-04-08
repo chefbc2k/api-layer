@@ -31,6 +31,7 @@ vi.mock("./wait-for-write.js", () => ({
 import { runCreateDatasetAndListForSaleWorkflow } from "./create-dataset-and-list-for-sale.js";
 
 describe("runCreateDatasetAndListForSaleWorkflow", () => {
+  const signerPrivateKey = "0x59c6995e998f97a5a0044966f0945382db2b4e06d2c8a4f5f6f4d1f4d5c3b2a1";
   const auth = {
     apiKey: "test-key",
     label: "test",
@@ -40,6 +41,7 @@ describe("runCreateDatasetAndListForSaleWorkflow", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.API_LAYER_SIGNER_MAP_JSON;
   });
 
   it("returns a structured monetization result when dataset creation, approval, and listing all succeed", async () => {
@@ -504,5 +506,174 @@ describe("runCreateDatasetAndListForSaleWorkflow", () => {
       duration: "0",
     })).rejects.toThrow("create-dataset-and-list-for-sale could not resolve the created dataset id from creator state");
     setTimeoutSpy.mockRestore();
+  });
+
+  it("derives the signer from signer-backed auth and retries listing readback until the listing stabilizes", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ workflow: signerPrivateKey });
+
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: unknown) => Promise<unknown>) => work({})),
+      },
+    } as never;
+    const signerAddress = "0x12b66bbe381d5503b55CA7aA9F73983a8d8e85cE";
+    mocks.resolveDatasetLicenseTemplate.mockResolvedValue({
+      templateHash: `0x${"0".repeat(63)}9`,
+      templateId: "9",
+      created: false,
+      source: "existing-active",
+      template: { isActive: true },
+    });
+    const datasets = {
+      getDatasetsByCreator: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: ["11"] })
+        .mockResolvedValueOnce({ statusCode: 200, body: ["11", "12"] }),
+      createDataset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xdataset-write" },
+      }),
+      getDataset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { datasetId: "12", active: true },
+      }),
+    };
+    const voiceAssets = {
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: signerAddress })
+        .mockResolvedValueOnce({ statusCode: 200, body: signerAddress }),
+      isApprovedForAll: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+      setApprovalForAll: vi.fn(),
+    };
+    const marketplace = {
+      listAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xlisting-write" },
+      }),
+      getListing: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: {} })
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "12", isActive: true } }),
+    };
+    mocks.createDatasetsPrimitiveService.mockReturnValue(datasets);
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(voiceAssets);
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xdataset-receipt")
+      .mockResolvedValueOnce("0xlisting-receipt");
+
+    const result = await runCreateDatasetAndListForSaleWorkflow(
+      context,
+      { ...auth, signerId: "workflow" },
+      undefined,
+      {
+        title: "Dataset",
+        assetIds: ["1"],
+        metadataURI: "ipfs://dataset",
+        royaltyBps: "500",
+        price: "1000",
+        duration: "0",
+      },
+    );
+
+    expect(context.providerRouter.withProvider).toHaveBeenCalledTimes(1);
+    expect(result.summary.signerAddress).toBe(signerAddress);
+    expect(marketplace.getListing).toHaveBeenCalledTimes(2);
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("throws when signer-backed auth is required but no signer mapping is configured", async () => {
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: unknown) => Promise<unknown>) => work({})),
+      },
+    } as never;
+    mocks.createDatasetsPrimitiveService.mockReturnValue({});
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({});
+    mocks.createMarketplacePrimitiveService.mockReturnValue({});
+
+    await expect(runCreateDatasetAndListForSaleWorkflow(
+      context,
+      { ...auth, signerId: "workflow" },
+      undefined,
+      {
+        title: "Dataset",
+        assetIds: ["1"],
+        metadataURI: "ipfs://dataset",
+        royaltyBps: "500",
+        price: "1000",
+        duration: "0",
+      },
+    )).rejects.toThrow("create-dataset-and-list-for-sale requires signer-backed auth");
+  });
+
+  it("throws when the created dataset is read back under a different owner", async () => {
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+    } as never;
+    mocks.resolveDatasetLicenseTemplate.mockResolvedValue({
+      templateHash: `0x${"0".repeat(63)}a`,
+      templateId: "10",
+      created: false,
+      source: "existing-active",
+      template: { isActive: true },
+    });
+    const datasets = {
+      getDatasetsByCreator: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: ["10"] })
+        .mockResolvedValueOnce({ statusCode: 200, body: ["10", "12"] }),
+      createDataset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xdataset-write" },
+      }),
+      getDataset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { datasetId: "12", active: true },
+      }),
+    };
+    const voiceAssets = {
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: "0x00000000000000000000000000000000000000aa",
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: "0x00000000000000000000000000000000000000bb",
+        }),
+      isApprovedForAll: vi.fn(),
+      setApprovalForAll: vi.fn(),
+    };
+    mocks.createDatasetsPrimitiveService.mockReturnValue(datasets);
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(voiceAssets);
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      listAsset: vi.fn(),
+      getListing: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xdataset-receipt");
+
+    await expect(runCreateDatasetAndListForSaleWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      title: "Dataset",
+      assetIds: ["1"],
+      metadataURI: "ipfs://dataset",
+      royaltyBps: "500",
+      price: "1000",
+      duration: "0",
+    })).rejects.toThrow("dataset 12 is owned by 0x00000000000000000000000000000000000000bb, expected signer 0x00000000000000000000000000000000000000aa");
   });
 });
