@@ -27,6 +27,23 @@ export function isAlchemyRpcUrl(url: string | undefined): boolean {
   }
 }
 
+function parseEnvBoolean(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true" || normalized === "1") {
+    return true;
+  }
+  if (normalized === "false" || normalized === "0" || normalized === "") {
+    return false;
+  }
+  return value;
+}
+
+const envBoolean = z.preprocess(parseEnvBoolean, z.boolean());
+
 const configSchema = z.object({
   chainId: z.coerce.number().default(84532),
   cbdpRpcUrl: z.string().min(1),
@@ -35,12 +52,12 @@ const configSchema = z.object({
   providerRecoveryCooldownMs: z.coerce.number().default(30_000),
   providerErrorWindowMs: z.coerce.number().default(60_000),
   providerErrorThreshold: z.coerce.number().default(5),
-  enableGasless: z.coerce.boolean().default(false),
+  enableGasless: envBoolean.default(false),
   finalityConfirmations: z.coerce.number().default(20),
   alchemyApiKey: z.string().min(1).optional(),
-  alchemyDiagnosticsEnabled: z.coerce.boolean().default(false),
-  alchemySimulationEnabled: z.coerce.boolean().default(false),
-  alchemySimulationEnforced: z.coerce.boolean().default(false),
+  alchemyDiagnosticsEnabled: envBoolean.default(false),
+  alchemySimulationEnabled: envBoolean.default(false),
+  alchemySimulationEnforced: envBoolean.default(false),
   alchemySimulationBlock: z.enum(["latest", "pending"]).default("pending"),
   alchemyTraceTimeout: z.string().default("5s"),
   alchemyEndpointDetected: z.coerce.boolean().default(false),
