@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { decodeParamsFromWire, decodeResultFromWire, serializeParamsToWire, serializeResultToWire } from "./abi-codec.js";
+import {
+  decodeFromWire,
+  decodeParamsFromWire,
+  decodeResultFromWire,
+  serializeParamsToWire,
+  serializeResultToWire,
+  serializeToWire,
+  validateWireParams,
+} from "./abi-codec.js";
 import { getAbiMethodDefinition } from "./abi-registry.js";
 
 describe("abi-codec", () => {
@@ -131,6 +139,164 @@ describe("abi-codec", () => {
     );
     expect(() => decodeResultFromWire(resultDefinition as never, ["abc", "0x0000000000000000000000000000000000000001"])).toThrow(
       "invalid response item 0 for result(uint256,address): invalid uint256 decimal string",
+    );
+  });
+
+  it("validates tuple objects, bytes, addresses, and signed integer strings", () => {
+    const definition = {
+      signature: "complex((address,bytes32,int256)[2],bytes,address)",
+      inputs: [
+        {
+          type: "tuple[2]",
+          components: [
+            { name: "owner", type: "address" },
+            { name: "salt", type: "bytes32" },
+            { name: "delta", type: "int256" },
+          ],
+        },
+        { type: "bytes" },
+        { type: "address" },
+      ],
+    };
+
+    expect(() => validateWireParams(definition as never, [[
+      { owner: "0x0000000000000000000000000000000000000001", salt: "0x" + "11".repeat(32), delta: "-5" },
+      { owner: "0x0000000000000000000000000000000000000002", salt: "0x" + "22".repeat(32), delta: "7" },
+    ], "0x1234", "0x0000000000000000000000000000000000000003"])).not.toThrow();
+
+    expect(() => validateWireParams(definition as never, [[
+      { owner: "0x0000000000000000000000000000000000000001", salt: "0x" + "11".repeat(32), delta: "-5" },
+    ], "0x1234", "0x0000000000000000000000000000000000000003"])).toThrow(
+      "invalid param 0 for complex((address,bytes32,int256)[2],bytes,address): expected array length 2",
+    );
+    expect(() => validateWireParams(definition as never, [[
+      { owner: "not-an-address", salt: "0x" + "11".repeat(32), delta: "-5" },
+      { owner: "0x0000000000000000000000000000000000000002", salt: "0x" + "22".repeat(32), delta: "7" },
+    ], "0x1234", "0x0000000000000000000000000000000000000003"])).toThrow("invalid address");
+    expect(() => validateWireParams(definition as never, [[
+      { owner: "0x0000000000000000000000000000000000000001", salt: "xyz", delta: "-5" },
+      { owner: "0x0000000000000000000000000000000000000002", salt: "0x" + "22".repeat(32), delta: "7" },
+    ], "0x1234", "0x0000000000000000000000000000000000000003"])).toThrow("invalid hex string");
+  });
+
+  it("serializes and decodes tuple objects with positional fallback and nested arrays", () => {
+    const param = {
+      type: "tuple[][2]",
+      components: [
+        { name: "amount", type: "uint256" },
+        {
+          name: "meta",
+          type: "tuple",
+          components: [
+            { name: "flag", type: "bool" },
+            { name: "label", type: "string" },
+          ],
+        },
+      ],
+    };
+
+    const value = [
+      [
+        { amount: 1n, meta: { flag: true, label: "alpha" } },
+        { amount: 3n, meta: { flag: false, label: "gamma" } },
+      ],
+      [
+        { 0: 2n, 1: { flag: false, label: "beta" } },
+        { amount: 4n, meta: { flag: true, label: "delta" } },
+      ],
+    ];
+
+    const wire = serializeToWire(param as never, value);
+    expect(wire).toEqual([
+      [
+        { amount: "1", meta: { flag: true, label: "alpha" } },
+        { amount: "3", meta: { flag: false, label: "gamma" } },
+      ],
+      [
+        { amount: "2", meta: { flag: false, label: "beta" } },
+        { amount: "4", meta: { flag: true, label: "delta" } },
+      ],
+    ]);
+    expect(decodeFromWire(param as never, wire)).toEqual([
+      [
+        { amount: 1n, meta: { flag: true, label: "alpha" } },
+        { amount: 3n, meta: { flag: false, label: "gamma" } },
+      ],
+      [
+        { amount: 2n, meta: { flag: false, label: "beta" } },
+        { amount: 4n, meta: { flag: true, label: "delta" } },
+      ],
+    ]);
+  });
+
+  it("rejects incompatible scalar, tuple, and array inputs during direct serialization", () => {
+    expect(() => serializeToWire({ type: "uint256" } as never, { bad: true })).toThrow(
+      "expected integer-compatible value for uint256",
+    );
+    expect(() => serializeToWire({ type: "tuple", components: [{ type: "uint256" }] } as never, null)).toThrow(
+      "expected tuple-compatible value",
+    );
+    expect(() => serializeToWire({ type: "uint256[2]" } as never, "not-an-array")).toThrow(
+      "expected array value for uint256[2]",
+    );
+    expect(() => decodeFromWire({ type: "uint256[2]" } as never, ["1"])).toThrow(
+      "expected array length 2 for uint256[2]",
+    );
+  });
+
+  it("supports empty outputs, array-like multi-results, and object-shaped tuple payload normalization", () => {
+    expect(serializeResultToWire({ signature: "noop()", outputs: [] } as never, "ignored")).toBeNull();
+    expect(decodeResultFromWire({ signature: "noop()", outputs: [] } as never, "ignored")).toBeNull();
+
+    const tupleObjectDefinition = {
+      signature: "tupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          {
+            name: "nested",
+            type: "tuple[]",
+            components: [{ name: "owner", type: "address" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(tupleObjectDefinition as never, {
+      count: 4n,
+      nested: [{ owner: "0x0000000000000000000000000000000000000004" }],
+    })).toEqual({
+      count: "4",
+      nested: [{ owner: "0x0000000000000000000000000000000000000004" }],
+    });
+
+    const multipleOutputs = {
+      signature: "multi()",
+      outputs: [{ type: "uint256" }, { type: "bool" }],
+    };
+
+    expect(serializeResultToWire(multipleOutputs as never, { 0: 8n, 1: true, length: 2 } as ArrayLike<unknown>)).toEqual(["8", true]);
+    expect(() => decodeResultFromWire({ signature: "single(uint256)", outputs: [{ type: "uint256" }] } as never, { nope: true })).toThrow(
+      "invalid response for single(uint256): Invalid input: expected string, received object",
+    );
+    expect(() => serializeResultToWire({ signature: "badResult(address)", outputs: [{ type: "address" }] } as never, "nope")).toThrow(
+      "invalid result for badResult(address): invalid address",
+    );
+  });
+
+  it("rejects wrong parameter counts on encode and decode entrypoints", () => {
+    const definition = {
+      signature: "counted(uint256,bool)",
+      inputs: [{ type: "uint256" }, { type: "bool" }],
+    };
+
+    expect(() => serializeParamsToWire(definition as never, ["1"])).toThrow(
+      "expected 2 params for counted(uint256,bool), received 1",
+    );
+    expect(() => decodeParamsFromWire(definition as never, ["1"])).toThrow(
+      "expected 2 params for counted(uint256,bool), received 1",
     );
   });
 });

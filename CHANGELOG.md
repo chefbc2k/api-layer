@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.38] - 2026-04-07
+
+### Fixed
+- **ABI Registry Coverage Closed:** Added [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-registry.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-registry.test.ts) to prove generated registry lookups for both known and missing method/event definitions, which lifts [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-registry.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-registry.ts) from partial coverage to `100%` statements / branches / functions / lines.
+- **ABI Codec Edge Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) to cover tuple-object validation, signed integers, bytes/address validation, nested tuple-array serialization, incompatible scalar/tuple/array inputs, empty-output handling, array-like multi-output serialization, and entrypoint param-count guards. [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) now measures `92.26%` statements, `80.98%` branches, `95%` functions, and `92.94%` lines.
+- **Execution Context Diagnostic + Retry Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) to prove wallet-scoped read signer selection, canonical ABI signature fallback, nonce-expired retry recovery, preview-failure diagnostic wrapping, and execution-context construction. [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) now measures `89.78%` statements, `65.4%` branches, `90.9%` functions, and `89.88%` lines.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; setup still exits cleanly with `setup.status: "blocked"` while preserving the same live gas blockers. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei; marketplace and governance fixture readbacks remain ready, including the aged listing on token `11` with seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, price `1000`, created block `38916421`, and `isActive: true`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Test Proofs:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-registry.test.ts packages/client/src/runtime/abi-codec.test.ts packages/api/src/shared/execution-context.test.ts --maxWorkers 1`; all `32` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `113` passing files, `502` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `84.15%` to `85.83%` statements, `70.15%` to `72.14%` branches, `91.95%` to `93.55%` functions, and `84.05%` to `85.64%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The largest remaining handwritten/runtime gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts), and the remaining branch-heavy paths inside [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.37] - 2026-04-07
 
 ### Fixed

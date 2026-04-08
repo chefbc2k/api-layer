@@ -7,6 +7,26 @@ const mocked = vi.hoisted(() => {
   const decodeParamsFromWire = vi.fn();
   const serializeResultToWire = vi.fn();
   const submitSmartWalletCall = vi.fn();
+  const walletSendTransaction = vi.fn().mockResolvedValue({
+    hash: "0xsubmitted",
+  });
+  const contractStaticCall = vi.fn().mockResolvedValue(["preview-value"]);
+  const contractPopulateTransaction = vi.fn().mockResolvedValue({
+    to: "0x0000000000000000000000000000000000000001",
+    data: "0xfeed",
+  });
+  const contractGetFunction = vi.fn((_signature: string) => ({
+    staticCall: contractStaticCall,
+    populateTransaction: contractPopulateTransaction,
+  }));
+  const buildDebugTransaction = vi.fn().mockImplementation((request, signer) => ({ request, signer }));
+  const createAlchemyClient = vi.fn().mockReturnValue({ mocked: true });
+  const decodeReceiptLogs = vi.fn().mockReturnValue([]);
+  const readActorStates = vi.fn().mockResolvedValue([]);
+  const simulateTransactionWithAlchemy = vi.fn().mockResolvedValue({ topLevelCall: {} });
+  const traceCallWithAlchemy = vi.fn().mockResolvedValue({ status: "ok" });
+  const traceTransactionWithAlchemy = vi.fn().mockResolvedValue({ status: "ok" });
+  const loadApiKeys = vi.fn().mockReturnValue({ founderKey: { apiKey: "founder-key" } });
   return {
     invokeRead,
     queryEvent,
@@ -14,6 +34,18 @@ const mocked = vi.hoisted(() => {
     decodeParamsFromWire,
     serializeResultToWire,
     submitSmartWalletCall,
+    walletSendTransaction,
+    contractStaticCall,
+    contractPopulateTransaction,
+    contractGetFunction,
+    buildDebugTransaction,
+    createAlchemyClient,
+    decodeReceiptLogs,
+    readActorStates,
+    simulateTransactionWithAlchemy,
+    traceCallWithAlchemy,
+    traceTransactionWithAlchemy,
+    loadApiKeys,
   };
 });
 
@@ -30,6 +62,20 @@ vi.mock("../../../client/src/runtime/abi-codec.js", () => ({
 
 vi.mock("./cdp-smart-wallet.js", () => ({
   submitSmartWalletCall: mocked.submitSmartWalletCall,
+}));
+
+vi.mock("./alchemy-diagnostics.js", () => ({
+  buildDebugTransaction: mocked.buildDebugTransaction,
+  createAlchemyClient: mocked.createAlchemyClient,
+  decodeReceiptLogs: mocked.decodeReceiptLogs,
+  readActorStates: mocked.readActorStates,
+  simulateTransactionWithAlchemy: mocked.simulateTransactionWithAlchemy,
+  traceCallWithAlchemy: mocked.traceCallWithAlchemy,
+  traceTransactionWithAlchemy: mocked.traceTransactionWithAlchemy,
+}));
+
+vi.mock("./auth.js", () => ({
+  loadApiKeys: mocked.loadApiKeys,
 }));
 
 vi.mock("ethers", async () => {
@@ -56,9 +102,10 @@ vi.mock("ethers", async () => {
     }
 
     async sendTransaction(request: unknown) {
+      const response = await mocked.walletSendTransaction(request);
       return {
-        hash: "0xsubmitted",
         request,
+        ...response,
       };
     }
   }
@@ -71,13 +118,7 @@ vi.mock("ethers", async () => {
     ) {}
 
     getFunction(_signature: string) {
-      return {
-        staticCall: vi.fn().mockResolvedValue(["preview-value"]),
-        populateTransaction: vi.fn().mockResolvedValue({
-          to: this.address,
-          data: "0xfeed",
-        }),
-      };
+      return mocked.contractGetFunction(_signature);
     }
   }
 
@@ -90,6 +131,7 @@ vi.mock("ethers", async () => {
 });
 
 import {
+  createApiExecutionContext,
   enforceRateLimit,
   executeHttpEventDefinition,
   executeHttpMethodDefinition,
@@ -103,6 +145,27 @@ beforeEach(() => {
   vi.clearAllMocks();
   delete process.env.API_LAYER_GASLESS_ALLOWLIST;
   delete process.env.API_LAYER_GASLESS_SPEND_CAPS_JSON;
+  delete process.env.API_LAYER_SIGNER_MAP_JSON;
+  mocked.walletSendTransaction.mockResolvedValue({
+    hash: "0xsubmitted",
+  });
+  mocked.contractStaticCall.mockResolvedValue(["preview-value"]);
+  mocked.contractPopulateTransaction.mockResolvedValue({
+    to: "0x0000000000000000000000000000000000000001",
+    data: "0xfeed",
+  });
+  mocked.contractGetFunction.mockImplementation((_signature: string) => ({
+    staticCall: mocked.contractStaticCall,
+    populateTransaction: mocked.contractPopulateTransaction,
+  }));
+  mocked.buildDebugTransaction.mockImplementation((request, signer) => ({ request, signer }));
+  mocked.createAlchemyClient.mockReturnValue({ mocked: true });
+  mocked.decodeReceiptLogs.mockReturnValue([]);
+  mocked.readActorStates.mockResolvedValue([]);
+  mocked.simulateTransactionWithAlchemy.mockResolvedValue({ topLevelCall: {} });
+  mocked.traceCallWithAlchemy.mockResolvedValue({ status: "ok" });
+  mocked.traceTransactionWithAlchemy.mockResolvedValue({ status: "ok" });
+  mocked.loadApiKeys.mockReturnValue({ founderKey: { apiKey: "founder-key" } });
 });
 
 function buildReadDefinition(overrides: Record<string, unknown> = {}) {
@@ -461,6 +524,38 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.serializeResultToWire).toHaveBeenCalledWith(definition, 9n);
   });
 
+  it("uses a wallet-backed signerFactory for wallet-scoped reads", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
+    mocked.invokeRead.mockImplementationOnce(async (runtime) => {
+      const runner = await runtime.signerFactory?.({ name: "provider" });
+      return runner;
+    });
+    mocked.serializeResultToWire.mockReturnValueOnce("ok");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", allowGasless: false, roles: ["service"] },
+          walletAddress: "0x00000000000000000000000000000000000000bb",
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "ok",
+    });
+
+    const walletRunner = mocked.serializeResultToWire.mock.calls[0]?.[1];
+    const { VoidSigner } = await import("ethers");
+    expect(walletRunner).toBeInstanceOf(VoidSigner);
+    expect(walletRunner).toMatchObject({
+      address: "0x00000000000000000000000000000000000000bb",
+    });
+  });
+
   it("rejects writes without a signer for direct submission", async () => {
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", 1n]);
 
@@ -555,6 +650,44 @@ describe("executeHttpMethodDefinition", () => {
     }));
   });
 
+  it("falls back to the canonical ABI signature when the manifest signature is rejected", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([
+      [{ owner: "0x0000000000000000000000000000000000000001", enabled: true }],
+    ]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.contractGetFunction
+      .mockImplementationOnce(() => {
+        throw new Error("invalid function fragment");
+      })
+      .mockImplementation((_signature: string) => ({
+        staticCall: mocked.contractStaticCall,
+        populateTransaction: mocked.contractPopulateTransaction,
+      }));
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition({
+        signature: "setOperators(tuple[])",
+        methodName: "setOperators",
+        inputs: [{
+          type: "tuple[]",
+          components: [
+            { name: "owner", type: "address" },
+            { name: "enabled", type: "bool" },
+          ],
+        }],
+      }) as never,
+      buildRequest({
+        wireParams: [[{ owner: "0x0000000000000000000000000000000000000001", enabled: true }]],
+      }) as never,
+    );
+
+    expect(mocked.contractGetFunction).toHaveBeenCalledWith("setOperators(tuple[])");
+    expect(mocked.contractGetFunction).toHaveBeenCalledWith("setOperators((address,bool)[])");
+  });
+
   it("submits direct writes and stores the tx hash", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
@@ -586,6 +719,73 @@ describe("executeHttpMethodDefinition", () => {
       status: "submitted",
       txHash: "0xsubmitted",
     }));
+  });
+
+  it("retries nonce-expired submissions and advances the local nonce", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.walletSendTransaction
+      .mockRejectedValueOnce(new Error("nonce too low"))
+      .mockResolvedValueOnce({ hash: "0xretried" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xretried",
+        result: false,
+      },
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
+    expect(context.signerNonces.get("founder:primary")).toBe(6);
+  });
+
+  it("wraps preview failures with diagnostics and wallet fallback context", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: true,
+        alchemySimulationEnabled: false,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockRejectedValueOnce(new Error("preview reverted"));
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", allowGasless: true, roles: ["service"] },
+          api: { gaslessMode: "signature", executionSource: "auto" },
+          walletAddress: "0x00000000000000000000000000000000000000aa",
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "preview reverted",
+      diagnostics: expect.objectContaining({
+        signer: "0x00000000000000000000000000000000000000aa",
+        provider: null,
+        trace: { status: "disabled" },
+      }),
+    });
   });
 });
 
@@ -635,5 +835,19 @@ describe("getTransactionRequest", () => {
 
     await expect(getTransactionRequest(context as never, "req-1")).resolves.toEqual({ id: "req-1" });
     expect(context.txStore.get).toHaveBeenCalledWith("req-1");
+  });
+});
+
+describe("createApiExecutionContext", () => {
+  it("builds the execution context from config and helper factories", () => {
+    const context = createApiExecutionContext();
+
+    expect(mocked.loadApiKeys).toHaveBeenCalled();
+    expect(mocked.createAlchemyClient).toHaveBeenCalled();
+    expect(context.apiKeys).toEqual({ founderKey: { apiKey: "founder-key" } });
+    expect(context.alchemy).toEqual({ mocked: true });
+    expect(context.signerRunners.size).toBe(0);
+    expect(context.signerQueues.size).toBe(0);
+    expect(context.signerNonces.size).toBe(0);
   });
 });
