@@ -535,6 +535,155 @@ export async function buildUsdcFundingStatus(args: {
   return usdcFunding;
 }
 
+export async function collectSellerEscrowedVoiceHashes(args: {
+  escrowVoiceHashes: string[];
+  voiceAsset: { getTokenId(voiceHash: string): Promise<unknown> };
+  escrow: { getOriginalOwner(tokenId: unknown): Promise<unknown> };
+  sellerAddress: string;
+}): Promise<string[]> {
+  const sellerEscrowedVoiceHashes: string[] = [];
+  for (const voiceHash of args.escrowVoiceHashes) {
+    const tokenId = await args.voiceAsset.getTokenId(voiceHash);
+    try {
+      const originalOwner = await args.escrow.getOriginalOwner(tokenId);
+      if (String(originalOwner).toLowerCase() === args.sellerAddress.toLowerCase()) {
+        sellerEscrowedVoiceHashes.push(voiceHash);
+      }
+    } catch {
+      continue;
+    }
+  }
+  return sellerEscrowedVoiceHashes;
+}
+
+export async function prepareAgedListingFixture(args: {
+  candidateVoiceHashes: string[];
+  voiceAsset: {
+    getVoiceAsset(voiceHash: string): Promise<{ createdAt: bigint | number | string }>;
+    getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
+  };
+  sellerAddress: string;
+  diamondAddress: string;
+  port: number;
+  latestTimestamp: bigint;
+  apiCallFn?: typeof apiCall;
+  waitForReceiptFn?: typeof waitForReceipt;
+  retryApiReadFn?: typeof retryApiRead;
+}): Promise<AgedListingFixture> {
+  const callApi = args.apiCallFn ?? apiCall;
+  const waitReceipt = args.waitForReceiptFn ?? waitForReceipt;
+  const retryRead = args.retryApiReadFn ?? retryApiRead;
+  const agedFixture = createEmptyAgedListingFixture();
+  const marketplaceCandidates: MarketplaceFixtureCandidate[] = [];
+  let fallbackAsset: { voiceHash: string; tokenId: string } | null = null;
+
+  for (const voiceHash of args.candidateVoiceHashes) {
+    const asset = await args.voiceAsset.getVoiceAsset(voiceHash);
+    if (BigInt(asset.createdAt) > args.latestTimestamp) {
+      continue;
+    }
+
+    const tokenId = await args.voiceAsset.getTokenId(voiceHash);
+    const tokenIdString = tokenId.toString();
+    if (!fallbackAsset) {
+      fallbackAsset = { voiceHash, tokenId: tokenIdString };
+    }
+
+    const approvalRead = await callApi(
+      args.port,
+      "GET",
+      `/v1/voice-assets/queries/is-approved-for-all?owner=${encodeURIComponent(args.sellerAddress)}&operator=${encodeURIComponent(args.diamondAddress)}`,
+      { apiKey: "read-key" },
+    );
+    if (approvalRead.payload !== true) {
+      const approval = await callApi(args.port, "PATCH", "/v1/voice-assets/commands/set-approval-for-all", {
+        apiKey: "seller-key",
+        body: { operator: args.diamondAddress, approved: true },
+      });
+      agedFixture.approval = approval;
+      if (approval.status === 202) {
+        await waitReceipt(args.port, extractTxHash(approval.payload));
+      }
+    }
+
+    const listingRead = await callApi(
+      args.port,
+      "GET",
+      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenIdString)}`,
+      { apiKey: "read-key" },
+    );
+    const listingPayload = listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
+      ? listingRead.payload as Record<string, unknown>
+      : null;
+    marketplaceCandidates.push({
+      voiceHash,
+      tokenId: tokenIdString,
+      listingReadback: {
+        status: listingRead.status,
+        payload: listingPayload,
+      },
+    });
+    if (isPurchaseReadyListing(listingPayload, args.latestTimestamp)) {
+      break;
+    }
+  }
+
+  const preferredCandidate = selectPreferredMarketplaceFixtureCandidate(marketplaceCandidates, args.latestTimestamp);
+  if (preferredCandidate && preferredCandidate.listingReadback.payload?.isActive === true) {
+    Object.assign(agedFixture, createPreferredMarketplaceFixture(preferredCandidate, args.latestTimestamp));
+    return agedFixture;
+  }
+
+  if (fallbackAsset) {
+    const listing = await callApi(args.port, "POST", "/v1/marketplace/commands/list-asset", {
+      apiKey: "seller-key",
+      body: { tokenId: fallbackAsset.tokenId, price: "1000", duration: "0" },
+    });
+    agedFixture.listing = listing;
+    if (listing.status === 202) {
+      await waitReceipt(args.port, extractTxHash(listing.payload));
+    }
+    const refreshedListing = await retryRead(
+      () => callApi(
+        args.port,
+        "GET",
+        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(fallbackAsset.tokenId)}`,
+        { apiKey: "read-key" },
+      ),
+      (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
+    );
+    Object.assign(agedFixture, createFallbackMarketplaceFixture(
+      fallbackAsset,
+      listing,
+      {
+        status: refreshedListing.status,
+        payload: refreshedListing.payload as Record<string, unknown> | null,
+      },
+      agedFixture.approval,
+    ));
+    return agedFixture;
+  }
+
+  return agedFixture;
+}
+
+export function createLicensingStatus(args: {
+  sellerAddress: string;
+  licenseeAddress: string | null;
+  transfereeAddress: string | null;
+}): Record<string, unknown> {
+  return {
+    lifecycle: {
+      activeLicenseLifecycle: "issueLicense/createLicense -> getLicenseTerms/transferLicense as licensee-scoped operations",
+    },
+    recommendedActors: {
+      licensor: args.sellerAddress,
+      licensee: args.licenseeAddress,
+      transferee: args.transfereeAddress,
+    },
+  };
+}
+
 export async function main(): Promise<void> {
   const env = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(env);
@@ -667,115 +816,33 @@ export async function main(): Promise<void> {
 
     const sellerVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(seller.address);
     const escrowVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(config.diamondAddress);
-    const sellerEscrowedVoiceHashes: string[] = [];
-    for (const voiceHash of escrowVoiceHashes as string[]) {
-      const tokenId = await voiceAsset.getTokenId(voiceHash);
-      try {
-        const originalOwner = await escrow.getOriginalOwner(tokenId);
-        if (String(originalOwner).toLowerCase() === seller.address.toLowerCase()) {
-          sellerEscrowedVoiceHashes.push(voiceHash);
-        }
-      } catch {
-        continue;
-      }
-    }
+    const sellerEscrowedVoiceHashes = await collectSellerEscrowedVoiceHashes({
+      escrowVoiceHashes: escrowVoiceHashes as string[],
+      voiceAsset: voiceAsset as unknown as { getTokenId(voiceHash: string): Promise<unknown> },
+      escrow: escrow as unknown as { getOriginalOwner(tokenId: unknown): Promise<unknown> },
+      sellerAddress: seller.address,
+    });
     const candidateVoiceHashes = mergeMarketplaceCandidateVoiceHashes(
       [...sellerVoiceHashes as string[]],
       sellerEscrowedVoiceHashes,
     );
     const latestBlock = await provider.getBlock("latest");
     const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
-  const agedFixture = createEmptyAgedListingFixture();
-    const marketplaceCandidates: Array<{
-      voiceHash: string;
-      tokenId: string;
-      listingReadback: { status: number; payload: Record<string, unknown> | null };
-    }> = [];
-    let fallbackAsset: { voiceHash: string; tokenId: string } | null = null;
-    for (const voiceHash of candidateVoiceHashes) {
-    const asset = await voiceAsset.getVoiceAsset(voiceHash);
-    if (BigInt(asset.createdAt) > latestTimestamp) {
-      continue;
-    }
-    const tokenId = await voiceAsset.getTokenId(voiceHash);
-    const tokenIdString = tokenId.toString();
-    if (!fallbackAsset) {
-      fallbackAsset = { voiceHash, tokenId: tokenIdString };
-    }
-    const approvalRead = await apiCall(
-      port,
-      "GET",
-      `/v1/voice-assets/queries/is-approved-for-all?owner=${encodeURIComponent(seller.address)}&operator=${encodeURIComponent(config.diamondAddress)}`,
-      { apiKey: "read-key" },
-    );
-    if (approvalRead.payload !== true) {
-      const approval = await apiCall(port, "PATCH", "/v1/voice-assets/commands/set-approval-for-all", {
-        apiKey: "seller-key",
-        body: { operator: config.diamondAddress, approved: true },
-      });
-      agedFixture.approval = approval;
-      if (approval.status === 202) {
-        await waitForReceipt(port, extractTxHash(approval.payload));
-      }
-    }
-    const listingRead = await apiCall(
-      port,
-      "GET",
-      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenIdString)}`,
-      { apiKey: "read-key" },
-    );
-    const listingPayload = listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
-      ? listingRead.payload as Record<string, unknown>
-      : null;
-    marketplaceCandidates.push({
-      voiceHash,
-      tokenId: tokenIdString,
-      listingReadback: {
-        status: listingRead.status,
-        payload: listingPayload,
+    const agedFixture = await prepareAgedListingFixture({
+      candidateVoiceHashes,
+      voiceAsset: voiceAsset as unknown as {
+        getVoiceAsset(voiceHash: string): Promise<{ createdAt: bigint | number | string }>;
+        getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
       },
+      sellerAddress: seller.address,
+      diamondAddress: config.diamondAddress,
+      port,
+      latestTimestamp,
     });
-    if (isPurchaseReadyListing(listingPayload, latestTimestamp)) {
-      break;
-    }
-  }
-    const preferredCandidate = selectPreferredMarketplaceFixtureCandidate(marketplaceCandidates, latestTimestamp);
-    if (preferredCandidate && preferredCandidate.listingReadback.payload?.isActive === true) {
-      Object.assign(agedFixture, createPreferredMarketplaceFixture(preferredCandidate, latestTimestamp));
-    } else if (fallbackAsset) {
-      const listing = await apiCall(port, "POST", "/v1/marketplace/commands/list-asset", {
-        apiKey: "seller-key",
-        body: { tokenId: fallbackAsset.tokenId, price: "1000", duration: "0" },
-      });
-      agedFixture.listing = listing;
-      if (listing.status === 202) {
-        await waitForReceipt(port, extractTxHash(listing.payload));
-      }
-      const refreshedListing = await retryApiRead(
-        () => apiCall(
-          port,
-          "GET",
-          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(fallbackAsset.tokenId)}`,
-          { apiKey: "read-key" },
-        ),
-        (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
-      );
-      Object.assign(agedFixture, createFallbackMarketplaceFixture(
-        fallbackAsset,
-        listing,
-        {
-          status: refreshedListing.status,
-          payload: refreshedListing.payload as Record<string, unknown> | null,
-        },
-        agedFixture.approval,
-      ));
-    } else if (preferredCandidate) {
-      Object.assign(agedFixture, createInactivePreferredMarketplaceFixture(preferredCandidate, agedFixture.approval));
-    }
     status.marketplace = {
-    ...(status.marketplace as Record<string, unknown>),
-    agedListingFixture: agedFixture,
-  };
+      ...(status.marketplace as Record<string, unknown>),
+      agedListingFixture: agedFixture,
+    };
 
     const proposerRole = roleId("PROPOSER_ROLE");
     const votingConfig = await governorFacet.getVotingConfig();
@@ -796,17 +863,11 @@ export async function main(): Promise<void> {
     });
     status.governance = governanceStatus;
 
-    status.licensing = {
-    lifecycle: {
-
-      activeLicenseLifecycle: "issueLicense/createLicense -> getLicenseTerms/transferLicense as licensee-scoped operations",
-    },
-    recommendedActors: {
-      licensor: seller.address,
-      licensee: licensee?.address ?? null,
-      transferee: transferee?.address ?? null,
-    },
-  };
+    status.licensing = createLicensingStatus({
+      sellerAddress: seller.address,
+      licenseeAddress: licensee?.address ?? null,
+      transfereeAddress: transferee?.address ?? null,
+    });
 
     await mkdir(RUNTIME_DIR, { recursive: true });
     await writeFile(OUTPUT_PATH, `${JSON.stringify(toJsonValue(status), null, 2)}\n`, "utf8");

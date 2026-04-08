@@ -5,15 +5,18 @@ import {
   apiCall,
   applyNativeSetupTopUps,
   buildUsdcFundingStatus,
+  collectSellerEscrowedVoiceHashes,
   createEmptyAgedListingFixture,
   createFallbackMarketplaceFixture,
   createGovernanceStatus,
   createInactivePreferredMarketplaceFixture,
+  createLicensingStatus,
   createPreferredMarketplaceFixture,
   ensureNativeBalance,
   ensureRole,
   extractTxHash,
   nativeTransferSpendable,
+  prepareAgedListingFixture,
   retryApiRead,
   roleId,
   toJsonValue,
@@ -685,5 +688,160 @@ describe("base sepolia operator setup helpers", () => {
     expect(erc20.balanceOf).not.toHaveBeenCalled();
     expect(erc20.allowance).not.toHaveBeenCalled();
     expect(erc20.connect).not.toHaveBeenCalled();
+  });
+
+  it("collects only escrowed voice hashes still owned by the seller", async () => {
+    const voiceAsset = {
+      getTokenId: vi.fn(async (voiceHash: string) => `${voiceHash}-token`),
+    };
+    const escrow = {
+      getOriginalOwner: vi.fn(async (tokenId: string) => {
+        if (tokenId === "0xvoice-a-token") {
+          return "0xSeller";
+        }
+        if (tokenId === "0xvoice-b-token") {
+          return "0xOther";
+        }
+        throw new Error("missing original owner");
+      }),
+    };
+
+    await expect(collectSellerEscrowedVoiceHashes({
+      escrowVoiceHashes: ["0xvoice-a", "0xvoice-b", "0xvoice-c"],
+      voiceAsset,
+      escrow,
+      sellerAddress: "0xseller",
+    })).resolves.toEqual(["0xvoice-a"]);
+  });
+
+  it("prepares a purchase-ready aged listing fixture from an existing active listing", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xvoice-ready"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xvoice-ready",
+      tokenId: "11",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      approval: null,
+      listing: {
+        submission: null,
+        readback: {
+          status: 200,
+          payload: {
+            isActive: true,
+            createdAt: "0",
+          },
+        },
+      },
+    });
+  });
+
+  it("prepares a fallback aged listing fixture by approving and listing the first aged asset", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: false })
+      .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xapprove" } })
+      .mockResolvedValueOnce({ status: 404, payload: null })
+      .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xlist" } });
+    const waitForReceiptFn = vi.fn().mockResolvedValue(undefined);
+    const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>) => {
+      await read();
+      return {
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "99999",
+        },
+      };
+    });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xyoung", "0xfallback"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn(async (voiceHash: string) => ({ createdAt: voiceHash === "0xyoung" ? "100001" : "0" })),
+        getTokenId: vi.fn(async (voiceHash: string) => (voiceHash === "0xyoung" ? 1n : 2n)),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+      waitForReceiptFn,
+      retryApiReadFn: retryApiReadFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xfallback",
+      tokenId: "2",
+      activeListing: true,
+      purchaseReadiness: "listed-not-yet-purchase-proven",
+      status: "partial",
+      approval: { status: 202, payload: { txHash: "0xapprove" } },
+      listing: {
+        submission: { status: 202, payload: { txHash: "0xlist" } },
+        readback: { status: 200, payload: { isActive: true, createdAt: "99999" } },
+      },
+    });
+    expect(waitForReceiptFn).toHaveBeenNthCalledWith(1, 8787, "0xapprove");
+    expect(waitForReceiptFn).toHaveBeenNthCalledWith(2, 8787, "0xlist");
+    expect(retryApiReadFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the default blocked fixture when no aged asset is eligible", async () => {
+    const apiCallFn = vi.fn();
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xfuture-voice"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "100001" }),
+        getTokenId: vi.fn(),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toEqual(createEmptyAgedListingFixture());
+    expect(apiCallFn).not.toHaveBeenCalled();
+  });
+
+  it("builds the licensing status payload with actor guidance", () => {
+    expect(createLicensingStatus({
+      sellerAddress: "0xseller",
+      licenseeAddress: "0xlicensee",
+      transfereeAddress: null,
+    })).toEqual({
+      lifecycle: {
+        activeLicenseLifecycle: "issueLicense/createLicense -> getLicenseTerms/transferLicense as licensee-scoped operations",
+      },
+      recommendedActors: {
+        licensor: "0xseller",
+        licensee: "0xlicensee",
+        transferee: null,
+      },
+    });
   });
 });

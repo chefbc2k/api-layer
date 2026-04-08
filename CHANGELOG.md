@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.52] - 2026-04-08
+
+### Fixed
+- **Operator Setup Marketplace Logic Extracted For Proof:** Refactored [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) to extract seller-escrow filtering, aged-listing fixture preparation, and licensing-status assembly into exported helpers. This keeps the live setup script behavior unchanged while moving the marketplace approval/listing decision tree out of `main()` so it can be exercised directly under unit test.
+- **Dead Marketplace Branch Removed:** Removed an unreachable inactive-preferred-candidate branch from the aged-listing fixture preparation flow. Once an aged candidate is discovered it always becomes the fallback listing candidate, so the old branch could never execute and only obscured real setup-state coverage.
+- **Operator Setup Regression Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to cover seller escrow ownership filtering, purchase-ready listing reuse, fallback approval-plus-listing activation, no-eligible-aged-asset behavior, and licensing actor guidance payload generation.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and local fork RPC `http://127.0.0.1:8548`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Operator Setup Tests:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `30` assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `116` passing files, `567` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `90.59%` to `91.47%` statements, `77.55%` to `78.12%` branches, `95.65%` to `95.75%` functions, and `90.48%` to `91.39%` lines. [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) improved from `53.43%` / `59.90%` / `81.08%` / `51.80%` to `70.00%` / `71.29%` / `85.00%` / `69.26%` across statements, branches, functions, and lines respectively.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide standard coverage is still below the automation target, with the largest remaining gaps now concentrated in workflow-heavy branches such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/purchase-marketplace-asset.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts).
+
 ## [0.1.51] - 2026-04-08
 
 ### Fixed
