@@ -64,6 +64,34 @@ describe("alchemy-diagnostics", () => {
     });
   });
 
+  it("preserves pre-encoded transaction quantities and omits missing fields", () => {
+    expect(buildDebugTransaction({
+      gas: "0x5208",
+      gasPrice: "0x09",
+      value: "latest",
+    }, "0x0000000000000000000000000000000000000003")).toEqual({
+      from: "0x0000000000000000000000000000000000000003",
+      to: undefined,
+      data: undefined,
+      value: "latest",
+      gas: "0x5208",
+      gasPrice: "0x09",
+    });
+
+    expect(buildDebugTransaction({
+      value: "",
+      gas: "",
+      gasPrice: "",
+    }, "0x0000000000000000000000000000000000000004")).toEqual({
+      from: "0x0000000000000000000000000000000000000004",
+      to: undefined,
+      data: undefined,
+      value: undefined,
+      gas: undefined,
+      gasPrice: undefined,
+    });
+  });
+
   it("builds debug transactions and decodes known and unknown receipt logs", () => {
     const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
     const fragment = iface.getEvent("TestEvent");
@@ -175,6 +203,41 @@ describe("alchemy-diagnostics", () => {
     });
   });
 
+  it("reports direct simulation success and fallback failure distinctly", async () => {
+    const directAlchemy = {
+      transact: {
+        simulateExecution: vi.fn().mockResolvedValue({
+          calls: [],
+          logs: [],
+        }),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(directAlchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "available",
+      blockTag: "latest",
+      callCount: 0,
+      logCount: 0,
+      topLevelCall: undefined,
+      decodedLogs: [],
+    });
+
+    const fallbackFailureAlchemy = {
+      transact: {
+        simulateExecution: vi.fn()
+          .mockRejectedValueOnce(new Error("tracing on top of pending is not supported"))
+          .mockRejectedValueOnce(new Error("fallback failed")),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(fallbackFailureAlchemy as never, { from: "0x1" } as never, "pending")).resolves.toEqual({
+      status: "failed",
+      blockTag: "pending",
+      fallbackBlockTag: "latest",
+      error: "fallback failed",
+    });
+  });
+
   it("classifies trace availability and hard failures distinctly", async () => {
     const unavailableAlchemy = {
       debug: {
@@ -207,6 +270,142 @@ describe("alchemy-diagnostics", () => {
       status: "failed",
       error: "rpc down",
     });
+  });
+
+  it("returns available trace reports with flattened call trees and null-client unavailability", async () => {
+    const nestedTrace = {
+      from: "0x1",
+      to: "0x2",
+      gasUsed: "100",
+      type: "CALL",
+      calls: [
+        {
+          from: "0x2",
+          to: "0x3",
+          gasUsed: "50",
+          type: "DELEGATECALL",
+          error: "nested-error",
+          calls: [
+            {
+              from: "0x3",
+              to: "0x4",
+              gasUsed: "25",
+              type: "STATICCALL",
+              revertReason: "nested-revert",
+            },
+          ],
+        },
+      ],
+    };
+    const alchemy = {
+      debug: {
+        traceTransaction: vi.fn().mockResolvedValue(nestedTrace),
+        traceCall: vi.fn().mockResolvedValue(nestedTrace),
+      },
+    };
+
+    await expect(traceTransactionWithAlchemy(null, "0xdead")).resolves.toEqual({
+      status: "unavailable",
+      txHash: "0xdead",
+      error: "Alchemy diagnostics unavailable",
+    });
+    await expect(traceCallWithAlchemy(null, { from: "0x1" } as never, "pending")).resolves.toEqual({
+      status: "unavailable",
+      error: "Alchemy diagnostics unavailable",
+    });
+
+    await expect(traceTransactionWithAlchemy(alchemy as never, "0xtx", "9s")).resolves.toEqual({
+      status: "available",
+      txHash: "0xtx",
+      topLevelCall: {
+        from: "0x1",
+        to: "0x2",
+        gasUsed: "100",
+        type: "CALL",
+        revertReason: undefined,
+        error: undefined,
+      },
+      callTree: [
+        {
+          depth: 0,
+          from: "0x1",
+          to: "0x2",
+          gasUsed: "100",
+          type: "CALL",
+          revertReason: undefined,
+          error: undefined,
+        },
+        {
+          depth: 1,
+          from: "0x2",
+          to: "0x3",
+          gasUsed: "50",
+          type: "DELEGATECALL",
+          revertReason: undefined,
+          error: "nested-error",
+        },
+        {
+          depth: 2,
+          from: "0x3",
+          to: "0x4",
+          gasUsed: "25",
+          type: "STATICCALL",
+          revertReason: "nested-revert",
+          error: undefined,
+        },
+      ],
+    });
+    expect(alchemy.debug.traceTransaction).toHaveBeenCalledWith(
+      "0xtx",
+      { type: "callTracer" },
+      "9s",
+    );
+
+    await expect(traceCallWithAlchemy(alchemy as never, { from: "0x1" } as never, "pending")).resolves.toEqual({
+      status: "available",
+      topLevelCall: {
+        from: "0x1",
+        to: "0x2",
+        gasUsed: "100",
+        type: "CALL",
+        revertReason: undefined,
+        error: undefined,
+      },
+      callTree: [
+        {
+          depth: 0,
+          from: "0x1",
+          to: "0x2",
+          gasUsed: "100",
+          type: "CALL",
+          revertReason: undefined,
+          error: undefined,
+        },
+        {
+          depth: 1,
+          from: "0x2",
+          to: "0x3",
+          gasUsed: "50",
+          type: "DELEGATECALL",
+          revertReason: undefined,
+          error: "nested-error",
+        },
+        {
+          depth: 2,
+          from: "0x3",
+          to: "0x4",
+          gasUsed: "25",
+          type: "STATICCALL",
+          revertReason: "nested-revert",
+          error: undefined,
+        },
+      ],
+    });
+    expect(alchemy.debug.traceCall).toHaveBeenCalledWith(
+      { from: "0x1" },
+      "pending",
+      { type: "callTracer" },
+    );
   });
 
   it("verifies expected indexed events and reads actor state snapshots", async () => {
@@ -271,5 +470,35 @@ describe("alchemy-diagnostics", () => {
       { address: "0x1", nonce: "2", balance: "10" },
       { address: "0x2", nonce: "3", balance: "20" },
     ]);
+  });
+
+  it("surfaces event verification unavailability and lookup failures", async () => {
+    await expect(verifyExpectedEventWithAlchemy(null, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: "pending",
+      toBlock: "latest",
+    })).resolves.toEqual({
+      status: "unavailable",
+      expectedEvent: "TestFacet.TestEvent",
+      error: "Alchemy diagnostics unavailable",
+    });
+
+    await expect(verifyExpectedEventWithAlchemy({
+      core: {
+        getLogs: vi.fn().mockRejectedValue(new Error("log lookup failed")),
+      },
+    } as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: "pending",
+      toBlock: "latest",
+    })).resolves.toEqual({
+      status: "failed",
+      expectedEvent: "TestFacet.TestEvent",
+      error: "log lookup failed",
+    });
   });
 });
