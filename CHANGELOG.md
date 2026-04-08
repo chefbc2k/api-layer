@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.42] - 2026-04-08
+
+### Fixed
+- **API Surface Mapper Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) to cover additional generated route-shape branches for admin writes, unnamed scalar query parameters, zero-input action bindings, caller registration, owner-scoped lookups, authorization grants, usage recording, safe-transfer overloads, token owner/URI reads, and metadata classification queries. This lifts [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) from `90.14%` to `92.95%` statements, `86%` to `90.66%` branches, and `89.92%` to `92.8%` lines.
+- **Coverage Sweep Timeout Stabilized:** Raised the per-test timeout for the fake-timer fork-bootstrap exhaustion case in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) so the full Istanbul sweep no longer flakes at Vitest’s default `5s` ceiling while simulating the `60 x 500ms` retry window in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Mapper + Runtime Tests:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts scripts/api-surface-lib.test.ts --maxWorkers 1`; all `28` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite remains green at `114` passing files, `528` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `88.11%` to `88.2%` statements, `74.73%` to `74.9%` branches, and `87.96%` to `88.05%` lines, while the `scripts/` bucket improved from `69.67%` to `70.29%` statements, `69.14%` to `70.44%` branches, and `69.29%` to `69.93%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The dominant remaining handwritten/runtime gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts), and lower-covered runtime/workflow modules such as [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/config.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/config.ts).
+- **Live Setup Still Blocked by External Funding:** `pnpm run setup:base-sepolia` was not rerun this session because the last verified setup state remains externally funding-blocked, with no evidence in this run that those Base Sepolia balances changed.
+
 ## [0.1.41] - 2026-04-08
 
 ### Fixed

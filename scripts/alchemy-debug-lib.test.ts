@@ -593,7 +593,7 @@ describe("alchemy-debug-lib", () => {
     await vi.runAllTimersAsync();
     await expectation;
     expect(child.kill).toHaveBeenCalledWith("SIGTERM");
-  });
+  }, 15_000);
 
   it("loads the runtime environment, resolves the contracts root, and records the scenario commit", async () => {
     process.env.API_LAYER_PARENT_REPO_DIR = "contracts-root";

@@ -122,6 +122,61 @@ describe("api surface helpers", () => {
       },
       outputShape: { kind: "void" },
     });
+
+    expect(buildMethodSurface(method({
+      facetName: "AccessControlFacet",
+      wrapperKey: "grantRole",
+      methodName: "grantRole",
+      category: "write",
+      inputs: [
+        { name: "role", type: "bytes32" },
+        { name: "account", type: "address" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "access-control",
+      classification: "admin",
+      httpMethod: "POST",
+      path: "/v1/access-control/admin/grant-role",
+      inputShape: {
+        kind: "body",
+        bindings: [
+          { name: "role", source: "body", field: "role" },
+          { name: "account", source: "body", field: "account" },
+        ],
+      },
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "supportsInterface",
+      methodName: "supportsInterface",
+      inputs: [{ name: "", type: "bytes4" }],
+      outputs: [{ name: "supported", type: "bool" }],
+    }))).toMatchObject({
+      classification: "query",
+      httpMethod: "GET",
+      path: "/v1/voice-assets/queries/supports-interface",
+      inputShape: {
+        kind: "query",
+        bindings: [{ name: "value", source: "query", field: "value" }],
+      },
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "lockVoiceAsset",
+      methodName: "lockVoiceAsset",
+      category: "write",
+      inputs: [],
+      outputs: [],
+    }))).toMatchObject({
+      classification: "action",
+      httpMethod: "POST",
+      path: "/v1/voice-assets/:voiceHash/lock",
+      inputShape: {
+        kind: "path+body",
+        bindings: [{ name: "voiceHash", source: "path", field: "voiceHash" }],
+      },
+    });
   });
 
   it("maps resource domains, HTTP verbs, and output shapes across non-voice facets", () => {
@@ -285,6 +340,56 @@ describe("api surface helpers", () => {
 
   it("applies voice-asset route overrides for write, read, and transfer variants", () => {
     expect(buildMethodSurface(method({
+      wrapperKey: "registerVoiceAssetForCaller",
+      methodName: "registerVoiceAssetForCaller",
+      category: "write",
+      inputs: [{ name: "ipfsHash", type: "bytes32" }],
+      outputs: [{ name: "voiceHash", type: "bytes32" }],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/registrations/for-caller",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "getVoiceAssetDetails",
+      methodName: "getVoiceAssetDetails",
+      inputs: [{ name: "voiceHash", type: "bytes32" }],
+      outputs: [{ name: "details", type: "tuple", components: [{ name: "owner", type: "address" }] }],
+    }))).toMatchObject({
+      httpMethod: "GET",
+      path: "/v1/voice-assets/:voiceHash/details",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "getVoiceAssetsByOwner",
+      methodName: "getVoiceAssetsByOwner",
+      inputs: [{ name: "owner", type: "address" }],
+      outputs: [{ name: "tokens", type: "uint256[]" }],
+    }))).toMatchObject({
+      httpMethod: "GET",
+      path: "/v1/voice-assets/by-owner/:owner",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "authorizeUser",
+      methodName: "authorizeUser",
+      category: "write",
+      inputs: [
+        { name: "voiceHash", type: "bytes32" },
+        { name: "user", type: "address" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/:voiceHash/authorization-grants",
+      inputShape: {
+        kind: "path+body",
+        bindings: [
+          { name: "voiceHash", source: "path", field: "voiceHash" },
+          { name: "user", source: "body", field: "user" },
+        ],
+      },
+    });
+
+    expect(buildMethodSurface(method({
       wrapperKey: "revokeUser",
       methodName: "revokeUser",
       category: "write",
@@ -341,6 +446,78 @@ describe("api surface helpers", () => {
           { name: "data", source: "body", field: "data" },
         ],
       },
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "recordUsage",
+      methodName: "recordUsage",
+      category: "write",
+      inputs: [
+        { name: "voiceHash", type: "bytes32" },
+        { name: "usageRef", type: "string" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/:voiceHash/usage-records",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VoiceMetadataFacet",
+      wrapperKey: "updateBasicAcousticFeatures",
+      methodName: "updateBasicAcousticFeatures",
+      category: "write",
+      inputs: [
+        { name: "voiceHash", type: "bytes32" },
+        { name: "features", type: "tuple", components: [{ name: "tempo", type: "uint256" }] },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/:voiceHash/metadata/acoustic-features",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "ownerOf",
+      methodName: "ownerOf",
+      inputs: [{ name: "tokenId", type: "uint256" }],
+      outputs: [{ name: "owner", type: "address" }],
+    }))).toMatchObject({
+      httpMethod: "GET",
+      path: "/v1/voice-assets/tokens/:tokenId/owner",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "tokenURI",
+      methodName: "tokenURI",
+      inputs: [{ name: "tokenId", type: "uint256" }],
+      outputs: [{ name: "uri", type: "string" }],
+    }))).toMatchObject({
+      httpMethod: "GET",
+      path: "/v1/voice-assets/tokens/:tokenId/uri",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "safeTransferFrom(address,address,uint256)",
+      methodName: "safeTransferFrom",
+      category: "write",
+      inputs: [
+        { name: "from", type: "address" },
+        { name: "to", type: "address" },
+        { name: "tokenId", type: "uint256" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/tokens/:tokenId/transfers/safe",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VoiceMetadataFacet",
+      wrapperKey: "searchVoicesByClassification",
+      methodName: "searchVoicesByClassification",
+      inputs: [{ name: "classification", type: "string" }],
+      outputs: [{ name: "matches", type: "bytes32[]" }],
+    }))).toMatchObject({
+      httpMethod: "POST",
+      path: "/v1/voice-assets/queries/by-classification",
     });
 
     expect(buildMethodSurface(method({
