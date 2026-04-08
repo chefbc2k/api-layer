@@ -9,7 +9,7 @@ import { createApiServer, type ApiServer } from "../packages/api/src/app.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 
-import { resolveRuntimeConfig } from "./alchemy-debug-lib.js";
+import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 
 type ApiResponse = {
   status: number;
@@ -132,25 +132,55 @@ async function retryRead<T>(read: () => Promise<T>, ready: (value: T) => boolean
   throw new Error(`timed out waiting for ${label}: ${JSON.stringify(normalize(lastValue))}`);
 }
 
-async function ensureNativeBalance(provider: JsonRpcProvider, fundingWallet: Wallet, recipient: string, minimum: bigint) {
-  const balance = await provider.getBalance(recipient);
-  if (balance >= minimum || fundingWallet.address.toLowerCase() === recipient.toLowerCase()) {
+async function ensureNativeBalance(
+  provider: JsonRpcProvider,
+  rpcUrl: string,
+  fundingWallets: Wallet[],
+  recipient: string,
+  minimum: bigint,
+) {
+  let balance = await provider.getBalance(recipient);
+  if (balance >= minimum) {
     return { ok: true, balance } as const;
   }
-  const missing = minimum - balance;
-  const fundingWalletBalance = await provider.getBalance(fundingWallet.address);
-  if (fundingWalletBalance <= missing) {
-    return {
-      ok: false,
-      balance,
-      minimum,
-      missing,
-      fundingWallet: fundingWallet.address,
-      recipient,
-    } as const;
+
+  if (isLoopbackRpcUrl(rpcUrl)) {
+    const targetBalance = (minimum > ethers.parseEther("0.02") ? minimum : ethers.parseEther("0.02")) + ethers.parseEther("0.005");
+    await provider.send("anvil_setBalance", [recipient, ethers.toQuantity(targetBalance)]);
+    return { ok: true, balance: await provider.getBalance(recipient) } as const;
   }
-  await (await fundingWallet.sendTransaction({ to: recipient, value: missing })).wait();
-  return { ok: true, balance: await provider.getBalance(recipient) } as const;
+
+  const donorReserve = ethers.parseEther("0.000003");
+  for (const wallet of fundingWallets) {
+    if (wallet.address.toLowerCase() === recipient.toLowerCase()) {
+      continue;
+    }
+    const donorBalance = await provider.getBalance(wallet.address);
+    if (donorBalance <= donorReserve) {
+      continue;
+    }
+    const deficit = minimum - balance;
+    const available = donorBalance - donorReserve;
+    const amount = available >= deficit ? deficit : available;
+    if (amount <= 0n) {
+      continue;
+    }
+    await (await wallet.sendTransaction({ to: recipient, value: amount })).wait();
+    balance = await provider.getBalance(recipient);
+    if (balance >= minimum) {
+      return { ok: true, balance } as const;
+    }
+  }
+
+  const missing = minimum - balance;
+  return {
+    ok: false,
+    balance,
+    minimum,
+    missing,
+    fundingWallet: fundingWallets[0]?.address ?? fundingWallets.at(-1)?.address ?? recipient,
+    recipient,
+  } as const;
 }
 
 async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>; port: number }> {
@@ -298,8 +328,10 @@ export function buildBlockedFundingOutput(args: {
 
 async function main() {
   const repoEnv = loadRepoEnv();
-  const { config } = await resolveRuntimeConfig(repoEnv);
-  process.env.RPC_URL = config.cbdpRpcUrl;
+  const runtimeConfig = await resolveRuntimeConfig(repoEnv);
+  const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
+  const { config } = runtimeConfig;
+  process.env.RPC_URL = forkRuntime.rpcUrl;
   process.env.ALCHEMY_RPC_URL = config.alchemyRpcUrl;
 
   const fixture = JSON.parse(fs.readFileSync(".runtime/base-sepolia-operator-fixtures.json", "utf8")) as FixtureReport;
@@ -309,7 +341,7 @@ async function main() {
     throw new Error("PRIVATE_KEY, ORACLE_SIGNER_PRIVATE_KEY_1, and ORACLE_SIGNER_PRIVATE_KEY_2 are required");
   }
 
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
   const founder = new Wallet(repoEnv.PRIVATE_KEY, provider);
   const seller = new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1, provider);
   const buyer = new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2, provider);
@@ -330,6 +362,32 @@ async function main() {
     founder: founder.privateKey,
     seller: seller.privateKey,
     buyer: buyer.privateKey,
+  });
+  process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
+    [founder.address.toLowerCase()]: {
+      apiKey: "founder-key",
+      signerId: "founder",
+      privateKey: founder.privateKey,
+      label: "founder",
+      roles: ["service"],
+      allowGasless: false,
+    },
+    [seller.address.toLowerCase()]: {
+      apiKey: "seller-key",
+      signerId: "seller",
+      privateKey: seller.privateKey,
+      label: "seller",
+      roles: ["service"],
+      allowGasless: false,
+    },
+    [buyer.address.toLowerCase()]: {
+      apiKey: "buyer-key",
+      signerId: "buyer",
+      privateKey: buyer.privateKey,
+      label: "buyer",
+      roles: ["service"],
+      allowGasless: false,
+    },
   });
 
   const voiceAsset = new Contract(config.diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider);
@@ -353,7 +411,7 @@ async function main() {
     fundingCandidates.map(async (wallet) => ({ wallet, balance: BigInt(await erc20.balanceOf(wallet.address)) })),
   )).sort((left, right) => Number(right.balance - left.balance))[0];
 
-    const { server, port } = await startServer();
+  const { server, port } = await startServer();
   try {
     let target = selectMarketplacePurchaseTarget(agedListing, seller.address);
 
@@ -370,7 +428,13 @@ async function main() {
       target = await createFallbackListing(port, provider, founder.address, voiceAsset);
       listingBefore = { status: 200, payload: target.listing };
     }
-    const buyerFunding = await ensureNativeBalance(provider, founder, buyer.address, ethers.parseEther("0.00005"));
+    const buyerFunding = await ensureNativeBalance(
+      provider,
+      forkRuntime.rpcUrl,
+      fundingCandidates,
+      buyer.address,
+      ethers.parseEther("0.00005"),
+    );
     if (!buyerFunding.ok) {
       const output = buildBlockedFundingOutput({
         chainId: config.chainId,
@@ -523,6 +587,9 @@ async function main() {
   } finally {
     server.close();
     await provider.destroy();
+    if (forkRuntime.forkProcess && forkRuntime.forkProcess.exitCode === null) {
+      forkRuntime.forkProcess.kill("SIGTERM");
+    }
   }
 }
 

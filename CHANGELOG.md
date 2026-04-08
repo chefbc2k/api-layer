@@ -4,6 +4,19 @@
 
 ---
 
+## [0.1.47] - 2026-04-08
+
+### Fixed
+- **Marketplace Purchase Verifier Fork Parity:** Updated [`/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts`](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) to match the repo’s other Base Sepolia verifiers by auto-starting an Anvil fork when the configured loopback RPC is unavailable, seeding buyer gas on the fork instead of hard-failing on depleted live wallets, and wiring `API_LAYER_SIGNER_API_KEYS_JSON` so the purchase workflow preserves actor identity through the real API execution path.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup State Guard:** Re-ran `pnpm run setup:base-sepolia`; setup still reports only external native-gas funding blockers for founder, buyer, licensee, and transferee, while the aged marketplace fixture remains `purchase-ready` on token `11` and governance remains `ready`.
+- **Marketplace Purchase Proof Promoted:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia`; [`/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json`](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) now records `classification: "proven working"` for the aged fixture purchase on token `11`. The proof captured tx hash `0xf43875ea1aba2cdf4b267ad021369dbe83f1f6b2d7a0f3a274fc96d707408322`, receipt status `1` in block `39942580`, owner transition from escrow-backed diamond custody to buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, listing transition from `isActive: true` to `false`, buyer USDC movement from `4000` to `3000`, allowance movement from `4000` to `3000`, `AssetPurchased` count `1`, `PaymentDistributed` count `2`, and `AssetReleased` count `1`.
+- **Verifier Unit Guard:** Re-ran `pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1`; all `3` assertions pass.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `115` passing files, `554` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage remains `89.48%` statements, `76.51%` branches, `95.00%` functions, and `89.38%` lines.
+
 ## [0.1.46] - 2026-04-08
 
 ### Fixed
