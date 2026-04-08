@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.40] - 2026-04-07
+
+### Fixed
+- **Alchemy Debug Runtime Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) to cover chain-id verification cleanup, missing fixture fallback behavior, loopback-vs-explicit RPC fallback preservation, local anvil fork bootstrap success/early-exit/timeout branches, and runtime environment loading with contracts-root discovery and git commit capture in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Classification Guard:** Re-ran `pnpm run setup:base-sepolia`; setup still exits cleanly with `setup.status: "blocked"` for the same environmental funding issue only. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei; marketplace aged listing token `11` remains purchase-ready and governance remains ready.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Script Proofs:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts scripts/base-sepolia-operator-setup.test.ts scripts/custom-coverage-provider.test.ts --maxWorkers 1`; all `38` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `114` passing files, `524` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `86.97%` to `87.79%` statements, `73.62%` to `74.12%` branches, `93.55%` to `94.13%` functions, and `86.82%` to `87.63%` lines. The `scripts/` coverage bucket improved from `60.76%` to `67.53%` statements, `60.22%` to `64.49%` branches, `78.07%` to `85.96%` functions, and `60.41%` to `67.09%` lines, while [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) improved from `52.04%` statements / `52.43%` branches / `59.09%` functions / `52.63%` lines to `96.93%` / `80.48%` / `100%` / `96.84%`.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The dominant remaining handwritten coverage gaps are now concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts) where Istanbul still reports zero despite focused tests executing, and lower-covered runtime modules such as [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/config.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/config.ts).
+
 ## [0.1.39] - 2026-04-07
 
 ### Fixed
