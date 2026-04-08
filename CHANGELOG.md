@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.55] - 2026-04-08
+
+### Fixed
+- **Base Sepolia Setup Helper Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to cover zero-spendable native balance when `maxFeePerGas` reserve exceeds holdings, unauthenticated/no-body API calls, failed buyer USDC approval repair without receipt polling, and fallback marketplace activation when an inactive preferred listing exists but relisting fails in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured RPC `http://127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; the fixture is `setup.status: "ready"` on the local Base Sepolia fork. Founder, buyer, licensee, and transferee native balances remained at or above their required minima, governance remained `ready`, and the aged marketplace listing for token `11` remained `purchase-ready`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Setup Proofs:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1` and the matching focused Istanbul pass. All `34` assertions pass. [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) remains at `70.00%` statements and `85.00%` functions, while focused branch coverage improved from `71.29%` to `72.68%`.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `116` passing files, `583` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage held at `92.10%` statements, `96.00%` functions, and `92.03%` lines, while branch coverage improved from `79.28%` to `79.35%`.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), and [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.54] - 2026-04-08
 
 ### Fixed

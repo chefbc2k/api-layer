@@ -252,6 +252,18 @@ describe("base sepolia operator setup helpers", () => {
     expect(spendable).toBe(29_000n);
   });
 
+  it("returns zero native spendable balance when max fee reserve exceeds balance", async () => {
+    const spendable = await nativeTransferSpendable({
+      address: "0x1234",
+      provider: {
+        getBalance: vi.fn().mockResolvedValue(1_000n),
+        getFeeData: vi.fn().mockResolvedValue({ maxFeePerGas: 1_000n, gasPrice: 1n }),
+      },
+    } as any);
+
+    expect(spendable).toBe(0n);
+  });
+
   it("posts API calls with JSON headers, auth, and parsed payloads", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       status: 202,
@@ -276,6 +288,27 @@ describe("base sepolia operator setup helpers", () => {
         "x-api-key": "founder-key",
       },
       body: JSON.stringify({ enabled: true }),
+    });
+  });
+
+  it("omits auth and body when apiCall receives no options", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      status: 200,
+      json: vi.fn().mockResolvedValue({ ok: true }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(apiCall(8787, "GET", "/v1/test")).resolves.toEqual({
+      status: 200,
+      payload: { ok: true },
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith("http://127.0.0.1:8787/v1/test", {
+      method: "GET",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: undefined,
     });
   });
 
@@ -655,6 +688,56 @@ describe("base sepolia operator setup helpers", () => {
     expect(waitForReceiptFn).not.toHaveBeenCalled();
   });
 
+  it("records approval failures without waiting for a receipt when buyer remains underfunded", async () => {
+    const provider = {} as any;
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+    const availableSpecs = [
+      { label: "buyer", privateKey: buyer.privateKey },
+    ];
+    const erc20 = {
+      balanceOf: vi.fn(async () => 4_000n),
+      allowance: vi.fn(async () => 0n),
+      connect: vi.fn(),
+    };
+    const apiCallFn = vi.fn().mockResolvedValue({
+      status: 400,
+      payload: { error: "allowance denied" },
+    });
+    const waitForReceiptFn = vi.fn();
+
+    const result = await buildUsdcFundingStatus({
+      erc20,
+      availableSpecs,
+      buyer,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+      apiCallFn: apiCallFn as any,
+      waitForReceiptFn: waitForReceiptFn as any,
+    });
+
+    expect(result).toMatchObject({
+      token: "0xusdc",
+      buyerBalance: "4000",
+      buyerAllowance: "0",
+      richestSigner: {
+        label: "buyer",
+        address: buyer.address,
+        balance: 4_000n,
+      },
+      approval: {
+        status: 400,
+        payload: { error: "allowance denied" },
+      },
+      buyerAllowanceAfterApproval: "0",
+    });
+    expect(result).not.toHaveProperty("transferTxHash");
+    expect(erc20.connect).not.toHaveBeenCalled();
+    expect(apiCallFn).toHaveBeenCalledTimes(1);
+    expect(waitForReceiptFn).not.toHaveBeenCalled();
+  });
+
   it("returns null USDC funding status when the ERC20 contract or buyer is unavailable", async () => {
     const provider = {} as any;
     const buyer = ethers.Wallet.createRandom().connect(provider);
@@ -805,6 +888,61 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(1, 8787, "0xapprove");
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(2, 8787, "0xlist");
+    expect(retryApiReadFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("falls back from an inactive preferred listing without waiting on a failed list transaction", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: false,
+          createdAt: "0",
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 500,
+        payload: { error: "listing failed" },
+      });
+    const waitForReceiptFn = vi.fn();
+    const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>) => {
+      await read();
+      return {
+        status: 404,
+        payload: null,
+      };
+    });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xinactive"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(33n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+      waitForReceiptFn,
+      retryApiReadFn: retryApiReadFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xinactive",
+      tokenId: "33",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing could not be activated",
+      approval: null,
+      listing: {
+        submission: { status: 500, payload: { error: "listing failed" } },
+        readback: { status: 404, payload: null },
+      },
+    });
+    expect(waitForReceiptFn).not.toHaveBeenCalled();
     expect(retryApiReadFn).toHaveBeenCalledTimes(1);
   });
 
