@@ -400,6 +400,141 @@ export async function ensureRole(
   return { status: "granted" };
 }
 
+type SetupStatus = {
+  actors: Record<string, unknown>;
+  setup: { status: string; blockers: string[] };
+  marketplace: Record<string, unknown>;
+};
+
+function assignActorTopUp(
+  status: SetupStatus,
+  actorLabel: string,
+  topUp: BalanceTopUpResult,
+): void {
+  status.actors[actorLabel] = {
+    ...(status.actors[actorLabel] as Record<string, unknown> | undefined),
+    nativeTopUp: topUp,
+    nativeBalanceAfterSetup: topUp.balance,
+  };
+  if (topUp.blockedReason) {
+    status.setup.blockers.push(`${actorLabel}: ${topUp.blockedReason}`);
+  }
+}
+
+export async function applyNativeSetupTopUps(args: {
+  status: SetupStatus;
+  fundingWallets: Wallet[];
+  availableSpecsForFunding: Map<string, string>;
+  founder: Wallet;
+  buyer: Wallet | null;
+  licensee: Wallet | null;
+  transferee: Wallet | null;
+  rpcUrl: string;
+  ensureNativeBalanceFn?: typeof ensureNativeBalance;
+}): Promise<void> {
+  const ensureBalance = args.ensureNativeBalanceFn ?? ensureNativeBalance;
+
+  const founderTopUp = await ensureBalance(
+    args.fundingWallets,
+    args.availableSpecsForFunding,
+    args.founder,
+    ethers.parseEther("0.00005"),
+    args.rpcUrl,
+  );
+  assignActorTopUp(args.status, "founder", founderTopUp);
+
+  for (const [actorLabel, wallet] of [
+    ["buyer", args.buyer],
+    ["licensee", args.licensee],
+    ["transferee", args.transferee],
+  ] as const) {
+    if (!wallet) {
+      continue;
+    }
+    const topUp = await ensureBalance(
+      args.fundingWallets,
+      args.availableSpecsForFunding,
+      wallet,
+      DEFAULT_NATIVE_MINIMUM,
+      args.rpcUrl,
+    );
+    assignActorTopUp(args.status, actorLabel, topUp);
+  }
+
+  args.status.setup.status = args.status.setup.blockers.length > 0 ? "blocked" : "ready";
+}
+
+export async function buildUsdcFundingStatus(args: {
+  erc20: {
+    balanceOf(address: string): Promise<bigint | number | string>;
+    allowance(owner: string, spender: string): Promise<bigint | number | string>;
+    connect(wallet: Wallet): { transfer(to: string, amount: bigint): Promise<{ wait(): Promise<{ hash?: string | null } | null> }> };
+  } | null;
+  availableSpecs: WalletSpec[];
+  buyer: Wallet | null;
+  provider: JsonRpcProvider;
+  port: number;
+  diamondAddress: string;
+  usdcAddress: string | null;
+  apiCallFn?: typeof apiCall;
+  waitForReceiptFn?: typeof waitForReceipt;
+}): Promise<Record<string, unknown> | null> {
+  const { buyer, erc20 } = args;
+  if (!erc20 || !buyer) {
+    return null;
+  }
+
+  const callApi = args.apiCallFn ?? apiCall;
+  const waitReceipt = args.waitForReceiptFn ?? waitForReceipt;
+  const balances = await Promise.all(
+    args.availableSpecs.map(async (entry) => {
+      const wallet = new Wallet(entry.privateKey!, args.provider);
+      return {
+        label: entry.label,
+        address: wallet.address,
+        balance: BigInt(await erc20.balanceOf(wallet.address)),
+      };
+    }),
+  );
+  const richest = balances.sort((left, right) => Number(right.balance - left.balance))[0];
+  const buyerBalance = BigInt(await erc20.balanceOf(buyer.address));
+  const buyerAllowance = BigInt(await erc20.allowance(buyer.address, args.diamondAddress));
+  const usdcFunding: Record<string, unknown> = {
+    token: args.usdcAddress,
+    buyerBalance: buyerBalance.toString(),
+    buyerAllowance: buyerAllowance.toString(),
+    richestSigner: richest,
+  };
+
+  if (
+    buyerBalance < DEFAULT_USDC_MINIMUM &&
+    richest &&
+    richest.balance > DEFAULT_USDC_MINIMUM &&
+    richest.address.toLowerCase() !== buyer.address.toLowerCase()
+  ) {
+    const richestSpec = args.availableSpecs.find((entry) => entry.label === richest.label)!;
+    const richestWallet = new Wallet(richestSpec.privateKey!, args.provider);
+    const transferReceipt = await (await erc20.connect(richestWallet).transfer(buyer.address, DEFAULT_USDC_MINIMUM - buyerBalance)).wait();
+    usdcFunding.transferTxHash = transferReceipt?.hash ?? null;
+    usdcFunding.buyerBalanceAfterTransfer = (await erc20.balanceOf(buyer.address)).toString();
+  }
+
+  const refreshedBuyerBalance = BigInt(await erc20.balanceOf(buyer.address));
+  if (refreshedBuyerBalance > 0n && BigInt(await erc20.allowance(buyer.address, args.diamondAddress)) < refreshedBuyerBalance) {
+    const approve = await callApi(args.port, "POST", "/v1/tokenomics/commands/token-approve", {
+      apiKey: "buyer-key",
+      body: { spender: args.diamondAddress, amount: refreshedBuyerBalance.toString() },
+    });
+    usdcFunding.approval = approve;
+    if (approve.status === 202) {
+      await waitReceipt(args.port, extractTxHash(approve.payload));
+    }
+    usdcFunding.buyerAllowanceAfterApproval = (await erc20.allowance(buyer.address, args.diamondAddress)).toString();
+  }
+
+  return usdcFunding;
+}
+
 export async function main(): Promise<void> {
   const env = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(env);
@@ -503,96 +638,32 @@ export async function main(): Promise<void> {
       };
     }
 
-    const founderTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, founder, ethers.parseEther("0.00005"), forkRuntime.rpcUrl);
-    (status.actors as any).founder = {
-      ...((status.actors as any).founder as Record<string, unknown>),
-      nativeTopUp: founderTopUp,
-      nativeBalanceAfterSetup: founderTopUp.balance,
-    };
-    if (founderTopUp.blockedReason) {
-      ((status.setup as Record<string, unknown>).blockers as string[]).push(`founder: ${founderTopUp.blockedReason}`);
-    }
+    await applyNativeSetupTopUps({
+      status: status as SetupStatus,
+      fundingWallets,
+      availableSpecsForFunding,
+      founder,
+      buyer,
+      licensee,
+      transferee,
+      rpcUrl: forkRuntime.rpcUrl,
+    });
 
-    if (buyer) {
-      const buyerTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, buyer, DEFAULT_NATIVE_MINIMUM, forkRuntime.rpcUrl);
-      (status.actors as any).buyer = {
-        ...((status.actors as any).buyer as Record<string, unknown>),
-        nativeTopUp: buyerTopUp,
-        nativeBalanceAfterSetup: buyerTopUp.balance,
+    const usdcFunding = await buildUsdcFundingStatus({
+      erc20: erc20 as any,
+      availableSpecs,
+      buyer,
+      provider,
+      port,
+      diamondAddress: config.diamondAddress,
+      usdcAddress,
+    });
+    if (usdcFunding) {
+      status.marketplace = {
+        ...(status.marketplace as Record<string, unknown>),
+        usdcFunding,
       };
-      if (buyerTopUp.blockedReason) {
-        ((status.setup as Record<string, unknown>).blockers as string[]).push(`buyer: ${buyerTopUp.blockedReason}`);
-      }
     }
-    if (licensee) {
-      const licenseeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, licensee, DEFAULT_NATIVE_MINIMUM, forkRuntime.rpcUrl);
-      (status.actors as any).licensee = {
-        ...((status.actors as any).licensee as Record<string, unknown>),
-        nativeTopUp: licenseeTopUp,
-        nativeBalanceAfterSetup: licenseeTopUp.balance,
-      };
-      if (licenseeTopUp.blockedReason) {
-        ((status.setup as Record<string, unknown>).blockers as string[]).push(`licensee: ${licenseeTopUp.blockedReason}`);
-      }
-    }
-    if (transferee) {
-      const transfereeTopUp = await ensureNativeBalance(fundingWallets, availableSpecsForFunding, transferee, DEFAULT_NATIVE_MINIMUM, forkRuntime.rpcUrl);
-      (status.actors as any).transferee = {
-        ...((status.actors as any).transferee as Record<string, unknown>),
-        nativeTopUp: transfereeTopUp,
-        nativeBalanceAfterSetup: transfereeTopUp.balance,
-      };
-      if (transfereeTopUp.blockedReason) {
-        ((status.setup as Record<string, unknown>).blockers as string[]).push(`transferee: ${transfereeTopUp.blockedReason}`);
-      }
-    }
-    (status.setup as Record<string, unknown>).status =
-      (((status.setup as Record<string, unknown>).blockers as string[]).length > 0 ? "blocked" : "ready");
-
-    if (erc20 && buyer) {
-    const balances = await Promise.all(
-      availableSpecs.map(async (entry) => {
-        const wallet = new Wallet(entry.privateKey!, provider);
-        return {
-          label: entry.label,
-          address: wallet.address,
-          balance: BigInt(await erc20.balanceOf(wallet.address)),
-        };
-      }),
-    );
-    const richest = balances.sort((left, right) => Number(right.balance - left.balance))[0];
-    const buyerBalance = BigInt(await erc20.balanceOf(buyer.address));
-    const buyerAllowance = BigInt(await erc20.allowance(buyer.address, config.diamondAddress));
-    const usdcFunding: Record<string, unknown> = {
-      token: usdcAddress,
-      buyerBalance: buyerBalance.toString(),
-      buyerAllowance: buyerAllowance.toString(),
-      richestSigner: richest,
-    };
-    if (buyerBalance < DEFAULT_USDC_MINIMUM && richest && richest.balance > DEFAULT_USDC_MINIMUM && richest.address.toLowerCase() !== buyer.address.toLowerCase()) {
-      const richestSpec = availableSpecs.find((entry) => entry.label === richest.label)!;
-      const richestWallet = new Wallet(richestSpec.privateKey!, provider);
-      const transferReceipt = await (await (erc20.connect(richestWallet) as any).transfer(buyer.address, DEFAULT_USDC_MINIMUM - buyerBalance)).wait();
-      usdcFunding.transferTxHash = transferReceipt?.hash ?? null;
-      usdcFunding.buyerBalanceAfterTransfer = (await erc20.balanceOf(buyer.address)).toString();
-    }
-    const refreshedBuyerBalance = BigInt(await erc20.balanceOf(buyer.address));
-    if (refreshedBuyerBalance > 0n && BigInt(await erc20.allowance(buyer.address, config.diamondAddress)) < refreshedBuyerBalance) {
-      const approve = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
-        apiKey: "buyer-key",
-        body: { spender: config.diamondAddress, amount: refreshedBuyerBalance.toString() },
-      });
-      usdcFunding.approval = approve;
-      if (approve.status === 202) {
-        await waitForReceipt(port, extractTxHash(approve.payload));
-      }
-      usdcFunding.buyerAllowanceAfterApproval = (await erc20.allowance(buyer.address, config.diamondAddress)).toString();
-    }
-    status.marketplace = {
-      ...(status.marketplace as Record<string, unknown>),
-      usdcFunding,
-    };
-  }
 
     const sellerVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(seller.address);
     const escrowVoiceHashes = await voiceAsset.getVoiceAssetsByOwner(config.diamondAddress);

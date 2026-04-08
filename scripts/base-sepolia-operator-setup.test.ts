@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   apiCall,
+  applyNativeSetupTopUps,
+  buildUsdcFundingStatus,
   createEmptyAgedListingFixture,
   createFallbackMarketplaceFixture,
   createGovernanceStatus,
@@ -460,5 +462,172 @@ describe("base sepolia operator setup helpers", () => {
       status: "failed",
       error: JSON.stringify({ error: "boom" }),
     });
+  });
+
+  it("applies native setup top-ups across founder and optional actors", async () => {
+    const founder = { address: "0xfounder" } as any;
+    const buyer = { address: "0xbuyer" } as any;
+    const licensee = { address: "0xlicensee" } as any;
+    const status = {
+      actors: {
+        founder: { address: founder.address },
+        buyer: { address: buyer.address },
+        licensee: { address: licensee.address },
+      },
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+    };
+    const ensureNativeBalanceFn = vi.fn()
+      .mockResolvedValueOnce({ funded: true, balance: "500", attemptedFunders: [], fundingStrategy: "transfer" })
+      .mockResolvedValueOnce({ funded: false, balance: "25", attemptedFunders: [], blockedReason: "buyer still short" })
+      .mockResolvedValueOnce({ funded: false, balance: "40", attemptedFunders: [] });
+
+    await applyNativeSetupTopUps({
+      status,
+      fundingWallets: [founder, buyer, licensee],
+      availableSpecsForFunding: new Map(),
+      founder,
+      buyer,
+      licensee,
+      transferee: null,
+      rpcUrl: "https://base-sepolia.example",
+      ensureNativeBalanceFn,
+    });
+
+    expect(ensureNativeBalanceFn).toHaveBeenCalledTimes(3);
+    expect(status.actors).toMatchObject({
+      founder: {
+        nativeTopUp: { balance: "500", fundingStrategy: "transfer" },
+        nativeBalanceAfterSetup: "500",
+      },
+      buyer: {
+        nativeTopUp: { balance: "25", blockedReason: "buyer still short" },
+        nativeBalanceAfterSetup: "25",
+      },
+      licensee: {
+        nativeTopUp: { balance: "40" },
+        nativeBalanceAfterSetup: "40",
+      },
+    });
+    expect(status.setup).toEqual({
+      status: "blocked",
+      blockers: ["buyer: buyer still short"],
+    });
+  });
+
+  it("builds USDC funding status with signer transfer and approval repair", async () => {
+    const provider = {} as any;
+    const founder = ethers.Wallet.createRandom().connect(provider);
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+    const availableSpecs = [
+      { label: "founder", privateKey: founder.privateKey },
+      { label: "buyer", privateKey: buyer.privateKey },
+    ];
+    const balances = new Map<string, bigint>([
+      [founder.address, 50_000_000n],
+      [buyer.address, 1_000_000n],
+    ]);
+    const allowances = new Map<string, bigint>([
+      [buyer.address, 0n],
+    ]);
+    const transfer = vi.fn(async (to: string, amount: bigint) => {
+      balances.set(founder.address, (balances.get(founder.address) ?? 0n) - amount);
+      balances.set(to, (balances.get(to) ?? 0n) + amount);
+      return {
+        wait: vi.fn().mockResolvedValue({ hash: "0xtransfer" }),
+      };
+    });
+    const erc20 = {
+      balanceOf: vi.fn(async (address: string) => balances.get(address) ?? 0n),
+      allowance: vi.fn(async (owner: string) => allowances.get(owner) ?? 0n),
+      connect: vi.fn(() => ({ transfer })),
+    };
+    const apiCallFn = vi.fn().mockResolvedValue({
+      status: 202,
+      payload: { txHash: "0xapprove" },
+    });
+    const waitForReceiptFn = vi.fn(async () => {
+      allowances.set(buyer.address, balances.get(buyer.address) ?? 0n);
+    });
+
+    const result = await buildUsdcFundingStatus({
+      erc20,
+      availableSpecs,
+      buyer,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+      apiCallFn,
+      waitForReceiptFn,
+    });
+
+    expect(result).toMatchObject({
+      token: "0xusdc",
+      buyerBalance: "1000000",
+      buyerAllowance: "0",
+      transferTxHash: "0xtransfer",
+      buyerBalanceAfterTransfer: "25000000",
+      buyerAllowanceAfterApproval: "25000000",
+      approval: {
+        status: 202,
+        payload: { txHash: "0xapprove" },
+      },
+      richestSigner: {
+        label: "founder",
+        address: founder.address,
+        balance: 50_000_000n,
+      },
+    });
+    expect(erc20.connect).toHaveBeenCalledTimes(1);
+    expect(transfer).toHaveBeenCalledWith(buyer.address, 24_000_000n);
+    expect(apiCallFn).toHaveBeenCalledWith(8787, "POST", "/v1/tokenomics/commands/token-approve", {
+      apiKey: "buyer-key",
+      body: { spender: "0xdiamond", amount: "25000000" },
+    });
+    expect(waitForReceiptFn).toHaveBeenCalledWith(8787, "0xapprove");
+  });
+
+  it("returns stable USDC funding metadata when no transfer or approval repair is needed", async () => {
+    const provider = {} as any;
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+    const availableSpecs = [
+      { label: "buyer", privateKey: buyer.privateKey },
+    ];
+    const erc20 = {
+      balanceOf: vi.fn(async () => 30_000_000n),
+      allowance: vi.fn(async () => 30_000_000n),
+      connect: vi.fn(),
+    };
+    const apiCallFn = vi.fn();
+    const waitForReceiptFn = vi.fn();
+
+    const result = await buildUsdcFundingStatus({
+      erc20,
+      availableSpecs,
+      buyer,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+      apiCallFn: apiCallFn as any,
+      waitForReceiptFn: waitForReceiptFn as any,
+    });
+
+    expect(result).toMatchObject({
+      token: "0xusdc",
+      buyerBalance: "30000000",
+      buyerAllowance: "30000000",
+      richestSigner: {
+        label: "buyer",
+        address: buyer.address,
+        balance: 30_000_000n,
+      },
+    });
+    expect(result).not.toHaveProperty("transferTxHash");
+    expect(result).not.toHaveProperty("approval");
+    expect(erc20.connect).not.toHaveBeenCalled();
+    expect(apiCallFn).not.toHaveBeenCalled();
+    expect(waitForReceiptFn).not.toHaveBeenCalled();
   });
 });

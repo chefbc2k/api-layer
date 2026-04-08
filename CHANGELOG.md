@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.49] - 2026-04-08
+
+### Fixed
+- **Setup Orchestration Coverage Extraction:** Refactored [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) to expose `applyNativeSetupTopUps` and `buildUsdcFundingStatus`, moving the Base Sepolia actor-funding and buyer-USDC repair branches into directly testable helpers without changing the live setup behavior.
+- **Operator Setup Branch Coverage Expansion:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to cover founder-plus-optional actor native top-up aggregation, setup blocker propagation, signer-selected USDC transfer repair, approval repair receipt handling, and the already-funded no-op path.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still resolves through the Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Artifact Guard:** Re-ran `pnpm run setup:base-sepolia`; the refreshed fixture remains `setup.status: "ready"` on the loopback fork, records `fundingStrategy: "local-rpc-balance-seed"` for founder and buyer, keeps marketplace token `11` `purchase-ready`, and preserves governance `status: "ready"` with founder proposer access.
+- **Regression Guards:** Re-ran `pnpm exec tsc --noEmit`, `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`, and `pnpm run coverage:check`; all passed, with API surface coverage unchanged at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `115` passing files, `558` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `89.44%` to `90.26%` statements, from `76.54%` to `77.14%` branches, from `95.00%` to `95.26%` functions, and from `89.33%` to `90.14%` lines. Within `scripts/`, coverage improved from `70.15%` to `76.15%` statements, `70.77%` to `75.27%` branches, `86.55%` to `89.34%` functions, and `69.79%` to `75.67%` lines; [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) improved from `38.16%` to `53.05%` statements, `46.72%` to `58.01%` branches, `70.58%` to `81.08%` functions, and `36.54%` to `51.40%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** `pnpm run test:coverage` remains below the stated branch/functional/line/statement target. The largest script-side blind spot is still [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts), which continues to report `0%` under Istanbul because it is loaded as the coverage provider itself.
+
 ## [0.1.48] - 2026-04-08
 
 ### Fixed
