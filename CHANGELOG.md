@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.39] - 2026-04-07
+
+### Fixed
+- **Coverage Harness Regression Tests Added:** Added [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.test.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.test.ts) to prove numeric coverage-file ordering, named-project fallback resolution, debug emission, and cache cleanup in [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts).
+- **Marketplace Setup Helper Edge Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.test.ts) to cover missing/inactive listings, explicit priority classification, empty candidate sets, candidate tie-breakers, and case-insensitive funding-candidate filtering for [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.ts).
+- **Script Utility Fallback Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/utils.test.ts`](/Users/chef/Public/api-layer/scripts/utils.test.ts) to cover repository fallback resolution, missing-file detection, one-character `pascalToCamel` conversion, and extra `copyTree` filesystem branches in [`/Users/chef/Public/api-layer/scripts/utils.ts`](/Users/chef/Public/api-layer/scripts/utils.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Targeted Coverage Proofs:** Re-ran `pnpm exec vitest run scripts/custom-coverage-provider.test.ts scripts/base-sepolia-operator-setup.helpers.test.ts scripts/utils.test.ts`; all `17` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `114` passing files, `511` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `85.83%` to `85.98%` statements, `72.14%` to `72.38%` branches, held at `93.55%` functions, and improved from `85.64%` to `85.79%` lines.
+
+### Known Issues
+- **100% Standard Coverage Still Not Met:** The largest remaining handwritten coverage gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts), and lower-covered branch-heavy workflow/runtime helpers.
+
 ## [0.1.38] - 2026-04-07
 
 ### Fixed

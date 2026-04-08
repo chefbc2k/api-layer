@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  classifyCandidatePriority,
   isPurchaseReadyListing,
   mergeMarketplaceCandidateVoiceHashes,
   rankFundingCandidates,
@@ -14,6 +15,41 @@ describe("base-sepolia marketplace fixture helpers", () => {
       createdAt: "1900",
       isActive: true,
     }, 1900n + 60n)).toBe(false);
+  });
+
+  it("treats missing or inactive listings as not purchase-ready", () => {
+    expect(isPurchaseReadyListing(undefined, 10n)).toBe(false);
+    expect(isPurchaseReadyListing({ tokenId: "11", isActive: false, createdAt: "1" }, 10n)).toBe(false);
+    expect(isPurchaseReadyListing({ tokenId: "11", isActive: true }, 10n)).toBe(false);
+  });
+
+  it("classifies marketplace candidates by purchase readiness before general activeness", () => {
+    expect(classifyCandidatePriority({
+      voiceHash: "0xready",
+      tokenId: "1",
+      listingReadback: {
+        status: 200,
+        payload: { tokenId: "1", createdAt: "1", isActive: true },
+      },
+    }, 1n + 24n * 60n * 60n)).toBe(3);
+
+    expect(classifyCandidatePriority({
+      voiceHash: "0xactive",
+      tokenId: "2",
+      listingReadback: {
+        status: 200,
+        payload: { tokenId: "2", createdAt: "10", isActive: true },
+      },
+    }, 20n)).toBe(2);
+
+    expect(classifyCandidatePriority({
+      voiceHash: "0xmissing",
+      tokenId: "3",
+      listingReadback: {
+        status: 404,
+        payload: null,
+      },
+    }, 20n)).toBe(1);
   });
 
   it("prefers an active listing past the trading lock over fresher or inactive candidates", () => {
@@ -59,6 +95,54 @@ describe("base-sepolia marketplace fixture helpers", () => {
     expect(candidate?.tokenId).toBe("83");
   });
 
+  it("uses older listings and token id as tie-breakers when priorities match", () => {
+    const byAge = selectPreferredMarketplaceFixtureCandidate([
+      {
+        voiceHash: "0xolder",
+        tokenId: "9",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "9", createdAt: "10", isActive: true },
+        },
+      },
+      {
+        voiceHash: "0xnewer",
+        tokenId: "8",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "8", createdAt: "20", isActive: true },
+        },
+      },
+    ], 40n);
+
+    expect(byAge?.tokenId).toBe("9");
+
+    const byTokenId = selectPreferredMarketplaceFixtureCandidate([
+      {
+        voiceHash: "0xb",
+        tokenId: "11",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "11", createdAt: "10", isActive: true },
+        },
+      },
+      {
+        voiceHash: "0xa",
+        tokenId: "10",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "10", createdAt: "10", isActive: true },
+        },
+      },
+    ], 40n);
+
+    expect(byTokenId?.tokenId).toBe("10");
+  });
+
+  it("returns null when no marketplace candidates are available", () => {
+    expect(selectPreferredMarketplaceFixtureCandidate([], 10n)).toBeNull();
+  });
+
   it("merges seller-owned and escrowed voice hashes without dropping escrow-only candidates", () => {
     expect(
       mergeMarketplaceCandidateVoiceHashes(
@@ -82,6 +166,22 @@ describe("base-sepolia marketplace fixture helpers", () => {
     ).toEqual([
       { label: "licensee", address: "0xddd", spendable: 7n },
       { label: "founder", address: "0xaaa", spendable: 5n },
+    ]);
+  });
+
+  it("sorts equal-spendable funding candidates by label and filters recipient case-insensitively", () => {
+    expect(
+      rankFundingCandidates(
+        [
+          { label: "zeta", address: "0xAAA", spendable: 2n },
+          { label: "alpha", address: "0xbbb", spendable: 2n },
+          { label: "self", address: "0xCcC", spendable: 5n },
+        ],
+        "0xccc",
+      ),
+    ).toEqual([
+      { label: "alpha", address: "0xbbb", spendable: 2n },
+      { label: "zeta", address: "0xAAA", spendable: 2n },
     ]);
   });
 });

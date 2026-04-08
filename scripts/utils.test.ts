@@ -39,6 +39,8 @@ describe("script utils", () => {
     await ensureDir(nestedDir);
     await writeJson(path.join(nestedDir, "data.json"), { ok: true });
     await writeFile(path.join(nestedDir, "plain.txt"), "hello", "utf8");
+    await mkdir(path.join(tempDir, "nested", "empty-dir"), { recursive: true });
+    await writeFile(path.join(tempDir, "nested", "symlink-target.txt"), "target", "utf8");
 
     await expect(fileExists(path.join(nestedDir, "data.json"))).resolves.toBe(true);
     await expect(readJson<{ ok: boolean }>(path.join(nestedDir, "data.json"))).resolves.toEqual({ ok: true });
@@ -47,6 +49,8 @@ describe("script utils", () => {
     await copyTree(path.join(tempDir, "nested"), targetDir);
 
     await expect(readFile(path.join(targetDir, "child", "plain.txt"), "utf8")).resolves.toBe("hello");
+    await expect(fileExists(path.join(targetDir, "empty-dir"))).resolves.toBe(true);
+    await expect(fileExists(path.join(targetDir, "symlink-target.txt"))).resolves.toBe(true);
 
     await resetDir(targetDir);
     await expect(fileExists(path.join(targetDir, "child", "plain.txt"))).resolves.toBe(false);
@@ -86,7 +90,33 @@ describe("script utils", () => {
     ).toBe(true);
   });
 
+  it("resolves repository fallback inputs when explicit env vars are absent", async () => {
+    delete process.env.API_LAYER_ABI_SOURCE_DIR;
+    delete process.env.API_LAYER_SCENARIO_SOURCE_DIR;
+    delete process.env.API_LAYER_DEPLOYMENT_MANIFEST;
+
+    await expect(resolveAbiSourceDir()).resolves.toBe(localAbiSourceDir);
+
+    const scenarioDir = await resolveScenarioSourceDir();
+    expect(
+      scenarioDir === null
+      || path.normalize(scenarioDir).endsWith(path.join("scripts", "deployment", "scenarios")),
+    ).toBe(true);
+
+    const manifestPath = await resolveDeploymentManifestPath();
+    expect(
+      manifestPath === null
+      || manifestPath === localDeploymentManifestPath
+      || path.normalize(manifestPath).endsWith(path.join("artifacts", "release-readiness", "deployment-manifest.json")),
+    ).toBe(true);
+  });
+
+  it("returns false when a file path does not exist", async () => {
+    await expect(fileExists(path.join(tempDir, "missing.txt"))).resolves.toBe(false);
+  });
+
   it("converts PascalCase identifiers to camelCase", () => {
     expect(pascalToCamel("VoiceAssetFacet")).toBe("voiceAssetFacet");
+    expect(pascalToCamel("X")).toBe("x");
   });
 });
