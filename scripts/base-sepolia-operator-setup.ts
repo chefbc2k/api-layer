@@ -44,6 +44,31 @@ type BalanceTopUpResult = {
   blockedReason?: string;
 };
 
+type ListingReadback = {
+  status: number;
+  payload: Record<string, unknown> | null;
+};
+
+export type MarketplaceFixtureCandidate = {
+  voiceHash: string;
+  tokenId: string;
+  listingReadback: ListingReadback;
+};
+
+export type AgedListingFixture = {
+  voiceHash: string | null;
+  tokenId: string | null;
+  activeListing: boolean;
+  purchaseReadiness: "unverified" | "listed-not-yet-purchase-proven" | "purchase-ready";
+  status: FixtureStatus;
+  reason: string;
+  approval: unknown;
+  listing: {
+    submission: unknown;
+    readback: unknown;
+  } | null;
+};
+
 const DEFAULT_NATIVE_MINIMUM = ethers.parseEther("0.00004");
 const DEFAULT_USDC_MINIMUM = 25_000_000n;
 const RUNTIME_DIR = path.resolve(".runtime");
@@ -136,6 +161,122 @@ export async function retryApiRead<T>(
 
 export function roleId(name: string): string {
   return id(name);
+}
+
+export function createEmptyAgedListingFixture(): AgedListingFixture {
+  return {
+    voiceHash: null,
+    tokenId: null,
+    activeListing: false,
+    purchaseReadiness: "unverified",
+    status: "blocked",
+    reason: "missing aged seller asset",
+    approval: null,
+    listing: null,
+  };
+}
+
+export function createPreferredMarketplaceFixture(
+  preferredCandidate: MarketplaceFixtureCandidate,
+  latestTimestamp: bigint,
+): AgedListingFixture {
+  const activeListing = preferredCandidate.listingReadback.status === 200 &&
+    preferredCandidate.listingReadback.payload?.isActive === true;
+  const purchaseReady = isPurchaseReadyListing(preferredCandidate.listingReadback.payload, latestTimestamp);
+  return {
+    voiceHash: preferredCandidate.voiceHash,
+    tokenId: preferredCandidate.tokenId,
+    activeListing,
+    purchaseReadiness: purchaseReady
+      ? "purchase-ready"
+      : activeListing
+        ? "listed-not-yet-purchase-proven"
+        : "unverified",
+    status: purchaseReady
+      ? "ready"
+      : activeListing
+        ? "partial"
+        : "blocked",
+    reason: purchaseReady
+      ? "listing is active and older than the marketplace contract's 1 day trading lock"
+      : activeListing
+        ? "active listing exists, but it is still within the marketplace contract's 1 day trading lock"
+        : "seller owns aged assets, but none currently have an active listing",
+    approval: null,
+    listing: {
+      submission: null,
+      readback: preferredCandidate.listingReadback,
+    },
+  };
+}
+
+export function createFallbackMarketplaceFixture(
+  fallbackAsset: { voiceHash: string; tokenId: string },
+  submission: unknown,
+  refreshedListing: ListingReadback,
+  approval: unknown,
+): AgedListingFixture {
+  const activeListing = refreshedListing.status === 200 && refreshedListing.payload?.isActive === true;
+  return {
+    voiceHash: fallbackAsset.voiceHash,
+    tokenId: fallbackAsset.tokenId,
+    activeListing,
+    purchaseReadiness: activeListing ? "listed-not-yet-purchase-proven" : "unverified",
+    status: activeListing ? "partial" : "blocked",
+    reason: activeListing
+      ? "listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock"
+      : "listing could not be activated",
+    approval,
+    listing: {
+      submission,
+      readback: refreshedListing,
+    },
+  };
+}
+
+export function createInactivePreferredMarketplaceFixture(
+  preferredCandidate: MarketplaceFixtureCandidate,
+  approval: unknown,
+): AgedListingFixture {
+  return {
+    voiceHash: preferredCandidate.voiceHash,
+    tokenId: preferredCandidate.tokenId,
+    activeListing: false,
+    purchaseReadiness: "unverified",
+    status: "blocked",
+    reason: "seller owns aged assets, but none currently have an active listing",
+    approval,
+    listing: {
+      submission: null,
+      readback: preferredCandidate.listingReadback,
+    },
+  };
+}
+
+export function createGovernanceStatus(args: {
+  founderAddress: string;
+  proposerRolePresent: boolean;
+  threshold: bigint;
+  currentVotes: bigint;
+  currentVotesAfterSetup: bigint;
+  tokenBalance: bigint;
+  mintingFinished: boolean;
+}): Record<string, unknown> {
+  const status = args.currentVotesAfterSetup >= args.threshold && args.proposerRolePresent ? "ready" : "partial";
+  return {
+    proposerAddress: args.founderAddress,
+    proposerRolePresent: args.proposerRolePresent,
+    threshold: args.threshold.toString(),
+    currentVotes: args.currentVotes.toString(),
+    tokenBalance: args.tokenBalance.toString(),
+    mintingFinished: args.mintingFinished,
+    bootstrapRepairAttempted: false,
+    currentVotesAfterSetup: args.currentVotesAfterSetup.toString(),
+    status,
+    reason: status === "ready"
+      ? "promoted baseline already provides proposer role access and founder voting power"
+      : "promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state",
+  };
 }
 
 export async function ensureNativeBalance(
@@ -455,16 +596,7 @@ export async function main(): Promise<void> {
     );
     const latestBlock = await provider.getBlock("latest");
     const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
-  const agedFixture = {
-    voiceHash: null as string | null,
-    tokenId: null as string | null,
-    activeListing: false,
-    purchaseReadiness: "unverified" as "unverified" | "listed-not-yet-purchase-proven" | "purchase-ready",
-    status: "blocked" as FixtureStatus,
-    reason: "missing aged seller asset",
-    approval: null as any,
-    listing: null as any,
-  };
+  const agedFixture = createEmptyAgedListingFixture();
     const marketplaceCandidates: Array<{
       voiceHash: string;
       tokenId: string;
@@ -520,32 +652,8 @@ export async function main(): Promise<void> {
   }
     const preferredCandidate = selectPreferredMarketplaceFixtureCandidate(marketplaceCandidates, latestTimestamp);
     if (preferredCandidate && preferredCandidate.listingReadback.payload?.isActive === true) {
-      agedFixture.voiceHash = preferredCandidate.voiceHash;
-      agedFixture.tokenId = preferredCandidate.tokenId;
-      agedFixture.activeListing = preferredCandidate.listingReadback.status === 200 &&
-        preferredCandidate.listingReadback.payload?.isActive === true;
-      agedFixture.purchaseReadiness = isPurchaseReadyListing(preferredCandidate.listingReadback.payload, latestTimestamp)
-        ? "purchase-ready"
-        : agedFixture.activeListing
-          ? "listed-not-yet-purchase-proven"
-          : "unverified";
-      agedFixture.status = agedFixture.purchaseReadiness === "purchase-ready"
-        ? "ready"
-        : agedFixture.activeListing
-          ? "partial"
-          : "blocked";
-      agedFixture.reason = agedFixture.purchaseReadiness === "purchase-ready"
-        ? "listing is active and older than the marketplace contract's 1 day trading lock"
-        : agedFixture.activeListing
-          ? "active listing exists, but it is still within the marketplace contract's 1 day trading lock"
-          : "seller owns aged assets, but none currently have an active listing";
-      agedFixture.listing = {
-        submission: null,
-        readback: preferredCandidate.listingReadback,
-      };
+      Object.assign(agedFixture, createPreferredMarketplaceFixture(preferredCandidate, latestTimestamp));
     } else if (fallbackAsset) {
-      agedFixture.voiceHash = fallbackAsset.voiceHash;
-      agedFixture.tokenId = fallbackAsset.tokenId;
       const listing = await apiCall(port, "POST", "/v1/marketplace/commands/list-asset", {
         apiKey: "seller-key",
         body: { tokenId: fallbackAsset.tokenId, price: "1000", duration: "0" },
@@ -563,27 +671,17 @@ export async function main(): Promise<void> {
         ),
         (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
       );
-      agedFixture.activeListing = refreshedListing.status === 200 && (refreshedListing.payload as Record<string, unknown>)?.isActive === true;
-      agedFixture.purchaseReadiness = agedFixture.activeListing ? "listed-not-yet-purchase-proven" : "unverified";
-      agedFixture.status = agedFixture.activeListing ? "partial" : "blocked";
-      agedFixture.reason = agedFixture.activeListing
-        ? "listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock"
-        : "listing could not be activated";
-      agedFixture.listing = {
-        submission: listing,
-        readback: refreshedListing,
-      };
+      Object.assign(agedFixture, createFallbackMarketplaceFixture(
+        fallbackAsset,
+        listing,
+        {
+          status: refreshedListing.status,
+          payload: refreshedListing.payload as Record<string, unknown> | null,
+        },
+        agedFixture.approval,
+      ));
     } else if (preferredCandidate) {
-      agedFixture.voiceHash = preferredCandidate.voiceHash;
-      agedFixture.tokenId = preferredCandidate.tokenId;
-      agedFixture.activeListing = false;
-      agedFixture.purchaseReadiness = "unverified";
-      agedFixture.status = "blocked";
-      agedFixture.reason = "seller owns aged assets, but none currently have an active listing";
-      agedFixture.listing = {
-        submission: null,
-        readback: preferredCandidate.listingReadback,
-      };
+      Object.assign(agedFixture, createInactivePreferredMarketplaceFixture(preferredCandidate, agedFixture.approval));
     }
     status.marketplace = {
     ...(status.marketplace as Record<string, unknown>),
@@ -593,21 +691,20 @@ export async function main(): Promise<void> {
     const proposerRole = roleId("PROPOSER_ROLE");
     const votingConfig = await governorFacet.getVotingConfig();
     const threshold = BigInt(votingConfig[2]);
-    const governanceStatus: Record<string, unknown> = {
-    proposerAddress: founder.address,
-    proposerRolePresent: await accessControl.hasRole(proposerRole, founder.address),
-    threshold: threshold.toString(),
-      currentVotes: (await delegationFacet.getCurrentVotes(founder.address)).toString(),
-    tokenBalance: (await tokenSupply.tokenBalanceOf(founder.address)).toString(),
-    mintingFinished: await tokenSupply.supplyIsMintingFinished(),
-    bootstrapRepairAttempted: false,
-  };
-    governanceStatus.currentVotesAfterSetup = (await delegationFacet.getCurrentVotes(founder.address)).toString();
-    governanceStatus.status = BigInt(governanceStatus.currentVotesAfterSetup as string) >= threshold &&
-      governanceStatus.proposerRolePresent === true ? "ready" : "partial";
-    governanceStatus.reason = governanceStatus.status === "ready"
-      ? "promoted baseline already provides proposer role access and founder voting power"
-      : "promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state";
+    const proposerRolePresent = await accessControl.hasRole(proposerRole, founder.address);
+    const currentVotes = BigInt(await delegationFacet.getCurrentVotes(founder.address));
+    const tokenBalance = BigInt(await tokenSupply.tokenBalanceOf(founder.address));
+    const mintingFinished = await tokenSupply.supplyIsMintingFinished();
+    const currentVotesAfterSetup = BigInt(await delegationFacet.getCurrentVotes(founder.address));
+    const governanceStatus = createGovernanceStatus({
+      founderAddress: founder.address,
+      proposerRolePresent,
+      threshold,
+      currentVotes,
+      currentVotesAfterSetup,
+      tokenBalance,
+      mintingFinished,
+    });
     status.governance = governanceStatus;
 
     status.licensing = {

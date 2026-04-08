@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.41] - 2026-04-08
+
+### Fixed
+- **Setup Script Classification Coverage Expanded:** Refactored [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) to expose deterministic fixture/governance classification helpers for empty marketplace state, preferred aged listings, fallback listing activation, inactive preferred candidates, and governance readiness assessment without changing live setup behavior.
+- **Setup Script Tests Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to cover the newly extracted marketplace-fixture and governance-status branches alongside the existing API, retry, funding, and role-grant helper assertions.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline still resolves through fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` HTTP methods, and `218` events.
+- **Focused Setup Tests:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `19` setup-script assertions pass.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `114` passing files, `528` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `114` passing files, `528` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `87.79%` to `88.11%` statements, `74.12%` to `74.73%` branches, `94.13%` to `94.16%` functions, and `87.63%` to `87.96%` lines. The `scripts/` coverage bucket improved from `67.53%` to `69.67%` statements, `64.49%` to `69.14%` branches, `85.96%` to `86.55%` functions, and `67.09%` to `69.29%` lines, while [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) improved from `33.20%` statements / `33.17%` branches / `65.51%` functions / `31.32%` lines to `37.64%` / `45.19%` / `70.58%` / `35.95%`.
+
+### Known Issues
+- **Live Setup Still Blocked by External Funding:** `pnpm run setup:base-sepolia` still exits with `setup.status: "blocked"` because no configured funder currently exposes spendable ETH. Founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` still needs `48895000000081` additional wei, while buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` each still need `39126000000081` additional wei.
+- **Coverage Instrumentation Gap Still Open:** [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts) still reports `0%` under Istanbul despite its focused tests passing, so the next run should continue on coverage attribution or exclusion hygiene there.
+
 ## [0.1.40] - 2026-04-07
 
 ### Fixed

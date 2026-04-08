@@ -2,6 +2,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   apiCall,
+  createEmptyAgedListingFixture,
+  createFallbackMarketplaceFixture,
+  createGovernanceStatus,
+  createInactivePreferredMarketplaceFixture,
+  createPreferredMarketplaceFixture,
   ensureNativeBalance,
   ensureRole,
   extractTxHash,
@@ -53,6 +58,159 @@ describe("base sepolia operator setup helpers", () => {
 
   it("hashes role names consistently", () => {
     expect(roleId("PROPOSER_ROLE")).toMatch(/^0x[a-f0-9]{64}$/);
+  });
+
+  it("builds the default blocked aged-listing fixture", () => {
+    expect(createEmptyAgedListingFixture()).toEqual({
+      voiceHash: null,
+      tokenId: null,
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "missing aged seller asset",
+      approval: null,
+      listing: null,
+    });
+  });
+
+  it("classifies preferred marketplace fixtures as ready, partial, or blocked", () => {
+    const purchaseReady = createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-ready",
+      tokenId: "11",
+      listingReadback: {
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      },
+    }, 100_000n);
+    const activeButYoung = createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-partial",
+      tokenId: "12",
+      listingReadback: {
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "99999",
+        },
+      },
+    }, 100_000n);
+    const inactive = createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-blocked",
+      tokenId: "13",
+      listingReadback: {
+        status: 200,
+        payload: {
+          isActive: false,
+          createdAt: "0",
+        },
+      },
+    }, 100_000n);
+
+    expect(purchaseReady).toMatchObject({
+      voiceHash: "0xvoice-ready",
+      tokenId: "11",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+    });
+    expect(activeButYoung).toMatchObject({
+      voiceHash: "0xvoice-partial",
+      tokenId: "12",
+      activeListing: true,
+      purchaseReadiness: "listed-not-yet-purchase-proven",
+      status: "partial",
+      reason: "active listing exists, but it is still within the marketplace contract's 1 day trading lock",
+    });
+    expect(inactive).toMatchObject({
+      voiceHash: "0xvoice-blocked",
+      tokenId: "13",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "seller owns aged assets, but none currently have an active listing",
+    });
+  });
+
+  it("records fallback and inactive preferred listing outcomes", () => {
+    expect(createFallbackMarketplaceFixture(
+      { voiceHash: "0xvoice", tokenId: "99" },
+      { status: 202, payload: { txHash: "0xlist" } },
+      { status: 200, payload: { isActive: true } },
+      { status: 202, payload: { txHash: "0xapproval" } },
+    )).toMatchObject({
+      voiceHash: "0xvoice",
+      tokenId: "99",
+      activeListing: true,
+      purchaseReadiness: "listed-not-yet-purchase-proven",
+      status: "partial",
+      reason: "listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock",
+      approval: { status: 202, payload: { txHash: "0xapproval" } },
+      listing: {
+        submission: { status: 202, payload: { txHash: "0xlist" } },
+        readback: { status: 200, payload: { isActive: true } },
+      },
+    });
+
+    expect(createInactivePreferredMarketplaceFixture({
+      voiceHash: "0xvoice",
+      tokenId: "100",
+      listingReadback: { status: 404, payload: null },
+    }, { status: 202, payload: { txHash: "0xapproval" } })).toMatchObject({
+      voiceHash: "0xvoice",
+      tokenId: "100",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "seller owns aged assets, but none currently have an active listing",
+      approval: { status: 202, payload: { txHash: "0xapproval" } },
+    });
+  });
+
+  it("classifies governance readiness from proposer role and voting power", () => {
+    expect(createGovernanceStatus({
+      founderAddress: "0xfounder",
+      proposerRolePresent: true,
+      threshold: 100n,
+      currentVotes: 120n,
+      currentVotesAfterSetup: 120n,
+      tokenBalance: 500n,
+      mintingFinished: true,
+    })).toMatchObject({
+      proposerAddress: "0xfounder",
+      proposerRolePresent: true,
+      threshold: "100",
+      currentVotes: "120",
+      currentVotesAfterSetup: "120",
+      tokenBalance: "500",
+      mintingFinished: true,
+      bootstrapRepairAttempted: false,
+      status: "ready",
+      reason: "promoted baseline already provides proposer role access and founder voting power",
+    });
+
+    expect(createGovernanceStatus({
+      founderAddress: "0xfounder",
+      proposerRolePresent: false,
+      threshold: 100n,
+      currentVotes: 50n,
+      currentVotesAfterSetup: 50n,
+      tokenBalance: 500n,
+      mintingFinished: false,
+    })).toMatchObject({
+      proposerAddress: "0xfounder",
+      proposerRolePresent: false,
+      threshold: "100",
+      currentVotes: "50",
+      currentVotesAfterSetup: "50",
+      tokenBalance: "500",
+      mintingFinished: false,
+      bootstrapRepairAttempted: false,
+      status: "partial",
+      reason: "promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state",
+    });
   });
 
   it("computes native spendable balance after gas reserve", async () => {
