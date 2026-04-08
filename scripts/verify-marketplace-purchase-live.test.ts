@@ -1,0 +1,91 @@
+import { describe, expect, it } from "vitest";
+
+import { buildBlockedFundingOutput, selectMarketplacePurchaseTarget } from "./verify-marketplace-purchase-live.js";
+
+describe("verify marketplace purchase live target selection", () => {
+  it("uses the aged fixture only when setup marked it purchase-ready", () => {
+    expect(selectMarketplacePurchaseTarget({
+      tokenId: "11",
+      voiceHash: "0xvoice",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+    }, "0xseller")).toEqual({
+      source: "aged-fixture",
+      tokenId: "11",
+      voiceHash: "0xvoice",
+      sellerAddress: "0xseller",
+      listing: null,
+    });
+  });
+
+  it("rejects partial, inactive, or missing setup fixtures", () => {
+    expect(selectMarketplacePurchaseTarget({
+      tokenId: "12",
+      voiceHash: "0xyoung",
+      activeListing: true,
+      purchaseReadiness: "listed-not-yet-purchase-proven",
+    }, "0xseller")).toBeNull();
+
+    expect(selectMarketplacePurchaseTarget({
+      tokenId: "13",
+      voiceHash: "0xinactive",
+      activeListing: false,
+      purchaseReadiness: "purchase-ready",
+    }, "0xseller")).toBeNull();
+
+    expect(selectMarketplacePurchaseTarget({
+      tokenId: null,
+      voiceHash: "0xmissing",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+    }, "0xseller")).toBeNull();
+  });
+
+  it("renders a structured blocked report for known gas-funding limits", () => {
+    expect(buildBlockedFundingOutput({
+      chainId: 84532,
+      diamondAddress: "0xdiamond",
+      sellerAddress: "0xseller",
+      buyerAddress: "0xbuyer",
+      fundingWallet: "0xfounder",
+      funding: {
+        ok: false,
+        balance: 100n,
+        minimum: 500n,
+        missing: 400n,
+        fundingWallet: "0xfounder",
+        recipient: "0xbuyer",
+      },
+      target: {
+        source: "aged-fixture",
+        tokenId: "11",
+        voiceHash: "0xvoice",
+        sellerAddress: "0xseller",
+        listing: null,
+      },
+    })).toEqual({
+      target: {
+        source: "aged-fixture",
+        chainId: 84532,
+        diamond: "0xdiamond",
+        tokenId: "11",
+        voiceHash: "0xvoice",
+      },
+      actors: {
+        seller: "0xseller",
+        buyer: "0xbuyer",
+        fundingWallet: "0xfounder",
+      },
+      classification: "blocked by setup/state",
+      failureKind: "environment limitation",
+      notes: {
+        reason: "buyer lacks enough native gas for live marketplace purchase proof and the configured funding wallet cannot top up the gap",
+        requiredMinimumWei: "500",
+        buyerBalanceWei: "100",
+        missingWei: "400",
+        fundingWallet: "0xfounder",
+        recipient: "0xbuyer",
+      },
+    });
+  });
+});

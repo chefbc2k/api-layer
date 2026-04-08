@@ -3,54 +3,22 @@
     "source": "aged-fixture",
     "chainId": 84532,
     "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-    "tokenId": "83",
-    "voiceHash": null
+    "tokenId": "11",
+    "voiceHash": "0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886"
   },
   "actors": {
     "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-    "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+    "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+    "fundingWallet": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
   },
-  "purchase": {
-    "txHash": "0xf4b5fc77eb57d744a140d362ea8ac4c67276fc86ffec2a6e856417b6b6257bfa",
-    "receipt": {
-      "status": 1,
-      "blockNumber": 39045521
-    }
-  },
-  "postState": {
-    "owner": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-    "listing": {
-      "tokenId": "83",
-      "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-      "price": "1000",
-      "createdAt": "1773858588",
-      "createdBlock": "39045150",
-      "lastUpdateBlock": "39045150",
-      "expiresAt": "1776450588",
-      "isActive": false
-    }
-  },
-  "events": [
-    {
-      "name": "AssetReleased",
-      "args": {
-        "tokenId": "83",
-        "to": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
-      }
-    },
-    {
-      "name": "AssetPurchased",
-      "args": {
-        "tokenId": "83",
-        "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-        "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-        "price": "1000"
-      }
-    }
-  ],
-  "classification": "proven working",
+  "classification": "blocked by setup/state",
+  "failureKind": "environment limitation",
   "notes": {
-    "sourceTx": "reconstructed from the successful live buyer purchase recorded on 2026-03-18 after a later rerun consumed the original fixture and overwrote stdout redirection output",
-    "currentFixtureWarning": "setup:base-sepolia currently refreshes the marketplace agedListingFixture with a fresh listing that still trips the 1 day asset-age lock; that fixture-age regression remains the next cleanup target"
+    "reason": "buyer lacks enough native gas for live marketplace purchase proof and the configured funding wallet cannot top up the gap",
+    "requiredMinimumWei": "50000000000000",
+    "buyerBalanceWei": "873999999919",
+    "missingWei": "49126000000081",
+    "fundingWallet": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+    "recipient": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
   }
 }

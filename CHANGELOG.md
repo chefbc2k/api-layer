@@ -7,6 +7,19 @@
 ## [0.1.46] - 2026-04-08
 
 ### Fixed
+- **Marketplace Purchase Proof Classification Hardened:** Updated [`/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts`](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) so the live buyer-proof script now trusts the aged marketplace fixture only when `setup:base-sepolia` marked it `purchase-ready`, exposes import-safe helper functions behind a main-module guard, and emits a structured `blocked by setup/state` artifact when the buyer lacks native gas and the configured founder wallet cannot close the funding gap.
+
+### Added
+- **Marketplace Purchase Verifier Tests:** Added [`/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.test.ts`](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.test.ts) to lock in purchase-target selection and blocked-funding report formatting for the live marketplace proof path.
+
+### Verified
+- **Marketplace Purchase Proof Reclassified:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia`; the verifier now resolves the current `purchase-ready` aged fixture on token `11` and writes [`/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json`](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) with `classification: "blocked by setup/state"` instead of a stale reconstructed March success artifact. The live blocker is still the same funding gap: buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709` holds `873999999919` wei, the verifier requires `50000000000000` wei, and founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2` cannot top up the missing `49126000000081` wei.
+- **Marketplace Purchase Verifier Tests:** Re-ran `pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1`; all `3` assertions pass.
+
+### Known Issues
+- **Live Marketplace Buyer Proof Still Environment-Limited:** The purchase route itself is no longer an unknown, but Base Sepolia buyer-proof completion still requires external native-gas funding for the configured buyer/founder signer pair before a fresh purchase tx can be proven again.
+
+### Fixed
 - **Execution Context Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) to cover signer-backed read execution, read execution without signer context, Alchemy receipt decoding plus trace collection, and preview-failure diagnostics when signer preparation also fails in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
 
 ### Verified

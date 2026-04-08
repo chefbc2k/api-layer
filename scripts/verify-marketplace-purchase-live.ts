@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import { once } from "node:events";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { Contract, JsonRpcProvider, Wallet, ZeroAddress, ethers } from "ethers";
 
@@ -20,10 +22,33 @@ type FixtureReport = {
       tokenId?: string | null;
       voiceHash?: string | null;
       activeListing?: boolean;
+      purchaseReadiness?: "unverified" | "listed-not-yet-purchase-proven" | "purchase-ready";
       listing?: unknown;
     };
   };
 };
+
+export type MarketplacePurchaseTarget = {
+  source: "aged-fixture" | "fresh-founder-listing";
+  tokenId: string;
+  voiceHash: string | null;
+  sellerAddress: string;
+  listing: unknown;
+};
+
+type FundingCheckResult =
+  | {
+      ok: true;
+      balance: bigint;
+    }
+  | {
+      ok: false;
+      balance: bigint;
+      minimum: bigint;
+      missing: bigint;
+      fundingWallet: string;
+      recipient: string;
+    };
 
 function getOutputPath() {
   const index = process.argv.indexOf("--output");
@@ -110,10 +135,22 @@ async function retryRead<T>(read: () => Promise<T>, ready: (value: T) => boolean
 async function ensureNativeBalance(provider: JsonRpcProvider, fundingWallet: Wallet, recipient: string, minimum: bigint) {
   const balance = await provider.getBalance(recipient);
   if (balance >= minimum || fundingWallet.address.toLowerCase() === recipient.toLowerCase()) {
-    return balance;
+    return { ok: true, balance } as const;
   }
-  await (await fundingWallet.sendTransaction({ to: recipient, value: minimum - balance })).wait();
-  return provider.getBalance(recipient);
+  const missing = minimum - balance;
+  const fundingWalletBalance = await provider.getBalance(fundingWallet.address);
+  if (fundingWalletBalance <= missing) {
+    return {
+      ok: false,
+      balance,
+      minimum,
+      missing,
+      fundingWallet: fundingWallet.address,
+      recipient,
+    } as const;
+  }
+  await (await fundingWallet.sendTransaction({ to: recipient, value: missing })).wait();
+  return { ok: true, balance: await provider.getBalance(recipient) } as const;
 }
 
 async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>; port: number }> {
@@ -133,7 +170,7 @@ async function createFallbackListing(
   provider: JsonRpcProvider,
   founderAddress: string,
   voiceAsset: Contract,
-) {
+): Promise<MarketplacePurchaseTarget> {
   const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
     apiKey: "founder-key",
     walletAddress: founderAddress,
@@ -195,6 +232,70 @@ async function createFallbackListing(
   };
 }
 
+export function selectMarketplacePurchaseTarget(
+  agedListing: FixtureReport["marketplace"] extends { agedListingFixture?: infer T } ? T : never,
+  sellerAddress: string,
+): MarketplacePurchaseTarget | null {
+  if (
+    !agedListing?.tokenId ||
+    agedListing.activeListing !== true ||
+    agedListing.purchaseReadiness !== "purchase-ready"
+  ) {
+    return null;
+  }
+
+  return {
+    source: "aged-fixture",
+    tokenId: agedListing.tokenId,
+    voiceHash: agedListing.voiceHash ?? null,
+    sellerAddress,
+    listing: null,
+  };
+}
+
+export function buildBlockedFundingOutput(args: {
+  chainId: number;
+  diamondAddress: string;
+  sellerAddress: string;
+  buyerAddress: string;
+  fundingWallet: string;
+  funding: Extract<FundingCheckResult, { ok: false }>;
+  target: MarketplacePurchaseTarget | null;
+}) {
+  return {
+    target: args.target
+      ? {
+          source: args.target.source,
+          chainId: args.chainId,
+          diamond: args.diamondAddress,
+          tokenId: args.target.tokenId,
+          voiceHash: args.target.voiceHash,
+        }
+      : {
+          source: "unresolved",
+          chainId: args.chainId,
+          diamond: args.diamondAddress,
+          tokenId: null,
+          voiceHash: null,
+        },
+    actors: {
+      seller: args.sellerAddress,
+      buyer: args.buyerAddress,
+      fundingWallet: args.fundingWallet,
+    },
+    classification: "blocked by setup/state",
+    failureKind: "environment limitation",
+    notes: {
+      reason: "buyer lacks enough native gas for live marketplace purchase proof and the configured funding wallet cannot top up the gap",
+      requiredMinimumWei: args.funding.minimum.toString(),
+      buyerBalanceWei: args.funding.balance.toString(),
+      missingWei: args.funding.missing.toString(),
+      fundingWallet: args.funding.fundingWallet,
+      recipient: args.funding.recipient,
+    },
+  };
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
   const { config } = await resolveRuntimeConfig(repoEnv);
@@ -252,19 +353,9 @@ async function main() {
     fundingCandidates.map(async (wallet) => ({ wallet, balance: BigInt(await erc20.balanceOf(wallet.address)) })),
   )).sort((left, right) => Number(right.balance - left.balance))[0];
 
-  await ensureNativeBalance(provider, founder, buyer.address, ethers.parseEther("0.00005"));
-
-  const { server, port } = await startServer();
+    const { server, port } = await startServer();
   try {
-    let target = agedListing?.tokenId && agedListing.activeListing === true
-      ? {
-          source: "aged-fixture",
-          tokenId: agedListing.tokenId,
-          voiceHash: agedListing.voiceHash ?? null,
-          sellerAddress: seller.address,
-          listing: null as unknown,
-        }
-      : null;
+    let target = selectMarketplacePurchaseTarget(agedListing, seller.address);
 
     let listingBefore = target
       ? await apiCall(
@@ -278,6 +369,25 @@ async function main() {
     if (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true) {
       target = await createFallbackListing(port, provider, founder.address, voiceAsset);
       listingBefore = { status: 200, payload: target.listing };
+    }
+    const buyerFunding = await ensureNativeBalance(provider, founder, buyer.address, ethers.parseEther("0.00005"));
+    if (!buyerFunding.ok) {
+      const output = buildBlockedFundingOutput({
+        chainId: config.chainId,
+        diamondAddress: config.diamondAddress,
+        sellerAddress: target.sellerAddress,
+        buyerAddress: buyer.address,
+        fundingWallet: founder.address,
+        funding: buyerFunding,
+        target,
+      });
+      const outputJson = JSON.stringify(output, null, 2);
+      const outputPath = getOutputPath();
+      if (outputPath) {
+        fs.writeFileSync(outputPath, `${outputJson}\n`);
+      }
+      console.log(outputJson);
+      return;
     }
     const tokenId = target.tokenId;
     const ownerBefore = await voiceAsset.ownerOf(BigInt(tokenId));
@@ -416,7 +526,11 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
