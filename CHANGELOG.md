@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.59] - 2026-04-08
+
+### Fixed
+- **Claim Reward Workflow Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.test.ts) to cover no-receipt claim completions, eventless claimed-amount reconciliation, all remaining claim revert normalization branches, and unknown-error passthrough behavior in [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts).
+
+### Verified
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; the fixture remains `setup.status: "ready"` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` all at or above the native-gas floor; the aged marketplace fixture remains token `11` with `purchaseReadiness: "purchase-ready"`, and governance remains `ready` with founder votes `840000000000000000` above the `4200000000000000` threshold.
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Claim Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/claim-reward-campaign.test.ts --maxWorkers 1` and the matching focused V8 coverage pass. All `12` assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts) improved from `89.28%` statements / `65.30%` branches / `100%` functions / `89.28%` lines to `97.95%` statements / `95.52%` branches / `100%` functions / `97.95%` lines in the targeted run.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `119` passing files, `611` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `119` passing files, `611` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `93.55%` to `93.78%` statements, `80.52%` to `81.02%` branches, `96.51%` to `96.51%` functions, and `93.46%` to `93.70%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts) improved to `97.10%` statements, `94.64%` branches, `100%` functions, and `97.10%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts).
+
 ## [0.1.58] - 2026-04-08
 
 ### Fixed

@@ -231,4 +231,132 @@ describe("runClaimRewardCampaignWorkflow", () => {
       expect((error as Error).message).toBe("claim-reward-campaign blocked by setup/state: campaign has no token funding");
     }
   });
+
+  it("supports claim flows without a mined receipt by accepting increasing readbacks", async () => {
+    const claimedEventQuery = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "10", paused: false } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "11", paused: false } }),
+      claimableAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      claimed: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "5" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "6" }),
+      claim: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      claimedEventQuery,
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runClaimRewardCampaignWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      campaignId: "18",
+      totalAllocation: "1",
+      proof: ["0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"],
+    });
+
+    expect(result.claimed).toEqual({
+      before: "5",
+      after: "6",
+      claimedNow: null,
+    });
+    expect(result.claim).toEqual({
+      submission: { accepted: true },
+      txHash: null,
+      eventCount: 0,
+    });
+    expect(claimedEventQuery).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      "campaign not found",
+      {
+        message: "execution reverted: CampaignNotFound(uint256)",
+        diagnostics: { selector: "0x2c067cd7", nested: { reason: "CampaignNotFound" } },
+      },
+      "claim-reward-campaign blocked by setup/state: campaign not found",
+    ],
+    [
+      "campaign paused",
+      {
+        message: "execution reverted: CampaignPaused()",
+        diagnostics: { selector: "0xab1902ee", paused: true },
+      },
+      "claim-reward-campaign blocked by setup/state: campaign is paused",
+    ],
+    [
+      "invalid merkle proof",
+      {
+        message: "execution reverted: InvalidMerkleProof(bytes32[])",
+        diagnostics: { selector: "0xb05e92fa", attempts: 2 },
+      },
+      "claim-reward-campaign blocked by invalid proof inputs",
+    ],
+    [
+      "nothing to claim",
+      {
+        message: "execution reverted: NothingToClaim()",
+        diagnostics: { selector: "0x969bf728", claimable: 0n },
+      },
+      "claim-reward-campaign blocked by missing claim eligibility: zero claimable amount",
+    ],
+    [
+      "invalid allocation",
+      {
+        message: "execution reverted: InvalidAllocation(uint256)",
+        diagnostics: { selector: "0x0baf7432", requested: 999 },
+      },
+      "claim-reward-campaign blocked by invalid allocation input",
+    ],
+    [
+      "campaign cap exceeded",
+      {
+        message: "execution reverted: ExceedsCampaignCap(uint256)",
+        diagnostics: { selector: "0x939fc1db", capReached: true },
+      },
+      "claim-reward-campaign blocked by campaign cap",
+    ],
+  ])("normalizes %s reverts into workflow-specific 409 errors", async (_label, claimError, expectedMessage) => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      claim: vi.fn().mockRejectedValue(claimError),
+      claimedEventQuery: vi.fn(),
+    });
+
+    await expect(runClaimRewardCampaignWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      campaignId: "19",
+      totalAllocation: "5",
+      proof: [],
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expectedMessage,
+      diagnostics: claimError.diagnostics,
+    });
+  });
+
+  it("rethrows unknown claim failures unchanged", async () => {
+    const claimError = new Error("unexpected claim failure");
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      claim: vi.fn().mockRejectedValue(claimError),
+      claimedEventQuery: vi.fn(),
+    });
+
+    await expect(runClaimRewardCampaignWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      campaignId: "20",
+      totalAllocation: "1",
+      proof: [],
+    })).rejects.toBe(claimError);
+  });
 });
