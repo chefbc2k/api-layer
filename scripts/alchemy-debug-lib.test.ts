@@ -563,7 +563,12 @@ describe("alchemy-debug-lib", () => {
   });
 
   it("times out fork bootstrap after repeated verification failures", async () => {
-    vi.useFakeTimers();
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
     const child = {
       exitCode: null,
       kill: vi.fn(),
@@ -587,12 +592,11 @@ describe("alchemy-debug-lib", () => {
       },
     } as any);
 
-    const expectation = expect(promise).rejects.toThrow(
+    await expect(promise).rejects.toThrow(
       "timed out waiting for anvil fork on http://127.0.0.1:8548: still booting",
     );
-    await vi.runAllTimersAsync();
-    await expectation;
     expect(child.kill).toHaveBeenCalledWith("SIGTERM");
+    setTimeoutSpy.mockRestore();
   }, 30_000);
 
   it("loads the runtime environment, resolves the contracts root, and records the scenario commit", async () => {

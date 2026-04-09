@@ -4,6 +4,24 @@
 
 ---
 
+## [0.1.58] - 2026-04-08
+
+### Fixed
+- **Indexer Worker Hotspot Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/indexer/src/worker.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.test.ts) to cover non-reorg checkpoint no-op paths, undecoded-log persistence without projection writes, empty-range short-circuiting, and realtime poll-loop scheduling in [`/Users/chef/Public/api-layer/packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts).
+- **Coverage-Only Fork Bootstrap Flake Removed:** Updated [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) so the repeated fork-bootstrap timeout proof uses an immediate `setTimeout` stub instead of fake-timer exhaustion, keeping the same timeout branch covered while allowing the full Istanbul sweep to complete reliably.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; the fixture remains `setup.status: "ready"` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` all at or above their native minimums; the aged marketplace fixture remains token `11` with `purchaseReadiness: "purchase-ready"` and active seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, while governance remains `ready` with proposer role present, threshold `4200000000000000`, and founder voting power `840000000000000000`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Worker Proofs:** Re-ran `pnpm exec vitest run packages/indexer/src/worker.test.ts --coverage.enabled --coverage.provider=v8 --coverage.reporter=json-summary --coverage.include='packages/indexer/src/worker.ts' --maxWorkers 1`; all `8` worker assertions pass and [`/Users/chef/Public/api-layer/packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts) now measures `100%` statements, `96.66%` branches, `100%` functions, and `100%` lines in the targeted pass.
+- **Coverage Regression Guard:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts --coverage.enabled --coverage.provider=istanbul --maxWorkers 1`; all `21` assertions pass, including the fork-bootstrap timeout branch that previously stalled under the full coverage sweep.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `119` passing files, `603` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `119` passing files, `603` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `93.38%` to `93.55%` statements, `80.28%` to `80.52%` branches, `96.35%` to `96.51%` functions, and `93.31%` to `93.46%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts) improved from `90.96%` statements, `63.33%` branches, `88.88%` functions, and `90.96%` lines to `100%` statements, `96.66%` branches, `100%` functions, and `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts).
+
 ## [0.1.57] - 2026-04-08
 
 ### Fixed

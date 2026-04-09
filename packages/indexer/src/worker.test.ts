@@ -107,6 +107,36 @@ describe("EventIndexer", () => {
     expect(mocks.db.query).toHaveBeenNthCalledWith(2, expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "8", "8", null]);
   });
 
+  it("does not mark orphaned data when the checkpoint cannot be verified as a reorg", async () => {
+    mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.detectReorg") {
+        return work({
+          getBlock: vi.fn().mockResolvedValue({ hash: "0xsame" }),
+        });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+
+    await expect((indexer as any).detectReorg({
+      cursorBlock: 0n,
+      cursorBlockHash: "0xold",
+    })).resolves.toBe(false);
+    await expect((indexer as any).detectReorg({
+      cursorBlock: 9n,
+      cursorBlockHash: null,
+    })).resolves.toBe(false);
+    await expect((indexer as any).detectReorg({
+      cursorBlock: 9n,
+      cursorBlockHash: "0xsame",
+    })).resolves.toBe(false);
+
+    expect(mocks.db.query).not.toHaveBeenCalled();
+    expect(mocks.rebuildCurrentRows).not.toHaveBeenCalled();
+  });
+
   it("processes logs, projects decoded events, and persists the block checkpoint", async () => {
     mocks.db.query
       .mockResolvedValueOnce({ rows: [{ id: 77 }], rowCount: 1 })
@@ -161,6 +191,62 @@ describe("EventIndexer", () => {
     expect(mocks.db.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "10", "10", "0xblock"]);
   });
 
+  it("persists undecoded logs without projecting them and clamps finalized block to zero", async () => {
+    mocks.db.query
+      .mockResolvedValueOnce({ rows: [{ id: 88 }], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    mocks.decodeEvent.mockReturnValue(null);
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({
+          getLogs: vi.fn().mockResolvedValue([{
+            transactionHash: "0xunknown",
+            index: 3,
+            blockNumber: 4,
+            blockHash: "0xblock-4",
+            address: "0xdiamond",
+            topics: ["0xtopic"],
+          }]),
+        });
+      }
+      if (label === "indexer.blockHash") {
+        return work({
+          getBlock: vi.fn().mockResolvedValue(null),
+        });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+    process.env.API_LAYER_FINALITY_CONFIRMATIONS = "20";
+
+    const indexer = new EventIndexer();
+    await (indexer as any).processRange(4n, 4n, 10n);
+
+    expect(mocks.projectEvent).not.toHaveBeenCalled();
+    expect(mocks.db.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.arrayContaining([
+      84532,
+      "0xunknown",
+      3,
+      "4",
+      "0xblock-4",
+      "0xdiamond",
+      "Unknown",
+      null,
+      null,
+      "{}",
+      6,
+    ]));
+    expect(mocks.db.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "4", "0", null]);
+  });
+
+  it("skips empty ranges before querying providers", async () => {
+    const indexer = new EventIndexer();
+
+    await expect((indexer as any).processRange(9n, 8n, 12n)).resolves.toBeUndefined();
+
+    expect(mocks.providerRouter.withProvider).not.toHaveBeenCalled();
+    expect(mocks.db.query).not.toHaveBeenCalled();
+  });
+
   it("backfills from the next missing block through the current head in 500-block steps", async () => {
     mocks.db.query.mockResolvedValueOnce({
       rowCount: 1,
@@ -190,5 +276,26 @@ describe("EventIndexer", () => {
       [503n, 1002n, 1200n],
       [1003n, 1200n, 1200n],
     ]);
+  });
+
+  it("waits between realtime backfill iterations using the configured poll interval", async () => {
+    process.env.API_LAYER_INDEXER_POLL_INTERVAL_MS = "1234";
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const backfill = vi.spyOn(EventIndexer.prototype, "backfill")
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("stop"));
+
+    const indexer = new EventIndexer();
+
+    await expect(indexer.runRealtime()).rejects.toThrow("stop");
+    expect(backfill).toHaveBeenCalledTimes(2);
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 1234);
+
+    setTimeoutSpy.mockRestore();
   });
 });
