@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.60] - 2026-04-08
+
+### Fixed
+- **Commercialization Workflow Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts) to cover signer-backed auth rejection without a signer id, unmapped signer-id resolution, failed voice-hash introspection during ownership enforcement, missing authorization introspection, exhausted listing stabilization fallback, and approval readback timeout handling in [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Commercialization Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts --maxWorkers 1` plus the matching focused Istanbul coverage pass. All `15` assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts) improved from `93.63%` statements / `80.59%` branches / `89.28%` functions / `94.17%` lines to `99.09%` statements / `94.02%` branches / `96.42%` functions / `99.02%` lines in the targeted run.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `119` passing files, `617` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `93.78%` to `93.91%` statements, `81.02%` to `81.24%` branches, `96.51%` to `96.68%` functions, and `93.70%` to `93.81%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts).
+
 ## [0.1.59] - 2026-04-08
 
 ### Fixed
