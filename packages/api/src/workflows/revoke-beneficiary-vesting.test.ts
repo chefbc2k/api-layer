@@ -81,4 +81,41 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
       message: expect.stringContaining("VESTING_MANAGER_ROLE"),
     });
   });
+
+  it("skips receipt and event reads when the write receipt does not yield a tx hash", async () => {
+    const vestingScheduleRevokedEventQuery = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "1000", revoked: false } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "1000", revoked: true } }),
+      getVestingDetails: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { revoked: false } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { revoked: true } }),
+      getVestingReleasableAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      getVestingTotalAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } }),
+      revokeVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrevoke" } }),
+      vestingScheduleRevokedEventQuery,
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runRevokeBeneficiaryVestingWorkflow({
+      providerRouter: {
+        withProvider: vi.fn(),
+      },
+    } as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000cc",
+    });
+
+    expect(result.revoke.txHash).toBeNull();
+    expect(result.revoke.eventCount).toBe(0);
+    expect(vestingScheduleRevokedEventQuery).not.toHaveBeenCalled();
+  });
+
 });

@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.67] - 2026-04-09
+
+### Fixed
+- **Vesting Workflow Receiptless Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/revoke-beneficiary-vesting.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/revoke-beneficiary-vesting.test.ts) to prove the real `waitForWorkflowWriteReceipt` no-transaction-hash path, confirming the workflow skips receipt and event inspection without changing runtime logic. [`/Users/chef/Public/api-layer/packages/api/src/workflows/revoke-beneficiary-vesting.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/revoke-beneficiary-vesting.ts) now reaches `100%` statements / `100%` branches / `100%` functions / `100%` lines under isolated coverage.
+- **Marketplace Cancel Listing Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/cancel-marketplace-listing.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/cancel-marketplace-listing.test.ts) to cover the no-confirmed-tx-hash branch for cancellation flows, proving the workflow returns zero events and skips event inspection when the write payload never stabilizes into a confirmed receipt.
+- **Create Beneficiary Vesting Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.test.ts) to cover the missing `public` and `dev-fund` creation branches plus the no-confirmed-tx-hash create path, materially improving branch coverage in [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, aged marketplace listing token `11` in `purchase-ready` state, and governance `ready` with founder voting power above threshold.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/revoke-beneficiary-vesting.test.ts packages/api/src/workflows/cancel-marketplace-listing.test.ts packages/api/src/workflows/create-beneficiary-vesting.test.ts --maxWorkers 1`; all `12` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `120` passing files, `656` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.56%` to `94.62%` statements, `83.16%` to `83.38%` branches, `97.67%` functions unchanged, and `94.49%` to `94.55%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield remaining gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts).
+
 ## [0.1.64] - 2026-04-09
 
 ## [0.1.66] - 2026-04-09
