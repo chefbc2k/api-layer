@@ -1028,6 +1028,17 @@
 - Core Layer 1 and Layer 2 domains verified on Base Sepolia.
 - Focused on Layer 3 verification and optimizing retry/error-handling workflows.
 
+## [0.1.8] - 2026-04-09
+
+### Fixed
+- **Broad Live Contract Suite Polling Hardening:** Updated [/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) so the shared `waitFor` helper accepts explicit polling budgets, the tokenomics burn-limit and restore readbacks use a longer window under full-suite fork load, and the whisperblock bootstrap reads now use the suite’s transient-aware API query path instead of failing fast on temporary `429` responses.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo remains pinned to the local Base Sepolia fork on `http://127.0.0.1:8548` and the validated baseline still reports `status: "baseline verified"`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP surface coverage remain complete at `492` functions, `218` events, and `492` validated methods.
+- **Standard Coverage Suite:** Re-ran `pnpm run test:coverage`; the repo remains green with the deterministic single-worker coverage harness after the live-suite stabilization changes.
+- **Recovered Broad Live Contract Invocation:** Re-ran `pnpm run test:contract:api:base-sepolia` and cleared the last broad-suite partials on the shared forked path. The full HTTP contract integration suite now passes `17/17` tests in one invocation, including the previously flaky tokenomics restore path and the whisperblock control-plane reads.
+
 ## [0.1.1] - 2026-03-18
 
 ### Added

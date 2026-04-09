@@ -450,13 +450,20 @@ function delay(ms: number): Promise<void> {
   });
 }
 
-async function waitFor<T>(read: () => Promise<T>, ready: (value: T) => boolean, label: string): Promise<T> {
-  for (let attempt = 0; attempt < 40; attempt += 1) {
+async function waitFor<T>(
+  read: () => Promise<T>,
+  ready: (value: T) => boolean,
+  label: string,
+  options: { attempts?: number; delayMs?: number } = {},
+): Promise<T> {
+  const attempts = options.attempts ?? 40;
+  const delayMs = options.delayMs ?? 500;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     const value = await read();
     if (ready(value)) {
       return value;
     }
-    await delay(500);
+    await delay(delayMs);
   }
   throw new Error(`timed out waiting for ${label}`);
 }
@@ -2108,6 +2115,7 @@ describeLive("HTTP API contract integration", () => {
           }),
           (response) => response.status === 200 && response.payload === targetBurnLimit.toString(),
           "tokenomics burn limit readback",
+          { attempts: 120 },
         );
         expect(updatedBurnLimitResponse.status).toBe(200);
         expect(updatedBurnLimitResponse.payload).toBe(targetBurnLimit.toString());
@@ -2225,11 +2233,13 @@ describeLive("HTTP API contract integration", () => {
         () => timewaveGiftFacet.getQuarterlyUnlockRate(),
         (value) => value === originalQuarterlyRate,
         "tokenomics quarterly rate restore",
+        { attempts: 120 },
       )).toBe(originalQuarterlyRate);
       expect(await waitFor(
         () => timewaveGiftFacet.getMinTwaveVestingDuration(),
         (value) => value === originalMinDuration,
         "tokenomics minimum duration restore",
+        { attempts: 120 },
       )).toBe(originalMinDuration);
     }
   }, 300_000);
@@ -2249,9 +2259,21 @@ describeLive("HTTP API contract integration", () => {
     await expectReceipt(extractTxHash(createVoiceResponse.payload));
 
     const founderRoleResponses = await Promise.all([
-      apiCall(port, "POST", "/v1/whisperblock/queries/owner-role", { apiKey: "read-key", body: {} }),
-      apiCall(port, "POST", "/v1/whisperblock/queries/encryptor-role", { apiKey: "read-key", body: {} }),
-      apiCall(port, "POST", "/v1/whisperblock/queries/voice-operator-role", { apiKey: "read-key", body: {} }),
+      waitForStableApiResponse(
+        () => apiCall(port, "POST", "/v1/whisperblock/queries/owner-role", { apiKey: "read-key", body: {} }),
+        (response) => response.status === 200,
+        "whisperblock owner role query",
+      ),
+      waitForStableApiResponse(
+        () => apiCall(port, "POST", "/v1/whisperblock/queries/encryptor-role", { apiKey: "read-key", body: {} }),
+        (response) => response.status === 200,
+        "whisperblock encryptor role query",
+      ),
+      waitForStableApiResponse(
+        () => apiCall(port, "POST", "/v1/whisperblock/queries/voice-operator-role", { apiKey: "read-key", body: {} }),
+        (response) => response.status === 200,
+        "whisperblock voice operator role query",
+      ),
     ]);
     expect(founderRoleResponses[0].status).toBe(200);
     expect(founderRoleResponses[0].payload).toBe(await whisperBlockFacet.OWNER_ROLE());
@@ -2260,10 +2282,14 @@ describeLive("HTTP API contract integration", () => {
     expect(founderRoleResponses[2].status).toBe(200);
     expect(founderRoleResponses[2].payload).toBe(await whisperBlockFacet.VOICE_OPERATOR_ROLE());
 
-    const selectorsResponse = await apiCall(port, "POST", "/v1/whisperblock/queries/get-selectors", {
-      apiKey: "read-key",
-      body: {},
-    });
+    const selectorsResponse = await waitForStableApiResponse(
+      () => apiCall(port, "POST", "/v1/whisperblock/queries/get-selectors", {
+        apiKey: "read-key",
+        body: {},
+      }),
+      (response) => response.status === 200,
+      "whisperblock selectors query",
+    );
     expect(selectorsResponse.status).toBe(200);
     expect(selectorsResponse.payload).toEqual(normalize(await whisperBlockFacet.getSelectors()));
 
