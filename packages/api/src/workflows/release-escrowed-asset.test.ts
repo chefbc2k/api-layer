@@ -138,4 +138,66 @@ describe("runReleaseEscrowedAssetWorkflow", () => {
       },
     });
   });
+
+  it("tolerates missing receipts and accepts null escrow readback after release", async () => {
+    const assetReleasedEventQuery = vi.fn();
+
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getAssetState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      getOriginalOwner: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+      isInEscrow: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: null }),
+      releaseAsset: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrelease-write" } }),
+      assetReleasedEventQuery,
+    });
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000ddd" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+
+    const result = await runReleaseEscrowedAssetWorkflow({
+      providerRouter: {
+        withProvider: vi.fn(),
+      },
+    } as never, auth as never, undefined, {
+      tokenId: "12",
+      to: "0x00000000000000000000000000000000000000bb",
+    });
+
+    expect(assetReleasedEventQuery).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      ownership: {
+        ownerBefore: "0x0000000000000000000000000000000000000ddd",
+        ownerAfter: "0x00000000000000000000000000000000000000bb",
+      },
+      escrow: {
+        before: {
+          assetState: "1",
+          originalOwner: "0x00000000000000000000000000000000000000bb",
+          inEscrow: true,
+        },
+        after: {
+          assetState: "0",
+          originalOwner: "0x00000000000000000000000000000000000000bb",
+          inEscrow: null,
+        },
+        eventCount: 0,
+      },
+      release: {
+        submission: { txHash: "0xrelease-write" },
+        txHash: null,
+      },
+      summary: {
+        tokenId: "12",
+        to: "0x00000000000000000000000000000000000000bb",
+      },
+    });
+  });
 });
