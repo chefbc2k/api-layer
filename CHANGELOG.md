@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.71] - 2026-04-09
+
+### Fixed
+- **Manage License Template Lifecycle Reached Full Coverage:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.test.ts) to prove valid selector parsing plus the remaining nullish fallback branches in `templateReadMatches()`. [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts) now reaches `100%` statements, `100%` branches, `100%` functions, and `100%` lines under isolated coverage.
+- **Collaborator License Lifecycle Branch Gaps Reduced:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts) to prove role-confirmation failure handling, missing template-hash rejection after child lifecycle execution, raw-array license-created event normalization, and schema guards for collaborator entries and template issue selectors. [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts) now reaches `100%` statements, `100%` functions, and `100%` lines with isolated branch coverage improved from `70.73%` to `86.58%`.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, buyer USDC balance/allowance `4000/4000`, aged marketplace fixture token `11` still `purchase-ready`, and governance still `ready` with founder voting power `840000000000000000` above threshold `4200000000000000`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran focused coverage and Vitest passes for [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.test.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts); all `20` targeted assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `676` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.87%` to `95.00%` statements, `84.07%` to `84.58%` branches, `97.84%` to `97.92%` functions, and `94.79%` to `94.92%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide coverage remains below the automation target. The next highest-yield workflow gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/release-escrowed-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/release-escrowed-asset.ts).
+
 ## [0.1.70] - 2026-04-09
 
 ### Fixed

@@ -33,7 +33,10 @@ vi.mock("./manage-license-template-lifecycle.js", async () => {
   };
 });
 
-import { runCollaboratorLicenseLifecycleWorkflow } from "./collaborator-license-lifecycle.js";
+import {
+  collaboratorLicenseLifecycleWorkflowSchema,
+  runCollaboratorLicenseLifecycleWorkflow,
+} from "./collaborator-license-lifecycle.js";
 
 describe("runCollaboratorLicenseLifecycleWorkflow", () => {
   const auth = {
@@ -339,6 +342,53 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     ).rejects.toThrow("per-voice authorization confirmation");
   });
 
+  it("propagates collaborator role confirmation failure", async () => {
+    mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
+      roleGrant: {
+        submission: { txHash: "0xrole" },
+        txHash: "0xrole",
+        hasRole: false,
+      },
+      authorizations: [],
+      summary: {
+        role,
+        account: "0x00000000000000000000000000000000000000bb",
+        expiryTime: "3600",
+        requestedVoiceCount: 0,
+        authorizedVoiceCount: 0,
+      },
+    });
+
+    await expect(
+      runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        collaborators: [
+          {
+            account: "0x00000000000000000000000000000000000000bb",
+            rightsHolder: {
+              role,
+              expiryTime: "3600",
+              authorizeVoice: false,
+            },
+          },
+        ],
+        issue: {
+          mode: "direct",
+          licensee: "0x00000000000000000000000000000000000000cc",
+          terms: {
+            licenseHash: `0x${"0".repeat(64)}`,
+            duration: "86400",
+            price: "0",
+            maxUses: "7",
+            transferable: true,
+            rights: ["Podcast"],
+            restrictions: [],
+          },
+        },
+      }),
+    ).rejects.toThrow("failed role confirmation");
+  });
+
   it("propagates external licensee actor precondition errors", async () => {
     await expect(
       runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
@@ -382,6 +432,44 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
         },
       }),
     ).rejects.toThrow("template lifecycle failed");
+  });
+
+  it("rejects template issue mode when no template hash is available", async () => {
+    mocks.runManageLicenseTemplateLifecycleWorkflow.mockResolvedValueOnce({
+      template: {
+        source: "created",
+        templateHash: null,
+        templateId: null,
+        current: { isActive: true },
+      },
+      create: null,
+      update: null,
+      status: null,
+      summary: {
+        templateHash: null,
+        templateId: null,
+        source: "created",
+        created: false,
+        updated: false,
+        statusChanged: false,
+        active: true,
+      },
+    });
+
+    await expect(
+      runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        collaborators: [],
+        templateLifecycle: {
+          create: {},
+        },
+        issue: {
+          mode: "template",
+          licensee: "0x00000000000000000000000000000000000000cc",
+          duration: "86400",
+        },
+      }),
+    ).rejects.toThrow("requires templateHash for template issue mode");
   });
 
   it("supports role-only collaborator setup without per-voice authorization or collaborator share", async () => {
@@ -440,5 +528,93 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     });
     expect(result.summary.voiceAuthorizationCount).toBe(0);
     expect(result.license.issuance.licenseTerms).toBeNull();
+  });
+
+  it("accepts raw event arrays from license-created queries", async () => {
+    const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
+    service.licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery.mockResolvedValueOnce([{ transactionHash: "0xissue-direct" }]);
+    service.licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery.mockResolvedValueOnce([]);
+    service.licenseCreatedEventQuery.mockResolvedValueOnce({ statusCode: 200, body: [] });
+
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xissue-direct");
+
+    const result = await runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+      voiceAsset: { voiceHash },
+      collaborators: [],
+      issue: {
+        mode: "direct",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        terms: {
+          licenseHash: `0x${"0".repeat(64)}`,
+          duration: "86400",
+          price: "0",
+          maxUses: "7",
+          transferable: true,
+          rights: ["Podcast"],
+          restrictions: [],
+        },
+      },
+    });
+
+    expect(result.license.issuance.eventCount).toBe(1);
+  });
+
+  it("validates collaborator entry and template issue schema requirements", () => {
+    expect(() => collaboratorLicenseLifecycleWorkflowSchema.parse({
+      voiceAsset: { voiceHash },
+      collaborators: [
+        {
+          account: "0x00000000000000000000000000000000000000bb",
+        },
+      ],
+      issue: {
+        mode: "direct",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        terms: {
+          licenseHash: `0x${"0".repeat(64)}`,
+          duration: "86400",
+          price: "0",
+          maxUses: "7",
+          transferable: true,
+          rights: ["Podcast"],
+          restrictions: [],
+        },
+      },
+    })).toThrow("each collaborator entry must include rightsHolder and/or collaboratorShare");
+
+    expect(() => collaboratorLicenseLifecycleWorkflowSchema.parse({
+      voiceAsset: { voiceHash },
+      collaborators: [],
+      issue: {
+        mode: "template",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        duration: "86400",
+      },
+    })).toThrow("template issue mode requires templateHash or templateLifecycle");
+
+    expect(collaboratorLicenseLifecycleWorkflowSchema.parse({
+      voiceAsset: { voiceHash },
+      collaborators: [
+        {
+          account: "0x00000000000000000000000000000000000000bb",
+          collaboratorShare: {
+            share: "2500",
+          },
+        },
+      ],
+      templateLifecycle: {
+        create: {},
+      },
+      issue: {
+        mode: "template",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        duration: "86400",
+      },
+    })).toMatchObject({
+      issue: {
+        mode: "template",
+      },
+    });
   });
 });

@@ -501,6 +501,20 @@ describe("runManageLicenseTemplateLifecycleWorkflow", () => {
     })).rejects.toThrow("manage-license-template-lifecycle did not receive templateHash from create-template");
   });
 
+  it("accepts valid lifecycle selector combinations", () => {
+    expect(manageLicenseTemplateLifecycleWorkflowSchema.parse({
+      templateHash: `0x${"0".repeat(63)}a`,
+    })).toMatchObject({
+      templateHash: `0x${"0".repeat(63)}a`,
+    });
+
+    expect(manageLicenseTemplateLifecycleWorkflowSchema.parse({
+      create: {},
+    })).toMatchObject({
+      create: {},
+    });
+  });
+
   it("resolves creator addresses from explicit wallets, signer-backed auth, and fallback paths", async () => {
     expect(await resolveTemplateCreatorAddress(
       context,
@@ -604,6 +618,8 @@ describe("runManageLicenseTemplateLifecycleWorkflow", () => {
     expect(templateReadMatches({ ...expectedTemplate, isActive: true }, expectedTemplate)).toBe(false);
     expect(templateReadMatches({ ...expectedTemplate, defaultRights: ["Ads"] }, expectedTemplate)).toBe(false);
     expect(templateReadMatches({ ...expectedTemplate, defaultRestrictions: ["no-ads"] }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, defaultRights: undefined }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, defaultRestrictions: undefined }, expectedTemplate)).toBe(false);
     expect(templateReadMatches({
       ...expectedTemplate,
       terms: { ...expectedTemplate.terms, duration: "1" },
@@ -627,6 +643,39 @@ describe("runManageLicenseTemplateLifecycleWorkflow", () => {
     expect(templateReadMatches({
       ...expectedTemplate,
       terms: { ...expectedTemplate.terms, restrictions: ["no-ads"] },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, rights: undefined },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, restrictions: undefined },
+    }, expectedTemplate)).toBe(false);
+
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      defaultDuration: undefined,
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      defaultPrice: undefined,
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      maxUses: undefined,
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, duration: undefined },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, price: undefined },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, maxUses: undefined },
     }, expectedTemplate)).toBe(false);
   });
 });
