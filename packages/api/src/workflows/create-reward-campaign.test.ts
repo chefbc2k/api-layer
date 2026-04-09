@@ -223,4 +223,259 @@ describe("runCreateRewardCampaignWorkflow", () => {
       maxTotalClaimable: "3000000",
     })).rejects.toThrow("create-reward-campaign could not derive campaign id");
   });
+
+  it("skips receipt/event inspection when the write never yields a confirmed tx hash", async () => {
+    const campaignCreatedEventQuery = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      campaignCount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "4" }),
+      createCampaign: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "4" },
+      }),
+      campaignCreatedEventQuery,
+      getCampaign: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x4444444444444444444444444444444444444444444444444444444444444444",
+          startTime: "4000",
+          cliffSeconds: "400",
+          durationSeconds: "2400",
+          tgeUnlockBps: "950",
+          maxTotalClaimable: "4000000",
+          totalClaimed: "0",
+          paused: false,
+        },
+      }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runCreateRewardCampaignWorkflow({} as never, auth, undefined, {
+      merkleRoot: "0x4444444444444444444444444444444444444444444444444444444444444444",
+      startTime: "4000",
+      cliffSeconds: "400",
+      durationSeconds: "2400",
+      tgeUnlockBps: "950",
+      maxTotalClaimable: "4000000",
+    });
+
+    expect(result.campaign.txHash).toBeNull();
+    expect(result.campaign.eventCount).toBe(0);
+    expect(campaignCreatedEventQuery).not.toHaveBeenCalled();
+  });
+
+  it("retries campaign readback across field mismatches until every expected field matches", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const getCampaign = vi.fn()
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+          startTime: "9999",
+          cliffSeconds: "500",
+          durationSeconds: "3000",
+          tgeUnlockBps: "1000",
+          maxTotalClaimable: "5000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+          startTime: "5000",
+          cliffSeconds: "999",
+          durationSeconds: "3000",
+          tgeUnlockBps: "1000",
+          maxTotalClaimable: "5000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+          startTime: "5000",
+          cliffSeconds: "500",
+          durationSeconds: "9999",
+          tgeUnlockBps: "1000",
+          maxTotalClaimable: "5000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+          startTime: "5000",
+          cliffSeconds: "500",
+          durationSeconds: "3000",
+          tgeUnlockBps: "999",
+          maxTotalClaimable: "5000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+          startTime: "5000",
+          cliffSeconds: "500",
+          durationSeconds: "3000",
+          tgeUnlockBps: "1000",
+          maxTotalClaimable: "4999999",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+          startTime: "5000",
+          cliffSeconds: "500",
+          durationSeconds: "3000",
+          tgeUnlockBps: "1000",
+          maxTotalClaimable: "5000000",
+          paused: false,
+        },
+      });
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      campaignCount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "10" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "11" }),
+      createCampaign: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "11" },
+      }),
+      campaignCreatedEventQuery: vi.fn(),
+      getCampaign,
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runCreateRewardCampaignWorkflow({} as never, auth, undefined, {
+      merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+      startTime: "5000",
+      cliffSeconds: "500",
+      durationSeconds: "3000",
+      tgeUnlockBps: "1000",
+      maxTotalClaimable: "5000000",
+    });
+
+    expect(result.campaign.read).toMatchObject({
+      merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555",
+      maxTotalClaimable: "5000000",
+    });
+    expect(getCampaign).toHaveBeenCalledTimes(6);
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("retries campaign readback when expected numeric fields are temporarily missing", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const getCampaign = vi.fn()
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+          cliffSeconds: "600",
+          durationSeconds: "3600",
+          tgeUnlockBps: "1200",
+          maxTotalClaimable: "6000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+          startTime: "6000",
+          durationSeconds: "3600",
+          tgeUnlockBps: "1200",
+          maxTotalClaimable: "6000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+          startTime: "6000",
+          cliffSeconds: "600",
+          tgeUnlockBps: "1200",
+          maxTotalClaimable: "6000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+          startTime: "6000",
+          cliffSeconds: "600",
+          durationSeconds: "3600",
+          maxTotalClaimable: "6000000",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+          startTime: "6000",
+          cliffSeconds: "600",
+          durationSeconds: "3600",
+          tgeUnlockBps: "1200",
+          paused: false,
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+          startTime: "6000",
+          cliffSeconds: "600",
+          durationSeconds: "3600",
+          tgeUnlockBps: "1200",
+          maxTotalClaimable: "6000000",
+          paused: false,
+        },
+      });
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      campaignCount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "11" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "12" }),
+      createCampaign: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "12" },
+      }),
+      campaignCreatedEventQuery: vi.fn(),
+      getCampaign,
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runCreateRewardCampaignWorkflow({} as never, auth, undefined, {
+      merkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+      startTime: "6000",
+      cliffSeconds: "600",
+      durationSeconds: "3600",
+      tgeUnlockBps: "1200",
+      maxTotalClaimable: "6000000",
+    });
+
+    expect(result.campaign.campaignId).toBe("12");
+    expect(getCampaign).toHaveBeenCalledTimes(6);
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
+  });
 });

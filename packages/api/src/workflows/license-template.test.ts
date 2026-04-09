@@ -197,4 +197,91 @@ describe("resolveDatasetLicenseTemplate", () => {
     expect(licensing.getTemplate).toHaveBeenCalledTimes(20);
     setTimeoutSpy.mockRestore();
   });
+
+  it("skips inactive creator templates before reusing the newest active template", async () => {
+    const licensing = {
+      getCreatorTemplates: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [
+          `0x${"0".repeat(63)}1`,
+          `0x${"0".repeat(63)}2`,
+        ],
+      }),
+      getTemplate: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { isActive: false, name: "Newest Inactive Template" },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { isActive: true, name: "Older Active Template" },
+        }),
+      createTemplate: vi.fn(),
+    };
+    mocks.createLicensingPrimitiveService.mockReturnValue(licensing);
+
+    const result = await resolveDatasetLicenseTemplate(
+      context,
+      auth,
+      undefined,
+      "0x00000000000000000000000000000000000000ee",
+    );
+
+    expect(result).toEqual({
+      templateHash: `0x${"0".repeat(63)}1`,
+      templateId: "1",
+      created: false,
+      source: "existing-active",
+      template: { isActive: true, name: "Older Active Template" },
+    });
+    expect(licensing.createTemplate).not.toHaveBeenCalled();
+  });
+
+  it("throws when template creation returns a payload without a template hash", async () => {
+    const licensing = {
+      getCreatorTemplates: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: null,
+      }),
+      getTemplate: vi.fn(),
+      createTemplate: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: null,
+      }),
+    };
+    mocks.createLicensingPrimitiveService.mockReturnValue(licensing);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    await expect(resolveDatasetLicenseTemplate(
+      context,
+      auth,
+      undefined,
+      "0x00000000000000000000000000000000000000ff",
+    )).rejects.toThrow("license template creation did not return a template hash");
+    expect(licensing.getTemplate).not.toHaveBeenCalled();
+  });
+
+  it("throws when template creation returns a non-hash result string", async () => {
+    const licensing = {
+      getCreatorTemplates: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [],
+      }),
+      getTemplate: vi.fn(),
+      createTemplate: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "not-a-hash" },
+      }),
+    };
+    mocks.createLicensingPrimitiveService.mockReturnValue(licensing);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xreceipt-template");
+
+    await expect(resolveDatasetLicenseTemplate(
+      context,
+      auth,
+      undefined,
+      "0x0000000000000000000000000000000000000010",
+    )).rejects.toThrow("license template creation did not return a template hash");
+    expect(licensing.getTemplate).not.toHaveBeenCalled();
+  });
 });

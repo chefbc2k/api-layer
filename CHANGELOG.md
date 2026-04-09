@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.69] - 2026-04-09
+
+### Fixed
+- **Reward Campaign Workflow Coverage Closed:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.test.ts) to prove the receiptless write path, the eventless campaign-id fallback, and every campaign readback matcher branch including temporary missing numeric fields. [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts) now reaches `100%` statements, `100%` branches, `100%` functions, and `100%` lines under isolated coverage.
+- **License Template Fallback Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.test.ts) to cover inactive-template skipping plus create-path failures when the workflow write returns no hash or a non-hash result string. [`/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts) now reaches `100%` statements, `95.45%` branches, `100%` functions, and `100%` lines under isolated coverage.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, buyer USDC balance/allowance `4000/4000`, and aged marketplace fixture token `11` still `purchase-ready`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/create-reward-campaign.test.ts packages/api/src/workflows/license-template.test.ts --maxWorkers 1`; all `13` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `668` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.83%` to `94.87%` statements, `83.54%` to `83.93%` branches, `97.84%` functions unchanged, and `94.75%` to `94.79%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide coverage remains below the automation target. With [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts) now closed, the next highest-yield branch candidates are [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts) with one remaining timeout branch, [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts).
+
 ## [0.1.68] - 2026-04-09
 
 ### Fixed
