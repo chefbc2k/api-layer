@@ -198,6 +198,33 @@ describe("resolveDatasetLicenseTemplate", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("includes a null readback payload when requested template polling never returns a body", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const licensing = {
+      getTemplate: vi.fn().mockResolvedValue({
+        statusCode: 503,
+      }),
+      getCreatorTemplates: vi.fn(),
+      createTemplate: vi.fn(),
+    };
+    mocks.createLicensingPrimitiveService.mockReturnValue(licensing);
+
+    await expect(resolveDatasetLicenseTemplate(
+      context,
+      auth,
+      undefined,
+      "0x00000000000000000000000000000000000000de",
+      "11",
+    )).rejects.toThrow("licenseTemplate.requested template readback timeout: null");
+    expect(licensing.getTemplate).toHaveBeenCalledTimes(20);
+    setTimeoutSpy.mockRestore();
+  });
+
   it("skips inactive creator templates before reusing the newest active template", async () => {
     const licensing = {
       getCreatorTemplates: vi.fn().mockResolvedValue({
