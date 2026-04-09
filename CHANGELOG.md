@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.63] - 2026-04-09
+
+### Fixed
+- **Execution Context Failure-Path Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) to cover unsupported execution-source rejection, write routes with empty outputs and null request ids, exhausted nonce-retry diagnostics, non-nonce submission failures with Alchemy trace/simulation evidence, and enforced simulation blocking in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Runtime Proofs:** Re-ran `pnpm exec vitest run packages/api/src/shared/execution-context.test.ts --maxWorkers 1`; all `30` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `120` passing files, `642` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.18%` to `94.35%` statements, `81.82%` to `82.56%` branches, `97.59%` to `97.59%` functions, and `94.10%` to `94.27%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) improved from `93.01%` statements / `69.18%` branches / `97.72%` functions / `93.25%` lines to `97.31%` statements / `85.94%` branches / `97.72%` functions / `97.75%` lines.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` at the native gas floor or higher. The aged marketplace fixture remains token `11` with `purchaseReadiness: "purchase-ready"`, active listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1773601130", createdBlock: "38916421", expiresAt: "1776193130", isActive: true }`, and governance remains `ready` with founder voting power `840000000000000000` above threshold `4200000000000000`.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts).
+
 ## [0.1.62] - 2026-04-08
 
 ### Fixed

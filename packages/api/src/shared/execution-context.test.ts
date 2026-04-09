@@ -541,6 +541,23 @@ describe("executeHttpMethodDefinition", () => {
     ).rejects.toThrow("VoiceAssetFacet.setApprovalForAll does not allow gaslessMode=cdpSmartWallet");
   });
 
+  it("rejects execution sources that are outside the declared route allowlist", async () => {
+    const definition = buildReadDefinition({
+      executionSources: ["auto", "live"],
+      liveRequired: false,
+    });
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        definition as never,
+        buildRequest({
+          api: { gaslessMode: "none", executionSource: "cache" },
+        }) as never,
+      ),
+    ).rejects.toThrow("Facet.readMethod does not allow executionSource=cache");
+  });
+
   it("uses invokeRead for view methods and serializes the result", async () => {
     const definition = buildReadDefinition();
     const context = buildContext();
@@ -832,6 +849,39 @@ describe("executeHttpMethodDefinition", () => {
     }));
   });
 
+  it("returns null previews for write methods without outputs", async () => {
+    const context = buildContext({
+      txStore: {
+        insert: vi.fn().mockResolvedValue(null),
+        update: vi.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(null),
+      },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition({
+          outputs: [],
+        }) as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: null,
+        txHash: "0xsubmitted",
+        result: null,
+      },
+    });
+
+    expect(context.txStore.update).not.toHaveBeenCalled();
+  });
+
   it("retries nonce-expired submissions and advances the local nonce", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
@@ -860,6 +910,115 @@ describe("executeHttpMethodDefinition", () => {
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
     expect(context.signerNonces.get("founder:primary")).toBe(6);
+  });
+
+  it("fails after exhausting nonce-expired retries and returns the last retry diagnostics", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.walletSendTransaction
+      .mockRejectedValueOnce(new Error("nonce too low"))
+      .mockRejectedValueOnce(new Error("replacement transaction underpriced"))
+      .mockRejectedValueOnce(new Error("already known"));
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "already known",
+      diagnostics: expect.objectContaining({
+        signer: "wallet:0xabc",
+        provider: "primary",
+        cause: "already known",
+      }),
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
+    expect(context.signerNonces.get("founder:primary")).toBe(7);
+  });
+
+  it("wraps non-nonce submission failures with failure diagnostics and simulation output", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: true,
+        alchemySimulationEnabled: true,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.simulateTransactionWithAlchemy.mockResolvedValueOnce({ topLevelCall: { gasUsed: "123" } });
+    mocked.traceCallWithAlchemy.mockResolvedValueOnce({ status: "failed", reason: "execution reverted" });
+    mocked.readActorStates.mockResolvedValueOnce([{ address: "wallet:0xabc", nonce: "4" }]);
+    mocked.walletSendTransaction.mockRejectedValueOnce(new Error("execution reverted"));
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "execution reverted",
+      diagnostics: expect.objectContaining({
+        signer: "wallet:0xabc",
+        provider: "primary",
+        simulation: { topLevelCall: { gasUsed: "123" } },
+        trace: { status: "failed", reason: "execution reverted" },
+        actors: [{ address: "wallet:0xabc", nonce: "4" }],
+      }),
+    });
+  });
+
+  it("blocks writes when enforced Alchemy simulation reports an error", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: false,
+        alchemySimulationEnabled: true,
+        alchemySimulationEnforced: true,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.simulateTransactionWithAlchemy.mockResolvedValueOnce({
+      topLevelCall: { error: "simulation reverted" },
+    });
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "simulation reverted",
+      diagnostics: expect.objectContaining({
+        signer: "wallet:0xabc",
+        provider: "primary",
+        simulation: { topLevelCall: { error: "simulation reverted" } },
+      }),
+    });
+
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 
   it("wraps preview failures with diagnostics and wallet fallback context", async () => {
