@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.68] - 2026-04-09
+
+### Fixed
+- **Shared Licensing Helper Coverage Added:** Added [`/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.test.ts) to exercise the shared rights/licensing helper surface directly. The new regression coverage proves scalar result extraction, template-id/hash normalization, receipt readback success and missing-receipt failure, readback/event-query retry timeout messaging, log normalization, transaction-hash detection, and tuple/object collaborator read matching without changing runtime workflow logic.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and loopback runtime RPC `http://127.0.0.1:8548`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, marketplace token `11` still `purchase-ready`, buyer USDC balance/allowance `4000/4000`, and governance `ready` with founder voting power `840000000000000000` above threshold `4200000000000000`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm vitest run packages/api/src/workflows/rights-licensing-helpers.test.ts --maxWorkers 1`; all `6` new helper assertions pass.
+- **Targeted File Coverage:** Re-ran `pnpm vitest run packages/api/src/workflows/rights-licensing-helpers.test.ts --coverage --maxWorkers 1`; [`/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts) now reaches `100%` statements, `93.75%` branches, `100%` functions, and `100%` lines under isolated coverage.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `662` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.58%` to `94.83%` statements, `83.23%` to `83.54%` branches, `97.67%` to `97.84%` functions, and `94.51%` to `94.75%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide coverage remains below the automation target, with the next highest-yield branch gaps still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-reward-campaign.ts).
+
 ## [0.1.67] - 2026-04-09
 
 ### Fixed
