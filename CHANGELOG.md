@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.62] - 2026-04-08
+
+### Fixed
+- **API Server Coverage Branches Expanded:** Added [`/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts) to cover the untested system-health, provider-status, transaction-request, transaction-status, startup-log, and env-port branches in [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) through a mocked execution-context harness.
+- **Indexer DB Default-Param Coverage Closed:** Extended [`/Users/chef/Public/api-layer/packages/indexer/src/db.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/db.test.ts) with the omitted default-parameter path so [`/Users/chef/Public/api-layer/packages/indexer/src/db.ts`](/Users/chef/Public/api-layer/packages/indexer/src/db.ts) now covers both explicit and implicit query-parameter invocation.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Coverage Proofs:** Re-ran `pnpm exec vitest run packages/api/src/app.behavior.test.ts packages/indexer/src/db.test.ts`; all `11` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `120` passing files, `637` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.18%` to `94.18%` statements, `81.65%` to `81.82%` branches, `97.59%` to `97.59%` functions, and `94.10%` to `94.10%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) improved from `42.85%` to `85.71%` branch coverage, and [`/Users/chef/Public/api-layer/packages/indexer/src/db.ts`](/Users/chef/Public/api-layer/packages/indexer/src/db.ts) improved from `0%` to `100%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts).
+
 ## [0.1.61] - 2026-04-08
 
 ### Fixed

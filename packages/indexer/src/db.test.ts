@@ -41,6 +41,16 @@ describe("IndexerDatabase", () => {
     expect(result).toEqual({ rows: [{ id: 1 }] });
   });
 
+  it("defaults query params to an empty array", async () => {
+    mocks.pool.query.mockResolvedValue({ rows: [{ ok: true }] });
+
+    const db = new IndexerDatabase("postgres://example");
+    const result = await db.query("select 1");
+
+    expect(mocks.pool.query).toHaveBeenCalledWith("select 1", []);
+    expect(result).toEqual({ rows: [{ ok: true }] });
+  });
+
   it("wraps successful callbacks in BEGIN/COMMIT and releases the client", async () => {
     mocks.client.query
       .mockResolvedValueOnce({ rows: [] })
