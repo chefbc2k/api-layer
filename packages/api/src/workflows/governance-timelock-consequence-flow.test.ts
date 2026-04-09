@@ -272,6 +272,43 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     expect(result.summary.queued).toBe(true);
   });
 
+  it("derives the timelock operation id from scheduled events when stored events omit it", async () => {
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce({
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { timestamp: "500", executed: false, canceled: false } }),
+      getTimestamp: vi.fn().mockResolvedValue({ statusCode: 200, body: "500" }),
+      isOperationPending: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      isOperationReady: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationExecuted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      prQueue: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xqueue-write" } }),
+      prExecute: vi.fn(),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      proposalQueuedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", proposalId: "77" }] }),
+      operationStoredEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", note: "missing id" }] }),
+      operationScheduledEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", operationId: "0x2222222222222222222222222222222222222222222222222222222222222222" }] }),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    });
+
+    const result = await runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "queue from scheduled event",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        queue: {
+          apiKey: "queue-key",
+        },
+      },
+    });
+
+    expect(result.timelock.queue?.operationId).toBe("0x2222222222222222222222222222222222222222222222222222222222222222");
+    expect(result.timelock.inspection?.source).toBe("queue-event");
+  });
+
   it("queues and executes a proposal when the timelock becomes ready", async () => {
     mocks.waitForWorkflowWriteReceipt
       .mockResolvedValueOnce("0xqueue-write")
@@ -333,6 +370,31 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     });
     expect(result.executionReadiness.after.phase).toBe("executed");
     expect(result.summary.executed).toBe(true);
+  });
+
+  it("skips timelock inspection when explicitly disabled", async () => {
+    const result = await runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "inspection disabled",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        inspect: false,
+      },
+    });
+
+    expect(result.timelock).toEqual({
+      inspectRequested: false,
+      operationId: null,
+      minDelay: null,
+      inspection: null,
+      queue: null,
+      execute: null,
+    });
+    expect(result.executionReadiness.after.phase).toBe("succeeded-awaiting-queue");
   });
 
   it("blocks queue when the proposal is not queue-eligible", async () => {
@@ -662,5 +724,19 @@ describe("governance timelock consequence helpers", () => {
     const passthrough = new Error("unclassified");
     expect(governanceTimelockConsequenceTestUtils.normalizeQueueExecutionError(passthrough, "77")).toBe(passthrough);
     expect(governanceTimelockConsequenceTestUtils.normalizeExecuteExecutionError(passthrough, "77", null)).toBe(passthrough);
+  });
+
+  it("collects nested diagnostics when normalizing governance errors", () => {
+    const queueError = governanceTimelockConsequenceTestUtils.normalizeQueueExecutionError({
+      message: { detail: "GovernancePaused" },
+      diagnostics: { nested: { reason: "Unauthorized" } },
+    }, "77");
+    expect(queueError).toBeInstanceOf(HttpError);
+
+    const executeError = governanceTimelockConsequenceTestUtils.normalizeExecuteExecutionError({
+      message: { detail: "InvalidTimelockExecution" },
+      diagnostics: { nested: { operation: "0x1111111111111111111111111111111111111111111111111111111111111111" } },
+    }, "77", "0x1111111111111111111111111111111111111111111111111111111111111111");
+    expect(executeError).toBeInstanceOf(HttpError);
   });
 });

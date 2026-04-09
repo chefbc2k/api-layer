@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.64] - 2026-04-09
+
+### Fixed
+- **Workflow Coverage Branches Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts) to cover the missing-operation-id failure path and the null-receipt execution branch in [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), including the zeroed ownership and diamond-admin event-count fallbacks.
+- **Governance Timelock Coverage Branches Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts) to cover queue operation-id recovery from scheduled timelock events, explicit `inspect: false` execution-readiness handling, and nested diagnostics normalization in [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change.test.ts packages/api/src/workflows/governance-timelock-consequence-flow.test.ts --maxWorkers 1`; all `21` focused assertions pass.
+- **Targeted File Coverage:** Re-ran isolated coverage for the two target modules. [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) improved from `92.63%` statements / `59.01%` branches / `93.54%` functions / `92.55%` lines to `95.78%` statements / `75.4%` branches / `93.54%` functions / `95.74%` lines. [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts) improved from `95.67%` statements / `80.58%` branches / `94.11%` functions / `95.65%` lines to `96.91%` statements / `84.7%` branches / `94.11%` functions / `96.89%` lines.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `120` passing files, `647` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.35%` to `94.45%` statements, `82.56%` to `82.97%` branches, `97.59%` to `97.59%` functions, and `94.27%` to `94.38%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield workflow gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts).
+
 ## [0.1.63] - 2026-04-09
 
 ### Fixed

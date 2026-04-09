@@ -240,6 +240,59 @@ describe("multisig protocol change workflows", () => {
     });
   });
 
+  it("fails clearly when propose cannot derive an operation id", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+    mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({
+      proposeOperation: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: null, result: null } }),
+    }));
+
+    await expect(
+      runProposeMultisigProtocolChangeWorkflow(context, auth, undefined, {
+        operation: {
+          actions: [{
+            kind: "accept-ownership",
+          }],
+          requiredApprovals: "1",
+        },
+      }),
+    ).rejects.toThrow("could not derive operationId");
+  });
+
+  it("returns zeroed execution event counts when no receipt is available", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+    mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({
+      getOperationStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "3" }),
+      canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: [false, "Already executed"] }),
+      hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      executeOperation: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: null } }),
+    }));
+
+    const result = await runExecuteMultisigProtocolChangeWorkflow(context, auth, undefined, {
+      operationId: OPERATION_ID,
+      actions: [],
+    });
+
+    expect(result.execution.txHash).toBeNull();
+    expect(result.execution.eventCount).toEqual({
+      operationExecuted: 0,
+      actionExecuted: 0,
+      batchCompleted: 0,
+    });
+    expect(result.consequence.eventCount).toEqual({
+      ownership: {
+        ownershipTransferProposed: 0,
+        ownershipTransferred: 0,
+        ownershipTransferCancelled: 0,
+        ownershipTargetApprovalSet: 0,
+      },
+      diamondAdmin: {
+        upgradeProposed: 0,
+        upgradeApproved: 0,
+        upgradeExecuted: 0,
+      },
+    });
+  });
+
   it("rejects unknown actor overrides before write execution", async () => {
     await expect(
       runApproveMultisigProtocolChangeWorkflow(context, auth, undefined, {
