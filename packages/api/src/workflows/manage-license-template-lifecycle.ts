@@ -244,7 +244,7 @@ export async function runManageLicenseTemplateLifecycleWorkflow(
   };
 }
 
-function buildDefaultTemplate(): z.infer<typeof licenseTemplateInputSchema> {
+export function buildDefaultTemplate(): z.infer<typeof licenseTemplateInputSchema> {
   const duration = String(45n * 24n * 60n * 60n);
   const price = "15000";
   const maxUses = "12";
@@ -270,7 +270,7 @@ function buildDefaultTemplate(): z.infer<typeof licenseTemplateInputSchema> {
   };
 }
 
-function hydrateTemplateForWrite(
+export function hydrateTemplateForWrite(
   creatorAddress: string,
   template: z.infer<typeof licenseTemplateInputSchema>,
   currentTemplate?: unknown,
@@ -294,7 +294,7 @@ function hydrateTemplateForWrite(
   };
 }
 
-async function resolveTemplateCreatorAddress(
+export async function resolveTemplateCreatorAddress(
   context: ApiExecutionContext,
   auth: AuthContext,
   walletAddress: string | undefined,
@@ -311,11 +311,11 @@ async function resolveTemplateCreatorAddress(
   return "0x0000000000000000000000000000000000000000";
 }
 
-function readTemplateActive(value: unknown): boolean {
+export function readTemplateActive(value: unknown): boolean {
   return asRecord(value)?.isActive === true;
 }
 
-function templateReadMatches(value: unknown, expected: z.infer<typeof licenseTemplateInputSchema>): boolean {
+export function templateReadMatches(value: unknown, expected: z.infer<typeof licenseTemplateInputSchema>): boolean {
   const record = asRecord(value);
   const terms = asRecord(record?.terms);
   if (!record || !terms) {

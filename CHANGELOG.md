@@ -6,6 +6,23 @@
 
 ## [0.1.64] - 2026-04-09
 
+## [0.1.66] - 2026-04-09
+
+### Fixed
+- **License Template Lifecycle Branch Coverage Expanded:** Exported the internal helper surface in [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts) so the workflow’s creator-resolution, template hydration, readback matching, and active-state helpers can be exercised directly without changing runtime behavior.
+- **Lifecycle Guardrail Regression Coverage Added:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.test.ts) to cover schema rejection when neither `templateHash` nor `create` is supplied, create-path failure when the template hash is absent from the write payload, explicit-wallet and signer-backed creator resolution, provider-resolution fallback to the zero address, and positive/negative helper checks across every template-read comparison branch.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` at or above the native gas floor; the aged marketplace listing remains token `11` and `purchase-ready`, and governance remains `ready` with founder voting power above threshold.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/manage-license-template-lifecycle.test.ts --maxWorkers 1`; all `9` focused assertions pass.
+- **Targeted File Coverage:** Re-ran isolated coverage for [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts). The module improved from `91.89%` statements / `76.47%` branches / `95.23%` functions / `91.89%` lines to `100%` statements / `87.05%` branches / `100%` functions / `100%` lines.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `120` passing files, `651` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.45%` to `94.56%` statements, `82.97%` to `83.16%` branches, `97.59%` to `97.67%` functions, and `94.38%` to `94.49%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/license-template.ts).
+
 ## [0.1.65] - 2026-04-09
 
 ### Verified

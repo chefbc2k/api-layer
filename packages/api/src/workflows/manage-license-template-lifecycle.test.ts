@@ -13,7 +13,15 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runManageLicenseTemplateLifecycleWorkflow } from "./manage-license-template-lifecycle.js";
+import {
+  buildDefaultTemplate,
+  manageLicenseTemplateLifecycleWorkflowSchema,
+  hydrateTemplateForWrite,
+  readTemplateActive,
+  resolveTemplateCreatorAddress,
+  runManageLicenseTemplateLifecycleWorkflow,
+  templateReadMatches,
+} from "./manage-license-template-lifecycle.js";
 
 describe("runManageLicenseTemplateLifecycleWorkflow", () => {
   const auth = {
@@ -471,5 +479,154 @@ describe("runManageLicenseTemplateLifecycleWorkflow", () => {
     await vi.runAllTimersAsync();
 
     await expectation;
+  });
+
+  it("rejects missing template selectors and create responses without a template hash", async () => {
+    expect(() => manageLicenseTemplateLifecycleWorkflowSchema.parse({
+      update: {
+        template: buildDefaultTemplate(),
+      },
+    })).toThrow("templateHash or create is required");
+
+    mocks.createLicensingPrimitiveService.mockReturnValue({
+      createTemplate: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xcreate-missing-hash", result: "not-a-template-hash" },
+      }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xcreate-missing-hash");
+
+    await expect(runManageLicenseTemplateLifecycleWorkflow(context, auth, undefined, {
+      create: {},
+    })).rejects.toThrow("manage-license-template-lifecycle did not receive templateHash from create-template");
+  });
+
+  it("resolves creator addresses from explicit wallets, signer-backed auth, and fallback paths", async () => {
+    expect(await resolveTemplateCreatorAddress(
+      context,
+      auth,
+      "0x00000000000000000000000000000000000000bb",
+    )).toBe("0x00000000000000000000000000000000000000bb");
+
+    const signerContext = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: unknown) => Promise<string>) => work({})),
+      },
+    } as never;
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
+      "signer-1": "0x0123456789012345678901234567890123456789012345678901234567890123",
+    });
+
+    await expect(resolveTemplateCreatorAddress(
+      signerContext,
+      { ...auth, signerId: "signer-1" } as never,
+      undefined,
+    )).resolves.toMatch(/^0x[a-fA-F0-9]{40}$/u);
+
+    await expect(resolveTemplateCreatorAddress(
+      {
+        providerRouter: {
+          withProvider: vi.fn().mockRejectedValue(new Error("provider down")),
+        },
+      } as never,
+      auth,
+      undefined,
+    )).resolves.toBe("0x0000000000000000000000000000000000000000");
+  });
+
+  it("hydrates writes and compares template reads across success and mismatch cases", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-09T08:05:00.000Z"));
+
+    const expectedTemplate = {
+      isActive: false,
+      transferable: false,
+      defaultDuration: "172800",
+      defaultPrice: "456",
+      maxUses: "5",
+      name: "Updated Template",
+      description: "Updated Template",
+      defaultRights: ["Narration"],
+      defaultRestrictions: ["territory-us"],
+      terms: {
+        licenseHash: `0x${"0".repeat(64)}`,
+        duration: "172800",
+        price: "456",
+        maxUses: "5",
+        transferable: false,
+        rights: ["Narration"],
+        restrictions: ["territory-us"],
+      },
+    };
+
+    expect(hydrateTemplateForWrite(
+      "0x00000000000000000000000000000000000000aa",
+      expectedTemplate,
+      {
+        creator: "0x00000000000000000000000000000000000000cc",
+        createdAt: "111",
+      },
+    )).toEqual({
+      creator: "0x00000000000000000000000000000000000000cc",
+      createdAt: "111",
+      updatedAt: String(Math.floor(new Date("2026-04-09T08:05:00.000Z").getTime() / 1000)),
+      ...expectedTemplate,
+    });
+
+    expect(readTemplateActive({ isActive: true })).toBe(true);
+    expect(readTemplateActive({ isActive: false })).toBe(false);
+
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      defaultDuration: 172800,
+      defaultPrice: 456,
+      maxUses: 5,
+      defaultRights: ["Narration"],
+      defaultRestrictions: ["territory-us"],
+      terms: {
+        duration: 172800,
+        price: 456,
+        maxUses: 5,
+        transferable: false,
+        rights: ["Narration"],
+        restrictions: ["territory-us"],
+      },
+    }, expectedTemplate)).toBe(true);
+
+    expect(templateReadMatches(null, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ terms: null }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, name: "Mismatch" }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, description: "Mismatch" }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, transferable: true }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, defaultDuration: "1" }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, defaultPrice: "1" }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, maxUses: "1" }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, isActive: true }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, defaultRights: ["Ads"] }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({ ...expectedTemplate, defaultRestrictions: ["no-ads"] }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, duration: "1" },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, price: "1" },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, maxUses: "1" },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, transferable: true },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, rights: ["Ads"] },
+    }, expectedTemplate)).toBe(false);
+    expect(templateReadMatches({
+      ...expectedTemplate,
+      terms: { ...expectedTemplate.terms, restrictions: ["no-ads"] },
+    }, expectedTemplate)).toBe(false);
   });
 });
