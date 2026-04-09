@@ -312,4 +312,256 @@ describe("trigger-emergency", () => {
       "trigger-emergency responseActions require incident id or incident report",
     );
   });
+
+  it("accepts child actor overrides and tolerates missing receipts across non-report writes", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreport")
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const childAuth = { apiKey: "child-key", label: "child", roles: ["service"], allowGasless: false };
+    const triggerEmergency = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xtrigger" } });
+    const executeResponse = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xresponse" } });
+    const freezeAssets = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xfreeze" } });
+    const extendPausedUntil = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xextend" } });
+    const scheduleEmergencyResume = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xschedule" } });
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      reportIncident: vi.fn().mockResolvedValue({ statusCode: 202, body: "7" }),
+      getIncident: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "7",
+            incidentType: "0",
+            description: "breach",
+            reporter: "0x00000000000000000000000000000000000000bb",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "7",
+            incidentType: "0",
+            description: "breach",
+            reporter: "0x00000000000000000000000000000000000000bb",
+            timestamp: "10",
+            resolved: false,
+            actions: ["2"],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        }),
+      triggerEmergency,
+      emergencyStop: vi.fn(),
+      executeResponse,
+      freezeAssets,
+      isAssetFrozen: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      extendPausedUntil,
+      scheduleEmergencyResume,
+      incidentReportedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xreport" }] }),
+      emergencyStateChangedEventQuery: vi.fn(),
+      responseExecutedEventQuery: vi.fn(),
+      assetsFrozenEventQuery: vi.fn(),
+      pauseExtendedEventQuery: vi.fn(),
+      emergencyResumeScheduledEventQuery: vi.fn(),
+    });
+
+    const result = await runTriggerEmergencyWorkflow(
+      {
+        apiKeys: { "child-key": childAuth },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async (txHash: string) => ({ blockNumber: txHash === "0xreport" ? 101 : 102 })),
+          })),
+        },
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      "0x00000000000000000000000000000000000000aa",
+      {
+        emergency: {
+          state: "LOCKED_DOWN",
+          reason: "lock",
+          actor: { apiKey: "child-key", walletAddress: "0x00000000000000000000000000000000000000bb" },
+          useEmergencyStop: false,
+        },
+        incident: {
+          report: {
+            actor: { apiKey: "child-key", walletAddress: "0x00000000000000000000000000000000000000bb" },
+            incidentType: "SECURITY_BREACH",
+            description: "breach",
+          },
+          responseActions: ["LOCK_TRANSFERS"],
+        },
+        freezeAssets: {
+          actor: { apiKey: "child-key", walletAddress: "0x00000000000000000000000000000000000000bb" },
+          assetIds: ["1"],
+          reason: "containment",
+        },
+        pauseControl: {
+          actor: { apiKey: "child-key", walletAddress: "0x00000000000000000000000000000000000000bb" },
+          extendPausedUntil: "999",
+          scheduleResumeAfter: "1200",
+        },
+      },
+    );
+
+    expect(result.summary).toEqual({
+      incidentId: "7",
+      requestedState: "LOCKED_DOWN",
+      resultingState: "2",
+      resultingStateLabel: "LOCKED_DOWN",
+      responseExecuted: true,
+      assetsFrozen: 1,
+      resumeScheduled: true,
+      pauseExtended: true,
+    });
+    expect(result.response).toMatchObject({ txHash: null, eventCount: 0 });
+    expect(result.assetFreeze).toMatchObject({ txHash: null, eventCount: 0 });
+    expect(result.pauseControl).toEqual({
+      extendPause: { submission: { txHash: "0xextend" }, txHash: null, eventCount: 0, pausedUntil: "999" },
+      scheduleResume: { submission: { txHash: "0xschedule" }, txHash: null, eventCount: 0, executeAfter: "1200" },
+    });
+    expect(triggerEmergency).toHaveBeenCalledWith(expect.objectContaining({
+      auth: childAuth,
+      walletAddress: "0x00000000000000000000000000000000000000bb",
+    }));
+    expect(executeResponse).toHaveBeenCalledWith(expect.objectContaining({
+      auth: childAuth,
+      walletAddress: "0x00000000000000000000000000000000000000bb",
+    }));
+    expect(freezeAssets).toHaveBeenCalledWith(expect.objectContaining({
+      auth: childAuth,
+      walletAddress: "0x00000000000000000000000000000000000000bb",
+    }));
+    expect(extendPausedUntil).toHaveBeenCalledWith(expect.objectContaining({
+      auth: childAuth,
+      walletAddress: "0x00000000000000000000000000000000000000bb",
+    }));
+  });
+
+  it.each([
+    [
+      "report-incident",
+      {
+        emergency: { state: "PAUSED" as const, reason: "incident response", useEmergencyStop: false },
+        incident: { report: { incidentType: "SECURITY_BREACH" as const, description: "breach" } },
+      },
+      {
+        reportIncident: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "execute-response",
+      {
+        emergency: { state: "RECOVERY" as const, reason: "recover", useEmergencyStop: false },
+        incident: { id: "9", responseActions: ["RESTORE_STATE" as const] },
+      },
+      {
+        executeResponse: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "freeze-assets",
+      {
+        emergency: { state: "PAUSED" as const, reason: "freeze", useEmergencyStop: false },
+        freezeAssets: { assetIds: ["1"], reason: "containment" },
+      },
+      {
+        freezeAssets: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "extend-paused-until",
+      {
+        emergency: { state: "PAUSED" as const, reason: "extend", useEmergencyStop: false },
+        pauseControl: { extendPausedUntil: "999" },
+      },
+      {
+        extendPausedUntil: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "schedule-emergency-resume",
+      {
+        emergency: { state: "PAUSED" as const, reason: "resume later", useEmergencyStop: false },
+        pauseControl: { scheduleResumeAfter: "1200" },
+      },
+      {
+        scheduleEmergencyResume: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+  ])("normalizes %s failures", async (_label, body, overrides) => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xtrigger");
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: body.emergency.state === "RECOVERY" ? "3" : "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: body.emergency.state === "RECOVERY" ? "3" : "1" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      reportIncident: vi.fn(),
+      getIncident: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          id: "9",
+          incidentType: "0",
+          description: "incident",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "10",
+          resolved: false,
+          actions: ["4"],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      }),
+      triggerEmergency: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xtrigger" } }),
+      emergencyStop: vi.fn(),
+      executeResponse: vi.fn(),
+      freezeAssets: vi.fn(),
+      isAssetFrozen: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      extendPausedUntil: vi.fn(),
+      scheduleEmergencyResume: vi.fn(),
+      emergencyStateChangedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xtrigger" }] }),
+      incidentReportedEventQuery: vi.fn(),
+      responseExecutedEventQuery: vi.fn(),
+      assetsFrozenEventQuery: vi.fn(),
+      pauseExtendedEventQuery: vi.fn(),
+      emergencyResumeScheduledEventQuery: vi.fn(),
+      ...overrides,
+    });
+
+    await expect(runTriggerEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: () => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 100 })),
+          })),
+        },
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      body,
+    )).rejects.toEqual(expect.objectContaining({
+      statusCode: 409,
+    }));
+  });
 });

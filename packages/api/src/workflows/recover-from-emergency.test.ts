@@ -342,4 +342,213 @@ describe("recover-from-emergency", () => {
       },
     })).toThrow("recover-from-emergency schedule resume requires executeAfter");
   });
+
+  it("accepts governance approval readbacks without count growth and tolerates missing receipts", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce("0xapprove")
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const approveRecovery = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove" } });
+    const executeRecoveryStep = vi.fn()
+      .mockResolvedValueOnce({ statusCode: 202, body: { txHash: "0xstep-0" } })
+      .mockResolvedValueOnce({ statusCode: 202, body: { txHash: "0xstep-1" } });
+    const completeRecovery = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xcomplete" } });
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: true,
+            actions: [],
+            approvers: [],
+            resolutionTime: "40",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: true,
+            actions: [],
+            approvers: [],
+            resolutionTime: "40",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: true,
+            actions: [],
+            approvers: [],
+            resolutionTime: "40",
+          },
+        }),
+      getRecoveryPlan: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: [[], false, "0", "0", "0", []] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234", "0x5678"], false, "20", "0", "0", []] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234", "0x5678"], true, "20", "0", "0", []] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234", "0x5678"], true, "20", "0", "0", ["0xaa"]] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234", "0x5678"], true, "20", "0", "0", ["0xaa", "0xbb"]] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234", "0x5678"], true, "20", "40", "0", ["0xaa", "0xbb"]] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234", "0x5678"], true, "20", "40", "0", ["0xaa", "0xbb"]] }),
+      startRecovery: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xstart" } }),
+      approveRecovery,
+      executeRecoveryStep,
+      completeRecovery,
+      recoveryStartedEventQuery: vi.fn(),
+      recoveryStepExecutedEventQuery: vi.fn(),
+      recoveryCompletedEventQuery: vi.fn(),
+    });
+
+    const result = await runRecoverFromEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        incidentId: "9",
+        start: {
+          steps: ["0x1234", "0x5678"],
+        },
+        approve: {},
+        execute: {
+          stepIndices: ["0", "1"],
+        },
+        complete: {},
+      },
+    );
+
+    expect(result.recovery.start).toMatchObject({ txHash: null, eventCount: 0 });
+    expect(result.recovery.approval?.recovery.approvedByGovernance).toBe(true);
+    expect(result.recovery.executedSteps).toHaveLength(2);
+    expect(result.recovery.executedSteps.every((step) => step.eventCount === 0)).toBe(true);
+    expect(result.recovery.completion).toMatchObject({ txHash: null, eventCount: 0 });
+    expect(approveRecovery).toHaveBeenCalledOnce();
+    expect(executeRecoveryStep).toHaveBeenCalledTimes(2);
+    expect(completeRecovery).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    [
+      "start-recovery",
+      {
+        incidentId: "9",
+        start: { steps: ["0x1234"] },
+      },
+      {
+        startRecovery: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "approve-recovery",
+      {
+        incidentId: "9",
+        approve: {},
+      },
+      {
+        approveRecovery: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "complete-recovery",
+      {
+        incidentId: "9",
+        complete: {},
+      },
+      {
+        completeRecovery: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "schedule-resume",
+      {
+        incidentId: "9",
+        resume: { mode: "schedule" as const, executeAfter: "999" },
+      },
+      {
+        scheduleEmergencyResume: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "execute-scheduled-resume",
+      {
+        incidentId: "9",
+        resume: { mode: "execute-scheduled" as const },
+      },
+      {
+        executeScheduledResume: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+    [
+      "emergency-resume",
+      {
+        incidentId: "9",
+        resume: { mode: "immediate" as const },
+      },
+      {
+        emergencyResume: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      },
+    ],
+  ])("normalizes %s failures", async (_label, body, overrides) => {
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          id: "9",
+          incidentType: "0",
+          description: "incident",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "10",
+          resolved: false,
+          actions: [],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      }),
+      getRecoveryPlan: vi.fn().mockResolvedValue({ statusCode: 200, body: [[], false, "0", "0", "0", []] }),
+      startRecovery: vi.fn(),
+      approveRecovery: vi.fn(),
+      executeRecoveryStep: vi.fn(),
+      completeRecovery: vi.fn(),
+      emergencyResume: vi.fn(),
+      scheduleEmergencyResume: vi.fn(),
+      executeScheduledResume: vi.fn(),
+      ...overrides,
+    });
+
+    await expect(runRecoverFromEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      body,
+    )).rejects.toEqual(expect.objectContaining({
+      statusCode: 409,
+    }));
+  });
 });

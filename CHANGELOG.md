@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.61] - 2026-04-08
+
+### Fixed
+- **Emergency Workflow Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts) to cover governance-approved recovery readbacks without approval-count growth, multi-step execution with missing receipts, and normalized failure branches for `start-recovery`, `approve-recovery`, `complete-recovery`, and all three resume modes in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts).
+- **Emergency Trigger Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.test.ts) to cover signer-preserving actor overrides across incident, emergency, freeze, and pause-control writes, missing-receipt behavior for downstream emergency actions, and normalized failure branches for `report-incident`, `execute-response`, `freeze-assets`, `extend-paused-until`, and `schedule-emergency-resume` in [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts).
+
+### Verified
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` on loopback RPC `http://127.0.0.1:8548` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, and transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE` above the native gas floor, marketplace token `11` still `purchase-ready`, and governance still `ready`.
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Emergency Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/recover-from-emergency.test.ts packages/api/src/workflows/trigger-emergency.test.ts --maxWorkers 1`; all `23` focused assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `119` passing files, `630` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `93.91%` to `94.18%` statements, `81.24%` to `81.65%` branches, `96.68%` to `97.59%` functions, and `93.81%` to `94.10%` lines. Under the full sweep, [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) improved to `100%` statements / `80.51%` branches / `100%` functions / `100%` lines, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts) improved to `92.03%` statements / `85.54%` branches / `96.87%` functions / `91.96%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts).
+
 ## [0.1.60] - 2026-04-08
 
 ### Fixed
