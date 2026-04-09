@@ -739,6 +739,59 @@ describe("runCreateDatasetAndListForSaleWorkflow", () => {
     });
   });
 
+  it("reports unauthorized commercialization when authorization introspection throws", async () => {
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+    } as never;
+    mocks.createDatasetsPrimitiveService.mockReturnValue({
+      getDatasetsByCreator: vi.fn(),
+      createDataset: vi.fn(),
+    });
+    const voiceAssets = {
+      ownerOf: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: "0x00000000000000000000000000000000000000bb",
+      }),
+      getVoiceHashFromTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: `0x${"3".repeat(64)}`,
+      }),
+      isAuthorized: vi.fn().mockRejectedValue(new Error("authorization unavailable")),
+      isApprovedForAll: vi.fn(),
+      setApprovalForAll: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(voiceAssets);
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      listAsset: vi.fn(),
+      getListing: vi.fn(),
+    });
+
+    await expect(runCreateDatasetAndListForSaleWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      title: "Dataset",
+      assetIds: ["1"],
+      metadataURI: "ipfs://dataset",
+      royaltyBps: "500",
+      price: "1000",
+      duration: "0",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("actor is not current owner"),
+      diagnostics: {
+        actorAuthorized: null,
+        voiceHash: `0x${"3".repeat(64)}`,
+      },
+    });
+
+    expect(voiceAssets.isAuthorized).toHaveBeenCalledWith({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress: "0x00000000000000000000000000000000000000aa",
+      wireParams: [`0x${"3".repeat(64)}`, "0x00000000000000000000000000000000000000aa"],
+    });
+  });
+
   it("falls back to the final unstable listing read when listing stabilization never converges", async () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
       if (typeof callback === "function") {
