@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.77] - 2026-04-16
+
+### Fixed
+- **Whisperblock Workflow Edge Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts) to cover transient authenticity read failures, missing confirmed fingerprint receipts, null downstream receipt hashes on optional encryption/access writes, mixed event payload arrays with junk entries, and non-array/null event payload normalization in [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, and aged marketplace fixture token `91` marked `purchase-ready`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/register-whisper-block.test.ts --coverage.enabled true --coverage.reporter=text --maxWorkers 1 --no-file-parallelism`; all `13` targeted assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts) now measures `98.7%` statements, `89.39%` branches, `100%` functions, and `98.63%` lines in isolated coverage, leaving only the unreachable null-`txHash` helper guard at line `204`.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `121` passing files, `705` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `705` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `95.37%` to `95.49%` statements, `85.13%` to `85.44%` branches, `98.09%` functions unchanged, and `95.31%` to `95.44%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts).
+
 ## [0.1.76] - 2026-04-16
 
 ### Fixed

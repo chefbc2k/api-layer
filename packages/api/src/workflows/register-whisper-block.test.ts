@@ -337,6 +337,45 @@ describe("runRegisterWhisperBlockWorkflow", () => {
     expect(service.voiceFingerprintUpdatedEventQuery).toHaveBeenCalledTimes(2);
   });
 
+  it("ignores non-object event entries while matching transaction hashes", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 651 })),
+        })),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+      voiceFingerprintUpdatedEventQuery: vi.fn().mockResolvedValue([
+        null,
+        "unexpected-log",
+        { transactionHash: "0xfingerprint-receipt" },
+      ]),
+      generateAndSetEncryptionKey: vi.fn(),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn(),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xfingerprint-receipt");
+
+    const result = await runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0x66666666666666666666666666666666666666666666666666666666666666aa",
+      structuredFingerprintData: "0x8889",
+      generateEncryptionKey: false,
+    });
+
+    expect(result.fingerprint.eventCount).toBe(3);
+  });
+
   it("throws when authenticity verification never stabilizes", async () => {
     const setTimeoutSpy = mockImmediateTimeout();
     const context = {
@@ -373,6 +412,39 @@ describe("runRegisterWhisperBlockWorkflow", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("surfaces transient authenticity read errors after retries are exhausted", async () => {
+    const setTimeoutSpy = mockImmediateTimeout();
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 451 })),
+        })),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn().mockRejectedValue(new Error("rpc timeout")),
+      voiceFingerprintUpdatedEventQuery: vi.fn(),
+      generateAndSetEncryptionKey: vi.fn(),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn(),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xfingerprint-receipt");
+
+    await expect(runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      structuredFingerprintData: "0x4444",
+      generateEncryptionKey: false,
+    })).rejects.toThrow("registerWhisperBlock.verifyVoiceAuthenticity readback timeout after transient read errors: rpc timeout");
+    expect(service.verifyVoiceAuthenticity).toHaveBeenCalledTimes(20);
+    setTimeoutSpy.mockRestore();
+  });
+
   it("surfaces transient event-query errors after retries are exhausted", async () => {
     const setTimeoutSpy = mockImmediateTimeout();
     const context = {
@@ -405,6 +477,177 @@ describe("runRegisterWhisperBlockWorkflow", () => {
       structuredFingerprintData: "0x9999",
       generateEncryptionKey: false,
     })).rejects.toThrow("registerWhisperBlock.voiceFingerprintUpdated event query timeout after transient read errors: indexer unavailable");
+    expect(service.voiceFingerprintUpdatedEventQuery).toHaveBeenCalledTimes(20);
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("throws when a confirmed fingerprint receipt cannot be read back", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => null),
+        })),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn(),
+      voiceFingerprintUpdatedEventQuery: vi.fn(),
+      generateAndSetEncryptionKey: vi.fn(),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn(),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xfingerprint-receipt");
+
+    await expect(runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0x8888888888888888888888888888888888888888888888888888888888888888",
+      structuredFingerprintData: "0x1111",
+      generateEncryptionKey: false,
+    })).rejects.toThrow("registerWhisperBlock.fingerprint receipt missing after confirmation: 0xfingerprint-receipt");
+    expect(service.verifyVoiceAuthenticity).not.toHaveBeenCalled();
+  });
+
+  it("keeps optional event counts at zero when downstream receipt resolution returns null hashes", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 801 })),
+        })),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+      voiceFingerprintUpdatedEventQuery: vi.fn().mockResolvedValue([
+        { transactionHash: "0xfingerprint-receipt" },
+      ]),
+      generateAndSetEncryptionKey: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xkey-write" },
+      }),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xgrant-write" },
+      }),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xfingerprint-receipt")
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const result = await runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0x9999999999999999999999999999999999999999999999999999999999999999",
+      structuredFingerprintData: "0x2222",
+      grant: {
+        user: "0x00000000000000000000000000000000000000bb",
+        duration: "1800",
+      },
+      generateEncryptionKey: true,
+    });
+
+    expect(result.encryptionKey).toEqual({
+      submission: { txHash: "0xkey-write" },
+      txHash: null,
+      eventCount: 0,
+    });
+    expect(result.accessGrant).toEqual({
+      submission: { txHash: "0xgrant-write" },
+      txHash: null,
+      eventCount: 0,
+      grant: {
+        user: "0x00000000000000000000000000000000000000bb",
+        duration: "1800",
+      },
+    });
+    expect(service.keyRotatedEventQuery).not.toHaveBeenCalled();
+    expect(service.accessGrantedEventQuery).not.toHaveBeenCalled();
+  });
+
+  it("times out with normalized empty event payloads when event routes return non-array bodies", async () => {
+    const setTimeoutSpy = mockImmediateTimeout();
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 901 })),
+        })),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+      voiceFingerprintUpdatedEventQuery: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { unexpected: true },
+      }),
+      generateAndSetEncryptionKey: vi.fn(),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn(),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xfingerprint-receipt");
+
+    await expect(runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      structuredFingerprintData: "0x3333",
+      generateEncryptionKey: false,
+    })).rejects.toThrow("registerWhisperBlock.voiceFingerprintUpdated event query timeout: []");
+    expect(service.voiceFingerprintUpdatedEventQuery).toHaveBeenCalledTimes(20);
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("times out with normalized empty event payloads when event routes return null", async () => {
+    const setTimeoutSpy = mockImmediateTimeout();
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 951 })),
+        })),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+      voiceFingerprintUpdatedEventQuery: vi.fn().mockResolvedValue(null),
+      generateAndSetEncryptionKey: vi.fn(),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn(),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xfingerprint-receipt");
+
+    await expect(runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      structuredFingerprintData: "0x5555",
+      generateEncryptionKey: false,
+    })).rejects.toThrow("registerWhisperBlock.voiceFingerprintUpdated event query timeout: []");
     expect(service.voiceFingerprintUpdatedEventQuery).toHaveBeenCalledTimes(20);
     setTimeoutSpy.mockRestore();
   });
