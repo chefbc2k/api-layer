@@ -118,6 +118,18 @@ describe("base sepolia operator setup helpers", () => {
         },
       },
     }, 100_000n);
+    const expired = createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-expired",
+      tokenId: "14",
+      listingReadback: {
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+          expiresAt: "10",
+        },
+      },
+    }, 100_000n);
 
     expect(purchaseReady).toMatchObject({
       voiceHash: "0xvoice-ready",
@@ -142,6 +154,14 @@ describe("base sepolia operator setup helpers", () => {
       purchaseReadiness: "unverified",
       status: "blocked",
       reason: "seller owns aged assets, but none currently have an active listing",
+    });
+    expect(expired).toMatchObject({
+      voiceHash: "0xvoice-expired",
+      tokenId: "14",
+      activeListing: true,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing remains active in readback, but its expiration time has already passed",
     });
   });
 
@@ -627,7 +647,7 @@ describe("base sepolia operator setup helpers", () => {
 
     const status = await createInitialStatus({
       chainId: 84532,
-      cbdpRpcUrl: "https://rpc.example",
+      fixtureRpcUrl: "https://rpc.example",
       runtimeRpcUrl: "http://127.0.0.1:8548",
       forkedFrom: "https://fork.example",
       diamondAddress: "0xdiamond",
@@ -644,6 +664,7 @@ describe("base sepolia operator setup helpers", () => {
       network: {
         chainId: 84532,
         rpcUrl: "https://rpc.example",
+        upstreamRpcUrl: "https://rpc.example",
         runtimeRpcUrl: "http://127.0.0.1:8548",
         forkedFrom: "https://fork.example",
         diamondAddress: "0xdiamond",
@@ -661,6 +682,33 @@ describe("base sepolia operator setup helpers", () => {
           address: seller.address,
           nativeBalance: "222",
         },
+      },
+    });
+  });
+
+  it("stores the upstream rpc separately from the fork runtime endpoint", async () => {
+    const founder = ethers.Wallet.createRandom();
+
+    const status = await createInitialStatus({
+      chainId: 84532,
+      fixtureRpcUrl: "https://base-sepolia.example",
+      runtimeRpcUrl: "http://127.0.0.1:8548",
+      forkedFrom: "https://base-sepolia.example",
+      diamondAddress: "0xdiamond",
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+      ],
+      provider: {
+        getBalance: vi.fn(async () => 111n),
+      },
+    });
+
+    expect(status).toMatchObject({
+      network: {
+        rpcUrl: "https://base-sepolia.example",
+        upstreamRpcUrl: "https://base-sepolia.example",
+        runtimeRpcUrl: "http://127.0.0.1:8548",
+        forkedFrom: "https://base-sepolia.example",
       },
     });
   });

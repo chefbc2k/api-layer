@@ -275,6 +275,9 @@ function normalizePurchaseExecutionError(error: unknown, tokenId: string): unkno
   if (text.includes("tradinglocked") || text.includes("0xe032e6fb")) {
     return new HttpError(409, `purchase-marketplace-asset blocked by trading lock for token ${tokenId}`, extractDiagnostics(error));
   }
+  if (text.includes("listingexpired") || text.includes("0xf0e175b5")) {
+    return new HttpError(409, `purchase-marketplace-asset blocked by setup/state: listing for token ${tokenId} has expired`, extractDiagnostics(error));
+  }
   if (text.includes("insufficientallowance") || text.includes("0x13be252b")) {
     return new HttpError(409, "purchase-marketplace-asset requires buyer payment-token allowance as an external precondition", extractDiagnostics(error));
   }

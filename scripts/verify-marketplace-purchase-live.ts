@@ -193,10 +193,13 @@ export async function estimateBuyerNativeMinimum(
   buyerAddress: string,
   tokenId: string,
 ): Promise<bigint> {
-  const [feeData, estimatedGas] = await Promise.all([
-    provider.getFeeData(),
-    marketplace.purchaseAsset.estimateGas(BigInt(tokenId), { from: buyerAddress }),
-  ]);
+  const feeData = await provider.getFeeData();
+  let estimatedGas: bigint;
+  try {
+    estimatedGas = BigInt(await marketplace.purchaseAsset.estimateGas(BigInt(tokenId), { from: buyerAddress }));
+  } catch {
+    return MIN_BUYER_NATIVE_BALANCE;
+  }
 
   const gasPrice = feeData.maxFeePerGas ?? feeData.gasPrice ?? 0n;
   if (gasPrice <= 0n) {
@@ -348,6 +351,40 @@ export function buildBlockedFundingOutput(args: {
       fundingWallet: args.funding.fundingWallet,
       recipient: args.funding.recipient,
     },
+  };
+}
+
+export function buildBlockedPurchaseOutput(args: {
+  chainId: number;
+  diamondAddress: string;
+  sellerAddress: string;
+  buyerAddress: string;
+  target: MarketplacePurchaseTarget;
+  purchaseResponse: ApiResponse;
+  listingBefore: unknown;
+}) {
+  const payload = normalize(args.purchaseResponse.payload);
+  return {
+    target: {
+      source: args.target.source,
+      chainId: args.chainId,
+      diamond: args.diamondAddress,
+      tokenId: args.target.tokenId,
+      voiceHash: args.target.voiceHash,
+    },
+    actors: {
+      seller: args.sellerAddress,
+      buyer: args.buyerAddress,
+    },
+    preState: {
+      listing: normalize(args.listingBefore),
+    },
+    purchase: {
+      status: args.purchaseResponse.status,
+      payload,
+    },
+    classification: "blocked by setup/state",
+    failureKind: "contract constraint",
   };
 }
 
@@ -515,6 +552,25 @@ async function main() {
       },
     );
     if (purchaseResponse.status !== 202) {
+      const payloadText = JSON.stringify(purchaseResponse.payload);
+      if (purchaseResponse.status === 409 || /blocked by setup\/state|blocked by trading lock|listing .*expired/i.test(payloadText)) {
+        const output = buildBlockedPurchaseOutput({
+          chainId: config.chainId,
+          diamondAddress: config.diamondAddress,
+          sellerAddress: target.sellerAddress,
+          buyerAddress: buyer.address,
+          target,
+          purchaseResponse,
+          listingBefore: listingBefore.payload,
+        });
+        const outputJson = JSON.stringify(output, null, 2);
+        const outputPath = getOutputPath();
+        if (outputPath) {
+          fs.writeFileSync(outputPath, `${outputJson}\n`);
+        }
+        console.log(outputJson);
+        return;
+      }
       throw new Error(`purchase workflow failed: ${JSON.stringify(purchaseResponse.payload)}`);
     }
 

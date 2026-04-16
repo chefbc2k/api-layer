@@ -28,11 +28,21 @@ export type MarketplaceFixtureCandidate = {
 
 export const ONE_DAY = 24n * 60n * 60n;
 
+export function isExpiredListing(
+  listing: ListingReadbackPayload | null | undefined,
+  latestTimestamp: bigint,
+): boolean {
+  if (!listing?.expiresAt) {
+    return false;
+  }
+  return BigInt(listing.expiresAt) <= latestTimestamp;
+}
+
 export function isPurchaseReadyListing(
   listing: ListingReadbackPayload | null | undefined,
   latestTimestamp: bigint,
 ): boolean {
-  if (!listing?.isActive || !listing.createdAt) {
+  if (!listing?.isActive || !listing.createdAt || isExpiredListing(listing, latestTimestamp)) {
     return false;
   }
   return BigInt(listing.createdAt) + ONE_DAY <= latestTimestamp;
@@ -46,7 +56,7 @@ export function classifyCandidatePriority(
   if (isPurchaseReadyListing(listing, latestTimestamp)) {
     return 3;
   }
-  if (candidate.listingReadback.status === 200 && listing?.isActive === true) {
+  if (candidate.listingReadback.status === 200 && listing?.isActive === true && !isExpiredListing(listing, latestTimestamp)) {
     return 2;
   }
   return 1;

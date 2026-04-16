@@ -227,6 +227,32 @@ describe("alchemy-debug-lib", () => {
     ]);
   });
 
+  it("uses a persisted fork origin when the fixture rpcUrl was overwritten with loopback", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "http://127.0.0.1:8548",
+        forkedFrom: "https://base-sepolia.g.alchemy.com/v2/from-fork-origin",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl) => {
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/from-fork-origin");
+    expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
+  });
+
   it("rethrows the original verification error when no fixture fallback is available", async () => {
     await expect(resolveRuntimeConfig(
       {

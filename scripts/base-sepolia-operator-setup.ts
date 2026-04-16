@@ -11,6 +11,7 @@ import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import {
   type FixtureStatus,
+  isExpiredListing,
   isPurchaseReadyListing,
   mergeMarketplaceCandidateVoiceHashes,
   rankFundingCandidates,
@@ -185,6 +186,7 @@ export function createPreferredMarketplaceFixture(
 ): AgedListingFixture {
   const activeListing = preferredCandidate.listingReadback.status === 200 &&
     preferredCandidate.listingReadback.payload?.isActive === true;
+  const listingExpired = isExpiredListing(preferredCandidate.listingReadback.payload, latestTimestamp);
   const purchaseReady = isPurchaseReadyListing(preferredCandidate.listingReadback.payload, latestTimestamp);
   return {
     voiceHash: preferredCandidate.voiceHash,
@@ -192,18 +194,22 @@ export function createPreferredMarketplaceFixture(
     activeListing,
     purchaseReadiness: purchaseReady
       ? "purchase-ready"
-      : activeListing
+      : activeListing && !listingExpired
         ? "listed-not-yet-purchase-proven"
         : "unverified",
     status: purchaseReady
       ? "ready"
       : activeListing
-        ? "partial"
+        ? listingExpired
+          ? "blocked"
+          : "partial"
         : "blocked",
     reason: purchaseReady
       ? "listing is active and older than the marketplace contract's 1 day trading lock"
       : activeListing
-        ? "active listing exists, but it is still within the marketplace contract's 1 day trading lock"
+        ? listingExpired
+          ? "listing remains active in readback, but its expiration time has already passed"
+          : "active listing exists, but it is still within the marketplace contract's 1 day trading lock"
         : "seller owns aged assets, but none currently have an active listing",
     approval: null,
     listing: {
@@ -772,7 +778,7 @@ export function createLicensingStatus(args: {
 
 export async function createInitialStatus(args: {
   chainId: number;
-  cbdpRpcUrl: string;
+  fixtureRpcUrl: string;
   runtimeRpcUrl: string;
   forkedFrom: string | null;
   diamondAddress: string;
@@ -783,7 +789,8 @@ export async function createInitialStatus(args: {
     generatedAt: new Date().toISOString(),
     network: {
       chainId: args.chainId,
-      rpcUrl: args.cbdpRpcUrl,
+      rpcUrl: args.fixtureRpcUrl,
+      upstreamRpcUrl: args.fixtureRpcUrl,
       runtimeRpcUrl: args.runtimeRpcUrl,
       forkedFrom: args.forkedFrom,
       diamondAddress: args.diamondAddress,
@@ -987,7 +994,14 @@ export async function main(): Promise<void> {
     : null;
     const status = await createInitialStatus({
       chainId: config.chainId,
-      cbdpRpcUrl: config.cbdpRpcUrl,
+      fixtureRpcUrl: !isLoopbackRpcUrl(config.cbdpRpcUrl)
+        ? config.cbdpRpcUrl
+        : (
+            (forkRuntime.forkedFrom && !isLoopbackRpcUrl(forkRuntime.forkedFrom) ? forkRuntime.forkedFrom : null)
+            ?? (!isLoopbackRpcUrl(runtimeConfig.rpcResolution.effectiveRpcUrl) ? runtimeConfig.rpcResolution.effectiveRpcUrl : null)
+            ?? (!isLoopbackRpcUrl(config.alchemyRpcUrl) ? config.alchemyRpcUrl : null)
+            ?? config.cbdpRpcUrl
+          ),
       runtimeRpcUrl: forkRuntime.rpcUrl,
       forkedFrom: forkRuntime.forkedFrom ?? null,
       diamondAddress: config.diamondAddress,

@@ -97,6 +97,22 @@ function parseRpcListener(rpcUrl: string): { host: string; port: number } {
   };
 }
 
+function selectFixtureRpcUrl(candidates: unknown[]): string | null {
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.length > 0 && !isLoopbackRpcUrl(candidate)) {
+      return candidate;
+    }
+  }
+
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.length > 0) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
 async function readFixtureRpcUrl(fixturePath: string): Promise<string | null> {
   if (!existsSync(fixturePath)) {
     return null;
@@ -104,11 +120,13 @@ async function readFixtureRpcUrl(fixturePath: string): Promise<string | null> {
 
   try {
     const parsed = JSON.parse(await readFile(fixturePath, "utf8")) as {
-      network?: { rpcUrl?: unknown };
+      network?: { rpcUrl?: unknown; upstreamRpcUrl?: unknown; forkedFrom?: unknown };
     };
-    return typeof parsed.network?.rpcUrl === "string" && parsed.network.rpcUrl.length > 0
-      ? parsed.network.rpcUrl
-      : null;
+    return selectFixtureRpcUrl([
+      parsed.network?.rpcUrl,
+      parsed.network?.upstreamRpcUrl,
+      parsed.network?.forkedFrom,
+    ]);
   } catch {
     return null;
   }

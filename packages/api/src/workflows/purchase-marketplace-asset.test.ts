@@ -488,6 +488,50 @@ describe("runPurchaseMarketplaceAssetWorkflow", () => {
     });
   });
 
+  it("surfaces expired listings as an explicit setup-state block", async () => {
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getListing: vi.fn().mockResolvedValue({ statusCode: 200, body: { tokenId: "11", seller: "0x00000000000000000000000000000000000000aa", price: "25000000", isActive: true } }),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getAssetRevenue: vi.fn().mockResolvedValue({ statusCode: 200, body: { grossRevenue: "0" } }),
+      getRevenueMetrics: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalVolume: "100" } }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "10" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "20" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "30" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "40" }),
+      purchaseAsset: vi.fn().mockRejectedValue({
+        message: "execution reverted",
+        diagnostics: {
+          simulation: {
+            topLevelCall: {
+              error: "execution reverted: ListingExpired(11, 1776286314) 0xf0e175b5",
+            },
+          },
+        },
+      }),
+    });
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x0000000000000000000000000000000000000ddd" }),
+    });
+
+    await expect(runPurchaseMarketplaceAssetWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth as never, "0x00000000000000000000000000000000000000bb", {
+      tokenId: "11",
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: "purchase-marketplace-asset blocked by setup/state: listing for token 11 has expired",
+    });
+  });
+
   it("surfaces insufficient allowance and funding reverts as external preconditions", async () => {
     const buildMarketplace = (error: unknown) => ({
       getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),

@@ -148,4 +148,26 @@ describe("verify marketplace purchase live target selection", () => {
       ),
     ).resolves.toBe(50_000_000_000_000n);
   });
+
+  it("falls back to the static minimum when purchase gas estimation reverts", async () => {
+    const provider = {
+      getFeeData: async () => ({ gasPrice: 2_000_000_000n, maxFeePerGas: null }),
+    };
+    const marketplace = {
+      purchaseAsset: {
+        estimateGas: async () => {
+          throw new Error("execution reverted");
+        },
+      },
+    };
+
+    await expect(
+      estimateBuyerNativeMinimum(
+        provider as never,
+        marketplace as never,
+        "0xbuyer",
+        "11",
+      ),
+    ).resolves.toBe(50_000_000_000_000n);
+  });
 });
