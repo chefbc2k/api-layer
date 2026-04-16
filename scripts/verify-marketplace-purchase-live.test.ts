@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildBlockedFundingOutput, selectMarketplacePurchaseTarget } from "./verify-marketplace-purchase-live.js";
+import { buildBlockedFundingOutput, estimateBuyerNativeMinimum, selectMarketplacePurchaseTarget } from "./verify-marketplace-purchase-live.js";
 
 describe("verify marketplace purchase live target selection", () => {
   it("uses the aged fixture only when setup marked it purchase-ready", () => {
@@ -87,5 +87,65 @@ describe("verify marketplace purchase live target selection", () => {
         recipient: "0xbuyer",
       },
     });
+  });
+
+  it("sizes the buyer gas floor from the estimated purchase cost", async () => {
+    const provider = {
+      getFeeData: async () => ({ gasPrice: 2_000_000_000n, maxFeePerGas: null }),
+    };
+    const marketplace = {
+      purchaseAsset: {
+        estimateGas: async () => 80_000n,
+      },
+    };
+
+    await expect(
+      estimateBuyerNativeMinimum(
+        provider as never,
+        marketplace as never,
+        "0xbuyer",
+        "11",
+      ),
+    ).resolves.toBe(192_000_000_000_000n);
+  });
+
+  it("falls back to the static minimum when fee data does not expose a usable gas price", async () => {
+    const provider = {
+      getFeeData: async () => ({ gasPrice: null, maxFeePerGas: 0n }),
+    };
+    const marketplace = {
+      purchaseAsset: {
+        estimateGas: async () => 80_000n,
+      },
+    };
+
+    await expect(
+      estimateBuyerNativeMinimum(
+        provider as never,
+        marketplace as never,
+        "0xbuyer",
+        "11",
+      ),
+    ).resolves.toBe(50_000_000_000_000n);
+  });
+
+  it("keeps the static minimum when the estimated purchase cost is smaller", async () => {
+    const provider = {
+      getFeeData: async () => ({ gasPrice: 1n, maxFeePerGas: null }),
+    };
+    const marketplace = {
+      purchaseAsset: {
+        estimateGas: async () => 21_000n,
+      },
+    };
+
+    await expect(
+      estimateBuyerNativeMinimum(
+        provider as never,
+        marketplace as never,
+        "0xbuyer",
+        "11",
+      ),
+    ).resolves.toBe(50_000_000_000_000n);
   });
 });

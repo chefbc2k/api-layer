@@ -50,6 +50,10 @@ type FundingCheckResult =
       recipient: string;
     };
 
+const MIN_BUYER_NATIVE_BALANCE = ethers.parseEther("0.00005");
+const BUYER_GAS_BUFFER_NUMERATOR = 12n;
+const BUYER_GAS_BUFFER_DENOMINATOR = 10n;
+
 function getOutputPath() {
   const index = process.argv.indexOf("--output");
   if (index >= 0) {
@@ -181,6 +185,27 @@ async function ensureNativeBalance(
     fundingWallet: fundingWallets[0]?.address ?? fundingWallets.at(-1)?.address ?? recipient,
     recipient,
   } as const;
+}
+
+export async function estimateBuyerNativeMinimum(
+  provider: JsonRpcProvider,
+  marketplace: Contract,
+  buyerAddress: string,
+  tokenId: string,
+): Promise<bigint> {
+  const [feeData, estimatedGas] = await Promise.all([
+    provider.getFeeData(),
+    marketplace.purchaseAsset.estimateGas(BigInt(tokenId), { from: buyerAddress }),
+  ]);
+
+  const gasPrice = feeData.maxFeePerGas ?? feeData.gasPrice ?? 0n;
+  if (gasPrice <= 0n) {
+    return MIN_BUYER_NATIVE_BALANCE;
+  }
+
+  const estimatedCost = estimatedGas * gasPrice;
+  const bufferedCost = (estimatedCost * BUYER_GAS_BUFFER_NUMERATOR) / BUYER_GAS_BUFFER_DENOMINATOR;
+  return bufferedCost > MIN_BUYER_NATIVE_BALANCE ? bufferedCost : MIN_BUYER_NATIVE_BALANCE;
 }
 
 async function startServer(): Promise<{ server: ReturnType<ApiServer["listen"]>; port: number }> {
@@ -391,6 +416,7 @@ async function main() {
   });
 
   const voiceAsset = new Contract(config.diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider);
+  const marketplace = new Contract(config.diamondAddress, facetRegistry.MarketplaceFacet.abi, provider);
   const payment = new Contract(config.diamondAddress, facetRegistry.PaymentFacet.abi, provider);
   const usdcAddress = await payment.getUsdcToken();
   if (!usdcAddress || usdcAddress === ZeroAddress) {
@@ -428,12 +454,18 @@ async function main() {
       target = await createFallbackListing(port, provider, founder.address, voiceAsset);
       listingBefore = { status: 200, payload: target.listing };
     }
+    const requiredBuyerNativeBalance = await estimateBuyerNativeMinimum(
+      provider,
+      marketplace,
+      buyer.address,
+      target.tokenId,
+    );
     const buyerFunding = await ensureNativeBalance(
       provider,
       forkRuntime.rpcUrl,
       fundingCandidates,
       buyer.address,
-      ethers.parseEther("0.00005"),
+      requiredBuyerNativeBalance,
     );
     if (!buyerFunding.ok) {
       const output = buildBlockedFundingOutput({
