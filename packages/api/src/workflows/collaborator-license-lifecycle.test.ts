@@ -288,6 +288,79 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     expect(result.summary.revoked).toBe(true);
   });
 
+  it("keeps transfer and revoke event counts at zero when receipts are unavailable", async () => {
+    const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
+    service.licenseTransferredEventQuery.mockClear();
+    service.licenseRevokedEventQuery.mockClear();
+    service.getLicense
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: { licensee: "0x00000000000000000000000000000000000000cc", templateHash: `0x${"0".repeat(63)}5` },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: { licensee: "0x00000000000000000000000000000000000000dd", templateHash: `0x${"0".repeat(63)}5` },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 500,
+        body: { error: "revoked" },
+      });
+
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xcollab")
+      .mockResolvedValueOnce("0xissue-template")
+      .mockResolvedValueOnce("0xusage")
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const result = await runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+      voiceAsset: { voiceHash },
+      collaborators: [
+        {
+          account: "0x00000000000000000000000000000000000000bb",
+          collaboratorShare: {
+            mode: "add",
+            share: "2500",
+          },
+        },
+      ],
+      templateLifecycle: {
+        create: {},
+      },
+      issue: {
+        mode: "template",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        duration: "86400",
+      },
+      licenseeActor: {
+        apiKey: "licensee-key",
+      },
+      usage: {
+        usageRef: `0x${"2".repeat(64)}`,
+      },
+      transfer: {
+        to: "0x00000000000000000000000000000000000000dd",
+      },
+      revoke: {
+        reason: "operator recovery",
+      },
+    });
+
+    expect(result.license.transfer).toMatchObject({
+      txHash: null,
+      eventCount: 0,
+      to: "0x00000000000000000000000000000000000000dd",
+    });
+    expect(result.license.revoke).toMatchObject({
+      txHash: null,
+      eventCount: 0,
+      reason: "operator recovery",
+    });
+    expect(service.licenseTransferredEventQuery).not.toHaveBeenCalled();
+    expect(service.licenseRevokedEventQuery).not.toHaveBeenCalled();
+  });
+
   it("propagates collaborator authorization failure", async () => {
     mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
       roleGrant: {

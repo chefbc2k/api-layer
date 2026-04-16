@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { HttpError } from "../shared/errors.js";
+
 const mocks = vi.hoisted(() => ({
   createTokenomicsPrimitiveService: vi.fn(),
   waitForWorkflowWriteReceipt: vi.fn(),
@@ -50,6 +52,25 @@ describe("vesting admin policy workflows", () => {
         hasTwaveMinimumReadback: true,
         hasTwaveQuarterlyRateReadback: true,
       },
+    });
+  });
+
+  it("marks unreadable timewave controls as unavailable in the inspection summary", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getMinTwaveVestingDuration: vi.fn().mockResolvedValue({ statusCode: 503, body: null }),
+      getQuarterlyUnlockRate: vi.fn().mockResolvedValue({ statusCode: 404, body: null }),
+    });
+
+    const result = await runInspectVestingAdminPolicyWorkflow({} as never, auth, undefined, {});
+
+    expect(result.summary).toEqual({
+      hasStandardMinimumReadback: false,
+      hasTwaveMinimumReadback: false,
+      hasTwaveQuarterlyRateReadback: false,
+    });
+    expect(result.timewave).toEqual({
+      minimumDuration: null,
+      quarterlyUnlockRate: null,
     });
   });
 
@@ -182,5 +203,77 @@ describe("vesting admin policy workflows", () => {
       statusCode: 409,
       message: expect.stringContaining("insufficient admin authority"),
     });
+  });
+
+  it("normalizes invalid parameter range failures for each admin control", async () => {
+    const diagnostics = { code: "bad-range" };
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getMinTwaveVestingDuration: vi.fn().mockResolvedValue({ statusCode: 200, body: "2592000" }),
+      getQuarterlyUnlockRate: vi.fn().mockResolvedValue({ statusCode: 200, body: "2500" }),
+      setMinimumVestingDuration: vi.fn().mockRejectedValue({
+        message: "execution reverted",
+        diagnostics: { nested: [{ data: "0x4ede0ebc" }] },
+      }),
+      setMinimumTwaveVestingDuration: vi.fn().mockRejectedValue({
+        message: "execution reverted",
+        diagnostics: { nested: [{ reason: "InvalidVestingDuration", diagnostics }] },
+      }),
+      setQuarterlyUnlockRate: vi.fn().mockRejectedValue({
+        message: "execution reverted",
+        diagnostics: { nested: [{ reason: "InvalidTokenAmount", diagnostics }] },
+      }),
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      standardMinimumDuration: "1",
+    })).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "update-vesting-admin-policy blocked by invalid parameter range for standard minimum duration",
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      twaveMinimumDuration: "1",
+    })).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "update-vesting-admin-policy blocked by invalid parameter range for Timewave minimum duration",
+      diagnostics: {
+        nested: [
+          {
+            reason: "InvalidVestingDuration",
+            diagnostics,
+          },
+        ],
+      },
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      twaveQuarterlyUnlockRate: "1",
+    })).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "update-vesting-admin-policy blocked by invalid parameter range for Timewave quarterly unlock rate",
+      diagnostics: {
+        nested: [
+          {
+            reason: "InvalidTokenAmount",
+            diagnostics,
+          },
+        ],
+      },
+    });
+  });
+
+  it("passes through unrecognized update failures without rewriting them", async () => {
+    const error = new Error("rpc unavailable");
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getMinTwaveVestingDuration: vi.fn().mockResolvedValue({ statusCode: 200, body: "2592000" }),
+      getQuarterlyUnlockRate: vi.fn().mockResolvedValue({ statusCode: 200, body: "2500" }),
+      setMinimumVestingDuration: vi.fn().mockRejectedValue(error),
+      setMinimumTwaveVestingDuration: vi.fn(),
+      setQuarterlyUnlockRate: vi.fn(),
+    });
+
+    await expect(runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      standardMinimumDuration: "86400",
+    })).rejects.toBe(error);
   });
 });
