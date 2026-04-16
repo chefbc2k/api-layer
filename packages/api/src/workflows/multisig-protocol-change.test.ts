@@ -240,6 +240,37 @@ describe("multisig protocol change workflows", () => {
     });
   });
 
+  it("normalizes approval failures into structured http errors", async () => {
+    mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({
+      approveOperation: vi.fn().mockRejectedValue(new Error("Operation not found")),
+    }));
+
+    await expect(
+      runApproveMultisigProtocolChangeWorkflow(context, auth, undefined, {
+        operationId: OPERATION_ID,
+      }),
+    ).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+    });
+  });
+
+  it("normalizes execution failures into structured http errors", async () => {
+    mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({
+      getOperationStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: [true, ""] }),
+      hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      executeOperation: vi.fn().mockRejectedValue(new Error("Operation not found")),
+    }));
+
+    await expect(
+      runExecuteMultisigProtocolChangeWorkflow(context, auth, undefined, {
+        operationId: OPERATION_ID,
+      }),
+    ).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+    });
+  });
+
   it("fails clearly when propose cannot derive an operation id", async () => {
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
     mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({
@@ -304,6 +335,24 @@ describe("multisig protocol change workflows", () => {
     ).rejects.toMatchObject<HttpError>({
       statusCode: 400,
     });
+  });
+
+  it("keeps raw calldata actions out of consequence summaries", async () => {
+    const result = await runApproveMultisigProtocolChangeWorkflow(context, auth, undefined, {
+      operationId: OPERATION_ID,
+      actions: [{
+        kind: "raw-calldata",
+        data: "0x1234",
+        label: "noop",
+      }],
+    });
+
+    expect(result.operation.actions).toEqual([{
+      kind: "raw-calldata",
+      data: "0x1234",
+      label: "noop",
+    }]);
+    expect(result.summary.consequenceKinds).toEqual([]);
   });
 
   it("exposes helper encoders and consequence target derivation", () => {

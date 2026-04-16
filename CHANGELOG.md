@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.76] - 2026-04-16
+
+### Fixed
+- **Multisig Protocol Change Fallback Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts) to cover approval failure normalization, execution failure normalization, and the `raw-calldata` summary path in [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts). The targeted workflow file now measures `98.94%` statements, `83.6%` branches, `100%` functions, and `98.93%` lines in isolated coverage, leaving only the null-`txHash` helper branch at line `473` uncovered.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change.test.ts --maxWorkers 1` plus an isolated Istanbul run for the same file; all `11` targeted assertions pass and the approval/execution error paths now normalize into structured HTTP failures under test.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `121` passing files, `699` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `699` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `95.30%` to `95.37%` statements, `85.01%` to `85.13%` branches, `97.93%` to `98.09%` functions, and `95.24%` to `95.31%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.75] - 2026-04-16
 
 ### Fixed
