@@ -227,4 +227,164 @@ describe("vote on proposal workflow", () => {
       reason: "inactive",
     })).rejects.toThrow("proposal 58 is not Active");
   });
+
+  it("requires signer-backed auth when no wallet address is supplied", async () => {
+    const previousSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
+    delete process.env.API_LAYER_SIGNER_MAP_JSON;
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 44 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn(),
+      proposalDeadline: vi.fn(),
+      prState: vi.fn(),
+      prCastVote: vi.fn(),
+      getReceipt: vi.fn(),
+      voteCastEventQuery: vi.fn(),
+    });
+
+    await expect(runVoteOnProposalWorkflow(context, auth, undefined, {
+      proposalId: "59",
+      support: "1",
+      reason: "missing signer",
+    })).rejects.toThrow("vote-on-proposal requires signer-backed auth");
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
+  });
+
+  it("skips vote-cast event reads when the vote write never yields a confirmed tx hash", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 62 })),
+        })),
+      },
+    } as never;
+    const governance = {
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xvote-write" },
+      }),
+      getReceipt: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { hasVoted: true, support: "1", reason: "no tx hash", votes: "4" },
+      }),
+      voteCastEventQuery: vi.fn(),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValue(governance);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "60",
+      support: "1",
+      reason: "no tx hash",
+    });
+
+    expect(result.vote.txHash).toBeNull();
+    expect(result.vote.eventCount).toBe(0);
+    expect(governance.voteCastEventQuery).not.toHaveBeenCalled();
+  });
+
+  it("returns zero vote events when the receipt lookup is unavailable", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => label === "workflow.voteOnProposal.voteReceipt" ? null : { blockNumber: 63 }),
+        })),
+      },
+    } as never;
+    const governance = {
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xvote-write" },
+      }),
+      getReceipt: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { hasVoted: true, support: "1", reason: "missing receipt", votes: "4" },
+      }),
+      voteCastEventQuery: vi.fn(),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValue(governance);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xvote-receipt");
+
+    const result = await runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "61",
+      support: "1",
+      reason: "missing receipt",
+    });
+
+    expect(result.vote.eventCount).toBe(0);
+    expect(governance.voteCastEventQuery).not.toHaveBeenCalled();
+  });
+
+  it("surfaces vote receipt confirmation timeouts with the last observed body", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 64 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValue({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xvote-write" },
+      }),
+      getReceipt: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { hasVoted: false, support: "1" },
+      }),
+      voteCastEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    await expect(runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "62",
+      support: "1",
+      reason: "timeout",
+    })).rejects.toThrow('voteOnProposal.voteReceipt.62 readback timeout: {"hasVoted":false,"support":"1"}');
+
+    setTimeoutSpy.mockRestore();
+  });
 });

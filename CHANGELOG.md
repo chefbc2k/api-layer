@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.74] - 2026-04-16
+
+### Fixed
+- **Governance Proposal Workflow Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.test.ts) to cover invalid receipt parsing, receiptless proposal submissions, proposal-window retry exhaustion, and proposal-created event-query timeout formatting. [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts) now measures `94.11%` statements, `89.79%` branches, `100%` functions, and `93.75%` lines in isolated coverage.
+- **Governance Vote Workflow Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.test.ts) to cover signer-backed auth enforcement, receiptless vote submissions, missing receipt lookups, and vote-receipt readback timeout formatting. [`/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts) now measures `93.82%` statements, `78.72%` branches, `100%` functions, and `93.24%` lines in isolated coverage.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/submit-proposal.test.ts packages/api/src/workflows/vote-on-proposal.test.ts --maxWorkers 1` plus isolated Istanbul runs for each file; all `16` targeted assertions pass and both governance workflow files improved materially on their previously uncovered fallback paths.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `692` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `94.91%` to `95.12%` statements, `84.22%` to `84.56%` branches, `97.93%` functions unchanged, and `94.83%` to `95.05%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide coverage remains below the automation target. The next highest-yield remaining workflow gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-admin-policy.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-admin-policy.ts), and [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.73] - 2026-04-16
 
 ### Fixed

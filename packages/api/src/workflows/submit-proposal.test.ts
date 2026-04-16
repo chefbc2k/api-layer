@@ -59,6 +59,13 @@ describe("submit proposal workflow", () => {
     expect(extractResult({ result: "456" })).toBe("456");
   });
 
+  it("returns null for invalid receipt logs and non-string payload results", () => {
+    expect(extractProposalIdFromReceipt(null)).toBeNull();
+    expect(extractProposalIdFromReceipt({ logs: [{ topics: ["0xdeadbeef"], data: "0x" }] })).toBeNull();
+    expect(extractResult(null)).toBeNull();
+    expect(extractResult({ result: 123 })).toBeNull();
+  });
+
   it("submits the modern proposal path, reads the proposal window, and returns a structured result", async () => {
     const iface = new Interface(facetRegistry.ProposalFacet.abi);
     const event = iface.encodeEventLog(
@@ -245,5 +252,142 @@ describe("submit proposal workflow", () => {
       calldatas: ["0x1234"],
       proposalType: "0",
     })).rejects.toThrow("proposal id could not be derived from workflow response or receipt");
+  });
+
+  it("skips receipt/event reads when the proposal write does not yield a confirmed transaction hash", async () => {
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: {
+        getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        getBlockNumber: () => Promise<number>;
+        getBlock: (tag: string) => Promise<unknown>;
+      }) => Promise<unknown>) => work({
+        getTransactionReceipt: vi.fn(async () => ({ blockNumber: 51, logs: [] })),
+        getBlockNumber: vi.fn(async () => 150),
+        getBlock: vi.fn(async () => null),
+      })),
+    };
+    const context = { providerRouter } as never;
+    const governance = {
+      proposeAddressArrayUint256ArrayBytesArrayStringUint8: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "901" },
+      }),
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: { pending: true } }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      proposalCreatedEventQuery: vi.fn(),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValue(governance);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runSubmitProposalWorkflow(context, auth, undefined, {
+      description: "receiptless proposal",
+      targets: ["0x00000000000000000000000000000000000000bb"],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      proposalType: "2",
+    });
+
+    expect(result.proposal.txHash).toBeNull();
+    expect(result.proposal.eventCount).toBe(0);
+    expect(result.votingWindow.earliestVotingBlock).toEqual({ pending: true });
+    expect(result.votingWindow.latestBlockTimestamp).toBe("0");
+    expect(result.votingWindow.estimatedVotingStartTimestamp).toBeNull();
+    expect(governance.proposalCreatedEventQuery).not.toHaveBeenCalled();
+    expect(providerRouter.withProvider).not.toHaveBeenCalledWith(
+      "read",
+      "workflow.submitProposal.proposalReceipt",
+      expect.any(Function),
+    );
+  });
+
+  it("surfaces proposal-window lookup failures after exhausting retries", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          getBlockNumber: () => Promise<number>;
+          getBlock: (tag: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 61, logs: [] })),
+          getBlockNumber: vi.fn(async () => 100),
+          getBlock: vi.fn(async () => ({ timestamp: 1_000 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposeAddressArrayUint256ArrayBytesArrayStringUint8: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "902" },
+      }),
+      proposalSnapshot: vi.fn().mockRejectedValue(new Error("snapshot offline")),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      proposalCreatedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    await expect(runSubmitProposalWorkflow(context, auth, undefined, {
+      description: "lookup failure",
+      targets: ["0x00000000000000000000000000000000000000bb"],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      proposalType: "0",
+    })).rejects.toThrow("proposal 902 window lookup failed: snapshot offline");
+
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("surfaces proposal-created event query timeouts with the last observed logs", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          getBlockNumber: () => Promise<number>;
+          getBlock: (tag: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 71, logs: [] })),
+          getBlockNumber: vi.fn(async () => 100),
+          getBlock: vi.fn(async () => ({ timestamp: 1_000 })),
+        })),
+      },
+    } as never;
+    const governance = {
+      proposeAddressArrayUint256ArrayBytesArrayStringUint8: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "903" },
+      }),
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      proposalCreatedEventQuery: vi.fn()
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ statusCode: 200, body: { transactionHash: "0xother" } })
+        .mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xother" }] }),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValue(governance);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xproposal-receipt");
+
+    await expect(runSubmitProposalWorkflow(context, auth, undefined, {
+      description: "event timeout",
+      targets: ["0x00000000000000000000000000000000000000bb"],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      proposalType: "0",
+    })).rejects.toThrow('submitProposal.proposalCreated event query timeout: [{"transactionHash":"0xother"}]');
+
+    setTimeoutSpy.mockRestore();
   });
 });
