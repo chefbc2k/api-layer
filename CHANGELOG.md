@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.97] - 2026-04-17
+
+### Fixed
+- **Multisig Approval No-Receipt Branch Covered:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts) with an approval-path proof where the write receipt never resolves, locking the `txHash: null` event-count fallback in [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) without changing workflow behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, and fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change.test.ts packages/api/src/workflows/recover-from-emergency.test.ts --maxWorkers 1`; all `29` targeted assertions pass.
+- **Focused Branch Delta:** Re-ran isolated V8 coverage for [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts); the file improved from `88.75%` to `92.68%` branch coverage while holding `100%` statements / functions / lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `123` passing files, `762` passing tests, and `18` intentionally skipped live contract proofs under default mode.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `762` passing tests, and `18` skipped live contract proofs. Repo-wide coverage improved from `97.59%` to `97.59%` statements, `89.98%` to `90.05%` branches, `98.84%` functions unchanged, and `97.59%` lines unchanged. [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) now measures `100%` statements, `90.16%` branches, `100%` functions, and `100%` lines in the Istanbul sweep.
+- **Live Integration Proof:** Re-ran `pnpm run test:contract:api:base-sepolia`; the explicit Base Sepolia live suite completed `18/18` passing in `161.46s`, including the remaining lifecycle bundle in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts).
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.96] - 2026-04-17
 
 ### Fixed

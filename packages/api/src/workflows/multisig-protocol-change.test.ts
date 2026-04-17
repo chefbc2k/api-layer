@@ -324,6 +324,28 @@ describe("multisig protocol change workflows", () => {
     });
   });
 
+  it("returns zeroed approval event counts when no receipt is available", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+    mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({
+      getOperationStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: [true, ""] }),
+      hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      approveOperation: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: null } }),
+    }));
+
+    const result = await runApproveMultisigProtocolChangeWorkflow(context, auth, undefined, {
+      operationId: OPERATION_ID,
+      actions: [],
+    });
+
+    expect(result.approval.txHash).toBeNull();
+    expect(result.approval.eventCount).toEqual({
+      operationApproved: 0,
+      operationStatusChanged: 0,
+    });
+    expect(result.operation.after.statusLabel).toBe("ReadyForExecution");
+  });
+
   it("rejects unknown actor overrides before write execution", async () => {
     await expect(
       runApproveMultisigProtocolChangeWorkflow(context, auth, undefined, {
