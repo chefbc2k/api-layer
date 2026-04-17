@@ -4,6 +4,18 @@
 
 ---
 
+## [0.1.98] - 2026-04-17
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `762` passing tests, and repo-wide Istanbul coverage of `97.59%` statements, `90.05%` branches, `98.84%` functions, and `97.59%` lines, with the default-mode live contract suite still intentionally skipped during coverage collection.
+- **Full Live HTTP Contract Proof:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1`; all `18/18` real Base Sepolia-backed HTTP contract proofs passed in `156.89s`, including the lifecycle-heavy domains for datasets, marketplace, governance, tokenomics, whisperblock, licensing, transfer-rights, onboard-rights-holder, register-whisper-block, commercialization ownership rejection, and the remaining workflow bundle in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts).
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage are complete, but the automation target for line/branch/function/statement coverage is still unmet. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+- **Setup Fixture Loop Still Needs Diagnosis:** `pnpm run setup:base-sepolia` did not converge during this run and repeatedly polled `VoiceAssetFacet.isApprovedForAll` plus `MarketplaceFacet.getListing` without returning a refreshed fixture artifact, so the live suite proof is authoritative for behavior but the setup script still has an unresolved marketplace-readiness loop.
+
 ## [0.1.97] - 2026-04-17
 
 ### Fixed
