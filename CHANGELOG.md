@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.83] - 2026-04-17
+
+### Fixed
+- **Emergency Recovery Null-Path Coverage Expanded:** Added [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.null-path.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.null-path.test.ts) to prove the completion readback fallback path in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) when the mounted incident/recovery payload is structurally empty, including the summary’s null recovery-phase handling before and after the workflow.
+- **ABI Codec Decode/Validation Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) to cover direct tuple-array decoding and invalid multi-output serialization item validation in [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) without changing runtime behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+
+### Remaining Issues
+- **Live Setup Probe Still Needs Triage:** This run did not produce a stable `pnpm run setup:base-sepolia` completion artifact; the process remained in repeated marketplace approval/listing reads against the live Base Sepolia fixture path and needs a dedicated pass to classify whether the block is fixture-state churn or a setup-script polling gap.
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and lower-coverage helper modules such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts).
+
 ## [0.1.82] - 2026-04-16
 
 ### Fixed

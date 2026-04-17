@@ -327,4 +327,26 @@ describe("abi-codec", () => {
       "invalid response for pair(uint256,address): expected array",
     );
   });
+
+  it("decodes tuple arrays directly from wire payloads", () => {
+    expect(decodeFromWire({
+      type: "tuple",
+      components: [
+        { name: "count", type: "uint256" },
+        { name: "enabled", type: "bool" },
+      ],
+    } as never, ["7", false])).toEqual([7n, false]);
+  });
+
+  it("rejects invalid items in multi-output result serialization", () => {
+    expect(() => serializeResultToWire({
+      signature: "pair(uint256,address)",
+      outputs: [
+        { type: "uint256" },
+        { type: "address" },
+      ],
+    } as never, [8n, "nope"])).toThrow(
+      "invalid result item 1 for pair(uint256,address): invalid address",
+    );
+  });
 });
