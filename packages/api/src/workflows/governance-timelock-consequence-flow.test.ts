@@ -854,6 +854,21 @@ describe("governance timelock consequence helpers", () => {
       executed: true,
       operation: {},
     }).phase).toBe("queued-operation-already-executed");
+    expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("5", "240", "300", {
+      timestamp: "500",
+      pending: true,
+      ready: false,
+      executed: false,
+      operation: {},
+    })).toMatchObject({
+      phase: "queued-waiting-for-timelock",
+      nextGovernanceStep: "wait-for-timelock-delay",
+      readinessBasis: "timelock-operation-derived",
+    });
+    expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("4", "not-a-block", null, null)).toMatchObject({
+      phase: "succeeded-awaiting-queue",
+      votingClosed: null,
+    });
   });
 
   it("normalizes queue and execute errors into explicit state blocks", () => {
@@ -884,6 +899,14 @@ describe("governance timelock consequence helpers", () => {
       "77",
       "0x1111111111111111111111111111111111111111111111111111111111111111",
     )).toBeInstanceOf(HttpError);
+    expect(governanceTimelockConsequenceTestUtils.normalizeExecuteExecutionError(
+      new Error("InvalidTimelockExecution"),
+      "77",
+      null,
+    )).toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "governance-timelock-consequence-flow execute blocked by timelock: operation unknown is not ready",
+    });
     expect(governanceTimelockConsequenceTestUtils.normalizeExecuteExecutionError(
       new Error("ProposalAlreadyExecuted"),
       "77",

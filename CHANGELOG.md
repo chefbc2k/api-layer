@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.100] - 2026-04-17
+
+### Fixed
+- **Reward Campaign Null-Receipt Coverage Completed:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts) to prove the schema guard plus both merkle-root and pause write paths when `waitForWorkflowWriteReceipt` never resolves, covering the `eventCount: 0` fallbacks without changing workflow behavior.
+- **Governance Timelock Helper Edge Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts) to cover the queued-pending timelock readiness branch, null/invalid block parsing in readiness derivation, and the execute-not-ready normalization path when the operation id is unavailable.
+- **ABI Codec Scalar/Numeric-Key Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) with direct bool/string/bytes round-trips and unnamed tuple numeric-key fallback coverage to close more codec helper branches without changing runtime encoding behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Regression Guard:** Re-ran `pnpm vitest run packages/api/src/workflows/manage-reward-campaign.test.ts --maxWorkers 1`, `pnpm vitest run packages/api/src/workflows/governance-timelock-consequence-flow.test.ts --maxWorkers 1`, and `pnpm vitest run packages/client/src/runtime/abi-codec.test.ts --maxWorkers 1`; all `37/37` targeted assertions pass after the new branch-coverage proofs.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `123` passing files, `767` passing tests, and `18` intentionally skipped live contract proofs under default mode.
+- **Coverage Sweep Improved:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `767` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `97.59%` statements, `90.34%` branches, `98.84%` functions, and `97.59%` lines. Handwritten hotspots improved with [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts) now at `100%` statements / `85.71%` branches / `100%` functions / `100%` lines, [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts) at `100%` statements / `88.82%` branches / `100%` functions / `100%` lines, and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) at `95.02%` statements / `85.88%` branches / `97.5%` functions / `95.29%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for branch/function/line/statement perfection is still unmet. The largest remaining branch gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and helper-heavy paths such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts).
+
 ## [0.1.99] - 2026-04-17
 
 ### Fixed

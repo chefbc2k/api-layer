@@ -349,4 +349,38 @@ describe("abi-codec", () => {
       "invalid result item 1 for pair(uint256,address): invalid address",
     );
   });
+
+  it("supports bool, string, and bytes payloads across direct encode and decode helpers", () => {
+    expect(serializeToWire({ type: "bool" } as never, true)).toBe(true);
+    expect(serializeToWire({ type: "string" } as never, "alpha")).toBe("alpha");
+    expect(serializeToWire({ type: "bytes" } as never, "0x1234")).toBe("0x1234");
+    expect(decodeFromWire({ type: "bool" } as never, false)).toBe(false);
+    expect(decodeFromWire({ type: "string" } as never, "beta")).toBe("beta");
+    expect(decodeFromWire({ type: "bytes32" } as never, "0x" + "11".repeat(32))).toBe("0x" + "11".repeat(32));
+  });
+
+  it("serializes and decodes unnamed tuple components through numeric fallback keys", () => {
+    const definition = {
+      signature: "unnamed((uint256,bool))",
+      inputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { type: "bool" },
+        ],
+      }],
+      outputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { type: "bool" },
+        ],
+      }],
+    };
+
+    const paramsWire = serializeParamsToWire(definition as never, [{ 0: 7n, 1: true }]);
+    expect(paramsWire).toEqual([{ 0: "7", 1: true }]);
+    expect(decodeParamsFromWire(definition as never, paramsWire)).toEqual([{ 0: 7n, 1: true }]);
+    expect(decodeResultFromWire(definition as never, { 0: "9", 1: false })).toEqual({ 0: 9n, 1: false });
+  });
 });
