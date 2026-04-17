@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.91] - 2026-04-17
+
+### Fixed
+- **Claim Reward Campaign Retry Branches Covered:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.test.ts) to prove that `runClaimRewardCampaignWorkflow` tolerates transient non-`200` claimed and campaign readbacks before confirming post-claim progress, closing the remaining retry predicate gaps without changing runtime workflow behavior.
+- **Legacy Migration Recovery Optional/Receiptless Paths Covered:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts) to prove normalization-only recovery with explicit ownership, collaborator onboarding without voice authorization, approver wallet fallback, and tx-hashless plan/migration writes that still preserve zero-event accounting and custody normalization.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, oracle signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** `pnpm run coverage:check` remains green at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/claim-reward-campaign.test.ts packages/api/src/workflows/legacy-migration-recovery.test.ts --maxWorkers 1`; all `22` targeted assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `748` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `97.11%` to `97.15%` statements, `88.53%` to `89.13%` branches, `98.67%` functions unchanged, and `97.09%` to `97.13%` lines. [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts) improved to `100%` statements / `98.21%` branches / `100%` functions / `100%` lines, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) improved to `100%` statements / `93.84%` branches / `100%` functions / `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The highest-yield remaining handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts).
+
 ## [0.1.89] - 2026-04-17
 
 ## [0.1.90] - 2026-04-17

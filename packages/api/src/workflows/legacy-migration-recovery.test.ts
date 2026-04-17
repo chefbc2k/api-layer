@@ -415,4 +415,287 @@ describe("runLegacyMigrationRecoveryWorkflow", () => {
       },
     })).rejects.toThrow("legacy-migration-recovery security summary voiceHash mismatch");
   });
+
+  it("supports normalization-only recovery with explicit owner and collaborator access without voice authorization", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          memo: "",
+          voiceAssets: [],
+          datasetIds: [],
+          beneficiaries: [],
+          conditions: {},
+          isActive: false,
+          isExecuted: false,
+        },
+      }),
+      isInheritanceReady: vi.fn(),
+      createLegacyPlan: vi.fn(),
+      addVoiceAssets: vi.fn(),
+      addDatasets: vi.fn(),
+      addInheritanceRequirement: vi.fn(),
+      validateBeneficiary: vi.fn(),
+      addBeneficiary: vi.fn(),
+      setBeneficiaryRelationship: vi.fn(),
+      setInheritanceConditions: vi.fn(),
+      initiateInheritance: vi.fn(),
+      approveInheritance: vi.fn(),
+      executeInheritance: vi.fn(),
+      delegateRights: vi.fn(),
+      getTokenId: vi.fn().mockResolvedValue({ statusCode: 200, body: 77n }),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          owner: "0x00000000000000000000000000000000000000aa",
+        },
+      }),
+      legacyPlanCreatedEventQuery: vi.fn(),
+      inheritanceConditionsUpdatedEventQuery: vi.fn(),
+      inheritanceApprovedEventQuery: vi.fn(),
+      inheritanceActivatedEventQuery: vi.fn(),
+      rightsDelegatedEventQuery: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValueOnce(service);
+
+    const result = await runLegacyMigrationRecoveryWorkflow(context, auth, undefined, {
+      legacy: {
+        owner: "0x00000000000000000000000000000000000000aa",
+      },
+      normalization: {
+        voiceHash,
+        accessSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000ee",
+            expiryTime: "3600",
+            authorizeVoice: false,
+          },
+        ],
+      },
+    });
+
+    expect(mocks.runOnboardRightsHolderWorkflow).toHaveBeenCalledWith(context, auth, undefined, {
+      role,
+      account: "0x00000000000000000000000000000000000000ee",
+      expiryTime: "3600",
+      voiceHashes: [],
+    });
+    expect(mocks.runRegisterWhisperBlockWorkflow).not.toHaveBeenCalled();
+    expect(result.legacy.planLifecycle).toEqual({
+      createPlan: null,
+      voiceAssets: [],
+      datasets: null,
+      inheritanceRequirements: [],
+      beneficiaries: [],
+      conditions: null,
+      afterPlan: null,
+    });
+    expect(result.legacy.migration).toEqual({
+      initiation: null,
+      approvals: [],
+      readinessBeforeExecute: null,
+      execution: null,
+      delegation: null,
+      readinessAfter: null,
+    });
+    expect(result.normalization).toEqual({
+      voiceHash,
+      accessSetup: [
+        {
+          role,
+          account: "0x00000000000000000000000000000000000000ee",
+          authorizeVoice: false,
+          result: expect.objectContaining({
+            roleGrant: expect.objectContaining({ hasRole: true }),
+          }),
+        },
+      ],
+      security: null,
+      custody: expect.objectContaining({
+        tokenId: "77",
+        owner: "0x00000000000000000000000000000000000000aa",
+      }),
+    });
+    expect(result.summary).toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      normalizationVoiceHash: voiceHash,
+      beneficiaryCount: 0,
+      voiceAssetCountAdded: 0,
+      datasetCountAdded: 0,
+      inheritanceApprovalCount: 0,
+      inheritanceExecuted: false,
+      delegationApplied: false,
+      normalizationApplied: true,
+      custodyOwner: "0x00000000000000000000000000000000000000aa",
+    });
+  });
+
+  it("handles tx-hashless plan and migration writes while falling back approver wallet addresses", async () => {
+    const service = {
+      getLegacyPlan: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            memo: "",
+            voiceAssets: [],
+            datasetIds: [],
+            beneficiaries: [],
+            conditions: {},
+            isActive: false,
+            isExecuted: false,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            memo: "lightweight plan",
+            voiceAssets: [],
+            datasetIds: [],
+            beneficiaries: [{ account: "0x00000000000000000000000000000000000000bb" }],
+            conditions: {
+              requiresProof: false,
+              minApprovals: "1",
+            },
+            isActive: true,
+            isExecuted: false,
+          },
+        }),
+      isInheritanceReady: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { result: false } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { result: false } }),
+      createLegacyPlan: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      addVoiceAssets: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      addDatasets: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      addInheritanceRequirement: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      validateBeneficiary: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      addBeneficiary: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      setBeneficiaryRelationship: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      setInheritanceConditions: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      initiateInheritance: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      approveInheritance: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      executeInheritance: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      delegateRights: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      getTokenId: vi.fn().mockResolvedValue({ statusCode: 200, body: "77" }),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          owner: "0x00000000000000000000000000000000000000aa",
+        },
+      }),
+      legacyPlanCreatedEventQuery: vi.fn(),
+      inheritanceConditionsUpdatedEventQuery: vi.fn(),
+      inheritanceApprovedEventQuery: vi.fn(),
+      inheritanceActivatedEventQuery: vi.fn(),
+      rightsDelegatedEventQuery: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValueOnce(service);
+
+    const result = await runLegacyMigrationRecoveryWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      legacy: {
+        plan: {
+          memo: "lightweight plan",
+          beneficiaries: [
+            {
+              account: "0x00000000000000000000000000000000000000bb",
+              share: "10000",
+              canDelegate: false,
+            },
+          ],
+          conditions: {
+            timelock: "0",
+            requiresProof: false,
+            approvers: ["0x00000000000000000000000000000000000000cc"],
+            minApprovals: "1",
+          },
+        },
+        execution: {
+          voiceHash,
+          proofDocuments: ["proof-of-death.pdf"],
+          approverActors: [{ apiKey: "approver-key" }],
+          execute: true,
+          delegateRights: {
+            delegatee: "0x00000000000000000000000000000000000000ff",
+            duration: "3600",
+          },
+        },
+      },
+    });
+
+    expect(service.approveInheritance).toHaveBeenCalledWith(expect.objectContaining({
+      auth: approverAuth,
+      walletAddress: "0x00000000000000000000000000000000000000aa",
+      wireParams: [voiceHash],
+    }));
+    expect(result.legacy.planLifecycle.createPlan).toEqual({
+      submission: { accepted: true },
+      txHash: null,
+      eventCount: 0,
+    });
+    expect(result.legacy.planLifecycle.beneficiaries).toEqual([
+      {
+        account: "0x00000000000000000000000000000000000000bb",
+        add: {
+          submission: { accepted: true },
+          txHash: null,
+        },
+        relationship: null,
+      },
+    ]);
+    expect(result.legacy.planLifecycle.conditions).toEqual({
+      submission: { accepted: true },
+      txHash: null,
+      eventCount: 0,
+    });
+    expect(result.legacy.migration).toEqual({
+      initiation: {
+        submission: { accepted: true },
+        txHash: null,
+      },
+      approvals: [
+        {
+          actor: "0x00000000000000000000000000000000000000aa",
+          submission: { accepted: true },
+          txHash: null,
+          eventCount: 0,
+        },
+      ],
+      readinessBeforeExecute: { result: false },
+      execution: {
+        submission: { accepted: true },
+        txHash: null,
+        eventCount: 0,
+      },
+      delegation: {
+        submission: { accepted: true },
+        txHash: null,
+        eventCount: 0,
+        delegatee: "0x00000000000000000000000000000000000000ff",
+        duration: "3600",
+      },
+      readinessAfter: { result: false },
+    });
+    expect(result.normalization).toEqual({
+      voiceHash,
+      accessSetup: [],
+      security: null,
+      custody: {
+        tokenId: "77",
+        owner: "0x00000000000000000000000000000000000000aa",
+        voiceAsset: { owner: "0x00000000000000000000000000000000000000aa" },
+      },
+    });
+    expect(result.summary).toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      normalizationVoiceHash: voiceHash,
+      beneficiaryCount: 1,
+      voiceAssetCountAdded: 0,
+      datasetCountAdded: 0,
+      inheritanceApprovalCount: 1,
+      inheritanceExecuted: true,
+      delegationApplied: true,
+      normalizationApplied: false,
+      custodyOwner: "0x00000000000000000000000000000000000000aa",
+    });
+  });
 });

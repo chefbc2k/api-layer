@@ -270,6 +270,57 @@ describe("runClaimRewardCampaignWorkflow", () => {
     expect(claimedEventQuery).not.toHaveBeenCalled();
   });
 
+  it("retries through non-200 claimed and campaign readbacks before confirming progress", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "10", paused: false } })
+        .mockResolvedValueOnce({ statusCode: 503, body: { error: "lagging indexer" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "18", paused: false } }),
+      claimableAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "8" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      claimed: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" })
+        .mockResolvedValueOnce({ statusCode: 503, body: { error: "lagging indexer" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: "10" }),
+      claim: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xclaim-write", result: "8" } }),
+      claimedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xclaim-receipt", amount: "8" }]),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xclaim-receipt");
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt?: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 604 })),
+        })),
+      },
+    } as never;
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+
+    const result = await runClaimRewardCampaignWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      campaignId: "21",
+      totalAllocation: "8",
+      proof: ["0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"],
+    });
+
+    expect(result.claimed).toEqual({
+      before: "2",
+      after: "10",
+      claimedNow: "8",
+    });
+    expect(result.campaign).toEqual({
+      before: { totalClaimed: "10", paused: false },
+      after: { totalClaimed: "18", paused: false },
+    });
+    setTimeoutSpy.mockRestore();
+  });
+
   it.each([
     [
       "campaign not found",
