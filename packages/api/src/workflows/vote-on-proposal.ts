@@ -235,5 +235,7 @@ function normalizeEventLogs(value: unknown): unknown[] {
 }
 
 export const voteOnProposalTestUtils = {
+  asRecord,
   normalizeEventLogs,
+  requestSignerPrivateKey,
 };

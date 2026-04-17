@@ -309,6 +309,42 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     expect(result.timelock.inspection?.source).toBe("queue-event");
   });
 
+  it("accepts direct-array scheduled event reads when deriving the timelock operation id", async () => {
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce({
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { timestamp: "500", executed: false, canceled: false } }),
+      getTimestamp: vi.fn().mockResolvedValue({ statusCode: 200, body: "500" }),
+      isOperationPending: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      isOperationReady: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationExecuted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      prQueue: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xqueue-write" } }),
+      prExecute: vi.fn(),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      proposalQueuedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", proposalId: "77" }] }),
+      operationStoredEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", note: "missing id" }] }),
+      operationScheduledEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xqueue-write", operationId: "0x3333333333333333333333333333333333333333333333333333333333333333" }]),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    });
+
+    const result = await runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "queue from direct array",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        queue: {
+          apiKey: "queue-key",
+        },
+      },
+    });
+
+    expect(result.timelock.queue?.operationId).toBe("0x3333333333333333333333333333333333333333333333333333333333333333");
+  });
+
   it("queues and executes a proposal when the timelock becomes ready", async () => {
     mocks.waitForWorkflowWriteReceipt
       .mockResolvedValueOnce("0xqueue-write")
@@ -455,6 +491,43 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
         },
       },
     })).rejects.toThrow("queue blocked by state");
+  });
+
+  it("normalizes queue write failures through the workflow catch path", async () => {
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce({
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { timestamp: "500", executed: false, canceled: false } }),
+      getTimestamp: vi.fn().mockResolvedValue({ statusCode: 200, body: "500" }),
+      isOperationPending: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationReady: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationExecuted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      prQueue: vi.fn().mockRejectedValue(new Error("UnauthorizedGovernanceAction")),
+      prExecute: vi.fn(),
+      prState: vi.fn(),
+      proposalQueuedEventQuery: vi.fn(),
+      operationStoredEventQuery: vi.fn(),
+      operationScheduledEventQuery: vi.fn(),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    });
+
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "queue unauthorized",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        queue: {
+          apiKey: "queue-key",
+        },
+      },
+    })).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "governance-timelock-consequence-flow queue blocked by insufficient authority",
+    });
   });
 
   it("blocks execute when the timelock is still pending", async () => {

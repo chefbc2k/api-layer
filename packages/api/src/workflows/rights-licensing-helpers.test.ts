@@ -96,6 +96,10 @@ describe("rights licensing helpers", () => {
     await expect(waitForWorkflowReadback(errorRead, () => false, "license.readback"))
       .rejects.toThrow("license.readback readback timeout: still broken");
 
+    const emptyRead = vi.fn().mockResolvedValue({ statusCode: 202, body: null });
+    await expect(waitForWorkflowReadback(emptyRead, () => false, "license.readback"))
+      .rejects.toThrow("license.readback readback timeout: null");
+
     expect(setTimeoutSpy).toHaveBeenCalled();
   });
 
@@ -138,7 +142,9 @@ describe("rights licensing helpers", () => {
     expect(hasTransactionHash([{ transactionHash: "0xabc" }], "0xdef")).toBe(false);
 
     expect(collaboratorReadMatches([true, 15n], true, "15")).toBe(true);
+    expect(collaboratorReadMatches([true], true, "15")).toBe(false);
     expect(collaboratorReadMatches({ isActive: false, share: "9" }, false, "9")).toBe(true);
+    expect(collaboratorReadMatches({ isActive: false }, false, "9")).toBe(false);
     expect(collaboratorReadMatches({ isActive: false, share: "9" }, true, "9")).toBe(false);
     expect(collaboratorReadMatches("invalid", true, "1")).toBe(false);
   });

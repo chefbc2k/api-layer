@@ -228,6 +228,34 @@ describe("vote on proposal workflow", () => {
     })).rejects.toThrow("proposal 58 is not Active");
   });
 
+  it("reports unknown earliest voting block when the snapshot payload is non-scalar", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 44 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: { unexpected: true } }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      prCastVote: vi.fn(),
+      getReceipt: vi.fn(),
+      voteCastEventQuery: vi.fn(),
+    });
+
+    await expect(runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "58",
+      support: "1",
+      reason: "inactive",
+    })).rejects.toThrow("earliestVotingBlock=unknown");
+  });
+
   it("requires signer-backed auth when no wallet address is supplied", async () => {
     const previousSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
     delete process.env.API_LAYER_SIGNER_MAP_JSON;
@@ -529,6 +557,35 @@ describe("vote on proposal workflow", () => {
       support: "1",
       reason: "missing signer map",
     })).rejects.toThrow("vote-on-proposal requires signer-backed auth");
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
+  });
+
+  it("requires a signer entry for signer-backed auth and exposes helper null paths", async () => {
+    const previousSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
+      "other-signer": "0x59c6995e998f97a5a0044966f094538c5f1c59d6a16c7a3d57ed4ac5f5f5d7c7",
+    });
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 44 })),
+        })),
+      },
+    } as never;
+
+    await expect(runVoteOnProposalWorkflow(context, { ...auth, signerId: "governance-signer" }, undefined, {
+      proposalId: "67",
+      support: "1",
+      reason: "missing signer entry",
+    })).rejects.toThrow("vote-on-proposal requires signer-backed auth");
+
+    expect(voteOnProposalTestUtils.asRecord(null)).toBeNull();
+    expect(voteOnProposalTestUtils.requestSignerPrivateKey({ ...auth, signerId: "missing" } as never)).toBeNull();
 
     process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
   });
