@@ -15,6 +15,14 @@ export type ApiServer = {
   listen: () => ReturnType<express.Express["listen"]>;
 };
 
+function resolveListeningPort(server: ReturnType<express.Express["listen"]>, configuredPort: number): number {
+  const address = server.address();
+  if (address && typeof address === "object" && "port" in address && typeof address.port === "number") {
+    return address.port;
+  }
+  return configuredPort;
+}
+
 export function createApiServer(options: ApiServerOptions = {}): ApiServer {
   const apiExecutionContext = createApiExecutionContext();
   const app = express();
@@ -63,11 +71,12 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
     app,
     listen() {
       const port = options.port ?? Number(process.env.API_LAYER_PORT ?? 8787);
-      return app.listen(port, () => {
+      const server = app.listen(port, () => {
         if (!options.quiet) {
-          console.log(`USpeaks API listening on ${port}`);
+          console.log(`USpeaks API listening on ${resolveListeningPort(server, port)}`);
         }
       });
+      return server;
     },
   };
 }

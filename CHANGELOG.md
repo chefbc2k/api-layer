@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.92] - 2026-04-17
+
+### Fixed
+- **API Server Startup Logging And Test Harness Stabilized:** Updated [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) to log the actual bound listener port when the API starts on an ephemeral port, instead of echoing the configured `0`. Hardened [`/Users/chef/Public/api-layer/packages/api/src/app.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.test.ts) and [`/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts) to wait for the listener deterministically, enforce fetch timeouts, and await server shutdown so coverage runs no longer hang on the legacy-root probe.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, oracle signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Server Harness Proofs:** Re-ran `pnpm vitest run packages/api/src/app.test.ts packages/api/src/app.behavior.test.ts --maxWorkers 1` and an explicit Istanbul run for those files; all `11` assertions pass both normally and with coverage enabled.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `748` passing tests, and `17` intentionally skipped non-coverage live contract proofs, with repo-wide coverage holding at `97.13%` statements, `89.10%` branches, `98.67%` functions, and `97.11%` lines.
+- **Full Live API Contract Suite:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1`; all `17` live Base Sepolia HTTP contract proofs passed against diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, including access control, voice asset registration, dataset mutation, marketplace listing lifecycle, governance reads and proposal submission, tokenomics reversible admin flows, whisperblock writes, licensing lifecycle, admin/emergency/multisig reads, transfer-rights, onboard-rights-holder, register-whisper-block, and the remaining lifecycle-correct workflow bundle.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts).
+
 ## [0.1.91] - 2026-04-17
 
 ### Fixed

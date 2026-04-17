@@ -4,9 +4,37 @@ import { createApiServer } from "./app.js";
 
 const originalEnv = { ...process.env };
 
+async function startServer(options: Parameters<typeof createApiServer>[0] = {}) {
+  const server = createApiServer(options).listen();
+  await new Promise<void>((resolve) => {
+    if (server.listening) {
+      resolve();
+      return;
+    }
+    server.once("listening", () => resolve());
+  });
+
+  const address = server.address();
+  const port = typeof address === "object" && address ? address.port : 8787;
+  return { server, port };
+}
+
+async function closeServer(server: Awaited<ReturnType<typeof startServer>>["server"]) {
+  await new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
 async function apiCall(port: number, path: string, options: RequestInit = {}) {
   const response = await fetch(`http://127.0.0.1:${port}${path}`, {
     ...options,
+    signal: AbortSignal.timeout(2_500),
     headers: {
       "content-type": "application/json",
       "x-api-key": "test-key",
@@ -27,22 +55,16 @@ describe("createApiServer", () => {
       "test-key": { label: "test", roles: ["service"], allowGasless: true },
     });
 
-    const server = createApiServer({ port: 0 }).listen();
-    const address = server.address();
-    const port = typeof address === "object" && address ? address.port : 8787;
+    const { server, port } = await startServer({ port: 0 });
 
     try {
       const response = await fetch(`http://127.0.0.1:${port}/`, {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-api-key": "test-key",
-        },
-        body: JSON.stringify({ hello: "world" }),
+        signal: AbortSignal.timeout(2_500),
       });
       expect(response.status).toBe(404);
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -51,16 +73,14 @@ describe("createApiServer", () => {
       "test-key": { label: "test", roles: ["service"], allowGasless: true },
     });
 
-    const server = createApiServer({ port: 0 }).listen();
-    const address = server.address();
-    const port = typeof address === "object" && address ? address.port : 8787;
+    const { server, port } = await startServer({ port: 0 });
 
     try {
       const { status, payload } = await apiCall(port, "/v1/voice-assets/not-a-bytes32");
       expect(status).toBe(400);
       expect(payload).toMatchObject({ error: expect.stringContaining("invalid param 0") });
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -69,9 +89,7 @@ describe("createApiServer", () => {
       "test-key": { label: "test", roles: ["service"], allowGasless: true },
     });
 
-    const server = createApiServer({ port: 0 }).listen();
-    const address = server.address();
-    const port = typeof address === "object" && address ? address.port : 8787;
+    const { server, port } = await startServer({ port: 0 });
 
     try {
       const { status, payload } = await apiCall(port, "/v1/tokenomics/commands/approve", {
@@ -87,7 +105,7 @@ describe("createApiServer", () => {
       expect(status).toBe(400);
       expect(payload).toMatchObject({ error: expect.stringContaining("does not allow gaslessMode") });
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -97,13 +115,13 @@ describe("createApiServer", () => {
     });
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    const server = createApiServer({ port: 0, quiet: true }).listen();
+    const { server } = await startServer({ port: 0, quiet: true });
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 25));
       expect(logSpy).not.toHaveBeenCalled();
     } finally {
-      server.close();
+      await closeServer(server);
       logSpy.mockRestore();
     }
   });

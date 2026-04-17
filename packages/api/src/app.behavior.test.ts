@@ -46,7 +46,13 @@ const originalEnv = { ...process.env };
 
 async function startServer(options: Parameters<typeof createApiServer>[0] = {}) {
   const server = createApiServer(options).listen();
-  await new Promise((resolve) => setTimeout(resolve, 25));
+  await new Promise<void>((resolve) => {
+    if (server.listening) {
+      resolve();
+      return;
+    }
+    server.once("listening", () => resolve());
+  });
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 8787;
   return {
@@ -55,8 +61,20 @@ async function startServer(options: Parameters<typeof createApiServer>[0] = {}) 
   };
 }
 
+async function closeServer(server: Awaited<ReturnType<typeof startServer>>["server"]) {
+  await new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
 async function jsonCall(port: number, path: string) {
-  const response = await fetch(`http://127.0.0.1:${port}${path}`);
+  const response = await fetch(`http://127.0.0.1:${port}${path}`, { signal: AbortSignal.timeout(2_500) });
   return {
     status: response.status,
     payload: await response.json(),
@@ -94,7 +112,7 @@ describe("createApiServer coverage branches", () => {
       expect(mocks.mountDomainModules).toHaveBeenCalledOnce();
       expect(mocks.createWorkflowRouter).toHaveBeenCalledOnce();
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -123,7 +141,7 @@ describe("createApiServer coverage branches", () => {
         "req-123",
       );
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -142,7 +160,7 @@ describe("createApiServer coverage branches", () => {
         },
       });
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -164,7 +182,7 @@ describe("createApiServer coverage branches", () => {
         },
       });
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -172,13 +190,13 @@ describe("createApiServer coverage branches", () => {
     process.env.API_LAYER_PORT = "0";
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    const server = createApiServer().listen();
+    const { server, port } = await startServer();
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 25));
-      expect(logSpy).toHaveBeenCalledWith("USpeaks API listening on 0");
+      expect(logSpy).toHaveBeenCalledWith(`USpeaks API listening on ${port}`);
     } finally {
-      server.close();
+      await closeServer(server);
       logSpy.mockRestore();
     }
   });
@@ -196,7 +214,7 @@ describe("createApiServer coverage branches", () => {
         payload: { ok: true, chainId: 84531 },
       });
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 
@@ -214,7 +232,7 @@ describe("createApiServer coverage branches", () => {
         payload: { ok: true, chainId: 84532 },
       });
     } finally {
-      server.close();
+      await closeServer(server);
     }
   });
 });
