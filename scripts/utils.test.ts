@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -54,6 +54,30 @@ describe("script utils", () => {
 
     await resetDir(targetDir);
     await expect(fileExists(path.join(targetDir, "child", "plain.txt"))).resolves.toBe(false);
+  });
+
+  it("skips non-file tree entries and resolves explicit relative source paths from the repo root", async () => {
+    const sourceDir = path.join(tempDir, "tree");
+    const nestedDir = path.join(sourceDir, "child");
+    const linkedDir = path.join(tempDir, "linked-abi");
+    const scenarioDir = path.join(tempDir, "linked-scenarios");
+    await mkdir(nestedDir, { recursive: true });
+    await mkdir(linkedDir, { recursive: true });
+    await mkdir(scenarioDir, { recursive: true });
+    await writeFile(path.join(nestedDir, "plain.txt"), "hello", "utf8");
+    await writeFile(path.join(sourceDir, "target.txt"), "target", "utf8");
+    await symlink(path.join(sourceDir, "target.txt"), path.join(sourceDir, "linked.txt"));
+
+    process.env.API_LAYER_ABI_SOURCE_DIR = path.relative(process.cwd(), linkedDir);
+    process.env.API_LAYER_SCENARIO_SOURCE_DIR = path.relative(process.cwd(), scenarioDir);
+
+    const targetDir = path.join(tempDir, "copied-relative");
+    await copyTree(sourceDir, targetDir);
+
+    await expect(fileExists(path.join(targetDir, "child", "plain.txt"))).resolves.toBe(true);
+    await expect(fileExists(path.join(targetDir, "linked.txt"))).resolves.toBe(false);
+    await expect(resolveAbiSourceDir()).resolves.toBe(linkedDir);
+    await expect(resolveScenarioSourceDir()).resolves.toBe(scenarioDir);
   });
 
   it("resolves explicit ABI, scenario, and deployment manifest paths", async () => {

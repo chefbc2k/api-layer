@@ -89,6 +89,28 @@ describe("invoke runtime helpers", () => {
     expect(cache.set).toHaveBeenCalledWith("TestFacet:readValue:[\"7\"]", "fresh", 120);
   });
 
+  it("bypasses cache on live reads and uses the provider when no signer factory exists", async () => {
+    const provider = { tag: "provider" };
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode, _method, work) => work(provider)),
+    };
+    const cache = { get: vi.fn(), set: vi.fn() };
+    const addressBook = { resolveFacetAddress: vi.fn().mockReturnValue("0x0000000000000000000000000000000000000001") };
+    mocks.functionImpl.mockResolvedValue("live");
+
+    const result = await invokeRead({
+      executionSource: "live",
+      providerRouter,
+      cache,
+      addressBook,
+    } as never, "TestFacet", "readValue", [3], false, 60);
+
+    expect(result).toBe("live");
+    expect(cache.get).not.toHaveBeenCalled();
+    expect(cache.set).not.toHaveBeenCalled();
+    expect(mocks.contractCalls).toEqual([{ args: [3], runner: provider }]);
+  });
+
   it("requires signerFactory for writes and forwards writes through the write provider", async () => {
     await expect(invokeWrite({
       providerRouter: { withProvider: vi.fn() },
@@ -146,5 +168,30 @@ describe("invoke runtime helpers", () => {
     });
     expect(decodeLog("TestFacet", log)?.args.toObject()).toMatchObject({ value: 55n });
     expect(decodeLog("TestFacet", { ...log, topics: ["0xdeadbeef"] } as unknown as Log)).toBeNull();
+  });
+
+  it("supports latest-block event queries and surfaces unknown event lookups", async () => {
+    const provider = { getLogs: vi.fn().mockResolvedValue([]) };
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode, _method, work) => work(provider)),
+    };
+    const addressBook = { resolveFacetAddress: vi.fn().mockReturnValue("0x0000000000000000000000000000000000000001") };
+
+    await expect(queryEvent({
+      providerRouter,
+      addressBook,
+    } as never, "TestFacet", "ValueSet", undefined, "latest")).resolves.toEqual([]);
+
+    expect(provider.getLogs).toHaveBeenCalledWith({
+      address: "0x0000000000000000000000000000000000000001",
+      topics: [expect.any(String)],
+      fromBlock: undefined,
+      toBlock: "latest",
+    });
+
+    await expect(queryEvent({
+      providerRouter,
+      addressBook,
+    } as never, "TestFacet", "MissingEvent")).rejects.toThrow();
   });
 });

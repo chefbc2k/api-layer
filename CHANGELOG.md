@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.81] - 2026-04-16
+
+### Fixed
+- **Runtime Coverage Edges Expanded:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts), and [`/Users/chef/Public/api-layer/scripts/utils.test.ts`](/Users/chef/Public/api-layer/scripts/utils.test.ts) to cover previously unproven runtime helper branches: live uncached reads that use the provider directly, latest-block event queries plus unknown-event lookup failures, single-result tuple decode validation, multi-result non-array rejection, relative env-path normalization, and copy-tree skipping of non-file entries.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Runtime Proofs:** Re-ran `pnpm vitest run packages/client/src/runtime/invoke.test.ts packages/client/src/runtime/abi-codec.test.ts scripts/utils.test.ts --maxWorkers 1`; all `23` targeted assertions pass.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `122` passing files, `719` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `96.29%` to `96.35%` statements, `86.65%` to `86.87%` branches, `98.26%` functions unchanged, and `96.26%` to `96.33%` lines. [`/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts) now measures `96.96%` statements, `100%` branches, `100%` functions, and `96.87%` lines, while [`/Users/chef/Public/api-layer/scripts/utils.ts`](/Users/chef/Public/api-layer/scripts/utils.ts) improved to `94.91%` statements, `88.88%` branches, `100%` functions, and `94.91%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.80] - 2026-04-16
 
 ### Fixed

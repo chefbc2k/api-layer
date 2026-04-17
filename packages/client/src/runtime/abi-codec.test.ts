@@ -299,4 +299,32 @@ describe("abi-codec", () => {
       "expected 2 params for counted(uint256,bool), received 1",
     );
   });
+
+  it("decodes valid single-result tuples and rejects non-array multi-result payloads", () => {
+    const singleOutput = {
+      signature: "singleTuple()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+    };
+    const multiOutput = {
+      signature: "pair(uint256,address)",
+      outputs: [
+        { type: "uint256" },
+        { type: "address" },
+      ],
+    };
+
+    expect(decodeResultFromWire(singleOutput as never, { count: "5", enabled: true })).toEqual({
+      count: 5n,
+      enabled: true,
+    });
+    expect(() => decodeResultFromWire(multiOutput as never, { 0: "1" })).toThrow(
+      "invalid response for pair(uint256,address): expected array",
+    );
+  });
 });
