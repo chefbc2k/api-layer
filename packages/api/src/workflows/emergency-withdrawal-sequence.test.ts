@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { HttpError } from "../shared/errors.js";
 
 const mocks = vi.hoisted(() => ({
   createEmergencyPrimitiveService: vi.fn(),
@@ -151,5 +152,130 @@ describe("emergency-withdrawal-sequence", () => {
     )).rejects.toEqual(expect.objectContaining({
       statusCode: 409,
     }));
+  });
+
+  it("normalizes request failures", async () => {
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      isRecipientWhitelisted: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      requestEmergencyWithdrawal: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+    });
+
+    await expect(runEmergencyWithdrawalSequenceWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "requester", label: "requester", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        token: "0x00000000000000000000000000000000000000bb",
+        amount: "100",
+        recipient: "0x00000000000000000000000000000000000000cc",
+        whitelistRecipient: false,
+      },
+    )).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+    });
+  });
+
+  it("normalizes approval failures", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xrequest");
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      isRecipientWhitelisted: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      requestEmergencyWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: `0x${"1".repeat(64)}` }),
+      emergencyWithdrawalRequestedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xrequest" }] }),
+      emergencyWithdrawalEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      getApprovalCount: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      approveEmergencyWithdrawal: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+    });
+
+    await expect(runEmergencyWithdrawalSequenceWorkflow(
+      {
+        apiKeys: {
+          approver: {
+            apiKey: "approver",
+            label: "approver",
+            roles: ["service"],
+            allowGasless: false,
+          },
+        },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: () => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 100 })),
+          })),
+        },
+      } as never,
+      { apiKey: "requester", label: "requester", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        token: "0x00000000000000000000000000000000000000bb",
+        amount: "100",
+        recipient: "0x00000000000000000000000000000000000000cc",
+        whitelistRecipient: false,
+        approvals: [{ apiKey: "approver" }],
+      },
+    )).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+    });
+  });
+
+  it("normalizes execution failures", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xrequest")
+      .mockResolvedValueOnce("0xapprove");
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      isRecipientWhitelisted: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      requestEmergencyWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: `0x${"1".repeat(64)}` }),
+      emergencyWithdrawalRequestedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xrequest" }] }),
+      emergencyWithdrawalEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      getApprovalCount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" }),
+      approveEmergencyWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove" } }),
+      emergencyWithdrawalApprovedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xapprove" }] }),
+      emergencyWithdrawalExecutedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      executeWithdrawal: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+    });
+
+    await expect(runEmergencyWithdrawalSequenceWorkflow(
+      {
+        apiKeys: {
+          approver: {
+            apiKey: "approver",
+            label: "approver",
+            roles: ["service"],
+            allowGasless: false,
+          },
+          executor: {
+            apiKey: "executor",
+            label: "executor",
+            roles: ["service"],
+            allowGasless: false,
+          },
+        },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: () => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 100 })),
+          })),
+        },
+      } as never,
+      { apiKey: "requester", label: "requester", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        token: "0x00000000000000000000000000000000000000bb",
+        amount: "100",
+        recipient: "0x00000000000000000000000000000000000000cc",
+        whitelistRecipient: false,
+        approvals: [{ apiKey: "approver" }],
+        execute: { apiKey: "executor" },
+      },
+    )).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+    });
   });
 });

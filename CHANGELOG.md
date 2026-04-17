@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.85] - 2026-04-17
+
+### Fixed
+- **Emergency Withdrawal Error-Normalization Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts) with request, approval, and execute failure proofs so [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts) now exercises all three structured `normalizeEmergencyExecutionError` branches without changing runtime workflow behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/emergency-withdrawal-sequence.test.ts --maxWorkers 1`; all `6` assertions pass. An isolated Istanbul pass now shows [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts) at `100%` statements, `79.16%` branches, `100%` functions, and `100%` lines.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and `pnpm run test:coverage`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events. Repo-wide coverage improved to `96.56%` statements, `87.30%` branches, `98.67%` functions, and `96.52%` lines with `123` passing files, `728` passing tests, and `17` intentionally skipped live contract proofs.
+
+### Remaining Issues
+- **Live Contract Suite Still Skipped:** [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) still skips `17` Base Sepolia write-dependent proofs outside explicit live runs, so actor funding/setup remains the main blocker for collapsing that live-domain partial.
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The largest remaining branch gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and helper-heavy paths such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts) where receipt-gated event-query branches remain.
+
 ## [0.1.83] - 2026-04-17
 
 ### Fixed
