@@ -199,7 +199,7 @@ async function waitForWorkflowEventQuery(
   throw new Error(`${label} event query timeout: ${JSON.stringify(lastLogs)}`);
 }
 
-function hasTransactionHash(logs: unknown[], txHash: string | null): boolean {
+export function hasTransactionHash(logs: unknown[], txHash: string | null): boolean {
   if (!txHash) {
     return false;
   }

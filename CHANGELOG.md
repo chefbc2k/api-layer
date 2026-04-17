@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.93] - 2026-04-17
+
+### Fixed
+- **Register Whisper Block Null-Hash Helper Branch Covered:** Exported [`hasTransactionHash`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts) from [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts) and extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts) with a direct null-transaction-hash assertion so the helper-only receiptless branch is validated without changing runtime workflow behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, oracle signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup completed `ready` on the local fork with runtime RPC `http://127.0.0.1:8548`, upstream/fork source `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, buyer USDC/allowance `4000/4000`, governance status `ready`, and aged marketplace fixture token `91` / voice hash `0x290d110028d79c6226292dd978275de7c19ba9b973a5fc7d0f6fd1d8acac7d46` in `purchase-ready` state.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Whisperblock Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/register-whisper-block.test.ts --coverage.enabled true --coverage.include=packages/api/src/workflows/register-whisper-block.ts --coverage.reporter=text --maxWorkers 1 --no-file-parallelism`; all `14` assertions pass, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts) now reaches `100%` statements / `90.90%` branches / `100%` functions / `100%` lines in the focused run.
+- **Live Register Whisper Block Workflow Proof:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t "register-whisper-block workflow" --maxWorkers 1`; the previously funding-gated live proof now executes instead of skipping and passes end-to-end on the forked Base Sepolia runtime. The proof registered a new voice asset, then completed fingerprint registration, encryption-key generation, and access grant writes with on-chain event confirmations for `VoiceFingerprintUpdated`, `KeyRotated`, and `AccessGranted`, while preserving authentic readback through the mounted workflow route.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `123` passing files, `749` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `749` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `97.13%` to `97.15%` statements, `89.10%` to `89.12%` branches, `98.67%` functions unchanged, and `97.11%` to `97.13%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains below the automation target. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vote-on-proposal.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts).
+
 ## [0.1.92] - 2026-04-17
 
 ### Fixed

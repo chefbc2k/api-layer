@@ -13,7 +13,7 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runRegisterWhisperBlockWorkflow } from "./register-whisper-block.js";
+import { hasTransactionHash, runRegisterWhisperBlockWorkflow } from "./register-whisper-block.js";
 
 describe("runRegisterWhisperBlockWorkflow", () => {
   const auth = {
@@ -650,5 +650,9 @@ describe("runRegisterWhisperBlockWorkflow", () => {
     })).rejects.toThrow("registerWhisperBlock.voiceFingerprintUpdated event query timeout: []");
     expect(service.voiceFingerprintUpdatedEventQuery).toHaveBeenCalledTimes(20);
     setTimeoutSpy.mockRestore();
+  });
+
+  it("returns false when event matching is asked to compare against a missing transaction hash", () => {
+    expect(hasTransactionHash([{ transactionHash: "0xabc" }], null)).toBe(false);
   });
 });
