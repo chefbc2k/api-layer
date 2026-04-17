@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.78] - 2026-04-16
+
+### Fixed
+- **Emergency Recovery Resume Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts) to cover approval and execution flows that begin with null recovery-plan readbacks plus scheduled, execute-scheduled, and immediate resume branches where the write receipt never resolves and event polling is intentionally skipped.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, and aged marketplace fixture token `91` still marked `purchase-ready` with seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, price `1000`, created block `39043004`, and expiry `1776446296`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/recover-from-emergency.test.ts --maxWorkers 1` plus an isolated Istanbul run for the same file; all `16` targeted assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) improved from `80.51%` to `89.61%` branch coverage while preserving `100%` statements, `100%` functions, and `100%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `121` passing files, `710` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `121` passing files, `710` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `95.49%` to `95.51%` statements, `85.44%` to `85.77%` branches, `98.09%` functions unchanged, and `95.44%` to `95.46%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts).
+
 ## [0.1.77] - 2026-04-16
 
 ### Fixed
