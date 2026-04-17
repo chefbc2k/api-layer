@@ -233,3 +233,7 @@ function normalizeEventLogs(value: unknown): unknown[] {
   const record = asRecord(value);
   return Array.isArray(record?.body) ? record.body : [];
 }
+
+export const voteOnProposalTestUtils = {
+  normalizeEventLogs,
+};

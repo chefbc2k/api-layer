@@ -13,7 +13,7 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runVoteOnProposalWorkflow } from "./vote-on-proposal.js";
+import { runVoteOnProposalWorkflow, voteOnProposalTestUtils } from "./vote-on-proposal.js";
 
 describe("vote on proposal workflow", () => {
   const auth = {
@@ -386,5 +386,150 @@ describe("vote on proposal workflow", () => {
     })).rejects.toThrow('voteOnProposal.voteReceipt.62 readback timeout: {"hasVoted":false,"support":"1"}');
 
     setTimeoutSpy.mockRestore();
+  });
+
+  it("fails proposal-window lookup after exhausting retries", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 44 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 503, body: { error: "lag" } }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn(),
+      getReceipt: vi.fn(),
+      voteCastEventQuery: vi.fn(),
+    });
+
+    await expect(runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "63",
+      support: "1",
+      reason: "window failure",
+    })).rejects.toThrow('proposal 63 window lookup failed: {"snapshot":{"error":"lag"},"deadline":"240","proposalState":"1"}');
+
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("surfaces thrown proposal-window lookup errors", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 44 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn().mockRejectedValue(new Error("snapshot exploded")),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn(),
+      getReceipt: vi.fn(),
+      voteCastEventQuery: vi.fn(),
+    });
+
+    await expect(runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "66",
+      support: "1",
+      reason: "window throw",
+    })).rejects.toThrow("proposal 66 window lookup failed: snapshot exploded");
+
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("surfaces vote-cast event timeouts and direct array normalization", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 65 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValue({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xvote-write" },
+      }),
+      getReceipt: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { hasVoted: true, support: "1", reason: "event timeout", votes: "4" },
+      }),
+      voteCastEventQuery: vi.fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValue([{ transactionHash: "0xother" }]),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xvote-receipt");
+
+    await expect(runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "64",
+      support: "1",
+      reason: "event timeout",
+    })).rejects.toThrow('voteOnProposal.voteCast event query timeout: [{"transactionHash":"0xother"}]');
+
+    expect(voteOnProposalTestUtils.normalizeEventLogs([{ transactionHash: "0xabc" }])).toEqual([{ transactionHash: "0xabc" }]);
+    expect(voteOnProposalTestUtils.normalizeEventLogs({ body: { transactionHash: "0xabc" } } as never)).toEqual([]);
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("requires a configured signer map even when signer-backed auth is declared", async () => {
+    const previousSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
+    delete process.env.API_LAYER_SIGNER_MAP_JSON;
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 44 })),
+        })),
+      },
+    } as never;
+
+    await expect(runVoteOnProposalWorkflow(context, { ...auth, signerId: "governance-signer" }, undefined, {
+      proposalId: "65",
+      support: "1",
+      reason: "missing signer map",
+    })).rejects.toThrow("vote-on-proposal requires signer-backed auth");
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
   });
 });

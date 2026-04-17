@@ -417,6 +417,87 @@ describe("submit proposal workflow", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("surfaces proposal-window lookup failures when the last retry ends on a non-200 body", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          getBlockNumber: () => Promise<number>;
+          getBlock: (tag: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 73, logs: [] })),
+          getBlockNumber: vi.fn(async () => 100),
+          getBlock: vi.fn(async () => ({ timestamp: 1_000 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposeAddressArrayUint256ArrayBytesArrayStringUint8: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "904" },
+      }),
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 503, body: { error: "lag" } }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      proposalCreatedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    await expect(runSubmitProposalWorkflow(context, auth, undefined, {
+      description: "object lookup failure",
+      targets: ["0x00000000000000000000000000000000000000bb"],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      proposalType: "0",
+    })).rejects.toThrow('proposal 904 window lookup failed: {"snapshot":{"error":"lag"},"proposalState":"0","deadline":"240"}');
+
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("returns a null earliest voting block when snapshot readback omits the body", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          getBlockNumber: () => Promise<number>;
+          getBlock: (tag: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 74, logs: [] })),
+          getBlockNumber: vi.fn(async () => 100),
+          getBlock: vi.fn(async () => ({ timestamp: 1_000 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposeAddressArrayUint256ArrayBytesArrayStringUint8: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { result: "905" },
+      }),
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200 }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      proposalCreatedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runSubmitProposalWorkflow(context, auth, undefined, {
+      description: "missing snapshot body",
+      targets: ["0x00000000000000000000000000000000000000bb"],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      proposalType: "0",
+    });
+
+    expect(result.votingWindow.earliestVotingBlock).toBeNull();
+    expect(result.votingWindow.estimatedVotingStartTimestamp).toBeNull();
+  });
+
   it("exposes transaction-hash and event-normalization helpers for direct edge coverage", () => {
     expect(submitProposalTestUtils.hasTransactionHash([{ transactionHash: "0xabc" }], null)).toBe(false);
     expect(submitProposalTestUtils.hasTransactionHash([null, { transactionHash: "0xdef" }], "0xdef")).toBe(true);
