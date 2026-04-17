@@ -8,7 +8,10 @@ vi.mock("../modules/emergency/primitives/generated/index.js", () => ({
   createEmergencyPrimitiveService: mocks.createEmergencyPrimitiveService,
 }));
 
-import { runInspectEmergencyPostureWorkflow } from "./inspect-emergency-posture.js";
+import {
+  inspectEmergencyPostureWorkflowSchema,
+  runInspectEmergencyPostureWorkflow,
+} from "./inspect-emergency-posture.js";
 
 describe("inspect-emergency-posture", () => {
   beforeEach(() => {
@@ -114,5 +117,93 @@ describe("inspect-emergency-posture", () => {
       withdrawalRequestTracked: false,
       recipientWhitelisted: null,
     });
+  });
+
+  it("supports withdrawal inspection with only a recipient override", async () => {
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "30" }),
+      isRecipientWhitelisted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+    });
+
+    const result = await runInspectEmergencyPostureWorkflow(
+      { providerRouter: {}, apiKeys: {} } as never,
+      { apiKey: "reader", label: "reader", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        withdrawal: {
+          recipient: "0x00000000000000000000000000000000000000ee",
+        },
+      },
+    );
+
+    expect(result.withdrawal).toEqual({
+      requestId: null,
+      approvalCount: null,
+      recipient: "0x00000000000000000000000000000000000000ee",
+      recipientWhitelisted: false,
+      instantRequest: false,
+    });
+    expect(result.summary).toEqual({
+      currentState: "3",
+      currentStateLabel: "RECOVERY",
+      emergencyStopped: true,
+      incidentId: null,
+      incidentResolved: null,
+      recoveryPhase: null,
+      frozenAssetCount: 0,
+      withdrawalRequestTracked: false,
+      recipientWhitelisted: false,
+    });
+  });
+
+  it("treats the zero withdrawal request id as an instant request", async () => {
+    const zeroRequestId = `0x${"0".repeat(64)}`;
+    const getApprovalCount = vi.fn().mockResolvedValue({ statusCode: 200, body: { result: 1 } });
+    const isRecipientWhitelisted = vi.fn();
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "45" }),
+      getApprovalCount,
+      isRecipientWhitelisted,
+    });
+
+    const result = await runInspectEmergencyPostureWorkflow(
+      { providerRouter: {}, apiKeys: {} } as never,
+      { apiKey: "reader", label: "reader", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        withdrawal: {
+          requestId: zeroRequestId,
+        },
+      },
+    );
+
+    expect(result.withdrawal).toEqual({
+      requestId: zeroRequestId,
+      approvalCount: "1",
+      recipient: null,
+      recipientWhitelisted: null,
+      instantRequest: true,
+    });
+    expect(getApprovalCount).toHaveBeenCalledOnce();
+    expect(isRecipientWhitelisted).not.toHaveBeenCalled();
+    expect(result.summary.withdrawalRequestTracked).toBe(true);
+  });
+
+  it("rejects withdrawal inspection without requestId or recipient", () => {
+    const parsed = inspectEmergencyPostureWorkflowSchema.safeParse({
+      withdrawal: {},
+    });
+
+    expect(parsed.success).toBe(false);
+    expect(parsed.error.issues).toEqual([
+      expect.objectContaining({
+        path: ["withdrawal"],
+        message: "inspect-emergency-posture withdrawal expected requestId or recipient",
+      }),
+    ]);
   });
 });

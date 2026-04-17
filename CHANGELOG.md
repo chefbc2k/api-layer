@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.87] - 2026-04-17
+
+### Fixed
+- **Inspection Workflow Branch Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.test.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-emergency-posture.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-emergency-posture.test.ts) to prove additional readback and schema branches in [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-emergency-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-emergency-posture.ts), including boolean and tuple-style inheritance readiness payloads, malformed-plan normalization, recipient-only withdrawal inspection, zero-request instant withdrawals, and withdrawal schema rejection without selectors.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Focused Workflow Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/inspect-legacy-migration-posture.test.ts packages/api/src/workflows/inspect-emergency-posture.test.ts --maxWorkers 1`; all `9` assertions pass.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `734` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `96.58%` to `96.64%` statements, `87.32%` to `87.77%` branches, `98.67%` functions unchanged, and `96.54%` to `96.61%` lines. [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.ts) is now at `100%` statements / `100%` branches / `100%` functions / `100%` lines, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-emergency-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-emergency-posture.ts) improved to `100%` statements / `97.43%` branches / `100%` functions / `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts), and helper-heavy paths such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts).
+
 ## [0.1.86] - 2026-04-17
 
 ### Verified

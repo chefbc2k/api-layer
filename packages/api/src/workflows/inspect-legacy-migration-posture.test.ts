@@ -98,4 +98,89 @@ describe("runInspectLegacyMigrationPostureWorkflow", () => {
     expect(result.summary.inheritanceReady).toBeNull();
     expect(service.isInheritanceReady).not.toHaveBeenCalled();
   });
+
+  it("accepts a bare boolean inheritance readiness response", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          memo: "memo-only-plan",
+          voiceAssets: [],
+          datasetIds: [],
+          beneficiaries: [],
+          conditions: {
+            requiresProof: false,
+            minApprovals: 3,
+          },
+        },
+      }),
+      isInheritanceReady: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: false,
+      }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+
+    const result = await runInspectLegacyMigrationPostureWorkflow(context, auth, undefined, {
+      owner: "0x00000000000000000000000000000000000000aa",
+      voiceHash: `0x${"3".repeat(64)}`,
+    });
+
+    expect(result.legacy.summary).toEqual({
+      beneficiaryCount: 0,
+      voiceAssetCount: 0,
+      datasetCount: 0,
+      requiresProof: false,
+      minApprovals: "3",
+      active: null,
+      executed: null,
+    });
+    expect(result.summary).toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      voiceHash: `0x${"3".repeat(64)}`,
+      hasPlan: true,
+      beneficiaryCount: 0,
+      voiceAssetCount: 0,
+      inheritanceReady: false,
+    });
+  });
+
+  it("reads inheritance readiness from tuple-like responses and tolerates malformed plans", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          beneficiaries: "not-an-array",
+          voiceAssets: null,
+          datasetIds: undefined,
+          conditions: {
+            requiresProof: "yes",
+          },
+          isActive: true,
+        },
+      }),
+      isInheritanceReady: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: [true, "ignored"],
+      }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+
+    const result = await runInspectLegacyMigrationPostureWorkflow(context, auth, undefined, {
+      owner: "0x00000000000000000000000000000000000000aa",
+      voiceHash: `0x${"4".repeat(64)}`,
+    });
+
+    expect(result.legacy.summary).toEqual({
+      beneficiaryCount: 0,
+      voiceAssetCount: 0,
+      datasetCount: 0,
+      requiresProof: "yes",
+      minApprovals: null,
+      active: true,
+      executed: null,
+    });
+    expect(result.summary.inheritanceReady).toBe(true);
+    expect(result.summary.hasPlan).toBe(false);
+  });
 });
