@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.96] - 2026-04-17
+
+### Fixed
+- **Commercialization Ownership Live Proof Added:** Extended [`/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts) to publish a new `commercialization-ownership` domain that uses real Base Sepolia pathways to mint a voice asset, transfer it away from `founder-key`, confirm post-transfer ownership through HTTP readback, and prove that `/v1/workflows/create-dataset-and-list-for-sale` rejects the former owner with the expected `409` ownership-rule diagnostics.
+- **Live Verifier Entrypoint Named:** Added `verify:layer1:live:base-sepolia` to [`/Users/chef/Public/api-layer/package.json`](/Users/chef/Public/api-layer/package.json) so the full live proof surface, including the ownership-rule domain, can be rerun consistently into [`/Users/chef/Public/api-layer/verify-live-output.json`](/Users/chef/Public/api-layer/verify-live-output.json).
+- **Ownership Guard Regression Locked:** Added a focused contract-integration proof in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) that transfers a minted asset to `transferee-key` and verifies `create-dataset-and-list-for-sale` refuses commercialization by the old owner.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` functions, `492` generated HTTP methods, and `218` events.
+- **Live Domain Proofs:** Re-ran `pnpm run verify:layer1:live:base-sepolia`. The regenerated [`/Users/chef/Public/api-layer/verify-live-output.json`](/Users/chef/Public/api-layer/verify-live-output.json) now reports `summary: "proven working"`, `domainCount: 8`, `routeCount: 30`, and `evidenceCount: 36`, with the new commercialization ownership proof showing transfer tx `0xa23743e567228753f28b80d20c45eb73fc4bc245cd1fceadd258fcdfb13a70b4`, owner readback `0x666dde465b285738Ab3A309EF13fCD37994B356f`, and the expected `409` workflow rejection carrying `actorAuthorized: false`.
+- **Targeted Regression Test:** Re-ran `API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t "rejects create-dataset-and-list-for-sale when the caller is no longer the current asset owner" --maxWorkers 1`; the focused live integration proof passed.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** This run closed a live behavioral proof gap, but repo-wide line/branch/function/statement coverage is not yet at the automation target. The next highest-yield work remains additional branch-gap closure in lower-covered workflow modules rather than API-surface or wrapper generation, which are already fully covered.
+
 ## [0.1.95] - 2026-04-17
 
 ### Fixed

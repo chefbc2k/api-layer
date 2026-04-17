@@ -11,6 +11,7 @@ import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type D
 
 type ApiCallOptions = {
   apiKey?: string;
+  walletAddress?: string;
   body?: unknown;
 };
 
@@ -46,6 +47,7 @@ async function apiCall(port: number, method: string, url: string, options: ApiCa
     headers: {
       "content-type": "application/json",
       ...(options.apiKey === undefined ? { "x-api-key": "founder-key" } : options.apiKey ? { "x-api-key": options.apiKey } : {}),
+      ...(options.walletAddress ? { "x-wallet-address": options.walletAddress } : {}),
     },
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   });
@@ -214,17 +216,20 @@ async function main() {
   const licensingOwnerKey = repoEnv.ORACLE_SIGNER_PRIVATE_KEY_1 ?? repoEnv.ORACLE_WALLET_PRIVATE_KEY ?? founderKey;
   const licensingOwner = licensingOwnerKey ? new Wallet(licensingOwnerKey, provider) : founder;
   const licensee = Wallet.createRandom().connect(provider);
+  const transferee = Wallet.createRandom().connect(provider);
 
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
     "read-key": { label: "reader", roles: ["service"], allowGasless: false },
     "licensing-owner-key": { label: "licensing-owner", signerId: "licensingOwner", roles: ["service"], allowGasless: false },
     "licensee-key": { label: "licensee", signerId: "licensee", roles: ["service"], allowGasless: false },
+    "transferee-key": { label: "transferee", signerId: "transferee", roles: ["service"], allowGasless: false },
   });
   process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
     founder: founderKey,
     licensingOwner: licensingOwnerKey,
     licensee: licensee.privateKey,
+    transferee: transferee.privateKey,
   });
   process.env.API_LAYER_SIGNER_API_KEYS_JSON = JSON.stringify({
     ...(founder
@@ -259,6 +264,14 @@ async function main() {
       roles: ["service"],
       allowGasless: false,
     },
+    [transferee.address.toLowerCase()]: {
+      apiKey: "transferee-key",
+      signerId: "transferee",
+      privateKey: transferee.privateKey,
+      label: "transferee",
+      roles: ["service"],
+      allowGasless: false,
+    },
   });
 
   const fundingWallets = [
@@ -276,6 +289,7 @@ async function main() {
   if (licensingOwner) {
     await ensureNativeBalance(provider, forkRuntime.rpcUrl, fundingWallets, licensingOwner.address, ethers.parseEther("0.00001"));
   }
+  await ensureNativeBalance(provider, forkRuntime.rpcUrl, fundingWallets, transferee.address, ethers.parseEther("0.00001"));
 
   const endpointManifest = JSON.parse(
     fs.readFileSync(path.join("generated", "manifests", "http-endpoint-registry.json"), "utf8"),
@@ -294,6 +308,7 @@ async function main() {
   const actors = {
     founder: founder?.address ?? "0x0000000000000000000000000000000000000000",
     licensee: licensee.address,
+    transferee: transferee.address,
   };
 
   try {
@@ -664,6 +679,120 @@ async function main() {
           ? "blocked by setup/state"
           : "deeper issue remains";
       results["voice-assets"] = domain;
+    }
+
+    // 5b. Commercialization ownership rule
+    {
+      const domain: DomainResult = {
+        routes: [],
+        actors: ["founder-key", "transferee-key"],
+        result: "deeper issue remains",
+        evidence: {},
+      };
+      const createVoiceEndpoint = endpointByKey(endpointRegistry, "VoiceAssetFacet.registerVoiceAsset");
+      const tokenIdEndpoint = endpointByKey(endpointRegistry, "VoiceAssetFacet.getTokenId");
+      const transferEndpoint = endpointByKey(endpointRegistry, "VoiceAssetFacet.transferFromVoiceAsset");
+      const ownerOfEndpoint = endpointByKey(endpointRegistry, "VoiceAssetFacet.ownerOf");
+      if (createVoiceEndpoint) domain.routes.push(`${createVoiceEndpoint.httpMethod} ${createVoiceEndpoint.path}`);
+      if (tokenIdEndpoint) domain.routes.push(`${tokenIdEndpoint.httpMethod} ${tokenIdEndpoint.path}`);
+      if (transferEndpoint) domain.routes.push(`${transferEndpoint.httpMethod} ${transferEndpoint.path}`);
+      if (ownerOfEndpoint) domain.routes.push(`${ownerOfEndpoint.httpMethod} ${ownerOfEndpoint.path}`);
+      domain.routes.push("POST /v1/workflows/create-dataset-and-list-for-sale");
+
+      const voiceResp = createVoiceEndpoint
+        ? await apiCall(port, createVoiceEndpoint.httpMethod, createVoiceEndpoint.path, {
+            apiKey: "founder-key",
+            body: { ipfsHash: `QmCommercializationOwner-${Date.now()}`, royaltyRate: "175" },
+          })
+        : { status: 0, payload: "missing registerVoiceAsset endpoint" };
+      domain.evidence.createVoice = voiceResp;
+      const voiceTxHash = extractTxHash(voiceResp.payload);
+      if (voiceTxHash) {
+        const receipt = await waitForReceipt(provider, voiceTxHash, "commercialization owner create voice");
+        domain.evidence.createVoiceReceipt = { status: receipt.status, blockNumber: receipt.blockNumber };
+      }
+
+      const voiceHash = (voiceResp.payload as Record<string, unknown>)?.result as string | undefined;
+      if (voiceHash && tokenIdEndpoint) {
+        const tokenIdResp = await retryRead(
+          "commercialization owner token id",
+          () => apiCall(
+            port,
+            tokenIdEndpoint.httpMethod,
+            buildPath(tokenIdEndpoint, { voiceHash }),
+            { apiKey: "read-key" },
+          ),
+          (resp) => resp.status === 200 && String(resp.payload) !== "0",
+        );
+        domain.evidence.tokenId = tokenIdResp;
+        const tokenId = String(tokenIdResp.payload);
+
+        const transferResp = transferEndpoint
+          ? await apiCall(
+              port,
+              transferEndpoint.httpMethod,
+              buildPath(transferEndpoint, { tokenId }),
+              {
+                apiKey: "founder-key",
+                body: {
+                  from: actors.founder,
+                  to: actors.transferee,
+                  tokenId,
+                },
+              },
+            )
+          : { status: 0, payload: "missing transferFromVoiceAsset endpoint" };
+        domain.evidence.transfer = transferResp;
+        const transferTxHash = extractTxHash(transferResp.payload);
+        if (transferTxHash) {
+          const receipt = await waitForReceipt(provider, transferTxHash, "commercialization owner transfer");
+          domain.evidence.transferReceipt = { status: receipt.status, blockNumber: receipt.blockNumber };
+        }
+
+        if (ownerOfEndpoint) {
+          domain.evidence.ownerAfterTransfer = await retryRead(
+            "commercialization owner ownerOf after transfer",
+            () => apiCall(
+              port,
+              ownerOfEndpoint.httpMethod,
+              buildPath(ownerOfEndpoint, { tokenId }),
+              { apiKey: "read-key" },
+            ),
+            (resp) => resp.status === 200 && String(resp.payload).toLowerCase() === actors.transferee.toLowerCase(),
+          );
+        }
+
+        const rejectedWorkflowResp = await apiCall(port, "POST", "/v1/workflows/create-dataset-and-list-for-sale", {
+          apiKey: "founder-key",
+          body: {
+            title: `Commercialization owner gate ${Date.now()}`,
+            assetIds: [tokenId],
+            metadataURI: `ipfs://commercialization-owner-${Date.now()}`,
+            royaltyBps: "500",
+            price: "1000",
+            duration: "0",
+          },
+        });
+        domain.evidence.rejectedCommercialization = rejectedWorkflowResp;
+
+        const rejectionError = String((rejectedWorkflowResp.payload as Record<string, unknown> | null)?.error ?? "");
+        const rejectionDiagnostics = ((rejectedWorkflowResp.payload as Record<string, unknown> | null)?.diagnostics ?? null) as Record<string, unknown> | null;
+        domain.result =
+          voiceResp.status === 202
+          && transferResp.status === 202
+          && (domain.evidence as Record<string, { status?: number }>).ownerAfterTransfer?.status === 200
+          && rejectedWorkflowResp.status === 409
+          && rejectionError.includes("commercialization requires current asset ownership")
+          && String(rejectionDiagnostics?.owner ?? "").toLowerCase() === actors.transferee.toLowerCase()
+          && String(rejectionDiagnostics?.actor ?? "").toLowerCase() === actors.founder.toLowerCase()
+            ? "proven working"
+            : isSetupBlocked(voiceResp) || isSetupBlocked(transferResp)
+              ? "blocked by setup/state"
+              : "deeper issue remains";
+      } else {
+        domain.result = isSetupBlocked(voiceResp) ? "blocked by setup/state" : "deeper issue remains";
+      }
+      results["commercialization-ownership"] = domain;
     }
 
     // 6. Tokenomics

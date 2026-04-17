@@ -3525,6 +3525,65 @@ describeLive("HTTP API contract integration", () => {
     )).toBe(transfereeWallet.address);
   }, 60_000);
 
+  it("rejects create-dataset-and-list-for-sale when the caller is no longer the current asset owner", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "create-dataset-and-list-for-sale ownership guard", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00001") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.000003") },
+    ])) return;
+    await ensureNativeBalance(founderAddress, ethers.parseEther("0.00001"));
+    await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.000003"));
+
+    const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      body: {
+        ipfsHash: `QmCommercializationOwnership${Date.now()}`,
+        royaltyRate: "100",
+      },
+    });
+    expect(createVoiceResponse.status).toBe(202);
+    await expectReceipt(extractTxHash(createVoiceResponse.payload));
+    const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+    const tokenId = String(await waitFor(
+      () => voiceAsset.getTokenId(voiceHash),
+      (value) => value > 0n,
+      "commercialization ownership token id",
+    ));
+
+    const transferResponse = await apiCall(port, "POST", `/v1/voice-assets/tokens/${encodeURIComponent(tokenId)}/transfers`, {
+      body: {
+        from: founderAddress,
+        to: transfereeWallet.address,
+        tokenId,
+      },
+    });
+    expect(transferResponse.status).toBe(202);
+    await expectReceipt(extractTxHash(transferResponse.payload));
+    expect(await waitFor(
+      () => voiceAsset.ownerOf(BigInt(tokenId)),
+      (value) => value === transfereeWallet.address,
+      "commercialization ownership transfer",
+    )).toBe(transfereeWallet.address);
+
+    const rejectedWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/create-dataset-and-list-for-sale", {
+      body: {
+        title: `Ownership Guard ${Date.now()}`,
+        assetIds: [tokenId],
+        metadataURI: `ipfs://ownership-guard-${Date.now()}`,
+        royaltyBps: "500",
+        price: "1000",
+        duration: "0",
+      },
+    });
+    expect(rejectedWorkflowResponse.status).toBe(409);
+    expect(rejectedWorkflowResponse.payload).toMatchObject({
+      error: expect.stringContaining("commercialization requires current asset ownership"),
+      diagnostics: {
+        assetId: tokenId,
+        actor: founderAddress,
+      },
+    });
+    expect(String((rejectedWorkflowResponse.payload as Record<string, unknown>).diagnostics && ((rejectedWorkflowResponse.payload as Record<string, unknown>).diagnostics as Record<string, unknown>).owner).toLowerCase()).toBe(transfereeWallet.address.toLowerCase());
+  }, 60_000);
+
   it("runs the onboard-rights-holder workflow and persists role plus voice authorization state", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "onboard-rights-holder workflow", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },

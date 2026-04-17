@@ -30,6 +30,7 @@
     "setup:base-sepolia": "tsx scripts/base-sepolia-operator-setup.ts",
     "test:contract:base-sepolia": "tsx scripts/run-base-sepolia-contract-proof.ts",
     "test:contract:admin-reads:base-sepolia": "API_LAYER_RUN_CONTRACT_INTEGRATION=1 vitest run packages/api/src/app.contract-integration.test.ts -t \"proves admin, emergency, and multisig control-plane reads through HTTP on Base Sepolia\" --maxWorkers 1",
+    "verify:layer1:live:base-sepolia": "tsx scripts/verify-layer1-live.ts --output verify-live-output.json",
     "verify:marketplace:purchase:base-sepolia": "tsx scripts/verify-marketplace-purchase-live.ts --output verify-marketplace-purchase-output.json",
     "verify:governance:base-sepolia": "tsx scripts/verify-governance-workflows.ts",
     "debug:tx": "tsx scripts/debug-tx.ts",

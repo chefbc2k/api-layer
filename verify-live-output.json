@@ -1,12 +1,12 @@
 {
   "summary": "proven working",
   "totals": {
-    "domainCount": 7,
-    "routeCount": 25,
-    "evidenceCount": 29
+    "domainCount": 8,
+    "routeCount": 30,
+    "evidenceCount": 36
   },
   "statusCounts": {
-    "proven working": 7,
+    "proven working": 8,
     "blocked by setup/state": 0,
     "semantically clarified but not fully proven": 0,
     "deeper issue remains": 0
@@ -31,7 +31,7 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0x938129d4160c8caef8b2cf378aa0f9ca55a28b0beb3f5aa04867bfb3a19c8c0d",
+              "txHash": "0x127bfc2683cb9d8cc6c30b9ecfacf0bf80af5340d22925a821fdd44f825a97ee",
               "result": "40"
             }
           }
@@ -39,8 +39,8 @@
         {
           "route": "submitTxHash",
           "actor": "founder-key",
-          "postState": "0x938129d4160c8caef8b2cf378aa0f9ca55a28b0beb3f5aa04867bfb3a19c8c0d",
-          "notes": "0x938129d4160c8caef8b2cf378aa0f9ca55a28b0beb3f5aa04867bfb3a19c8c0d"
+          "postState": "0x127bfc2683cb9d8cc6c30b9ecfacf0bf80af5340d22925a821fdd44f825a97ee",
+          "notes": "0x127bfc2683cb9d8cc6c30b9ecfacf0bf80af5340d22925a821fdd44f825a97ee"
         },
         {
           "route": "submitReceipt",
@@ -48,7 +48,7 @@
           "status": 1,
           "postState": {
             "status": 1,
-            "blockNumber": 39784097
+            "blockNumber": 40340385
           }
         },
         {
@@ -57,7 +57,7 @@
           "status": 200,
           "postState": {
             "status": 200,
-            "payload": "39790817"
+            "payload": "40347105"
           }
         },
         {
@@ -96,8 +96,8 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0xa7747b6d9c112d0da0ed799b0aeb548349505beaa1d8580c5068dbbe1263ce10",
-              "result": "0x3329a35c01d2d24505cc347277916c26c92887f0d86b200f7b1e7ba3c1f0bb19"
+              "txHash": "0x3fe1c37f56d440eed894cd52768ca9b91819eeea33a539bd10607d6a0b03b7ca",
+              "result": "0x1365a30cc995303fe6c107ad9449c5f1d206afdee52c713e0c68d0e895556b7e"
             }
           }
         },
@@ -107,7 +107,7 @@
           "status": 200,
           "postState": {
             "status": 200,
-            "payload": "252"
+            "payload": "249"
           }
         },
         {
@@ -118,7 +118,7 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0x3fefb43ccf3fbb7fa2cfeb64c63e1b21fe8334841c9df6312ce52ca8404d3b0a",
+              "txHash": "0x67b989493714002ade737a6c00a456551a407acd912b98d933fde0cc8d81882d",
               "result": null
             }
           }
@@ -131,7 +131,7 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0xe11686657178855a9463c87114e0de9bfad7dc0e41390a0657fdca6a5db204be",
+              "txHash": "0x296a0fef5b841540e84882f2d7e71d7327df7f3049185958e753b7296cc4b349",
               "result": null
             }
           }
@@ -142,7 +142,7 @@
           "status": 1,
           "postState": {
             "status": 1,
-            "blockNumber": 39784104
+            "blockNumber": 40340389
           }
         },
         {
@@ -154,15 +154,15 @@
             "payload": [
               {
                 "provider": {},
-                "transactionHash": "0xe11686657178855a9463c87114e0de9bfad7dc0e41390a0657fdca6a5db204be",
-                "blockHash": "0xb3cb44a27a09ba99b1830c7ebcd376fd593dedd3a3d65dee937e9543b49b887d",
-                "blockNumber": 39784104,
+                "transactionHash": "0x296a0fef5b841540e84882f2d7e71d7327df7f3049185958e753b7296cc4b349",
+                "blockHash": "0x2839ebc63dfb461c80570637da6f7297bde0354d358531dbffad72e258561e98",
+                "blockNumber": 40340389,
                 "removed": false,
                 "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "data": "0x",
                 "topics": [
                   "0x476606c547e15093eee9f27111d27bfb5d4a751983dec28c9100eb7bb39b8db1",
-                  "0x00000000000000000000000000000000000000000000000000000000000000fc",
+                  "0x00000000000000000000000000000000000000000000000000000000000000f9",
                   "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
                   "0x00000000000000000000000000000000000000000000000000000000000003e8"
                 ],
@@ -179,13 +179,13 @@
           "postState": {
             "status": 200,
             "payload": {
-              "tokenId": "252",
+              "tokenId": "249",
               "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
               "price": "1000",
-              "createdAt": "1775336975",
-              "createdBlock": "39784104",
-              "lastUpdateBlock": "39784104",
-              "expiresAt": "1777928975",
+              "createdAt": "1776449061",
+              "createdBlock": "40340389",
+              "lastUpdateBlock": "40340389",
+              "expiresAt": "1779041061",
               "isActive": true
             }
           }
@@ -218,8 +218,8 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0x8660e8ebc5c83324567ef2c3c4d3a323fbc117d123d3d0b487fc49f0b79a6020",
-              "result": "0xfcaf402ed91043b61595dc8bc749c2e337ae1c51c437ea2123f4e2d7ce6cd552"
+              "txHash": "0x9127d09f22dfce536aeaea60c37242ddd50b93214b856ed06064d7a70cc35330",
+              "result": "0x0cc02471a12d45e385bd1f14a0c09d8b57e8aaad30f1b578320b1ebb21bc2812"
             }
           }
         },
@@ -231,8 +231,8 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0x2e536b8ab8c356ea8edc94475e88d1db6ba0b60723c31174aa9b77ed495703e1",
-              "result": "0xed9e8dbf464bcceaf64df30eebfe53626157575c1fe838e1f73d270808d1def8"
+              "txHash": "0x46cbadb29e4cc05861c245c976ef635d1a5ef8381845979e7af1f876cdec0e2c",
+              "result": "0xec91ef83dcdf5f0a81b2999029bbda2d8cd0ad5e16f257a16576887477185792"
             }
           }
         },
@@ -242,7 +242,7 @@
           "status": 200,
           "postState": {
             "status": 200,
-            "payload": "254"
+            "payload": "250"
           }
         },
         {
@@ -251,15 +251,15 @@
           "status": 200,
           "postState": {
             "status": 200,
-            "payload": "256"
+            "payload": "251"
           }
         },
         {
           "route": "template",
           "actor": "founder-key,licensing-owner-key",
           "postState": {
-            "templateHashHex": "0xd4e43575982caa2eb3f604b3e1586305b14adfaa5c207f4e2d677b39427db3ba",
-            "templateIdDecimal": "96293533993317928275173364416725609570849680995952505144259191288435595654074",
+            "templateHashHex": "0x4f32e0591d5b917cffedb15699575de9702a0932fa24e670ee5974e943752184",
+            "templateIdDecimal": "35822605785025623838386697481035097442998751788212260136003315409364675010948",
             "created": false
           }
         },
@@ -271,8 +271,8 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0xd1aecaf8427ba15b721bc5871a0352c8fecaa8ba8ed85d6472f68cdabc783cd6",
-              "result": "1000000000000000035"
+              "txHash": "0xc95603ff40ac8ece082a4020a86b8e003373ef2fbb0c84cad24b4e5c874ccd01",
+              "result": "1000000000000000034"
             }
           }
         }
@@ -300,8 +300,8 @@
             "status": 202,
             "payload": {
               "requestId": null,
-              "txHash": "0xfd98265bc32c71da7d0eb9fc7a3a7b7d6ada9dac7b9349cda2515a248cf47ff2",
-              "result": "0x7be46799e3b76081d06c49ab3039e31b3bfb3e2e5f94332f06cee83577c0b996"
+              "txHash": "0xbd2b3247b4a51149854094d0efc05d847bdc20f24c057b3838ab6c138b1bebd3",
+              "result": "0x63cd1e4bd8573c98c3ec8db637c02d52fbbe2e3768a1378142c15ea45fe5781d"
             }
           }
         },
@@ -311,7 +311,7 @@
           "status": 1,
           "postState": {
             "status": 1,
-            "blockNumber": 39784113
+            "blockNumber": 40340393
           }
         },
         {
@@ -323,15 +323,15 @@
             "payload": [
               {
                 "provider": {},
-                "transactionHash": "0xfd98265bc32c71da7d0eb9fc7a3a7b7d6ada9dac7b9349cda2515a248cf47ff2",
-                "blockHash": "0xdbed154ea05e89ebdc4ca9956f13657ce9a417af48725ef76d7d61533d07e44d",
-                "blockNumber": 39784113,
+                "transactionHash": "0xbd2b3247b4a51149854094d0efc05d847bdc20f24c057b3838ab6c138b1bebd3",
+                "blockHash": "0x9311e73768fbad1561d2d3620659c91d7ea434336c89fdc50b81030c51fa945f",
+                "blockNumber": 40340393,
                 "removed": false,
                 "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-                "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737353333363938323436350000000000",
+                "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b516d4c6179657231566f6963652d313737363434393036373433390000000000",
                 "topics": [
                   "0xb880d056efe78a343939a6e08f89f5bcd42a5b9ce1b09843b0bed78e0a182876",
-                  "0x7be46799e3b76081d06c49ab3039e31b3bfb3e2e5f94332f06cee83577c0b996",
+                  "0x63cd1e4bd8573c98c3ec8db637c02d52fbbe2e3768a1378142c15ea45fe5781d",
                   "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
                   "0x00000000000000000000000000000000000000000000000000000000000000af"
                 ],
@@ -349,12 +349,111 @@
             "status": 200,
             "payload": [
               "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
-              "QmLayer1Voice-1775336982465",
+              "QmLayer1Voice-1776449067439",
               "175",
               false,
               "0",
-              "1775336981"
+              "1776449067"
             ]
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "commercialization-ownership": {
+      "routes": [
+        "POST /v1/voice-assets",
+        "GET /v1/voice-assets/queries/get-token-id",
+        "POST /v1/voice-assets/tokens/:tokenId/transfers",
+        "GET /v1/voice-assets/tokens/:tokenId/owner",
+        "POST /v1/workflows/create-dataset-and-list-for-sale"
+      ],
+      "actors": [
+        "founder-key",
+        "transferee-key"
+      ],
+      "executionResult": "proven working",
+      "evidence": [
+        {
+          "route": "createVoice",
+          "actor": "founder-key,transferee-key",
+          "status": 202,
+          "postState": {
+            "status": 202,
+            "payload": {
+              "requestId": null,
+              "txHash": "0xf9ec8f1223c51f2ff77ef3b2b2bab20596571425c4b8de97c1831cbdf67c41bf",
+              "result": "0x3085cef08655ae5a2062bd08b99db51c96bc22b6864ba8b7cec4f4b571efae50"
+            }
+          }
+        },
+        {
+          "route": "createVoiceReceipt",
+          "actor": "founder-key,transferee-key",
+          "status": 1,
+          "postState": {
+            "status": 1,
+            "blockNumber": 40340394
+          }
+        },
+        {
+          "route": "tokenId",
+          "actor": "founder-key,transferee-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "253"
+          }
+        },
+        {
+          "route": "transfer",
+          "actor": "founder-key,transferee-key",
+          "status": 202,
+          "postState": {
+            "status": 202,
+            "payload": {
+              "requestId": null,
+              "txHash": "0xa23743e567228753f28b80d20c45eb73fc4bc245cd1fceadd258fcdfb13a70b4",
+              "result": null
+            }
+          }
+        },
+        {
+          "route": "transferReceipt",
+          "actor": "founder-key,transferee-key",
+          "status": 1,
+          "postState": {
+            "status": 1,
+            "blockNumber": 40340395
+          }
+        },
+        {
+          "route": "ownerAfterTransfer",
+          "actor": "founder-key,transferee-key",
+          "status": 200,
+          "postState": {
+            "status": 200,
+            "payload": "0x666dde465b285738Ab3A309EF13fCD37994B356f"
+          }
+        },
+        {
+          "route": "rejectedCommercialization",
+          "actor": "founder-key,transferee-key",
+          "status": 409,
+          "postState": {
+            "status": 409,
+            "payload": {
+              "error": "commercialization requires current asset ownership; actor is not current owner; transfer asset ownership before commercialization",
+              "diagnostics": {
+                "assetId": "253",
+                "owner": "0x666dde465b285738ab3a309ef13fcd37994b356f",
+                "actor": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                "actorAuthorized": false,
+                "voiceHash": "0x3085cef08655ae5a2062bd08b99db51c96bc22b6864ba8b7cec4f4b571efae50"
+              }
+            }
           }
         }
       ],
