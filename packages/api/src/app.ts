@@ -66,6 +66,9 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
 
   mountDomainModules(app, apiExecutionContext);
   app.use(createWorkflowRouter(apiExecutionContext));
+  app.use((_request: Request, response: Response) => {
+    response.status(404).json({ error: "Not Found" });
+  });
 
   return {
     app,

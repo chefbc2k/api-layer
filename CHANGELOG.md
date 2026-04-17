@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.99] - 2026-04-17
+
+### Fixed
+- **Deterministic Unmatched-Route Rejection:** Added an explicit terminal `404` JSON fallback in [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) so unmatched requests like the legacy `POST /` path resolve immediately instead of relying on implicit Express fallthrough during long coverage runs.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Route Regression Proof:** Re-ran `pnpm vitest run packages/api/src/app.test.ts --maxWorkers 1`; all `4/4` API server tests pass, including the legacy root-path rejection that had previously timed out inside the full coverage sweep.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `123` passing files, `762` passing tests, and `18` intentionally skipped live contract proofs under default mode.
+- **Coverage Sweep Restored:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `762` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage remains `97.59%` statements, `90.05%` branches, `98.84%` functions, and `97.59%` lines, with [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) still at `96.87%` statements / `85%` branches / `100%` functions / `96.87%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for line/branch/function/statement coverage is still unmet. The highest-yield remaining handwritten gaps remain concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.98] - 2026-04-17
 
 ### Verified
