@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.79] - 2026-04-16
+
+### Fixed
+- **Operator Setup Mainline Coverage Expanded:** Added [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts) to exercise the real `main()` bootstrap path in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), including runtime RPC selection, fixture persistence, server shutdown, fork cleanup, provider destruction, and the top-level `isMainModule` error handler that logs and exits on startup failure.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, and aged marketplace fixture token `91` still marked `purchase-ready` with seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, price `1000`, created block `39043004`, and expiry `1776446296`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Operator Setup Proofs:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.main.test.ts scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.helpers.test.ts --coverage.enabled true --coverage.reporter=text --maxWorkers 1 --no-file-parallelism`; all `51` focused assertions pass. [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) improved from `88.07%` to `99.29%` statements, `75.09%` to `88.14%` branches, `93.33%` to `97.77%` functions, and `87.5%` to `99.26%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `122` passing files, `712` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `122` passing files, `712` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `95.51%` to `96.18%` statements, `85.77%` to `86.56%` branches, `98.09%` to `98.26%` functions, and `95.46%` to `96.15%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
 ## [0.1.78] - 2026-04-16
 
 ### Fixed
