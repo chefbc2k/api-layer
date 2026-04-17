@@ -18,7 +18,7 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runStakeAndDelegateWorkflow, stakeAndDelegateSchema } from "./stake-and-delegate.js";
+import { runStakeAndDelegateWorkflow, stakeAndDelegateSchema, stakeAndDelegateTestUtils } from "./stake-and-delegate.js";
 
 describe("runStakeAndDelegateWorkflow", () => {
   const auth = {
@@ -288,6 +288,61 @@ describe("runStakeAndDelegateWorkflow", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("retries post-stake readback across a non-200 response and accepts receiptless writes", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn(),
+      },
+    } as never;
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance: vi.fn().mockResolvedValue({ statusCode: 200, body: 50 }),
+      tokenApprove: vi.fn(),
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      getStakeInfo: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { amount: "oops" } })
+        .mockResolvedValueOnce({ statusCode: 503, body: { amount: "50" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { amount: 50 } })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000000" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+      stake: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      stakedEventQuery: vi.fn(),
+      delegates: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000000" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+      delegate: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      getCurrentVotes: vi.fn().mockResolvedValue({ statusCode: 200, body: 50n }),
+      delegateChangedAddressAddressAddressEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const result = await runStakeAndDelegateWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      amount: "50",
+      delegatee: "0x00000000000000000000000000000000000000bb",
+    });
+
+    expect(result.approval.source).toBe("existing");
+    expect(result.stake.txHash).toBeNull();
+    expect(result.stake.eventCount).toBe(0);
+    expect(result.stake.stakeInfoBefore).toEqual({ amount: "oops" });
+    expect(result.stake.stakeInfoAfter).toEqual({ amount: 50 });
+    expect(result.delegation.txHash).toBeNull();
+    expect(result.delegation.eventCount).toBe(0);
+    expect(result.delegation.currentVotes).toBe(50n);
+    setTimeoutSpy.mockRestore();
+  });
+
   it("throws when delegation readback never stabilizes", async () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
       if (typeof callback === "function") {
@@ -332,6 +387,74 @@ describe("runStakeAndDelegateWorkflow", () => {
       amount: "100",
       delegatee: "0x00000000000000000000000000000000000000bb",
     })).rejects.toThrow("stakeAndDelegate.delegateAfter readback timeout");
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("throws when a confirmed stake receipt cannot be read back", async () => {
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => null),
+        })),
+      },
+    } as never;
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance: vi.fn().mockResolvedValue({ statusCode: 200, body: "100" }),
+      tokenApprove: vi.fn(),
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      getStakeInfo: vi.fn().mockResolvedValue({ statusCode: 200, body: { amount: "0" } }),
+      stake: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xstake-write" } }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xstake-receipt");
+
+    await expect(runStakeAndDelegateWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      amount: "100",
+      delegatee: "0x00000000000000000000000000000000000000bb",
+    })).rejects.toThrow("stakeAndDelegate.stake receipt missing after confirmation: 0xstake-receipt");
+  });
+
+  it("throws when the staked event query never observes the confirmed transaction hash", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 88 })),
+        })),
+      },
+    } as never;
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance: vi.fn().mockResolvedValue({ statusCode: 200, body: "100" }),
+      tokenApprove: vi.fn(),
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      getStakeInfo: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { amount: "0" } })
+        .mockResolvedValue({ statusCode: 200, body: { amount: "100" } }),
+      stake: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xstake-write" } }),
+      stakedEventQuery: vi.fn().mockResolvedValue([]),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xstake-receipt");
+
+    await expect(runStakeAndDelegateWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      amount: "100",
+      delegatee: "0x00000000000000000000000000000000000000bb",
+    })).rejects.toThrow("stakeAndDelegate.stakedEvent event query timeout: []");
     setTimeoutSpy.mockRestore();
   });
 
@@ -552,5 +675,33 @@ describe("runStakeAndDelegateWorkflow", () => {
       amount: "1",
       delegatee: "0x00000000000000000000000000000000000000bb",
     })).rejects.toThrow(expected);
+  });
+
+  it("covers helper normalization branches through test utils", () => {
+    expect(stakeAndDelegateTestUtils.requestSignerPrivateKey(auth)).toBeNull();
+
+    const previousSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ known: "0xabc" });
+    expect(stakeAndDelegateTestUtils.requestSignerPrivateKey({ ...auth, signerId: "missing" })).toBeNull();
+    process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
+
+    expect(stakeAndDelegateTestUtils.readBigInt(7n)).toBe(7n);
+    expect(stakeAndDelegateTestUtils.readBigInt(9)).toBe(9n);
+    expect(stakeAndDelegateTestUtils.readBigInt("12")).toBe(12n);
+    expect(stakeAndDelegateTestUtils.readBigInt("bad")).toBe(0n);
+
+    expect(stakeAndDelegateTestUtils.normalizeEventLogs([{ transactionHash: "0x1" }])).toEqual([{ transactionHash: "0x1" }]);
+    expect(stakeAndDelegateTestUtils.normalizeEventLogs({ statusCode: 200, body: [{ transactionHash: "0x2" }] })).toEqual([{ transactionHash: "0x2" }]);
+    expect(stakeAndDelegateTestUtils.normalizeEventLogs({ statusCode: 200, body: null })).toEqual([]);
+    expect(stakeAndDelegateTestUtils.hasTransactionHash([{ transactionHash: "0x2" }], null)).toBe(false);
+    expect(stakeAndDelegateTestUtils.extractUint256Words("execution reverted: 0x06a35408")).toEqual([]);
+    expect(
+      stakeAndDelegateTestUtils.extractUint256Words(
+        "execution reverted: 0x06a354080000000000000000000000000000000000000000000000000000000000000001",
+      ),
+    ).toEqual(["1"]);
+
+    const unknownError = new Error("unhandled");
+    expect(stakeAndDelegateTestUtils.normalizeStakeExecutionError(unknownError, "1")).toBe(unknownError);
   });
 });

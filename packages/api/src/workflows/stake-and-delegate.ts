@@ -254,11 +254,7 @@ function extractUint256Words(text: string): string[] {
     const words: string[] = [];
     for (let index = 0; index + 64 <= payload.length; index += 64) {
       const word = payload.slice(index, index + 64);
-      try {
-        words.push(BigInt(`0x${word}`).toString());
-      } catch {
-        break;
-      }
+      words.push(BigInt(`0x${word}`).toString());
     }
     if (words.length > 0) {
       return words;
@@ -412,3 +408,12 @@ function readBigInt(value: unknown): bigint {
 function normalizeAddress(value: unknown): string | null {
   return typeof value === "string" ? value.toLowerCase() : null;
 }
+
+export const stakeAndDelegateTestUtils = {
+  normalizeStakeExecutionError,
+  requestSignerPrivateKey,
+  readBigInt,
+  normalizeEventLogs,
+  hasTransactionHash,
+  extractUint256Words,
+};
