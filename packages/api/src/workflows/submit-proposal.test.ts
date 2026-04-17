@@ -20,6 +20,7 @@ import {
   extractProposalIdFromReceipt,
   extractResult,
   runSubmitProposalWorkflow,
+  submitProposalTestUtils,
 } from "./submit-proposal.js";
 
 describe("submit proposal workflow", () => {
@@ -64,6 +65,31 @@ describe("submit proposal workflow", () => {
     expect(extractProposalIdFromReceipt({ logs: [{ topics: ["0xdeadbeef"], data: "0x" }] })).toBeNull();
     expect(extractResult(null)).toBeNull();
     expect(extractResult({ result: 123 })).toBeNull();
+  });
+
+  it("skips malformed receipt logs and still parses later proposal-created events", () => {
+    const iface = new Interface(facetRegistry.ProposalFacet.abi);
+    const event = iface.encodeEventLog(
+      iface.getEvent("ProposalCreated"),
+      [
+        124n,
+        "0x00000000000000000000000000000000000000aa",
+        ["0x00000000000000000000000000000000000000bb"],
+        [0n],
+        ["0x1234"],
+        "malformed log recovery",
+        56n,
+        100n,
+        0,
+      ],
+    );
+
+    expect(extractProposalIdFromReceipt({
+      logs: [
+        { topics: [], data: "0x1234" },
+        { topics: event.topics, data: event.data },
+      ],
+    })).toBe("124");
   });
 
   it("submits the modern proposal path, reads the proposal window, and returns a structured result", async () => {
@@ -389,5 +415,12 @@ describe("submit proposal workflow", () => {
     })).rejects.toThrow('submitProposal.proposalCreated event query timeout: [{"transactionHash":"0xother"}]');
 
     setTimeoutSpy.mockRestore();
+  });
+
+  it("exposes transaction-hash and event-normalization helpers for direct edge coverage", () => {
+    expect(submitProposalTestUtils.hasTransactionHash([{ transactionHash: "0xabc" }], null)).toBe(false);
+    expect(submitProposalTestUtils.hasTransactionHash([null, { transactionHash: "0xdef" }], "0xdef")).toBe(true);
+    expect(submitProposalTestUtils.normalizeEventLogs([{ transactionHash: "0xghi" }])).toEqual([{ transactionHash: "0xghi" }]);
+    expect(submitProposalTestUtils.normalizeEventLogs({ body: { transactionHash: "0xghi" } } as never)).toEqual([]);
   });
 });

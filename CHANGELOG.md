@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.89] - 2026-04-17
+
+### Fixed
+- **Governance Submission Edge Coverage Closed:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.test.ts) to prove malformed receipt-log recovery, direct event-log normalization, null transaction-hash matching, and proposal-window fallback behavior that leaves `earliestVotingBlock` null when snapshot readbacks return an undefined body. Exported [`submitProposalTestUtils`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts) so those helper-only branches can be validated without widening production behavior.
+- **Multisig Protocol Change Helper Branches Covered:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts) and exposed `countTxMatches` / `asMultisigTxMatch` through the existing [`multisigProtocolChangeTestUtils`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) export to prove the null-transaction-hash branch used by receiptless event accounting.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran focused Istanbul coverage for [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.test.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts); all `22` targeted assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts) now reaches `100%` statements / `100%` functions / `100%` lines with focused branch coverage at `95.91%`, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) reaches `100%` statements / `100%` functions / `100%` lines with focused branch coverage at `85.24%`.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `741` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `96.75%` to `96.85%` statements, `88.08%` to `88.18%` branches, `98.67%` functions unchanged, and `96.72%` to `96.83%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The highest-yield handwritten gaps are now concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/claim-reward-campaign.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/stake-and-delegate.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/stake-and-delegate.ts), and helper-heavy paths such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts).
+
 ## [0.1.88] - 2026-04-17
 
 ### Fixed

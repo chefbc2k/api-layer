@@ -480,3 +480,8 @@ function asMultisigTxMatch(entry: unknown, txHash: string | null) {
 }
 
 export { multisigProtocolChangeTestUtils };
+
+Object.assign(multisigProtocolChangeTestUtils, {
+  countTxMatches,
+  asMultisigTxMatch,
+});

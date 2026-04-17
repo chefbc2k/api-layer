@@ -375,4 +375,12 @@ describe("multisig protocol change workflows", () => {
     });
     expect(multisigProtocolChangeTestUtils.mapMultisigStatusLabel("2")).toBe("ReadyForExecution");
   });
+
+  it("treats null transaction hashes as zero event matches", () => {
+    expect(multisigProtocolChangeTestUtils.asMultisigTxMatch(null, "0xabc")).toBe(false);
+    expect(multisigProtocolChangeTestUtils.countTxMatches([
+      { transactionHash: "0xabc" },
+      { transactionHash: "0xdef" },
+    ], null)).toBe(0);
+  });
 });

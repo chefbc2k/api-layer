@@ -210,3 +210,8 @@ function normalizeEventLogs(value: unknown[] | RouteResult): unknown[] {
   const body = (value as { body?: unknown }).body;
   return Array.isArray(body) ? body : [];
 }
+
+export const submitProposalTestUtils = {
+  hasTransactionHash,
+  normalizeEventLogs,
+};
