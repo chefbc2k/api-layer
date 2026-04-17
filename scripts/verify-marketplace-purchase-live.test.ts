@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildBlockedFundingOutput, estimateBuyerNativeMinimum, selectMarketplacePurchaseTarget } from "./verify-marketplace-purchase-live.js";
+import {
+  buildBlockedFundingOutput,
+  buildBlockedPurchaseOutput,
+  estimateBuyerNativeMinimum,
+  selectMarketplacePurchaseTarget,
+} from "./verify-marketplace-purchase-live.js";
 
 describe("verify marketplace purchase live target selection", () => {
   it("uses the aged fixture only when setup marked it purchase-ready", () => {
@@ -86,6 +91,66 @@ describe("verify marketplace purchase live target selection", () => {
         fundingWallet: "0xfounder",
         recipient: "0xbuyer",
       },
+    });
+  });
+
+  it("renders a structured blocked report for known contract-state purchase failures", () => {
+    expect(buildBlockedPurchaseOutput({
+      chainId: 84532,
+      diamondAddress: "0xdiamond",
+      sellerAddress: "0xseller",
+      buyerAddress: "0xbuyer",
+      target: {
+        source: "aged-fixture",
+        tokenId: "11",
+        voiceHash: "0xvoice",
+        sellerAddress: "0xseller",
+        listing: null,
+      },
+      purchaseResponse: {
+        status: 409,
+        payload: {
+          message: "purchase-marketplace-asset blocked by setup/state: listing for token 11 has expired",
+          diagnostics: {
+            expiresAt: 1776286314n,
+          },
+        },
+      },
+      listingBefore: {
+        tokenId: "11",
+        isActive: true,
+        expiresAt: 1776286314n,
+      },
+    })).toEqual({
+      target: {
+        source: "aged-fixture",
+        chainId: 84532,
+        diamond: "0xdiamond",
+        tokenId: "11",
+        voiceHash: "0xvoice",
+      },
+      actors: {
+        seller: "0xseller",
+        buyer: "0xbuyer",
+      },
+      preState: {
+        listing: {
+          tokenId: "11",
+          isActive: true,
+          expiresAt: "1776286314",
+        },
+      },
+      purchase: {
+        status: 409,
+        payload: {
+          message: "purchase-marketplace-asset blocked by setup/state: listing for token 11 has expired",
+          diagnostics: {
+            expiresAt: "1776286314",
+          },
+        },
+      },
+      classification: "blocked by setup/state",
+      failureKind: "contract constraint",
     });
   });
 
