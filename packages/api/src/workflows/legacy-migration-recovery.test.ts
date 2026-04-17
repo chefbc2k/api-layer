@@ -28,7 +28,10 @@ vi.mock("./register-whisper-block.js", async () => {
   };
 });
 
-import { runLegacyMigrationRecoveryWorkflow } from "./legacy-migration-recovery.js";
+import {
+  legacyMigrationRecoveryWorkflowSchema,
+  runLegacyMigrationRecoveryWorkflow,
+} from "./legacy-migration-recovery.js";
 
 describe("runLegacyMigrationRecoveryWorkflow", () => {
   const auth = {
@@ -286,6 +289,79 @@ describe("runLegacyMigrationRecoveryWorkflow", () => {
     })).rejects.toThrow("legacy-migration-recovery failed role confirmation");
   });
 
+  it("rejects schema combinations that require a normalization voice hash", () => {
+    const missingExecutionVoiceHash = legacyMigrationRecoveryWorkflowSchema.safeParse({
+      legacy: {
+        execution: {
+          proofDocuments: ["proof-of-death.pdf"],
+          approverActors: [{ apiKey: "approver-key" }],
+        },
+      },
+    });
+    expect(missingExecutionVoiceHash.success).toBe(false);
+    expect(missingExecutionVoiceHash.error?.issues.map((issue) => issue.message)).toEqual([
+      "legacy-migration-recovery requires voiceHash when proofDocuments are provided",
+      "legacy-migration-recovery requires voiceHash when approverActors are provided",
+    ]);
+
+    const missingNormalizationVoiceHash = legacyMigrationRecoveryWorkflowSchema.safeParse({
+      legacy: {},
+      normalization: {
+        accessSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000ee",
+            expiryTime: "3600",
+            authorizeVoice: false,
+          },
+        ],
+        security: {
+          structuredFingerprintData: "0x1234",
+        },
+      },
+    });
+    expect(missingNormalizationVoiceHash.success).toBe(false);
+    expect(missingNormalizationVoiceHash.error?.issues.map((issue) => issue.message)).toEqual([
+      "legacy-migration-recovery requires voiceHash for post-migration access normalization",
+      "legacy-migration-recovery requires voiceHash for post-migration security normalization",
+    ]);
+  });
+
+  it("propagates failed post-migration authorization confirmation when voice authorization is requested", async () => {
+    mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
+      roleGrant: {
+        txHash: "0xrole",
+        hasRole: true,
+      },
+      authorizations: [
+        {
+          voiceHash,
+          txHash: "0xauth",
+          isAuthorized: false,
+        },
+      ],
+      summary: {},
+    });
+
+    await expect(runLegacyMigrationRecoveryWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      legacy: {
+        execution: {
+          voiceHash,
+        },
+      },
+      normalization: {
+        accessSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000ee",
+            expiryTime: "3600",
+            authorizeVoice: true,
+          },
+        ],
+      },
+    })).rejects.toThrow("legacy-migration-recovery failed post-migration authorization confirmation");
+  });
+
   it("propagates failed post-migration security confirmation", async () => {
     mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
       fingerprint: {
@@ -311,5 +387,32 @@ describe("runLegacyMigrationRecoveryWorkflow", () => {
         },
       },
     })).rejects.toThrow("legacy-migration-recovery requires verified fingerprint registration");
+  });
+
+  it("rejects mismatched security voice hash summaries", async () => {
+    mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
+      fingerprint: {
+        txHash: "0xfingerprint",
+        authenticityVerified: true,
+      },
+      encryptionKey: null,
+      accessGrant: null,
+      summary: {
+        voiceHash: `0x${"2".repeat(64)}`,
+      },
+    });
+
+    await expect(runLegacyMigrationRecoveryWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      legacy: {
+        execution: {
+          voiceHash,
+        },
+      },
+      normalization: {
+        security: {
+          structuredFingerprintData: "0x1234",
+        },
+      },
+    })).rejects.toThrow("legacy-migration-recovery security summary voiceHash mismatch");
   });
 });

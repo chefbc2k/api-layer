@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.88] - 2026-04-17
+
+### Fixed
+- **Legacy Migration Recovery Failure Paths Hardened:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts) to prove the schema-level `voiceHash` requirements for proof documents, approver actors, post-migration access normalization, and security normalization, plus the remaining runtime rejection branches for failed post-migration voice authorization and mismatched whisper-block summary hashes.
+- **Emergency Withdrawal Receiptless Branches Covered:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts) to prove the approval and execute paths when writes do not yield confirmed receipts, preserving zero-event accounting and non-executed summary state without changing workflow runtime behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran focused Istanbul coverage for [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts); all `14` targeted assertions pass. [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) now reaches `100%` statements / `100%` functions / `100%` lines in the focused run, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts) remains at `100%` statements / `100%` functions / `100%` lines with focused branch coverage improved to `89.58%`.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `123` passing files, `738` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `96.64%` to `96.75%` statements, `87.77%` to `88.08%` branches, `98.67%` functions unchanged, and `96.61%` to `96.72%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/submit-proposal.ts), and helper-heavy paths such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts).
+
 ## [0.1.87] - 2026-04-17
 
 ### Fixed
