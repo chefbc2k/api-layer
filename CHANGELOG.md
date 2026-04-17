@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.80] - 2026-04-16
+
+### Fixed
+- **Alchemy Runtime Fallback Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) to cover three previously unproven branches in [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts): loopback-only fixture RPC selection when no upstream origin is persisted, invalid fixture JSON fallback handling, and API scenario runs whose diagnostics payload cannot be read or parsed after process exit.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, and fallback reason `connect ECONNREFUSED 127.0.0.1:8548`.
+- **Setup Guard:** Re-ran `pnpm run setup:base-sepolia`; setup remains `ready` with founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, and aged marketplace fixture token `91` still marked `purchase-ready` with seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, price `1000`, created block `39043004`, and expiry `1776446296`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Debug Proofs:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts --maxWorkers 1` plus an isolated Istanbul run for the same file; all `25` targeted assertions pass. [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) improved from `93.33%` to `98.09%` statements, `78.16%` to `82.75%` branches, `100%` functions unchanged, and `93.13%` to `98.03%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the default suite is green at `122` passing files, `715` passing tests, and `17` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `122` passing files, `715` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `96.18%` to `96.29%` statements, `86.56%` to `86.65%` branches, `98.26%` functions unchanged, and `96.15%` to `96.26%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The next highest-yield handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) with only the `verifyNetwork` error-path destroy branch and all-nonstring fixture candidate fallback still uncovered.
+
 ## [0.1.79] - 2026-04-16
 
 ### Fixed

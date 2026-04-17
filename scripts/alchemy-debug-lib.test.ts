@@ -253,6 +253,48 @@ describe("alchemy-debug-lib", () => {
     expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
   });
 
+  it("falls back to a loopback fixture rpc when no upstream fixture origin is persisted", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "http://127.0.0.1:9555",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl) => {
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("http://127.0.0.1:9555");
+    expect(result.config.alchemyRpcUrl).toBe("http://127.0.0.1:9555");
+    expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
+  });
+
+  it("treats unreadable fixture payloads as missing fallback metadata", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue("{not-json");
+
+    await expect(resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+      },
+      async () => {
+        throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+      },
+    )).rejects.toThrow("connect ECONNREFUSED 127.0.0.1:8548");
+  });
+
   it("rethrows the original verification error when no fixture fallback is available", async () => {
     await expect(resolveRuntimeConfig(
       {
@@ -699,6 +741,31 @@ describe("alchemy-debug-lib", () => {
     expect(mocked.rm).toHaveBeenCalledWith("/tmp/api-layer-scenario-123", { recursive: true, force: true });
     expect(stdoutWrite).toHaveBeenCalledWith("api stdout");
     expect(stderrWrite).toHaveBeenCalledWith("api stderr");
+  });
+
+  it("returns null diagnostics when the API scenario diagnostics file is unreadable", async () => {
+    mocked.mkdtemp.mockResolvedValue("/tmp/api-layer-scenario-456");
+    mocked.readFile.mockRejectedValue(new Error("diagnostics missing"));
+    const child = createChildProcess();
+    mocked.spawn.mockReturnValue(child);
+
+    const promise = runScenarioCommand({
+      env: { CUSTOM_ENV: "1" },
+      contractsRoot: "/contracts",
+    } as any, "api", "pnpm scenario");
+
+    await Promise.resolve();
+    child.emit("exit", null);
+
+    await expect(promise).resolves.toEqual({
+      mode: "api",
+      command: "pnpm scenario",
+      exitCode: 1,
+      stdout: "",
+      stderr: "",
+      diagnostics: null,
+    });
+    expect(mocked.rm).toHaveBeenCalledWith("/tmp/api-layer-scenario-456", { recursive: true, force: true });
   });
 
   it("runs contract scenarios without diagnostics payloads", async () => {
