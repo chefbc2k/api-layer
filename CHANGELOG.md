@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.82] - 2026-04-16
+
+### Fixed
+- **Governance Timelock Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts) to prove three previously under-covered branches in [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts): the direct execute-state block when a proposal has not yet reached `Queued`, execute-write normalization through the workflow catch path for unauthorized execution attempts, and the `Active` proposal-state readiness mapping in the exported helper utilities.
+- **API Health Default Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts) to prove the `/v1/system/health` fallback path when neither `API_LAYER_CHAIN_ID` nor `CHAIN_ID` is configured, keeping the default Base Sepolia chain id branch under test without changing runtime logic.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Regression Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/governance-timelock-consequence-flow.test.ts packages/api/src/app.behavior.test.ts --maxWorkers 1`; all `22` targeted assertions pass. An isolated Istanbul pass shows [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts) improved from `96.91%` to `98.76%` statements, `84.70%` to `86.47%` branches, `94.11%` to `97.05%` functions, and `96.89%` to `98.75%` lines. [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) now measures `100%` statements, `92.85%` branches, `100%` functions, and `100%` lines under isolated coverage.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite is green at `122` passing files, `722` passing tests, and `17` intentionally skipped live contract proofs. Repo-wide coverage improved from `96.35%` to `96.41%` statements, `86.87%` to `86.96%` branches, `98.26%` to `98.34%` functions, and `96.33%` to `96.39%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Not Met:** Repo-wide branch coverage remains materially below the automation target. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and lower-coverage helper modules such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts).
+
 ## [0.1.81] - 2026-04-16
 
 ### Fixed

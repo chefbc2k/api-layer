@@ -534,6 +534,105 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     })).rejects.toThrow("execute blocked by timelock");
   });
 
+  it("blocks execute when the proposal has not been queued yet", async () => {
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "not queued",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        execute: {
+          apiKey: "execute-key",
+        },
+      },
+    })).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: expect.stringContaining("is not Queued"),
+    });
+  });
+
+  it("normalizes execute write failures through the workflow catch path", async () => {
+    mocks.runGovernanceExecutionFlowWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: { snapshot: "120", proposalState: "5", deadline: "240" },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: "300",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: "5",
+      },
+      vote: null,
+      executionReadiness: {
+        proposalState: "5",
+        proposalStateLabel: "Queued",
+        deadline: "240",
+        currentBlock: "300",
+        votingClosed: true,
+        queueEligible: false,
+        executeEligible: true,
+        phase: "queued-ready-to-execute",
+        nextGovernanceStep: "execute-when-operator-is-ready",
+        readinessBasis: "timelock-operation-derived",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        currentProposalState: "5",
+        currentProposalStateLabel: "Queued",
+        voteRequested: false,
+        voteCast: false,
+        queueEligible: false,
+        executeEligible: true,
+        nextGovernanceStep: "execute-when-operator-is-ready",
+        voter: null,
+      },
+    });
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce({
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { timestamp: "500", executed: false, canceled: false } }),
+      getTimestamp: vi.fn().mockResolvedValue({ statusCode: 200, body: "500" }),
+      isOperationPending: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationReady: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      isOperationExecuted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      prQueue: vi.fn(),
+      prExecute: vi.fn().mockRejectedValue(new Error("UnauthorizedGovernanceAction")),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      proposalQueuedEventQuery: vi.fn(),
+      operationStoredEventQuery: vi.fn(),
+      operationScheduledEventQuery: vi.fn(),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    });
+
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "execute unauthorized",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        operationId: "0x1111111111111111111111111111111111111111111111111111111111111111",
+        execute: {
+          apiKey: "execute-key",
+        },
+      },
+    })).rejects.toSatisfy((error) => error instanceof HttpError
+      && error.statusCode === 409
+      && error.message === "governance-timelock-consequence-flow execute blocked by insufficient authority");
+  });
+
   it("propagates child governance timing failures", async () => {
     mocks.runGovernanceExecutionFlowWorkflow.mockRejectedValueOnce(
       new HttpError(409, "governance-admin-flow vote blocked by timing: proposal 77 is not yet votable"),
@@ -656,6 +755,7 @@ describe("governance timelock consequence helpers", () => {
 
   it("derives readiness across terminal and queued timelock states", () => {
     expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("0", "240", "100", null).phase).toBe("pending");
+    expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("1", "240", "150", null).phase).toBe("active");
     expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("2", "240", "300", null).phase).toBe("canceled");
     expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("3", "240", "300", null).phase).toBe("defeated");
     expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("4", "240", "300", null).phase).toBe("succeeded-awaiting-queue");

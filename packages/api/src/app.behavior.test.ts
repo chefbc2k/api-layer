@@ -199,4 +199,22 @@ describe("createApiServer coverage branches", () => {
       server.close();
     }
   });
+
+  it("falls back to the default Base Sepolia chain id when chain env vars are unset", async () => {
+    delete process.env.API_LAYER_CHAIN_ID;
+    delete process.env.CHAIN_ID;
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const health = await jsonCall(port, "/v1/system/health");
+
+      expect(health).toEqual({
+        status: 200,
+        payload: { ok: true, chainId: 84532 },
+      });
+    } finally {
+      server.close();
+    }
+  });
 });
