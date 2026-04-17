@@ -4,7 +4,19 @@
 
 ---
 
-## [0.1.100] - 2026-04-17
+## [0.1.101] - 2026-04-17
+
+### Fixed
+- **Legacy Migration Custody Readback Coverage Collapsed:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.test.ts) with delayed custody readback and no-voice-hash proofs so [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) now exercises the token-id normalization retry path plus the null-custody summary branch without changing workflow behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Workflow Proofs:** Re-ran `pnpm vitest run packages/api/src/workflows/legacy-migration-recovery.test.ts --maxWorkers 1`; all `11/11` assertions pass, including the new delayed custody confirmation and null-custody branches.
+- **Coverage Sweep Improved:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `769` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `97.59%` statements, `90.48%` branches, `98.84%` functions, and `97.59%` lines, while [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) improved to `100%` statements / `98.46%` branches / `100%` functions / `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for branch/function/line/statement perfection is still unmet. The largest remaining branch gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and helper-heavy paths such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts).
 
 ### Fixed
 - **Reward Campaign Null-Receipt Coverage Completed:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts) to prove the schema guard plus both merkle-root and pause write paths when `waitForWorkflowWriteReceipt` never resolves, covering the `eventCount: 0` fallbacks without changing workflow behavior.

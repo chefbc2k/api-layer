@@ -698,4 +698,141 @@ describe("runLegacyMigrationRecoveryWorkflow", () => {
       custodyOwner: "0x00000000000000000000000000000000000000aa",
     });
   });
+
+  it("retries custody confirmation until token id and owner become readable", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          memo: "",
+          voiceAssets: [],
+          datasetIds: [],
+          beneficiaries: [],
+          conditions: {},
+          isActive: false,
+          isExecuted: false,
+        },
+      }),
+      isInheritanceReady: vi.fn(),
+      createLegacyPlan: vi.fn(),
+      addVoiceAssets: vi.fn(),
+      addDatasets: vi.fn(),
+      addInheritanceRequirement: vi.fn(),
+      validateBeneficiary: vi.fn(),
+      addBeneficiary: vi.fn(),
+      setBeneficiaryRelationship: vi.fn(),
+      setInheritanceConditions: vi.fn(),
+      initiateInheritance: vi.fn(),
+      approveInheritance: vi.fn(),
+      executeInheritance: vi.fn(),
+      delegateRights: vi.fn(),
+      getTokenId: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { unexpected: true } })
+        .mockResolvedValueOnce({ statusCode: 200, body: 77 }),
+      getVoiceAsset: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            owner: "not-an-address",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            owner: "0x00000000000000000000000000000000000000aa",
+          },
+        }),
+      legacyPlanCreatedEventQuery: vi.fn(),
+      inheritanceConditionsUpdatedEventQuery: vi.fn(),
+      inheritanceApprovedEventQuery: vi.fn(),
+      inheritanceActivatedEventQuery: vi.fn(),
+      rightsDelegatedEventQuery: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValueOnce(service);
+
+    const result = await runLegacyMigrationRecoveryWorkflow(context, auth, undefined, {
+      legacy: {
+        owner: "0x00000000000000000000000000000000000000aa",
+      },
+      normalization: {
+        voiceHash,
+      },
+    });
+
+    expect(service.getTokenId).toHaveBeenCalledTimes(2);
+    expect(service.getVoiceAsset).toHaveBeenCalledTimes(2);
+    expect(result.normalization.custody).toEqual({
+      tokenId: "77",
+      owner: "0x00000000000000000000000000000000000000aa",
+      voiceAsset: {
+        owner: "0x00000000000000000000000000000000000000aa",
+      },
+    });
+    expect(result.summary.custodyOwner).toBe("0x00000000000000000000000000000000000000aa");
+  });
+
+  it("returns null custody details when no execution or normalization voice hash is provided", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          memo: "",
+          voiceAssets: [],
+          datasetIds: [],
+          beneficiaries: [],
+          conditions: {},
+          isActive: false,
+          isExecuted: false,
+        },
+      }),
+      isInheritanceReady: vi.fn(),
+      createLegacyPlan: vi.fn(),
+      addVoiceAssets: vi.fn(),
+      addDatasets: vi.fn(),
+      addInheritanceRequirement: vi.fn(),
+      validateBeneficiary: vi.fn(),
+      addBeneficiary: vi.fn(),
+      setBeneficiaryRelationship: vi.fn(),
+      setInheritanceConditions: vi.fn(),
+      initiateInheritance: vi.fn(),
+      approveInheritance: vi.fn(),
+      executeInheritance: vi.fn(),
+      delegateRights: vi.fn(),
+      getTokenId: vi.fn(),
+      getVoiceAsset: vi.fn(),
+      legacyPlanCreatedEventQuery: vi.fn(),
+      inheritanceConditionsUpdatedEventQuery: vi.fn(),
+      inheritanceApprovedEventQuery: vi.fn(),
+      inheritanceActivatedEventQuery: vi.fn(),
+      rightsDelegatedEventQuery: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValueOnce(service);
+
+    const result = await runLegacyMigrationRecoveryWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      legacy: {
+        owner: "0x00000000000000000000000000000000000000aa",
+      },
+    });
+
+    expect(service.getTokenId).not.toHaveBeenCalled();
+    expect(service.getVoiceAsset).not.toHaveBeenCalled();
+    expect(result.normalization).toEqual({
+      voiceHash: null,
+      accessSetup: [],
+      security: null,
+      custody: null,
+    });
+    expect(result.summary).toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      normalizationVoiceHash: null,
+      beneficiaryCount: 0,
+      voiceAssetCountAdded: 0,
+      datasetCountAdded: 0,
+      inheritanceApprovalCount: 0,
+      inheritanceExecuted: false,
+      delegationApplied: false,
+      normalizationApplied: false,
+      custodyOwner: null,
+    });
+  });
 });
