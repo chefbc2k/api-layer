@@ -4,6 +4,18 @@
 
 ---
 
+## [0.1.86] - 2026-04-17
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on Base Sepolia fixture fallback with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and baseline commit `3b814442ca9eea1b56bd8683b8b7b19343c9c383`.
+- **Marketplace Purchase Proof Collapsed:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia`; [`/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json`](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) now records `classification: "proven working"` for the aged listing fixture on token `91` / voice hash `0x290d110028d79c6226292dd978275de7c19ba9b973a5fc7d0f6fd1d8acac7d46`, with purchase tx `0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca`, receipt status `1` in block `40322333`, post-purchase owner `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, listing `isActive: false`, buyer USDC `4000 -> 3000`, allowance `4000 -> 3000`, `AssetPurchased: 1`, `PaymentDistributed: 2`, and `AssetReleased: 1`.
+- **Admin/Emergency/Multisig Read Proof Stable In Isolated Run:** Re-ran `pnpm run test:contract:admin-reads:base-sepolia` in isolation after clearing competing live flows; the targeted Base Sepolia control-plane proof passes again with the single live assertion green and `16` unrelated live-contract assertions skipped. The route set covers `diamond-admin`, `emergency`, and `multisig` reads including `getTrustedInitCodehash`, `facetAddresses`, `facets`, `getOperationalInvariants`, `getUpgradeControlStatus`, `getUpgradeDelay`, `getUpgradeThreshold`, `isUpgradeSigner`, `getEmergencyState`, `getApprovalCount`, `canExecuteOperation`, `getOperation`, `getOperationStatus`, `hasApprovedOperation`, `isOperator`, and `getOperationConfig`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+
+### Remaining Issues
+- **Live Setup Probe Still Expensive To Complete:** This run refreshed the last known `.runtime` setup artifact and confirmed that the marketplace fixture remains `ready`, but `pnpm run setup:base-sepolia` still spends a long time walking seller asset/listing reads before process completion. The current blocker is runtime efficiency rather than a broken fixture state.
+- **100% Standard Coverage Still Not Met:** Repo-wide branch and line coverage remain below the automation target because this run focused on collapsing a live marketplace partial and re-validating the control-plane read domain without modifying the standard test suite.
+
 ## [0.1.85] - 2026-04-17
 
 ### Fixed
