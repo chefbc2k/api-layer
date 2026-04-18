@@ -660,6 +660,12 @@ export async function prepareAgedListingFixture(args: {
   diamondAddress: string;
   port: number;
   latestTimestamp: bigint;
+  marketplace?: {
+    getListing(tokenId: bigint): Promise<
+      [unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown] |
+      { tokenId?: unknown; seller?: unknown; price?: unknown; createdAt?: unknown; createdBlock?: unknown; lastUpdateBlock?: unknown; expiresAt?: unknown; isActive?: unknown }
+    >;
+  };
   apiCallFn?: typeof apiCall;
   waitForReceiptFn?: typeof waitForReceipt;
   retryApiReadFn?: typeof retryApiRead;
@@ -669,20 +675,35 @@ export async function prepareAgedListingFixture(args: {
   const retryRead = args.retryApiReadFn ?? retryApiRead;
   const agedFixture = createEmptyAgedListingFixture();
   const marketplaceCandidates: MarketplaceFixtureCandidate[] = [];
+  const agedCandidates: Array<{ voiceHash: string; tokenId: string; createdAt: bigint }> = [];
   let fallbackAsset: { voiceHash: string; tokenId: string } | null = null;
 
   for (const voiceHash of args.candidateVoiceHashes) {
     const asset = await args.voiceAsset.getVoiceAsset(voiceHash);
-    if (BigInt(asset.createdAt) > args.latestTimestamp) {
+    const createdAt = BigInt(asset.createdAt);
+    if (createdAt > args.latestTimestamp) {
       continue;
     }
 
     const tokenId = await args.voiceAsset.getTokenId(voiceHash);
-    const tokenIdString = tokenId.toString();
-    if (!fallbackAsset) {
-      fallbackAsset = { voiceHash, tokenId: tokenIdString };
-    }
+    agedCandidates.push({
+      voiceHash,
+      tokenId: tokenId.toString(),
+      createdAt,
+    });
+  }
 
+  agedCandidates.sort((left, right) => {
+    if (left.createdAt !== right.createdAt) {
+      return left.createdAt < right.createdAt ? -1 : 1;
+    }
+    return left.tokenId.localeCompare(right.tokenId);
+  });
+  fallbackAsset = agedCandidates[0]
+    ? { voiceHash: agedCandidates[0].voiceHash, tokenId: agedCandidates[0].tokenId }
+    : null;
+
+  if (agedCandidates.length > 0) {
     const approvalRead = await callApi(
       args.port,
       "GET",
@@ -699,21 +720,51 @@ export async function prepareAgedListingFixture(args: {
         await waitReceipt(args.port, extractTxHash(approval.payload));
       }
     }
+  }
 
-    const listingRead = await callApi(
-      args.port,
-      "GET",
-      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenIdString)}`,
-      { apiKey: "read-key" },
-    );
-    const listingPayload = listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
-      ? listingRead.payload as Record<string, unknown>
-      : null;
+  for (const candidate of agedCandidates) {
+    const tokenIdString = candidate.tokenId;
+    let listingStatus = 404;
+    let listingPayload: Record<string, unknown> | null = null;
+    if (args.marketplace) {
+      try {
+        const listingRead = await args.marketplace.getListing(BigInt(tokenIdString));
+        const normalizedListing = Array.isArray(listingRead)
+          ? {
+              tokenId: String(listingRead[0] ?? tokenIdString),
+              seller: String(listingRead[1] ?? ZeroAddress),
+              price: String(listingRead[2] ?? 0),
+              createdAt: String(listingRead[3] ?? 0),
+              createdBlock: String(listingRead[4] ?? 0),
+              lastUpdateBlock: String(listingRead[5] ?? 0),
+              expiresAt: String(listingRead[6] ?? 0),
+              isActive: Boolean(listingRead[7]),
+            }
+          : Object.fromEntries(
+              Object.entries(listingRead as Record<string, unknown>).map(([key, value]) => [key, typeof value === "bigint" ? value.toString() : value]),
+            );
+        listingStatus = 200;
+        listingPayload = normalizedListing;
+      } catch {
+        listingStatus = 404;
+      }
+    } else {
+      const listingRead = await callApi(
+        args.port,
+        "GET",
+        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenIdString)}`,
+        { apiKey: "read-key" },
+      );
+      listingStatus = listingRead.status;
+      listingPayload = listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
+        ? listingRead.payload as Record<string, unknown>
+        : null;
+    }
     marketplaceCandidates.push({
-      voiceHash,
+      voiceHash: candidate.voiceHash,
       tokenId: tokenIdString,
       listingReadback: {
-        status: listingRead.status,
+        status: listingStatus,
         payload: listingPayload,
       },
     });
@@ -869,6 +920,12 @@ export async function populateSetupStatus(args: {
     getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
   };
   escrow: { getOriginalOwner(tokenId: unknown): Promise<unknown> };
+  marketplace?: {
+    getListing(tokenId: bigint): Promise<
+      [unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown] |
+      { tokenId?: unknown; seller?: unknown; price?: unknown; createdAt?: unknown; createdBlock?: unknown; lastUpdateBlock?: unknown; expiresAt?: unknown; isActive?: unknown }
+    >;
+  };
   accessControl: { hasRole(role: string, account: string): Promise<boolean> };
   governorFacet: { getVotingConfig(): Promise<Array<bigint | number | string>> };
   delegationFacet: { getCurrentVotes(account: string): Promise<bigint | number | string> };
@@ -935,6 +992,7 @@ export async function populateSetupStatus(args: {
     diamondAddress: args.diamondAddress,
     port: args.port,
     latestTimestamp,
+    marketplace: args.marketplace,
   });
   args.status.marketplace = {
     ...(args.status.marketplace as Record<string, unknown>),
@@ -1009,6 +1067,7 @@ export async function main(): Promise<void> {
     const voiceAsset = new Contract(config.diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider);
     const payment = new Contract(config.diamondAddress, facetRegistry.PaymentFacet.abi, provider);
     const escrow = new Contract(config.diamondAddress, facetRegistry.EscrowFacet.abi, provider);
+    const marketplace = new Contract(config.diamondAddress, facetRegistry.MarketplaceFacet.abi, provider);
     const accessControl = new Contract(config.diamondAddress, facetRegistry.AccessControlFacet.abi, provider);
     const governorFacet = new Contract(config.diamondAddress, facetRegistry.GovernorFacet.abi, provider);
     const proposalFacet = new Contract(config.diamondAddress, facetRegistry.ProposalFacet.abi, provider);
@@ -1066,6 +1125,9 @@ export async function main(): Promise<void> {
         getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
       },
       escrow: escrow as unknown as { getOriginalOwner(tokenId: unknown): Promise<unknown> },
+      marketplace: marketplace as unknown as {
+        getListing(tokenId: bigint): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
+      },
       accessControl: accessControl as unknown as { hasRole(role: string, account: string): Promise<boolean> },
       governorFacet: governorFacet as unknown as { getVotingConfig(): Promise<Array<bigint | number | string>> },
       delegationFacet: delegationFacet as unknown as { getCurrentVotes(account: string): Promise<bigint | number | string> },

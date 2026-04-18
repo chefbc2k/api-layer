@@ -4,6 +4,24 @@
 
 ---
 
+## [0.1.110] - 2026-04-18
+
+### Fixed
+- **Base Sepolia Setup Scan No Longer Re-Checks Seller Approval Per Candidate:** Updated [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `prepareAgedListingFixture` now computes the aged seller candidate set first, sorts it oldest-first, and performs the seller approval read a single time before scanning listing state. This removes the repeated `VoiceAssetFacet.isApprovedForAll` loop that was dragging setup runs across large seller inventories.
+- **Marketplace Setup Listing Reads Moved Off The HTTP Hot Loop:** The same setup path now uses direct `MarketplaceFacet.getListing` facet reads during candidate inspection while keeping mutation attempts (`set-approval-for-all`, `list-asset`) on the API routes. That preserves real write-path validation while collapsing the repeated HTTP listing-read bottleneck that previously caused `pnpm run setup:base-sepolia` to spend minutes walking seller inventory.
+- **Setup Regression Coverage Expanded:** Extended [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts) to prove the new oldest-first candidate prioritization, single approval read, direct marketplace readback path, and main-module marketplace facet wiring.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured loopback RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and status `baseline verified`.
+- **Setup Partial Collapsed To A Fast Real Readback:** Re-ran `pnpm run setup:base-sepolia`; the setup now converges quickly on a real seller fixture instead of stalling on repeated candidate refreshes. The refreshed artifact lands on `setup.status: "partial"` with marketplace blocker `listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock`, `agedListingFixture.tokenId: "11"`, seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, `createdAt: "1773601130"`, `expiresAt: "1776193130"`, and `isActive: true`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Regression Checks:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts --maxWorkers 1`; all `47/47` assertions passed.
+- **Repo Green Guard:** Re-ran `pnpm test`; the suite remains green at `123` passing files, `790` passing tests, and `18` intentionally skipped live contract proofs.
+
+### Remaining Issues
+- **Marketplace Fixture Is Still Time-Locked, Not Unknown:** The prior setup-loop partial is resolved, but the current marketplace setup state is still only `partial` because the live seller listing surfaced by setup is active yet not purchase-ready under the marketplace contract’s 1 day trading lock. The next run should use this faster setup convergence to advance or verify the listing lifecycle rather than spending time rediscovering it.
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The next highest-yield handwritten gaps remain in [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts), and lower-branch helper workflows such as [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts).
+
 ## [0.1.109] - 2026-04-18
 
 ### Fixed

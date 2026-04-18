@@ -1306,6 +1306,107 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("reads seller approval once and prioritizes the oldest aged listing candidate", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xnewer", "0xolder"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn(async (voiceHash: string) => ({
+          createdAt: voiceHash === "0xnewer" ? "50" : "0",
+        })),
+        getTokenId: vi.fn(async (voiceHash: string) => (voiceHash === "0xnewer" ? 22n : 11n)),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xolder",
+      tokenId: "11",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+    });
+    expect(apiCallFn).toHaveBeenCalledTimes(2);
+    expect(apiCallFn).toHaveBeenNthCalledWith(
+      1,
+      8787,
+      "GET",
+      "/v1/voice-assets/queries/is-approved-for-all?owner=0xseller&operator=0xdiamond",
+      { apiKey: "read-key" },
+    );
+    expect(apiCallFn).toHaveBeenNthCalledWith(
+      2,
+      8787,
+      "GET",
+      "/v1/marketplace/queries/get-listing?tokenId=11",
+      { apiKey: "read-key" },
+    );
+  });
+
+  it("uses direct marketplace readbacks during setup scans when provided", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const marketplace = {
+      getListing: vi.fn(async (tokenId: bigint) => {
+        if (tokenId === 11n) {
+          return [11n, "0xseller", 1000n, 0n, 10n, 10n, 200000n, true] as const;
+        }
+        throw new Error("missing listing");
+      }),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xolder"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xolder",
+      tokenId: "11",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      listing: {
+        readback: {
+          status: 200,
+          payload: {
+            tokenId: "11",
+            seller: "0xseller",
+            price: "1000",
+            createdAt: "0",
+            createdBlock: "10",
+            lastUpdateBlock: "10",
+            expiresAt: "200000",
+            isActive: true,
+          },
+        },
+      },
+    });
+    expect(apiCallFn).toHaveBeenCalledTimes(1);
+    expect(marketplace.getListing).toHaveBeenCalledWith(11n);
+  });
+
   it("prepares a fallback aged listing fixture by approving and listing the first aged asset", async () => {
     const apiCallFn = vi.fn()
       .mockResolvedValueOnce({ status: 200, payload: false })

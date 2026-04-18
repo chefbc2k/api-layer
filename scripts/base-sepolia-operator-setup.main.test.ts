@@ -14,6 +14,7 @@ const generatedMocks = vi.hoisted(() => ({
     VoiceAssetFacet: { abi: ["voice"] },
     PaymentFacet: { abi: ["payment"] },
     EscrowFacet: { abi: ["escrow"] },
+    MarketplaceFacet: { abi: ["marketplace"] },
     AccessControlFacet: { abi: ["access"] },
     GovernorFacet: { abi: ["governor"] },
     ProposalFacet: { abi: ["proposal"] },
@@ -186,6 +187,11 @@ describe("base-sepolia-operator-setup main", () => {
       if (abi === generatedMocks.facetRegistry.EscrowFacet.abi) {
         return {
           getOriginalOwner: vi.fn(),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.MarketplaceFacet.abi) {
+        return {
+          getListing: vi.fn().mockRejectedValue(new Error("missing listing")),
         };
       }
       if (abi === generatedMocks.facetRegistry.AccessControlFacet.abi) {
