@@ -11,7 +11,7 @@ import { facetRegistry } from "../packages/client/src/generated/index.js";
 
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { collectSellerEscrowedVoiceHashes, prepareAgedListingFixture } from "./base-sepolia-operator-setup.js";
-import { isExpiredListing, mergeMarketplaceCandidateVoiceHashes } from "./base-sepolia-operator-setup.helpers.js";
+import { ONE_DAY, isExpiredListing, isPurchaseReadyListing, mergeMarketplaceCandidateVoiceHashes } from "./base-sepolia-operator-setup.helpers.js";
 import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiResponse = {
@@ -25,6 +25,7 @@ type FixtureReport = {
       tokenId?: string | null;
       voiceHash?: string | null;
       activeListing?: boolean;
+      status?: "ready" | "partial" | "blocked";
       purchaseReadiness?: "unverified" | "listed-not-yet-purchase-proven" | "purchase-ready";
       listing?: unknown;
     };
@@ -131,6 +132,12 @@ async function retryRead<T>(read: () => Promise<T>, ready: (value: T) => boolean
   }
   throw new Error(`timed out waiting for ${label}: ${JSON.stringify(normalize(lastValue))}`);
 }
+
+type ListingLike = {
+  createdAt?: string;
+  expiresAt?: string;
+  isActive?: boolean;
+};
 
 async function ensureNativeBalance(
   provider: JsonRpcProvider,
@@ -283,6 +290,48 @@ async function createFallbackListing(
     voiceHash,
     sellerAddress: founderAddress,
     listing: listingRead.payload,
+  };
+}
+
+export async function advanceLocalForkPastMarketplaceTradingLock(
+  provider: JsonRpcProvider,
+  rpcUrl: string,
+  listing: ListingLike | null | undefined,
+): Promise<{ advanced: boolean; secondsAdvanced: string; readyAt: string | null }> {
+  if (!isLoopbackRpcUrl(rpcUrl) || !listing || !listing.isActive || !listing.createdAt) {
+    return {
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: listing?.createdAt ? (BigInt(listing.createdAt) + ONE_DAY + 1n).toString() : null,
+    };
+  }
+
+  const latestBlock = await provider.getBlock("latest");
+  const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
+  if (isPurchaseReadyListing(listing, latestTimestamp) || isExpiredListing(listing, latestTimestamp)) {
+    return {
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: (BigInt(listing.createdAt) + ONE_DAY + 1n).toString(),
+    };
+  }
+
+  const readyAt = BigInt(listing.createdAt) + ONE_DAY + 1n;
+  const secondsToAdvance = readyAt > latestTimestamp ? readyAt - latestTimestamp : 0n;
+  if (secondsToAdvance <= 0n) {
+    return {
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: readyAt.toString(),
+    };
+  }
+
+  await provider.send("evm_increaseTime", [Number(secondsToAdvance)]);
+  await provider.send("evm_mine", []);
+  return {
+    advanced: true,
+    secondsAdvanced: secondsToAdvance.toString(),
+    readyAt: readyAt.toString(),
   };
 }
 
@@ -460,6 +509,24 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
   });
 }
 
+export function shouldAttemptMarketplaceRefresh(
+  agedListing: FixtureReport["marketplace"] extends { agedListingFixture?: infer T } ? T : never,
+): boolean {
+  if (!agedListing) {
+    return true;
+  }
+
+  if (agedListing.activeListing === true || agedListing.purchaseReadiness === "purchase-ready") {
+    return true;
+  }
+
+  if (agedListing.status === "blocked" && agedListing.purchaseReadiness === "unverified") {
+    return false;
+  }
+
+  return agedListing.purchaseReadiness !== "unverified";
+}
+
 async function refreshMarketplacePurchaseTarget(args: {
   port: number;
   provider: JsonRpcProvider;
@@ -594,6 +661,7 @@ async function main() {
   const { server, port } = await startServer();
   try {
     let target = selectMarketplacePurchaseTarget(agedListing, seller.address);
+    const shouldRefreshTarget = shouldAttemptMarketplaceRefresh(agedListing);
 
     let listingBefore = target
       ? await apiCall(
@@ -607,7 +675,7 @@ async function main() {
     const listingPayload = listingBefore?.status === 200 && listingBefore.payload && typeof listingBefore.payload === "object"
       ? listingBefore.payload as Record<string, unknown>
       : null;
-    if (target && listingPayload && isExpiredListing(listingPayload, BigInt(Math.floor(Date.now() / 1_000)))) {
+    if (shouldRefreshTarget && target && listingPayload && isExpiredListing(listingPayload, BigInt(Math.floor(Date.now() / 1_000)))) {
       target = await refreshMarketplacePurchaseTarget({
         port,
         provider,
@@ -628,7 +696,7 @@ async function main() {
         : null;
     }
 
-    if (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true) {
+    if (shouldRefreshTarget && (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true)) {
       const refreshedTarget = await refreshMarketplacePurchaseTarget({
         port,
         provider,
@@ -704,7 +772,32 @@ async function main() {
     const tokenId = target.tokenId;
     const ownerBefore = await voiceAsset.ownerOf(BigInt(tokenId));
     const listingRecord = listingBefore.payload as Record<string, unknown>;
-    const price = BigInt(String(listingRecord.price));
+    const forkTimeAdjustment = await advanceLocalForkPastMarketplaceTradingLock(
+      provider,
+      forkRuntime.rpcUrl,
+      listingRecord as ListingLike,
+    );
+    if (forkTimeAdjustment.advanced) {
+      listingBefore = await retryRead(
+        () => apiCall(
+          port,
+          "GET",
+          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
+          { apiKey: "read-key" },
+        ),
+        (value) => {
+          if (value.status !== 200 || !value.payload || typeof value.payload !== "object") {
+            return false;
+          }
+          const payload = value.payload as ListingLike;
+          const createdAt = payload.createdAt ? BigInt(payload.createdAt) : 0n;
+          return payload.isActive === true && createdAt > 0n;
+        },
+        "listing after local fork time advance",
+      );
+    }
+    const listingRecordAfterAdjustment = listingBefore.payload as Record<string, unknown>;
+    const price = BigInt(String(listingRecordAfterAdjustment.price));
 
     const buyerBalanceAtStart = BigInt(await erc20.balanceOf(buyer.address));
     const buyerAllowanceAtStart = BigInt(await erc20.allowance(buyer.address, config.diamondAddress));
@@ -857,6 +950,11 @@ async function main() {
           paymentDistributed: paymentDistributedEvents.payload,
           assetReleased: assetReleasedEvents.payload,
         },
+        notes: forkTimeAdjustment.advanced
+          ? {
+              localForkTimeAdvance: forkTimeAdjustment,
+            }
+          : undefined,
       },
     });
     const outputJson = JSON.stringify(output, null, 2);

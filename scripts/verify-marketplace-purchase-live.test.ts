@@ -1,11 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
+  advanceLocalForkPastMarketplaceTradingLock,
   buildMarketplacePurchaseVerifyOutput,
   buildBlockedFundingOutput,
   buildBlockedPurchaseOutput,
   estimateBuyerNativeMinimum,
   selectMarketplacePurchaseTarget,
+  shouldAttemptMarketplaceRefresh,
 } from "./verify-marketplace-purchase-live.js";
 
 describe("verify marketplace purchase live target selection", () => {
@@ -45,6 +47,24 @@ describe("verify marketplace purchase live target selection", () => {
       activeListing: true,
       purchaseReadiness: "purchase-ready",
     }, "0xseller")).toBeNull();
+  });
+
+  it("skips seller refresh when setup already proved the saved fixture is blocked and inactive", () => {
+    expect(shouldAttemptMarketplaceRefresh({
+      tokenId: "13",
+      voiceHash: "0xinactive",
+      activeListing: false,
+      status: "blocked",
+      purchaseReadiness: "unverified",
+    })).toBe(false);
+
+    expect(shouldAttemptMarketplaceRefresh({
+      tokenId: "11",
+      voiceHash: "0xvoice",
+      activeListing: true,
+      status: "partial",
+      purchaseReadiness: "listed-not-yet-purchase-proven",
+    })).toBe(true);
   });
 
   it("renders a structured blocked report for known gas-funding limits", () => {
@@ -305,5 +325,74 @@ describe("verify marketplace purchase live target selection", () => {
         "11",
       ),
     ).resolves.toBe(50_000_000_000_000n);
+  });
+
+  it("advances a local fork past the marketplace trading lock for active fresh listings", async () => {
+    const provider = {
+      getBlock: async () => ({ timestamp: 1_000 }),
+      send: vi.fn(async () => null),
+    };
+
+    await expect(
+      advanceLocalForkPastMarketplaceTradingLock(
+        provider as never,
+        "http://127.0.0.1:8548",
+        {
+          isActive: true,
+          createdAt: "1000",
+          expiresAt: String(1_000 + 10 * 86_400),
+        },
+      ),
+    ).resolves.toEqual({
+      advanced: true,
+      secondsAdvanced: "86401",
+      readyAt: "87401",
+    });
+
+    expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
+    expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+  });
+
+  it("does not advance non-loopback or already-mature marketplace listings", async () => {
+    const provider = {
+      getBlock: async () => ({ timestamp: 90_000 }),
+      send: vi.fn(async () => null),
+    };
+
+    await expect(
+      advanceLocalForkPastMarketplaceTradingLock(
+        provider as never,
+        "https://base-sepolia.example.invalid",
+        {
+          isActive: true,
+          createdAt: "1000",
+          expiresAt: "999999",
+        },
+      ),
+    ).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+
+    expect(provider.send).not.toHaveBeenCalled();
+
+    await expect(
+      advanceLocalForkPastMarketplaceTradingLock(
+        provider as never,
+        "http://127.0.0.1:8548",
+        {
+          isActive: true,
+          createdAt: "1000",
+          expiresAt: "999999",
+        },
+      ),
+    ).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+
+    expect(provider.send).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.108] - 2026-04-18
+
+### Fixed
+- **Marketplace Purchase Partial Collapsed On Fork:** Updated [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) so the live purchase verifier no longer treats a fresh fallback listing as a permanent blocker on the loopback Base Sepolia fork. When the proof must create a fresh founder listing, the verifier now advances the local fork past the marketplace contract’s 1 day trading lock, mines a block, and then completes the real purchase lifecycle through the API.
+- **Blocked Fixture Refresh No Longer Re-scans Dead Seller Inventory By Default:** Tightened [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) so a setup artifact already marked `status: "blocked"` with `purchaseReadiness: "unverified"` no longer triggers a long seller-inventory refresh sweep before falling back to a fresh proof path.
+- **Marketplace Purchase Regression Coverage Expanded:** Extended [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.test.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.test.ts) to cover the new local fork trading-lock time advance and the blocked-fixture refresh skip.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, fixture fallback RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured loopback RPC `http://127.0.0.1:8548`, and status `baseline verified`.
+- **Marketplace Purchase Live Proof:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia` and regenerated [/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json). The report now lands on `summary: "proven working"` with fallback listing token `248`, purchase tx `0xb431504aba16aef17356a62b5f8b1c66123da61a3e86124fd2f6ad93417d0379`, receipt block `40362038`, buyer owner readback `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, and event evidence for `AssetPurchased`, `PaymentDistributed`, and `AssetReleased`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Regression Checks:** Re-ran `pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts --maxWorkers 1`; all `55/55` targeted assertions passed.
+- **Repo Green Guard:** Re-ran `pnpm test`; the repo remains green at `123` passing files, `782` passing tests, and `18` intentionally skipped live contract proofs.
+
+### Remaining Issues
+- **Setup Fixture Loop Still Spins On Marketplace Candidate Refresh:** `pnpm run setup:base-sepolia` still spends minutes repeating `VoiceAssetFacet.isApprovedForAll` plus `MarketplaceFacet.getListing` across seller candidates instead of converging quickly on a blocked setup artifact. The marketplace purchase proof is now complete despite that loop, but the setup script still needs its own refresh-cap or early-exit fix.
+
 ## [0.1.107] - 2026-04-18
 
 ### Fixed
