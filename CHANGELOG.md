@@ -4,6 +4,24 @@
 
 ---
 
+## [0.1.114] - 2026-04-18
+
+### Fixed
+- **Setup Fixture Aging Now Uses The Real Fork Context:** Updated [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `populateSetupStatus` passes the live loopback provider and RPC URL into `prepareAgedListingFixture` instead of dropping that context at the call site. This removes a real wiring bug that previously made fork-time marketplace aging unreachable from `pnpm run setup:base-sepolia`.
+- **Existing Active Listing Setup Branch Now Attempts Local Time Advancement:** The same setup helper now tries `advanceLocalForkPastMarketplaceTradingLock` for already-active-but-too-young listings before returning a partial fixture. Setup no longer reserves fork-time aging for only the cancel-and-relist fallback path.
+- **Setup Regression Coverage Expanded Again:** Extended [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to verify both the new provider/RPC wiring and the preferred-listing local-fork aging branch. The focused setup + marketplace verifier suite now passes `63/63`.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured loopback RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API surface coverage remains complete at `492` validated methods.
+- **Targeted Regression Checks:** Re-ran `pnpm vitest run scripts/base-sepolia-operator-setup.test.ts scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1`; all `63/63` assertions passed.
+- **Marketplace Purchase Lifecycle Still Proves End-To-End:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia` and regenerated [/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json). The verifier still lands on `summary: "proven working"` with fresh founder listing token `248`, purchase tx `0x0302b49097a59384226ec4269b29921f53b717b308aab90365224c58232d7ec2`, receipt block `40372884`, post-purchase owner `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, and explicit fork-aging evidence `localForkTimeAdvance: { advanced: true, secondsAdvanced: "86401" }`.
+- **Setup Artifact Still Reproduces The Same Narrow Marketplace Partial:** Re-ran `pnpm run setup:base-sepolia` and refreshed [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The setup report still lands on `setup.status: "partial"` for seller token `11` after a real cancel-and-relist, with relist tx `0x777bd4c87e816fe928c03cdeca6216a233ef3e42dfe61abcfd333600b3301383`, refreshed listing readback `{ tokenId: "11", createdAt: "1776513999", createdBlock: "40372822", expiresAt: "1779105999", isActive: true }`, and blocker `listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock`.
+
+### Remaining Issues
+- **Setup-Time Fork Aging Still Does Not Collapse The Marketplace Partial Live:** The code path and tests are now present, but the live `setup:base-sepolia` artifact still reports the seller fixture as time-locked even after the setup helper has access to the loopback provider. In contrast, the purchase verifier records `localForkTimeAdvance.advanced: true` on the same environment. The next run should instrument the setup path’s post-advance timestamp/readback pair directly to isolate why setup and purchase proof diverge.
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The largest remaining handwritten gaps are still concentrated in [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts), and helper-heavy workflow files such as [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts).
+
 ## [0.1.113] - 2026-04-18
 
 ### Fixed

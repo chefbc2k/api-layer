@@ -997,6 +997,9 @@ describe("base sepolia operator setup helpers", () => {
       diamondAddress: "0xdiamond",
       port: 8787,
       latestTimestamp: 1000n,
+      provider: providerWithBlock,
+      rpcUrl: "http://127.0.0.1:8548",
+      marketplace: undefined,
     });
     expect(status.marketplace).toMatchObject({
       usdcFunding: { buyerBalanceAfterTransfer: "25000000" },
@@ -1487,6 +1490,86 @@ describe("base sepolia operator setup helpers", () => {
       },
     });
     expect(apiCallFn).toHaveBeenCalledTimes(1);
+    expect(marketplace.getListing).toHaveBeenCalledWith(11n);
+  });
+
+  it("ages an existing active listing on a local fork before returning the preferred fixture", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          tokenId: "11",
+          seller: "0xseller",
+          price: "1000",
+          createdAt: "100000",
+          expiresAt: "200000",
+          isActive: true,
+        },
+      });
+    const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>, condition: (value: any) => boolean) => {
+      const value = await read();
+      expect(condition(value)).toBe(true);
+      return value;
+    });
+    const provider = {
+      getBlock: vi.fn()
+        .mockResolvedValueOnce({ timestamp: 100_000 })
+        .mockResolvedValueOnce({ timestamp: 186_401 }),
+      send: vi.fn().mockResolvedValue(undefined),
+    };
+    const marketplace = {
+      getListing: vi.fn(async (tokenId: bigint) => {
+        if (tokenId === 11n) {
+          return [11n, "0xseller", 1000n, 100000n, 10n, 10n, 200000n, true] as const;
+        }
+        throw new Error("missing listing");
+      }),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xolder"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      marketplace,
+      apiCallFn: apiCallFn as any,
+      retryApiReadFn: retryApiReadFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xolder",
+      tokenId: "11",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+      listing: {
+        submission: null,
+        readback: {
+          status: 200,
+          payload: {
+            tokenId: "11",
+            seller: "0xseller",
+            price: "1000",
+            createdAt: "100000",
+            expiresAt: "200000",
+            isActive: true,
+          },
+        },
+      },
+    });
+    expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
+    expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+    expect(apiCallFn).toHaveBeenCalledTimes(2);
+    expect(retryApiReadFn).toHaveBeenCalledTimes(1);
     expect(marketplace.getListing).toHaveBeenCalledWith(11n);
   });
 

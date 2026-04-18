@@ -846,6 +846,34 @@ export async function prepareAgedListingFixture(args: {
   const preferredCandidate = selectPreferredMarketplaceFixtureCandidate(marketplaceCandidates, args.latestTimestamp);
   const preferredListing = preferredCandidate?.listingReadback.payload;
   if (preferredCandidate && preferredListing?.isActive === true && !isExpiredListing(preferredListing, args.latestTimestamp)) {
+    if (args.provider && args.rpcUrl && !isPurchaseReadyListing(preferredListing, args.latestTimestamp)) {
+      await advanceLocalForkPastMarketplaceTradingLock({
+        provider: args.provider,
+        rpcUrl: args.rpcUrl,
+        listing: preferredListing as MarketplaceListingLike,
+      });
+      const latestBlock = await args.provider.getBlock("latest");
+      const effectiveLatestTimestamp = BigInt(latestBlock?.timestamp ?? args.latestTimestamp);
+      const refreshedListing = await retryRead(
+        () => callApi(
+          args.port,
+          "GET",
+          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(preferredCandidate.tokenId)}`,
+          { apiKey: "read-key" },
+        ),
+        (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
+      );
+      return createPreferredMarketplaceFixture(
+        {
+          ...preferredCandidate,
+          listingReadback: {
+            status: refreshedListing.status,
+            payload: refreshedListing.payload as Record<string, unknown> | null,
+          },
+        },
+        effectiveLatestTimestamp,
+      );
+    }
     Object.assign(agedFixture, createPreferredMarketplaceFixture(preferredCandidate, args.latestTimestamp));
     return agedFixture;
   }
@@ -1112,6 +1140,8 @@ export async function populateSetupStatus(args: {
     diamondAddress: args.diamondAddress,
     port: args.port,
     latestTimestamp,
+    provider: args.provider,
+    rpcUrl: args.rpcUrl,
     marketplace: args.marketplace,
   });
   args.status.marketplace = {
