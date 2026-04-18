@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.105] - 2026-04-17
+
+### Fixed
+- **Recovery Workflow Nullish Fallback Coverage Expanded:** Extended [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts) with a focused approval-plus-completion regression that forces null `approvalCount` readbacks and missing completion body wrappers before the workflow converges. This closes additional helper-mediated fallback paths in [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) without changing production behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Recovery Regression Checks:** Re-ran `pnpm exec vitest run packages/api/src/workflows/recover-from-emergency.test.ts --maxWorkers 1` plus a focused Istanbul pass for the same file; all `19/19` assertions pass and [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) now reaches `100%` statements / `100%` functions / `100%` lines with branch coverage improved from `94.8%` to `98.7%`.
+- **Coverage Sweep Improved:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `776` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `97.86%` statements, `90.81%` branches, `98.92%` functions, and `97.87%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The highest-yield handwritten gaps are now more concentrated in [/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and helper-heavy marketplace/emergency workflow edges.
+
 ## [0.1.104] - 2026-04-17
 
 ### Fixed
