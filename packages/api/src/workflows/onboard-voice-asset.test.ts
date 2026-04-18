@@ -26,7 +26,7 @@ vi.mock("./register-whisper-block.js", async () => {
   };
 });
 
-import { runOnboardVoiceAssetWorkflow } from "./onboard-voice-asset.js";
+import { onboardVoiceAssetWorkflowSchema, runOnboardVoiceAssetWorkflow } from "./onboard-voice-asset.js";
 
 describe("runOnboardVoiceAssetWorkflow", () => {
   const context = {} as never;
@@ -123,6 +123,45 @@ describe("runOnboardVoiceAssetWorkflow", () => {
         grantedAccessActorCount: 0,
         encryptionKeyGenerated: false,
         whisperGrantUser: null,
+      },
+    });
+  });
+
+  it("parses the workflow schema with the security default", () => {
+    expect(onboardVoiceAssetWorkflowSchema.parse({
+      asset: {
+        ipfsHash: "ipfs://voice",
+        royaltyRate: "100",
+        owner: "0x00000000000000000000000000000000000000aa",
+        features: {
+          locale: "en-US",
+        },
+      },
+      accessSetup: {
+        role: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        expiryTime: "3600",
+        grantees: ["0x00000000000000000000000000000000000000bb"],
+      },
+      security: {
+        structuredFingerprintData: "0x1234",
+      },
+    })).toEqual({
+      asset: {
+        ipfsHash: "ipfs://voice",
+        royaltyRate: "100",
+        owner: "0x00000000000000000000000000000000000000aa",
+        features: {
+          locale: "en-US",
+        },
+      },
+      accessSetup: {
+        role: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        expiryTime: "3600",
+        grantees: ["0x00000000000000000000000000000000000000bb"],
+      },
+      security: {
+        structuredFingerprintData: "0x1234",
+        generateEncryptionKey: false,
       },
     });
   });
@@ -465,6 +504,38 @@ describe("runOnboardVoiceAssetWorkflow", () => {
     ).rejects.toThrow("verified fingerprint");
   });
 
+  it("fails when the security summary voice hash does not match the asset", async () => {
+    mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
+      fingerprint: {
+        submission: { txHash: "0xfingerprint" },
+        txHash: "0xfingerprint",
+        authenticityVerified: true,
+        eventCount: 1,
+      },
+      encryptionKey: null,
+      accessGrant: null,
+      summary: {
+        voiceHash: "0x2222222222222222222222222222222222222222222222222222222222222222",
+        generateEncryptionKey: false,
+        grantedUser: null,
+        grantedDuration: null,
+      },
+    });
+
+    await expect(
+      runOnboardVoiceAssetWorkflow(context, auth, undefined, {
+        asset: {
+          ipfsHash: "ipfs://voice",
+          royaltyRate: "100",
+        },
+        security: {
+          structuredFingerprintData: "0x1234",
+          generateEncryptionKey: false,
+        },
+      }),
+    ).rejects.toThrow("security summary voiceHash mismatch");
+  });
+
   it("fails when expected encryption key output is missing", async () => {
     mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
       fingerprint: {
@@ -514,5 +585,49 @@ describe("runOnboardVoiceAssetWorkflow", () => {
         },
       }),
     ).rejects.toThrow("expected whisper access grant");
+  });
+
+  it("fails when the whisper grant user does not match the request", async () => {
+    mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
+      fingerprint: {
+        submission: { txHash: "0xfingerprint" },
+        txHash: "0xfingerprint",
+        authenticityVerified: true,
+        eventCount: 1,
+      },
+      encryptionKey: null,
+      accessGrant: {
+        submission: { txHash: "0xgrant" },
+        txHash: "0xgrant",
+        eventCount: 1,
+        grant: {
+          user: "0x00000000000000000000000000000000000000ee",
+          duration: "900",
+        },
+      },
+      summary: {
+        voiceHash,
+        generateEncryptionKey: false,
+        grantedUser: "0x00000000000000000000000000000000000000ee",
+        grantedDuration: "900",
+      },
+    });
+
+    await expect(
+      runOnboardVoiceAssetWorkflow(context, auth, undefined, {
+        asset: {
+          ipfsHash: "ipfs://voice",
+          royaltyRate: "100",
+        },
+        security: {
+          structuredFingerprintData: "0x1234",
+          generateEncryptionKey: false,
+          grant: {
+            user: "0x00000000000000000000000000000000000000dd",
+            duration: "900",
+          },
+        },
+      }),
+    ).rejects.toThrow("whisper grant user mismatch");
   });
 });

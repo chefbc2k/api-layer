@@ -155,6 +155,19 @@ describe("alchemy-diagnostics", () => {
       gas: "0x5208",
       gasPrice: "0x09",
     });
+
+    expect(buildDebugTransaction({
+      gas: "finalized",
+      gasPrice: "earliest",
+      value: "safe",
+    }, "0x0000000000000000000000000000000000000006")).toEqual({
+      from: "0x0000000000000000000000000000000000000006",
+      to: undefined,
+      data: undefined,
+      value: "safe",
+      gas: "finalized",
+      gasPrice: "earliest",
+    });
   });
 
   it("simulates transactions, including pending-to-latest fallback behavior", async () => {
@@ -421,6 +434,27 @@ describe("alchemy-diagnostics", () => {
       "pending",
       { type: "callTracer" },
     );
+  });
+
+  it("handles empty trace payloads without inventing a call tree", async () => {
+    const alchemy = {
+      debug: {
+        traceTransaction: vi.fn().mockResolvedValue(undefined),
+        traceCall: vi.fn().mockResolvedValue(undefined),
+      },
+    };
+
+    await expect(traceTransactionWithAlchemy(alchemy as never, "0xtx")).resolves.toEqual({
+      status: "available",
+      txHash: "0xtx",
+      topLevelCall: undefined,
+      callTree: [],
+    });
+    await expect(traceCallWithAlchemy(alchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "available",
+      topLevelCall: undefined,
+      callTree: [],
+    });
   });
 
   it("verifies expected indexed events and reads actor state snapshots", async () => {

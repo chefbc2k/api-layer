@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.109] - 2026-04-18
+
+### Fixed
+- **Onboard Voice Asset Workflow Defensive Branches Covered:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-voice-asset.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-voice-asset.test.ts) to validate the workflow schema defaults plus the remaining defensive failure paths for security-summary voice-hash mismatch and whisper-grant user mismatch. This closes the last uncovered runtime branches in [/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-voice-asset.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-voice-asset.ts) without changing production behavior.
+- **Alchemy Diagnostics Helper Coverage Extended:** Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) to cover keyword block-tag quantity normalization and empty-trace handling in [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), tightening branch coverage around the diagnostics fallback helpers.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured loopback RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Regression Checks:** Re-ran `pnpm exec vitest run packages/api/src/workflows/onboard-voice-asset.test.ts packages/api/src/shared/alchemy-diagnostics.test.ts --coverage.enabled true --coverage.include=packages/api/src/workflows/onboard-voice-asset.ts --coverage.include=packages/api/src/shared/alchemy-diagnostics.ts --coverage.reporter=text --maxWorkers 1 --no-file-parallelism`; both files pass, [`/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-voice-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-voice-asset.ts) now reaches `100%` statements / branches / functions / lines in the focused run, and [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) improves to `92.72%` statements, `84.9%` branches, `90%` functions, and `93.33%` lines.
+- **Repo Green Guard:** Re-ran `pnpm test`; the suite remains green at `123` passing files, `786` passing tests, and `18` intentionally skipped live contract proofs.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `786` passing tests, and `18` skipped live contract proofs. Repo-wide coverage improved from `97.87%` to `97.95%` statements, `90.75%` to `90.84%` branches, `98.92%` functions unchanged, and `97.88%` to `97.96%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The next highest-yield handwritten gaps are still concentrated in [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts), and lower-branch helper workflows such as [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts).
+
 ## [0.1.108] - 2026-04-18
 
 ### Fixed
