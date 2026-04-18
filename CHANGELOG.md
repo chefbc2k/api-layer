@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.115] - 2026-04-18
+
+### Fixed
+- **Setup Listing Refreshes Now Stay On The Direct Facet Read Path:** Updated [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so marketplace fixture discovery, post-cancel confirmation, and post-list refreshes all reuse a single direct `MarketplaceFacet.getListing` normalization path when the setup harness already has a facet client. The setup flow still uses the real API routes for writes, but it no longer falls back to an extra HTTP listing-read hop during the same lifecycle.
+- **Setup Artifacts Now Carry Fork-Time Advancement Evidence:** The same setup helper now records `localForkTimeAdvance` on aged-listing fixtures, including whether a fork advance was attempted, whether it actually advanced, the target ready timestamp, seconds advanced, and the post-advance latest block timestamp. This narrows the remaining marketplace partial to an observable runtime divergence instead of an opaque status message.
+- **Setup Main Cleanup Now Awaits Server Shutdown:** Hardened [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts) so the setup script explicitly closes idle and active HTTP connections and awaits `server.close()` before tearing down the fork provider.
+- **Setup Regression Coverage Expanded For The New Readback Flow:** Extended [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove the direct-read refresh path, the new `localForkTimeAdvance` evidence payload, and the cleanup contract for main execution. The focused setup suite now passes `52/52`.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured loopback RPC `http://127.0.0.1:8548`, fallback RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API surface coverage remains complete at `492` validated methods.
+- **Repo Green Guard:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts --maxWorkers 1` and the full `pnpm test -- --maxWorkers 1` suite. The focused setup suites pass `52/52`, and the repo remains green with `123` passing files, `802` passing tests, and `18` intentionally skipped contract-integration proofs.
+
+### Remaining Issues
+- **Live Setup Still Hangs Before Artifact Persistence:** A fresh `pnpm run setup:base-sepolia` still reaches `USpeaks API listening on 55790` and then stalls without rewriting [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The new direct-read path and cleanup hardening are in place, but there is still a live runtime blocker between server startup and final fixture persistence.
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but repo-wide standard coverage is still below the automation target after this run. The last full coverage sweep remains at `97.96%` statements, `90.73%` branches, `98.93%` functions, and `97.97%` lines, with the largest residual branch density still concentrated in [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts), and [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.114] - 2026-04-18
 
 ### Fixed

@@ -53,6 +53,14 @@ type ListingReadback = {
   payload: Record<string, unknown> | null;
 };
 
+type LocalForkTimeAdvanceEvidence = {
+  attempted: boolean;
+  advanced: boolean;
+  secondsAdvanced: string;
+  readyAt: string | null;
+  latestTimestampAfterAdvance: string | null;
+};
+
 export type MarketplaceFixtureCandidate = {
   voiceHash: string;
   tokenId: string;
@@ -71,6 +79,7 @@ export type AgedListingFixture = {
     submission: unknown;
     readback: unknown;
   } | null;
+  localForkTimeAdvance: LocalForkTimeAdvanceEvidence | null;
 };
 
 type MarketplaceListingLike = {
@@ -184,6 +193,7 @@ export function createEmptyAgedListingFixture(): AgedListingFixture {
     reason: "missing aged seller asset",
     approval: null,
     listing: null,
+    localForkTimeAdvance: null,
   };
 }
 
@@ -223,6 +233,7 @@ export function createPreferredMarketplaceFixture(
       submission: null,
       readback: preferredCandidate.listingReadback,
     },
+    localForkTimeAdvance: null,
   };
 }
 
@@ -264,6 +275,7 @@ export function createFallbackMarketplaceFixture(
       submission,
       readback: refreshedListing,
     },
+    localForkTimeAdvance: null,
   };
 }
 
@@ -326,6 +338,61 @@ export function createInactivePreferredMarketplaceFixture(
       submission: null,
       readback: preferredCandidate.listingReadback,
     },
+    localForkTimeAdvance: null,
+  };
+}
+
+async function readMarketplaceListing(args: {
+  marketplace?: {
+    getListing(tokenId: bigint): Promise<
+      [unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown] |
+      { tokenId?: unknown; seller?: unknown; price?: unknown; createdAt?: unknown; createdBlock?: unknown; lastUpdateBlock?: unknown; expiresAt?: unknown; isActive?: unknown }
+    >;
+  };
+  port: number;
+  tokenId: string;
+  apiCallFn: typeof apiCall;
+}): Promise<ListingReadback> {
+  if (args.marketplace) {
+    try {
+      const listingRead = await args.marketplace.getListing(BigInt(args.tokenId));
+      const normalizedListing = Array.isArray(listingRead)
+        ? {
+            tokenId: String(listingRead[0] ?? args.tokenId),
+            seller: String(listingRead[1] ?? ZeroAddress),
+            price: String(listingRead[2] ?? 0),
+            createdAt: String(listingRead[3] ?? 0),
+            createdBlock: String(listingRead[4] ?? 0),
+            lastUpdateBlock: String(listingRead[5] ?? 0),
+            expiresAt: String(listingRead[6] ?? 0),
+            isActive: Boolean(listingRead[7]),
+          }
+        : Object.fromEntries(
+            Object.entries(listingRead as Record<string, unknown>).map(([key, value]) => [key, typeof value === "bigint" ? value.toString() : value]),
+          );
+      return {
+        status: 200,
+        payload: normalizedListing,
+      };
+    } catch {
+      return {
+        status: 404,
+        payload: null,
+      };
+    }
+  }
+
+  const listingRead = await args.apiCallFn(
+    args.port,
+    "GET",
+    `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(args.tokenId)}`,
+    { apiKey: "read-key" },
+  );
+  return {
+    status: listingRead.status,
+    payload: listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
+      ? listingRead.payload as Record<string, unknown>
+      : null,
   };
 }
 
@@ -746,6 +813,7 @@ export async function prepareAgedListingFixture(args: {
   const agedFixture = createEmptyAgedListingFixture();
   const marketplaceCandidates: MarketplaceFixtureCandidate[] = [];
   const agedCandidates: Array<{ voiceHash: string; tokenId: string; createdAt: bigint }> = [];
+  let localForkTimeAdvance: LocalForkTimeAdvanceEvidence | null = null;
   let fallbackAsset: { voiceHash: string; tokenId: string } | null = null;
 
   for (const voiceHash of args.candidateVoiceHashes) {
@@ -794,49 +862,17 @@ export async function prepareAgedListingFixture(args: {
 
   for (const candidate of agedCandidates) {
     const tokenIdString = candidate.tokenId;
-    let listingStatus = 404;
-    let listingPayload: Record<string, unknown> | null = null;
-    if (args.marketplace) {
-      try {
-        const listingRead = await args.marketplace.getListing(BigInt(tokenIdString));
-        const normalizedListing = Array.isArray(listingRead)
-          ? {
-              tokenId: String(listingRead[0] ?? tokenIdString),
-              seller: String(listingRead[1] ?? ZeroAddress),
-              price: String(listingRead[2] ?? 0),
-              createdAt: String(listingRead[3] ?? 0),
-              createdBlock: String(listingRead[4] ?? 0),
-              lastUpdateBlock: String(listingRead[5] ?? 0),
-              expiresAt: String(listingRead[6] ?? 0),
-              isActive: Boolean(listingRead[7]),
-            }
-          : Object.fromEntries(
-              Object.entries(listingRead as Record<string, unknown>).map(([key, value]) => [key, typeof value === "bigint" ? value.toString() : value]),
-            );
-        listingStatus = 200;
-        listingPayload = normalizedListing;
-      } catch {
-        listingStatus = 404;
-      }
-    } else {
-      const listingRead = await callApi(
-        args.port,
-        "GET",
-        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenIdString)}`,
-        { apiKey: "read-key" },
-      );
-      listingStatus = listingRead.status;
-      listingPayload = listingRead.status === 200 && listingRead.payload && typeof listingRead.payload === "object"
-        ? listingRead.payload as Record<string, unknown>
-        : null;
-    }
+    const listingReadback = await readMarketplaceListing({
+      marketplace: args.marketplace,
+      port: args.port,
+      tokenId: tokenIdString,
+      apiCallFn: callApi,
+    });
+    const listingPayload = listingReadback.payload;
     marketplaceCandidates.push({
       voiceHash: candidate.voiceHash,
       tokenId: tokenIdString,
-      listingReadback: {
-        status: listingStatus,
-        payload: listingPayload,
-      },
+      listingReadback,
     });
     if (isPurchaseReadyListing(listingPayload, args.latestTimestamp)) {
       break;
@@ -847,32 +883,36 @@ export async function prepareAgedListingFixture(args: {
   const preferredListing = preferredCandidate?.listingReadback.payload;
   if (preferredCandidate && preferredListing?.isActive === true && !isExpiredListing(preferredListing, args.latestTimestamp)) {
     if (args.provider && args.rpcUrl && !isPurchaseReadyListing(preferredListing, args.latestTimestamp)) {
-      await advanceLocalForkPastMarketplaceTradingLock({
+      const advanceResult = await advanceLocalForkPastMarketplaceTradingLock({
         provider: args.provider,
         rpcUrl: args.rpcUrl,
         listing: preferredListing as MarketplaceListingLike,
       });
       const latestBlock = await args.provider.getBlock("latest");
       const effectiveLatestTimestamp = BigInt(latestBlock?.timestamp ?? args.latestTimestamp);
+      localForkTimeAdvance = {
+        attempted: true,
+        ...advanceResult,
+        latestTimestampAfterAdvance: effectiveLatestTimestamp.toString(),
+      };
       const refreshedListing = await retryRead(
-        () => callApi(
-          args.port,
-          "GET",
-          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(preferredCandidate.tokenId)}`,
-          { apiKey: "read-key" },
-        ),
+        () => readMarketplaceListing({
+          marketplace: args.marketplace,
+          port: args.port,
+          tokenId: preferredCandidate.tokenId,
+          apiCallFn: callApi,
+        }),
         (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
       );
-      return createPreferredMarketplaceFixture(
+      const fixture = createPreferredMarketplaceFixture(
         {
           ...preferredCandidate,
-          listingReadback: {
-            status: refreshedListing.status,
-            payload: refreshedListing.payload as Record<string, unknown> | null,
-          },
+          listingReadback: refreshedListing,
         },
         effectiveLatestTimestamp,
       );
+      fixture.localForkTimeAdvance = localForkTimeAdvance;
+      return fixture;
     }
     Object.assign(agedFixture, createPreferredMarketplaceFixture(preferredCandidate, args.latestTimestamp));
     return agedFixture;
@@ -886,12 +926,12 @@ export async function prepareAgedListingFixture(args: {
     if (cancel.status === 202) {
       await waitReceipt(args.port, extractTxHash(cancel.payload));
       await retryRead(
-        () => callApi(
-          args.port,
-          "GET",
-          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(preferredCandidate.tokenId)}`,
-          { apiKey: "read-key" },
-        ),
+        () => readMarketplaceListing({
+          marketplace: args.marketplace,
+          port: args.port,
+          tokenId: preferredCandidate.tokenId,
+          apiCallFn: callApi,
+        }),
         (response) => {
           const payload = response.payload as Record<string, unknown> | null;
           return response.status !== 200 || payload?.isActive === false;
@@ -918,29 +958,34 @@ export async function prepareAgedListingFixture(args: {
     }
     let effectiveLatestTimestamp = args.latestTimestamp;
     let refreshedListing = await retryRead(
-      () => callApi(
-        args.port,
-        "GET",
-        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(fallbackAsset.tokenId)}`,
-        { apiKey: "read-key" },
-      ),
+      () => readMarketplaceListing({
+        marketplace: args.marketplace,
+        port: args.port,
+        tokenId: fallbackAsset.tokenId,
+        apiCallFn: callApi,
+      }),
       (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
     );
     if (args.provider && args.rpcUrl) {
-      await advanceLocalForkPastMarketplaceTradingLock({
+      const advanceResult = await advanceLocalForkPastMarketplaceTradingLock({
         provider: args.provider,
         rpcUrl: args.rpcUrl,
         listing: refreshedListing.payload as MarketplaceListingLike | null,
       });
       const latestBlock = await args.provider.getBlock("latest");
       effectiveLatestTimestamp = BigInt(latestBlock?.timestamp ?? effectiveLatestTimestamp);
+      localForkTimeAdvance = {
+        attempted: true,
+        ...advanceResult,
+        latestTimestampAfterAdvance: effectiveLatestTimestamp.toString(),
+      };
       refreshedListing = await retryRead(
-        () => callApi(
-          args.port,
-          "GET",
-          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(fallbackAsset.tokenId)}`,
-          { apiKey: "read-key" },
-        ),
+        () => readMarketplaceListing({
+          marketplace: args.marketplace,
+          port: args.port,
+          tokenId: fallbackAsset.tokenId,
+          apiCallFn: callApi,
+        }),
         (response) => response.status === 200 && (response.payload as Record<string, unknown> | null)?.isActive === true,
       );
     }
@@ -954,6 +999,7 @@ export async function prepareAgedListingFixture(args: {
       agedFixture.approval,
       effectiveLatestTimestamp,
     ));
+    agedFixture.localForkTimeAdvance = localForkTimeAdvance;
     return agedFixture;
   }
 
@@ -1289,7 +1335,9 @@ export async function main(): Promise<void> {
 
     await persistSetupStatus(status);
   } finally {
-    server.close();
+    server.closeAllConnections?.();
+    server.closeIdleConnections?.();
+    await new Promise<void>((resolve) => server.close(() => resolve()));
     forkRuntime.forkProcess?.kill("SIGTERM");
     await provider.destroy();
   }

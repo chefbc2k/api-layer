@@ -106,6 +106,7 @@ describe("base sepolia operator setup helpers", () => {
       reason: "missing aged seller asset",
       approval: null,
       listing: null,
+      localForkTimeAdvance: null,
     });
   });
 
@@ -209,6 +210,7 @@ describe("base sepolia operator setup helpers", () => {
         submission: { status: 202, payload: { txHash: "0xlist" } },
         readback: { status: 200, payload: { isActive: true } },
       },
+      localForkTimeAdvance: null,
     });
 
     expect(createInactivePreferredMarketplaceFixture({
@@ -223,6 +225,7 @@ describe("base sepolia operator setup helpers", () => {
       status: "blocked",
       reason: "seller owns aged assets, but none currently have an active listing",
       approval: { status: 202, payload: { txHash: "0xapproval" } },
+      localForkTimeAdvance: null,
     });
   });
 
@@ -240,6 +243,7 @@ describe("base sepolia operator setup helpers", () => {
       purchaseReadiness: "unverified",
       status: "blocked",
       reason: "listing remains active in readback, but its expiration time has already passed",
+      localForkTimeAdvance: null,
     });
   });
 
@@ -262,6 +266,7 @@ describe("base sepolia operator setup helpers", () => {
         submission: { status: 500, payload: { error: "listing failed" } },
         readback: { status: 404, payload: null },
       },
+      localForkTimeAdvance: null,
     });
   });
 
@@ -1551,6 +1556,13 @@ describe("base sepolia operator setup helpers", () => {
       purchaseReadiness: "purchase-ready",
       status: "ready",
       reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+      localForkTimeAdvance: {
+        attempted: true,
+        advanced: true,
+        secondsAdvanced: "86401",
+        readyAt: "186401",
+        latestTimestampAfterAdvance: "186401",
+      },
       listing: {
         submission: null,
         readback: {
@@ -1568,16 +1580,17 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
     expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
-    expect(apiCallFn).toHaveBeenCalledTimes(2);
+    expect(apiCallFn).toHaveBeenCalledTimes(1);
     expect(retryApiReadFn).toHaveBeenCalledTimes(1);
-    expect(marketplace.getListing).toHaveBeenCalledWith(11n);
+    expect(marketplace.getListing).toHaveBeenCalledTimes(2);
+    expect(marketplace.getListing).toHaveBeenNthCalledWith(1, 11n);
+    expect(marketplace.getListing).toHaveBeenNthCalledWith(2, 11n);
   });
 
   it("repairs an expired active direct listing on a local fork before returning the fixture", async () => {
     const apiCallFn = vi.fn()
       .mockResolvedValueOnce({ status: 200, payload: true })
       .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xcancel" } })
-      .mockResolvedValueOnce({ status: 200, payload: { isActive: false } })
       .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xlist" } })
       .mockResolvedValueOnce({
         status: 200,
@@ -1610,7 +1623,14 @@ describe("base sepolia operator setup helpers", () => {
     const marketplace = {
       getListing: vi.fn(async (tokenId: bigint) => {
         if (tokenId === 11n) {
-          return [11n, "0xseller", 1000n, 0n, 10n, 10n, 10n, true] as const;
+          const callIndex = marketplace.getListing.mock.calls.filter(([candidateTokenId]) => candidateTokenId === 11n).length;
+          if (callIndex === 1) {
+            return [11n, "0xseller", 1000n, 0n, 10n, 10n, 10n, true] as const;
+          }
+          if (callIndex === 2) {
+            return [11n, "0xseller", 1000n, 0n, 10n, 11n, 10n, false] as const;
+          }
+          return [11n, "0xseller", 1000n, 100000n, 12n, 12n, 200000n, true] as const;
         }
         throw new Error("missing listing");
       }),
@@ -1649,6 +1669,13 @@ describe("base sepolia operator setup helpers", () => {
       purchaseReadiness: "purchase-ready",
       status: "ready",
       reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+      localForkTimeAdvance: {
+        attempted: true,
+        advanced: true,
+        secondsAdvanced: "86401",
+        readyAt: "186401",
+        latestTimestampAfterAdvance: "186401",
+      },
       listing: {
         submission: { status: 202, payload: { txHash: "0xlist" } },
         readback: {
@@ -1668,8 +1695,8 @@ describe("base sepolia operator setup helpers", () => {
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(2, 8787, "0xlist");
     expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
     expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
-    expect(apiCallFn).toHaveBeenCalledTimes(6);
-    expect(marketplace.getListing).toHaveBeenCalledTimes(2);
+    expect(apiCallFn).toHaveBeenCalledTimes(3);
+    expect(marketplace.getListing).toHaveBeenCalledTimes(5);
   });
 
   it("prepares a fallback aged listing fixture by approving and listing the first aged asset", async () => {
@@ -1677,7 +1704,14 @@ describe("base sepolia operator setup helpers", () => {
       .mockResolvedValueOnce({ status: 200, payload: false })
       .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xapprove" } })
       .mockResolvedValueOnce({ status: 404, payload: null })
-      .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xlist" } });
+      .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xlist" } })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "99999",
+        },
+      });
     const waitForReceiptFn = vi.fn().mockResolvedValue(undefined);
     const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>) => {
       await read();
@@ -1735,6 +1769,10 @@ describe("base sepolia operator setup helpers", () => {
       .mockResolvedValueOnce({
         status: 500,
         payload: { error: "listing failed" },
+      })
+      .mockResolvedValueOnce({
+        status: 404,
+        payload: null,
       });
     const waitForReceiptFn = vi.fn();
     const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>) => {

@@ -138,7 +138,9 @@ describe("base-sepolia-operator-setup main", () => {
 
     const server = {
       address: vi.fn().mockReturnValue({ port: 8787 }),
-      close: vi.fn(),
+      close: vi.fn((callback?: () => void) => callback?.()),
+      closeAllConnections: vi.fn(),
+      closeIdleConnections: vi.fn(),
     };
     appMocks.createApiServer.mockReturnValue({
       listen: vi.fn().mockReturnValue(server),
@@ -251,6 +253,8 @@ describe("base-sepolia-operator-setup main", () => {
     });
     expect(ethersMocks.providerDestroy).toHaveBeenCalledTimes(1);
     expect(server.close).toHaveBeenCalledTimes(1);
+    expect(server.closeAllConnections).toHaveBeenCalledTimes(1);
+    expect(server.closeIdleConnections).toHaveBeenCalledTimes(1);
     expect(forkRuntime.forkProcess.kill).toHaveBeenCalledWith("SIGTERM");
     expect(consoleLog).toHaveBeenCalledTimes(1);
   });
