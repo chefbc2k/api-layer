@@ -42,6 +42,7 @@ describe("reward campaign helpers", () => {
     expect(extractCampaignIdFromLogs([{ transactionHash: "0xabc", campaignId: "campaign-7" }], "0xabc")).toBe("campaign-7");
     expect(extractCampaignIdFromLogs([{ transactionHash: "0xabc" }], "0xabc")).toBeNull();
     expect(extractCampaignIdFromLogs([{ transactionHash: "0xabc", campaignId: 5 }], null)).toBeNull();
+    expect(extractCampaignIdFromLogs([{ transactionHash: "0xdef", campaignId: 5 }], "0xabc")).toBeNull();
     expect(extractClaimedAmountFromLogs([{ transactionHash: "0xabc", amount: 15n }], "0xabc")).toBe("15");
     expect(extractClaimedAmountFromLogs([{ transactionHash: "0xabc", amount: 16 }], "0xabc")).toBe("16");
     expect(extractClaimedAmountFromLogs([{ transactionHash: "0xabc" }], "0xabc")).toBeNull();
