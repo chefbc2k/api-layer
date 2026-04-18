@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.102] - 2026-04-17
+
+### Fixed
+- **Reward Campaign Helper Edge Coverage Expanded:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.test.ts) with signer-map fallback failures, direct-array event query normalization, timeout error propagation, and additional scalar/address/log coercion proofs so [`/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts) now exercises the remaining helper-only branches without changing runtime workflow behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Helper Proofs:** Re-ran `pnpm exec vitest run packages/api/src/workflows/reward-campaign-helpers.test.ts --maxWorkers 1` and an isolated coverage run for [`/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts); the helper suite remains green and the targeted file improved to `98.85%` statements, `97.14%` branches, `100%` functions, and `98.78%` lines.
+- **Coverage Sweep Improved:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `769` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `97.67%` statements, `90.57%` branches, `98.84%` functions, and `97.68%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for branch/function/line/statement perfection is still unmet. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and smaller branch-only helpers such as [`/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts).
+
 ## [0.1.101] - 2026-04-17
 
 ### Fixed
