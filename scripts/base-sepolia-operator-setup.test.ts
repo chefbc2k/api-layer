@@ -172,6 +172,7 @@ describe("base sepolia operator setup helpers", () => {
       { status: 202, payload: { txHash: "0xlist" } },
       { status: 200, payload: { isActive: true } },
       { status: 202, payload: { txHash: "0xapproval" } },
+      100_000n,
     )).toMatchObject({
       voiceHash: "0xvoice",
       tokenId: "99",
@@ -201,15 +202,33 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
-  it("marks fallback listings blocked when activation never succeeds", () => {
+  it("marks fallback listings blocked when the refreshed listing is already expired", () => {
     expect(createFallbackMarketplaceFixture(
       { voiceHash: "0xvoice", tokenId: "101" },
       { status: 500, payload: { error: "listing failed" } },
-      { status: 404, payload: null },
+      { status: 200, payload: { isActive: true, createdAt: "0", expiresAt: "10" } },
       null,
+      100_000n,
     )).toMatchObject({
       voiceHash: "0xvoice",
       tokenId: "101",
+      activeListing: true,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing remains active in readback, but its expiration time has already passed",
+    });
+  });
+
+  it("marks fallback listings blocked when activation never succeeds", () => {
+    expect(createFallbackMarketplaceFixture(
+      { voiceHash: "0xvoice", tokenId: "102" },
+      { status: 500, payload: { error: "listing failed" } },
+      { status: 404, payload: null },
+      null,
+      100_000n,
+    )).toMatchObject({
+      voiceHash: "0xvoice",
+      tokenId: "102",
       activeListing: false,
       purchaseReadiness: "unverified",
       status: "blocked",
@@ -1405,6 +1424,58 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(apiCallFn).toHaveBeenCalledTimes(1);
     expect(marketplace.getListing).toHaveBeenCalledWith(11n);
+  });
+
+  it("prefers an expired active direct listing over older missing candidates", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const marketplace = {
+      getListing: vi.fn(async (tokenId: bigint) => {
+        if (tokenId === 11n) {
+          return [11n, "0xseller", 1000n, 0n, 10n, 10n, 10n, true] as const;
+        }
+        throw new Error("missing listing");
+      }),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xolder-missing", "0xexpired-active"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn(async (voiceHash: string) => ({
+          createdAt: voiceHash === "0xolder-missing" ? "0" : "1",
+        })),
+        getTokenId: vi.fn(async (voiceHash: string) => (voiceHash === "0xolder-missing" ? 10n : 11n)),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xexpired-active",
+      tokenId: "11",
+      activeListing: true,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing remains active in readback, but its expiration time has already passed",
+      listing: {
+        submission: null,
+        readback: {
+          status: 200,
+          payload: {
+            tokenId: "11",
+            seller: "0xseller",
+            price: "1000",
+            expiresAt: "10",
+            isActive: true,
+          },
+        },
+      },
+    });
+    expect(apiCallFn).toHaveBeenCalledTimes(1);
+    expect(marketplace.getListing).toHaveBeenCalledTimes(2);
   });
 
   it("prepares a fallback aged listing fixture by approving and listing the first aged asset", async () => {

@@ -54,9 +54,12 @@ export function classifyCandidatePriority(
 ): number {
   const listing = candidate.listingReadback.payload;
   if (isPurchaseReadyListing(listing, latestTimestamp)) {
-    return 3;
+    return 4;
   }
   if (candidate.listingReadback.status === 200 && listing?.isActive === true && !isExpiredListing(listing, latestTimestamp)) {
+    return 3;
+  }
+  if (candidate.listingReadback.status === 200 && listing?.isActive === true) {
     return 2;
   }
   return 1;

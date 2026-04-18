@@ -31,7 +31,7 @@ describe("base-sepolia marketplace fixture helpers", () => {
         status: 200,
         payload: { tokenId: "1", createdAt: "1", isActive: true },
       },
-    }, 1n + 24n * 60n * 60n)).toBe(3);
+    }, 1n + 24n * 60n * 60n)).toBe(4);
 
     expect(classifyCandidatePriority({
       voiceHash: "0xactive",
@@ -39,6 +39,15 @@ describe("base-sepolia marketplace fixture helpers", () => {
       listingReadback: {
         status: 200,
         payload: { tokenId: "2", createdAt: "10", isActive: true },
+      },
+    }, 20n)).toBe(3);
+
+    expect(classifyCandidatePriority({
+      voiceHash: "0xexpired",
+      tokenId: "22",
+      listingReadback: {
+        status: 200,
+        payload: { tokenId: "22", createdAt: "1", expiresAt: "2", isActive: true },
       },
     }, 20n)).toBe(2);
 

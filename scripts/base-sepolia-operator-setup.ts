@@ -224,17 +224,34 @@ export function createFallbackMarketplaceFixture(
   submission: unknown,
   refreshedListing: ListingReadback,
   approval: unknown,
+  latestTimestamp: bigint,
 ): AgedListingFixture {
   const activeListing = refreshedListing.status === 200 && refreshedListing.payload?.isActive === true;
+  const listingExpired = isExpiredListing(refreshedListing.payload, latestTimestamp);
+  const purchaseReady = isPurchaseReadyListing(refreshedListing.payload, latestTimestamp);
   return {
     voiceHash: fallbackAsset.voiceHash,
     tokenId: fallbackAsset.tokenId,
     activeListing,
-    purchaseReadiness: activeListing ? "listed-not-yet-purchase-proven" : "unverified",
-    status: activeListing ? "partial" : "blocked",
-    reason: activeListing
-      ? "listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock"
-      : "listing could not be activated",
+    purchaseReadiness: purchaseReady
+      ? "purchase-ready"
+      : activeListing && !listingExpired
+        ? "listed-not-yet-purchase-proven"
+        : "unverified",
+    status: purchaseReady
+      ? "ready"
+      : activeListing
+        ? listingExpired
+          ? "blocked"
+          : "partial"
+        : "blocked",
+    reason: purchaseReady
+      ? "listing is active and older than the marketplace contract's 1 day trading lock"
+      : activeListing
+        ? listingExpired
+          ? "listing remains active in readback, but its expiration time has already passed"
+          : "listing was activated during setup, but it is still within the marketplace contract's 1 day trading lock"
+        : "listing could not be activated",
     approval,
     listing: {
       submission,
@@ -805,6 +822,7 @@ export async function prepareAgedListingFixture(args: {
         payload: refreshedListing.payload as Record<string, unknown> | null,
       },
       agedFixture.approval,
+      args.latestTimestamp,
     ));
     return agedFixture;
   }
