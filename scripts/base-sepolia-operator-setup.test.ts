@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   apiCall,
   applyNativeSetupTopUps,
+  applyDomainSetupStatus,
   buildWalletContext,
   buildUsdcFundingStatus,
   collectSellerEscrowedVoiceHashes,
@@ -694,6 +695,31 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("propagates partial and blocked domain states into setup status", () => {
+    const status = {
+      actors: {},
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
+
+    applyDomainSetupStatus(status as any, "governance", "partial", "votes still below threshold");
+    expect(status.setup).toEqual({
+      status: "partial",
+      blockers: ["governance: votes still below threshold"],
+    });
+
+    applyDomainSetupStatus(status as any, "marketplace", "blocked", "listing could not be activated");
+    expect(status.setup).toEqual({
+      status: "blocked",
+      blockers: [
+        "governance: votes still below threshold",
+        "marketplace: listing could not be activated",
+      ],
+    });
+  });
+
   it("stores the upstream rpc separately from the fork runtime endpoint", async () => {
     const founder = ethers.Wallet.createRandom();
 
@@ -831,6 +857,83 @@ describe("base sepolia operator setup helpers", () => {
         licensee: licensee.address,
         transferee: transferee.address,
       },
+    });
+    expect(status.setup).toEqual({
+      status: "ready",
+      blockers: [],
+    });
+  });
+
+  it("marks setup blocked when injected fixture preparation remains blocked", async () => {
+    const provider = {} as any;
+    const founder = ethers.Wallet.createRandom().connect(provider);
+    const seller = ethers.Wallet.createRandom().connect(provider);
+
+    const status = {
+      actors: {},
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
+
+    await populateSetupStatus({
+      status,
+      fundingWallets: [founder, seller],
+      availableSpecsForFunding: new Map([[founder.address.toLowerCase(), "founder"]]),
+      founder,
+      seller,
+      buyer: null,
+      licensee: null,
+      transferee: null,
+      rpcUrl: "http://127.0.0.1:8548",
+      erc20: null,
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+        { label: "seller", privateKey: seller.privateKey },
+      ],
+      provider: {
+        getBlock: vi.fn().mockResolvedValue({ timestamp: 1000 }),
+      } as any,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: null,
+      voiceAsset: {
+        getVoiceAssetsByOwner: vi.fn(async (address: string) => (address === seller.address ? ["0xseller"] : [])),
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      escrow: {
+        getOriginalOwner: vi.fn().mockResolvedValue(seller.address),
+      },
+      accessControl: {
+        hasRole: vi.fn().mockResolvedValue(true),
+      },
+      governorFacet: {
+        getVotingConfig: vi.fn().mockResolvedValue([0n, 0n, 100n]),
+      },
+      delegationFacet: {
+        getCurrentVotes: vi.fn().mockResolvedValue(456n),
+      },
+      tokenSupply: {
+        tokenBalanceOf: vi.fn().mockResolvedValue(999n),
+        supplyIsMintingFinished: vi.fn().mockResolvedValue(true),
+      },
+      applyNativeSetupTopUpsFn: vi.fn(async ({ status: setupStatus }: { status: typeof status }) => {
+        setupStatus.setup.status = "ready";
+      }) as any,
+      buildUsdcFundingStatusFn: vi.fn().mockResolvedValue(null) as any,
+      collectSellerEscrowedVoiceHashesFn: vi.fn().mockResolvedValue([]) as any,
+      prepareAgedListingFixtureFn: vi.fn().mockResolvedValue({
+        tokenId: "11",
+        status: "blocked",
+        reason: "listing could not be activated",
+      }) as any,
+    });
+
+    expect(status.setup).toEqual({
+      status: "blocked",
+      blockers: ["marketplace: listing could not be activated"],
     });
   });
 

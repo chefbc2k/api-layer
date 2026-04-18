@@ -239,6 +239,10 @@ describe("base-sepolia-operator-setup main", () => {
         reason: "missing aged seller asset",
       },
     });
+    expect(writePayload.setup).toMatchObject({
+      status: "blocked",
+      blockers: ["marketplace: missing aged seller asset"],
+    });
     expect(ethersMocks.providerDestroy).toHaveBeenCalledTimes(1);
     expect(server.close).toHaveBeenCalledTimes(1);
     expect(forkRuntime.forkProcess.kill).toHaveBeenCalledWith("SIGTERM");

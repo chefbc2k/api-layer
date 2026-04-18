@@ -4,6 +4,25 @@
 
 ---
 
+## [0.1.107] - 2026-04-18
+
+### Fixed
+- **Setup Status Now Surfaces Real Marketplace/Governance Partials:** Updated [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so derived domain states are folded back into the top-level setup summary. The setup artifact no longer reports `ready` when the aged marketplace fixture is still blocked or governance remains only partially prepared.
+- **Marketplace Purchase Verifier Refreshes Seller Inventory Before Fallback:** Updated [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) so a stale or non-purchase-ready persisted fixture now triggers a live fork refresh of the seller’s aged listing candidates before the verifier manufactures a fresh founder fallback listing.
+- **Fallback Founder Gas Floor Hardened:** Raised the fallback creator top-up floor in [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) so the emergency founder-side create/list fallback is less likely to fail immediately on intrinsic gas cost under fork-backed runs.
+- **Regression Coverage Expanded For Setup-State Propagation:** Extended [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts) to lock in the new setup-status propagation and blocked-fixture reporting behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Regression Checks:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1`; all `53/53` targeted assertions passed.
+- **Repo Green Guard:** Re-ran `pnpm test`; the suite is green at `123` passing files, `779` passing tests, and `18` intentionally skipped live contract-integration proofs.
+- **Marketplace Purchase Live Probe:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia`; [/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) still lands on `summary: "blocked by setup/state"` because the verifier ultimately falls back to a fresh founder listing (`tokenId: "248"`) that is still inside the contract trading-lock window, but the run now attempts seller-fixture refresh before taking that fallback path.
+
+### Remaining Issues
+- **Marketplace Purchase Still Needs Purchase-Ready Aged Inventory:** The live verifier no longer trusts stale persisted fixture metadata, but the run still collapses to a fresh founder fallback listing when seller-side aged inventory cannot be activated into a purchase-ready state on the fork. That leaves the proof blocked by the marketplace contract’s 1 day trading lock instead of by stale setup metadata.
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The largest remaining handwritten gaps remain in helper-heavy workflow files rather than the generated API/client surface.
+
 ## [0.1.106] - 2026-04-17
 
 ### Fixed

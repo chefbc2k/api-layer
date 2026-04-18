@@ -54,6 +54,7 @@ type FundingCheckResult =
     };
 
 const MIN_BUYER_NATIVE_BALANCE = ethers.parseEther("0.00005");
+const MIN_FALLBACK_CREATOR_NATIVE_BALANCE = ethers.parseEther("0.00025");
 const BUYER_GAS_BUFFER_NUMERATOR = 12n;
 const BUYER_GAS_BUFFER_DENOMINATOR = 10n;
 
@@ -628,12 +629,34 @@ async function main() {
     }
 
     if (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true) {
+      const refreshedTarget = await refreshMarketplacePurchaseTarget({
+        port,
+        provider,
+        rpcUrl: forkRuntime.rpcUrl,
+        fundingWallets: fundingCandidates,
+        voiceAsset,
+        escrow,
+        sellerAddress: seller.address,
+        diamondAddress: config.diamondAddress,
+      });
+      if (refreshedTarget) {
+        target = refreshedTarget;
+        listingBefore = await apiCall(
+          port,
+          "GET",
+          `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(target.tokenId)}`,
+          { apiKey: "read-key" },
+        );
+      }
+    }
+
+    if (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true) {
       await ensureNativeBalance(
         provider,
         forkRuntime.rpcUrl,
         fundingCandidates,
         founder.address,
-        MIN_BUYER_NATIVE_BALANCE,
+        MIN_FALLBACK_CREATOR_NATIVE_BALANCE,
       );
       target = await createFallbackListing(port, provider, founder.address, voiceAsset);
       listingBefore = { status: 200, payload: target.listing };

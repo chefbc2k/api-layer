@@ -34,7 +34,7 @@
             "chainId": 84532,
             "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
             "tokenId": "248",
-            "voiceHash": "0xc68cc2ce45e157fa1d15cebd55fbf87e7a045101f4e99a38a735ba241922a4ac"
+            "voiceHash": "0x3bad09261c365707453928dd23fa21a5582737dd65a06bb330b2372efe06d465"
           }
         },
         {
@@ -44,10 +44,10 @@
               "tokenId": "248",
               "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
               "price": "1000",
-              "createdAt": "1776485352",
-              "createdBlock": "40358530",
-              "lastUpdateBlock": "40358530",
-              "expiresAt": "1779077352",
+              "createdAt": "1776488819",
+              "createdBlock": "40360230",
+              "lastUpdateBlock": "40360230",
+              "expiresAt": "1779080819",
               "isActive": true
             }
           }
@@ -102,7 +102,7 @@
         "chainId": 84532,
         "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
         "tokenId": "248",
-        "voiceHash": "0xc68cc2ce45e157fa1d15cebd55fbf87e7a045101f4e99a38a735ba241922a4ac"
+        "voiceHash": "0x3bad09261c365707453928dd23fa21a5582737dd65a06bb330b2372efe06d465"
       },
       "actorWallets": {
         "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
@@ -113,10 +113,10 @@
           "tokenId": "248",
           "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
           "price": "1000",
-          "createdAt": "1776485352",
-          "createdBlock": "40358530",
-          "lastUpdateBlock": "40358530",
-          "expiresAt": "1779077352",
+          "createdAt": "1776488819",
+          "createdBlock": "40360230",
+          "lastUpdateBlock": "40360230",
+          "expiresAt": "1779080819",
           "isActive": true
         }
       },

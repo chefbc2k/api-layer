@@ -778,6 +778,31 @@ export function createLicensingStatus(args: {
   };
 }
 
+export function applyDomainSetupStatus(
+  status: SetupStatus,
+  domain: string,
+  domainStatus: FixtureStatus,
+  reason: string,
+): void {
+  if (domainStatus === "ready") {
+    return;
+  }
+
+  const blocker = `${domain}: ${reason}`;
+  if (!status.setup.blockers.includes(blocker)) {
+    status.setup.blockers.push(blocker);
+  }
+
+  if (domainStatus === "blocked") {
+    status.setup.status = "blocked";
+    return;
+  }
+
+  if (status.setup.status !== "blocked") {
+    status.setup.status = "partial";
+  }
+}
+
 export async function createInitialStatus(args: {
   chainId: number;
   fixtureRpcUrl: string;
@@ -915,6 +940,7 @@ export async function populateSetupStatus(args: {
     ...(args.status.marketplace as Record<string, unknown>),
     agedListingFixture: agedFixture,
   };
+  applyDomainSetupStatus(args.status, "marketplace", agedFixture.status, agedFixture.reason);
 
   const proposerRole = roleId("PROPOSER_ROLE");
   const votingConfig = await args.governorFacet.getVotingConfig();
@@ -933,6 +959,12 @@ export async function populateSetupStatus(args: {
     tokenBalance,
     mintingFinished,
   });
+  applyDomainSetupStatus(
+    args.status,
+    "governance",
+    args.status.governance.status === "ready" ? "ready" : "partial",
+    String(args.status.governance.reason ?? "governance baseline requires additional setup"),
+  );
 
   args.status.licensing = createLicensingStatus({
     sellerAddress: args.seller.address,
