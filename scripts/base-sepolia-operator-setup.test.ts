@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  advanceLocalForkPastMarketplaceTradingLock,
   apiCall,
   applyNativeSetupTopUps,
   applyDomainSetupStatus,
@@ -66,6 +67,29 @@ describe("base sepolia operator setup helpers", () => {
 
     await expect(resultPromise).resolves.toEqual({ ready: true });
     expect(read).toHaveBeenCalledTimes(3);
+  });
+
+  it("advances a local fork past the marketplace trading lock when a listing is still fresh", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 1_000 }),
+      send: vi.fn().mockResolvedValue(undefined),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "1000",
+        expiresAt: "999999",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: true,
+      secondsAdvanced: "86401",
+      readyAt: "87401",
+    });
+    expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
+    expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
   });
 
   it("hashes role names consistently", () => {
@@ -700,6 +724,46 @@ describe("base sepolia operator setup helpers", () => {
       transferee,
       ethers.parseEther("0.00004"),
       "https://base-sepolia.example",
+    );
+  });
+
+  it("raises the seller gas floor on a loopback fork so marketplace repair writes can execute", async () => {
+    const founder = { address: "0xfounder" } as any;
+    const seller = { address: "0xseller" } as any;
+    const status = {
+      actors: {
+        founder: { address: founder.address },
+        seller: { address: seller.address },
+      },
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+    };
+    const ensureNativeBalanceFn = vi.fn().mockResolvedValue({
+      funded: true,
+      balance: "500",
+      attemptedFunders: [],
+    });
+
+    await applyNativeSetupTopUps({
+      status,
+      fundingWallets: [founder, seller],
+      availableSpecsForFunding: new Map(),
+      founder,
+      seller,
+      buyer: null,
+      licensee: null,
+      transferee: null,
+      rpcUrl: "http://127.0.0.1:8548",
+      ensureNativeBalanceFn,
+    });
+
+    expect(ensureNativeBalanceFn).toHaveBeenNthCalledWith(
+      2,
+      expect.any(Array),
+      expect.any(Map),
+      seller,
+      ethers.parseEther("0.001"),
+      "http://127.0.0.1:8548",
     );
   });
 
@@ -1426,8 +1490,40 @@ describe("base sepolia operator setup helpers", () => {
     expect(marketplace.getListing).toHaveBeenCalledWith(11n);
   });
 
-  it("prefers an expired active direct listing over older missing candidates", async () => {
-    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+  it("repairs an expired active direct listing on a local fork before returning the fixture", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xcancel" } })
+      .mockResolvedValueOnce({ status: 200, payload: { isActive: false } })
+      .mockResolvedValueOnce({ status: 202, payload: { txHash: "0xlist" } })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          tokenId: "11",
+          seller: "0xseller",
+          price: "1000",
+          createdAt: "100000",
+          expiresAt: "200000",
+          isActive: true,
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          tokenId: "11",
+          seller: "0xseller",
+          price: "1000",
+          createdAt: "100000",
+          expiresAt: "200000",
+          isActive: true,
+        },
+      });
+    const waitForReceiptFn = vi.fn().mockResolvedValue(undefined);
+    const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>, condition: (value: any) => boolean) => {
+      const value = await read();
+      expect(condition(value)).toBe(true);
+      return value;
+    });
     const marketplace = {
       getListing: vi.fn(async (tokenId: bigint) => {
         if (tokenId === 11n) {
@@ -1435,6 +1531,12 @@ describe("base sepolia operator setup helpers", () => {
         }
         throw new Error("missing listing");
       }),
+    };
+    const provider = {
+      getBlock: vi.fn()
+        .mockResolvedValueOnce({ timestamp: 100_000 })
+        .mockResolvedValueOnce({ timestamp: 186_401 }),
+      send: vi.fn().mockResolvedValue(undefined),
     };
 
     const result = await prepareAgedListingFixture({
@@ -1449,32 +1551,41 @@ describe("base sepolia operator setup helpers", () => {
       diamondAddress: "0xdiamond",
       port: 8787,
       latestTimestamp: 100_000n,
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
       marketplace,
       apiCallFn: apiCallFn as any,
+      waitForReceiptFn,
+      retryApiReadFn: retryApiReadFn as any,
     });
 
     expect(result).toMatchObject({
       voiceHash: "0xexpired-active",
       tokenId: "11",
       activeListing: true,
-      purchaseReadiness: "unverified",
-      status: "blocked",
-      reason: "listing remains active in readback, but its expiration time has already passed",
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      reason: "listing is active and older than the marketplace contract's 1 day trading lock",
       listing: {
-        submission: null,
+        submission: { status: 202, payload: { txHash: "0xlist" } },
         readback: {
           status: 200,
           payload: {
             tokenId: "11",
             seller: "0xseller",
             price: "1000",
-            expiresAt: "10",
+            createdAt: "100000",
+            expiresAt: "200000",
             isActive: true,
           },
         },
       },
     });
-    expect(apiCallFn).toHaveBeenCalledTimes(1);
+    expect(waitForReceiptFn).toHaveBeenNthCalledWith(1, 8787, "0xcancel");
+    expect(waitForReceiptFn).toHaveBeenNthCalledWith(2, 8787, "0xlist");
+    expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
+    expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+    expect(apiCallFn).toHaveBeenCalledTimes(6);
     expect(marketplace.getListing).toHaveBeenCalledTimes(2);
   });
 

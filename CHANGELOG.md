@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.113] - 2026-04-18
+
+### Fixed
+- **Expired Marketplace Fixture Repair Now Executes Real Seller Writes On The Fork:** Updated [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `setup:base-sepolia` no longer stops at an expired active listing. The setup flow now retries through the real `DELETE /v1/marketplace/commands/cancel-listing` and `POST /v1/marketplace/commands/list-asset` pathways, and it raises the seller’s loopback gas floor to `0.001 ETH` equivalent so the repair transaction budget is actually sufficient on the local Base Sepolia fork.
+- **Marketplace Setup Regression Coverage Expanded:** Extended [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove two previously unvalidated branches: fork-time marketplace lock advancement and the expired-listing cancel-and-relist repair path. The setup helper suite now passes `58/58`.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured loopback RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and status `baseline verified`.
+- **Marketplace Setup Partial Improved With Real Fork Evidence:** Re-ran `pnpm run setup:base-sepolia` and regenerated [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The marketplace fixture moved from `setup.status: "blocked"` to `setup.status: "partial"` after a successful cancel-and-relist repair on the fork, with relist tx `0x9bd1128c04c90176412f23c35a8bb7a4afd712fa601a70ccda0f43e220ac88d9`, refreshed listing readback `{ tokenId: "11", createdAt: "1776510587", createdBlock: "40371120", expiresAt: "1779102587", isActive: true }`, and blocker narrowed to the marketplace contract’s 1 day trading lock on the new listing.
+- **Repo Green Guard:** Re-ran the focused setup suites, full `pnpm test`, and `pnpm run test:coverage`. The repo is green with `123` passing files, `801` passing tests, and `18` intentionally skipped contract-integration proofs.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and `pnpm run test:coverage`; wrapper coverage remains complete at `492` functions and `218` events, HTTP API surface coverage remains complete at `492` validated methods, and standard test coverage currently sits at `97.96%` statements, `90.73%` branches, `98.93%` functions, and `97.97%` lines.
+
+### Remaining Issues
+- **Fork Timestamp Control Remains An Environment Limitation:** Direct probes against the auto-started Base Sepolia fork showed `evm_increaseTime` and `evm_setNextBlockTimestamp` returning successfully but leaving `latest.timestamp` unchanged (`1776510612 -> 1776510612` and `1776510636 -> 1776510636`). That prevents setup from auto-aging the relisted asset into a purchase-ready fixture even though the cancel/relist lifecycle now executes correctly.
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The largest remaining handwritten gaps are still concentrated in [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts), and helper-heavy workflow files such as [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts).
+
 ## [0.1.112] - 2026-04-18
 
 ### Fixed
