@@ -383,4 +383,31 @@ describe("abi-codec", () => {
     expect(decodeParamsFromWire(definition as never, paramsWire)).toEqual([{ 0: 7n, 1: true }]);
     expect(decodeResultFromWire(definition as never, { 0: "9", 1: false })).toEqual({ 0: 9n, 1: false });
   });
+
+  it("accepts pre-serialized integer strings across encode and decode entrypoints", () => {
+    const definition = {
+      signature: "signed(int256,uint256)",
+      inputs: [{ type: "int256" }, { type: "uint256" }],
+    };
+
+    expect(serializeParamsToWire(definition as never, ["-7", "11"])).toEqual(["-7", "11"]);
+    expect(decodeParamsFromWire(definition as never, ["-7", "11"])).toEqual([-7n, 11n]);
+  });
+
+  it("surfaces nested tuple validation failures from positional payloads", () => {
+    const definition = {
+      signature: "tupleArray((uint256,bool))",
+      inputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+    };
+
+    expect(() => validateWireParams(definition as never, [["nope", true]])).toThrow(
+      "invalid param 0 for tupleArray((uint256,bool)): invalid uint256 decimal string",
+    );
+  });
 });

@@ -882,6 +882,74 @@ describe("recover-from-emergency", () => {
     });
   });
 
+  it("rejects unknown actor override api keys before submitting writes", async () => {
+    const startRecovery = vi.fn();
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        }),
+      getRecoveryPlan: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: [[], false, "0", "0", "0", []] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [[], false, "0", "0", "0", []] }),
+      startRecovery,
+    });
+
+    await expect(runRecoverFromEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {},
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        incidentId: "9",
+        start: {
+          actor: {
+            apiKey: "missing-key",
+          },
+          steps: ["0x1234"],
+        },
+      },
+    )).rejects.toEqual(expect.objectContaining({
+      statusCode: 400,
+      message: "recover-from-emergency received unknown start apiKey",
+    }));
+
+    expect(startRecovery).not.toHaveBeenCalled();
+  });
+
   it.each([
     [
       "start-recovery",

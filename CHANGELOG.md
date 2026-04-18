@@ -4,6 +4,21 @@
 
 ---
 
+## [0.1.103] - 2026-04-17
+
+### Fixed
+- **Emergency Recovery Actor-Override Guard Coverage Added:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts) with an unknown-actor override proof so [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts) now explicitly exercises the early `apiKey` rejection path without changing runtime emergency behavior.
+- **ABI Codec Pre-Serialized Integer + Positional Tuple Validation Coverage Added:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) with direct signed/unsigned decimal-string encode-decode proofs and positional tuple validation failures so [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) covers additional integer and tuple-issue branches without altering serialization semantics.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Focused Regression Checks:** Re-ran `pnpm exec vitest run packages/api/src/workflows/recover-from-emergency.test.ts packages/client/src/runtime/abi-codec.test.ts --maxWorkers 1`; all `33/33` assertions pass with the new edge-case proofs included.
+- **Coverage Sweep Improved:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `772` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `97.76%` statements, `90.64%` branches, `98.84%` functions, and `97.76%` lines, while [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) improved to `96.68%` statements / `87.11%` branches / `97.5%` functions / `97.05%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The highest-yield remaining handwritten gaps are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and lower-level shared helpers such as [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts).
+
 ## [0.1.102] - 2026-04-17
 
 ### Fixed
