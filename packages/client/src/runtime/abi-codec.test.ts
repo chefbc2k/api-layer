@@ -410,4 +410,16 @@ describe("abi-codec", () => {
       "invalid param 0 for tupleArray((uint256,bool)): invalid uint256 decimal string",
     );
   });
+
+  it("handles unknown scalar types and malformed array suffixes permissively", () => {
+    const passthroughDefinition = {
+      signature: "mystery(customType,bad])",
+      inputs: [
+        { type: "customType" },
+        { type: "uint256bad]" },
+      ],
+    };
+
+    expect(() => validateWireParams(passthroughDefinition as never, [{ ok: true }, ["still-accepted"]])).not.toThrow();
+  });
 });

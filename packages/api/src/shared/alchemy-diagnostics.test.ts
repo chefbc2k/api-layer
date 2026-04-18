@@ -125,6 +125,8 @@ describe("alchemy-diagnostics", () => {
           address: "0x0000000000000000000000000000000000000002",
           data: "0x",
           topics: ["0xdeadbeef"],
+          logIndex: null,
+          transactionHash: null,
         },
       ],
     } as never)).toEqual([
@@ -140,6 +142,19 @@ describe("alchemy-diagnostics", () => {
         topic0: "0xdeadbeef",
       }),
     ]);
+
+    expect(buildDebugTransaction({
+      gas: 21_000,
+      gasPrice: 9,
+      value: 11,
+    }, "0x0000000000000000000000000000000000000005")).toEqual({
+      from: "0x0000000000000000000000000000000000000005",
+      to: undefined,
+      data: undefined,
+      value: "0x0b",
+      gas: "0x5208",
+      gasPrice: "0x09",
+    });
   });
 
   it("simulates transactions, including pending-to-latest fallback behavior", async () => {
@@ -500,5 +515,37 @@ describe("alchemy-diagnostics", () => {
       expectedEvent: "TestFacet.TestEvent",
       error: "log lookup failed",
     });
+  });
+
+  it("normalizes object-like indexed values when verifying events", async () => {
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 7n]);
+
+    await expect(verifyExpectedEventWithAlchemy({
+      core: {
+        getLogs: vi.fn().mockResolvedValue([
+          {
+            address: "0x0000000000000000000000000000000000000001",
+            data: encoded.data,
+            topics: encoded.topics,
+          },
+        ]),
+      },
+    } as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: "earliest",
+      toBlock: "safe",
+      indexedMatches: {
+        owner: {
+          nested: 1n,
+        },
+      },
+    })).resolves.toEqual(expect.objectContaining({
+      status: "mismatch",
+      mismatches: ["expected indexed argument owner=[object Object]"],
+    }));
   });
 });
