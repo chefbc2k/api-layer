@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.111] - 2026-04-18
+
+### Fixed
+- **Rights-Aware Commercialization Guard Coverage Expanded:** Extended [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts) to cover missing collaborator role-confirmation failure handling, the role-only/no-authorization invariant, and schema defaulting for `rightsSetup.authorizeVoice`. This closes the remaining uncovered defensive branches in [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-aware-commercialize-voice-asset.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-aware-commercialize-voice-asset.ts) without changing runtime behavior.
+- **Transfer-And-Resecure Workflow Defensive Branches Covered:** Extended [/Users/chef/Public/api-layer/packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts) to prove the role-only collaborator invariant, whisper security voice-hash mismatch rejection, whisper grant-user mismatch rejection, and schema defaults for post-transfer access entries. This materially tightens branch-level lifecycle proofing around the asset transfer plus whisper re-securing flow in [/Users/chef/Public/api-layer/packages/api/src/workflows/transfer-and-resecure-voice-asset.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/transfer-and-resecure-voice-asset.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, effective RPC `https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4`, configured loopback RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Regression Checks:** Re-ran `pnpm exec vitest run packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts --maxWorkers 1`; all `27/27` targeted assertions passed.
+- **Coverage Sweep:** Re-ran `pnpm run test:coverage`; the suite remains green at `123` passing files, `797` passing tests, and `18` intentionally skipped live contract proofs. Repo-wide coverage improved from `97.90%` to `98.00%` statements, `90.64%` to `90.76%` branches, `98.84%` functions unchanged, and `97.91%` to `98.02%` lines. In the workflow layer, coverage improved from `98.27%` to `98.44%` statements, `92.18%` to `92.37%` branches, and `98.21%` to `98.38%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The next highest-yield handwritten gaps remain concentrated in [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts), and helper-heavy workflow files such as [/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/rights-licensing-helpers.ts).
+- **Live Contract Write Proofs Remain Setup-Gated:** [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) is still skipped for `18` write-dependent Base Sepolia proofs in the default coverage run. The next run should either fund the required actors and execute a focused live slice or convert more of those proofs into deterministic fork-backed runs so the suite stops depending on ambient wallet balances.
+
 ## [0.1.110] - 2026-04-18
 
 ### Fixed

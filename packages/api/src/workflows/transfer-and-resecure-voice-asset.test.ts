@@ -30,7 +30,10 @@ vi.mock("./register-whisper-block.js", async () => {
   };
 });
 
-import { runTransferAndResecureVoiceAssetWorkflow } from "./transfer-and-resecure-voice-asset.js";
+import {
+  runTransferAndResecureVoiceAssetWorkflow,
+  transferAndResecureVoiceAssetWorkflowSchema,
+} from "./transfer-and-resecure-voice-asset.js";
 
 describe("runTransferAndResecureVoiceAssetWorkflow", () => {
   const context = {} as never;
@@ -387,6 +390,51 @@ describe("runTransferAndResecureVoiceAssetWorkflow", () => {
     expect(result.postTransferAccess.summary.voiceAuthorizationCount).toBe(0);
   });
 
+  it("fails when role-only collaborator setup returns per-voice authorizations", async () => {
+    mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
+      roleGrant: {
+        submission: { txHash: "0xrole" },
+        txHash: "0xrole",
+        hasRole: true,
+      },
+      authorizations: [
+        {
+          voiceHash,
+          authorization: { txHash: "0xauth" },
+          txHash: "0xauth",
+          isAuthorized: true,
+        },
+      ],
+      summary: {
+        role,
+        account: "0x00000000000000000000000000000000000000cc",
+        expiryTime: "3600",
+        requestedVoiceCount: 0,
+        authorizedVoiceCount: 1,
+      },
+    });
+
+    await expect(
+      runTransferAndResecureVoiceAssetWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        transfer: {
+          from: "0x00000000000000000000000000000000000000aa",
+          to: "0x00000000000000000000000000000000000000bb",
+          tokenId: "17",
+          safe: false,
+        },
+        postTransferAccess: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000cc",
+            expiryTime: "3600",
+            authorizeVoice: false,
+          },
+        ],
+      }),
+    ).rejects.toThrow("expected no per-voice authorizations");
+  });
+
   it("propagates security failure", async () => {
     mocks.runRegisterWhisperBlockWorkflow.mockRejectedValueOnce(new Error("security failed"));
 
@@ -442,6 +490,42 @@ describe("runTransferAndResecureVoiceAssetWorkflow", () => {
         },
       }),
     ).rejects.toThrow("verified fingerprint");
+  });
+
+  it("fails when whisper security summary voice hash does not match the transferred asset", async () => {
+    mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
+      fingerprint: {
+        submission: { txHash: "0xfingerprint" },
+        txHash: "0xfingerprint",
+        authenticityVerified: true,
+        eventCount: 1,
+      },
+      encryptionKey: null,
+      accessGrant: null,
+      summary: {
+        voiceHash: "0x2222222222222222222222222222222222222222222222222222222222222222",
+        generateEncryptionKey: false,
+        grantedUser: null,
+        grantedDuration: null,
+      },
+    });
+
+    await expect(
+      runTransferAndResecureVoiceAssetWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        transfer: {
+          from: "0x00000000000000000000000000000000000000aa",
+          to: "0x00000000000000000000000000000000000000bb",
+          tokenId: "17",
+          safe: false,
+        },
+        postTransferAccess: [],
+        security: {
+          structuredFingerprintData: "0x1234",
+          generateEncryptionKey: false,
+        },
+      }),
+    ).rejects.toThrow("security summary voiceHash mismatch");
   });
 
   it("fails when encryption was requested but not completed", async () => {
@@ -518,5 +602,94 @@ describe("runTransferAndResecureVoiceAssetWorkflow", () => {
         },
       }),
     ).rejects.toThrow("whisper access grant");
+  });
+
+  it("fails when whisper grant confirmation returns a different user", async () => {
+    mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
+      fingerprint: {
+        submission: { txHash: "0xfingerprint" },
+        txHash: "0xfingerprint",
+        authenticityVerified: true,
+        eventCount: 1,
+      },
+      encryptionKey: null,
+      accessGrant: {
+        submission: { txHash: "0xgrant" },
+        txHash: "0xgrant",
+        eventCount: 1,
+        grant: {
+          user: "0x00000000000000000000000000000000000000ee",
+          duration: "900",
+        },
+      },
+      summary: {
+        voiceHash,
+        generateEncryptionKey: false,
+        grantedUser: "0x00000000000000000000000000000000000000ee",
+        grantedDuration: "900",
+      },
+    });
+
+    await expect(
+      runTransferAndResecureVoiceAssetWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        transfer: {
+          from: "0x00000000000000000000000000000000000000aa",
+          to: "0x00000000000000000000000000000000000000bb",
+          tokenId: "17",
+          safe: false,
+        },
+        postTransferAccess: [],
+        security: {
+          structuredFingerprintData: "0x1234",
+          generateEncryptionKey: false,
+          grant: {
+            user: "0x00000000000000000000000000000000000000dd",
+            duration: "900",
+          },
+        },
+      }),
+    ).rejects.toThrow("whisper grant user mismatch");
+  });
+
+  it("applies schema defaults for collaborator authorization and post-transfer access", () => {
+    expect(
+      transferAndResecureVoiceAssetWorkflowSchema.parse({
+        voiceAsset: { voiceHash },
+        transfer: {
+          from: "0x00000000000000000000000000000000000000aa",
+          to: "0x00000000000000000000000000000000000000bb",
+          tokenId: "17",
+          safe: false,
+        },
+      }),
+    ).toMatchObject({
+      postTransferAccess: [],
+    });
+
+    expect(
+      transferAndResecureVoiceAssetWorkflowSchema.parse({
+        voiceAsset: { voiceHash },
+        transfer: {
+          from: "0x00000000000000000000000000000000000000aa",
+          to: "0x00000000000000000000000000000000000000bb",
+          tokenId: "17",
+          safe: false,
+        },
+        postTransferAccess: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000cc",
+            expiryTime: "3600",
+          },
+        ],
+      }),
+    ).toMatchObject({
+      postTransferAccess: [
+        {
+          authorizeVoice: true,
+        },
+      ],
+    });
   });
 });

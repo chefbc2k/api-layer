@@ -23,7 +23,10 @@ vi.mock("./commercialize-voice-asset.js", async () => {
   };
 });
 
-import { runRightsAwareCommercializeVoiceAssetWorkflow } from "./rights-aware-commercialize-voice-asset.js";
+import {
+  rightsAwareCommercializeVoiceAssetWorkflowSchema,
+  runRightsAwareCommercializeVoiceAssetWorkflow,
+} from "./rights-aware-commercialize-voice-asset.js";
 
 describe("runRightsAwareCommercializeVoiceAssetWorkflow", () => {
   const context = {
@@ -428,6 +431,49 @@ describe("runRightsAwareCommercializeVoiceAssetWorkflow", () => {
     ).rejects.toThrow("per-voice authorization confirmation");
   });
 
+  it("fails when collaborator role confirmation is missing before commercialization", async () => {
+    mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
+      roleGrant: {
+        submission: { txHash: "0xrole" },
+        txHash: "0xrole",
+        hasRole: false,
+      },
+      authorizations: [],
+      summary: {
+        role,
+        account: "0x00000000000000000000000000000000000000bb",
+        expiryTime: "3600",
+        requestedVoiceCount: 0,
+        authorizedVoiceCount: 0,
+      },
+    });
+
+    await expect(
+      runRightsAwareCommercializeVoiceAssetWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        rightsSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000bb",
+            expiryTime: "3600",
+            authorizeVoice: false,
+          },
+        ],
+        commercialization: {
+          packaging: {
+            title: "Pack",
+            assetIds: ["1"],
+            metadataURI: "ipfs://pack",
+            royaltyBps: "250",
+            price: "1000",
+            duration: "86400",
+          },
+          inspectListing: false,
+        },
+      }),
+    ).rejects.toThrow("failed role confirmation");
+  });
+
   it("propagates the external buyer precondition branch", async () => {
     mocks.runCommercializeVoiceAssetWorkflow.mockRejectedValueOnce(
       new HttpError(409, "purchase-marketplace-asset requires buyer payment-token allowance as an external precondition"),
@@ -588,5 +634,106 @@ describe("runRightsAwareCommercializeVoiceAssetWorkflow", () => {
       voiceHashes: [],
     });
     expect(result.rightsSetup.summary.voiceAuthorizationCount).toBe(0);
+  });
+
+  it("fails when role-only collaborator setup returns per-voice authorizations", async () => {
+    mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
+      roleGrant: {
+        submission: { txHash: "0xrole" },
+        txHash: "0xrole",
+        hasRole: true,
+      },
+      authorizations: [
+        {
+          voiceHash,
+          authorization: { txHash: "0xauth" },
+          txHash: "0xauth",
+          isAuthorized: true,
+        },
+      ],
+      summary: {
+        role,
+        account: "0x00000000000000000000000000000000000000bb",
+        expiryTime: "3600",
+        requestedVoiceCount: 0,
+        authorizedVoiceCount: 1,
+      },
+    });
+
+    await expect(
+      runRightsAwareCommercializeVoiceAssetWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        rightsSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000bb",
+            expiryTime: "3600",
+            authorizeVoice: false,
+          },
+        ],
+        commercialization: {
+          packaging: {
+            title: "Pack",
+            assetIds: ["1"],
+            metadataURI: "ipfs://pack",
+            royaltyBps: "250",
+            price: "1000",
+            duration: "86400",
+          },
+          inspectListing: false,
+        },
+      }),
+    ).rejects.toThrow("expected no per-voice authorizations");
+  });
+
+  it("applies schema defaults for rights setup", () => {
+    expect(
+      rightsAwareCommercializeVoiceAssetWorkflowSchema.parse({
+        voiceAsset: { voiceHash },
+        commercialization: {
+          packaging: {
+            title: "Pack",
+            assetIds: ["1"],
+            metadataURI: "ipfs://pack",
+            royaltyBps: "250",
+            price: "1000",
+            duration: "86400",
+          },
+          inspectListing: false,
+        },
+      }),
+    ).toMatchObject({
+      rightsSetup: [],
+    });
+
+    expect(
+      rightsAwareCommercializeVoiceAssetWorkflowSchema.parse({
+        voiceAsset: { voiceHash },
+        rightsSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000bb",
+            expiryTime: "3600",
+          },
+        ],
+        commercialization: {
+          packaging: {
+            title: "Pack",
+            assetIds: ["1"],
+            metadataURI: "ipfs://pack",
+            royaltyBps: "250",
+            price: "1000",
+            duration: "86400",
+          },
+          inspectListing: false,
+        },
+      }),
+    ).toMatchObject({
+      rightsSetup: [
+        {
+          authorizeVoice: true,
+        },
+      ],
+    });
   });
 });
