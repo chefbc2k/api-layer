@@ -50,6 +50,8 @@ describe("verify marketplace purchase live target selection", () => {
   });
 
   it("skips seller refresh when setup already proved the saved fixture is blocked and inactive", () => {
+    expect(shouldAttemptMarketplaceRefresh(null as never)).toBe(true);
+
     expect(shouldAttemptMarketplaceRefresh({
       tokenId: "13",
       voiceHash: "0xinactive",
@@ -65,6 +67,14 @@ describe("verify marketplace purchase live target selection", () => {
       status: "partial",
       purchaseReadiness: "listed-not-yet-purchase-proven",
     })).toBe(true);
+
+    expect(shouldAttemptMarketplaceRefresh({
+      tokenId: "14",
+      voiceHash: "0xyoung",
+      activeListing: false,
+      status: "partial",
+      purchaseReadiness: "unverified",
+    })).toBe(false);
   });
 
   it("renders a structured blocked report for known gas-funding limits", () => {
@@ -391,6 +401,60 @@ describe("verify marketplace purchase live target selection", () => {
       advanced: false,
       secondsAdvanced: "0",
       readyAt: "87401",
+    });
+
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("does not advance expired, inactive, or missing-createdAt listings", async () => {
+    const provider = {
+      getBlock: async () => ({ timestamp: 1_500 }),
+      send: vi.fn(async () => null),
+    };
+
+    await expect(
+      advanceLocalForkPastMarketplaceTradingLock(
+        provider as never,
+        "http://127.0.0.1:8548",
+        {
+          isActive: true,
+          createdAt: "1000",
+          expiresAt: "1200",
+        },
+      ),
+    ).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+
+    await expect(
+      advanceLocalForkPastMarketplaceTradingLock(
+        provider as never,
+        "http://127.0.0.1:8548",
+        {
+          isActive: false,
+          createdAt: "1000",
+        },
+      ),
+    ).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+
+    await expect(
+      advanceLocalForkPastMarketplaceTradingLock(
+        provider as never,
+        "http://127.0.0.1:8548",
+        {
+          isActive: true,
+        },
+      ),
+    ).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: null,
     });
 
     expect(provider.send).not.toHaveBeenCalled();

@@ -606,6 +606,84 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("uses the reduced seller minimum while keeping optional actors on the default floor", async () => {
+    const founder = { address: "0xfounder" } as any;
+    const seller = { address: "0xseller" } as any;
+    const buyer = { address: "0xbuyer" } as any;
+    const licensee = { address: "0xlicensee" } as any;
+    const transferee = { address: "0xtransferee" } as any;
+    const status = {
+      actors: {
+        founder: { address: founder.address },
+        seller: { address: seller.address },
+        buyer: { address: buyer.address },
+        licensee: { address: licensee.address },
+        transferee: { address: transferee.address },
+      },
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+    };
+    const ensureNativeBalanceFn = vi.fn().mockResolvedValue({
+      funded: true,
+      balance: "500",
+      attemptedFunders: [],
+    });
+
+    await applyNativeSetupTopUps({
+      status,
+      fundingWallets: [founder, seller, buyer, licensee, transferee],
+      availableSpecsForFunding: new Map(),
+      founder,
+      seller,
+      buyer,
+      licensee,
+      transferee,
+      rpcUrl: "https://base-sepolia.example",
+      ensureNativeBalanceFn,
+    });
+
+    expect(ensureNativeBalanceFn).toHaveBeenNthCalledWith(
+      1,
+      expect.any(Array),
+      expect.any(Map),
+      founder,
+      ethers.parseEther("0.00005"),
+      "https://base-sepolia.example",
+    );
+    expect(ensureNativeBalanceFn).toHaveBeenNthCalledWith(
+      2,
+      expect.any(Array),
+      expect.any(Map),
+      seller,
+      ethers.parseEther("0.00005"),
+      "https://base-sepolia.example",
+    );
+    expect(ensureNativeBalanceFn).toHaveBeenNthCalledWith(
+      3,
+      expect.any(Array),
+      expect.any(Map),
+      buyer,
+      ethers.parseEther("0.00004"),
+      "https://base-sepolia.example",
+    );
+    expect(ensureNativeBalanceFn).toHaveBeenNthCalledWith(
+      4,
+      expect.any(Array),
+      expect.any(Map),
+      licensee,
+      ethers.parseEther("0.00004"),
+      "https://base-sepolia.example",
+    );
+    expect(ensureNativeBalanceFn).toHaveBeenNthCalledWith(
+      5,
+      expect.any(Array),
+      expect.any(Map),
+      transferee,
+      ethers.parseEther("0.00004"),
+      "https://base-sepolia.example",
+    );
+  });
+
   it("builds wallet context and actor env mappings from repo env keys", () => {
     const provider = {
       getBalance: vi.fn(),
