@@ -7,6 +7,7 @@ import path from "node:path";
 
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+import { isSetupBlockedResponse } from "./verify-layer1-helpers.js";
 import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiCallOptions = {
@@ -174,18 +175,6 @@ function buildPath(definition: EndpointDefinition, params: Record<string, string
 
 function endpointByKey(registry: Record<string, EndpointDefinition>, key: string): EndpointDefinition | null {
   return registry[key] ?? null;
-}
-
-function isSetupBlocked(value: unknown): boolean {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const payload = (value as { payload?: unknown }).payload;
-  if (!payload || typeof payload !== "object") {
-    return false;
-  }
-  const error = (payload as { error?: unknown }).error;
-  return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
 }
 
 function toEvidenceEntries(domain: DomainResult): RouteEvidence[] {
@@ -388,7 +377,7 @@ async function main() {
         } else {
           domain.result = proposeResp.status === 202
             ? "semantically clarified but not fully proven"
-            : isSetupBlocked(proposeResp)
+            : isSetupBlockedResponse(proposeResp)
               ? "blocked by setup/state"
               : "deeper issue remains";
         }
@@ -509,7 +498,7 @@ async function main() {
 
       domain.result = (domain.evidence as Record<string, any>).list?.status === 202
         ? "proven working"
-        : isSetupBlocked(voiceResp)
+        : isSetupBlockedResponse(voiceResp)
           ? "blocked by setup/state"
           : "deeper issue remains";
       results.marketplace = domain;
@@ -608,9 +597,9 @@ async function main() {
       } else if (
         datasetError.includes("InvalidLicenseTemplate")
         || templateError.length > 0
-        || isSetupBlocked((domain.evidence as Record<string, unknown>).voiceA)
-        || isSetupBlocked((domain.evidence as Record<string, unknown>).voiceB)
-        || isSetupBlocked((domain.evidence as Record<string, unknown>).dataset)
+        || isSetupBlockedResponse((domain.evidence as Record<string, unknown>).voiceA)
+        || isSetupBlockedResponse((domain.evidence as Record<string, unknown>).voiceB)
+        || isSetupBlockedResponse((domain.evidence as Record<string, unknown>).dataset)
       ) {
         domain.result = "blocked by setup/state";
       } else {
@@ -675,7 +664,7 @@ async function main() {
       }
       domain.result = voiceResp.status === 202
         ? "proven working"
-        : isSetupBlocked(voiceResp)
+        : isSetupBlockedResponse(voiceResp)
           ? "blocked by setup/state"
           : "deeper issue remains";
       results["voice-assets"] = domain;
@@ -786,11 +775,11 @@ async function main() {
           && String(rejectionDiagnostics?.owner ?? "").toLowerCase() === actors.transferee.toLowerCase()
           && String(rejectionDiagnostics?.actor ?? "").toLowerCase() === actors.founder.toLowerCase()
             ? "proven working"
-            : isSetupBlocked(voiceResp) || isSetupBlocked(transferResp)
+            : isSetupBlockedResponse(voiceResp) || isSetupBlockedResponse(transferResp)
               ? "blocked by setup/state"
               : "deeper issue remains";
       } else {
-        domain.result = isSetupBlocked(voiceResp) ? "blocked by setup/state" : "deeper issue remains";
+        domain.result = isSetupBlockedResponse(voiceResp) ? "blocked by setup/state" : "deeper issue remains";
       }
       results["commercialization-ownership"] = domain;
     }

@@ -85,4 +85,31 @@ describe("run-test-coverage helpers", () => {
     child.emit("exit", null, "SIGTERM");
     expect(processKill).toHaveBeenCalledWith(process.pid, "SIGTERM");
   });
+
+  it("reports spawn errors through processExit", async () => {
+    const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
+    const clearIntervalFn = vi.fn();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const processExit = vi.fn((code?: number) => {
+      throw new Error(`exit:${code}`);
+    });
+
+    await runCoverage({
+      clearIntervalFn,
+      mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
+      processExit: processExit as any,
+      rmFn: vi.fn().mockResolvedValue(undefined) as any,
+      setIntervalFn: vi.fn().mockReturnValue(9) as any,
+      spawnFn: vi.fn().mockReturnValue(child) as any,
+    });
+
+    expect(() => child.emit("error", new Error("spawn failed"))).toThrow("exit:1");
+    expect(clearIntervalFn).toHaveBeenCalledWith(9);
+    errorSpy.mockRestore();
+  });
+
+  it("treats an empty NODE_OPTIONS string like an unset value", () => {
+    expect(buildCoverageNodeOptions("")).toMatch(/^--require=/);
+    expect(buildCoverageNodeOptions("   ")).toMatch(/^--require=/);
+  });
 });

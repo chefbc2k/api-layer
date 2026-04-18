@@ -4,6 +4,23 @@
 
 ---
 
+## [0.1.116] - 2026-04-18
+
+### Fixed
+- **Verifier Setup-Block Classification Now Covers Real Lifecycle Preconditions:** Added [`/Users/chef/Public/api-layer/scripts/verify-layer1-helpers.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-helpers.ts) and wired [`/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-live.ts) plus [`/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-focused.ts) through the shared helper so verifier outputs classify setup-state conflicts using actual API payloads such as `blocked by setup/state`, `expired`, `paused`, `not found`, and vesting-cliff waits instead of only matching `insufficient funds`.
+- **Tx Request Store Coverage Expanded Across Env + Null-Result Branches:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.test.ts) to prove env-driven store construction, nested bigint JSON normalization, update payload serialization, and empty-result handling. [`/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/tx-store.ts) now measures `100%` statements, `91.48%` branches, `100%` functions, and `100%` lines.
+- **Coverage Runner Error Paths Are Now Exercised:** Extended [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) so the coverage harness now proves child-process `error` handling and blank `NODE_OPTIONS` normalization without changing runner behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured loopback RPC `http://127.0.0.1:8548`, fallback to the repo Base Sepolia RPC when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API surface coverage remains complete at `492` validated methods.
+- **Focused Regression Checks:** Re-ran `pnpm exec vitest run scripts/verify-layer1-helpers.test.ts packages/api/src/shared/tx-store.test.ts scripts/run-test-coverage.test.ts --maxWorkers 1`; all `13/13` assertions passed.
+- **Coverage Sweep Improved Slightly While Staying Green:** Re-ran `pnpm run test:coverage`; the suite remains green at `124` passing files, `808` passing tests, and `18` skipped contract-integration proofs. Repo-wide Istanbul coverage held at `97.96%` statements / `98.93%` functions / `97.98%` lines and improved from `90.73%` to `90.89%` branch coverage.
+- **Live Layer-1 Proof Stayed Fully Answered:** Re-ran `pnpm run verify:layer1:live:base-sepolia` and refreshed [`/Users/chef/Public/api-layer/verify-live-output.json`](/Users/chef/Public/api-layer/verify-live-output.json). All `8/8` live domains remain `proven working`, including governance proposal submission tx `0xa865577f5cbcd128cae67c80264ad9983b0ff7c232ef091f9dfcc57cd6236f3b`, marketplace listing tx `0x9f4b79028403ae83ed44f4c3785a9cc3ff53550467388eeb0e82e500e938a33b`, dataset creation tx `0x83684dca1b7abfb4e71e90bbc95adfbe1853b54452ec4a8f25023a31b2a4ca25`, and commercialization-ownership rejection evidence with owner readback `0xCE14AFD6A78eC2F6599cA2045e96dB62100b69Da`.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** This run improved branch coverage, but the repo still sits below the automation target at `97.96%` statements, `90.89%` branches, `98.93%` functions, and `97.98%` lines. The largest remaining branch-density hotspots are still concentrated in [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.115] - 2026-04-18
 
 ### Fixed

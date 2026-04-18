@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
+import { isSetupBlockedResponse } from "./verify-layer1-helpers.js";
 import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiCallOptions = {
@@ -117,18 +118,6 @@ function buildPath(definition: EndpointDefinition, params: Record<string, string
 
 function endpointByKey(registry: Record<string, EndpointDefinition>, key: string): EndpointDefinition | null {
   return registry[key] ?? null;
-}
-
-function isSetupBlocked(value: unknown): boolean {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const payload = (value as { payload?: unknown }).payload;
-  if (!payload || typeof payload !== "object") {
-    return false;
-  }
-  const error = (payload as { error?: unknown }).error;
-  return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
 }
 
 function toEvidenceEntries(domain: DomainResult): RouteEvidence[] {
@@ -290,7 +279,7 @@ async function main() {
 
       domain.result = voiceResp.status === 202 && (domain.evidence as Record<string, any>).voiceRead?.status === 200
         ? "proven working"
-        : isSetupBlocked(voiceResp)
+        : isSetupBlockedResponse(voiceResp)
           ? "blocked by setup/state"
           : "deeper issue remains";
       results["voice-assets"] = domain;

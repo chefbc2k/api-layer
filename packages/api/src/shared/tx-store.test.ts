@@ -128,4 +128,56 @@ describe("TxRequestStore", () => {
     await store.close();
     expect(pool.end).toHaveBeenCalledTimes(1);
   });
+
+  it("uses the env connection string, serializes nested bigint payloads, and tolerates empty result sets", async () => {
+    process.env.SUPABASE_DB_URL = "postgres://env/test";
+    const store = new TxRequestStore();
+    const pool = poolState.instances[0];
+
+    pool.query
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    await expect(store.insert({
+      method: "Facet.bigintMethod",
+      params: [{ nested: [1n, { amount: 2n }] }],
+      status: "queued",
+      responsePayload: { total: 3n, detail: { count: 4n } },
+    })).resolves.toBeNull();
+
+    expect(pool.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("INSERT INTO tx_requests"),
+      [
+        null,
+        null,
+        "Facet.bigintMethod",
+        JSON.stringify([{ nested: ["1", { amount: "2" }] }]),
+        null,
+        "queued",
+        JSON.stringify({ total: "3", detail: { count: "4" } }),
+        null,
+        null,
+        null,
+        null,
+      ],
+    );
+
+    await expect(store.update("req-2", {
+      status: "confirmed",
+      responsePayload: { hash: 5n },
+      txHash: "0xhash",
+      requestHash: "0xrequest",
+      spendCapDecision: "denied",
+    })).resolves.toBeUndefined();
+
+    expect(pool.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("UPDATE tx_requests"),
+      ["req-2", "confirmed", JSON.stringify({ hash: "5" }), "0xhash", "0xrequest", "denied"],
+    );
+
+    await expect(store.get("missing")).resolves.toBeNull();
+  });
 });
