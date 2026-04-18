@@ -4,6 +4,25 @@
 
 ---
 
+## [0.1.106] - 2026-04-17
+
+### Fixed
+- **Marketplace Purchase Verifier Output Standardized:** Reworked [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) so the standalone marketplace purchase proof now emits the shared `verify-report` envelope (`summary`, `totals`, `statusCounts`, `reports`) instead of a one-off JSON shape, while still preserving the full target, tx/readback, and event evidence payloads needed for live diagnosis.
+- **Verifier Fixture Refresh + Funding Hardening:** Extended [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.ts) to refresh stale marketplace fixture selection against current chain state and to top up the seller/founder actors on the local fork before refresh or fallback listing creation, so the verifier now collapses stale-fixture and low-gas partials into the actual contract-state blocker.
+- **Seller Setup Funding Repair:** Updated [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `applyNativeSetupTopUps` no longer skips `seller-key`. The Base Sepolia setup flow now treats the seller as a first-class funded actor before attempting approval or listing repairs.
+- **Regression Coverage Added:** Expanded [/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.test.ts](/Users/chef/Public/api-layer/scripts/verify-marketplace-purchase-live.test.ts) and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to lock in the new verify-report output shape and seller top-up behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured fixture RPC `http://127.0.0.1:8548`, fallback to the repo `.env` Base Sepolia endpoint when the loopback fork is absent, and status `baseline verified`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper and HTTP API surface coverage remain complete at `492` wrapper functions, `492` validated HTTP methods, and `218` events.
+- **Targeted Regression Checks:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1`; all `51/51` assertions passed after the seller-top-up and verifier-output changes.
+- **Repo Green Guard:** Re-ran the full `pnpm test -- --runInBand` suite; the repo remains green with `123` passing files, `777` passing tests, and `18` intentionally skipped contract-integration proofs.
+- **Marketplace Purchase Live Diagnosis Refined:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia` and regenerated [/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json). The verifier now refreshes away from the stale expired aged fixture, successfully funds fallback writes on the local fork, and lands on a precise live blocker: the fallback founder listing (`tokenId: "248"`, tx-backed create/list flow) is still within the contract’s 1 day trading lock, so the artifact now records `summary: "blocked by setup/state"` for the correct reason.
+
+### Remaining Issues
+- **Marketplace Purchase Still Needs Aged Active Inventory:** The remaining marketplace partial is no longer stale fixture metadata or missing gas. The live proof is now blocked only when no currently purchase-ready aged listing exists and the verifier must fall back to a freshly created founder listing that is necessarily still inside the contract trading lock window.
+- **100% Standard Coverage Still Outstanding:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The remaining handwritten coverage gaps are still concentrated in helper-heavy workflow files such as [/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts).
+
 ## [0.1.105] - 2026-04-17
 
 ### Fixed

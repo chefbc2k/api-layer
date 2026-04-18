@@ -10,6 +10,9 @@ import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
 
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
+import { collectSellerEscrowedVoiceHashes, prepareAgedListingFixture } from "./base-sepolia-operator-setup.js";
+import { isExpiredListing, mergeMarketplaceCandidateVoiceHashes } from "./base-sepolia-operator-setup.helpers.js";
+import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput, type DomainClassification } from "./verify-report.js";
 
 type ApiResponse = {
   status: number;
@@ -53,14 +56,6 @@ type FundingCheckResult =
 const MIN_BUYER_NATIVE_BALANCE = ethers.parseEther("0.00005");
 const BUYER_GAS_BUFFER_NUMERATOR = 12n;
 const BUYER_GAS_BUFFER_DENOMINATOR = 10n;
-
-function getOutputPath() {
-  const index = process.argv.indexOf("--output");
-  if (index >= 0) {
-    return process.argv[index + 1] ?? null;
-  }
-  return null;
-}
 
 async function apiCall(
   port: number,
@@ -388,6 +383,126 @@ export function buildBlockedPurchaseOutput(args: {
   };
 }
 
+type MarketplacePurchaseDetails = {
+  target: {
+    source: MarketplacePurchaseTarget["source"] | "unresolved";
+    chainId: number;
+    diamond: string;
+    tokenId: string | null;
+    voiceHash: string | null;
+  };
+  actorWallets: {
+    seller: string;
+    buyer: string;
+    fundingWallet?: string;
+  };
+  preState?: {
+    listing?: unknown;
+    owner?: unknown;
+    buyerUsdcBalance?: string;
+    buyerAllowance?: string;
+  };
+  purchase?: {
+    status: number;
+    payload: unknown;
+    txHash?: string;
+    receipt?: {
+      status: unknown;
+      blockNumber: unknown;
+    };
+  };
+  postState?: {
+    owner?: unknown;
+    listing?: unknown;
+    buyerUsdcBalance?: string;
+    buyerAllowance?: string;
+  };
+  events?: {
+    assetPurchased?: unknown;
+    paymentDistributed?: unknown;
+    assetReleased?: unknown;
+  };
+  failureKind?: string;
+  notes?: Record<string, unknown>;
+};
+
+export function buildMarketplacePurchaseVerifyOutput(args: {
+  classification: DomainClassification;
+  executionResult: string;
+  actors: string[];
+  details: MarketplacePurchaseDetails;
+}) {
+  const evidence = [
+    { kind: "target", value: normalize(args.details.target) },
+    args.details.preState ? { kind: "preState", value: normalize(args.details.preState) } : null,
+    args.details.purchase ? { kind: "purchase", value: normalize(args.details.purchase) } : null,
+    args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
+    args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
+    args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
+  ].filter((entry): entry is { kind: string; value: unknown } => entry !== null);
+
+  return buildVerifyReportOutput({
+    "marketplace-purchase": {
+      routes: [
+        "POST /v1/workflows/purchase-marketplace-asset",
+        "GET /v1/marketplace/queries/get-listing",
+        "POST /v1/marketplace/events/asset-purchased/query",
+        "POST /v1/marketplace/events/payment-distributed/query",
+        "POST /v1/marketplace/events/asset-released/query",
+      ],
+      actors: args.actors,
+      executionResult: args.executionResult,
+      evidence,
+      finalClassification: args.classification,
+      ...normalize(args.details),
+    },
+  });
+}
+
+async function refreshMarketplacePurchaseTarget(args: {
+  port: number;
+  provider: JsonRpcProvider;
+  rpcUrl: string;
+  fundingWallets: Wallet[];
+  voiceAsset: Contract;
+  escrow: Contract;
+  sellerAddress: string;
+  diamondAddress: string;
+}) {
+  await ensureNativeBalance(
+    args.provider,
+    args.rpcUrl,
+    args.fundingWallets,
+    args.sellerAddress,
+    MIN_BUYER_NATIVE_BALANCE,
+  );
+  const sellerVoiceHashes = await args.voiceAsset.getVoiceAssetsByOwner(args.sellerAddress);
+  const escrowVoiceHashes = await args.voiceAsset.getVoiceAssetsByOwner(args.diamondAddress);
+  const sellerEscrowedVoiceHashes = await collectSellerEscrowedVoiceHashes({
+    escrowVoiceHashes,
+    voiceAsset: args.voiceAsset as unknown as { getTokenId(voiceHash: string): Promise<unknown> },
+    escrow: args.escrow as unknown as { getOriginalOwner(tokenId: unknown): Promise<unknown> },
+    sellerAddress: args.sellerAddress,
+  });
+  const latestBlock = await args.provider.getBlock("latest");
+  const latestTimestamp = BigInt(latestBlock?.timestamp ?? Math.floor(Date.now() / 1_000));
+  const refreshedFixture = await prepareAgedListingFixture({
+    candidateVoiceHashes: mergeMarketplaceCandidateVoiceHashes(
+      [...sellerVoiceHashes],
+      sellerEscrowedVoiceHashes,
+    ),
+    voiceAsset: args.voiceAsset as unknown as {
+      getVoiceAsset(voiceHash: string): Promise<{ createdAt: bigint | number | string }>;
+      getTokenId(voiceHash: string): Promise<{ toString(): string } | bigint | number | string>;
+    },
+    sellerAddress: args.sellerAddress,
+    diamondAddress: args.diamondAddress,
+    port: args.port,
+    latestTimestamp,
+  });
+  return selectMarketplacePurchaseTarget(refreshedFixture, args.sellerAddress);
+}
+
 async function main() {
   const repoEnv = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(repoEnv);
@@ -455,6 +570,7 @@ async function main() {
   const voiceAsset = new Contract(config.diamondAddress, facetRegistry.VoiceAssetFacet.abi, provider);
   const marketplace = new Contract(config.diamondAddress, facetRegistry.MarketplaceFacet.abi, provider);
   const payment = new Contract(config.diamondAddress, facetRegistry.PaymentFacet.abi, provider);
+  const escrow = new Contract(config.diamondAddress, facetRegistry.EscrowFacet.abi, provider);
   const usdcAddress = await payment.getUsdcToken();
   if (!usdcAddress || usdcAddress === ZeroAddress) {
     throw new Error("payment facet returned zero USDC token");
@@ -487,7 +603,38 @@ async function main() {
         )
       : null;
 
+    const listingPayload = listingBefore?.status === 200 && listingBefore.payload && typeof listingBefore.payload === "object"
+      ? listingBefore.payload as Record<string, unknown>
+      : null;
+    if (target && listingPayload && isExpiredListing(listingPayload, BigInt(Math.floor(Date.now() / 1_000)))) {
+      target = await refreshMarketplacePurchaseTarget({
+        port,
+        provider,
+        rpcUrl: forkRuntime.rpcUrl,
+        fundingWallets: fundingCandidates,
+        voiceAsset,
+        escrow,
+        sellerAddress: seller.address,
+        diamondAddress: config.diamondAddress,
+      });
+      listingBefore = target
+        ? await apiCall(
+            port,
+            "GET",
+            `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(target.tokenId)}`,
+            { apiKey: "read-key" },
+          )
+        : null;
+    }
+
     if (!target || !listingBefore || listingBefore.status !== 200 || (listingBefore.payload as Record<string, unknown>)?.isActive !== true) {
+      await ensureNativeBalance(
+        provider,
+        forkRuntime.rpcUrl,
+        fundingCandidates,
+        founder.address,
+        MIN_BUYER_NATIVE_BALANCE,
+      );
       target = await createFallbackListing(port, provider, founder.address, voiceAsset);
       listingBefore = { status: 200, payload: target.listing };
     }
@@ -505,7 +652,7 @@ async function main() {
       requiredBuyerNativeBalance,
     );
     if (!buyerFunding.ok) {
-      const output = buildBlockedFundingOutput({
+      const blockedOutput = buildBlockedFundingOutput({
         chainId: config.chainId,
         diamondAddress: config.diamondAddress,
         sellerAddress: target.sellerAddress,
@@ -514,11 +661,20 @@ async function main() {
         funding: buyerFunding,
         target,
       });
+      const output = buildMarketplacePurchaseVerifyOutput({
+        classification: "blocked by setup/state",
+        executionResult: "buyer native gas funding remained below the live purchase threshold",
+        actors: ["seller-key", "buyer-key", "founder-key"],
+        details: {
+          target: blockedOutput.target,
+          actorWallets: blockedOutput.actors,
+          failureKind: blockedOutput.failureKind,
+          notes: blockedOutput.notes,
+        },
+      });
       const outputJson = JSON.stringify(output, null, 2);
       const outputPath = getOutputPath();
-      if (outputPath) {
-        fs.writeFileSync(outputPath, `${outputJson}\n`);
-      }
+      writeVerifyReportOutput(outputPath, output);
       console.log(outputJson);
       return;
     }
@@ -554,7 +710,7 @@ async function main() {
     if (purchaseResponse.status !== 202) {
       const payloadText = JSON.stringify(purchaseResponse.payload);
       if (purchaseResponse.status === 409 || /blocked by setup\/state|blocked by trading lock|listing .*expired/i.test(payloadText)) {
-        const output = buildBlockedPurchaseOutput({
+        const blockedOutput = buildBlockedPurchaseOutput({
           chainId: config.chainId,
           diamondAddress: config.diamondAddress,
           sellerAddress: target.sellerAddress,
@@ -563,11 +719,21 @@ async function main() {
           purchaseResponse,
           listingBefore: listingBefore.payload,
         });
+        const output = buildMarketplacePurchaseVerifyOutput({
+          classification: "blocked by setup/state",
+          executionResult: "marketplace purchase remained blocked by live listing state",
+          actors: ["seller-key", "buyer-key", "read-key"],
+          details: {
+            target: blockedOutput.target,
+            actorWallets: blockedOutput.actors,
+            preState: blockedOutput.preState,
+            purchase: blockedOutput.purchase,
+            failureKind: blockedOutput.failureKind,
+          },
+        });
         const outputJson = JSON.stringify(output, null, 2);
         const outputPath = getOutputPath();
-        if (outputPath) {
-          fs.writeFileSync(outputPath, `${outputJson}\n`);
-        }
+        writeVerifyReportOutput(outputPath, output);
         console.log(outputJson);
         return;
       }
@@ -626,51 +792,53 @@ async function main() {
       "asset released event",
     );
 
-    const output = {
-      target: {
-        source: target.source,
-        chainId: config.chainId,
-        diamond: config.diamondAddress,
-        tokenId,
-        voiceHash: target.voiceHash,
-      },
-      actors: {
-        seller: target.sellerAddress,
-        buyer: buyer.address,
-      },
-      preState: {
-        listing: normalize(listingBefore.payload),
-        owner: ownerBefore,
-        buyerUsdcBalance: buyerBalanceBefore.toString(),
-        buyerAllowance: buyerAllowanceBefore.toString(),
-      },
-      purchase: {
-        status: purchaseResponse.status,
-        payload: normalize(purchaseResponse.payload),
-        txHash,
-        receipt: {
-          status: receipt.status,
-          blockNumber: receipt.blockNumber,
+    const output = buildMarketplacePurchaseVerifyOutput({
+      classification: "proven working",
+      executionResult: "marketplace purchase lifecycle completed with settlement and escrow release evidence",
+      actors: ["seller-key", "buyer-key", "read-key"],
+      details: {
+        target: {
+          source: target.source,
+          chainId: config.chainId,
+          diamond: config.diamondAddress,
+          tokenId,
+          voiceHash: target.voiceHash,
+        },
+        actorWallets: {
+          seller: target.sellerAddress,
+          buyer: buyer.address,
+        },
+        preState: {
+          listing: listingBefore.payload,
+          owner: ownerBefore,
+          buyerUsdcBalance: buyerBalanceBefore.toString(),
+          buyerAllowance: buyerAllowanceBefore.toString(),
+        },
+        purchase: {
+          status: purchaseResponse.status,
+          payload: purchaseResponse.payload,
+          txHash,
+          receipt: {
+            status: receipt.status,
+            blockNumber: receipt.blockNumber,
+          },
+        },
+        postState: {
+          owner: ownerAfter,
+          listing: listingAfter.payload,
+          buyerUsdcBalance: (await erc20.balanceOf(buyer.address)).toString(),
+          buyerAllowance: (await erc20.allowance(buyer.address, config.diamondAddress)).toString(),
+        },
+        events: {
+          assetPurchased: assetPurchasedEvents.payload,
+          paymentDistributed: paymentDistributedEvents.payload,
+          assetReleased: assetReleasedEvents.payload,
         },
       },
-      postState: {
-        owner: ownerAfter,
-        listing: normalize(listingAfter.payload),
-        buyerUsdcBalance: (await erc20.balanceOf(buyer.address)).toString(),
-        buyerAllowance: (await erc20.allowance(buyer.address, config.diamondAddress)).toString(),
-      },
-      events: {
-        assetPurchased: normalize(assetPurchasedEvents.payload),
-        paymentDistributed: normalize(paymentDistributedEvents.payload),
-        assetReleased: normalize(assetReleasedEvents.payload),
-      },
-      classification: "proven working",
-    };
+    });
     const outputJson = JSON.stringify(output, null, 2);
     const outputPath = getOutputPath();
-    if (outputPath) {
-      fs.writeFileSync(outputPath, `${outputJson}\n`);
-    }
+    writeVerifyReportOutput(outputPath, output);
     console.log(outputJson);
   } finally {
     server.close();

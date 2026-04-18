@@ -546,13 +546,15 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
-  it("applies native setup top-ups across founder and optional actors", async () => {
+  it("applies native setup top-ups across founder, seller, and optional actors", async () => {
     const founder = { address: "0xfounder" } as any;
+    const seller = { address: "0xseller" } as any;
     const buyer = { address: "0xbuyer" } as any;
     const licensee = { address: "0xlicensee" } as any;
     const status = {
       actors: {
         founder: { address: founder.address },
+        seller: { address: seller.address },
         buyer: { address: buyer.address },
         licensee: { address: licensee.address },
       },
@@ -561,14 +563,16 @@ describe("base sepolia operator setup helpers", () => {
     };
     const ensureNativeBalanceFn = vi.fn()
       .mockResolvedValueOnce({ funded: true, balance: "500", attemptedFunders: [], fundingStrategy: "transfer" })
+      .mockResolvedValueOnce({ funded: true, balance: "55", attemptedFunders: [] })
       .mockResolvedValueOnce({ funded: false, balance: "25", attemptedFunders: [], blockedReason: "buyer still short" })
       .mockResolvedValueOnce({ funded: false, balance: "40", attemptedFunders: [] });
 
     await applyNativeSetupTopUps({
       status,
-      fundingWallets: [founder, buyer, licensee],
+      fundingWallets: [founder, seller, buyer, licensee],
       availableSpecsForFunding: new Map(),
       founder,
+      seller,
       buyer,
       licensee,
       transferee: null,
@@ -576,11 +580,15 @@ describe("base sepolia operator setup helpers", () => {
       ensureNativeBalanceFn,
     });
 
-    expect(ensureNativeBalanceFn).toHaveBeenCalledTimes(3);
+    expect(ensureNativeBalanceFn).toHaveBeenCalledTimes(4);
     expect(status.actors).toMatchObject({
       founder: {
         nativeTopUp: { balance: "500", fundingStrategy: "transfer" },
         nativeBalanceAfterSetup: "500",
+      },
+      seller: {
+        nativeTopUp: { balance: "55" },
+        nativeBalanceAfterSetup: "55",
       },
       buyer: {
         nativeTopUp: { balance: "25", blockedReason: "buyer still short" },

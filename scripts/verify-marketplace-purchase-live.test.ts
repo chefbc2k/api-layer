@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildMarketplacePurchaseVerifyOutput,
   buildBlockedFundingOutput,
   buildBlockedPurchaseOutput,
   estimateBuyerNativeMinimum,
@@ -92,6 +93,76 @@ describe("verify marketplace purchase live target selection", () => {
         recipient: "0xbuyer",
       },
     });
+  });
+
+  it("wraps marketplace purchase outputs in the shared verify-report shape", () => {
+    const output = buildMarketplacePurchaseVerifyOutput({
+      classification: "proven working",
+      executionResult: "purchase completed",
+      actors: ["seller-key", "buyer-key", "read-key"],
+      details: {
+        target: {
+          source: "aged-fixture",
+          chainId: 84532,
+          diamond: "0xdiamond",
+          tokenId: "11",
+          voiceHash: "0xvoice",
+        },
+        actorWallets: {
+          seller: "0xseller",
+          buyer: "0xbuyer",
+        },
+        preState: {
+          listing: {
+            tokenId: "11",
+            isActive: true,
+          },
+        },
+        purchase: {
+          status: 202,
+          payload: {
+            txHash: "0xtx",
+          },
+        },
+        postState: {
+          listing: {
+            tokenId: "11",
+            isActive: false,
+          },
+        },
+        events: {
+          assetPurchased: [{ transactionHash: "0xtx" }],
+        },
+      },
+    });
+
+    expect(output.summary).toBe("proven working");
+    expect(output.totals).toEqual({
+      domainCount: 1,
+      routeCount: 5,
+      evidenceCount: 5,
+    });
+    expect(output.statusCounts).toEqual({
+      "proven working": 1,
+      "blocked by setup/state": 0,
+      "semantically clarified but not fully proven": 0,
+      "deeper issue remains": 0,
+    });
+    expect(output.reports["marketplace-purchase"]).toMatchObject({
+      classification: "proven working",
+      result: "proven working",
+      executionResult: "purchase completed",
+      actors: ["seller-key", "buyer-key", "read-key"],
+      target: {
+        source: "aged-fixture",
+        tokenId: "11",
+      },
+      actorWallets: {
+        seller: "0xseller",
+        buyer: "0xbuyer",
+      },
+    });
+    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(5);
   });
 
   it("renders a structured blocked report for known contract-state purchase failures", () => {

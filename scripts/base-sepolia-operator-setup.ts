@@ -452,6 +452,7 @@ export async function applyNativeSetupTopUps(args: {
   fundingWallets: Wallet[];
   availableSpecsForFunding: Map<string, string>;
   founder: Wallet;
+  seller: Wallet;
   buyer: Wallet | null;
   licensee: Wallet | null;
   transferee: Wallet | null;
@@ -469,11 +470,12 @@ export async function applyNativeSetupTopUps(args: {
   );
   assignActorTopUp(args.status, "founder", founderTopUp);
 
-  for (const [actorLabel, wallet] of [
+  for (const [actorLabel, wallet, minimum] of [
+    ["seller", args.seller, ethers.parseEther("0.00005")],
     ["buyer", args.buyer],
     ["licensee", args.licensee],
     ["transferee", args.transferee],
-  ] as const) {
+  ].map((entry) => [entry[0], entry[1], entry[2] ?? DEFAULT_NATIVE_MINIMUM] as const)) {
     if (!wallet) {
       continue;
     }
@@ -481,7 +483,7 @@ export async function applyNativeSetupTopUps(args: {
       args.fundingWallets,
       args.availableSpecsForFunding,
       wallet,
-      DEFAULT_NATIVE_MINIMUM,
+      minimum,
       args.rpcUrl,
     );
     assignActorTopUp(args.status, actorLabel, topUp);
@@ -864,6 +866,7 @@ export async function populateSetupStatus(args: {
     fundingWallets: args.fundingWallets,
     availableSpecsForFunding: args.availableSpecsForFunding,
     founder: args.founder,
+    seller: args.seller,
     buyer: args.buyer,
     licensee: args.licensee,
     transferee: args.transferee,

@@ -1,242 +1,168 @@
 {
-  "target": {
-    "source": "aged-fixture",
-    "chainId": 84532,
-    "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-    "tokenId": "91",
-    "voiceHash": "0x290d110028d79c6226292dd978275de7c19ba9b973a5fc7d0f6fd1d8acac7d46"
+  "summary": "blocked by setup/state",
+  "totals": {
+    "domainCount": 1,
+    "routeCount": 5,
+    "evidenceCount": 3
   },
-  "actors": {
-    "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-    "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+  "statusCounts": {
+    "proven working": 0,
+    "blocked by setup/state": 1,
+    "semantically clarified but not fully proven": 0,
+    "deeper issue remains": 0
   },
-  "preState": {
-    "listing": {
-      "tokenId": "91",
-      "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-      "price": "1000",
-      "createdAt": "1773854296",
-      "createdBlock": "39043004",
-      "lastUpdateBlock": "39043004",
-      "expiresAt": "1776446296",
-      "isActive": true
-    },
-    "owner": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-    "buyerUsdcBalance": "4000",
-    "buyerAllowance": "4000"
-  },
-  "purchase": {
-    "status": 202,
-    "payload": {
-      "preflight": {
-        "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-        "buyerFunding": {
-          "source": "externally-managed-usdc-precondition",
-          "paymentToken": "0xf976bb0f0a4091d41b149ae6d4cda8cac232b2f2",
-          "allowanceRead": null,
-          "balanceRead": null
+  "reports": {
+    "marketplace-purchase": {
+      "routes": [
+        "POST /v1/workflows/purchase-marketplace-asset",
+        "GET /v1/marketplace/queries/get-listing",
+        "POST /v1/marketplace/events/asset-purchased/query",
+        "POST /v1/marketplace/events/payment-distributed/query",
+        "POST /v1/marketplace/events/asset-released/query"
+      ],
+      "actors": [
+        "seller-key",
+        "buyer-key",
+        "read-key"
+      ],
+      "executionResult": "marketplace purchase remained blocked by live listing state",
+      "evidence": [
+        {
+          "kind": "target",
+          "value": {
+            "source": "fresh-founder-listing",
+            "chainId": 84532,
+            "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+            "tokenId": "248",
+            "voiceHash": "0xc68cc2ce45e157fa1d15cebd55fbf87e7a045101f4e99a38a735ba241922a4ac"
+          }
         },
-        "marketplacePaused": false,
-        "paymentPaused": false,
-        "listing": {
-          "tokenId": "91",
-          "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-          "price": "1000",
-          "createdAt": "1773854296",
-          "createdBlock": "39043004",
-          "lastUpdateBlock": "39043004",
-          "expiresAt": "1776446296",
-          "isActive": true
+        {
+          "kind": "preState",
+          "value": {
+            "listing": {
+              "tokenId": "248",
+              "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "price": "1000",
+              "createdAt": "1776485352",
+              "createdBlock": "40358530",
+              "lastUpdateBlock": "40358530",
+              "expiresAt": "1779077352",
+              "isActive": true
+            }
+          }
         },
-        "escrow": {
-          "assetState": "1",
-          "originalOwner": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-          "inEscrow": true
-        },
-        "ownerBefore": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+        {
+          "kind": "purchase",
+          "value": {
+            "status": 409,
+            "payload": {
+              "error": "purchase-marketplace-asset blocked by asset age: token 248 is still within the contract's 1 day trading lock",
+              "diagnostics": {
+                "route": {
+                  "httpMethod": "POST",
+                  "path": "/v1/marketplace/commands/purchase-asset",
+                  "operationId": "purchaseAsset",
+                  "contractFunction": "MarketplaceFacet.purchaseAsset(uint256)"
+                },
+                "alchemy": {
+                  "enabled": true,
+                  "simulationEnabled": true,
+                  "simulationEnforced": false,
+                  "endpointDetected": true,
+                  "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
+                  "available": false
+                },
+                "signer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                "provider": "cbdp",
+                "actors": [
+                  {
+                    "address": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                    "nonce": "84",
+                    "balance": "25000000000000000"
+                  }
+                ],
+                "trace": {
+                  "status": "unavailable",
+                  "error": "Alchemy diagnostics unavailable"
+                },
+                "cause": "execution reverted (unknown custom error) (action=\"estimateGas\", data=\"0x0d9482a200000000000000000000000000000000000000000000000000000000000000f8\", reason=null, transaction={ \"data\": \"0xa457e1c000000000000000000000000000000000000000000000000000000000000000f8\", \"from\": \"0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709\", \"to\": \"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.16.0)",
+                "simulation": {
+                  "status": "unavailable",
+                  "error": "Alchemy diagnostics unavailable"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "finalClassification": "blocked by setup/state",
+      "target": {
+        "source": "fresh-founder-listing",
+        "chainId": 84532,
+        "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+        "tokenId": "248",
+        "voiceHash": "0xc68cc2ce45e157fa1d15cebd55fbf87e7a045101f4e99a38a735ba241922a4ac"
       },
-      "purchase": {
-        "submission": {
-          "requestId": null,
-          "txHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-          "result": null
-        },
-        "txHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-        "listingAfter": {
-          "tokenId": "91",
-          "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "actorWallets": {
+        "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+      },
+      "preState": {
+        "listing": {
+          "tokenId": "248",
+          "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
           "price": "1000",
-          "createdAt": "1773854296",
-          "createdBlock": "39043004",
-          "lastUpdateBlock": "39043004",
-          "expiresAt": "1776446296",
-          "isActive": false
-        },
-        "ownerAfter": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-        "escrowAfter": {
-          "assetState": "0",
-          "originalOwner": "0x0000000000000000000000000000000000000000",
-          "inEscrow": false
-        },
-        "eventCount": {
-          "assetPurchased": 1,
-          "paymentDistributed": 2,
-          "assetReleased": 1
+          "createdAt": "1776485352",
+          "createdBlock": "40358530",
+          "lastUpdateBlock": "40358530",
+          "expiresAt": "1779077352",
+          "isActive": true
         }
       },
-      "settlement": {
-        "payees": {
-          "seller": "0x276d8504239a02907ba5e7dd42eeb5a651274bcd",
-          "treasury": "0x4ec36f50ee25016a5db3a09cddcbea0069052f5a",
-          "devFund": "0x0fc9ce2a0d17668fd007fcf5668146bbe2560816",
-          "unionTreasury": "0x4ec36f50ee25016a5db3a09cddcbea0069052f5a"
-        },
-        "pendingBefore": {
-          "seller": "915",
-          "treasury": "60480",
-          "devFund": "25200",
-          "unionTreasury": "60480"
-        },
-        "pendingAfter": {
-          "seller": "1830",
-          "treasury": "60540",
-          "devFund": "25225",
-          "unionTreasury": "60540"
-        },
-        "pendingDelta": {
-          "seller": "915",
-          "treasury": "60",
-          "devFund": "25",
-          "unionTreasury": "60"
-        },
-        "assetRevenueBefore": [
-          "0",
-          "0",
-          "0",
-          "0"
-        ],
-        "assetRevenueAfter": [
-          "1000",
-          "85",
-          "915",
-          "0"
-        ],
-        "revenueMetricsBefore": [
-          "1008001",
-          "85680",
-          "922321",
-          "0"
-        ],
-        "revenueMetricsAfter": [
-          "1009001",
-          "85765",
-          "923236",
-          "0"
-        ]
+      "purchase": {
+        "status": 409,
+        "payload": {
+          "error": "purchase-marketplace-asset blocked by asset age: token 248 is still within the contract's 1 day trading lock",
+          "diagnostics": {
+            "route": {
+              "httpMethod": "POST",
+              "path": "/v1/marketplace/commands/purchase-asset",
+              "operationId": "purchaseAsset",
+              "contractFunction": "MarketplaceFacet.purchaseAsset(uint256)"
+            },
+            "alchemy": {
+              "enabled": true,
+              "simulationEnabled": true,
+              "simulationEnforced": false,
+              "endpointDetected": true,
+              "rpcUrl": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
+              "available": false
+            },
+            "signer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+            "provider": "cbdp",
+            "actors": [
+              {
+                "address": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                "nonce": "84",
+                "balance": "25000000000000000"
+              }
+            ],
+            "trace": {
+              "status": "unavailable",
+              "error": "Alchemy diagnostics unavailable"
+            },
+            "cause": "execution reverted (unknown custom error) (action=\"estimateGas\", data=\"0x0d9482a200000000000000000000000000000000000000000000000000000000000000f8\", reason=null, transaction={ \"data\": \"0xa457e1c000000000000000000000000000000000000000000000000000000000000000f8\", \"from\": \"0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709\", \"to\": \"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.16.0)",
+            "simulation": {
+              "status": "unavailable",
+              "error": "Alchemy diagnostics unavailable"
+            }
+          }
+        }
       },
-      "summary": {
-        "tokenId": "91",
-        "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-        "seller": "0x276d8504239a02907ba5e7dd42eeb5a651274bcd",
-        "listingActiveAfter": false,
-        "fundingInspection": "external-usdc-precondition"
-      }
-    },
-    "txHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-    "receipt": {
-      "status": 1,
-      "blockNumber": 40300350
+      "failureKind": "contract constraint",
+      "classification": "blocked by setup/state",
+      "result": "blocked by setup/state"
     }
-  },
-  "postState": {
-    "owner": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-    "listing": {
-      "tokenId": "91",
-      "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
-      "price": "1000",
-      "createdAt": "1773854296",
-      "createdBlock": "39043004",
-      "lastUpdateBlock": "39043004",
-      "expiresAt": "1776446296",
-      "isActive": false
-    },
-    "buyerUsdcBalance": "3000",
-    "buyerAllowance": "3000"
-  },
-  "events": {
-    "assetPurchased": [
-      {
-        "provider": {},
-        "transactionHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-        "blockHash": "0xa504b7664a50a4c5a531cc1d3ff5809a15c3ff2e266aa7eee5e633e7eb682ace",
-        "blockNumber": 40300350,
-        "removed": false,
-        "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-        "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
-        "topics": [
-          "0x26f1a462b7fc1cbfaf87a0e804d3c0afd7c0a20e19d3d8ce3135c1155f9b736f",
-          "0x000000000000000000000000000000000000000000000000000000000000005b",
-          "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
-          "0x0000000000000000000000000c14d2fbd9cf0a537a8e8fc38e8da005d00a1709"
-        ],
-        "index": 7,
-        "transactionIndex": 0
-      }
-    ],
-    "paymentDistributed": [
-      {
-        "provider": {},
-        "transactionHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-        "blockHash": "0xa504b7664a50a4c5a531cc1d3ff5809a15c3ff2e266aa7eee5e633e7eb682ace",
-        "blockNumber": 40300350,
-        "removed": false,
-        "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-        "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
-        "topics": [
-          "0xe3cd1dfbb0f7891be601b7da25be2a70ca5fc279108fdf1600118b83a4fa1b6f",
-          "0x000000000000000000000000000000000000000000000000000000000000005b",
-          "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
-          "0x000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc9669"
-        ],
-        "index": 3,
-        "transactionIndex": 0
-      },
-      {
-        "provider": {},
-        "transactionHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-        "blockHash": "0xa504b7664a50a4c5a531cc1d3ff5809a15c3ff2e266aa7eee5e633e7eb682ace",
-        "blockNumber": 40300350,
-        "removed": false,
-        "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-        "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
-        "topics": [
-          "0xe3cd1dfbb0f7891be601b7da25be2a70ca5fc279108fdf1600118b83a4fa1b6f",
-          "0x000000000000000000000000000000000000000000000000000000000000005b",
-          "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
-          "0x000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc9669"
-        ],
-        "index": 4,
-        "transactionIndex": 0
-      }
-    ],
-    "assetReleased": [
-      {
-        "provider": {},
-        "transactionHash": "0xc8c911dc1764eb8fb05d6628f026606ea7ef861833761cef4aab794df47678ca",
-        "blockHash": "0xa504b7664a50a4c5a531cc1d3ff5809a15c3ff2e266aa7eee5e633e7eb682ace",
-        "blockNumber": 40300350,
-        "removed": false,
-        "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-        "data": "0x",
-        "topics": [
-          "0xa6beaa28c0fece1ae6319144a40bae517a3d55231c725f5aa07d3ba77edc2d97",
-          "0x000000000000000000000000000000000000000000000000000000000000005b",
-          "0x0000000000000000000000000c14d2fbd9cf0a537a8e8fc38e8da005d00a1709"
-        ],
-        "index": 6,
-        "transactionIndex": 0
-      }
-    ]
-  },
-  "classification": "proven working"
+  }
 }
