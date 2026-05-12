@@ -2,7 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
----
+## [0.1.125] - 2026-05-12
+
+### Fixed
+- **API Server Control-Plane Routes Now Exercise Their Remaining Error/Status Branches:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/app.routes.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.routes.test.ts) to prove provider-status reads, transaction-request success plus diagnostics-bearing failure serialization, transaction-status success plus plain-error serialization, `API_LAYER_CHAIN_ID` precedence in `/v1/system/health`, and the startup log fallback when `server.address()` does not return a structured port object. This closes the remaining statement/function/line gap in [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) without changing runtime behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted App Regression Checks Passed:** Re-ran `pnpm exec vitest run packages/api/src/app.routes.test.ts packages/api/src/app.test.ts --maxWorkers 1`; all `10/10` assertions passed.
+- **Repo Coverage Sweep Stayed Green And Nudged Upward:** Re-ran `pnpm run test:coverage`; the suite remains green at `125` passing files, `832` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `98.25%` statements, `91.49%` branches, `99.26%` functions, and `98.25%` lines, while [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts) now reports `100%` statements / `90%` branches / `100%` functions / `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet at the repo level. The most obvious remaining branch hotspots are [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and several workflow-heavy modules that are already at 100% lines/statements but still below 100% branches.
+- **Skipped Live Contract Slice Still Logs The Mock Alchemy Host Failure:** During `pnpm run test:coverage`, the intentionally skipped [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) slice still emits a preview failure with `getaddrinfo ENOTFOUND example` from the placeholder Alchemy host. It does not fail the run, but the harness remains noisy.
 
 ## [0.1.124] - 2026-05-12
 
