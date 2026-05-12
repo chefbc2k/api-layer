@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.129] - 2026-05-12
+
+### Fixed
+- **Legacy Migration Recovery Coverage Hang Eliminated:** Hardened the shared workflow polling helpers in [`/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/reward-campaign-helpers.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.ts) so Vitest runs use a `1ms` poll interval while non-test runtime behavior keeps the existing `500ms` cadence. This removes the real-time `10s` retry window that was causing the custody readback path in `legacy-migration-recovery` to time out under coverage without changing production/Base Sepolia polling semantics.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Legacy Migration Regression Passed:** Re-ran `pnpm vitest run packages/api/src/workflows/legacy-migration-recovery.test.ts --maxWorkers 1`; all `11/11` assertions passed, including the custody readback retry path that had been timing out.
+- **Repo Coverage Sweep Returned To Green:** Re-ran `pnpm run test:coverage`; the suite completed at `125` passing files, `845` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage held at `98.41%` statements, `91.75%` branches, `99.26%` functions, and `98.42%` lines, while [`/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/legacy-migration-recovery.ts) remained fully covered on statements/functions/lines and improved to `98.46%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the current verification baseline remain green, but repo-wide branch/function/line/statement coverage is still below the automation target. The clearest remaining handwritten hotspots are [`/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), and the lower-branch shared/runtime helper paths reported by Istanbul.
+- **Skipped Live Governance Slice Still Logs The Mock Alchemy Host Failure:** During `pnpm run test:coverage`, the intentionally skipped [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) path still prints `getaddrinfo ENOTFOUND example` from the placeholder Alchemy host setup. It remains non-fatal but still leaves avoidable noise in the coverage run.
+
 ## [0.1.128] - 2026-05-12
 
 ### Fixed

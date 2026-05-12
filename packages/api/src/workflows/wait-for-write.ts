@@ -1,5 +1,7 @@
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 
+const WORKFLOW_RECEIPT_POLL_DELAY_MS = process.env.NODE_ENV === "test" ? 1 : 500;
+
 function extractTxHash(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") {
     return null;
@@ -30,7 +32,7 @@ export async function waitForWorkflowWriteReceipt(
       }
       return txHash;
     }
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, WORKFLOW_RECEIPT_POLL_DELAY_MS));
   }
 
   throw new Error(`${label} transaction receipt timeout: ${txHash}`);

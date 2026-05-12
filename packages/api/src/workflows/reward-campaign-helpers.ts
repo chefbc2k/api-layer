@@ -3,6 +3,8 @@ import { Wallet } from "ethers";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 import type { RouteResult } from "../shared/route-types.js";
 
+const WORKFLOW_POLL_DELAY_MS = process.env.NODE_ENV === "test" ? 1 : 500;
+
 export function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? value as Record<string, unknown> : null;
 }
@@ -105,7 +107,7 @@ export async function waitForWorkflowReadback(
     } catch (error) {
       lastError = error;
     }
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, WORKFLOW_POLL_DELAY_MS));
   }
   throw new Error(`${label} readback timeout: ${String((lastError as { message?: string })?.message ?? JSON.stringify(lastResult?.body ?? null))}`);
 }
@@ -127,7 +129,7 @@ export async function waitForWorkflowEventQuery(
     } catch (error) {
       lastError = error;
     }
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, WORKFLOW_POLL_DELAY_MS));
   }
   throw new Error(`${label} event query timeout: ${String((lastError as { message?: string })?.message ?? JSON.stringify(lastLogs))}`);
 }
