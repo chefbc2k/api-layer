@@ -222,6 +222,47 @@ describe("alchemy-diagnostics", () => {
     });
   });
 
+  it("normalizes named log args and falls back cleanly when no decoder matches", () => {
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("Structured");
+    const encoded = iface.encodeEventLog(fragment!, [
+      "0x00000000000000000000000000000000000000aa",
+      [3n, 5n],
+      [true, 9n],
+    ]);
+
+    expect(decodeReceiptLogs({
+      logs: [
+        {
+          address: "0x0000000000000000000000000000000000000001",
+          data: encoded.data,
+          topics: encoded.topics,
+          logIndex: 7,
+          transactionHash: "0xstructured",
+        },
+        {
+          address: "0x0000000000000000000000000000000000000002",
+          data: "0x1234",
+          topics: [],
+        },
+      ],
+    } as never)).toEqual([
+      expect.objectContaining({
+        eventName: "Structured",
+        facetName: "TestFacet",
+        logIndex: 7,
+        transactionHash: "0xstructured",
+        args: {},
+      }),
+      expect.objectContaining({
+        eventName: null,
+        signature: null,
+        facetName: null,
+        topic0: null,
+      }),
+    ]);
+  });
+
   it("simulates transactions, including pending-to-latest fallback behavior", async () => {
     const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
     const fragment = iface.getEvent("TestEvent");
@@ -284,11 +325,18 @@ describe("alchemy-diagnostics", () => {
   });
 
   it("reports direct simulation success and fallback failure distinctly", async () => {
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 1n]);
     const directAlchemy = {
       transact: {
         simulateExecution: vi.fn().mockResolvedValue({
           calls: [],
-          logs: [],
+          logs: [{
+            address: "0x0000000000000000000000000000000000000001",
+            data: encoded.data,
+            topics: encoded.topics,
+          }],
         }),
       },
     };
@@ -297,9 +345,14 @@ describe("alchemy-diagnostics", () => {
       status: "available",
       blockTag: "latest",
       callCount: 0,
-      logCount: 0,
+      logCount: 1,
       topLevelCall: undefined,
-      decodedLogs: [],
+      decodedLogs: [
+        expect.objectContaining({
+          eventName: "TestEvent",
+          facetName: "TestFacet",
+        }),
+      ],
     });
 
     const fallbackFailureAlchemy = {

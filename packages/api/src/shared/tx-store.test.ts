@@ -180,4 +180,51 @@ describe("TxRequestStore", () => {
 
     await expect(store.get("missing")).resolves.toBeNull();
   });
+
+  it("coalesces undefined update fields and omitted response payloads to null", async () => {
+    const store = new TxRequestStore("postgres://local/test");
+    const pool = poolState.instances[0];
+
+    pool.query
+      .mockResolvedValueOnce({ rows: [{ id: "req-null" }] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    await expect(store.insert({
+      method: "Facet.optionalPayload",
+      params: [],
+      status: "queued",
+    })).resolves.toBe("req-null");
+
+    expect(pool.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("INSERT INTO tx_requests"),
+      [
+        null,
+        null,
+        "Facet.optionalPayload",
+        JSON.stringify([]),
+        null,
+        "queued",
+        JSON.stringify(null),
+        null,
+        null,
+        null,
+        null,
+      ],
+    );
+
+    await expect(store.update("req-null", {
+      status: undefined,
+      responsePayload: undefined,
+      txHash: undefined,
+      requestHash: undefined,
+      spendCapDecision: undefined,
+    } as never)).resolves.toBeUndefined();
+
+    expect(pool.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("UPDATE tx_requests"),
+      ["req-null", null, null, null, null, null],
+    );
+  });
 });
