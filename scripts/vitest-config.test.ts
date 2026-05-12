@@ -18,9 +18,10 @@ describe("coverage runner configuration", () => {
     expect(config.test?.coverage?.excludeAfterRemap).toBe(true);
   });
 
-  it("drives reporter selection and tempdir creation from the coverage script", () => {
+  it("keeps the package coverage command pinned to the stable v8 path", () => {
     expect(config.test?.coverage?.reporter).toBeUndefined();
-    expect(packageJson.scripts["test:coverage"]).toBe("tsx scripts/run-test-coverage.ts");
+    expect(packageJson.scripts["test:coverage"]).toContain("--coverage.provider=v8");
+    expect(packageJson.scripts["test:coverage"]).toContain("API_LAYER_RUN_CONTRACT_INTEGRATION=0");
     expect(packageJson.devDependencies["@vitest/coverage-v8"]).toBeDefined();
   });
 });

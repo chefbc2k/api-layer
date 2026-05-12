@@ -72,6 +72,12 @@ describe("run-test-coverage helpers", () => {
     expect(() => child.emit("exit", 0, null)).toThrow("exit:0");
   });
 
+  it("keeps the coverage worker model on the default vitest path", () => {
+    expect(coverageVitestArgs).toContain("--coverage.provider=v8");
+    expect(coverageVitestArgs).not.toContain("--no-file-parallelism");
+    expect(coverageVitestArgs).not.toContain("--poolOptions.forks.singleFork");
+  });
+
   it("forwards child signals to process.kill", async () => {
     const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
     const processKill = vi.fn();

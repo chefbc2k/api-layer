@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 
 import istanbulModule from "@vitest/coverage-istanbul";
 import { IstanbulCoverageProvider } from "@vitest/coverage-istanbul/dist/provider.js";
@@ -13,29 +13,41 @@ class StableIstanbulCoverageProvider extends IstanbulCoverageProvider {
   ): Promise<void> {
     const provider = this as IstanbulCoverageProvider & {
       pendingPromises: Promise<unknown>[];
-      coverageFilesDirectory: string;
+      coverageFiles: Map<
+        string | symbol,
+        Record<string, Record<string, string>>
+      >;
       ctx: {
-        getProjectByName?: (name: string) => unknown;
+        getProjectByName: (name: string | symbol) => unknown;
         projects?: unknown[];
       };
     };
 
     await Promise.all(provider.pendingPromises);
     provider.pendingPromises = [];
+    const total = Array.from(provider.coverageFiles.values()).reduce((count, coveragePerProject) => {
+      return count + Object.values(coveragePerProject).reduce((transformCount, coverageByTestfiles) => {
+        return transformCount + Object.keys(coverageByTestfiles).length;
+      }, 0);
+    }, 0);
 
-    const discoveredFiles = (await readdir(provider.coverageFilesDirectory))
-      .filter((entry) => entry.startsWith("coverage-") && entry.endsWith(".json"))
-      .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+    let index = 0;
+    for (const [projectName, coveragePerProject] of provider.coverageFiles.entries()) {
+      for (const [transformMode, coverageByTestfiles] of Object.entries(coveragePerProject)) {
+        const filenames = Object.values(coverageByTestfiles)
+          .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+        const project = provider.ctx.getProjectByName(projectName) ?? provider.ctx.projects?.[0];
 
-    callbacks.onDebug?.(`aggregating ${discoveredFiles.length} discovered coverage files from ${provider.coverageFilesDirectory}`);
+        for (const filename of filenames) {
+          index += 1;
+          callbacks.onDebug?.(`Reading coverage results ${index}/${total}`);
+          const contents = await readFile(filename, "utf-8");
+          callbacks.onFileRead(JSON.parse(contents));
+        }
 
-    for (const entry of discoveredFiles) {
-      const filename = `${provider.coverageFilesDirectory}/${entry}`;
-      const contents = await readFile(filename, "utf-8");
-      callbacks.onFileRead(JSON.parse(contents));
+        await callbacks.onFinished(project, transformMode);
+      }
     }
-
-    await callbacks.onFinished(provider.ctx.getProjectByName?.("") ?? provider.ctx.projects?.[0], "ssr");
   }
 
   override async cleanAfterRun(): Promise<void> {
