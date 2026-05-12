@@ -4,6 +4,7 @@ import { facetRegistry } from "../packages/client/src/generated/index.js";
 import { Contract, JsonRpcProvider, Wallet, ethers } from "ethers";
 
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
+import { runWithTransientRpcRetries } from "./transient-rpc-retry.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -31,8 +32,8 @@ type TxStatusPayload = {
 };
 
 const ACTIVE_PROPOSAL_STATE = "1";
-const DEFAULT_POLL_INTERVAL_MS = Number(process.env.GOVERNANCE_PROOF_POLL_INTERVAL_MS ?? "60000");
-const DEFAULT_MAX_WAIT_MS = Number(process.env.GOVERNANCE_PROOF_MAX_WAIT_MS ?? String(30 * 60 * 60 * 1000));
+const DEFAULT_POLL_INTERVAL_MS = Number(process.env.GOVERNANCE_PROOF_POLL_INTERVAL_MS ?? "15000");
+const DEFAULT_MAX_WAIT_MS = Number(process.env.GOVERNANCE_PROOF_MAX_WAIT_MS ?? String(3 * 60 * 1000));
 
 async function apiCall(port: number, method: string, path: string, options: ApiCallOptions = {}): Promise<ApiResponse> {
   const response = await fetch(`http://127.0.0.1:${port}${path}`, {
@@ -217,7 +218,7 @@ export function isInsufficientFundsPayload(payload: unknown): boolean {
   return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
 }
 
-async function main(): Promise<void> {
+async function runGovernanceProofOnce(): Promise<void> {
   const repoEnv = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(repoEnv);
   const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
@@ -285,8 +286,9 @@ async function main(): Promise<void> {
   try {
     await ensureNativeBalance(provider, forkRuntime.rpcUrl, founder.address, ethers.parseEther("0.00005"));
     const currentVotingConfig = await governorFacet.getVotingConfig();
-    const currentVotingDelay = currentVotingConfig[0];
-    const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [currentVotingDelay]);
+    const currentVotingDelay = BigInt(currentVotingConfig[0]);
+    const proposedVotingDelay = currentVotingDelay === 6000n ? 6001n : 6000n;
+    const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [proposedVotingDelay]);
     const submitDescription = `api-layer governance proof ${Date.now()}`;
 
     const submitResp = await apiCall(port, "POST", "/v1/workflows/submit-proposal", {
@@ -326,6 +328,8 @@ async function main(): Promise<void> {
         currentBlock: submitPayload?.votingWindow && typeof submitPayload.votingWindow === "object"
           ? (submitPayload.votingWindow as Record<string, unknown>).currentBlock ?? null
           : null,
+        currentVotingDelay: currentVotingDelay.toString(),
+        proposedVotingDelay: proposedVotingDelay.toString(),
       },
     };
 
@@ -387,6 +391,15 @@ async function main(): Promise<void> {
     server.close();
     await provider.destroy();
   }
+}
+
+async function main(): Promise<void> {
+  await runWithTransientRpcRetries(runGovernanceProofOnce, {
+    label: "verify:governance:base-sepolia",
+    maxAttempts: Number(process.env.API_LAYER_TRANSIENT_RPC_MAX_ATTEMPTS ?? "3"),
+    baseDelayMs: Number(process.env.API_LAYER_TRANSIENT_RPC_BASE_DELAY_MS ?? "1500"),
+    log: (message) => console.warn(message),
+  });
 }
 
 main().catch((error) => {

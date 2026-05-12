@@ -17,6 +17,7 @@ import {
   rankFundingCandidates,
   selectPreferredMarketplaceFixtureCandidate,
 } from "./base-sepolia-operator-setup.helpers.js";
+import { runWithTransientRpcRetries } from "./transient-rpc-retry.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -1259,7 +1260,7 @@ export async function persistSetupStatus(
   logFn(JSON.stringify(toJsonValue(status), null, 2));
 }
 
-export async function main(): Promise<void> {
+async function runSetupOnce(): Promise<void> {
   const env = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(env);
   const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
@@ -1356,6 +1357,15 @@ export async function main(): Promise<void> {
     forkRuntime.forkProcess?.kill("SIGTERM");
     await provider.destroy();
   }
+}
+
+export async function main(): Promise<void> {
+  await runWithTransientRpcRetries(runSetupOnce, {
+    label: "setup:base-sepolia",
+    maxAttempts: Number(process.env.API_LAYER_TRANSIENT_RPC_MAX_ATTEMPTS ?? "3"),
+    baseDelayMs: Number(process.env.API_LAYER_TRANSIENT_RPC_BASE_DELAY_MS ?? "1500"),
+    log: (message) => console.warn(message),
+  });
 }
 
 const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

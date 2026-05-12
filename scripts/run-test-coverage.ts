@@ -34,6 +34,13 @@ export type CoverageRuntimeDeps = {
   spawnFn?: typeof spawn;
 };
 
+export function buildCoverageEnv(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  return {
+    ...env,
+    API_LAYER_RUN_CONTRACT_INTEGRATION: "0",
+  };
+}
+
 export async function resetCoverageDir(
   rmFn: typeof rm = rm,
   mkdirFn: typeof mkdir = mkdir,
@@ -52,6 +59,7 @@ export async function runCoverage({
   spawnFn = spawn,
 }: CoverageRuntimeDeps = {}): Promise<void> {
   await resetCoverageDir(rmFn, mkdirFn);
+  const coverageEnv = buildCoverageEnv(env);
 
   const child = spawnFn(
     "pnpm",
@@ -59,7 +67,7 @@ export async function runCoverage({
     {
       cwd: rootDir,
       stdio: "inherit",
-      env,
+      env: coverageEnv,
     },
   );
 

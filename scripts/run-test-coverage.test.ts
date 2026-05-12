@@ -3,12 +3,23 @@ import { EventEmitter } from "node:events";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  buildCoverageEnv,
   coverageVitestArgs,
   resetCoverageDir,
   runCoverage,
 } from "./run-test-coverage.js";
 
 describe("run-test-coverage helpers", () => {
+  it("forces live contract integration off during coverage runs", () => {
+    expect(buildCoverageEnv({
+      API_LAYER_RUN_CONTRACT_INTEGRATION: "1",
+      NODE_OPTIONS: "--inspect",
+    })).toEqual({
+      API_LAYER_RUN_CONTRACT_INTEGRATION: "0",
+      NODE_OPTIONS: "--inspect",
+    });
+  });
+
   it("resets the coverage directory before running", async () => {
     const rmFn = vi.fn().mockResolvedValue(undefined);
     const mkdirFn = vi.fn().mockResolvedValue(undefined);
@@ -51,7 +62,10 @@ describe("run-test-coverage helpers", () => {
       [...coverageVitestArgs],
       expect.objectContaining({
         stdio: "inherit",
-        env: { NODE_OPTIONS: "--inspect" },
+        env: {
+          API_LAYER_RUN_CONTRACT_INTEGRATION: "0",
+          NODE_OPTIONS: "--inspect",
+        },
       }),
     );
 
