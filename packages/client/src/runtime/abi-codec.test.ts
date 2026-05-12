@@ -520,4 +520,62 @@ describe("abi-codec", () => {
     expect(() => validateWireParams(definition as never, ["voice-label"])).not.toThrow();
     expect(decodeParamsFromWire(definition as never, ["voice-label"])).toEqual(["voice-label"]);
   });
+
+  it("normalizes object-shaped tuple results and surfaces nested array validation failures", () => {
+    const definition = {
+      signature: "objectTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          {
+            name: "nested",
+            type: "tuple",
+            components: [
+              { name: "items", type: "uint256[]" },
+            ],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    const wire = serializeResultToWire(definition as never, {
+      count: 9n,
+      nested: {
+        items: [1n, 2n],
+      },
+    });
+
+    expect(wire).toEqual({
+      count: "9",
+      nested: {
+        items: ["1", "2"],
+      },
+    });
+
+    expect(() => serializeResultToWire(definition as never, {
+      count: 9n,
+      nested: {},
+    })).toThrow("invalid result for objectTupleResult(): expected array");
+  });
+
+  it("rejects invalid multi-output serialization inputs and non-array response payloads", () => {
+    const definition = {
+      signature: "multiResult(uint256,address)",
+      outputs: [
+        { type: "uint256" },
+        { type: "address" },
+      ],
+    };
+
+    expect(() => serializeResultToWire(definition as never, [{ bad: true }, "0x0000000000000000000000000000000000000001"])).toThrow(
+      "invalid result item 0 for multiResult(uint256,address): expected integer-compatible value for uint256",
+    );
+    expect(() => decodeResultFromWire(definition as never, {
+      0: "1",
+      1: "0x0000000000000000000000000000000000000001",
+      length: 2,
+    })).toThrow("invalid response for multiResult(uint256,address): expected array");
+  });
 });

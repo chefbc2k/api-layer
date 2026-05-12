@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.128] - 2026-05-12
+
+### Fixed
+- **ABI Codec Edge-Path Coverage Expanded Again:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) to prove object-shaped tuple result normalization with nested array payloads, validation failure behavior for malformed object-shaped tuple leaves, and multi-output serialization / decode rejection when callers pass incompatible scalar objects or non-array response payloads. This keeps runtime behavior unchanged while tightening the client runtime coverage around `serializeResultToWire` and `decodeResultFromWire`.
+
+### Verified
+- **Baseline + Setup Guards Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, `pnpm run coverage:check`, and `pnpm run setup:base-sepolia`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and refreshed setup artifact status `ready` with seller listing token `11` still `purchase-ready`, buyer USDC balance/allowance both `4000`, and governance still `ready` with founder current votes `840000000000000000`.
+- **Focused ABI Codec Regression Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts --maxWorkers 1`; all `24/24` assertions passed after the new object-shaped tuple and multi-output edge-case additions.
+- **Repo Coverage Sweep Stayed Green And Improved Slightly:** Re-ran `pnpm run test:coverage`; the suite remains green at `125` passing files, `845` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.39%` statements / `91.74%` branches / `99.26%` functions / `98.39%` lines to `98.41%` statements / `91.77%` branches / `99.26%` functions / `98.41%` lines, and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) improved from `87.42%` to `88.02%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the live setup/baseline proof remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The largest residual handwritten hotspots remain [`/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), and the remaining low-branch marketplace write helpers.
+- **Skipped Live Governance Slice Still Emits The Mock Alchemy Host Failure:** During `pnpm run test:coverage`, the intentionally skipped [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) proof slice still prints `getaddrinfo ENOTFOUND example` from the mock Alchemy host configuration. It remains non-fatal but still blocks promoting that live governance proof from noisy-preview to clean output.
+
 ## [0.1.127] - 2026-05-12
 
 ### Fixed
