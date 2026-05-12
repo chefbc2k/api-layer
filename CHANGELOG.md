@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.124] - 2026-05-12
+
+### Fixed
+- **Multisig Protocol Consequence Helpers Now Exercise Real Cold Paths:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts) to prove diamond-admin action encode/decode round-trips, normalized event-log readbacks, ownership consequence snapshot aggregation, multisig status convergence via `waitForOperationStatus`, and the remaining authority-state protocol error branch in [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+- **Workflow Receipt Parsing Rejects Non-Hex Transaction Handles Explicitly:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.test.ts) to lock the null-return path when a workflow payload includes a malformed non-hex `txHash`, tightening coverage around [`/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/wait-for-write.ts) without changing runtime behavior.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Checks Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change-helpers.test.ts packages/api/src/workflows/wait-for-write.test.ts --maxWorkers 1`; all `13/13` assertions passed.
+- **Repo Coverage Sweep Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the suite remains green at `125` passing files, `831` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `98.23%` statements, `91.47%` branches, `99.26%` functions, and `98.22%` lines, while [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts) improved from `87.5% / 82.09% / 89.65% / 87.41%` to `93.42% / 87.03% / 100% / 93.37%`.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage and wrapper coverage remain complete, but the automation target for full branch/function/line/statement coverage is still unmet. The most obvious next handwritten hotspots remain [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and lower-covered runtime helpers such as [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+- **Coverage Run Still Surfaces A Mock Alchemy Host Failure In The Skipped Contract Integration Slice:** During `pnpm run test:coverage`, the skipped [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) output still logs a preview failure with `getaddrinfo ENOTFOUND example` against the placeholder Alchemy host. It does not fail the run because the live proof slice remains intentionally skipped, but the harness output is still noisy and worth hardening in a future pass.
+
 ## [0.1.123] - 2026-05-12
 
 ### Fixed

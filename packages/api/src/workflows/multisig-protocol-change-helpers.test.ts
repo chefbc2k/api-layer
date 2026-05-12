@@ -10,6 +10,7 @@ import {
   mapMultisigStatusLabel,
   normalizeProtocolActionError,
   readBooleanBody,
+  readOwnershipConsequence,
   readCanExecute,
   readConsequenceReport,
   readOptionalEventLogs,
@@ -17,6 +18,7 @@ import {
   readTupleBody,
   readUpgradeConsequence,
   resolveActorOverride,
+  waitForOperationStatus,
 } from "./multisig-protocol-change-helpers.js";
 import { HttpError } from "../shared/errors.js";
 
@@ -56,6 +58,59 @@ describe("multisig protocol change helper utilities", () => {
       label: "manual",
     })).toBe("0x1234");
     expect(decodeProtocolAction("0x1234")).toBeNull();
+
+    const diamondCut = encodeProtocolAction({
+      kind: "propose-diamond-cut",
+      facetCuts: [{
+        facetAddress: "0x00000000000000000000000000000000000000aa",
+        action: 1,
+        functionSelectors: ["0x12345678"],
+      }],
+      initContract: "0x00000000000000000000000000000000000000bb",
+      initCalldata: "0xfeed",
+    });
+    expect(decodeProtocolAction(diamondCut)).toEqual({
+      kind: "propose-diamond-cut",
+      facetCuts: [{
+        facetAddress: "0x00000000000000000000000000000000000000AA",
+        action: 1,
+        functionSelectors: ["0x12345678"],
+      }],
+      initContract: "0x00000000000000000000000000000000000000bb",
+      initCalldata: "0xfeed",
+    });
+
+    const approveUpgrade = encodeProtocolAction({
+      kind: "approve-upgrade",
+      upgradeId: UPGRADE_ID,
+    });
+    expect(decodeProtocolAction(approveUpgrade)).toEqual({
+      kind: "approve-upgrade",
+      upgradeId: UPGRADE_ID,
+    });
+
+    const executeUpgrade = encodeProtocolAction({
+      kind: "execute-upgrade",
+      facetCuts: [{
+        facetAddress: "0x00000000000000000000000000000000000000cc",
+        action: 2,
+        functionSelectors: ["0x90abcdef"],
+      }],
+      initContract: "0x00000000000000000000000000000000000000dd",
+      initCalldata: "0xbeef",
+      upgradeId: UPGRADE_ID,
+    });
+    expect(decodeProtocolAction(executeUpgrade)).toEqual({
+      kind: "execute-upgrade",
+      facetCuts: [{
+        facetAddress: "0x00000000000000000000000000000000000000cc",
+        action: 2,
+        functionSelectors: ["0x90abcdef"],
+      }],
+      initContract: "0x00000000000000000000000000000000000000dd",
+      initCalldata: "0xbeef",
+      upgradeId: UPGRADE_ID,
+    });
   });
 
   it("covers execution readiness, status, and operation-id fallback branches", () => {
@@ -102,6 +157,10 @@ describe("multisig protocol change helper utilities", () => {
     await expect(readOptionalEventLogs(async () => {
       throw new Error("boom");
     })).resolves.toEqual([]);
+
+    await expect(readOptionalEventLogs(async () => ({
+      body: [{ transactionHash: "0xabc" }],
+    }))).resolves.toEqual([{ transactionHash: "0xabc" }]);
 
     const auth = {
       apiKey: "admin-key",
@@ -186,6 +245,69 @@ describe("multisig protocol change helper utilities", () => {
     });
   });
 
+  it("reads ownership consequence snapshots and waits for operation status convergence", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      ownership: {
+        owner: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: "0x00000000000000000000000000000000000000aa" } }),
+        pendingOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+        isOwnershipPolicyEnforced: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: true } }),
+        isOwnerTargetApproved: vi
+          .fn()
+          .mockResolvedValueOnce({ statusCode: 200, body: true })
+          .mockResolvedValueOnce({ statusCode: 200, body: { result: false } }),
+      },
+      multisig: {
+        getOperationStatus: vi
+          .fn()
+          .mockResolvedValueOnce({ statusCode: 200, body: { result: "1" } })
+          .mockResolvedValueOnce({ statusCode: 200, body: { result: "2" } }),
+      },
+    } as never;
+    vi.spyOn(global, "setTimeout").mockImplementation(((fn: (...args: Array<unknown>) => void) => {
+      fn();
+      return 0 as never;
+    }) as typeof setTimeout);
+
+    await expect(readOwnershipConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000cc",
+      [
+        "0x00000000000000000000000000000000000000dd",
+        "0x00000000000000000000000000000000000000ee",
+      ],
+    )).resolves.toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      pendingOwner: "0x00000000000000000000000000000000000000bb",
+      ownershipPolicyEnforced: true,
+      targetApprovals: [
+        {
+          target: "0x00000000000000000000000000000000000000dd",
+          approved: true,
+        },
+        {
+          target: "0x00000000000000000000000000000000000000ee",
+          approved: false,
+        },
+      ],
+    });
+
+    await expect(waitForOperationStatus(
+      services,
+      auth,
+      undefined,
+      UPGRADE_ID,
+      ["2", "3"],
+      "approval",
+    )).resolves.toBe("2");
+  });
+
   it("normalizes actor overrides and protocol action errors", () => {
     const auth = {
       apiKey: "admin-key",
@@ -226,6 +348,9 @@ describe("multisig protocol change helper utilities", () => {
       statusCode: 409,
     });
     expect(normalizeProtocolActionError(new Error("InvalidOperationType(bytes32)"), "wf", "propose")).toMatchObject<HttpError>({
+      statusCode: 409,
+    });
+    expect(normalizeProtocolActionError(new Error("not permitted"), "wf", "execute")).toMatchObject<HttpError>({
       statusCode: 409,
     });
     const plain = normalizeProtocolActionError("plain failure", "wf", "execute");

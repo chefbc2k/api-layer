@@ -17,6 +17,16 @@ describe("waitForWorkflowWriteReceipt", () => {
     expect(withProvider).not.toHaveBeenCalled();
   });
 
+  it("returns null when the payload txHash is not a hex string", async () => {
+    const withProvider = vi.fn();
+    const result = await waitForWorkflowWriteReceipt({
+      providerRouter: { withProvider },
+    } as never, { txHash: "submitted" }, "workflow");
+
+    expect(result).toBeNull();
+    expect(withProvider).not.toHaveBeenCalled();
+  });
+
   it("retries receipt reads until a successful receipt is available", async () => {
     const withProvider = vi.fn()
       .mockImplementationOnce(async (_mode, _label, work) => work({ getTransactionReceipt: vi.fn(async () => null) }))
