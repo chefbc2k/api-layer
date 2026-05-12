@@ -68,7 +68,7 @@ vi.mock("./create-marketplace-listing.js", async () => {
 });
 
 import { HttpError } from "../shared/errors.js";
-import { runCatalogListingOperationsWorkflow } from "./catalog-listing-operations.js";
+import { catalogListingOperationsWorkflowSchema, runCatalogListingOperationsWorkflow } from "./catalog-listing-operations.js";
 
 describe("runCatalogListingOperationsWorkflow", () => {
   const auth = {
@@ -526,5 +526,89 @@ describe("runCatalogListingOperationsWorkflow", () => {
       statusCode: 409,
       message: "catalog-listing-operations relist blocked by listing state: existing listing is still active",
     } satisfies Partial<HttpError>));
+  });
+
+  it("returns null trade readiness when no listing inspection exists", async () => {
+    const service = datasetService();
+    mocks.createDatasetsPrimitiveService.mockReturnValue(service);
+
+    const result = await runCatalogListingOperationsWorkflow(context, auth, undefined, {
+      dataset: {
+        datasetId: "11",
+      },
+      listing: {
+        inspect: false,
+        cancel: false,
+      },
+    });
+
+    expect(mocks.runInspectMarketplaceListingWorkflow).not.toHaveBeenCalled();
+    expect(result.listing.inspectionBefore).toBeNull();
+    expect(result.listing.tradeReadiness).toBeNull();
+    expect(result.summary.isTradable).toBe(false);
+  });
+
+  it("reports inactive listings as not actively listed", async () => {
+    const service = datasetService();
+    mocks.createDatasetsPrimitiveService.mockReturnValue(service);
+    mocks.runInspectMarketplaceListingWorkflow.mockResolvedValueOnce({
+      listing: { tokenId: "11", isActive: false, price: "1000" },
+      escrow: { assetState: "0", originalOwner: "0x0000000000000000000000000000000000000000", inEscrow: false },
+      ownership: { owner: "0x00000000000000000000000000000000000000aa" },
+      summary: { tokenId: "11", hasListing: true, inEscrow: false },
+    });
+
+    const result = await runCatalogListingOperationsWorkflow(context, auth, undefined, {
+      dataset: {
+        datasetId: "11",
+      },
+      listing: {
+        inspect: true,
+      },
+    });
+
+    expect(result.listing.tradeReadiness).toBe("not-actively-listed");
+    expect(result.summary.activeListing).toBe(false);
+  });
+
+  it("requires a release target when escrow has no recoverable original owner", async () => {
+    const service = datasetService();
+    mocks.createDatasetsPrimitiveService.mockReturnValue(service);
+    mocks.runInspectMarketplaceListingWorkflow.mockResolvedValueOnce({
+      listing: { tokenId: "11", isActive: false, price: "1000" },
+      escrow: { assetState: "1", originalOwner: "not-an-address", inEscrow: true },
+      ownership: { owner: "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669" },
+      summary: { tokenId: "11", hasListing: true, inEscrow: true },
+    });
+
+    await expect(
+      runCatalogListingOperationsWorkflow(context, auth, undefined, {
+        dataset: {
+          datasetId: "11",
+        },
+        listing: {
+          release: {},
+        },
+      }),
+    ).rejects.toEqual(expect.objectContaining({
+      statusCode: 400,
+      message: "catalog-listing-operations release requires explicit to address or escrow originalOwner",
+    } satisfies Partial<HttpError>));
+  });
+
+  it("rejects conflicting template lifecycle and direct template assignment inputs", () => {
+    expect(() => catalogListingOperationsWorkflowSchema.parse({
+      dataset: {
+        datasetId: "11",
+        templateLifecycle: {
+          create: {},
+        },
+        maintenance: {
+          setLicenseTemplateId: "5",
+        },
+      },
+    })).toThrow(
+      "setLicenseTemplateId cannot be combined with templateLifecycle in catalog-listing-operations",
+    );
   });
 });

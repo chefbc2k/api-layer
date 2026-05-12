@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.127] - 2026-05-12
+
+### Fixed
+- **Catalog Listing Workflow Cold Paths Are Now Explicitly Proven:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.test.ts) to cover schema conflict rejection for direct template assignment vs. lifecycle creation, the no-listing inspection path that returns `tradeReadiness: null`, inactive listings that normalize to `not-actively-listed`, and the release guard that requires either an explicit `to` address or a recoverable escrow `originalOwner`. This raises isolated branch coverage for [`/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts) from `76.76%` to `81.81%` without changing runtime behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check`; the validated Base Sepolia fork remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, final status `baseline verified`, and complete API/wrapper coverage at `492` validated methods, `492` wrapper functions, and `218` events.
+- **Base Sepolia Setup Partial Collapsed To Ready:** Re-ran `pnpm run setup:base-sepolia` and refreshed [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The setup artifact now reports `setup.status: "ready"` with no blockers, seller fixture token `11` marked `purchaseReadiness: "purchase-ready"`, listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1778584642", createdBlock: "41413638", expiresAt: "1781176642", isActive: true }`, buyer USDC balance/allowance both at `4000`, and governance still `status: "ready"` with founder current votes `840000000000000000`.
+- **Repo Coverage Sweep Improved And Stayed Green:** Re-ran `pnpm run test:coverage`; the suite remains green at `125` passing files, `843` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.33%` statements / `91.60%` branches / `99.26%` functions / `98.33%` lines to `98.39%` statements / `91.74%` branches / `99.26%` functions / `98.39%` lines.
+- **Targeted Workflow Regression Check Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/catalog-listing-operations.test.ts --maxWorkers 1`; all `11/11` assertions passed after the new branch coverage additions.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the previously setup-blocked marketplace fixture are now complete, but the automation target for full branch/function/line/statement coverage remains unmet. The most obvious remaining branch hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), and the smaller marketplace write workflows that still sit at `80%` branch coverage.
+- **Skipped Live Contract Slice Still Emits The Mock Alchemy Host Failure:** During `pnpm run test:coverage`, the intentionally skipped [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) slice still prints the preview failure `getaddrinfo ENOTFOUND example`. It remains non-fatal but keeps the harness output noisy.
+
 ## [0.1.126] - 2026-05-12
 
 ### Fixed
