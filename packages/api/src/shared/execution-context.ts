@@ -476,14 +476,18 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
         executionSource: request.api.executionSource,
         signerFactory: request.auth.signerId || request.walletAddress
           ? async (provider) => {
-              const signer = await signerRunnerFor(
-                context,
-                request.auth,
-                provider,
-                "read",
-              );
-              if (signer) {
-                return signer;
+              try {
+                const signer = await signerRunnerFor(
+                  context,
+                  request.auth,
+                  provider,
+                  "read",
+                );
+                if (signer) {
+                  return signer;
+                }
+              } catch {
+                // Reads should degrade to provider or wallet-scoped void signer when a signer key is absent.
               }
               if (request.walletAddress) {
                 return new VoidSigner(request.walletAddress, provider);

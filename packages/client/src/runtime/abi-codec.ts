@@ -259,7 +259,12 @@ export function serializeResultToWire(
   }
   if (definition.outputs.length === 1) {
     const output = definition.outputs[0];
-    let serialized = serializeToWire(output, result);
+    let serialized: unknown;
+    try {
+      serialized = serializeToWire(output, result);
+    } catch (error) {
+      throw new Error(`invalid result for ${definition.signature}: ${String((error as { message?: string })?.message ?? error)}`);
+    }
     if (output.type === "tuple" && definition.outputShape?.kind === "object" && Array.isArray(serialized)) {
       serialized = tupleToNamedObject(output, serialized);
     } else if (output.type === "tuple" && definition.outputShape?.kind === "object") {
@@ -272,7 +277,13 @@ export function serializeResultToWire(
     return serialized;
   }
   const source = Array.isArray(result) ? result : (result as ArrayLike<unknown>);
-  const serialized = definition.outputs.map((output, index) => serializeToWire(output, source[index]));
+  const serialized = definition.outputs.map((output, index) => {
+    try {
+      return serializeToWire(output, source[index]);
+    } catch (error) {
+      throw new Error(`invalid result item ${index} for ${definition.signature}: ${String((error as { message?: string })?.message ?? error)}`);
+    }
+  });
   definition.outputs.forEach((output, index) => {
     const validation = buildWireSchema(output).safeParse(serialized[index]);
     if (!validation.success) {

@@ -162,6 +162,12 @@ describe("runTransferRightsWorkflow", () => {
   });
 
   it("retries owner readback before succeeding", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
     const service = {
       transferFromVoiceAsset: vi.fn().mockResolvedValue({
         statusCode: 202,
@@ -191,6 +197,7 @@ describe("runTransferRightsWorkflow", () => {
 
     expect(service.ownerOf).toHaveBeenCalledTimes(2);
     expect(result.transfer.owner).toBe("0x00000000000000000000000000000000000000dd");
+    setTimeoutSpy.mockRestore();
   });
 
   it("throws when owner readback never stabilizes", async () => {
