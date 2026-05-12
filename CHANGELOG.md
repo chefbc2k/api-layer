@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.130] - 2026-05-12
+
+### Fixed
+- **Provider Router Failover Branches Are Explicitly Proven:** Expanded [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts) to cover the control-flow where read traffic has already failed over to `alchemy`, the active `alchemy` request then fails with a retryable upstream error, and the router retries against `cbdp` without mutating the active-provider state. The same suite now also proves that writes remain pinned to `cbdp` even while reads are still failed over to `alchemy`.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, final status `baseline verified`, and complete API/wrapper coverage at `492` validated methods, `492` wrapper functions, and `218` events.
+- **Focused Provider Router Regression Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/provider-router.test.ts --maxWorkers 1`; all `9/9` assertions passed after the new failover and write-pinning coverage additions.
+- **Repo Coverage Sweep Stayed Green And Improved Slightly:** Re-ran `pnpm run test:coverage`; the suite remains green at `125` passing files, `850` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.41%` statements / `91.75%` branches / `99.26%` functions / `98.42%` lines to `98.43%` statements / `91.77%` branches / `99.26%` functions / `98.44%` lines, and [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts) improved from `98.03%` statements / `88.57%` branches / `100%` functions / `98.00%` lines to `100%` statements / `91.42%` branches / `100%` functions / `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the verified Base Sepolia/local-fork baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The largest remaining handwritten hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and the lower-branch setup/debug helpers reported by Istanbul.
+- **Skipped Live Governance Slice Still Emits The Mock Alchemy Host Failure:** During `pnpm run test:coverage`, the intentionally skipped [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) path still prints `getaddrinfo ENOTFOUND example` from the placeholder Alchemy host configuration. It remains non-fatal but still leaves avoidable noise in the coverage run.
+
 ## [0.1.129] - 2026-05-12
 
 ### Fixed

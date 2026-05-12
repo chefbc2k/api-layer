@@ -178,6 +178,74 @@ describe("ProviderRouter", () => {
     expect(router.getStatus().alchemy.active).toBe(true);
   });
 
+  it("retries back to cbdp when active alchemy fails without changing the active provider", async () => {
+    vi.setSystemTime(new Date("2026-04-08T08:20:00.000Z"));
+
+    const router = new ProviderRouter({
+      chainId: 84532,
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
+      errorThreshold: 1,
+      errorWindowMs: 60_000,
+      recoveryCooldownMs: 60_000,
+    });
+
+    let activateFailover = true;
+    await router.withProvider("read", "AccessControlFacet.getQuorum", async (_provider, providerName) => {
+      if (providerName === "cbdp" && activateFailover) {
+        activateFailover = false;
+        throw new Error("HTTP 429 from upstream");
+      }
+      return providerName;
+    });
+
+    const attempts: string[] = [];
+    const result = await router.withProvider("read", "AccessControlFacet.getQuorum", async (_provider, providerName) => {
+      attempts.push(providerName);
+      if (providerName === "alchemy") {
+        throw new Error("service unavailable");
+      }
+      return providerName;
+    });
+
+    expect(result).toBe("cbdp");
+    expect(attempts).toEqual(["alchemy", "cbdp"]);
+    expect(router.getStatus()).toEqual({
+      cbdp: { active: false, errorCount: 1 },
+      alchemy: { active: true, errorCount: 1 },
+    });
+  });
+
+  it("keeps writes pinned to cbdp even while read traffic is failed over to alchemy", async () => {
+    const router = new ProviderRouter({
+      chainId: 84532,
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
+      errorThreshold: 1,
+      errorWindowMs: 60_000,
+      recoveryCooldownMs: 60_000,
+    });
+
+    let firstRead = true;
+    await router.withProvider("read", "AccessControlFacet.getQuorum", async (_provider, providerName) => {
+      if (providerName === "cbdp" && firstRead) {
+        firstRead = false;
+        throw new Error("HTTP 429 from upstream");
+      }
+      return providerName;
+    });
+
+    const attempts: string[] = [];
+    const result = await router.withProvider("write", "VoiceAssetFacet.registerVoiceAsset", async (_provider, providerName) => {
+      attempts.push(providerName);
+      return providerName;
+    });
+
+    expect(result).toBe("cbdp");
+    expect(attempts).toEqual(["cbdp"]);
+    expect(router.getStatus().alchemy.active).toBe(true);
+  });
+
   it("does not fail over writes to the secondary provider", async () => {
     const router = new ProviderRouter({
       chainId: 84532,
@@ -218,4 +286,5 @@ describe("ProviderRouter", () => {
     expect(router.getStatus().cbdp.active).toBe(true);
     expect(router.getStatus().cbdp.errorCount).toBe(0);
   });
+
 });
