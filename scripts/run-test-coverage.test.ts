@@ -15,8 +15,20 @@ describe("run-test-coverage helpers", () => {
 
     await resetCoverageDir(rmFn as any, mkdirFn as any);
 
-    expect(rmFn).toHaveBeenCalledOnce();
-    expect(mkdirFn).toHaveBeenCalledTimes(2);
+    expect(rmFn).toHaveBeenCalledWith(expect.stringMatching(/\/coverage$/), {
+      recursive: true,
+      force: true,
+    });
+    expect(mkdirFn).toHaveBeenNthCalledWith(
+      1,
+      expect.stringMatching(/\/coverage$/),
+      { recursive: true },
+    );
+    expect(mkdirFn).toHaveBeenNthCalledWith(
+      2,
+      expect.stringMatching(/\/coverage\/\.tmp$/),
+      { recursive: true },
+    );
   });
 
   it("spawns vitest with coverage args and exits with the child code", async () => {
@@ -60,6 +72,22 @@ describe("run-test-coverage helpers", () => {
 
     child.emit("exit", null, "SIGTERM");
     expect(processKill).toHaveBeenCalledWith(process.pid, "SIGTERM");
+  });
+
+  it("falls back to exit code 1 when the child exits without a code or signal", async () => {
+    const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
+    const processExit = vi.fn((code?: number) => {
+      throw new Error(`exit:${code}`);
+    });
+
+    await runCoverage({
+      mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
+      processExit: processExit as any,
+      rmFn: vi.fn().mockResolvedValue(undefined) as any,
+      spawnFn: vi.fn().mockReturnValue(child) as any,
+    });
+
+    expect(() => child.emit("exit", null, null)).toThrow("exit:1");
   });
 
   it("reports spawn errors through processExit", async () => {
