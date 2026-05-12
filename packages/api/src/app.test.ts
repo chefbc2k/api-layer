@@ -125,4 +125,27 @@ describe("createApiServer", () => {
       logSpy.mockRestore();
     }
   });
+
+  it("uses the env port fallback when no explicit options are provided", async () => {
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "test-key": { label: "test", roles: ["service"], allowGasless: true },
+    });
+    process.env.API_LAYER_PORT = "0";
+    process.env.CHAIN_ID = "31337";
+
+    const { server, port } = await startServer();
+
+    try {
+      const { status, payload } = await apiCall(port, "/v1/system/health", {
+        headers: {},
+      });
+      expect(status).toBe(200);
+      expect(payload).toEqual({
+        ok: true,
+        chainId: 31337,
+      });
+    } finally {
+      await closeServer(server);
+    }
+  });
 });

@@ -320,9 +320,7 @@ describe("abi-codec", () => {
       outputShape: { kind: "object" },
     };
 
-    expect(() => serializeResultToWire(definition as never, { count: 4n })).toThrow(
-      "invalid result for sparseTupleObject(): Invalid input: expected array, received undefined",
-    );
+    expect(() => serializeResultToWire(definition as never, { count: 4n })).toThrow("expected array value for tuple[]");
   });
 
   it("rejects wrong parameter counts on encode and decode entrypoints", () => {

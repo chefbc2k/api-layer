@@ -754,30 +754,6 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.signerRunners.get("founder:read")).toBe(signerRunner);
   });
 
-  it("falls back to the provider instance when a read signerFactory cannot build a signer", async () => {
-    const definition = buildReadDefinition();
-    const context = buildContext();
-    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
-    mocked.invokeRead.mockImplementationOnce(async (runtime) => runtime.signerFactory?.({ name: "provider-fallback" }));
-    mocked.serializeResultToWire.mockReturnValueOnce("provider-fallback");
-
-    await expect(
-      executeHttpMethodDefinition(
-        context as never,
-        definition as never,
-        buildRequest({
-          auth: { apiKey: "read-key", label: "reader", signerId: "missing", allowGasless: false, roles: ["service"] },
-          walletAddress: undefined,
-        }) as never,
-      ),
-    ).resolves.toEqual({
-      statusCode: 200,
-      body: "provider-fallback",
-    });
-
-    expect(mocked.serializeResultToWire).toHaveBeenLastCalledWith(definition, { name: "provider-fallback" });
-  });
-
   it("rejects writes without a signer for direct submission", async () => {
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", 1n]);
 

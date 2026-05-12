@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(__dirname, "..");
 const coverageDir = path.join(rootDir, "coverage");
+const coverageTmpDir = path.join(coverageDir, ".tmp");
 
 export const coverageVitestArgs = [
   "exec",
@@ -39,6 +40,7 @@ export async function resetCoverageDir(
 ): Promise<void> {
   await rmFn(coverageDir, { recursive: true, force: true });
   await mkdirFn(coverageDir, { recursive: true });
+  await mkdirFn(coverageTmpDir, { recursive: true });
 }
 
 export async function runCoverage({

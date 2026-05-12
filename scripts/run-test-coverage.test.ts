@@ -16,7 +16,7 @@ describe("run-test-coverage helpers", () => {
     await resetCoverageDir(rmFn as any, mkdirFn as any);
 
     expect(rmFn).toHaveBeenCalledOnce();
-    expect(mkdirFn).toHaveBeenCalledOnce();
+    expect(mkdirFn).toHaveBeenCalledTimes(2);
   });
 
   it("spawns vitest with coverage args and exits with the child code", async () => {
