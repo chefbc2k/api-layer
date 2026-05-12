@@ -578,4 +578,58 @@ describe("abi-codec", () => {
       length: 2,
     })).toThrow("invalid response for multiResult(uint256,address): expected array");
   });
+
+  it("keeps named tuple objects stable when object-shaped output normalization re-runs", () => {
+    const definition = {
+      signature: "namedTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          {
+            name: "nested",
+            type: "tuple",
+            components: [{ name: "label", type: "string" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    const wire = serializeResultToWire(definition as never, {
+      count: 5n,
+      nested: { label: "ready" },
+    });
+
+    expect(wire).toEqual({
+      count: "5",
+      nested: { label: "ready" },
+    });
+    expect(decodeResultFromWire(definition as never, wire)).toEqual({
+      count: 5n,
+      nested: { label: "ready" },
+    });
+  });
+
+  it("rejects malformed object-shaped tuple leaves during direct response decoding", () => {
+    const definition = {
+      signature: "objectTupleDecode()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          {
+            name: "nested",
+            type: "tuple",
+            components: [{ name: "flag", type: "bool" }],
+          },
+        ],
+      }],
+    };
+
+    expect(() => decodeResultFromWire(definition as never, {
+      count: "9",
+      nested: { flag: "not-bool" },
+    })).toThrow("invalid response for objectTupleDecode(): Invalid input");
+  });
 });

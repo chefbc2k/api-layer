@@ -1262,4 +1262,76 @@ describe("recover-from-emergency", () => {
       statusCode: 409,
     }));
   });
+
+  it("supports scheduled resume without receipt evidence and still returns posture", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        }),
+      getRecoveryPlan: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: [[], false, "0", "0", "0", []] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [[], false, "0", "0", "0", []] }),
+      scheduleEmergencyResume: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xschedule" } }),
+      emergencyResumeScheduledEventQuery: vi.fn(),
+    });
+
+    const result = await runRecoverFromEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {},
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        incidentId: "9",
+        resume: {
+          mode: "schedule",
+          executeAfter: "999",
+        },
+      },
+    );
+
+    expect(result.recovery.resume).toMatchObject({
+      mode: "schedule",
+      txHash: null,
+      eventCount: 0,
+    });
+    expect(result.summary.resumeMode).toBe("schedule");
+  });
+
 });
