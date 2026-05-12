@@ -385,6 +385,15 @@ describe("abi-codec", () => {
     } as never, [8n, "nope"])).toThrow(
       "invalid result item 1 for pair(uint256,address): invalid address",
     );
+    expect(() => serializeResultToWire({
+      signature: "pair(uint256,bool)",
+      outputs: [
+        { type: "uint256" },
+        { type: "bool" },
+      ],
+    } as never, ["not-a-decimal", true])).toThrow(
+      "invalid result item 0 for pair(uint256,bool): invalid uint256 decimal string",
+    );
   });
 
   it("supports bool, string, and bytes payloads across direct encode and decode helpers", () => {
@@ -500,5 +509,15 @@ describe("abi-codec", () => {
     };
 
     expect(() => validateWireParams(passthroughDefinition as never, [{ ok: true }, ["still-accepted"]])).not.toThrow();
+  });
+
+  it("validates plain string parameters through the wire schema builder", () => {
+    const definition = {
+      signature: "setLabel(string)",
+      inputs: [{ type: "string" }],
+    };
+
+    expect(() => validateWireParams(definition as never, ["voice-label"])).not.toThrow();
+    expect(decodeParamsFromWire(definition as never, ["voice-label"])).toEqual(["voice-label"]);
   });
 });

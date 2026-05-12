@@ -151,6 +151,42 @@ describe("route-factory", () => {
     });
   });
 
+  it("serializes method handler errors without diagnostics and uses default api options", async () => {
+    const auth = { apiKey: "reader-key", label: "reader" };
+    authMocks.authenticate.mockReturnValue(auth);
+    const request = createRequest({ body: undefined });
+    request.setHeader("x-api-key", "reader-key");
+    const response = createResponse();
+    response.status.mockReturnValue(response);
+    errorsMocks.toHttpError.mockReturnValue({
+      statusCode: 400,
+      message: "bad request",
+      diagnostics: undefined,
+    });
+
+    const handler = createMethodRequestHandler(
+      { rateLimitKind: "read" } as never,
+      {
+        path: { parse: vi.fn(() => ({})) },
+        query: { parse: vi.fn(() => ({})) },
+        body: { parse: vi.fn(() => ({})) },
+      } as never,
+      vi.fn().mockRejectedValue(new Error("bad request")),
+    );
+
+    await handler(request as never, response as never, vi.fn());
+
+    expect(executionContextMocks.enforceRateLimit).toHaveBeenCalledWith(
+      request.app.get("apiExecutionContext"),
+      { rateLimitKind: "read" },
+      auth,
+      { gaslessMode: "none", executionSource: "auto" },
+      undefined,
+    );
+    expect(response.status).toHaveBeenCalledWith(400);
+    expect(response.json).toHaveBeenCalledWith({ error: "bad request" });
+  });
+
   it("creates event handlers that normalize block ranges before invoking", async () => {
     const auth = { apiKey: "reader-key", label: "reader" };
     authMocks.authenticate.mockReturnValue(auth);
@@ -188,6 +224,33 @@ describe("route-factory", () => {
     expect(response.json).toHaveBeenCalledWith([{ ok: true }]);
   });
 
+  it("normalizes numeric event toBlock values and empty request bodies", async () => {
+    const auth = { apiKey: "reader-key", label: "reader" };
+    authMocks.authenticate.mockReturnValue(auth);
+    executionContextMocks.enforceRateLimit.mockResolvedValue(undefined);
+
+    const request = createRequest({ body: undefined });
+    request.setHeader("x-api-key", "reader-key");
+    const response = createResponse();
+    response.status.mockReturnValue(response);
+    const invoke = vi.fn().mockResolvedValue({ statusCode: 200, body: [{ ok: true }] });
+
+    const handler = createEventRequestHandler(
+      { httpMethod: "POST", path: "/events" } as never,
+      { body: { parse: vi.fn(() => ({ toBlock: "12" })) } } as never,
+      invoke,
+    );
+
+    await handler(request as never, response as never, vi.fn());
+
+    expect(invoke).toHaveBeenCalledWith({
+      auth,
+      fromBlock: undefined,
+      toBlock: 12n,
+    });
+    expect(response.status).toHaveBeenCalledWith(200);
+  });
+
   it("serializes event handler errors without diagnostics when absent", async () => {
     const request = createRequest();
     const response = createResponse();
@@ -208,6 +271,31 @@ describe("route-factory", () => {
 
     expect(response.status).toHaveBeenCalledWith(500);
     expect(response.json).toHaveBeenCalledWith({ error: "broken" });
+  });
+
+  it("serializes event handler errors with diagnostics when present", async () => {
+    const request = createRequest({ body: undefined });
+    const response = createResponse();
+    response.status.mockReturnValue(response);
+    errorsMocks.toHttpError.mockReturnValue({
+      statusCode: 503,
+      message: "retry later",
+      diagnostics: { retryAfter: 30 },
+    });
+
+    const handler = createEventRequestHandler(
+      { httpMethod: "POST", path: "/events" } as never,
+      { body: { parse: vi.fn(() => ({})) } } as never,
+      vi.fn().mockRejectedValue(new Error("retry later")),
+    );
+
+    await handler(request as never, response as never, vi.fn());
+
+    expect(response.status).toHaveBeenCalledWith(503);
+    expect(response.json).toHaveBeenCalledWith({
+      error: "retry later",
+      diagnostics: { retryAfter: 30 },
+    });
   });
 
   it("registers every supported http method", () => {

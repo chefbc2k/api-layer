@@ -754,6 +754,34 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.signerRunners.get("founder:read")).toBe(signerRunner);
   });
 
+  it("falls back to the provider runner when signer resolution fails for a read without a wallet", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
+    mocked.invokeRead.mockImplementationOnce(async (runtime) => {
+      const provider = { name: "provider-fallback" };
+      return runtime.signerFactory?.(provider as never);
+    });
+    mocked.serializeResultToWire.mockReturnValueOnce("provider-read");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          walletAddress: undefined,
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "provider-read",
+    });
+
+    expect(mocked.serializeResultToWire.mock.calls.at(-1)?.[1]).toEqual({
+      name: "provider-fallback",
+    });
+  });
+
   it("rejects writes without a signer for direct submission", async () => {
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", 1n]);
 
@@ -768,6 +796,29 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toThrow("write method VoiceAssetFacet.setApprovalForAll requires signerFactory");
+  });
+
+  it("wraps missing signer-key preview failures with null write diagnostics", async () => {
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          walletAddress: undefined,
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "missing private key for signer founder",
+      diagnostics: expect.objectContaining({
+        signer: null,
+        provider: null,
+        actors: [],
+        trace: { status: "disabled" },
+      }),
+    });
   });
 
   it("enforces the cdp smart-wallet allowlist and spend cap after preview", async () => {
