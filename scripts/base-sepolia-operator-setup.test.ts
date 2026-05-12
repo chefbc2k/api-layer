@@ -24,6 +24,7 @@ import {
   populateSetupStatus,
   prepareAgedListingFixture,
   retryApiRead,
+  readLatestProviderTimestamp,
   roleId,
   setApiLayerActorEnvironment,
   toJsonValue,
@@ -90,6 +91,17 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
     expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+  });
+
+  it("falls back to a raw latest-block RPC read when provider block caching is stale", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 1_000 }),
+      send: vi.fn().mockResolvedValue({ timestamp: "0x2" }),
+    };
+
+    await expect(readLatestProviderTimestamp(provider as any, 5n)).resolves.toBe(2n);
+    expect(provider.send).toHaveBeenCalledWith("eth_getBlockByNumber", ["latest", false]);
+    expect(provider.getBlock).not.toHaveBeenCalled();
   });
 
   it("hashes role names consistently", () => {
@@ -1519,9 +1531,11 @@ describe("base sepolia operator setup helpers", () => {
     });
     const provider = {
       getBlock: vi.fn()
-        .mockResolvedValueOnce({ timestamp: 100_000 })
-        .mockResolvedValueOnce({ timestamp: 186_401 }),
-      send: vi.fn().mockResolvedValue(undefined),
+        .mockResolvedValueOnce({ timestamp: 100_000 }),
+      send: vi.fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ timestamp: "0x2d821" }),
     };
     const marketplace = {
       getListing: vi.fn(async (tokenId: bigint) => {
@@ -1578,8 +1592,11 @@ describe("base sepolia operator setup helpers", () => {
         },
       },
     });
-    expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
-    expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+    expect(provider.send.mock.calls).toEqual([
+      ["evm_increaseTime", [86401]],
+      ["evm_mine", []],
+      ["eth_getBlockByNumber", ["latest", false]],
+    ]);
     expect(apiCallFn).toHaveBeenCalledTimes(1);
     expect(retryApiReadFn).toHaveBeenCalledTimes(1);
     expect(marketplace.getListing).toHaveBeenCalledTimes(2);
@@ -1637,9 +1654,11 @@ describe("base sepolia operator setup helpers", () => {
     };
     const provider = {
       getBlock: vi.fn()
-        .mockResolvedValueOnce({ timestamp: 100_000 })
-        .mockResolvedValueOnce({ timestamp: 186_401 }),
-      send: vi.fn().mockResolvedValue(undefined),
+        .mockResolvedValueOnce({ timestamp: 100_000 }),
+      send: vi.fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ timestamp: "0x2d821" }),
     };
 
     const result = await prepareAgedListingFixture({
@@ -1693,8 +1712,11 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(1, 8787, "0xcancel");
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(2, 8787, "0xlist");
-    expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
-    expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+    expect(provider.send.mock.calls).toEqual([
+      ["evm_increaseTime", [86401]],
+      ["evm_mine", []],
+      ["eth_getBlockByNumber", ["latest", false]],
+    ]);
     expect(apiCallFn).toHaveBeenCalledTimes(3);
     expect(marketplace.getListing).toHaveBeenCalledTimes(5);
   });

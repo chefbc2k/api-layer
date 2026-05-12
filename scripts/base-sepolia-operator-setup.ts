@@ -322,6 +322,23 @@ export async function advanceLocalForkPastMarketplaceTradingLock(args: {
   };
 }
 
+export async function readLatestProviderTimestamp(
+  provider: Pick<JsonRpcProvider, "getBlock" | "send">,
+  fallbackTimestamp: bigint,
+): Promise<bigint> {
+  try {
+    const latestBlock = await provider.send("eth_getBlockByNumber", ["latest", false]) as { timestamp?: string } | null;
+    if (latestBlock?.timestamp) {
+      return BigInt(latestBlock.timestamp);
+    }
+  } catch {
+    // Fall through to the standard provider read path when raw RPC access is unavailable.
+  }
+
+  const latestBlock = await provider.getBlock("latest");
+  return BigInt(latestBlock?.timestamp ?? fallbackTimestamp);
+}
+
 export function createInactivePreferredMarketplaceFixture(
   preferredCandidate: MarketplaceFixtureCandidate,
   approval: unknown,
@@ -888,8 +905,7 @@ export async function prepareAgedListingFixture(args: {
         rpcUrl: args.rpcUrl,
         listing: preferredListing as MarketplaceListingLike,
       });
-      const latestBlock = await args.provider.getBlock("latest");
-      const effectiveLatestTimestamp = BigInt(latestBlock?.timestamp ?? args.latestTimestamp);
+      const effectiveLatestTimestamp = await readLatestProviderTimestamp(args.provider, args.latestTimestamp);
       localForkTimeAdvance = {
         attempted: true,
         ...advanceResult,
@@ -972,8 +988,7 @@ export async function prepareAgedListingFixture(args: {
         rpcUrl: args.rpcUrl,
         listing: refreshedListing.payload as MarketplaceListingLike | null,
       });
-      const latestBlock = await args.provider.getBlock("latest");
-      effectiveLatestTimestamp = BigInt(latestBlock?.timestamp ?? effectiveLatestTimestamp);
+      effectiveLatestTimestamp = await readLatestProviderTimestamp(args.provider, effectiveLatestTimestamp);
       localForkTimeAdvance = {
         attempted: true,
         ...advanceResult,

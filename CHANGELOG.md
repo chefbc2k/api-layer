@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.119] - 2026-05-12
+
+### Fixed
+- **Setup-Time Fork Aging Now Reads The Mined Timestamp From Raw RPC:** Updated [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) so `setup:base-sepolia` no longer trusts a potentially stale provider block cache after `evm_increaseTime` + `evm_mine`. The setup path now re-reads the latest block timestamp through `eth_getBlockByNumber` and uses that value when classifying aged marketplace fixtures, which closes the stale `latestTimestampAfterAdvance` evidence that previously left setup stuck at `partial`.
+- **Setup Helper Coverage Added For Stale Latest-Block Reads:** Extended [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove the raw-RPC timestamp fallback and to verify both preferred-listing and relist-repair flows record the post-mine timestamp correctly on loopback forks.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured loopback RPC `http://127.0.0.1:8548`, fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, and final status `baseline verified`.
+- **Marketplace Setup Partial Collapsed On The Local Fork:** Re-ran `pnpm run setup:base-sepolia` and refreshed [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The marketplace fixture now lands on `setup.status: "ready"` with token `11`, relist tx `0x8df4f4095f60526180b3b8eb1d79c80bf25646c511566b5f5a03394b084ee85b`, listing readback `{ tokenId: "11", createdAt: "1778563277", createdBlock: "41397466", expiresAt: "1781155277", isActive: true }`, and fork-aging evidence `{ secondsAdvanced: "86401", readyAt: "1778649678", latestTimestampAfterAdvance: "1778649678" }`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; wrapper coverage remains complete at `492` functions and `218` events, HTTP coverage remains complete at `492` validated methods, and the setup helper suite passed `51/51`.
+
+### Remaining Issues
+- **Marketplace Purchase Proof Was Environment-Limited This Run:** Two follow-up attempts to re-run `pnpm run verify:marketplace:purchase:base-sepolia` failed before the contract workflow completed because the upstream Base Sepolia provider timed out/reset during RPC reads (`CALL_EXCEPTION` with Alchemy connection reset, then `request timeout`). This appears to be transport instability rather than a repo regression, but the purchase verifier was not re-proven in this session.
+
 ## [0.1.118] - 2026-05-11
 
 ### Fixed
