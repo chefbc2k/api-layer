@@ -4,6 +4,20 @@
 
 ---
 
+## [0.1.117] - 2026-05-11
+
+### Fixed
+- **Coverage Runner Now Uses The Stable Vitest Path:** Simplified [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) so `pnpm run test:coverage` runs the same direct `pnpm exec vitest run --coverage` flow that already succeeds in this repo. The runner no longer injects the fs patch / tempdir keepalive shim, and it now gives Istanbul aggregation a `600000ms` hook + teardown budget instead of failing with worker RPC timeouts during `onAfterSuiteRun` / `onTaskUpdate`.
+- **Coverage Harness Tests Realigned To The New Execution Model:** Updated [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) to assert the leaner spawn contract, keep exit/signal/error handling covered, and remove stale expectations for the removed `NODE_OPTIONS` patch and tempdir race helpers.
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, loopback fallback refusal on `127.0.0.1:8548`, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Coverage Harness Recovery:** Re-ran `pnpm exec vitest run scripts/run-test-coverage.test.ts scripts/vitest-config.test.ts --maxWorkers 1` and the full `pnpm run test:coverage` command. The repo now exits green on the automation path with `124` passing files, `805` passing tests, `18` skipped contract-integration proofs, and repo-wide Istanbul coverage at `97.96%` statements / `90.89%` branches / `98.93%` functions / `97.98%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** This run fixed the harness regression but did not close the remaining branch/line gaps needed for the automation’s 100% target. The highest-yield residual hotspots remain [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-helpers.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.116] - 2026-04-18
 
 ### Fixed

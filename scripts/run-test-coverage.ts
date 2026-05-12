@@ -5,8 +5,6 @@ import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(__dirname, "..");
 const coverageDir = path.join(rootDir, "coverage");
-const coverageTmpDir = path.join(coverageDir, ".tmp");
-const coverageFsPatch = path.join(rootDir, "scripts", "coverage-fs-patch.cjs");
 
 export const coverageVitestArgs = [
   "exec",
@@ -21,20 +19,17 @@ export const coverageVitestArgs = [
   "--poolOptions.forks.singleFork",
   "true",
   "--hookTimeout",
-  "60000",
+  "600000",
   "--teardownTimeout",
-  "60000",
+  "600000",
 ] as const;
 
 export type CoverageRuntimeDeps = {
-  clearIntervalFn?: typeof clearInterval;
   env?: NodeJS.ProcessEnv;
-  keepAliveMs?: number;
   mkdirFn?: typeof mkdir;
   processExit?: (code?: number) => never;
   processKill?: typeof process.kill;
   rmFn?: typeof rm;
-  setIntervalFn?: typeof setInterval;
   spawnFn?: typeof spawn;
 };
 
@@ -43,42 +38,18 @@ export async function resetCoverageDir(
   mkdirFn: typeof mkdir = mkdir,
 ): Promise<void> {
   await rmFn(coverageDir, { recursive: true, force: true });
-  await mkdirFn(coverageTmpDir, { recursive: true });
-}
-
-export async function ensureCoverageTmpDir(
-  mkdirFn: typeof mkdir = mkdir,
-): Promise<void> {
-  try {
-    await mkdirFn(coverageTmpDir, { recursive: true });
-  } catch (error) {
-    if (!(error && typeof error === "object" && "code" in error && error.code === "ENOENT")) {
-      throw error;
-    }
-  }
-}
-
-export function buildCoverageNodeOptions(existingNodeOptions = process.env.NODE_OPTIONS?.trim()): string {
-  const preloadFlag = `--require=${coverageFsPatch}`;
-  return existingNodeOptions ? `${preloadFlag} ${existingNodeOptions}` : preloadFlag;
+  await mkdirFn(coverageDir, { recursive: true });
 }
 
 export async function runCoverage({
-  clearIntervalFn = clearInterval,
   env = process.env,
-  keepAliveMs = 50,
   mkdirFn = mkdir,
   processExit = process.exit,
   processKill = process.kill,
   rmFn = rm,
-  setIntervalFn = setInterval,
   spawnFn = spawn,
 }: CoverageRuntimeDeps = {}): Promise<void> {
   await resetCoverageDir(rmFn, mkdirFn);
-  const keeper = setIntervalFn(() => {
-    void ensureCoverageTmpDir(mkdirFn);
-  }, keepAliveMs);
-  const nodeOptions = buildCoverageNodeOptions(env.NODE_OPTIONS?.trim());
 
   const child = spawnFn(
     "pnpm",
@@ -86,15 +57,11 @@ export async function runCoverage({
     {
       cwd: rootDir,
       stdio: "inherit",
-      env: {
-        ...env,
-        NODE_OPTIONS: nodeOptions,
-      },
+      env,
     },
   );
 
   child.on("exit", (code, signal) => {
-    clearIntervalFn(keeper);
     if (signal) {
       processKill(process.pid, signal);
       return;
@@ -103,7 +70,6 @@ export async function runCoverage({
   });
 
   child.on("error", (error) => {
-    clearIntervalFn(keeper);
     console.error(error);
     processExit(1);
   });
