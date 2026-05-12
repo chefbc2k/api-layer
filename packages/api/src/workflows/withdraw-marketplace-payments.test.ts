@@ -118,6 +118,27 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     );
   });
 
+  it("fails early when marketplace payments are paused", async () => {
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn(),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn(),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    });
+
+    await expect(runWithdrawMarketplacePaymentsWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {})).rejects.toThrow(
+      "withdraw-marketplace-payments requires payments to be unpaused",
+    );
+  });
+
   it("returns zero event count when no withdrawal receipt block is available", async () => {
     const marketplace = {
       getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),

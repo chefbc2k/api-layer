@@ -112,4 +112,42 @@ describe("runUpdateMarketplaceListingPriceWorkflow", () => {
     });
     expect(marketplace.listingPriceUpdatedEventQuery).not.toHaveBeenCalled();
   });
+
+  it("retries the post-update listing read until the new price becomes visible", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const marketplace = {
+      getListing: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "13", price: "1000", isActive: true } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "13", price: "1000", isActive: true } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "13", price: "1200", isActive: true } }),
+      updateListingPrice: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xupdate" } }),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      listingPriceUpdatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xupdate-receipt" }]),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xupdate-receipt");
+
+    try {
+      const result = await runUpdateMarketplaceListingPriceWorkflow({
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1202 })),
+          })),
+        },
+      } as never, auth as never, "0x00000000000000000000000000000000000000aa", {
+        tokenId: "13",
+        newPrice: "1200",
+      });
+
+      expect((result.listing.after as Record<string, unknown>).price).toBe("1200");
+      expect(marketplace.getListing).toHaveBeenCalledTimes(3);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
 });

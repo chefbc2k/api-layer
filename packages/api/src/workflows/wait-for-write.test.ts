@@ -17,6 +17,16 @@ describe("waitForWorkflowWriteReceipt", () => {
     expect(withProvider).not.toHaveBeenCalled();
   });
 
+  it("returns null when the payload is not an object", async () => {
+    const withProvider = vi.fn();
+    const result = await waitForWorkflowWriteReceipt({
+      providerRouter: { withProvider },
+    } as never, null, "workflow");
+
+    expect(result).toBeNull();
+    expect(withProvider).not.toHaveBeenCalled();
+  });
+
   it("returns null when the payload txHash is not a hex string", async () => {
     const withProvider = vi.fn();
     const result = await waitForWorkflowWriteReceipt({

@@ -105,6 +105,17 @@ describe("cdp-smart-wallet", () => {
     );
   });
 
+  it("rejects an explicit smart wallet lookup that returns no address", async () => {
+    process.env.COINBASE_SMART_WALLET_ADDRESS = "0x00000000000000000000000000000000000000AA";
+    mocks.getSmartAccount.mockResolvedValue({
+      smartAccount: {},
+    });
+
+    await expect(submitSmartWalletCall({ to: "0x1", data: "0x" })).rejects.toThrow(
+      "CDP returned a smart account without an address",
+    );
+  });
+
   it("resolves the owner by address and creates a smart account with paymaster and network overrides", async () => {
     process.env.COINBASE_SMART_WALLET_OWNER_ADDRESS = "0x00000000000000000000000000000000000000cc";
     process.env.COINBASE_SMART_WALLET_ACCOUNT_NAME = "ops-wallet";
@@ -161,5 +172,44 @@ describe("cdp-smart-wallet", () => {
       "CDP did not return a user operation hash",
     );
     expect(mocks.getAccount).toHaveBeenCalledWith({ name: "founder" });
+  });
+
+  it("accepts operationId as the user operation hash fallback", async () => {
+    process.env.COINBASE_SMART_WALLET_OWNER_NAME = "founder";
+    mocks.getAccount.mockResolvedValue({ address: "0x00000000000000000000000000000000000000ee" });
+    mocks.getOrCreateSmartAccount.mockResolvedValue({ address: "0x00000000000000000000000000000000000000ff" });
+    mocks.sendUserOperation.mockResolvedValue({
+      operationId: "op-123",
+      receipt: { status: "queued" },
+    });
+
+    await expect(submitSmartWalletCall({ to: "0x1", data: "0x" })).resolves.toEqual({
+      relay: "cdp-smart-wallet",
+      network: "base-sepolia",
+      smartWalletAddress: "0x00000000000000000000000000000000000000ff",
+      userOperationHash: "op-123",
+      receipt: {
+        operationId: "op-123",
+        receipt: { status: "queued" },
+      },
+    });
+  });
+
+  it("normalizes null call values to 0x0 before relaying the user operation", async () => {
+    process.env.COINBASE_SMART_WALLET_OWNER_NAME = "founder";
+    mocks.getAccount.mockResolvedValue({ address: "0x00000000000000000000000000000000000000ee" });
+    mocks.getOrCreateSmartAccount.mockResolvedValue({ address: "0x00000000000000000000000000000000000000ff" });
+    mocks.sendUserOperation.mockResolvedValue({
+      id: "op-null-value",
+      receipt: { status: "queued" },
+    });
+
+    await submitSmartWalletCall({ to: "0x1", data: "0x", value: null as never });
+
+    expect(mocks.sendUserOperation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        calls: [{ to: "0x1", data: "0x", value: "0x0" }],
+      }),
+    );
   });
 });

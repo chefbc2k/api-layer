@@ -84,6 +84,8 @@ describe("validation helpers", () => {
     const fixedArraySchema = buildWireSchema(writeDefinition, { type: "bytes32[2]" });
     expect(fixedArraySchema.parse(["0x01", "0x02"])).toEqual(["0x01", "0x02"]);
     expect(() => fixedArraySchema.parse(["0x01"])).toThrow("expected array length 2");
+
+    expect(buildWireSchema(writeDefinition, { type: "]" }).parse("opaque")).toBe("opaque");
   });
 
   it("builds method and event schemas from the route definition", () => {
@@ -141,6 +143,7 @@ describe("validation helpers", () => {
     expect(coerceHttpInput({ type: "bool" }, "false", "query")).toBe(false);
     expect(coerceHttpInput({ type: "tuple" }, "{\"recipient\":\"0xabc\"}", "query")).toEqual({ recipient: "0xabc" });
     expect(coerceHttpInput({ type: "bytes32[]" }, "[\"0x1\"]", "path")).toEqual(["0x1"]);
+    expect(() => coerceHttpInput({ type: "tuple" }, "{not-json", "query")).toThrow(SyntaxError);
     expect(coerceHttpInput({ type: "uint256" }, "12", "query")).toBe("12");
     expect(coerceHttpInput({ type: "uint256" }, undefined, "query")).toBeUndefined();
     expect(coerceHttpInput({ type: "uint256" }, "15", "body")).toBe("15");
