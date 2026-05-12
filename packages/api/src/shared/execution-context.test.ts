@@ -490,6 +490,51 @@ describe("getTransactionStatus", () => {
     });
     expect(context.providerRouter.withProvider).toHaveBeenCalledWith("read", "tx.status", expect.any(Function));
   });
+
+  it("decodes rpc receipt logs when falling back from Alchemy", async () => {
+    const receipt = {
+      logs: [{ address: "0x0000000000000000000000000000000000000009" }],
+      status: 1,
+    };
+    mocked.decodeReceiptLogs.mockReturnValueOnce([{ eventName: "FallbackDecoded" }]);
+    const context = {
+      alchemy: null,
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_kind: string, _label: string, work: (provider: unknown) => Promise<unknown>) => {
+          const provider = {
+            getTransactionReceipt: vi.fn().mockResolvedValue(receipt),
+          };
+          return work(provider);
+        }),
+      },
+      config: {
+        alchemyDiagnosticsEnabled: false,
+        alchemySimulationEnabled: false,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: false,
+        alchemyRpcUrl: "https://alchemy.example",
+      },
+    };
+
+    await expect(getTransactionStatus(context as never, "0xtx")).resolves.toEqual({
+      source: "rpc",
+      receipt,
+      diagnostics: {
+        alchemy: {
+          enabled: false,
+          simulationEnabled: false,
+          simulationEnforced: false,
+          endpointDetected: false,
+          rpcUrl: "https://alchemy.example",
+          available: false,
+        },
+        decodedLogs: [{ eventName: "FallbackDecoded" }],
+        trace: { status: "disabled" },
+      },
+    });
+
+    expect(mocked.decodeReceiptLogs).toHaveBeenCalledWith(receipt);
+  });
 });
 
 describe("executeHttpMethodDefinition", () => {
@@ -621,6 +666,31 @@ describe("executeHttpMethodDefinition", () => {
     );
   });
 
+  it("continues write submission after a previously rejected signer queue entry", async () => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0x" + "11".repeat(32) });
+    const context = buildContext();
+    context.signerQueues.set("founder:primary", Promise.reject(new Error("prior failure")).catch(() => undefined));
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(true);
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xsubmitted",
+        result: true,
+      },
+    });
+  });
+
   it("uses a wallet-backed signerFactory for wallet-scoped reads", async () => {
     const definition = buildReadDefinition();
     const context = buildContext();
@@ -682,6 +752,30 @@ describe("executeHttpMethodDefinition", () => {
       address: "wallet:0xabc",
     });
     expect(context.signerRunners.get("founder:read")).toBe(signerRunner);
+  });
+
+  it("falls back to the provider instance when a read signerFactory cannot build a signer", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
+    mocked.invokeRead.mockImplementationOnce(async (runtime) => runtime.signerFactory?.({ name: "provider-fallback" }));
+    mocked.serializeResultToWire.mockReturnValueOnce("provider-fallback");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: { apiKey: "read-key", label: "reader", signerId: "missing", allowGasless: false, roles: ["service"] },
+          walletAddress: undefined,
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "provider-fallback",
+    });
+
+    expect(mocked.serializeResultToWire).toHaveBeenLastCalledWith(definition, { name: "provider-fallback" });
   });
 
   it("rejects writes without a signer for direct submission", async () => {
@@ -816,6 +910,27 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.contractGetFunction).toHaveBeenCalledWith("setOperators((address,bool)[])");
   });
 
+  it("rethrows non-fragment contract lookup failures without canonical fallback", async () => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0x" + "11".repeat(32) });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractGetFunction.mockImplementation(() => {
+      throw new Error("resolver exploded");
+    });
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toThrow("resolver exploded");
+
+    expect(mocked.contractGetFunction).toHaveBeenCalledWith("setApprovalForAll");
+    expect(mocked.contractGetFunction).not.toHaveBeenCalledWith("setApprovalForAll(address,bool)");
+  });
+
   it("submits direct writes and stores the tx hash", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
@@ -846,6 +961,37 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.txStore.update).toHaveBeenCalledWith("req-1", expect.objectContaining({
       status: "submitted",
       txHash: "0xsubmitted",
+    }));
+  });
+
+  it("marks signature-mode writes as relaying-signature before direct submission", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          api: { gaslessMode: "signature", executionSource: "auto" },
+          walletAddress: "0x00000000000000000000000000000000000000aa",
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xsubmitted",
+        result: false,
+      },
+    });
+
+    expect(context.txStore.insert).toHaveBeenCalledWith(expect.objectContaining({
+      status: "relaying-signature",
+      relayMode: "signature",
     }));
   });
 

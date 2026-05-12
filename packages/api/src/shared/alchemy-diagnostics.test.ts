@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => {
       TestFacet: {
         abi: [
           "event TestEvent(address indexed owner, uint256 amount)",
+          "event Structured(address indexed owner, uint256[] amounts, tuple(bool flag, uint256 count) meta)",
         ],
       },
     },
@@ -90,6 +91,57 @@ describe("alchemy-diagnostics", () => {
       gas: undefined,
       gasPrice: undefined,
     });
+  });
+
+  it("coerces decimal quantities and indexed-match objects through JSON-safe normalization", async () => {
+    expect(buildDebugTransaction({
+      value: null,
+      gas: "12",
+      gasPrice: 9n,
+    }, "0x0000000000000000000000000000000000000007")).toEqual({
+      from: "0x0000000000000000000000000000000000000007",
+      to: undefined,
+      data: undefined,
+      value: undefined,
+      gas: "0x0c",
+      gasPrice: "0x09",
+    });
+
+    const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
+    const fragment = iface.getEvent("Structured");
+    const encoded = iface.encodeEventLog(fragment!, [
+      "0x00000000000000000000000000000000000000aa",
+      [3n, 5n],
+      [true, 9n],
+    ]);
+    const alchemy = {
+      core: {
+        getLogs: vi.fn().mockResolvedValue([{
+          address: "0x0000000000000000000000000000000000000001",
+          data: encoded.data,
+          topics: encoded.topics,
+        }]),
+      },
+    };
+
+    await expect(verifyExpectedEventWithAlchemy(alchemy as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "Structured",
+      fromBlock: "10",
+      toBlock: "11",
+      indexedMatches: {
+        owner: {
+          expected: ["0x00000000000000000000000000000000000000AA"],
+        },
+      },
+    })).resolves.toEqual(expect.objectContaining({
+      status: "mismatch",
+      expectedEvent: "TestFacet.Structured",
+      mismatches: [
+        "expected indexed argument owner=[object Object]",
+      ],
+    }));
   });
 
   it("builds debug transactions and decodes known and unknown receipt logs", () => {

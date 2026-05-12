@@ -179,6 +179,23 @@ describe("abi-codec", () => {
     ], "0x1234", "0x0000000000000000000000000000000000000003"])).toThrow("invalid hex string");
   });
 
+  it("surfaces tuple-array length validation for positional tuple payloads", () => {
+    const definition = {
+      signature: "tupleArray((uint256,address))",
+      inputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { type: "address" },
+        ],
+      }],
+    };
+
+    expect(() => validateWireParams(definition as never, [["1"]])).toThrow(
+      "invalid param 0 for tupleArray((uint256,address)): expected tuple length 2",
+    );
+  });
+
   it("serializes and decodes tuple objects with positional fallback and nested arrays", () => {
     const param = {
       type: "tuple[][2]",
@@ -283,6 +300,28 @@ describe("abi-codec", () => {
     );
     expect(() => serializeResultToWire({ signature: "badResult(address)", outputs: [{ type: "address" }] } as never, "nope")).toThrow(
       "invalid result for badResult(address): invalid address",
+    );
+  });
+
+  it("normalizes sparse tuple-object outputs without crashing on missing nested tuple arrays", () => {
+    const definition = {
+      signature: "sparseTupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          {
+            name: "nested",
+            type: "tuple[]",
+            components: [{ name: "owner", type: "address" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => serializeResultToWire(definition as never, { count: 4n })).toThrow(
+      "invalid result for sparseTupleObject(): Invalid input: expected array, received undefined",
     );
   });
 
@@ -408,6 +447,48 @@ describe("abi-codec", () => {
 
     expect(() => validateWireParams(definition as never, [["nope", true]])).toThrow(
       "invalid param 0 for tupleArray((uint256,bool)): invalid uint256 decimal string",
+    );
+  });
+
+  it("surfaces tuple-length mismatches from positional payloads", () => {
+    const definition = {
+      signature: "tupleArray((uint256,bool))",
+      inputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+    };
+
+    expect(() => validateWireParams(definition as never, [["1", true, "extra"]])).toThrow(
+      "invalid param 0 for tupleArray((uint256,bool)): expected tuple length 2",
+    );
+  });
+
+  it("normalizes nested tuple-array object outputs and preserves malformed scalar leaves for validation", () => {
+    const definition = {
+      signature: "nestedTupleArray()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "items",
+            type: "tuple[]",
+            components: [{ name: "count", type: "uint256" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, [[{ count: 3n }, { count: 5n }]])).toEqual({
+      items: [{ count: "3" }, { count: "5" }],
+    });
+
+    expect(() => serializeResultToWire(definition as never, ["not-an-array"])).toThrow(
+      "expected array value for tuple[]",
     );
   });
 

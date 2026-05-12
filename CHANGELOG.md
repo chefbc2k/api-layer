@@ -4,6 +4,22 @@
 
 ---
 
+## [0.1.118] - 2026-05-11
+
+### Fixed
+- **Alchemy Diagnostics Edge Coverage Expanded Without Runtime Changes:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) to prove decimal debug-quantity coercion and JSON-safe indexed-match normalization through structured event verification inputs. This exercises additional null/decimal/object handling branches in [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) without changing diagnostics behavior.
+- **Execution Context Queue + Resolver Failure Paths Are Now Proved:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) to prove that direct writes continue after a previously rejected signer queue entry and that non-`invalid function fragment` contract lookup failures do not incorrectly fall back to canonical ABI reconstruction.
+- **ABI Codec Tuple Validation Coverage Tightened:** Extended [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) with positional tuple-length mismatch proofs plus nested tuple-array object-output normalization coverage, improving branch coverage around tuple validation and object-shaped result serialization in [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
+### Verified
+- **Baseline Guard:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia baseline remains healthy with `chainId: 84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, loopback fixture fallback refusal on `127.0.0.1:8548`, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Regression Checks:** Re-ran `pnpm exec vitest run packages/api/src/shared/alchemy-diagnostics.test.ts packages/api/src/shared/execution-context.test.ts packages/client/src/runtime/abi-codec.test.ts --maxWorkers 1`; all `63/63` assertions passed.
+- **Full Coverage Sweep Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the suite remains green at `124` passing files, `811` passing tests, and `18` skipped contract-integration proofs. Repo-wide Istanbul coverage improved to `98.05%` statements / `90.98%` branches / `99.02%` functions / `98.04%` lines. Targeted hotspot improvements landed at [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) `96.36% / 87.73% / 93.33% / 96.19%`, [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) `97.84% / 86.48% / 97.72% / 98.31%`, and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) `98.34% / 88.95% / 97.5% / 98.82%`.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage and wrapper coverage remain complete, but the repo is still below the automation target at `98.05%` statements, `90.98%` branches, `99.02%` functions, and `98.04%` lines. The highest-yield remaining branch-density hotspots are now [`/Users/chef/Public/api-layer/packages/api/src/app.ts`](/Users/chef/Public/api-layer/packages/api/src/app.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and the lower-coverage workflow/helpers cluster around multisig and trigger-emergency flows.
+
 ## [0.1.117] - 2026-05-11
 
 ### Fixed
