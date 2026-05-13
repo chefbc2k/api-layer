@@ -169,6 +169,110 @@ describe("trigger-emergency", () => {
     expect(result.summary.incidentId).toBeNull();
   });
 
+  it("maps alternate incident, state, and response codes through the live workflow writes", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreport-alt")
+      .mockResolvedValueOnce("0xtransition-alt")
+      .mockResolvedValueOnce("0xresponse-alt");
+
+    const reportIncident = vi.fn().mockResolvedValue({ statusCode: 202, body: "13" });
+    const triggerEmergency = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xtransition-alt" } });
+    const executeResponse = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xresponse-alt" } });
+    const getIncident = vi.fn()
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          id: "13",
+          incidentType: "5",
+          description: "governance exploit",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "30",
+          resolved: false,
+          actions: [],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: {
+          id: "13",
+          incidentType: "5",
+          description: "governance exploit",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "30",
+          resolved: false,
+          actions: ["3", "5"],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      });
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      reportIncident,
+      getIncident,
+      triggerEmergency,
+      executeResponse,
+      incidentReportedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xreport-alt" }] }),
+      emergencyStateChangedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xtransition-alt" }] }),
+      responseExecutedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xresponse-alt" }] }),
+    });
+
+    const result = await runTriggerEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async (txHash: string) => ({ blockNumber: txHash === "0xreport-alt" ? 201 : 202 })),
+          })),
+        },
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      "0x00000000000000000000000000000000000000aa",
+      {
+        emergency: {
+          state: "LOCKED_DOWN",
+          reason: "governance exploit",
+          useEmergencyStop: false,
+        },
+        incident: {
+          report: {
+            incidentType: "GOVERNANCE_ATTACK",
+            description: "governance exploit",
+          },
+          responseActions: ["ENABLE_RECOVERY", "ROLLBACK_CHANGES"],
+        },
+      },
+    );
+
+    expect(reportIncident).toHaveBeenCalledWith(expect.objectContaining({
+      wireParams: ["5", "governance exploit"],
+    }));
+    expect(triggerEmergency).toHaveBeenCalledWith(expect.objectContaining({
+      wireParams: ["2", "governance exploit"],
+    }));
+    expect(executeResponse).toHaveBeenCalledWith(expect.objectContaining({
+      wireParams: ["13", ["3", "5"]],
+    }));
+    expect(result.summary).toEqual({
+      incidentId: "13",
+      requestedState: "LOCKED_DOWN",
+      resultingState: "2",
+      resultingStateLabel: "LOCKED_DOWN",
+      responseExecuted: true,
+      assetsFrozen: 0,
+      resumeScheduled: false,
+      pauseExtended: false,
+    });
+  });
+
   it("normalizes authority failures from child writes", async () => {
     mocks.createEmergencyPrimitiveService.mockReturnValue({
       getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
@@ -186,6 +290,31 @@ describe("trigger-emergency", () => {
           state: "LOCKED_DOWN",
           reason: "deny",
           useEmergencyStop: false,
+        },
+      },
+    )).rejects.toEqual(expect.objectContaining({
+      statusCode: 409,
+    }));
+  });
+
+  it("normalizes emergency-stop authority failures", async () => {
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      emergencyStop: vi.fn().mockRejectedValue(new Error("SecurityErrors.NotEmergencyAdmin(sender)")),
+      triggerEmergency: vi.fn(),
+    });
+
+    await expect(runTriggerEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        emergency: {
+          state: "PAUSED",
+          reason: "stop denied",
+          useEmergencyStop: true,
         },
       },
     )).rejects.toEqual(expect.objectContaining({
@@ -562,6 +691,155 @@ describe("trigger-emergency", () => {
       body,
     )).rejects.toEqual(expect.objectContaining({
       statusCode: 409,
+    }));
+  });
+
+  it.each([
+    ["SMART_CONTRACT_BUG", "1"],
+    ["MARKET_MANIPULATION", "2"],
+    ["SYSTEM_FAILURE", "3"],
+    ["EXTERNAL_THREAT", "4"],
+    ["GOVERNANCE_ATTACK", "5"],
+    ["ASSET_COMPROMISE", "6"],
+  ] as const)("maps incident type %s to wire code %s", async (incidentType, expectedCode) => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const reportIncident = vi.fn().mockResolvedValue({ statusCode: 202, body: "14" });
+    const getIncident = vi.fn().mockResolvedValue({
+      statusCode: 200,
+      body: {
+        id: "14",
+        incidentType: expectedCode,
+        description: "mapped incident",
+        reporter: "0x00000000000000000000000000000000000000aa",
+        timestamp: "10",
+        resolved: false,
+        actions: ["4"],
+        approvers: [],
+        resolutionTime: "0",
+      },
+    });
+    const executeResponse = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xresponse" } });
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      reportIncident,
+      getIncident,
+      triggerEmergency: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xtrigger" } }),
+      emergencyStop: vi.fn(),
+      executeResponse,
+      freezeAssets: vi.fn(),
+      isAssetFrozen: vi.fn(),
+      extendPausedUntil: vi.fn(),
+      scheduleEmergencyResume: vi.fn(),
+      incidentReportedEventQuery: vi.fn(),
+      emergencyStateChangedEventQuery: vi.fn(),
+      responseExecutedEventQuery: vi.fn(),
+      assetsFrozenEventQuery: vi.fn(),
+      pauseExtendedEventQuery: vi.fn(),
+      emergencyResumeScheduledEventQuery: vi.fn(),
+    });
+
+    await runTriggerEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      "0x00000000000000000000000000000000000000aa",
+      {
+        emergency: {
+          state: "RECOVERY",
+          reason: "map incident",
+          useEmergencyStop: false,
+        },
+        incident: {
+          report: {
+            incidentType,
+            description: "mapped incident",
+          },
+          responseActions: ["RESTORE_STATE"],
+        },
+      },
+    );
+
+    expect(reportIncident).toHaveBeenCalledWith(expect.objectContaining({
+      wireParams: [expectedCode, "mapped incident"],
+    }));
+  });
+
+  it.each([
+    ["ENABLE_RECOVERY", "3"],
+    ["ROLLBACK_CHANGES", "5"],
+  ] as const)("maps response action %s to wire code %s", async (responseAction, expectedCode) => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const executeResponse = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xresponse" } });
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      reportIncident: vi.fn(),
+      getIncident: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          id: "9",
+          incidentType: "3",
+          description: "recover",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "22",
+          resolved: false,
+          actions: [expectedCode],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      }),
+      triggerEmergency: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrecover" } }),
+      emergencyStop: vi.fn(),
+      executeResponse,
+      freezeAssets: vi.fn(),
+      isAssetFrozen: vi.fn(),
+      extendPausedUntil: vi.fn(),
+      scheduleEmergencyResume: vi.fn(),
+      incidentReportedEventQuery: vi.fn(),
+      emergencyStateChangedEventQuery: vi.fn(),
+      responseExecutedEventQuery: vi.fn(),
+      assetsFrozenEventQuery: vi.fn(),
+      pauseExtendedEventQuery: vi.fn(),
+      emergencyResumeScheduledEventQuery: vi.fn(),
+    });
+
+    await runTriggerEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        emergency: {
+          state: "RECOVERY",
+          reason: "recover safely",
+          useEmergencyStop: false,
+        },
+        incident: {
+          id: "9",
+          responseActions: [responseAction],
+        },
+      },
+    );
+
+    expect(executeResponse).toHaveBeenCalledWith(expect.objectContaining({
+      wireParams: ["9", [expectedCode]],
     }));
   });
 });

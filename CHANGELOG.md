@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.137] - 2026-05-13
+
+### Fixed
+- **Emergency Workflow Coverage Now Proves Enum-To-Wire Mappings And Emergency-Stop Failures:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.test.ts) to validate the missing `incidentType` and `responseAction` enum mappings through the real workflow entrypoint and to cover the `emergencyStop` authority-failure normalization path. This moves [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts) to `100%` statements / `100%` lines / `100%` functions in the focused coverage slice while materially shrinking its remaining branch gap.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Emergency Hotspot Regressions Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/trigger-emergency.test.ts --coverage.enabled true --coverage.reporter text --maxWorkers 1`; all `21/21` assertions passed, and the focused Istanbul report shows [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts) at `100%` statements / `97.59%` branches / `100%` functions / `100%` lines.
+- **Full Repo Coverage Sweep Improved And Stayed Green:** Re-ran `pnpm run test:coverage`; the suite is green at `125` passing files, `875` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `98.69%` statements, `92.58%` branches, `99.43%` functions, and `98.69%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the verified Base Sepolia/local-fork baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The next highest-yield handwritten hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and the remaining lower-branch workflow/helper cluster surfaced by the full-suite coverage report.
+
 ## [0.1.136] - 2026-05-13
 
 ### Fixed
