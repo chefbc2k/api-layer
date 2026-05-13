@@ -13,8 +13,6 @@ export const coverageVitestArgs = [
   "run",
   "--coverage.enabled",
   "true",
-  "--coverage.provider=v8",
-  "--coverage.reporter=text",
   "--maxWorkers",
   "1",
   "--hookTimeout",
@@ -33,9 +31,14 @@ export type CoverageRuntimeDeps = {
 };
 
 export function buildCoverageEnv(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const patchPath = path.join(rootDir, "scripts", "coverage-fs-patch.cjs");
+  const nodeOptions = env.NODE_OPTIONS?.trim();
+  const patchOption = `--require ${patchPath}`;
+
   return {
     ...env,
     API_LAYER_RUN_CONTRACT_INTEGRATION: "0",
+    NODE_OPTIONS: nodeOptions ? `${patchOption} ${nodeOptions}` : patchOption,
   };
 }
 

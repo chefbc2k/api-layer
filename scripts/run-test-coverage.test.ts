@@ -14,10 +14,14 @@ describe("run-test-coverage helpers", () => {
     expect(buildCoverageEnv({
       API_LAYER_RUN_CONTRACT_INTEGRATION: "1",
       NODE_OPTIONS: "--inspect",
-    })).toEqual({
+    })).toEqual(expect.objectContaining({
       API_LAYER_RUN_CONTRACT_INTEGRATION: "0",
+      NODE_OPTIONS: expect.stringContaining("--inspect"),
+    }));
+    expect(buildCoverageEnv({
+      API_LAYER_RUN_CONTRACT_INTEGRATION: "1",
       NODE_OPTIONS: "--inspect",
-    });
+    }).NODE_OPTIONS).toMatch(/--require .*scripts\/coverage-fs-patch\.cjs --inspect$/);
   });
 
   it("resets the coverage directory before running", async () => {
@@ -64,7 +68,7 @@ describe("run-test-coverage helpers", () => {
         stdio: "inherit",
         env: {
           API_LAYER_RUN_CONTRACT_INTEGRATION: "0",
-          NODE_OPTIONS: "--inspect",
+          NODE_OPTIONS: expect.stringMatching(/--require .*scripts\/coverage-fs-patch\.cjs --inspect$/),
         },
       }),
     );
@@ -72,10 +76,9 @@ describe("run-test-coverage helpers", () => {
     expect(() => child.emit("exit", 0, null)).toThrow("exit:0");
   });
 
-  it("keeps the coverage worker model on the default vitest path", () => {
-    expect(coverageVitestArgs).toContain("--coverage.provider=v8");
-    expect(coverageVitestArgs).not.toContain("--no-file-parallelism");
-    expect(coverageVitestArgs).not.toContain("--poolOptions.forks.singleFork");
+  it("defers provider selection to the repo vitest config", () => {
+    expect(coverageVitestArgs).not.toContain("--coverage.provider=v8");
+    expect(coverageVitestArgs).not.toContain("--coverage.reporter=text");
   });
 
   it("forwards child signals to process.kill", async () => {
