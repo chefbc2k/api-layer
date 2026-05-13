@@ -235,4 +235,23 @@ describe("createApiServer coverage branches", () => {
       await closeServer(server);
     }
   });
+
+  it("uses default server options and the hardcoded port fallback when none are provided", () => {
+    delete process.env.API_LAYER_PORT;
+
+    const apiServer = createApiServer();
+    const fakeServer = {
+      address: vi.fn().mockReturnValue({ port: 8787 }),
+    };
+    const listenSpy = vi.spyOn(apiServer.app, "listen").mockImplementation(((port: number) => {
+      expect(port).toBe(8787);
+      return fakeServer as never;
+    }) as never);
+
+    const server = apiServer.listen();
+
+    expect(server).toBe(fakeServer);
+    expect(listenSpy).toHaveBeenCalledOnce();
+    listenSpy.mockRestore();
+  });
 });

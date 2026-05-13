@@ -15,7 +15,7 @@ function toPathString(filePath) {
 }
 
 function isCoverageTmpPath(filePath) {
-  return /[/\\]coverage[/\\]\.tmp[/\\]coverage-\d+\.json$/.test(toPathString(filePath));
+  return /(?:[/\\]coverage(?:[/\\]shards[/\\][^/\\]+)?|[/\\]\.runtime[/\\]coverage-shards(?:[/\\][^/\\]+)?)[/\\]\.tmp[/\\]coverage-\d+\.json$/u.test(toPathString(filePath));
 }
 
 function isMissingCoverageFileError(error) {

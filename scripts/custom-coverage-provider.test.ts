@@ -120,4 +120,82 @@ describe("custom coverage provider", () => {
     await provider.cleanAfterRun();
     expect(provider.coverageFiles.size).toBe(0);
   });
+
+  it("retries truncated coverage json until the shard file is complete", async () => {
+    const customProviderModule = await import("./custom-coverage-provider.js");
+    const provider = await customProviderModule.default.getProvider() as {
+      pendingPromises: Promise<unknown>[];
+      coverageFiles: Map<string | symbol, Record<string, Record<string, string>>>;
+      ctx: { getProjectByName: (name: string | symbol) => unknown; projects?: unknown[] };
+      readCoverageFiles: (callbacks: {
+        onFileRead: (coverage: unknown) => void;
+        onFinished: (project: unknown, transformMode: string) => Promise<void>;
+      }) => Promise<void>;
+    };
+
+    provider.pendingPromises = [];
+    provider.coverageFiles = new Map([
+      ["project-a", {
+        ssr: {
+          "test-a": "/tmp/coverage/coverage-2.json",
+        },
+      }],
+    ]);
+    provider.ctx = {
+      getProjectByName: vi.fn().mockReturnValue("named-project"),
+      projects: ["fallback-project"],
+    };
+
+    readFileMock
+      .mockRejectedValueOnce(new SyntaxError("Unexpected end of JSON input"))
+      .mockResolvedValueOnce(JSON.stringify({ id: 2 }));
+
+    const onFileRead = vi.fn();
+    const onFinished = vi.fn().mockResolvedValue(undefined);
+
+    await provider.readCoverageFiles({ onFileRead, onFinished });
+
+    expect(readFileMock).toHaveBeenCalledTimes(2);
+    expect(onFileRead).toHaveBeenCalledWith({ id: 2 });
+    expect(onFinished).toHaveBeenCalledWith("named-project", "ssr");
+  });
+
+  it("retries other partial-json syntax failures before succeeding", async () => {
+    const customProviderModule = await import("./custom-coverage-provider.js");
+    const provider = await customProviderModule.default.getProvider() as {
+      pendingPromises: Promise<unknown>[];
+      coverageFiles: Map<string | symbol, Record<string, Record<string, string>>>;
+      ctx: { getProjectByName: (name: string | symbol) => unknown; projects?: unknown[] };
+      readCoverageFiles: (callbacks: {
+        onFileRead: (coverage: unknown) => void;
+        onFinished: (project: unknown, transformMode: string) => Promise<void>;
+      }) => Promise<void>;
+    };
+
+    provider.pendingPromises = [];
+    provider.coverageFiles = new Map([
+      ["project-a", {
+        ssr: {
+          "test-a": "/tmp/coverage/coverage-3.json",
+        },
+      }],
+    ]);
+    provider.ctx = {
+      getProjectByName: vi.fn().mockReturnValue("named-project"),
+      projects: ["fallback-project"],
+    };
+
+    readFileMock
+      .mockRejectedValueOnce(new SyntaxError("Unterminated string in JSON at position 42"))
+      .mockResolvedValueOnce(JSON.stringify({ id: 3 }));
+
+    const onFileRead = vi.fn();
+    const onFinished = vi.fn().mockResolvedValue(undefined);
+
+    await provider.readCoverageFiles({ onFileRead, onFinished });
+
+    expect(readFileMock).toHaveBeenCalledTimes(2);
+    expect(onFileRead).toHaveBeenCalledWith({ id: 3 });
+    expect(onFinished).toHaveBeenCalledWith("named-project", "ssr");
+  });
 });

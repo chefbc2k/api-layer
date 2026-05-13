@@ -266,6 +266,81 @@ describe("recover-from-emergency", () => {
     }));
   });
 
+  it("executes recovery steps even when the initial recovery readback is missing", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xstep-null");
+
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            id: "9",
+            incidentType: "0",
+            description: "incident",
+            reporter: "0x00000000000000000000000000000000000000aa",
+            timestamp: "10",
+            resolved: false,
+            actions: [],
+            approvers: [],
+            resolutionTime: "0",
+          },
+        }),
+      getRecoveryPlan: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 404, body: null })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234"], false, "20", "0", "0", ["0xab"]] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [["0x1234"], false, "20", "0", "0", ["0xab"]] }),
+      executeRecoveryStep: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xstep-null" } }),
+      recoveryStepExecutedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xstep-null" }] }),
+    });
+
+    const result = await runRecoverFromEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: () => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 100 })),
+          })),
+        },
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        incidentId: "9",
+        execute: {
+          stepIndices: ["0"],
+        },
+      },
+    );
+
+    expect(result.recovery.executedSteps).toHaveLength(1);
+    expect(result.recovery.executedSteps[0]).toMatchObject({
+      stepIndex: "0",
+      txHash: "0xstep-null",
+      eventCount: 1,
+    });
+    expect(result.summary.executedStepCount).toBe(1);
+  });
+
   it("supports execute-scheduled resume mode and schema guardrails", async () => {
     mocks.waitForWorkflowWriteReceipt.mockReset();
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xexecute");

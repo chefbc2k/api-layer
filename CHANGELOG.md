@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.140] - 2026-05-13
+
+### Fixed
+- **Sharded Coverage Runner Now Completes Reliably Across All Slices:** Updated [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts), [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts), [`/Users/chef/Public/api-layer/scripts/coverage-fs-patch.cjs`](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.cjs), [`/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts`](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts), [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts), and [`/Users/chef/Public/api-layer/scripts/custom-coverage-provider.test.ts`](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.test.ts) so the repo coverage sweep runs in deterministic shards, writes coverage fragments into isolated `.runtime/coverage-shards` storage instead of the shared `coverage/` tree, tolerates missing/truncated shard JSON, and merges fallback `.tmp` fragments when Vitest does not emit a shard-level `coverage-final.json`.
+- **Targeted Coverage Gaps Closed In App, Execution, And Emergency Recovery Paths:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.behavior.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/recover-from-emergency.test.ts) to prove the default listen-port fallback, the signature-relay write path that still rejects without a signer, and the recovery-step execution path when the initial recovery readback is absent.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Regression Slices Passed:** Re-ran `pnpm exec vitest run packages/api/src/app.behavior.test.ts packages/api/src/shared/execution-context.test.ts packages/api/src/workflows/recover-from-emergency.test.ts --maxWorkers 1` and `pnpm exec vitest run scripts/coverage-fs-patch.test.ts scripts/run-test-coverage.test.ts --maxWorkers 1`; all focused assertions passed after the new branch probes and coverage-runner hardening landed.
+- **Full Repo Coverage Sweep Returned To Green Under The Sharded Runner:** Re-ran `pnpm run test:coverage`; the sharded coverage sweep completed successfully across `126` passing files with `886` passing tests and `18` skipped live contract proofs. The merged Istanbul summary now reports `71.25%` statements, `64.67%` branches, `72.96%` functions, and `76.41%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met And The New Sharded Totals Are Lower Than The Prior Single-Process Sweep:** API surface coverage, wrapper coverage, and the verified Base Sepolia/local-fork baseline remain complete, but the merged sharded Istanbul totals are still far below the automation target and materially below the earlier single-process report. The next pass should determine whether the lower totals are revealing previously inflated accounting or whether additional merge/include normalization is still needed in the sharded coverage pipeline before chasing the remaining handwritten hotspots.
+
 ## [0.1.139] - 2026-05-13
 
 ### Fixed

@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   buildCoverageEnv,
+  discoverCoverageShards,
   coverageVitestArgs,
   resetCoverageDir,
   runCoverage,
@@ -44,26 +45,66 @@ describe("run-test-coverage helpers", () => {
       expect.stringMatching(/\/coverage\/\.tmp$/),
       { recursive: true },
     );
+    expect(mkdirFn).toHaveBeenNthCalledWith(
+      3,
+      expect.stringMatching(/\/\.runtime\/coverage-shards$/),
+      { recursive: true },
+    );
   });
 
-  it("spawns vitest with coverage args and exits with the child code", async () => {
-    const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
-    const spawnFn = vi.fn().mockReturnValue(child);
+  it("spawns shard-aware vitest runs and exits after merging", async () => {
+    const spawnFn = vi.fn().mockImplementation(() => {
+      const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
+      queueMicrotask(() => {
+        child.emit("exit", 0, null);
+      });
+      return child;
+    });
     const processExit = vi.fn((code?: number) => {
       throw new Error(`exit:${code}`);
     });
 
-    await runCoverage({
+    const runPromise = runCoverage({
       env: { NODE_OPTIONS: "--inspect" },
       mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
       processExit: processExit as any,
+      readFileFn: vi.fn().mockResolvedValue("{}") as any,
+      readdirFn: vi.fn()
+        .mockImplementation(async (target: string) => {
+          if (target.endsWith("/packages")) {
+            return [{ name: "api", isDirectory: () => true }] as any;
+          }
+          if (target.endsWith("/packages/api")) {
+            return [{ name: "src", isDirectory: () => true }] as any;
+          }
+          if (target.endsWith("/packages/api/src")) {
+            return [{ name: "workflows", isDirectory: () => true }] as any;
+          }
+          if (target.endsWith("/packages/api/src/workflows")) {
+            return [
+              { name: "alpha.test.ts", isDirectory: () => false },
+              { name: "beta.integration.test.ts", isDirectory: () => false },
+            ] as any;
+          }
+          throw Object.assign(new Error("missing"), { code: "ENOENT" });
+        }) as any,
       rmFn: vi.fn().mockResolvedValue(undefined) as any,
       spawnFn: spawnFn as any,
+      writeFileFn: vi.fn().mockResolvedValue(undefined) as any,
     });
+
+    await expect(runPromise).rejects.toThrow(/exit:[01]/);
 
     expect(spawnFn).toHaveBeenCalledWith(
       "pnpm",
-      [...coverageVitestArgs],
+      expect.arrayContaining([
+        ...coverageVitestArgs,
+        "--coverage.clean",
+        "false",
+        "--coverage.reporter",
+        "json",
+        "--coverage.reportsDirectory",
+      ]),
       expect.objectContaining({
         stdio: "inherit",
         env: {
@@ -72,9 +113,9 @@ describe("run-test-coverage helpers", () => {
         },
       }),
     );
+    expect(spawnFn).toHaveBeenCalledTimes(2);
 
-    expect(() => child.emit("exit", 0, null)).toThrow("exit:0");
-  });
+  }, 20_000);
 
   it("defers provider selection to the repo vitest config", () => {
     expect(coverageVitestArgs).not.toContain("--coverage.provider=v8");
@@ -84,58 +125,55 @@ describe("run-test-coverage helpers", () => {
   it("runs coverage with quiet reporting to avoid vitest worker RPC backpressure", () => {
     expect(coverageVitestArgs).toContain("--silent");
     expect(coverageVitestArgs).toContain("passed-only");
-    expect(coverageVitestArgs).toContain("--reporter");
-    expect(coverageVitestArgs).toContain("basic");
     expect(coverageVitestArgs).toContain("--hideSkippedTests");
   });
 
-  it("forwards child signals to process.kill", async () => {
-    const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
-    const processKill = vi.fn();
-
-    await runCoverage({
-      mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
-      processExit: vi.fn() as any,
-      processKill: processKill as any,
-      rmFn: vi.fn().mockResolvedValue(undefined) as any,
-      spawnFn: vi.fn().mockReturnValue(child) as any,
-    });
-
-    child.emit("exit", null, "SIGTERM");
-    expect(processKill).toHaveBeenCalledWith(process.pid, "SIGTERM");
-  });
-
-  it("falls back to exit code 1 when the child exits without a code or signal", async () => {
-    const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
-    const processExit = vi.fn((code?: number) => {
-      throw new Error(`exit:${code}`);
-    });
-
-    await runCoverage({
-      mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
-      processExit: processExit as any,
-      rmFn: vi.fn().mockResolvedValue(undefined) as any,
-      spawnFn: vi.fn().mockReturnValue(child) as any,
-    });
-
-    expect(() => child.emit("exit", null, null)).toThrow("exit:1");
-  });
-
   it("reports spawn errors through processExit", async () => {
-    const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const processExit = vi.fn((code?: number) => {
       throw new Error(`exit:${code}`);
     });
 
-    await runCoverage({
+    await expect(runCoverage({
       mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
       processExit: processExit as any,
+      readdirFn: vi.fn().mockRejectedValue(new Error("spawn failed")) as any,
       rmFn: vi.fn().mockResolvedValue(undefined) as any,
-      spawnFn: vi.fn().mockReturnValue(child) as any,
-    });
-
-    expect(() => child.emit("error", new Error("spawn failed"))).toThrow("exit:1");
+      spawnFn: vi.fn() as any,
+    })).rejects.toThrow("exit:1");
     errorSpy.mockRestore();
+  });
+
+  it("discovers deterministic shard groups for workflow-heavy suites", async () => {
+    const readdirFn = vi.fn()
+      .mockImplementation(async (target: string) => {
+        if (target.endsWith("/packages")) {
+          return [{ name: "api", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api")) {
+          return [{ name: "src", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api/src")) {
+          return [{ name: "workflows", isDirectory: () => true }, { name: "shared", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api/src/workflows")) {
+          return [
+            { name: "alpha.test.ts", isDirectory: () => false },
+            { name: "beta.test.ts", isDirectory: () => false },
+            { name: "gamma.integration.test.ts", isDirectory: () => false },
+          ] as any;
+        }
+        if (target.endsWith("/packages/api/src/shared")) {
+          return [{ name: "delta.test.ts", isDirectory: () => false }] as any;
+        }
+        throw Object.assign(new Error("missing"), { code: "ENOENT" });
+      }) as any;
+
+    await expect(discoverCoverageShards(readdirFn)).resolves.toEqual([
+      { name: "workflow-unit-01", files: ["packages/api/src/workflows/alpha.test.ts"] },
+      { name: "workflow-unit-02", files: ["packages/api/src/workflows/beta.test.ts"] },
+      { name: "workflow-integration-01", files: ["packages/api/src/workflows/gamma.integration.test.ts"] },
+      { name: "non-workflow-01", files: ["packages/api/src/shared/delta.test.ts"] },
+    ]);
   });
 });

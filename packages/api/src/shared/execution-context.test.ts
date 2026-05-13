@@ -798,6 +798,25 @@ describe("executeHttpMethodDefinition", () => {
     ).rejects.toThrow("write method VoiceAssetFacet.setApprovalForAll requires signerFactory");
   });
 
+  it("rejects signature-relay writes without a signer during final submission", async () => {
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockResolvedValueOnce([true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(true);
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", allowGasless: true, roles: ["service"] },
+          api: { gaslessMode: "signature", executionSource: "auto" },
+          walletAddress: "0x00000000000000000000000000000000000000bb",
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toThrow("write method VoiceAssetFacet.setApprovalForAll requires signerFactory");
+  });
+
   it("wraps missing signer-key preview failures with null write diagnostics", async () => {
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
 

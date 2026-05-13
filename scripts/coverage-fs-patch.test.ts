@@ -32,6 +32,52 @@ describe("coverage fs patch", () => {
     expect(stdout).toBe("{}");
   });
 
+  it("creates nested shard tmp directories before writing coverage fragments", async () => {
+    const nestedShard = path.join(
+      path.resolve(__dirname, ".."),
+      ".runtime/coverage-shards/workflow-unit-01/.tmp",
+      `coverage-${Date.now()}777.json`,
+    );
+    const script = `
+      const fs = require('node:fs');
+      require(${JSON.stringify(patchModulePath)});
+      fs.promises.writeFile(${JSON.stringify(nestedShard)}, '{}', 'utf8')
+        .then(() => fs.promises.readFile(${JSON.stringify(nestedShard)}, 'utf8'))
+        .then((value) => process.stdout.write(value))
+        .finally(() => fs.rmSync(${JSON.stringify(path.join(path.resolve(__dirname, ".."), ".runtime/coverage-shards/workflow-unit-01"))}, { recursive: true, force: true }));
+    `;
+    const { stdout } = await execFileAsync(process.execPath, ["-e", script], {
+      cwd: path.resolve(__dirname, ".."),
+      env: cleanChildEnv,
+      maxBuffer: 1024 * 1024 * 4,
+    });
+
+    expect(stdout).toBe("{}");
+  });
+
+  it("creates coverage shard tmp directories used by sharded vitest reports", async () => {
+    const nestedShard = path.join(
+      path.resolve(__dirname, ".."),
+      "coverage/shards/workflow-unit-01/.tmp",
+      `coverage-${Date.now()}555.json`,
+    );
+    const script = `
+      const fs = require('node:fs');
+      require(${JSON.stringify(patchModulePath)});
+      fs.promises.writeFile(${JSON.stringify(nestedShard)}, '{}', 'utf8')
+        .then(() => fs.promises.readFile(${JSON.stringify(nestedShard)}, 'utf8'))
+        .then((value) => process.stdout.write(value))
+        .finally(() => fs.rmSync(${JSON.stringify(path.join(path.resolve(__dirname, ".."), "coverage/shards/workflow-unit-01"))}, { recursive: true, force: true }));
+    `;
+    const { stdout } = await execFileAsync(process.execPath, ["-e", script], {
+      cwd: path.resolve(__dirname, ".."),
+      env: cleanChildEnv,
+      maxBuffer: 1024 * 1024 * 4,
+    });
+
+    expect(stdout).toBe("{}");
+  });
+
   it("passes through non-coverage reads unchanged", async () => {
     const script = `
       const fs = require('node:fs');
