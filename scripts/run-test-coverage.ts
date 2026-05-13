@@ -180,6 +180,37 @@ async function runCoverageShard(
   });
 }
 
+async function runCoverageMonolith(
+  coverageEnv: NodeJS.ProcessEnv,
+  spawnFn: typeof spawn,
+): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawnFn(
+      "pnpm",
+      [...coverageVitestArgs],
+      {
+        cwd: rootDir,
+        stdio: "inherit",
+        env: coverageEnv,
+      },
+    );
+
+    child.on("exit", (code, signal) => {
+      if (signal) {
+        reject(new Error(`coverage run exited with signal ${signal}`));
+        return;
+      }
+      if ((code ?? 1) !== 0) {
+        reject(new Error(`coverage run failed with exit code ${code ?? 1}`));
+        return;
+      }
+      resolve();
+    });
+
+    child.on("error", reject);
+  });
+}
+
 async function mergeCoverageReports(
   shards: CoverageShard[],
   readFileFn: typeof readFile = readFile,
@@ -262,7 +293,6 @@ export async function runCoverage({
 }: CoverageRuntimeDeps = {}): Promise<void> {
   await resetCoverageDir(rmFn, mkdirFn);
   const coverageEnv = buildCoverageEnv(env);
-  let exitCode = 0;
   try {
     const shards = await discoverCoverageShards(readdirFn);
     for (const shard of shards) {
@@ -270,10 +300,18 @@ export async function runCoverage({
     }
     await mergeCoverageReports(shards, readFileFn, readdirFn, writeFileFn);
   } catch (error) {
+    console.warn("sharded coverage failed, retrying with a single coverage run");
     console.error(error);
-    exitCode = 1;
+    try {
+      await resetCoverageDir(rmFn, mkdirFn);
+      await runCoverageMonolith(coverageEnv, spawnFn);
+    } catch (fallbackError) {
+      console.error(fallbackError);
+      processExit(1);
+      return;
+    }
   }
-  processExit(exitCode);
+  processExit(0);
 }
 
 export async function main(): Promise<void> {
