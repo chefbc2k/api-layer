@@ -4,7 +4,10 @@ import type { AbiParameter, EventRequestSchema, HttpEventDefinition, HttpMethodD
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
-const TEMPLATE_IDENTITY_MANAGED_KEYS = new Set<string>([]);
+const TEMPLATE_IDENTITY_MANAGED_KEYS = new Set<string>([
+  "VoiceLicenseTemplateFacet.createTemplate",
+  "VoiceLicenseTemplateFacet.updateTemplate",
+]);
 
 function parseArrayType(type: string): { baseType: string; lengths: Array<number | null> } {
   const lengths: Array<number | null> = [];
@@ -26,12 +29,13 @@ function integerWireSchema(type: string): z.ZodType<string> {
 
 function isManagedTemplateIdentityField(definition: HttpMethodDefinition, path: string[], component: AbiParameter): boolean {
   return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) &&
+    path.length === 2 &&
     path[0] === "template" &&
     ["creator", "createdAt", "updatedAt"].includes(component.name ?? "");
 }
 
 function isManagedTemplateTuple(definition: HttpMethodDefinition, path: string[]): boolean {
-  return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) && path[0] === "template";
+  return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) && path.length === 1 && path[0] === "template";
 }
 
 function buildWireScalarSchema(definition: HttpMethodDefinition, param: AbiParameter, path: string[]): z.ZodTypeAny {

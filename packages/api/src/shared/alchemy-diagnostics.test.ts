@@ -371,6 +371,29 @@ describe("alchemy-diagnostics", () => {
     });
   });
 
+  it("reports pending fallback success without a top-level call when Alchemy returns empty traces", async () => {
+    const fallbackAlchemy = {
+      transact: {
+        simulateExecution: vi.fn()
+          .mockRejectedValueOnce(new Error("tracing on top of pending is not supported"))
+          .mockResolvedValueOnce({
+            calls: [],
+            logs: [],
+          }),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(fallbackAlchemy as never, { from: "0x1" } as never, "pending")).resolves.toEqual({
+      status: "available",
+      blockTag: "pending",
+      fallbackBlockTag: "latest",
+      callCount: 0,
+      logCount: 0,
+      topLevelCall: undefined,
+      decodedLogs: [],
+    });
+  });
+
   it("classifies trace availability and hard failures distinctly", async () => {
     const unavailableAlchemy = {
       debug: {

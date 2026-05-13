@@ -2,6 +2,23 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.133] - 2026-05-12
+
+### Fixed
+- **Managed License Template Validation Now Only Touches The Top-Level Template Tuple:** Updated [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts) so the existing identity-field fallback path is enabled for `VoiceLicenseTemplateFacet.createTemplate` and `VoiceLicenseTemplateFacet.updateTemplate`, but only for the top-level `template` tuple. Nested tuples like `template.terms` no longer inherit spurious `creator` / `createdAt` / `updatedAt` defaults.
+- **Validation Coverage Now Proves Managed Template Defaults And Binding Fallbacks:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts) to cover omitted top-level template identity fields, explicit passthrough values, and the `buildMethodRequestSchemas` fallback path for unmatched non-body and unnamed body bindings.
+- **Alchemy Simulation Coverage Now Proves Empty Fallback Traces:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) with the pending-to-latest fallback case where Alchemy returns no top-level calls and no logs, so the diagnostics path is explicitly proven to stay `available` without manufacturing a call frame.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Changed Hotspot Regressions Passed:** Re-ran `pnpm exec vitest run packages/api/src/shared/validation.test.ts packages/api/src/shared/alchemy-diagnostics.test.ts --maxWorkers 1`; all `20/20` targeted assertions passed after the managed-template scope fix and new fallback-path proofs.
+- **Repo Test Suite Stayed Green:** Re-ran `pnpm test`; the repo remains green with `125` passing files, `855` passing tests, and `18` intentionally skipped live contract proofs in [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts).
+- **Repo Coverage Sweep Improved Slightly And Stayed Green:** Re-ran `pnpm run test:coverage`; the suite is green at `125` passing files, `855` passing tests, and `18` skipped live contract proofs. Repo-wide V8 coverage improved from `98.61%` statements / `93.37%` branches / `99.49%` functions / `98.61%` lines to `98.67%` statements / `93.48%` branches / `99.49%` functions / `98.67%` lines, while [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.ts) improved to `100%` statements / `97.72%` branches / `100%` functions / `100%` lines and [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) improved to `97.81%` statements / `95.57%` branches / `100%` functions / `97.81%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the verified Base Sepolia/local-fork baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The largest remaining handwritten hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and the lower-branch workflow helpers called out by the full-suite coverage report.
+
 ## [0.1.132] - 2026-05-12
 
 ### Fixed

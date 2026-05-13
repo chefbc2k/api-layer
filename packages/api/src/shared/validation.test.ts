@@ -60,6 +60,54 @@ const writeDefinition: HttpMethodDefinition = {
   notes: "",
 };
 
+const managedTemplateDefinition: HttpMethodDefinition = {
+  key: "VoiceLicenseTemplateFacet.createTemplate",
+  facetName: "VoiceLicenseTemplateFacet",
+  wrapperKey: "createTemplate",
+  methodName: "createTemplate",
+  signature: "createTemplate((address,bool,uint256,uint256,(bytes32,bool)))",
+  category: "write",
+  mutability: "nonpayable",
+  liveRequired: true,
+  cacheClass: "none",
+  cacheTtlSeconds: null,
+  executionSources: ["live"],
+  gaslessModes: [],
+  inputs: [{
+    name: "template",
+    type: "tuple",
+    components: [
+      { name: "creator", type: "address" },
+      { name: "isActive", type: "bool" },
+      { name: "createdAt", type: "uint256" },
+      { name: "updatedAt", type: "uint256" },
+      {
+        name: "terms",
+        type: "tuple",
+        components: [
+          { name: "licenseHash", type: "bytes32" },
+          { name: "transferable", type: "bool" },
+        ],
+      },
+    ],
+  }],
+  outputs: [],
+  domain: "licensing",
+  resource: "license-templates",
+  classification: "create",
+  httpMethod: "POST",
+  path: "/v1/licensing/license-templates/create-template",
+  inputShape: {
+    kind: "body",
+    bindings: [{ name: "template", source: "body", field: "template" }],
+  },
+  outputShape: { kind: "void" },
+  operationId: "createTemplate",
+  rateLimitKind: "write",
+  supportsGasless: false,
+  notes: "",
+};
+
 describe("validation helpers", () => {
   it("validates scalar, tuple, and fixed-array wire schemas", () => {
     expect(buildWireSchema(writeDefinition, { type: "int256" }).parse("-15")).toBe("-15");
@@ -163,6 +211,66 @@ describe("validation helpers", () => {
       "{\"recipient\":\"0x00000000000000000000000000000000000000BB\",\"2\":\"terms-v1\"}",
       "alpha",
     ]);
+  });
+
+  it("defaults managed template identity fields while preserving explicit passthrough values", () => {
+    const schema = buildWireSchema(managedTemplateDefinition, managedTemplateDefinition.inputs[0], ["template"]);
+
+    expect(schema.parse({
+      isActive: true,
+      terms: {
+        transferable: false,
+      },
+    })).toEqual({
+      creator: "0x0000000000000000000000000000000000000000",
+      isActive: true,
+      createdAt: "0",
+      updatedAt: "0",
+      terms: {
+        licenseHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        transferable: false,
+      },
+    });
+
+    expect(schema.parse({
+      creator: "0x00000000000000000000000000000000000000CC",
+      isActive: false,
+      createdAt: "12",
+      updatedAt: "13",
+      terms: {
+        licenseHash: "0x" + "11".repeat(32),
+        transferable: true,
+      },
+    })).toEqual({
+      creator: "0x00000000000000000000000000000000000000CC",
+      isActive: false,
+      createdAt: "12",
+      updatedAt: "13",
+      terms: {
+        licenseHash: "0x" + "11".repeat(32),
+        transferable: true,
+      },
+    });
+  });
+
+  it("falls back to unknown schemas for non-body bindings and unnamed body inputs", () => {
+    const definition = {
+      ...writeDefinition,
+      inputs: [{ type: "string" }],
+      inputShape: {
+        kind: "path+query+body",
+        bindings: [
+          { name: "missingPath", source: "path", field: "assetId" },
+          { name: "missingQuery", source: "query", field: "note" },
+          { name: "missingBody", source: "body", field: "payload" },
+        ],
+      },
+    };
+
+    const schemas = buildMethodRequestSchemas(definition);
+    expect(schemas.path.parse({ assetId: 12 })).toEqual({ assetId: 12 });
+    expect(schemas.query.parse({ note: false })).toEqual({ note: false });
+    expect(schemas.body.parse({ payload: { opaque: true } })).toEqual({ payload: { opaque: true } });
   });
 
   it("returns undefined for unbound inputs", () => {
