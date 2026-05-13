@@ -81,6 +81,14 @@ describe("run-test-coverage helpers", () => {
     expect(coverageVitestArgs).not.toContain("--coverage.reporter=text");
   });
 
+  it("runs coverage with quiet reporting to avoid vitest worker RPC backpressure", () => {
+    expect(coverageVitestArgs).toContain("--silent");
+    expect(coverageVitestArgs).toContain("passed-only");
+    expect(coverageVitestArgs).toContain("--reporter");
+    expect(coverageVitestArgs).toContain("basic");
+    expect(coverageVitestArgs).toContain("--hideSkippedTests");
+  });
+
   it("forwards child signals to process.kill", async () => {
     const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
     const processKill = vi.fn();
