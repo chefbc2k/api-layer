@@ -166,6 +166,36 @@ describe("runOnboardVoiceAssetWorkflow", () => {
     });
   });
 
+  it("parses the workflow schema with an explicit whisper grant", () => {
+    expect(onboardVoiceAssetWorkflowSchema.parse({
+      asset: {
+        ipfsHash: "ipfs://voice",
+        royaltyRate: "100",
+      },
+      security: {
+        structuredFingerprintData: "0x1234",
+        generateEncryptionKey: true,
+        grant: {
+          user: "0x00000000000000000000000000000000000000dd",
+          duration: "900",
+        },
+      },
+    })).toEqual({
+      asset: {
+        ipfsHash: "ipfs://voice",
+        royaltyRate: "100",
+      },
+      security: {
+        structuredFingerprintData: "0x1234",
+        generateEncryptionKey: true,
+        grant: {
+          user: "0x00000000000000000000000000000000000000dd",
+          duration: "900",
+        },
+      },
+    });
+  });
+
   it("runs onboarding with access grantees", async () => {
     const result = await runOnboardVoiceAssetWorkflow(context, auth, undefined, {
       asset: {

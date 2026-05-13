@@ -6,6 +6,11 @@ describe("transient rpc retry helpers", () => {
   it("classifies timeout and rate limit errors as retryable", () => {
     expect(isRetryableRpcError(new Error("request timeout"))).toBe(true);
     expect(isRetryableRpcError({ shortMessage: "429 Too Many Requests" })).toBe(true);
+    expect(isRetryableRpcError("service unavailable")).toBe(true);
+    expect(isRetryableRpcError(503)).toBe(false);
+    const circular: { message: string; cause?: unknown } = { message: "socket hang up" };
+    circular.cause = circular;
+    expect(isRetryableRpcError(circular)).toBe(true);
     expect(isRetryableRpcError({
       shortMessage: "missing revert data",
       info: {
@@ -46,5 +51,25 @@ describe("transient rpc retry helpers", () => {
       baseDelayMs: 1,
     })).rejects.toThrow("execution reverted");
     expect(operation).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces the terminal failure immediately when max attempts normalizes to one", async () => {
+    const operation = vi.fn().mockRejectedValue(new Error("request timeout"));
+
+    await expect(runWithTransientRpcRetries(operation, {
+      label: "setup",
+      maxAttempts: 0,
+      baseDelayMs: 1,
+    })).rejects.toThrow("request timeout");
+
+    expect(operation).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws the retained last error when the attempt loop is skipped by an invalid maxAttempts value", async () => {
+    await expect(runWithTransientRpcRetries(() => Promise.resolve("ok"), {
+      label: "setup",
+      maxAttempts: Number.NaN,
+      baseDelayMs: 1,
+    })).rejects.toBeUndefined();
   });
 });
