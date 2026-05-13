@@ -38,6 +38,13 @@ const fsMocks = vi.hoisted(() => ({
   writeFile: vi.fn(),
 }));
 
+const retryMocks = vi.hoisted(() => ({
+  runWithTransientRpcRetries: vi.fn(async (work: () => Promise<unknown>, options?: { log?: (message: string) => void }) => {
+    options?.log?.("transient retry probe");
+    return work();
+  }),
+}));
+
 const ethersMocks = vi.hoisted(() => ({
   providerDestroy: vi.fn(),
   providerGetBalance: vi.fn(),
@@ -67,6 +74,10 @@ vi.mock("./alchemy-debug-lib.js", () => ({
 vi.mock("node:fs/promises", () => ({
   mkdir: fsMocks.mkdir,
   writeFile: fsMocks.writeFile,
+}));
+
+vi.mock("./transient-rpc-retry.js", () => ({
+  runWithTransientRpcRetries: retryMocks.runWithTransientRpcRetries,
 }));
 
 vi.mock("ethers", async (importOriginal) => {
@@ -228,6 +239,7 @@ describe("base-sepolia-operator-setup main", () => {
 
   it("runs main end-to-end and destroys the provider during cleanup", async () => {
     const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const module = await import("./base-sepolia-operator-setup.ts");
 
     await module.main();
@@ -256,7 +268,17 @@ describe("base-sepolia-operator-setup main", () => {
     expect(server.closeAllConnections).toHaveBeenCalledTimes(1);
     expect(server.closeIdleConnections).toHaveBeenCalledTimes(1);
     expect(forkRuntime.forkProcess.kill).toHaveBeenCalledWith("SIGTERM");
+    expect(retryMocks.runWithTransientRpcRetries).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        label: "setup:base-sepolia",
+        maxAttempts: 3,
+        baseDelayMs: 1500,
+        log: expect.any(Function),
+      }),
+    );
     expect(consoleLog).toHaveBeenCalledTimes(1);
+    expect(consoleWarn).toHaveBeenCalledWith("transient retry probe");
   });
 
   it("logs and exits when invoked as the main module and startup fails", async () => {

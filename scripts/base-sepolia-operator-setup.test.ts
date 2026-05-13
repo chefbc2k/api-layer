@@ -1837,6 +1837,64 @@ describe("base sepolia operator setup helpers", () => {
     expect(retryApiReadFn).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves the expired preferred fixture when canceling the listing fails", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+          expiresAt: "10",
+        },
+      })
+      .mockResolvedValueOnce({
+        status: 500,
+        payload: { error: "cancel failed" },
+      });
+    const waitForReceiptFn = vi.fn();
+    const retryApiReadFn = vi.fn();
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xexpired"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(44n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+      waitForReceiptFn,
+      retryApiReadFn: retryApiReadFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xexpired",
+      tokenId: "44",
+      activeListing: true,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing remains active in readback, but its expiration time has already passed",
+      approval: null,
+      listing: {
+        submission: null,
+        readback: {
+          status: 200,
+          payload: {
+            isActive: true,
+            createdAt: "0",
+            expiresAt: "10",
+          },
+        },
+      },
+      localForkTimeAdvance: null,
+    });
+    expect(waitForReceiptFn).not.toHaveBeenCalled();
+    expect(retryApiReadFn).not.toHaveBeenCalled();
+  });
+
   it("returns the default blocked fixture when no aged asset is eligible", async () => {
     const apiCallFn = vi.fn();
 

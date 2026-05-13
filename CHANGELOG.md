@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.138] - 2026-05-13
+
+### Fixed
+- **Base Sepolia Setup Coverage Now Proves Retry Logging And Failed Cancel Preservation Paths:** Expanded [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove that an expired preferred marketplace listing stays classified from its existing readback when cancelation fails instead of falling through to an unintended fallback mutation path. Expanded [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.main.test.ts) to exercise the `runWithTransientRpcRetries` logger callback used by [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), closing another previously dead setup-entry branch without changing runtime behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Setup Script Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts --maxWorkers 1`; all `54/54` assertions passed.
+- **Focused Setup Coverage Improved:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts --coverage.enabled true --coverage.reporter text --maxWorkers 1`; [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) now reports `97.88%` statements / `85.35%` branches / `98.38%` functions / `97.79%` lines in the focused slice.
+- **Full Repo Coverage Sweep Stayed Green And Improved:** Re-ran `pnpm run test:coverage`; the suite is green at `125` passing files, `879` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved to `98.76%` statements, `92.65%` branches, `99.51%` functions, and `98.75%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the verified Base Sepolia/local-fork baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The highest-yield remaining hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and the lower-branch workflow/helper cluster already surfaced by the full-suite report.
+
 ## [0.1.137] - 2026-05-13
 
 ### Fixed
