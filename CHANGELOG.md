@@ -2195,6 +2195,20 @@
 ### Notes
 - **Filtered Multi-Target Invocation Still Noisy:** A single long filtered `app.contract-integration.test.ts` invocation can still accumulate enough shared state and wall-clock delay to trip timeouts across unrelated cases. The underlying previously failing domains above are now proven individually, but the broad suite still benefits from narrower execution slices when debugging fork/provider drift.
 
+## [0.1.7] - 2026-05-13
+
+### Fixed
+- **Sharded Coverage Runner:** Updated [/Users/chef/Public/api-layer/scripts/run-test-coverage.ts](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) to run the Vitest suite in deterministic shards, preserve per-shard coverage artifacts, and merge them into a single final coverage report after the suite completes. This removes the prior single-process worker-RPC timeout failure during `pnpm run test:coverage`.
+- **Coverage Artifact Read/Write Races:** Hardened [/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.ts) to retry truncated or not-yet-written shard JSON reads, and expanded [/Users/chef/Public/api-layer/scripts/coverage-fs-patch.cjs](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.cjs) so sharded `coverage/shards/<name>/.tmp/coverage-*.json` writes get the same mkdir/retry handling as the legacy root coverage temp files.
+
+### Added
+- **Coverage Harness Regression Tests:** Added shard-aware regression coverage in [/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts), [/Users/chef/Public/api-layer/scripts/custom-coverage-provider.test.ts](/Users/chef/Public/api-layer/scripts/custom-coverage-provider.test.ts), and [/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts) to lock the new merge flow, truncated JSON retry behavior, and sharded tmp-directory creation.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both remained green against the current Base Sepolia/local-fork repo baseline.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check` and kept API-surface / wrapper coverage at `492` functions, `218` events, and validated HTTP coverage for `492` methods.
+- **Coverage Command Recovery:** Re-ran `pnpm run test:coverage`; it now exits successfully after four shard runs and a merged report instead of failing with Vitest worker callback timeouts or shard JSON race conditions.
+
 ## [0.1.2] - 2026-03-18
 
 ### Added
