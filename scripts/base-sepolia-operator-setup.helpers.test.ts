@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   classifyCandidatePriority,
+  isExpiredListing,
   isPurchaseReadyListing,
   mergeMarketplaceCandidateVoiceHashes,
   rankFundingCandidates,
@@ -21,6 +22,17 @@ describe("base-sepolia marketplace fixture helpers", () => {
     expect(isPurchaseReadyListing(undefined, 10n)).toBe(false);
     expect(isPurchaseReadyListing({ tokenId: "11", isActive: false, createdAt: "1" }, 10n)).toBe(false);
     expect(isPurchaseReadyListing({ tokenId: "11", isActive: true }, 10n)).toBe(false);
+  });
+
+  it("treats expiration as a hard stop for both readiness and active-age checks", () => {
+    expect(isExpiredListing(undefined, 10n)).toBe(false);
+    expect(isExpiredListing({ tokenId: "11", expiresAt: "10", isActive: true }, 10n)).toBe(true);
+    expect(isPurchaseReadyListing({
+      tokenId: "11",
+      createdAt: "1",
+      expiresAt: "10",
+      isActive: true,
+    }, 1n + 24n * 60n * 60n)).toBe(false);
   });
 
   it("classifies marketplace candidates by purchase readiness before general activeness", () => {
@@ -150,6 +162,29 @@ describe("base-sepolia marketplace fixture helpers", () => {
 
   it("returns null when no marketplace candidates are available", () => {
     expect(selectPreferredMarketplaceFixtureCandidate([], 10n)).toBeNull();
+  });
+
+  it("treats missing createdAt values as the oldest tie-breaker among equal-priority active listings", () => {
+    const candidate = selectPreferredMarketplaceFixtureCandidate([
+      {
+        voiceHash: "0xmissing-created-at",
+        tokenId: "12",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "12", isActive: true },
+        },
+      },
+      {
+        voiceHash: "0xwith-created-at",
+        tokenId: "13",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "13", createdAt: "50", isActive: true },
+        },
+      },
+    ], 60n);
+
+    expect(candidate?.tokenId).toBe("12");
   });
 
   it("merges seller-owned and escrowed voice hashes without dropping escrow-only candidates", () => {

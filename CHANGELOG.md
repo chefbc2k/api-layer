@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.136] - 2026-05-13
+
+### Fixed
+- **Transient RPC Retry Normalization No Longer Drops Through On `NaN`:** Updated [`/Users/chef/Public/api-layer/scripts/transient-rpc-retry.ts`](/Users/chef/Public/api-layer/scripts/transient-rpc-retry.ts) so invalid numeric retry options now normalize through finite integer guards before clamping. This closes the defect where `maxAttempts: Number.NaN` could skip the retry loop entirely and throw `undefined` instead of applying the default retry contract.
+- **Retry, Marketplace Fixture, And License Template Edge Tests Expanded:** Refreshed [`/Users/chef/Public/api-layer/scripts/transient-rpc-retry.test.ts`](/Users/chef/Public/api-layer/scripts/transient-rpc-retry.test.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.helpers.test.ts), and [`/Users/chef/Public/api-layer/scripts/license-template-helper.test.ts`](/Users/chef/Public/api-layer/scripts/license-template-helper.test.ts) to prove `NaN` fallback defaults, zero-clamped negative retry delays, listing-expiration gating, missing-`createdAt` tie-break behavior, and the create-template path that returns a valid template hash without a `txHash`.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, and final status `baseline verified`.
+- **Setup Artifact Stayed Ready:** Re-ran `pnpm run setup:base-sepolia` and refreshed [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json). The setup artifact still lands on `setup.status: "ready"` with no blockers, buyer USDC balance/allowance both at `4000`, governance status `ready`, and marketplace token `11` still `purchase-ready` with listing readback `{ tokenId: "11", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1778584642", createdBlock: "41413638", expiresAt: "1781176642", isActive: true }`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/transient-rpc-retry.test.ts scripts/base-sepolia-operator-setup.helpers.test.ts scripts/license-template-helper.test.ts`; all `23/23` assertions passed after the retry normalization fix and the new edge-case probes.
+- **Full Repo Coverage Sweep Stayed Green And Improved Branches:** Re-ran `pnpm run test:coverage`; the suite is green at `125` passing files, `866` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage now reports `98.51%` statements, `92.35%` branches, `99.35%` functions, and `98.50%` lines, while [`/Users/chef/Public/api-layer/scripts/transient-rpc-retry.ts`](/Users/chef/Public/api-layer/scripts/transient-rpc-retry.ts) now measures `100%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, setup readiness, and the verified Base Sepolia/local-fork baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The next highest-yield handwritten hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/trigger-emergency.ts).
+
 ## [0.1.135] - 2026-05-13
 
 ### Fixed

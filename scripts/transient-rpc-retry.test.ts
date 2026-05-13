@@ -65,11 +65,48 @@ describe("transient rpc retry helpers", () => {
     expect(operation).toHaveBeenCalledTimes(1);
   });
 
-  it("throws the retained last error when the attempt loop is skipped by an invalid maxAttempts value", async () => {
-    await expect(runWithTransientRpcRetries(() => Promise.resolve("ok"), {
+  it("falls back to default retry settings when numeric options are invalid", async () => {
+    vi.useFakeTimers();
+    const log = vi.fn();
+    const operation = vi.fn()
+      .mockRejectedValueOnce("service unavailable")
+      .mockRejectedValueOnce({ reason: "network error" })
+      .mockResolvedValueOnce("ok");
+
+    const promise = runWithTransientRpcRetries(operation, {
       label: "setup",
       maxAttempts: Number.NaN,
-      baseDelayMs: 1,
-    })).rejects.toBeUndefined();
+      baseDelayMs: Number.NaN,
+      log,
+    });
+
+    await vi.advanceTimersByTimeAsync(4_500);
+    await expect(promise).resolves.toBe("ok");
+    expect(operation).toHaveBeenCalledTimes(3);
+    expect(log).toHaveBeenNthCalledWith(
+      1,
+      "setup transient RPC failure on attempt 1/3: service unavailable. Retrying...",
+    );
+    expect(log).toHaveBeenNthCalledWith(
+      2,
+      "setup transient RPC failure on attempt 2/3: [object Object]. Retrying...",
+    );
+  });
+
+  it("clamps negative base delays to zero before retrying", async () => {
+    vi.useFakeTimers();
+    const operation = vi.fn()
+      .mockRejectedValueOnce(new Error("request timeout"))
+      .mockResolvedValueOnce("ok");
+
+    const promise = runWithTransientRpcRetries(operation, {
+      label: "setup",
+      maxAttempts: 2,
+      baseDelayMs: -10,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+    await expect(promise).resolves.toBe("ok");
+    expect(operation).toHaveBeenCalledTimes(2);
   });
 });
