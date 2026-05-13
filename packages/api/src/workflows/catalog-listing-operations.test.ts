@@ -548,6 +548,130 @@ describe("runCatalogListingOperationsWorkflow", () => {
     expect(result.summary.isTradable).toBe(false);
   });
 
+  it("handles receipt-less maintenance writes and retries malformed dataset readbacks", async () => {
+    const service = datasetService({
+      getDataset: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: "not-an-array",
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1", "2"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1", "2"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: { next: "300" },
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1", "2"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "300",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1", "2"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "300",
+            active: "false",
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1", "2"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "300",
+            active: false,
+          },
+        }),
+    });
+    mocks.createDatasetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const result = await runCatalogListingOperationsWorkflow(context, auth, undefined, {
+      dataset: {
+        datasetId: "11",
+        maintenance: {
+          appendAssetIds: ["2"],
+          setRoyaltyBps: "300",
+          setActive: false,
+        },
+      },
+      listing: {
+        inspect: false,
+        cancel: false,
+      },
+    });
+
+    expect(service.assetsAppendedEventQuery).not.toHaveBeenCalled();
+    expect(service.royaltySetEventQuery).not.toHaveBeenCalled();
+    expect(service.datasetStatusChangedEventQuery).not.toHaveBeenCalled();
+    expect(result.packaging.maintenance.appendAssets).toEqual(expect.objectContaining({
+      txHash: null,
+      eventCount: 0,
+    }));
+    expect(result.packaging.maintenance.setRoyalty).toEqual(expect.objectContaining({
+      txHash: null,
+      eventCount: 0,
+    }));
+    expect(result.packaging.maintenance.setDatasetStatus).toEqual(expect.objectContaining({
+      txHash: null,
+      eventCount: 0,
+    }));
+    expect(result.packaging.after).toEqual(expect.objectContaining({
+      assetIds: ["1", "2"],
+      royaltyBps: "300",
+      active: false,
+    }));
+  });
+
   it("reports inactive listings as not actively listed", async () => {
     const service = datasetService();
     mocks.createDatasetsPrimitiveService.mockReturnValue(service);
