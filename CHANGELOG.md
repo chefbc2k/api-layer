@@ -2261,6 +2261,19 @@
 ### Remaining Issues
 - **Marketplace Fixture Age Partial:** `setup:base-sepolia` can still legitimately emit a `listed-not-yet-purchase-proven` marketplace fixture when no older active listing is available past the contract lock window; this is now the primary remaining live-environment partial called out by the setup artifact.
 
+## [0.1.7] - 2026-05-13
+
+### Fixed
+- **Coverage Runner Trustworthiness Restored:** Updated [/Users/chef/Public/api-layer/scripts/run-test-coverage.ts](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) to route the live `pnpm run test:coverage` command through the known-good monolithic Vitest coverage path again, while still preserving the repo’s coverage filesystem patch bootstrap. This removes the deprecated `basic` reporter flag and avoids the undercounted shard-merge output that was dragging the aggregate report away from the real suite baseline.
+- **Coverage Runner Regression Guards Expanded:** Updated [/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) to assert the restored monolithic invocation path and the current quiet coverage args instead of the incomplete shard-only behavior.
+- **API Surface Branch Coverage Raised:** Expanded [/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) with additional governance, staking, vesting, emergency, transfer-route, and event-surface cases to cover previously unexercised mapping branches in `scripts/api-surface-lib.ts`.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:verify`; the repo baseline still verifies against Base Sepolia fork state on `http://127.0.0.1:8548` with chain ID `84532`.
+- **Coverage Gates:** Re-ran `pnpm run coverage:check`; wrapper coverage remains `492` functions and `218` events, and HTTP coverage remains validated for `492` methods.
+- **Targeted Regression Suite:** Re-ran `pnpm exec vitest run scripts/run-test-coverage.test.ts scripts/custom-coverage-provider.test.ts scripts/coverage-fs-patch.test.ts scripts/api-surface-lib.test.ts --maxWorkers 1`; all targeted coverage and surface-registry tests passed.
+- **Full Coverage Command:** Re-ran `pnpm run test:coverage`; the command now exits green again with `126` passing test files, `887` passing tests, `18` intentionally skipped contract-integration tests, and aggregate Istanbul coverage of `98.84%` statements, `92.81%` branches, `99.51%` functions, and `98.84%` lines.
+
 ## [0.1.6] - 2026-03-19
 
 ### Fixed

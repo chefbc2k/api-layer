@@ -244,6 +244,19 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "GovernorFacet",
+      wrapperKey: "castVote",
+      methodName: "castVote",
+      category: "write",
+      inputs: [{ name: "proposalId", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      resource: "governance",
+      classification: "action",
+      httpMethod: "POST",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "TimelockFacet",
       wrapperKey: "queueOperation",
       methodName: "queueOperation",
@@ -292,6 +305,18 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "StakingFacet",
+      wrapperKey: "stakeTokens",
+      methodName: "stakeTokens",
+      category: "write",
+      inputs: [{ name: "amount", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      resource: "stakes",
+      classification: "action",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "CommunityRewardsFacet",
       wrapperKey: "listCampaigns",
       methodName: "listCampaigns",
@@ -313,6 +338,18 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "VestingFacet",
+      wrapperKey: "createVestingSchedule",
+      methodName: "createVestingSchedule",
+      category: "write",
+      inputs: [{ name: "beneficiary", type: "address" }],
+      outputs: [],
+    }))).toMatchObject({
+      resource: "vesting",
+      classification: "create",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "BurnThresholdFacet",
       wrapperKey: "getBurnThreshold",
       methodName: "getBurnThreshold",
@@ -326,6 +363,19 @@ describe("api surface helpers", () => {
       methodName: "getTokenSupply",
     }))).toMatchObject({
       resource: "token-supply",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "EmergencyFacet",
+      wrapperKey: "triggerEmergencyShutdown",
+      methodName: "triggerEmergencyShutdown",
+      category: "write",
+      inputs: [{ name: "reasonCode", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "emergency",
+      resource: "emergency",
+      classification: "admin",
     });
 
     expect(buildMethodSurface(method({
@@ -422,6 +472,28 @@ describe("api surface helpers", () => {
       outputs: [],
     }))).toMatchObject({
       path: "/v1/voice-assets/:voiceHash/royalty-payments",
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "transferFromVoiceAsset",
+      methodName: "transferFromVoiceAsset",
+      category: "write",
+      inputs: [
+        { name: "from", type: "address" },
+        { name: "to", type: "address" },
+        { name: "tokenId", type: "uint256" },
+      ],
+      outputs: [],
+    }))).toMatchObject({
+      path: "/v1/voice-assets/tokens/:tokenId/transfers",
+      inputShape: {
+        kind: "path+body",
+        bindings: [
+          { name: "from", source: "body", field: "from" },
+          { name: "to", source: "body", field: "to" },
+          { name: "tokenId", source: "path", field: "tokenId" },
+        ],
+      },
     });
 
     expect(buildMethodSurface(method({
@@ -544,6 +616,17 @@ describe("api surface helpers", () => {
       operationId: "transferAddressAddressUint256EventQuery",
       path: "/v1/voice-assets/events/transfer/query",
       notes: "VoiceAssetFacet.Transfer(address,address,uint256)",
+    });
+
+    expect(buildEventSurface(event({
+      facetName: "GovernorFacet",
+      wrapperKey: "VoteCast",
+      eventName: "VoteCast",
+    }))).toMatchObject({
+      domain: "governance",
+      operationId: "voteCastEventQuery",
+      path: "/v1/governance/events/vote-cast/query",
+      notes: "GovernorFacet.VoteCast",
     });
 
     expect(sortObject({ beta: 2, alpha: 1, gamma: 3 })).toEqual({

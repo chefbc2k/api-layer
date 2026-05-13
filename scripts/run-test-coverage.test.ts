@@ -52,7 +52,7 @@ describe("run-test-coverage helpers", () => {
     );
   });
 
-  it("spawns shard-aware vitest runs and exits after merging", async () => {
+  it("spawns the monolithic vitest coverage run and exits after success", async () => {
     const spawnFn = vi.fn().mockImplementation(() => {
       const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
       queueMicrotask(() => {
@@ -68,43 +68,15 @@ describe("run-test-coverage helpers", () => {
       env: { NODE_OPTIONS: "--inspect" },
       mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
       processExit: processExit as any,
-      readFileFn: vi.fn().mockResolvedValue("{}") as any,
-      readdirFn: vi.fn()
-        .mockImplementation(async (target: string) => {
-          if (target.endsWith("/packages")) {
-            return [{ name: "api", isDirectory: () => true }] as any;
-          }
-          if (target.endsWith("/packages/api")) {
-            return [{ name: "src", isDirectory: () => true }] as any;
-          }
-          if (target.endsWith("/packages/api/src")) {
-            return [{ name: "workflows", isDirectory: () => true }] as any;
-          }
-          if (target.endsWith("/packages/api/src/workflows")) {
-            return [
-              { name: "alpha.test.ts", isDirectory: () => false },
-              { name: "beta.integration.test.ts", isDirectory: () => false },
-            ] as any;
-          }
-          throw Object.assign(new Error("missing"), { code: "ENOENT" });
-        }) as any,
       rmFn: vi.fn().mockResolvedValue(undefined) as any,
       spawnFn: spawnFn as any,
-      writeFileFn: vi.fn().mockResolvedValue(undefined) as any,
     });
 
-    await expect(runPromise).rejects.toThrow(/exit:[01]/);
+    await expect(runPromise).rejects.toThrow("exit:0");
 
     expect(spawnFn).toHaveBeenCalledWith(
       "pnpm",
-      expect.arrayContaining([
-        ...coverageVitestArgs,
-        "--coverage.clean",
-        "false",
-        "--coverage.reporter",
-        "json",
-        "--coverage.reportsDirectory",
-      ]),
+      [...coverageVitestArgs],
       expect.objectContaining({
         stdio: "inherit",
         env: {
@@ -113,7 +85,7 @@ describe("run-test-coverage helpers", () => {
         },
       }),
     );
-    expect(spawnFn).toHaveBeenCalledTimes(2);
+    expect(spawnFn).toHaveBeenCalledTimes(1);
 
   }, 20_000);
 
