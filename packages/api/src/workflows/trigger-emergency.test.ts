@@ -415,6 +415,81 @@ describe("trigger-emergency", () => {
     expect(emergency.responseExecutedEventQuery).not.toHaveBeenCalled();
   });
 
+  it("skips incident readback materialization when the report write returns no usable incident id", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreport-null-id")
+      .mockResolvedValueOnce("0xtrigger-null-id");
+
+    const getIncident = vi.fn();
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      reportIncident: vi.fn().mockResolvedValue({ statusCode: 202, body: null }),
+      getIncident,
+      triggerEmergency: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xtrigger-null-id" } }),
+      emergencyStop: vi.fn(),
+      executeResponse: vi.fn(),
+      freezeAssets: vi.fn(),
+      isAssetFrozen: vi.fn(),
+      extendPausedUntil: vi.fn(),
+      scheduleEmergencyResume: vi.fn(),
+      incidentReportedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xreport-null-id" }] }),
+      emergencyStateChangedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xtrigger-null-id" }] }),
+      responseExecutedEventQuery: vi.fn(),
+      assetsFrozenEventQuery: vi.fn(),
+      pauseExtendedEventQuery: vi.fn(),
+      emergencyResumeScheduledEventQuery: vi.fn(),
+    });
+
+    const result = await runTriggerEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async (txHash: string) => ({ blockNumber: txHash === "0xreport-null-id" ? 301 : 302 })),
+          })),
+        },
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      "0x00000000000000000000000000000000000000aa",
+      {
+        emergency: {
+          state: "PAUSED",
+          reason: "incident id missing",
+          useEmergencyStop: false,
+        },
+        incident: {
+          report: {
+            incidentType: "SECURITY_BREACH",
+            description: "incident id missing",
+          },
+        },
+      },
+    );
+
+    expect(result.incident).toEqual({
+      usedIncidentId: null,
+      report: null,
+    });
+    expect(result.response).toBeNull();
+    expect(result.summary).toEqual({
+      incidentId: null,
+      requestedState: "PAUSED",
+      resultingState: "1",
+      resultingStateLabel: "PAUSED",
+      responseExecuted: false,
+      assetsFrozen: 0,
+      resumeScheduled: false,
+      pauseExtended: false,
+    });
+    expect(getIncident).not.toHaveBeenCalled();
+  });
+
   it("enforces schema refinements for emergency-stop state and response action context", () => {
     const invalidStop = triggerEmergencyWorkflowSchema.safeParse({
       emergency: {
