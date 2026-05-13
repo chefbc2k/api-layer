@@ -207,6 +207,46 @@ describe("runRegisterWhisperBlockWorkflow", () => {
     expect(service.grantAccess).not.toHaveBeenCalled();
   });
 
+  it("keeps the fingerprint event count at zero when receipt confirmation returns a null hash", async () => {
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn(),
+      },
+    } as never;
+    const service = {
+      registerVoiceFingerprint: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xfingerprint-write" },
+      }),
+      verifyVoiceAuthenticity: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+      voiceFingerprintUpdatedEventQuery: vi.fn(),
+      generateAndSetEncryptionKey: vi.fn(),
+      keyRotatedEventQuery: vi.fn(),
+      grantAccess: vi.fn(),
+      accessGrantedEventQuery: vi.fn(),
+    };
+    mocks.createWhisperblockPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runRegisterWhisperBlockWorkflow(context, auth, undefined, {
+      voiceHash: "0x2323232323232323232323232323232323232323232323232323232323232323",
+      structuredFingerprintData: "0xcafe",
+      generateEncryptionKey: false,
+    });
+
+    expect(result.fingerprint).toEqual({
+      submission: { txHash: "0xfingerprint-write" },
+      txHash: null,
+      authenticityVerified: true,
+      eventCount: 0,
+    });
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+    expect(service.voiceFingerprintUpdatedEventQuery).not.toHaveBeenCalled();
+  });
+
   it("retries authenticity and event confirmation before succeeding", async () => {
     const setTimeoutSpy = mockImmediateTimeout();
     const context = {
@@ -298,6 +338,7 @@ describe("runRegisterWhisperBlockWorkflow", () => {
   });
 
   it("retries transient event-query errors before confirming the fingerprint event", async () => {
+    const setTimeoutSpy = mockImmediateTimeout();
     const context = {
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
@@ -335,6 +376,7 @@ describe("runRegisterWhisperBlockWorkflow", () => {
 
     expect(result.fingerprint.eventCount).toBe(1);
     expect(service.voiceFingerprintUpdatedEventQuery).toHaveBeenCalledTimes(2);
+    setTimeoutSpy.mockRestore();
   });
 
   it("ignores non-object event entries while matching transaction hashes", async () => {
