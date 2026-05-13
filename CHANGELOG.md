@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.139] - 2026-05-13
+
+### Fixed
+- **Coverage Runner No Longer Crashes When A Coverage Shard Never Lands:** Updated [`/Users/chef/Public/api-layer/scripts/coverage-fs-patch.cjs`](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.cjs) so the fallback path now returns a valid empty Istanbul coverage map instead of the invalid `{"result":[]}` placeholder that was aborting `pnpm run test:coverage` inside the custom coverage provider. Added [`/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts`](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts) to prove the missing-shard fallback in a fresh Node process and to preserve non-coverage reads.
+- **API Surface Domain Mapping Covers Treasury Revenue Facets Again:** Restored the missing `TreasuryRevenueFacet -> treasury` mapping in [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts), which unblocks the non-voice API surface regression slice and keeps the HTTP surface generator aligned with the existing treasury revenue workflow expectations.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Coverage Infrastructure Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/coverage-fs-patch.test.ts scripts/run-test-coverage.test.ts scripts/custom-coverage-provider.test.ts --maxWorkers 1` and `pnpm exec vitest run scripts/api-surface-lib.test.ts scripts/coverage-fs-patch.test.ts --maxWorkers 1`; all focused assertions passed, confirming the shard fallback, the custom provider ordering, the coverage runner wiring, and the treasury surface mapping.
+- **Full Repo Coverage Sweep Returned To Green:** Re-ran `pnpm run test:coverage`; the suite is green at `126` passing files, `884` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage now reports `98.84%` statements, `92.83%` branches, `99.51%` functions, and `98.84%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met:** API surface coverage, wrapper coverage, and the verified Base Sepolia/local-fork baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The next highest-yield handwritten hotspots remain concentrated in [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts), and the remaining lower-branch workflow/helper cluster surfaced by the full-suite coverage report.
+
 ## [0.1.138] - 2026-05-13
 
 ### Fixed

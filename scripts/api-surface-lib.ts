@@ -127,6 +127,7 @@ export const domainByFacet: Record<string, string> = {
   TimewaveGiftFacet: "tokenomics",
   CommunityRewardsFacet: "tokenomics",
   VestingFacet: "tokenomics",
+  TreasuryRevenueFacet: "treasury",
   LegacyFacet: "voice-assets",
   LegacyViewFacet: "voice-assets",
   LegacyExecutionFacet: "voice-assets",

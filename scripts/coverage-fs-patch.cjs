@@ -32,6 +32,10 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function emptyCoverageResult(options) {
+  return typeof options === "string" || options?.encoding ? "{}" : Buffer.from("{}");
+}
+
 fs.promises.writeFile = async function patchedWriteFile(filePath, data, options) {
   if (isCoverageTmpPath(filePath)) {
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
@@ -53,5 +57,5 @@ fs.promises.readFile = async function patchedReadFile(filePath, options) {
       await sleep(50);
     }
   }
-  return typeof options === "string" || options?.encoding ? "{\"result\":[]}" : Buffer.from("{\"result\":[]}");
+  return emptyCoverageResult(options);
 };
