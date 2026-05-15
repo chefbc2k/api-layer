@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.141] - 2026-05-15
+
+### Fixed
+- **Remaining Verifier Burn Semantics Now Match The Real Dataset Contract:** Updated [`/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-remaining.ts), [`/Users/chef/Public/api-layer/scripts/verify-layer1-helpers.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-helpers.ts), and [`/Users/chef/Public/api-layer/scripts/verify-layer1-helpers.test.ts`](/Users/chef/Public/api-layer/scripts/verify-layer1-helpers.test.ts) so the remaining-domain proof no longer waits for `VoiceDatasetFacet.burnDataset` to decrement `getTotalDatasets()`. The verifier now follows the same contract-grounded invariant already used by the HTTP integration suite: the burn receipt must mine, the burned event must be queryable, the dataset remains queryable, and the total dataset counter must stay stable or increase rather than artificially dropping.
+
+### Verified
+- **Baseline + Setup Guards Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run setup:base-sepolia`; the repo still resolves on the local Base Sepolia fork at `http://127.0.0.1:8548` with chain ID `84532`, and the refreshed setup artifact remains `status: "ready"` with governance `status: "ready"` plus marketplace token `11` still `purchase-ready`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Live Verifier Artifact Refreshed Fully Green:** Re-ran `pnpm exec tsx scripts/verify-layer1-live.ts --output verify-live-output.json`; the refreshed artifact reports `summary: "proven working"` with `8` proven domains and no blocked or deeper-issue classifications. Fresh proof receipts include governance submit `0x3a32680b64178d32e6d86df14145410f60b6b1d7a45c5c8945c46d7160c58adb`, marketplace list `0xbca5ceaeef42a9c74a9cf20dbf0f22912d0e8d9e1461d02b194b619a494e072d`, and dataset create `0x660a23cdc80e5542ea2696d3076fc3cbd26f9bb3e6a6779a23aed68b546474e4`. The refreshed commercialization ownership proof still rejects non-owner commercialization with `409` and the expected ownership-preserving error payload.
+- **Completion Artifact Refreshed Fully Green:** Re-ran `pnpm exec tsx scripts/verify-layer1-completion.ts --output verify-completion-output.json`; the refreshed completion probe remains `summary: "proven working"` and still reads `CommunityRewardsFacet.campaignCount = 18` alongside the existing legacy-surface exposure checks.
+- **Remaining Domains Collapsed Again After The Burn-Semantics Fix:** Re-ran `pnpm exec tsx scripts/verify-layer1-remaining.ts --output verify-remaining-output.json`; the refreshed artifact now completes at `summary: "proven working"` with `3` proven domains, `36` route proofs, and `36` evidence entries. Fresh proof receipts include dataset burn `0x0f65cb32d7130176d23ab6ef59d9ef969576d58d113e72096c138204e22b52a6`, direct license create `0x4377a18ce88bf9bc2ea9f7c4c0ef909e2926168a3992f5e86e7dd7f5536bf9e0`, license revoke `0xcbe36ddbdbbd2bfd0078466d8d35357ed13e230c1eac8e6790df43f7cab88a58`, and whisperblock register `0x87d0d14208ece5a338b3537a637ab0d6c534a91c53931048d47cf3f22985cb7c`.
+- **Focused + Full Regression Suites Stayed Green:** Re-ran `pnpm exec vitest run scripts/verify-layer1-helpers.test.ts --maxWorkers 1` and the full `pnpm test -- --runInBand` suite. The focused helper slice passed at `4/4`, and the full repo remains green at `126` passing files, `888` passing tests, and `18` intentionally skipped live contract-integration proofs.
+
+### Remaining Issues
+- **Standard Coverage Is Still Below The 100% Automation Target:** API surface coverage, wrapper coverage, live Base Sepolia/local-fork verifier coverage, and the repo baseline are all green, but repo-wide branch/function/line/statement coverage still remains below the automation requirement and is the primary unresolved coverage domain left after this verifier-fix pass.
+
 ## [0.1.140] - 2026-05-13
 
 ### Fixed

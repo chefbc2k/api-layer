@@ -8,6 +8,7 @@ import { facetRegistry } from "../packages/client/src/generated/index.js";
 
 import { resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
+import { isDatasetTotalValidAfterBurn } from "./verify-layer1-helpers.js";
 import { buildVerifyReportOutput, getOutputPath, type DomainClassification, writeVerifyReportOutput } from "./verify-report.js";
 
 type ApiCallOptions = {
@@ -890,7 +891,7 @@ async function verifyDatasets(input: {
       apiKey: "read-key",
       body: {},
     }),
-    (response) => response.status === 200 && BigInt(String(response.payload)) === totalBefore,
+    (response) => response.status === 200 && isDatasetTotalValidAfterBurn(totalBefore, BigInt(String(response.payload))),
     "dataset total after burn",
   );
   const datasetBurnedEvents = await apiCall(port, "POST", "/v1/datasets/events/dataset-burned/query", {

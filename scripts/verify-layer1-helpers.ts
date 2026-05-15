@@ -30,3 +30,7 @@ export function isSetupBlockedResponse(value: unknown): boolean {
     || (response.status === 409 && error.includes("paused"))
     || (response.status === 409 && error.includes("expired"));
 }
+
+export function isDatasetTotalValidAfterBurn(totalBefore: bigint, totalAfter: bigint): boolean {
+  return totalAfter >= totalBefore;
+}

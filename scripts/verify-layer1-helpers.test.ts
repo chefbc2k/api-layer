@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isSetupBlockedResponse } from "./verify-layer1-helpers.js";
+import { isDatasetTotalValidAfterBurn, isSetupBlockedResponse } from "./verify-layer1-helpers.js";
 
 describe("verify-layer1-helpers", () => {
   it("detects canonical setup-blocked payloads", () => {
@@ -37,5 +37,11 @@ describe("verify-layer1-helpers", () => {
     expect(isSetupBlockedResponse({ status: 500, payload: { error: "execution reverted" } })).toBe(false);
     expect(isSetupBlockedResponse({ status: 409, payload: { error: "commercialization requires current asset ownership" } })).toBe(false);
     expect(isSetupBlockedResponse(null)).toBe(false);
+  });
+
+  it("accepts the contract's non-decrementing dataset total after burn", () => {
+    expect(isDatasetTotalValidAfterBurn(27n, 27n)).toBe(true);
+    expect(isDatasetTotalValidAfterBurn(27n, 28n)).toBe(true);
+    expect(isDatasetTotalValidAfterBurn(27n, 26n)).toBe(false);
   });
 });
