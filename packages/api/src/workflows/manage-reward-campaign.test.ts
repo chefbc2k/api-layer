@@ -212,6 +212,74 @@ describe("runManageRewardCampaignWorkflow", () => {
     expect(result.pauseState.eventCount).toBe(1);
   });
 
+  it("supports a merkle-root-only change when the write receipt never resolves", async () => {
+    const campaignMerkleRootUpdatedEventQuery = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", paused: false },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", paused: false },
+        }),
+      setMerkleRoot: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xroot-write" } }),
+      campaignMerkleRootUpdatedEventQuery,
+      unpauseCampaign: vi.fn(),
+      pauseCampaign: vi.fn(),
+      campaignPausedEventQuery: vi.fn(),
+      campaignUnpausedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runManageRewardCampaignWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth, undefined, {
+      campaignId: "14",
+      newMerkleRoot: "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    });
+
+    expect(campaignMerkleRootUpdatedEventQuery).not.toHaveBeenCalled();
+    expect(result.merkleRootUpdate.txHash).toBeNull();
+    expect(result.merkleRootUpdate.eventCount).toBe(0);
+    expect(result.pauseState.source).toBe("not-requested");
+  });
+
+  it("preserves the prior pause state when the pause write has no receipt", async () => {
+    const campaignPausedEventQuery = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0xabababababababababababababababababababababababababababababababab", paused: false },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0xabababababababababababababababababababababababababababababababab", paused: true },
+        }),
+      pauseCampaign: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xpause-write" } }),
+      campaignPausedEventQuery,
+      setMerkleRoot: vi.fn(),
+      campaignMerkleRootUpdatedEventQuery: vi.fn(),
+      unpauseCampaign: vi.fn(),
+      campaignUnpausedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runManageRewardCampaignWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      campaignId: "15",
+      paused: true,
+    });
+
+    expect(campaignPausedEventQuery).not.toHaveBeenCalled();
+    expect(result.pauseState.txHash).toBeNull();
+    expect(result.pauseState.eventCount).toBe(0);
+    expect(result.pauseState.source).toBe("paused");
+  });
+
   it("rejects requests that omit both mutable campaign fields", () => {
     expect(() => manageRewardCampaignSchema.parse({
       campaignId: "13",

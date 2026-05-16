@@ -13,7 +13,10 @@ vi.mock("./wait-for-write.js", () => ({
   waitForWorkflowWriteReceipt: mocks.waitForWorkflowWriteReceipt,
 }));
 
-import { runCreateBeneficiaryVestingWorkflow } from "./create-beneficiary-vesting.js";
+import {
+  createBeneficiaryVestingSchema,
+  runCreateBeneficiaryVestingWorkflow,
+} from "./create-beneficiary-vesting.js";
 
 describe("runCreateBeneficiaryVestingWorkflow", () => {
   const auth = {
@@ -193,6 +196,81 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
     expect(result.create.txHash).toBe("0xcex-receipt");
   });
 
+  it("uses the dev-fund path and tolerates missing write receipts or emitted events", async () => {
+    const createDevFundVesting = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xdev" } });
+    const vestingScheduleCreatedEventQuery = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: false })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "4000", revoked: false } }),
+      getVestingDetails: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "4000", revoked: false } }),
+      getVestingReleasableAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      getVestingTotalAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "4000", totalReleased: "0", releasable: "0" } }),
+      createDevFundVesting,
+      vestingScheduleCreatedEventQuery,
+      createCexVesting: vi.fn(),
+      createFounderVesting: vi.fn(),
+      createPublicVesting: vi.fn(),
+      createTeamVesting: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    const result = await runCreateBeneficiaryVestingWorkflow({} as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000de",
+      amount: "4000",
+      scheduleKind: "dev-fund",
+    });
+
+    expect(createDevFundVesting).toHaveBeenCalledOnce();
+    expect(vestingScheduleCreatedEventQuery).not.toHaveBeenCalled();
+    expect(result.create.txHash).toBeNull();
+    expect(result.create.eventCount).toBe(0);
+  });
+
+  it("uses the public vesting path", async () => {
+    const createPublicVesting = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xpublic" } });
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: false })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "5000", revoked: false } }),
+      getVestingDetails: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalAmount: "5000", revoked: false } }),
+      getVestingReleasableAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      getVestingTotalAmount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "5000", totalReleased: "0", releasable: "0" } }),
+      createPublicVesting,
+      vestingScheduleCreatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xpublic-receipt" }]),
+      createCexVesting: vi.fn(),
+      createDevFundVesting: vi.fn(),
+      createFounderVesting: vi.fn(),
+      createTeamVesting: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xpublic-receipt");
+
+    const result = await runCreateBeneficiaryVestingWorkflow({
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 804 })) })),
+      },
+    } as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000df",
+      amount: "5000",
+      scheduleKind: "public",
+    });
+
+    expect(createPublicVesting).toHaveBeenCalledOnce();
+    expect(result.create.scheduleKind).toBe("public");
+  });
+
   it("normalizes vesting-manager authority failures into a workflow state block", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
       hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
@@ -216,6 +294,14 @@ describe("runCreateBeneficiaryVestingWorkflow", () => {
       statusCode: 409,
       message: expect.stringContaining("VESTING_MANAGER_ROLE"),
     });
+  });
+
+  it("rejects team schedules that omit the required vestingType", () => {
+    expect(() => createBeneficiaryVestingSchema.parse({
+      beneficiary: "0x00000000000000000000000000000000000000ee",
+      amount: "1000",
+      scheduleKind: "team",
+    })).toThrow("create-beneficiary-vesting expected vestingType for team schedules");
   });
 
   it("uses the public create path and skips receipt/event inspection when no tx hash is confirmed", async () => {

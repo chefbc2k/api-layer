@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.143] - 2026-05-16
+
+### Fixed
+- **Commercialization, Vesting, And Reward-Campaign Cold Paths Are Now Explicitly Covered:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/commercialize-voice-asset.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/commercialize-voice-asset.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.test.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts) to prove schema-level guardrails, buyer-wallet fallback behavior, unknown withdrawal-key rejection, the remaining vesting schedule-kind branches, and receiptless write branches that should skip event queries without crashing.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Workflow Regression Suites Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/commercialize-voice-asset.test.ts packages/api/src/workflows/create-beneficiary-vesting.test.ts packages/api/src/workflows/manage-reward-campaign.test.ts --maxWorkers 1`; all `27/27` assertions passed after the new cold-path cases landed.
+- **Repo Coverage Sweep Stayed Green And Improved Again:** Re-ran `pnpm run test:coverage`; the suite remains green at `126` passing files, `902` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.84% / 93.04% / 99.51% / 98.84%` to `98.88% / 93.13% / 99.51% / 98.88%` for statements/branches/functions/lines, while [`/Users/chef/Public/api-layer/packages/api/src/workflows/commercialize-voice-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/commercialize-voice-asset.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/create-beneficiary-vesting.ts) now both report `100%` across statements, functions, and lines, with `create-beneficiary-vesting.ts` also reaching `100%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
 ## [0.1.142] - 2026-05-16
 
 ### Fixed

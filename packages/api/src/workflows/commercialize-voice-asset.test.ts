@@ -41,7 +41,10 @@ vi.mock("./withdraw-marketplace-payments.js", async () => {
   };
 });
 
-import { runCommercializeVoiceAssetWorkflow } from "./commercialize-voice-asset.js";
+import {
+  commercializeVoiceAssetWorkflowSchema,
+  runCommercializeVoiceAssetWorkflow,
+} from "./commercialize-voice-asset.js";
 
 describe("runCommercializeVoiceAssetWorkflow", () => {
   const context = {
@@ -215,6 +218,105 @@ describe("runCommercializeVoiceAssetWorkflow", () => {
     expect(result.summary.buyerFundingPrecondition).toBe("externally-managed-usdc-precondition");
   });
 
+  it("falls back to the requested buyer wallet when the child purchase summary omits it", async () => {
+    mocks.runPurchaseMarketplaceAssetWorkflow.mockResolvedValueOnce({
+      preflight: {
+        buyer: "0x00000000000000000000000000000000000000bc",
+        buyerFunding: {
+          source: "externally-managed-usdc-precondition",
+          paymentToken: "0xtoken",
+          allowanceRead: null,
+          balanceRead: null,
+        },
+      },
+      purchase: {
+        submission: { txHash: "0xpurchase" },
+        txHash: "0xpurchase",
+        listingAfter: { tokenId: "11", isActive: false },
+        ownerAfter: "0x00000000000000000000000000000000000000bc",
+        escrowAfter: { inEscrow: false },
+        eventCount: { assetPurchased: 1, paymentDistributed: 2, assetReleased: 1 },
+      },
+      settlement: {
+        pendingBefore: { seller: "0", treasury: "0", devFund: "0", unionTreasury: "0" },
+        pendingAfter: { seller: "915000", treasury: "50000", devFund: "25000", unionTreasury: "10000" },
+      },
+      summary: {
+        tokenId: "11",
+        buyer: null,
+        seller: "0x00000000000000000000000000000000000000aa",
+        listingActiveAfter: false,
+        fundingInspection: "external-usdc-precondition",
+      },
+    });
+
+    const result = await runCommercializeVoiceAssetWorkflow(context, auth, undefined, {
+      packaging: {
+        title: "Pack",
+        assetIds: ["1"],
+        metadataURI: "ipfs://pack",
+        royaltyBps: "250",
+        price: "1000",
+        duration: "86400",
+      },
+      purchase: {
+        apiKey: "buyer-key",
+        walletAddress: "0x00000000000000000000000000000000000000bc",
+      },
+    });
+
+    expect(result.summary.purchaseBuyer).toBe("0x00000000000000000000000000000000000000bc");
+  });
+
+  it("keeps the purchase buyer summary null when neither the child workflow nor request supplies one", async () => {
+    mocks.runPurchaseMarketplaceAssetWorkflow.mockResolvedValueOnce({
+      preflight: {
+        buyer: "0x00000000000000000000000000000000000000bd",
+        buyerFunding: {
+          source: "externally-managed-usdc-precondition",
+          paymentToken: "0xtoken",
+          allowanceRead: null,
+          balanceRead: null,
+        },
+      },
+      purchase: {
+        submission: { txHash: "0xpurchase" },
+        txHash: "0xpurchase",
+        listingAfter: { tokenId: "11", isActive: false },
+        ownerAfter: "0x00000000000000000000000000000000000000bd",
+        escrowAfter: { inEscrow: false },
+        eventCount: { assetPurchased: 1, paymentDistributed: 2, assetReleased: 1 },
+      },
+      settlement: {
+        pendingBefore: { seller: "0", treasury: "0", devFund: "0", unionTreasury: "0" },
+        pendingAfter: { seller: "915000", treasury: "50000", devFund: "25000", unionTreasury: "10000" },
+      },
+      summary: {
+        tokenId: "11",
+        buyer: null,
+        seller: "0x00000000000000000000000000000000000000aa",
+        listingActiveAfter: false,
+        fundingInspection: "external-usdc-precondition",
+      },
+    });
+
+    const result = await runCommercializeVoiceAssetWorkflow(context, auth, undefined, {
+      packaging: {
+        title: "Pack",
+        assetIds: ["1"],
+        metadataURI: "ipfs://pack",
+        royaltyBps: "250",
+        price: "1000",
+        duration: "86400",
+      },
+      purchase: {
+        apiKey: "buyer-key",
+      },
+    });
+
+    expect(result.summary.purchaseBuyer).toBeNull();
+  });
+
   it("runs packaging plus listing plus purchase plus withdrawal", async () => {
     const result = await runCommercializeVoiceAssetWorkflow(context, auth, undefined, {
       packaging: {
@@ -339,5 +441,42 @@ describe("runCommercializeVoiceAssetWorkflow", () => {
         },
       }),
     ).rejects.toThrow("unknown purchase apiKey");
+  });
+
+  it("rejects unknown withdrawal api keys", async () => {
+    await expect(
+      runCommercializeVoiceAssetWorkflow(context, auth, undefined, {
+        packaging: {
+          title: "Pack",
+          assetIds: ["1"],
+          metadataURI: "ipfs://pack",
+          royaltyBps: "250",
+          price: "1000",
+          duration: "86400",
+        },
+        purchase: {
+          apiKey: "buyer-key",
+        },
+        withdrawal: {
+          apiKey: "missing-key",
+        },
+      }),
+    ).rejects.toThrow("unknown withdrawal apiKey");
+  });
+
+  it("rejects withdrawal requests that omit purchase in the schema", () => {
+    expect(() => commercializeVoiceAssetWorkflowSchema.parse({
+      packaging: {
+        title: "Pack",
+        assetIds: ["1"],
+        metadataURI: "ipfs://pack",
+        royaltyBps: "250",
+        price: "1000",
+        duration: "86400",
+      },
+      withdrawal: {
+        apiKey: "seller-key",
+      },
+    })).toThrow("withdrawal requires purchase in this commercialization flow");
   });
 });
