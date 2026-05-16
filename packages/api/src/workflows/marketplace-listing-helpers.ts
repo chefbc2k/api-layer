@@ -13,12 +13,17 @@ export async function readListingWithStabilization(
 ) {
   let lastRead: RouteResult | null = null;
   for (let attempt = 0; attempt < 20; attempt += 1) {
-    lastRead = await marketplace.getListing({
+    const read = await marketplace.getListing({
       auth,
       api: { executionSource: "live", gaslessMode: "none" },
       walletAddress,
       wireParams: [tokenId],
     });
+    if (!read) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      continue;
+    }
+    lastRead = read;
     const listing = asRecord(lastRead.body);
     if (listing?.tokenId === tokenId || typeof listing?.isActive === "boolean") {
       return lastRead;

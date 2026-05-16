@@ -105,4 +105,45 @@ describe("runCancelMarketplaceListingWorkflow", () => {
     }
   });
 
+  it("falls back to synthetic 500 listing reads when stabilization returns null before succeeding", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const getListing = vi.fn();
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      getListing.mockResolvedValueOnce(null);
+    }
+    getListing.mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "14", isActive: true } });
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      getListing.mockResolvedValueOnce(null);
+    }
+    getListing.mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "14", isActive: false } });
+    const listingCancelledEventQuery = vi.fn().mockResolvedValue([{ transactionHash: "0xcancel-fallback" }]);
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getListing,
+      cancelListing: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xcancel" } }),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      listingCancelledEventQuery,
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xcancel-fallback");
+
+    try {
+      const result = await runCancelMarketplaceListingWorkflow({
+        providerRouter: { withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1303 })) })) },
+      } as never, auth as never, undefined, {
+        tokenId: "14",
+      });
+
+      expect((result.listing.before as Record<string, unknown>).tokenId).toBe("14");
+      expect((result.listing.after as Record<string, unknown>).isActive).toBe(false);
+      expect(getListing).toHaveBeenCalledTimes(42);
+      expect(result.listing.eventCount).toBe(1);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
+
 });

@@ -632,4 +632,73 @@ describe("abi-codec", () => {
       nested: { flag: "not-bool" },
     })).toThrow("invalid response for objectTupleDecode(): Invalid input");
   });
+
+  it("handles tuple parameters and outputs without declared component metadata", () => {
+    const tupleParam = { type: "tuple" };
+    const tupleArrayParam = { type: "tuple[]" };
+    const tupleOutputDefinition = {
+      signature: "tupleUnknown()",
+      outputs: [{ type: "tuple", components: [] }],
+    };
+    const objectShapedTupleOutputDefinition = {
+      signature: "tupleUnknownObject()",
+      outputs: [{ type: "tuple[]", components: [] }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => validateWireParams({
+      signature: "tupleUnknown(tuple)",
+      inputs: [tupleParam],
+    } as never, [[]])).not.toThrow();
+    expect(serializeToWire(tupleParam as never, ["alpha", true])).toEqual([]);
+    expect(serializeToWire(tupleParam as never, { anything: "goes" })).toEqual({});
+    expect(decodeFromWire(tupleParam as never, ["alpha", true])).toEqual([]);
+    expect(decodeFromWire(tupleParam as never, { anything: "goes" })).toEqual({});
+    expect(decodeResultFromWire(tupleOutputDefinition as never, { extra: "value" })).toEqual({});
+    expect(() => serializeResultToWire(objectShapedTupleOutputDefinition as never, "not-an-array")).toThrow(
+      "invalid result for tupleUnknownObject(): expected array value for tuple[]",
+    );
+    expect(serializeToWire(tupleArrayParam as never, [[1], [2]])).toEqual([[], []]);
+    expect(decodeFromWire(tupleArrayParam as never, [[1], [2]])).toEqual([[], []]);
+  });
+
+  it("normalizes unnamed tuple-object outputs and open-ended array types", () => {
+    const unnamedTupleObjectDefinition = {
+      signature: "unnamedTupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+    const nestedOpenArrayDefinition = {
+      signature: "nestedOpenArray()",
+      outputs: [{
+        type: "tuple[]",
+        components: [
+          { name: "count", type: "uint256[]" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(unnamedTupleObjectDefinition as never, ["7", false])).toEqual({
+      0: "7",
+      1: false,
+    });
+    expect(serializeResultToWire(unnamedTupleObjectDefinition as never, { 0: "9", 1: true })).toEqual({
+      0: "9",
+      1: true,
+    });
+    expect(serializeResultToWire(nestedOpenArrayDefinition as never, [
+      { count: ["1", "2"] },
+      { count: ["3"] },
+    ])).toEqual([
+      { count: ["1", "2"] },
+      { count: ["3"] },
+    ]);
+  });
 });

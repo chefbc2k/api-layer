@@ -150,4 +150,50 @@ describe("runUpdateMarketplaceListingPriceWorkflow", () => {
       setTimeoutSpy.mockRestore();
     }
   });
+
+  it("falls back to synthetic 500 listing reads when stabilization returns null before the price settles", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const getListing = vi.fn();
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      getListing.mockResolvedValueOnce(null);
+    }
+    getListing.mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "15", price: "1000", isActive: true } });
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      getListing.mockResolvedValueOnce(null);
+    }
+    getListing.mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "15", price: "1400", isActive: true } });
+    const marketplace = {
+      getListing,
+      updateListingPrice: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xupdate" } }),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      listingPriceUpdatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xupdate-fallback" }]),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xupdate-fallback");
+
+    try {
+      const result = await runUpdateMarketplaceListingPriceWorkflow({
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1203 })),
+          })),
+        },
+      } as never, auth as never, undefined, {
+        tokenId: "15",
+        newPrice: "1400",
+      });
+
+      expect((result.listing.before as Record<string, unknown>).price).toBe("1000");
+      expect((result.listing.after as Record<string, unknown>).price).toBe("1400");
+      expect(marketplace.getListing).toHaveBeenCalledTimes(42);
+      expect(result.listing.eventCount).toBe(1);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
 });

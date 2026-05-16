@@ -74,6 +74,43 @@ describe("marketplace listing helpers", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("treats null listing reads as retryable and returns null when no stabilized read ever arrives", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const marketplace = {
+      getListing: vi.fn()
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "11", isActive: true } }),
+      getAssetState: vi.fn(),
+      getOriginalOwner: vi.fn(),
+      isInEscrow: vi.fn(),
+    };
+    const allNullMarketplace = {
+      getListing: vi.fn().mockResolvedValue(null),
+      getAssetState: vi.fn(),
+      getOriginalOwner: vi.fn(),
+      isInEscrow: vi.fn(),
+    };
+
+    try {
+      await expect(readListingWithStabilization(marketplace, { apiKey: "test-key" } as never, undefined, "11")).resolves.toEqual({
+        statusCode: 200,
+        body: { tokenId: "11", isActive: true },
+      });
+      await expect(readListingWithStabilization(allNullMarketplace, { apiKey: "test-key" } as never, undefined, "11")).resolves.toBeNull();
+
+      expect(marketplace.getListing).toHaveBeenCalledTimes(3);
+      expect(allNullMarketplace.getListing).toHaveBeenCalledTimes(20);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
+
   it("returns null for safe read failures", async () => {
     await expect(safeReadRoute(async () => {
       throw new Error("boom");
