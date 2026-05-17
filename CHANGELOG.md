@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.162] - 2026-05-17
+
+### Fixed
+- **Workflow Regression Coverage Expanded Around Delayed Readbacks And Standard Withdrawals:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.test.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.test.ts) to lock two previously unasserted lifecycle shapes: authorization readbacks that never converge after a successful role grant, and successful marketplace withdrawals that use the standard no-deadline path while still producing a confirmed receipt and withdrawal event. This hardens the workflow regression net without changing runtime behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Workflow Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/onboard-rights-holder.test.ts packages/api/src/workflows/withdraw-marketplace-payments.test.ts --maxWorkers 1`; all `10/10` assertions passed after the new regression cases landed.
+- **Full Standard Coverage Sweep Stayed Green:** Re-ran `pnpm run test:coverage`; the full sharded suite remains green at `99.30% / 95.22% / 99.59% / 99.34%` for statements/branches/functions/lines, matching the prior merged Istanbul totals while preserving the new workflow-specific regression coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Unmet At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage still remains below the automation target. The next branch-coverage pass should stay focused on [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), which remain the most visible branch hotspots in the merged report.
+
 ## [0.1.161] - 2026-05-17
 
 ### Fixed

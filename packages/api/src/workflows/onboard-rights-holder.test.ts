@@ -244,4 +244,50 @@ describe("runOnboardRightsHolderWorkflow", () => {
     expect(access.hasRole).toHaveBeenCalledTimes(20);
     setTimeoutSpy.mockRestore();
   });
+
+  it("throws when an authorization readback never stabilizes", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const access = {
+      grantRole: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xrole", result: true },
+      }),
+      hasRole: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: true,
+      }),
+    };
+    const voiceAssets = {
+      authorizeUser: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xauth" },
+      }),
+      isAuthorized: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: false,
+      }),
+    };
+    mocks.createAccessControlPrimitiveService.mockReturnValue(access);
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(voiceAssets);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreceipt-role")
+      .mockResolvedValueOnce("0xreceipt-auth");
+
+    await expect(runOnboardRightsHolderWorkflow(context, auth, undefined, {
+      role: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      account: "0x00000000000000000000000000000000000000ee",
+      expiryTime: "30",
+      voiceHashes: [
+        "0x4444444444444444444444444444444444444444444444444444444444444444",
+      ],
+    })).rejects.toThrow("onboardRightsHolder.isAuthorized.0x4444444444444444444444444444444444444444444444444444444444444444 readback timeout");
+    expect(access.hasRole).toHaveBeenCalledTimes(1);
+    expect(voiceAssets.isAuthorized).toHaveBeenCalledTimes(20);
+    setTimeoutSpy.mockRestore();
+  });
 });

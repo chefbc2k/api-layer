@@ -169,4 +169,69 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     });
     expect(marketplace.usdcpaymentWithdrawnEventQuery).not.toHaveBeenCalled();
   });
+
+  it("withdraws pending payments through the standard path when no deadline is provided", async () => {
+    const sequence: string[] = [];
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockImplementationOnce(async () => {
+          sequence.push("pending-before");
+          return { statusCode: 200, body: "25" };
+        })
+        .mockImplementationOnce(async () => {
+          sequence.push("pending-after");
+          return { statusCode: 200, body: "0" };
+        }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockImplementation(async () => {
+        sequence.push("withdraw-standard");
+        return { statusCode: 202, body: { txHash: "0xwithdraw-write" } };
+      }),
+      usdcpaymentWithdrawnEventQuery: vi.fn().mockImplementation(async () => {
+        sequence.push("withdraw-events");
+        return [{ transactionHash: "0xwithdraw-receipt" }];
+      }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockImplementationOnce(async () => {
+      sequence.push("wait-withdraw");
+      return "0xwithdraw-receipt";
+    });
+
+    const result = await runWithdrawMarketplacePaymentsWorkflow({
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => {
+          sequence.push(`receipt:${label}`);
+          return work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1901 })) });
+        }),
+      },
+    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
+
+    expect(sequence).toEqual([
+      "pending-before",
+      "withdraw-standard",
+      "wait-withdraw",
+      "receipt:workflow.withdrawMarketplacePayments.withdrawal.receipt",
+      "pending-after",
+      "withdraw-events",
+    ]);
+    expect(result.withdrawal).toEqual({
+      mode: "standard",
+      submission: { txHash: "0xwithdraw-write" },
+      txHash: "0xwithdraw-receipt",
+      pendingAfter: "0",
+      eventCount: 1,
+      deadline: null,
+    });
+    expect(result.summary).toEqual({
+      payee: "0x00000000000000000000000000000000000000aa",
+      clearedPending: true,
+      deadline: null,
+    });
+  });
 });
