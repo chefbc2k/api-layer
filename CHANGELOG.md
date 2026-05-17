@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.158] - 2026-05-17
+
+### Fixed
+- **Standard Coverage No Longer Pulls The Skipped Live Contract Suite Into Non-Workflow Shards:** Updated [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) so `discoverCoverageShards` now excludes `*.contract-integration.test.ts` from the standard Istanbul sweep. The only matching file, [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts), is a live Base Sepolia proof suite that is intentionally disabled under `API_LAYER_RUN_CONTRACT_INTEGRATION=0`; keeping it out of the non-workflow shard removes the Vitest worker RPC timeout path without weakening live-proof coverage.
+- **Coverage Runner Regression Tests Now Lock The Exclusion Rule:** Expanded [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) to prove that live contract-integration suites are omitted from standard coverage shard discovery and that the remaining shard layout stays deterministic.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Coverage Runner Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/run-test-coverage.test.ts --maxWorkers 1`; all `9/9` assertions passed after the contract-integration exclusion guard landed.
+- **Standard Coverage Command Returned Green Again:** Re-ran `pnpm run test:coverage`; the sharded suite now exits `0` without the `non-workflow-02` Vitest worker `fetch("/@vite/env","ssr")` timeout and emits the merged Istanbul report at `89.17% / 81.76% / 89.78% / 89.62%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Unmet And Workflow Attribution Gaps Remain The Main Target:** API surface coverage, wrapper coverage, and live proof baselines remain complete, but repo-wide standard coverage is still below the automation target. The lowest merged-workflow attribution remains concentrated in [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts). The next pass should recover real branch/statement coverage there now that the standard runner is stable again.
+
 ## [0.1.157] - 2026-05-17
 
 ### Fixed

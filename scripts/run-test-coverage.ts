@@ -37,6 +37,10 @@ export type CoverageShard = {
   files: string[];
 };
 
+const excludedCoverageTestPatterns = [
+  ".contract-integration.test.ts",
+] as const;
+
 export type CoverageRuntimeDeps = {
   env?: NodeJS.ProcessEnv;
   mkdirFn?: typeof mkdir;
@@ -122,6 +126,10 @@ async function collectTestFiles(
   return files;
 }
 
+function shouldExcludeFromCoverage(file: string): boolean {
+  return excludedCoverageTestPatterns.some((pattern) => file.endsWith(pattern));
+}
+
 export async function discoverCoverageShards(
   readdirFn: typeof readdir = readdir,
 ): Promise<CoverageShard[]> {
@@ -135,7 +143,10 @@ export async function discoverCoverageShards(
       }
       throw error;
     }
-  }))).flat().sort((left, right) => left.localeCompare(right));
+  })))
+    .flat()
+    .filter((file) => !shouldExcludeFromCoverage(file))
+    .sort((left, right) => left.localeCompare(right));
 
   const workflowUnit = discovered.filter((file) => file.includes("packages/api/src/workflows/") && !file.includes(".integration."));
   const workflowIntegration = discovered.filter((file) => file.includes("packages/api/src/workflows/") && file.includes(".integration."));

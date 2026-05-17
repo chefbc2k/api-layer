@@ -287,7 +287,11 @@ describe("run-test-coverage helpers", () => {
           return [{ name: "src", isDirectory: () => true }] as any;
         }
         if (target.endsWith("/packages/api/src")) {
-          return [{ name: "workflows", isDirectory: () => true }, { name: "shared", isDirectory: () => true }] as any;
+          return [
+            { name: "workflows", isDirectory: () => true },
+            { name: "shared", isDirectory: () => true },
+            { name: "app.contract-integration.test.ts", isDirectory: () => false },
+          ] as any;
         }
         if (target.endsWith("/packages/api/src/workflows")) {
           return [
@@ -313,6 +317,32 @@ describe("run-test-coverage helpers", () => {
       { name: "non-workflow-01", files: ["packages/api/src/shared/delta.test.ts"] },
       { name: "non-workflow-02", files: ["packages/api/src/shared/epsilon.test.ts"] },
       { name: "non-workflow-03", files: ["packages/api/src/shared/zeta.test.ts"] },
+    ]);
+  });
+
+  it("excludes live contract-integration suites from the standard coverage sweep", async () => {
+    const readdirFn = vi.fn()
+      .mockImplementation(async (target: string) => {
+        if (target.endsWith("/packages")) {
+          return [{ name: "api", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api")) {
+          return [
+            { name: "src", isDirectory: () => true },
+            { name: "app.contract-integration.test.ts", isDirectory: () => false },
+          ] as any;
+        }
+        if (target.endsWith("/packages/api/src")) {
+          return [{ name: "shared", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api/src/shared")) {
+          return [{ name: "delta.test.ts", isDirectory: () => false }] as any;
+        }
+        throw Object.assign(new Error("missing"), { code: "ENOENT" });
+      }) as any;
+
+    await expect(discoverCoverageShards(readdirFn)).resolves.toEqual([
+      { name: "non-workflow-01", files: ["packages/api/src/shared/delta.test.ts"] },
     ]);
   });
 });
