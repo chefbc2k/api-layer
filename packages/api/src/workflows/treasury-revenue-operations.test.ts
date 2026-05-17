@@ -242,6 +242,77 @@ describe("runTreasuryRevenueOperationsWorkflow", () => {
     });
   });
 
+  it("runs only the pre-sweep posture inspection when payouts are omitted", async () => {
+    const result = await runTreasuryRevenueOperationsWorkflow(context, auth, undefined, {
+      posture: {
+        includeTreasuryControls: true,
+      },
+    });
+
+    expect(mocks.runInspectRevenuePostureWorkflow).toHaveBeenCalledTimes(1);
+    expect(mocks.runInspectRevenuePostureWorkflow).toHaveBeenCalledWith(
+      context,
+      auth,
+      undefined,
+      { includeTreasuryControls: true },
+    );
+    expect(result.posture.after).toEqual({
+      status: "not-requested",
+      result: null,
+      block: null,
+    });
+    expect(result.summary).toEqual({
+      story: "treasury revenue operations",
+      sweepCount: 0,
+      completedSweepCount: 0,
+      blockedSteps: [],
+      externalPreconditions: [],
+      paymentToken: "0x00000000000000000000000000000000000000cc",
+    });
+  });
+
+  it("falls back to the pre-sweep payment token when the after-posture check is blocked", async () => {
+    mocks.runInspectRevenuePostureWorkflow
+      .mockResolvedValueOnce({
+        funding: { paymentToken: "0x00000000000000000000000000000000000000dd", paymentPaused: false },
+        revenue: { metrics: { totalVolume: "100" }, assetRevenues: [] },
+        pending: { snapshot: { treasury: "3", devFund: "4", unionTreasury: "5" }, additionalPayees: [] },
+        treasuryControls: null,
+        summary: { includeTreasuryControls: false },
+      })
+      .mockRejectedValueOnce(new HttpError(409, "inspect-revenue-posture payment readback is settling"));
+
+    const result = await runTreasuryRevenueOperationsWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      payouts: {
+        sweeps: [{ label: "seller" }],
+      },
+    });
+
+    expect(result.posture.before).toMatchObject({
+      status: "completed",
+      result: {
+        funding: { paymentToken: "0x00000000000000000000000000000000000000dd" },
+      },
+    });
+    expect(result.posture.after).toEqual({
+      status: "blocked-by-external-precondition",
+      result: null,
+      block: {
+        statusCode: 409,
+        message: "inspect-revenue-posture payment readback is settling",
+        diagnostics: undefined,
+      },
+    });
+    expect(result.summary.paymentToken).toBe("0x00000000000000000000000000000000000000dd");
+    expect(result.summary.blockedSteps).toEqual(["posture.postureAfter"]);
+    expect(result.summary.externalPreconditions).toEqual([
+      {
+        step: "posture.postureAfter",
+        message: "inspect-revenue-posture payment readback is settling",
+      },
+    ]);
+  });
+
   it("propagates non-state child workflow failures", async () => {
     mocks.runInspectRevenuePostureWorkflow.mockRejectedValueOnce(new Error("posture exploded"));
 

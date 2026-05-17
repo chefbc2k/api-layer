@@ -84,4 +84,70 @@ describe("runInspectRevenuePostureWorkflow", () => {
     expect(result.treasuryControls).toBeNull();
     expect(result.summary.includeTreasuryControls).toBe(false);
   });
+
+  it("normalizes and deduplicates additional payees while preserving null pending readbacks", async () => {
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000Cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: "not-a-boolean" }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: null }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000EE" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000FF" }),
+      getRevenueMetrics: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalVolume: "25" } }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "9" })
+        .mockResolvedValueOnce({ statusCode: 200, body: 11n })
+        .mockResolvedValueOnce({ statusCode: 200, body: { unexpected: true } }),
+      getAssetRevenue: vi.fn().mockResolvedValue({ statusCode: 200, body: { grossRevenue: "6" } }),
+      getTreasuryWithdrawalLimit: vi.fn(),
+      getBuybackStatus: vi.fn(),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+
+    const result = await runInspectRevenuePostureWorkflow(context, auth, "0x0000000000000000000000000000000000000abc", {
+      assetTokenIds: ["77"],
+      additionalPayees: [
+        "0x0000000000000000000000000000000000000011",
+        "0x0000000000000000000000000000000000000011",
+        "0x0000000000000000000000000000000000000011".toUpperCase(),
+      ],
+    });
+
+    expect(result.funding).toEqual({
+      paymentToken: "0x00000000000000000000000000000000000000cc",
+      marketplacePaused: true,
+      paymentPaused: null,
+      treasury: null,
+      devFund: "0x00000000000000000000000000000000000000ee",
+      unionTreasury: "0x00000000000000000000000000000000000000ff",
+    });
+    expect(result.revenue.assetRevenues).toEqual([
+      { tokenId: "77", revenue: { grossRevenue: "6" } },
+    ]);
+    expect(result.pending.snapshot).toEqual({
+      seller: null,
+      treasury: null,
+      devFund: "9",
+      unionTreasury: "11",
+      additional_0: null,
+    });
+    expect(result.pending.additionalPayees).toEqual([
+      { payee: "0x0000000000000000000000000000000000000011", pending: null },
+    ]);
+    expect(result.summary).toEqual({
+      assetCount: 1,
+      additionalPayeeCount: 3,
+      includeTreasuryControls: false,
+      paymentPaused: null,
+      marketplacePaused: true,
+    });
+    expect(marketplace.getTreasuryWithdrawalLimit).not.toHaveBeenCalled();
+    expect(marketplace.getBuybackStatus).not.toHaveBeenCalled();
+    expect(marketplace.getAssetRevenue).toHaveBeenCalledWith({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress: "0x0000000000000000000000000000000000000abc",
+      wireParams: ["77"],
+    });
+  });
 });

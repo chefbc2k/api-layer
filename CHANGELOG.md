@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.156] - 2026-05-17
+
+### Fixed
+- **Revenue Workflow Regression Coverage Expanded Without Runtime Changes:** Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.test.ts) to prove mixed-case payee normalization, duplicate additional-payee collapse, null/non-boolean marketplace readbacks, omitted treasury-control queries, and explicit asset-revenue request wiring. Extended [`/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.test.ts) to prove the posture-only path and the payment-token fallback path when the post-sweep posture readback is blocked by a `409` external precondition.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Revenue Workflow Slices Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/inspect-revenue-posture.test.ts packages/api/src/workflows/treasury-revenue-operations.test.ts --maxWorkers 1`; all `12/12` targeted assertions passed after the new regression cases landed.
+- **Repo-Wide Standard Coverage Increased Materially:** Re-ran `pnpm run test:coverage`; the aggregate Istanbul report improved from `84.97% / 76.53% / 87.10% / 85.12%` to `89.17% / 81.76% / 89.78% / 89.29%` for statements/branches/functions/lines while keeping the repo green at `394` passing tests, `18` intentionally skipped live contract-integration proofs, and exit status `0`.
+
+### Remaining Issues
+- **The Revenue Workflow Files Still Report Anomalously Low Per-File Coverage In The Merged Artifact:** Despite the direct workflow tests executing successfully in isolation and in the repo-wide sweep, [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts) and [`/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts) still show `8.82% / 0% / 0% / 10.71%` and `11.42% / 0% / 0% / 11.76%` in the merged report. The next pass should inspect coverage path remapping or duplicate-module loading for these two workflows before treating their file-level numbers as authoritative.
+
 ## [0.1.155] - 2026-05-17
 
 ### Fixed
