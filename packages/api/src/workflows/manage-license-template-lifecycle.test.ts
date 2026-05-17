@@ -678,4 +678,52 @@ describe("runManageLicenseTemplateLifecycleWorkflow", () => {
       terms: { ...expectedTemplate.terms, maxUses: undefined },
     }, expectedTemplate)).toBe(false);
   });
+
+  it("falls back to the passed creator and current timestamp when current template metadata is malformed", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-09T08:05:00.000Z"));
+
+    const expectedTemplate = {
+      isActive: true,
+      transferable: true,
+      defaultDuration: "86400",
+      defaultPrice: "123",
+      maxUses: "3",
+      name: "Fallback Template",
+      description: "Fallback Template",
+      defaultRights: ["Podcast"],
+      defaultRestrictions: [],
+      terms: {
+        licenseHash: `0x${"0".repeat(64)}`,
+        duration: "86400",
+        price: "123",
+        maxUses: "3",
+        transferable: true,
+        rights: ["Podcast"],
+        restrictions: [],
+      },
+    };
+
+    expect(hydrateTemplateForWrite(
+      "0x00000000000000000000000000000000000000dd",
+      expectedTemplate,
+      {
+        creator: { nested: true },
+        createdAt: null,
+      },
+    )).toEqual({
+      creator: "0x00000000000000000000000000000000000000dd",
+      createdAt: String(Math.floor(new Date("2026-04-09T08:05:00.000Z").getTime() / 1000)),
+      updatedAt: String(Math.floor(new Date("2026-04-09T08:05:00.000Z").getTime() / 1000)),
+      ...expectedTemplate,
+    });
+  });
+
+  it("falls back to the zero address when resolved creator addresses are malformed", async () => {
+    await expect(resolveTemplateCreatorAddress(
+      context,
+      auth,
+      "not-an-address",
+    )).resolves.toBe("0x0000000000000000000000000000000000000000");
+  });
 });
