@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.149] - 2026-05-16
+
+### Fixed
+- **Governance Timelock Consequence Coverage Now Proves Null-Receipt, Inspect-Off, And Unknown-State Branches:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts) to prove queue and execute flows still converge when receipt-backed event evidence is unavailable, `consequence.inspect` is explicitly disabled, actor wallet overrides are preserved on queue submission, and queue/execute state blocks surface `proposalState=unknown` instead of leaking implicit defaults. The helper slice now also proves queued proposals with a non-ready/non-pending/non-executed timelock still fall back to the inspection-required phase. [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts) rose from `88.82%` to `95.88%` branch coverage without runtime behavior changes.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Governance Regressions Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/governance-timelock-consequence-flow.test.ts --maxWorkers 1` and `pnpm exec vitest run packages/api/src/workflows/governance-timelock-consequence-flow.integration.test.ts --maxWorkers 1`; the focused slices are green at `20/20` and `2/2` assertions after the new branch proofs landed.
+- **Full Coverage Sweep Improved Again:** Re-ran `pnpm run test:coverage`; the suite remains green at `126` passing files, `921` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.98% / 93.89% / 99.51% / 98.99%` to `98.98% / 94.17% / 99.51% / 98.99%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage still remains below the automation target. The clearest remaining branch hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts).
+
 ## [0.1.148] - 2026-05-16
 
 ### Fixed

@@ -272,6 +272,66 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     expect(result.summary.queued).toBe(true);
   });
 
+  it("queues without receipt-backed events when inspection is disabled", async () => {
+    const queueWallet = "0x00000000000000000000000000000000000000cc";
+    const service = {
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn(),
+      getTimestamp: vi.fn(),
+      isOperationPending: vi.fn(),
+      isOperationReady: vi.fn(),
+      isOperationExecuted: vi.fn(),
+      prQueue: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xqueue-write" } }),
+      prExecute: vi.fn(),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      proposalQueuedEventQuery: vi.fn(),
+      operationStoredEventQuery: vi.fn(),
+      operationScheduledEventQuery: vi.fn(),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+
+    const result = await runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "queue without receipt",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        inspect: false,
+        queue: {
+          apiKey: "queue-key",
+          walletAddress: queueWallet,
+        },
+      },
+    });
+
+    expect(service.prQueue).toHaveBeenCalledWith(expect.objectContaining({
+      auth: queueAuth,
+      walletAddress: queueWallet,
+    }));
+    expect(result.timelock.inspectRequested).toBe(false);
+    expect(result.timelock.inspection).toBeNull();
+    expect(result.timelock.queue).toEqual({
+      submission: { txHash: "0xqueue-write" },
+      txHash: null,
+      proposalStateAfterQueue: "5",
+      operationId: null,
+      eventCount: {
+        proposalQueued: 0,
+        operationStored: 0,
+        operationScheduled: 0,
+      },
+    });
+    expect(service.proposalQueuedEventQuery).not.toHaveBeenCalled();
+    expect(service.operationStoredEventQuery).not.toHaveBeenCalled();
+    expect(service.operationScheduledEventQuery).not.toHaveBeenCalled();
+  });
+
   it("derives the timelock operation id from scheduled events when stored events omit it", async () => {
     mocks.createGovernancePrimitiveService.mockReturnValueOnce({
       getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
@@ -285,7 +345,7 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
       prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
       proposalQueuedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", proposalId: "77" }] }),
       operationStoredEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", note: "missing id" }] }),
-      operationScheduledEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", operationId: "0x2222222222222222222222222222222222222222222222222222222222222222" }] }),
+      operationScheduledEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", id: "0x2222222222222222222222222222222222222222222222222222222222222222" }] }),
       proposalExecutedEventQuery: vi.fn(),
       operationExecutedBytes32EventQuery: vi.fn(),
     });
@@ -706,6 +766,102 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
       && error.message === "governance-timelock-consequence-flow execute blocked by insufficient authority");
   });
 
+  it("executes with a provided operation id even when no receipt-backed event evidence is available", async () => {
+    mocks.runGovernanceExecutionFlowWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: { snapshot: "120", proposalState: "5", deadline: "240" },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: "300",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: "5",
+      },
+      vote: null,
+      executionReadiness: {
+        proposalState: "5",
+        proposalStateLabel: "Queued",
+        deadline: "240",
+        currentBlock: "300",
+        votingClosed: true,
+        queueEligible: false,
+        executeEligible: true,
+        phase: "queued-ready-to-execute",
+        nextGovernanceStep: "execute-when-governance-operator-is-ready",
+        readinessBasis: "timelock-operation-derived",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        currentProposalState: "5",
+        currentProposalStateLabel: "Queued",
+        voteRequested: false,
+        voteCast: false,
+        queueEligible: false,
+        executeEligible: true,
+        nextGovernanceStep: "execute-when-governance-operator-is-ready",
+        voter: null,
+      },
+    });
+    const service = {
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn(),
+      getTimestamp: vi.fn(),
+      isOperationPending: vi.fn(),
+      isOperationReady: vi.fn(),
+      isOperationExecuted: vi.fn(),
+      prQueue: vi.fn(),
+      prExecute: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xexecute-write" } }),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "7" }),
+      proposalQueuedEventQuery: vi.fn(),
+      operationStoredEventQuery: vi.fn(),
+      operationScheduledEventQuery: vi.fn(),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+
+    const operationId = "0x3333333333333333333333333333333333333333333333333333333333333333";
+    const result = await runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "execute without receipt",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        inspect: false,
+        operationId,
+        execute: {
+          apiKey: "execute-key",
+        },
+      },
+    });
+
+    expect(result.timelock.inspectRequested).toBe(false);
+    expect(result.timelock.inspection).toBeNull();
+    expect(result.timelock.execute).toEqual({
+      submission: { txHash: "0xexecute-write" },
+      txHash: null,
+      proposalStateAfterExecute: "7",
+      operationId,
+      eventCount: {
+        proposalExecuted: 0,
+        operationExecuted: 0,
+      },
+    });
+    expect(service.proposalExecutedEventQuery).not.toHaveBeenCalled();
+    expect(service.operationExecutedBytes32EventQuery).not.toHaveBeenCalled();
+  });
+
   it("propagates child governance timing failures", async () => {
     mocks.runGovernanceExecutionFlowWorkflow.mockRejectedValueOnce(
       new HttpError(409, "governance-admin-flow vote blocked by timing: proposal 77 is not yet votable"),
@@ -798,6 +954,84 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
       },
     })).rejects.toThrow("unknown queue apiKey");
   });
+
+  it("surfaces unknown proposal-state labels in queue and execute state blocks", async () => {
+    const unknownStateGovernance = {
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: { snapshot: "120", proposalState: null, deadline: "240" },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: "200",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: null,
+      },
+      vote: null,
+      executionReadiness: {
+        proposalState: null,
+        proposalStateLabel: "Unknown",
+        deadline: "240",
+        currentBlock: "200",
+        votingClosed: false,
+        queueEligible: false,
+        executeEligible: false,
+        phase: "unknown",
+        nextGovernanceStep: "inspect-proposal-state",
+        readinessBasis: "proposal-state-derived",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        currentProposalState: null,
+        currentProposalStateLabel: "Unknown",
+        voteRequested: false,
+        voteCast: false,
+        queueEligible: false,
+        executeEligible: false,
+        nextGovernanceStep: "inspect-proposal-state",
+        voter: null,
+      },
+    };
+    mocks.runGovernanceExecutionFlowWorkflow
+      .mockResolvedValueOnce(unknownStateGovernance)
+      .mockResolvedValueOnce(unknownStateGovernance);
+
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "queue blocked by unknown state",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        queue: {
+          apiKey: "queue-key",
+        },
+      },
+    })).rejects.toThrow("proposalState=unknown");
+
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "execute blocked by unknown state",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        execute: {
+          apiKey: "execute-key",
+        },
+      },
+    })).rejects.toThrow("proposalState=unknown");
+  });
 });
 
 describe("governance timelock consequence helpers", () => {
@@ -864,6 +1098,17 @@ describe("governance timelock consequence helpers", () => {
       phase: "queued-waiting-for-timelock",
       nextGovernanceStep: "wait-for-timelock-delay",
       readinessBasis: "timelock-operation-derived",
+    });
+    expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("5", "240", "300", {
+      timestamp: "500",
+      pending: false,
+      ready: false,
+      executed: false,
+      operation: {},
+    })).toMatchObject({
+      phase: "queued-awaiting-operation-inspection",
+      executeEligible: false,
+      readinessBasis: "proposal-state-derived",
     });
     expect(governanceTimelockConsequenceTestUtils.deriveExecutionReadiness("4", "not-a-block", null, null)).toMatchObject({
       phase: "succeeded-awaiting-queue",
