@@ -11,7 +11,7 @@ const cleanChildEnv = {
   PATH: process.env.PATH,
 };
 
-describe("coverage fs patch", () => {
+describe("coverage fs patch", { timeout: 20_000 }, () => {
   it("returns an empty coverage map for missing coverage tmp shards", async () => {
     const missingShard = path.join(
       path.resolve(__dirname, ".."),

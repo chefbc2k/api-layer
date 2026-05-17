@@ -52,7 +52,7 @@ describe("run-test-coverage helpers", () => {
     );
   });
 
-  it("spawns the monolithic vitest coverage run and exits after success", async () => {
+  it("spawns the coverage shards, merges reports, and exits after success", async () => {
     const spawnFn = vi.fn().mockImplementation(() => {
       const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
       queueMicrotask(() => {
@@ -60,6 +60,69 @@ describe("run-test-coverage helpers", () => {
       });
       return child;
     });
+    const readdirFn = vi.fn()
+      .mockImplementation(async (target: string) => {
+        if (target.endsWith("/packages")) {
+          return [{ name: "api", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api")) {
+          return [{ name: "src", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api/src")) {
+          return [{ name: "workflows", isDirectory: () => true }, { name: "shared", isDirectory: () => true }] as any;
+        }
+        if (target.endsWith("/packages/api/src/workflows")) {
+          return [
+            { name: "alpha.test.ts", isDirectory: () => false },
+            { name: "beta.test.ts", isDirectory: () => false },
+          ] as any;
+        }
+        if (target.endsWith("/packages/api/src/shared")) {
+          return [{ name: "delta.test.ts", isDirectory: () => false }] as any;
+        }
+        if (target.endsWith("/scripts") || target.endsWith("/scenario-adapter")) {
+          throw Object.assign(new Error("missing"), { code: "ENOENT" });
+        }
+        if (target.endsWith("/.runtime/coverage-shards")) {
+          return ["workflow-unit-01", "workflow-unit-02", "non-workflow-01"] as any;
+        }
+        throw Object.assign(new Error(`unexpected path ${target}`), { code: "ENOENT" });
+      }) as any;
+    const readFileFn = vi.fn()
+      .mockResolvedValueOnce(JSON.stringify({
+        "/tmp/alpha.ts": {
+          path: "/tmp/alpha.ts",
+          statementMap: {},
+          fnMap: {},
+          branchMap: {},
+          s: {},
+          f: {},
+          b: {},
+        },
+      }))
+      .mockResolvedValueOnce(JSON.stringify({
+        "/tmp/beta.ts": {
+          path: "/tmp/beta.ts",
+          statementMap: {},
+          fnMap: {},
+          branchMap: {},
+          s: {},
+          f: {},
+          b: {},
+        },
+      }))
+      .mockResolvedValueOnce(JSON.stringify({
+        "/tmp/delta.ts": {
+          path: "/tmp/delta.ts",
+          statementMap: {},
+          fnMap: {},
+          branchMap: {},
+          s: {},
+          f: {},
+          b: {},
+        },
+      })) as any;
+    const writeFileFn = vi.fn().mockResolvedValue(undefined);
     const processExit = vi.fn((code?: number) => {
       throw new Error(`exit:${code}`);
     });
@@ -68,15 +131,24 @@ describe("run-test-coverage helpers", () => {
       env: { NODE_OPTIONS: "--inspect" },
       mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
       processExit: processExit as any,
+      readFileFn,
+      readdirFn,
       rmFn: vi.fn().mockResolvedValue(undefined) as any,
       spawnFn: spawnFn as any,
+      writeFileFn: writeFileFn as any,
     });
 
     await expect(runPromise).rejects.toThrow("exit:0");
 
     expect(spawnFn).toHaveBeenCalledWith(
       "pnpm",
-      [...coverageVitestArgs],
+      expect.arrayContaining([
+        ...coverageVitestArgs,
+        "--coverage.clean",
+        "false",
+        "--coverage.reporter",
+        "json",
+      ]),
       expect.objectContaining({
         stdio: "inherit",
         env: {
@@ -85,7 +157,11 @@ describe("run-test-coverage helpers", () => {
         },
       }),
     );
-    expect(spawnFn).toHaveBeenCalledTimes(1);
+    expect(spawnFn).toHaveBeenCalledTimes(3);
+    expect(writeFileFn).toHaveBeenCalledWith(
+      expect.stringMatching(/\/coverage\/coverage-final\.json$/),
+      expect.any(String),
+    );
 
   }, 20_000);
 

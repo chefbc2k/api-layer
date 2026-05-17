@@ -285,19 +285,26 @@ export async function runCoverage({
   env = process.env,
   mkdirFn = mkdir,
   processExit = process.exit,
+  readFileFn = readFile,
+  readdirFn = readdir,
   rmFn = rm,
   spawnFn = spawn,
+  writeFileFn = writeFile,
 }: CoverageRuntimeDeps = {}): Promise<void> {
   await resetCoverageDir(rmFn, mkdirFn);
   const coverageEnv = buildCoverageEnv(env);
+  let exitCode = 0;
   try {
-    await runCoverageMonolith(coverageEnv, spawnFn);
+    const shards = await discoverCoverageShards(readdirFn);
+    for (const shard of shards) {
+      await runCoverageShard(shard, coverageEnv, spawnFn);
+    }
+    await mergeCoverageReports(shards, readFileFn, readdirFn, writeFileFn);
   } catch (error) {
     console.error(error);
-    processExit(1);
-    return;
+    exitCode = 1;
   }
-  processExit(0);
+  processExit(exitCode);
 }
 
 export async function main(): Promise<void> {

@@ -2,6 +2,23 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.155] - 2026-05-17
+
+### Fixed
+- **Full Coverage Runs No Longer Die On Vitest Worker RPC Timeouts:** Updated [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) to stop relying on the monolithic coverage pass that was exiting non-zero with `Timeout calling "onAfterSuiteRun"` / `Timeout calling "onTaskUpdate"` after all tests had already passed. The runner now uses the existing deterministic shard planner again, executes the workflow-heavy suites in separate coverage passes, and merges the emitted shard artifacts back into a repo-level report.
+- **Coverage Runner Regression Guards Now Prove The Sharded Path Again:** Expanded [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) so the runner contract now explicitly proves shard discovery, per-shard `pnpm exec vitest` spawning, and repo-level `coverage-final.json` emission instead of only asserting the monolithic path.
+- **Coverage FS Patch Harness Is No Longer Flaky Under Full Repo Runs:** Updated [`/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts`](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts) with an explicit `20_000ms` suite timeout so the child-process filesystem assertions no longer spuriously fail the green check under the repo-wide Vitest run while still preserving the same behavior assertions.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **Base Sepolia Setup Stayed Ready:** Re-ran `pnpm run setup:base-sepolia`; the live setup artifact remains `status: "ready"` with no blockers, governance still `status: "ready"`, buyer USDC balance/allowance at `1000 / 1000`, and aged marketplace fixture token `162` still `purchase-ready` with active listing readback `{ tokenId: "162", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1779155996", createdBlock: "41433757", expiresAt: "1781747996", isActive: true }`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Full Repo Test Suite Returned Green Again:** Re-ran `pnpm test`; the repo now completes cleanly at `126` passing files, `934` passing tests, and `18` intentionally skipped live contract-integration proofs.
+- **Standard Coverage Command Returned Green Again:** Re-ran `pnpm run test:coverage`; the recovered runner now exits `0` after `934` passing tests and `18` skipped live contract proofs, and it emits a deterministic aggregate Istanbul report at `89.17% / 81.76% / 89.78% / 89.29%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met And The Recovered Aggregate Is Lower Than The Prior Monolith Reading:** The repo-level standard coverage command is green again, but the recovered sharded aggregate remains well below the automation target and below the earlier monolithic report. During this run, [`/Users/chef/Public/api-layer/.runtime/coverage-shards/workflow-unit-01`](/Users/chef/Public/api-layer/.runtime/coverage-shards/workflow-unit-01) emitted only raw `.tmp/coverage-*.json` fragments while the other shards emitted `coverage-final.json`, so the next pass should focus on reconciling shard artifact consistency before treating the new aggregate as the final branch/line baseline.
+
 ## [0.1.153] - 2026-05-17
 
 ### Fixed
