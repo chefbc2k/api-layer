@@ -817,6 +817,26 @@ describe("executeHttpMethodDefinition", () => {
     ).rejects.toThrow("write method VoiceAssetFacet.setApprovalForAll requires signerFactory");
   });
 
+  it("uses the provider runner for preview-only writes when neither signer nor wallet context is available", async () => {
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockResolvedValueOnce([true]);
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", allowGasless: true, roles: ["service"] },
+          api: { gaslessMode: "signature", executionSource: "auto" },
+          walletAddress: undefined,
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toThrow("write method VoiceAssetFacet.setApprovalForAll requires signerFactory");
+
+    expect(mocked.contractStaticCall).toHaveBeenCalledWith("0x0000000000000000000000000000000000000001", true);
+  });
+
   it("wraps missing signer-key preview failures with null write diagnostics", async () => {
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
 
@@ -918,6 +938,48 @@ describe("executeHttpMethodDefinition", () => {
     }));
   });
 
+  it("returns null request ids for cdp smart-wallet submissions when persistence is skipped", async () => {
+    const context = buildContext({
+      txStore: {
+        insert: vi.fn().mockResolvedValue(null),
+        update: vi.fn().mockResolvedValue(undefined),
+        get: vi.fn().mockResolvedValue(null),
+      },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.submitSmartWalletCall.mockResolvedValueOnce({
+      userOperationHash: "0xuserop",
+      status: "submitted",
+    });
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    process.env.API_LAYER_GASLESS_ALLOWLIST = "VoiceAssetFacet.setApprovalForAll";
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition({
+          outputs: [],
+        }) as never,
+        buildRequest({
+          api: { gaslessMode: "cdpSmartWallet", executionSource: "auto" },
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: null,
+        relay: {
+          userOperationHash: "0xuserop",
+          status: "submitted",
+        },
+        result: null,
+      },
+    });
+
+    expect(context.txStore.update).not.toHaveBeenCalled();
+  });
+
   it("falls back to the canonical ABI signature when the manifest signature is rejected", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce([
@@ -1007,6 +1069,37 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.txStore.update).toHaveBeenCalledWith("req-1", expect.objectContaining({
       status: "submitted",
       txHash: "0xsubmitted",
+    }));
+  });
+
+  it("preserves submissions that return no transaction hash", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    mocked.walletSendTransaction.mockResolvedValueOnce({ status: "pending" });
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: undefined,
+        result: false,
+      },
+    });
+
+    expect(context.txStore.update).toHaveBeenCalledWith("req-1", expect.objectContaining({
+      status: "submitted",
+      txHash: undefined,
+      responsePayload: { request: expect.any(Object), status: "pending" },
     }));
   });
 
@@ -1134,6 +1227,31 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.signerNonces.get("founder:primary")).toBe(7);
   });
 
+  it("surfaces primitive nonce-expired failures after all retries are exhausted", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.walletSendTransaction
+      .mockRejectedValueOnce("nonce expired")
+      .mockRejectedValueOnce("replacement fee too low")
+      .mockRejectedValueOnce("already known");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "already known",
+      diagnostics: expect.objectContaining({
+        cause: "already known",
+      }),
+    });
+  });
+
   it("wraps non-nonce submission failures with failure diagnostics and simulation output", async () => {
     const context = buildContext({
       config: {
@@ -1170,6 +1288,29 @@ describe("executeHttpMethodDefinition", () => {
         simulation: { topLevelCall: { gasUsed: "123" } },
         trace: { status: "failed", reason: "execution reverted" },
         actors: [{ address: "wallet:0xabc", nonce: "4" }],
+      }),
+    });
+  });
+
+  it("wraps primitive submission failures without simulation payloads", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.walletSendTransaction.mockRejectedValueOnce("plain failure");
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "plain failure",
+      diagnostics: expect.objectContaining({
+        cause: "plain failure",
+        trace: { status: "disabled" },
       }),
     });
   });

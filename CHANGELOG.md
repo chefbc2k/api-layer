@@ -16,6 +16,20 @@
 ### Remaining Issues
 - **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage still remains below the automation target. The full `pnpm run test:coverage` sweep progressed past the prior `onboard-rights-holder` timeout and completed the test-file execution phase, but the monolithic coverage wrapper did not emit a final repo summary before stalling, so the next pass should focus on the coverage runner/reporting path or on the remaining low-branch hotspots once the final aggregate report is deterministic again.
 
+## [0.1.154] - 2026-05-17
+
+### Fixed
+- **Execution Context Failure-Path Coverage Expanded Without Runtime Changes:** Extended [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) to prove preview-only write execution can fall back to the provider runner when no signer or wallet context exists, smart-wallet relays preserve `null` request IDs when persistence is skipped, direct writes preserve hashless submission responses, primitive nonce-expired retry failures surface the final cause, and primitive non-nonce submission failures retain failure diagnostics without synthetic simulation payloads.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Execution Context Coverage Improved Materially:** Re-ran `pnpm exec vitest run packages/api/src/shared/execution-context.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/api/src/shared/execution-context.ts' --maxWorkers 1`; all `42/42` assertions passed and the focused file improved from `98.93% / 89.72% / 97.72% / 99.44%` to `98.93% / 94.59% / 97.72% / 99.44%` for statements/branches/functions/lines.
+- **Focused ABI Codec Coverage Stayed Stable:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/client/src/runtime/abi-codec.ts' --maxWorkers 1`; all `28/28` assertions passed and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) remains at `98.37% / 91.01% / 97.50% / 98.85%`.
+
+### Remaining Issues
+- **Full Repo Coverage Runner Still Has A Process-Lifecycle Flake:** `pnpm run test:coverage` completed all visible suites on re-run, but the Vitest coverage process did not exit cleanly after test completion; an earlier attempt also hit a worker fetch timeout in `packages/api/src/workflows/manage-license-template-lifecycle.test.ts` that did not reproduce when the suite was isolated. Repo-wide API surface and wrapper coverage remain complete, but the full standard-coverage automation path is still blocked by this runner instability.
+
 ## [0.1.152] - 2026-05-17
 
 ### Fixed
