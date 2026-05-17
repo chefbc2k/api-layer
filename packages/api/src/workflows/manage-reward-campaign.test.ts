@@ -357,4 +357,113 @@ describe("runManageRewardCampaignWorkflow", () => {
       source: "paused",
     });
   });
+
+  it("falls back to the merkle readback when the pause readback omits merkleRoot", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0x1111111111111111111111111111111111111111111111111111111111111111", paused: false },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0x2222222222222222222222222222222222222222222222222222222222222222" },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { paused: true },
+        }),
+      setMerkleRoot: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xroot-write" } }),
+      pauseCampaign: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xpause-write" } }),
+      campaignMerkleRootUpdatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xroot-receipt" }]),
+      campaignPausedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xpause-receipt" }]),
+      unpauseCampaign: vi.fn(),
+      campaignUnpausedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xroot-receipt")
+      .mockResolvedValueOnce("0xpause-receipt");
+
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: () => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async (txHash: string) => ({ blockNumber: txHash === "0xroot-receipt" ? 601 : 602 })),
+        })),
+      },
+    } as never;
+
+    const result = await runManageRewardCampaignWorkflow(context, auth, undefined, {
+      campaignId: "16",
+      newMerkleRoot: "0x2222222222222222222222222222222222222222222222222222222222222222",
+      paused: true,
+    });
+
+    expect(result).toMatchObject({
+      merkleRootUpdate: {
+        requested: "0x2222222222222222222222222222222222222222222222222222222222222222",
+        merkleRootAfter: "0x2222222222222222222222222222222222222222222222222222222222222222",
+      },
+      pauseState: {
+        requested: true,
+        pausedAfter: true,
+      },
+      summary: {
+        finalMerkleRoot: null,
+        finalPaused: true,
+      },
+    });
+  });
+
+  it("falls back to the pre-update pause flag when the merkle readback omits paused", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0x3333333333333333333333333333333333333333333333333333333333333333", paused: false },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0x4444444444444444444444444444444444444444444444444444444444444444" },
+        }),
+      setMerkleRoot: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xroot-write" } }),
+      campaignMerkleRootUpdatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xroot-receipt" }]),
+      pauseCampaign: vi.fn(),
+      campaignPausedEventQuery: vi.fn(),
+      unpauseCampaign: vi.fn(),
+      campaignUnpausedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xroot-receipt");
+
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: () => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 701 })),
+        })),
+      },
+    } as never;
+
+    const result = await runManageRewardCampaignWorkflow(context, auth, undefined, {
+      campaignId: "17",
+      newMerkleRoot: "0x4444444444444444444444444444444444444444444444444444444444444444",
+    });
+
+    expect(result).toMatchObject({
+      merkleRootUpdate: {
+        merkleRootAfter: "0x4444444444444444444444444444444444444444444444444444444444444444",
+      },
+      pauseState: {
+        requested: null,
+        pausedAfter: false,
+        source: "not-requested",
+      },
+      summary: {
+        finalMerkleRoot: "0x4444444444444444444444444444444444444444444444444444444444444444",
+        finalPaused: null,
+      },
+    });
+  });
 });

@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.144] - 2026-05-16
+
+### Fixed
+- **Emergency Withdrawal Receiptless Branches Are Now Explicitly Proven:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.test.ts) to prove the workflow behavior when whitelist and request writes never produce confirmed receipts. The new case locks that both event-query branches are skipped, zero event counts are reported, and the approval-plus-execute continuation still completes cleanly afterward.
+- **Reward Campaign Response Fallbacks Are Now Covered By Deterministic Tests:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts) to prove final response shaping when post-write campaign readbacks omit a mutable field. The new cases lock the fallback from pause readbacks back to the prior merkle-root readback and from merkle-only readbacks back to the pre-update pause flag, without changing runtime behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface + Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Workflow Regression Suites Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/manage-reward-campaign.test.ts packages/api/src/workflows/emergency-withdrawal-sequence.test.ts --maxWorkers 1`; all `18/18` assertions passed after the new fallback and receiptless-path cases landed.
+- **Repo Coverage Sweep Stayed Green And Improved Again:** Re-ran `pnpm run test:coverage`; the suite remains green at `126` passing files, `905` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.88% / 93.13% / 99.51% / 98.88%` to `98.88% / 93.36% / 99.51% / 98.88%` for statements/branches/functions/lines. [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts) now reports `100%` across statements, branches, functions, and lines, while [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts) improved to `94.64%` branch coverage with the remaining uncovered response-shaping branches isolated to lines `139` and `148`.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are now [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts), and the residual optional-chain response branches in [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts).
+
 ## [0.1.143] - 2026-05-16
 
 ### Fixed

@@ -348,4 +348,87 @@ describe("emergency-withdrawal-sequence", () => {
     }));
     expect(result.summary.executed).toBe(false);
   });
+
+  it("skips whitelist and request event queries when those writes never produce receipts", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce("0xapprove")
+      .mockResolvedValueOnce("0xexecute");
+
+    const recipientWhitelistedEventQuery = vi.fn();
+    const emergencyWithdrawalRequestedEventQuery = vi.fn();
+    const emergencyWithdrawalEventQuery = vi.fn();
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      isRecipientWhitelisted: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: false })
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      setRecipientWhitelist: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xwhitelist" } }),
+      recipientWhitelistedEventQuery,
+      requestEmergencyWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: `0x${"2".repeat(64)}` }),
+      emergencyWithdrawalRequestedEventQuery,
+      emergencyWithdrawalEventQuery,
+      getApprovalCount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      approveEmergencyWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove" } }),
+      emergencyWithdrawalApprovedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xapprove" }] }),
+      emergencyWithdrawalExecutedEventQuery: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: [] })
+        .mockResolvedValueOnce({ statusCode: 200, body: [{ transactionHash: "0xexecute" }] }),
+      executeWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xexecute" } }),
+    });
+
+    const result = await runEmergencyWithdrawalSequenceWorkflow(
+      {
+        apiKeys: {
+          approver: {
+            apiKey: "approver",
+            label: "approver",
+            roles: ["service"],
+            allowGasless: false,
+          },
+          executor: {
+            apiKey: "executor",
+            label: "executor",
+            roles: ["service"],
+            allowGasless: false,
+          },
+        },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: () => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 100 })),
+          })),
+        },
+      } as never,
+      { apiKey: "requester", label: "requester", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        token: "0x00000000000000000000000000000000000000bb",
+        amount: "100",
+        recipient: "0x00000000000000000000000000000000000000cc",
+        whitelistRecipient: true,
+        approvals: [{ apiKey: "approver" }],
+        execute: { apiKey: "executor" },
+      },
+    );
+
+    expect(recipientWhitelistedEventQuery).not.toHaveBeenCalled();
+    expect(emergencyWithdrawalRequestedEventQuery).not.toHaveBeenCalled();
+    expect(emergencyWithdrawalEventQuery).not.toHaveBeenCalled();
+    expect(result.whitelist).toEqual(expect.objectContaining({
+      txHash: null,
+      eventCount: 0,
+      recipientWhitelisted: true,
+    }));
+    expect(result.request).toEqual(expect.objectContaining({
+      txHash: null,
+      requestEventCount: 0,
+      instantExecutionEventCount: 0,
+      instantExecuted: false,
+    }));
+    expect(result.summary.executed).toBe(true);
+  });
 });
