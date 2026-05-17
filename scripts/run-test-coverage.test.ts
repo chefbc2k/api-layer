@@ -31,10 +31,22 @@ describe("run-test-coverage helpers", () => {
 
     await resetCoverageDir(rmFn as any, mkdirFn as any);
 
-    expect(rmFn).toHaveBeenCalledWith(expect.stringMatching(/\/coverage$/), {
-      recursive: true,
-      force: true,
-    });
+    expect(rmFn).toHaveBeenNthCalledWith(
+      1,
+      expect.stringMatching(/\/coverage$/),
+      {
+        recursive: true,
+        force: true,
+      },
+    );
+    expect(rmFn).toHaveBeenNthCalledWith(
+      2,
+      expect.stringMatching(/\/\.runtime\/coverage-shards$/),
+      {
+        recursive: true,
+        force: true,
+      },
+    );
     expect(mkdirFn).toHaveBeenNthCalledWith(
       1,
       expect.stringMatching(/\/coverage$/),

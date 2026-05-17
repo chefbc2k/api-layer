@@ -33,9 +33,10 @@ describe("coverage fs patch", { timeout: 20_000 }, () => {
   });
 
   it("creates nested shard tmp directories before writing coverage fragments", async () => {
+    const shardName = `coverage-fs-patch-runtime-${Date.now()}777`;
     const nestedShard = path.join(
       path.resolve(__dirname, ".."),
-      ".runtime/coverage-shards/workflow-unit-01/.tmp",
+      `.runtime/coverage-shards/${shardName}/.tmp`,
       `coverage-${Date.now()}777.json`,
     );
     const script = `
@@ -44,7 +45,7 @@ describe("coverage fs patch", { timeout: 20_000 }, () => {
       fs.promises.writeFile(${JSON.stringify(nestedShard)}, '{}', 'utf8')
         .then(() => fs.promises.readFile(${JSON.stringify(nestedShard)}, 'utf8'))
         .then((value) => process.stdout.write(value))
-        .finally(() => fs.rmSync(${JSON.stringify(path.join(path.resolve(__dirname, ".."), ".runtime/coverage-shards/workflow-unit-01"))}, { recursive: true, force: true }));
+        .finally(() => fs.rmSync(${JSON.stringify(path.join(path.resolve(__dirname, ".."), `.runtime/coverage-shards/${shardName}`))}, { recursive: true, force: true }));
     `;
     const { stdout } = await execFileAsync(process.execPath, ["-e", script], {
       cwd: path.resolve(__dirname, ".."),
@@ -56,9 +57,10 @@ describe("coverage fs patch", { timeout: 20_000 }, () => {
   });
 
   it("creates coverage shard tmp directories used by sharded vitest reports", async () => {
+    const shardName = `coverage-fs-patch-report-${Date.now()}555`;
     const nestedShard = path.join(
       path.resolve(__dirname, ".."),
-      "coverage/shards/workflow-unit-01/.tmp",
+      `coverage/shards/${shardName}/.tmp`,
       `coverage-${Date.now()}555.json`,
     );
     const script = `
@@ -67,7 +69,7 @@ describe("coverage fs patch", { timeout: 20_000 }, () => {
       fs.promises.writeFile(${JSON.stringify(nestedShard)}, '{}', 'utf8')
         .then(() => fs.promises.readFile(${JSON.stringify(nestedShard)}, 'utf8'))
         .then((value) => process.stdout.write(value))
-        .finally(() => fs.rmSync(${JSON.stringify(path.join(path.resolve(__dirname, ".."), "coverage/shards/workflow-unit-01"))}, { recursive: true, force: true }));
+        .finally(() => fs.rmSync(${JSON.stringify(path.join(path.resolve(__dirname, ".."), `coverage/shards/${shardName}`))}, { recursive: true, force: true }));
     `;
     const { stdout } = await execFileAsync(process.execPath, ["-e", script], {
       cwd: path.resolve(__dirname, ".."),

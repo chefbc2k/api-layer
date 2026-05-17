@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.159] - 2026-05-17
+
+### Fixed
+- **Standard Coverage No Longer Deletes The First Workflow Shard Mid-Sweep:** Updated [`/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts`](/Users/chef/Public/api-layer/scripts/coverage-fs-patch.test.ts), [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts), and [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) so the coverage patch regression suite now writes to isolated synthetic shard names instead of the real `workflow-unit-01` output directory, and the standard runner now wipes `.runtime/coverage-shards` before each sweep. This prevents the non-workflow patch test from deleting live shard artifacts and removes stale-shard contamination between runs.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Coverage Runner Isolation Regressions Passed:** Re-ran `pnpm exec vitest run scripts/run-test-coverage.test.ts scripts/coverage-fs-patch.test.ts --maxWorkers 1`; all `13/13` assertions passed after the shard-isolation fix.
+- **Standard Coverage Attribution Recovered:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and now emits a merged Istanbul report at `99.02% / 94.61% / 99.59% / 99.04%` for statements/branches/functions/lines, up from `89.17% / 81.76% / 89.78% / 89.62%`. The previously misattributed workflow sources [`/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/emergency-withdrawal-sequence.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts) now report `100%` statement/function/line coverage with restored branch attribution, and `.runtime/coverage-shards/workflow-unit-01/coverage-final.json` persists through the full sweep again.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Unmet At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The most visible remaining branch hotspots are now [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
 ## [0.1.158] - 2026-05-17
 
 ### Fixed

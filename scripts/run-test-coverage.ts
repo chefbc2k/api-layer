@@ -74,6 +74,7 @@ export async function resetCoverageDir(
   mkdirFn: typeof mkdir = mkdir,
 ): Promise<void> {
   await rmFn(coverageDir, { recursive: true, force: true });
+  await rmFn(coverageShardDir, { recursive: true, force: true });
   await mkdirFn(coverageDir, { recursive: true });
   await mkdirFn(coverageTmpDir, { recursive: true });
   await mkdirFn(coverageShardDir, { recursive: true });
