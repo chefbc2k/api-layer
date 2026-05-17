@@ -258,6 +258,45 @@ describe("runRegisterVoiceAssetWorkflow", () => {
     expect(service.getBasicAcousticFeatures).not.toHaveBeenCalled();
   });
 
+  it("treats non-object registration payloads as missing voice hashes", async () => {
+    const service = {
+      registerVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: "0xraw-registration-body",
+      }),
+      registerVoiceAssetForCaller: vi.fn(),
+      getVoiceAsset: vi.fn(),
+      getTokenId: vi.fn(),
+      updateBasicAcousticFeatures: vi.fn(),
+      getBasicAcousticFeatures: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xreceipt-registration");
+
+    const result = await runRegisterVoiceAssetWorkflow(context, auth, undefined, {
+      ipfsHash: "QmRaw",
+      royaltyRate: "101",
+    });
+
+    expect(result).toEqual({
+      registration: {
+        submission: "0xraw-registration-body",
+        txHash: "0xreceipt-registration",
+        voiceAsset: null,
+        tokenId: null,
+      },
+      metadataUpdate: null,
+      voiceHash: null,
+      summary: {
+        owner: null,
+        hasFeatures: false,
+        tokenId: null,
+      },
+    });
+    expect(service.getVoiceAsset).not.toHaveBeenCalled();
+    expect(service.getTokenId).not.toHaveBeenCalled();
+  });
+
   it("retries readbacks before succeeding", async () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
       if (typeof callback === "function") {
