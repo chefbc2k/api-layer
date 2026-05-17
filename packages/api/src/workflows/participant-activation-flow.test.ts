@@ -59,7 +59,10 @@ vi.mock("./inspect-beneficiary-vesting.js", async () => {
   };
 });
 
-import { runParticipantActivationFlowWorkflow } from "./participant-activation-flow.js";
+import {
+  participantActivationFlowWorkflowSchema,
+  runParticipantActivationFlowWorkflow,
+} from "./participant-activation-flow.js";
 
 describe("runParticipantActivationFlowWorkflow", () => {
   const auth = {
@@ -508,5 +511,80 @@ describe("runParticipantActivationFlowWorkflow", () => {
         },
       },
     })).rejects.toThrow("participant-activation-flow received unknown actor apiKey");
+  });
+
+  it("rejects reward-campaign manage payloads that request no changes", () => {
+    const result = participantActivationFlowWorkflowSchema.safeParse({
+      staking: {
+        amount: "10",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+      rewards: {
+        campaign: {
+          manage: {},
+        },
+      },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.message)).toContain(
+      "participant-activation-flow expected at least one reward-campaign change",
+    );
+  });
+
+  it("requires campaign ids for standalone claim/manage branches", () => {
+    const result = participantActivationFlowWorkflowSchema.safeParse({
+      staking: {
+        amount: "10",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+      rewards: {
+        campaign: {
+          manage: {
+            paused: true,
+          },
+        },
+        claim: {
+          totalAllocation: "2",
+          proof: [
+            "0x2222222222222222222222222222222222222222222222222222222222222222",
+          ],
+        },
+      },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: ["rewards", "campaign", "manage", "campaignId"],
+          message: "participant-activation-flow manage requires campaignId when no campaign create step is requested",
+        }),
+        expect.objectContaining({
+          path: ["rewards", "claim", "campaignId"],
+          message: "participant-activation-flow claim requires campaignId when no campaign create step is requested",
+        }),
+      ]),
+    );
+  });
+
+  it("requires a vesting create or inspect step when vesting is present", () => {
+    const result = participantActivationFlowWorkflowSchema.safeParse({
+      staking: {
+        amount: "10",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+      vesting: {},
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: ["vesting"],
+          message: "participant-activation-flow vesting expected create or inspect",
+        }),
+      ]),
+    );
   });
 });

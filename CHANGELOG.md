@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.152] - 2026-05-17
+
+### Fixed
+- **Participant Activation Validation Coverage Now Proves Standalone Reward/Vesting Guardrails:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/participant-activation-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/participant-activation-flow.test.ts) to prove [`/Users/chef/Public/api-layer/packages/api/src/workflows/participant-activation-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/participant-activation-flow.ts) rejects reward-campaign manage payloads with no changes, rejects standalone claim/manage branches that omit `campaignId` when no campaign-create step is present, and rejects vesting payloads that provide neither `create` nor `inspect`. This closes the remaining unproven schema/refinement branches in the participant activation workflow without changing runtime behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Participant Activation Coverage Improved Materially:** Re-ran `pnpm exec vitest run packages/api/src/workflows/participant-activation-flow.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/api/src/workflows/participant-activation-flow.ts' --maxWorkers 1`; all `12/12` assertions passed and the focused workflow file now reports `100%` statements, `98.46%` branches, `100%` functions, and `100%` lines.
+- **Full Coverage Sweep Stayed Green And Improved Again:** Re-ran `pnpm run test:coverage`; the suite remains green at `126` passing files, `927` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.98% / 94.19% / 99.51% / 98.99%` to `99.02% / 94.30% / 99.59% / 99.03%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage still remains below the automation target. The clearest remaining hotspots are still [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and the lower-branch helper cluster under [`/Users/chef/Public/api-layer/packages/api/src/workflows`](/Users/chef/Public/api-layer/packages/api/src/workflows).
+
 ## [0.1.151] - 2026-05-17
 
 ### Fixed
