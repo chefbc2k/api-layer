@@ -273,4 +273,46 @@ describe("runOperatorIncentiveGrantFlowWorkflow", () => {
 
     expect(mocks.runParticipantActivationFlowWorkflow).not.toHaveBeenCalled();
   });
+
+  it("supports inspect-after-only policy checks without forcing a pre-update inspection", async () => {
+    const result = await runOperatorIncentiveGrantFlowWorkflow(context, participantAuth, "0x00000000000000000000000000000000000000aa", {
+      policy: {
+        inspectAfter: true,
+      },
+      activation: {
+        staking: {
+          amount: "10",
+          delegatee: "0x00000000000000000000000000000000000000bb",
+        },
+      },
+    });
+
+    expect(mocks.runInspectVestingAdminPolicyWorkflow).toHaveBeenCalledOnce();
+    expect(mocks.runInspectVestingAdminPolicyWorkflow).toHaveBeenCalledWith(
+      context,
+      participantAuth,
+      "0x00000000000000000000000000000000000000aa",
+      {},
+    );
+    expect(result.policy.before.status).toBe("not-requested");
+    expect(result.policy.after.status).toBe("completed");
+  });
+
+  it("propagates non-409 policy inspection failures instead of reclassifying them", async () => {
+    mocks.runInspectVestingAdminPolicyWorkflow.mockRejectedValueOnce(new Error("inspect failed hard"));
+
+    await expect(runOperatorIncentiveGrantFlowWorkflow(context, participantAuth, undefined, {
+      policy: {
+        inspectBefore: true,
+      },
+      activation: {
+        staking: {
+          amount: "10",
+          delegatee: "0x00000000000000000000000000000000000000bb",
+        },
+      },
+    })).rejects.toThrow("inspect failed hard");
+
+    expect(mocks.runParticipantActivationFlowWorkflow).not.toHaveBeenCalled();
+  });
 });

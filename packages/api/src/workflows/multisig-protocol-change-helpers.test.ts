@@ -13,6 +13,7 @@ import {
   readOwnershipConsequence,
   readCanExecute,
   readConsequenceReport,
+  readMultisigState,
   readOptionalEventLogs,
   readScalarBody,
   readTupleBody,
@@ -41,6 +42,36 @@ describe("multisig protocol change helper utilities", () => {
   });
 
   it("encodes and decodes mounted protocol actions and preserves raw calldata", () => {
+    const proposeOwnership = encodeProtocolAction({
+      kind: "propose-ownership-transfer",
+      newOwner: "0x00000000000000000000000000000000000000ab",
+    });
+    expect(decodeProtocolAction(proposeOwnership)).toEqual({
+      kind: "propose-ownership-transfer",
+      newOwner: "0x00000000000000000000000000000000000000AB",
+    });
+
+    const transferOwnership = encodeProtocolAction({
+      kind: "transfer-ownership",
+      newOwner: "0x00000000000000000000000000000000000000ac",
+    });
+    expect(decodeProtocolAction(transferOwnership)).toEqual({
+      kind: "transfer-ownership",
+      newOwner: "0x00000000000000000000000000000000000000AC",
+    });
+
+    expect(decodeProtocolAction(encodeProtocolAction({
+      kind: "accept-ownership",
+    }))).toEqual({
+      kind: "accept-ownership",
+    });
+
+    expect(decodeProtocolAction(encodeProtocolAction({
+      kind: "cancel-ownership-transfer",
+    }))).toEqual({
+      kind: "cancel-ownership-transfer",
+    });
+
     const encodedOwnership = encodeProtocolAction({
       kind: "set-approved-owner-target",
       target: "0x00000000000000000000000000000000000000ee",
@@ -306,6 +337,133 @@ describe("multisig protocol change helper utilities", () => {
       ["2", "3"],
       "approval",
     )).resolves.toBe("2");
+  });
+
+  it("reads multisig state snapshots with and without actor approval lookups", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      multisig: {
+        getOperationStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: "3" } }),
+        canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: [true, "ready"] }),
+        hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: false } }),
+      },
+    } as never;
+
+    await expect(readMultisigState(
+      services,
+      auth,
+      undefined,
+      UPGRADE_ID,
+      "0x00000000000000000000000000000000000000cc",
+      "execute",
+    )).resolves.toEqual({
+      label: "execute",
+      status: "3",
+      statusLabel: "Executed",
+      canExecute: true,
+      readinessReason: "ready",
+      actorApproved: false,
+    });
+
+    await expect(readMultisigState(
+      services,
+      auth,
+      undefined,
+      UPGRADE_ID,
+      undefined,
+      "execute",
+    )).resolves.toEqual({
+      label: "execute",
+      status: "3",
+      statusLabel: "Executed",
+      canExecute: true,
+      readinessReason: "ready",
+      actorApproved: null,
+    });
+
+    expect(services.multisig.hasApprovedOperation).toHaveBeenCalledTimes(1);
+  });
+
+  it("reads consequence reports when only ownership or upgrade targets are classified", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+
+    const ownershipOnly = {
+      ownership: {
+        owner: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: "0x00000000000000000000000000000000000000aa" } }),
+        pendingOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+        isOwnershipPolicyEnforced: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: true } }),
+        isOwnerTargetApproved: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      },
+      multisig: {},
+      diamondAdmin: {
+        getUpgradeControlStatus: vi.fn(),
+        getUpgradeDelay: vi.fn(),
+        getUpgradeThreshold: vi.fn(),
+        getUpgrade: vi.fn(),
+      },
+    } as never;
+
+    await expect(readConsequenceReport(
+      ownershipOnly,
+      auth,
+      undefined,
+      [{ kind: "transfer-ownership", newOwner: "0x00000000000000000000000000000000000000cc" }],
+      undefined,
+    )).resolves.toMatchObject({
+      inspected: true,
+      diamondAdmin: null,
+      note: null,
+      ownership: {
+        owner: "0x00000000000000000000000000000000000000aa",
+        pendingOwner: "0x00000000000000000000000000000000000000bb",
+        ownershipPolicyEnforced: true,
+      },
+    });
+
+    const upgradeOnly = {
+      ownership: {
+        owner: vi.fn(),
+        pendingOwner: vi.fn(),
+        isOwnershipPolicyEnforced: vi.fn(),
+        isOwnerTargetApproved: vi.fn(),
+      },
+      multisig: {},
+      diamondAdmin: {
+        getUpgradeControlStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: { frozen: false } }),
+        getUpgradeDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: "10" } }),
+        getUpgradeThreshold: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+        getUpgrade: vi.fn().mockResolvedValue({ statusCode: 200, body: ["0x00000000000000000000000000000000000000aa", "1", "1", false] }),
+      },
+    } as never;
+
+    await expect(readConsequenceReport(
+      upgradeOnly,
+      auth,
+      undefined,
+      [{ kind: "approve-upgrade", upgradeId: UPGRADE_ID }],
+      undefined,
+    )).resolves.toMatchObject({
+      inspected: true,
+      ownership: null,
+      note: null,
+      diamondAdmin: {
+        upgradeDelay: "10",
+        upgradeThreshold: "1",
+      },
+    });
+
+    expect(upgradeOnly.ownership.owner).not.toHaveBeenCalled();
+    expect(ownershipOnly.diamondAdmin.getUpgradeControlStatus).not.toHaveBeenCalled();
   });
 
   it("normalizes actor overrides and protocol action errors", () => {

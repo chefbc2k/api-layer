@@ -437,4 +437,92 @@ describe("runGovernanceAdminFlowWorkflow", () => {
       },
     })).rejects.toThrow("governance-admin-flow requires confirmed vote receipt");
   });
+
+  it("allows votes to proceed when the voting window readback cannot be parsed but the proposal is already Active", async () => {
+    mocks.runSubmitProposalWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+      },
+      readback: {
+        snapshot: "120",
+        proposalState: "1",
+        deadline: "240",
+      },
+      votingWindow: {
+        earliestVotingBlock: "not-a-number",
+        proposalDeadlineBlock: "240",
+        currentBlock: "still-not-a-number",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        targetCount: 1,
+        calldataCount: 1,
+      },
+    });
+
+    const result = await runGovernanceAdminFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "unparseable timing window",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      vote: {
+        support: "1",
+        walletAddress: "0x00000000000000000000000000000000000000cc",
+      },
+    });
+
+    expect(mocks.runVoteOnProposalWorkflow).toHaveBeenCalledWith(context, auth, "0x00000000000000000000000000000000000000cc", {
+      proposalId: "77",
+      support: "1",
+      reason: "workflow vote",
+    });
+    expect(result.summary.voteCast).toBe(true);
+  });
+
+  it("rejects vote results whose proposal id diverges from the submitted proposal", async () => {
+    mocks.runVoteOnProposalWorkflow.mockResolvedValueOnce({
+      proposalWindow: {
+        proposalId: "66",
+        snapshot: "120",
+        deadline: "240",
+        proposalState: "1",
+        currentBlock: "150",
+      },
+      vote: {
+        submission: { txHash: "0xvote-write" },
+        txHash: "0xvote-receipt",
+        receipt: { hasVoted: true },
+        proposalStateAfterVote: "1",
+        eventCount: 1,
+      },
+      summary: {
+        proposalId: "66",
+        support: "1",
+        voter: "0x00000000000000000000000000000000000000aa",
+        reason: "workflow vote",
+      },
+    });
+
+    await expect(runGovernanceAdminFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "vote proposal mismatch",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      vote: {
+        support: "1",
+      },
+    })).rejects.toThrow("governance-admin-flow vote result proposalId mismatch");
+  });
 });

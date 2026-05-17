@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.160] - 2026-05-17
+
+### Fixed
+- **Workflow Branch Coverage Advanced Across Remaining Admin Hotspots:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.test.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts) to cover unparseable governance voting windows, mismatched vote proposal IDs, inspect-after-only policy posture checks, hard-failure propagation for non-409 policy reads, additional ownership action codecs, multisig state snapshots, and ownership-only / upgrade-only consequence inspection paths. This closes several previously unverified fallback branches without changing live workflow behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Workflow Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/governance-admin-flow.test.ts packages/api/src/workflows/operator-incentive-grant-flow.test.ts packages/api/src/workflows/multisig-protocol-change-helpers.test.ts --maxWorkers 1`; all `29/29` assertions passed after the branch-expansion pass.
+- **Standard Coverage Moved Forward Again:** Re-ran `pnpm run test:coverage`; the full sharded suite remains green and now emits a merged Istanbul report at `99.18% / 94.81% / 99.59% / 99.21%` for statements/branches/functions/lines, improving on the prior `99.02% / 94.61% / 99.59% / 99.04%`.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Unmet At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The next branch-coverage pass should stay focused on [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-admin-policy.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-admin-policy.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), which remain the most visible branch hotspots in the merged report.
+
 ## [0.1.159] - 2026-05-17
 
 ### Fixed
