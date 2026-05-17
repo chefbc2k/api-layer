@@ -5,6 +5,8 @@ import { createAccessControlPrimitiveService } from "../modules/access-control/p
 import { createVoiceAssetsPrimitiveService } from "../modules/voice-assets/primitives/generated/index.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
+const WORKFLOW_READBACK_POLL_DELAY_MS = process.env.NODE_ENV === "test" ? 1 : 500;
+
 export const onboardRightsHolderSchema = z.object({
   role: z.string().regex(/^0x[a-fA-F0-9]{64}$/u),
   account: z.string().regex(/^0x[a-fA-F0-9]{40}$/u),
@@ -101,7 +103,7 @@ async function waitForWorkflowReadback<T>(
       return value;
     }
     lastValue = value;
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, WORKFLOW_READBACK_POLL_DELAY_MS));
   }
   throw new Error(`${label} readback timeout: ${JSON.stringify(lastValue)}`);
 }

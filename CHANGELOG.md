@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.153] - 2026-05-17
+
+### Fixed
+- **Onboard Rights Holder Readback Polling No Longer Times Out Under Coverage:** Updated [`/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.ts) so workflow readback polling now uses a test-aware delay of `1ms` in `NODE_ENV=test` and preserves the existing `500ms` delay outside tests. This aligns the readback helper with the existing write-receipt polling behavior and removes the coverage-only timeout from the retry/readback branch without changing live execution semantics.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Onboard Rights Holder Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/onboard-rights-holder.test.ts --maxWorkers 1`; all `4/4` assertions passed after the polling change.
+- **Focused Onboard Rights Holder Coverage Stayed Fully Covered For Statements/Lines/Functions:** Re-ran `pnpm exec vitest run packages/api/src/workflows/onboard-rights-holder.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/api/src/workflows/onboard-rights-holder.ts' --maxWorkers 1`; the focused file now reports `100%` statements, `87.5%` branches, `100%` functions, and `100%` lines.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage still remains below the automation target. The full `pnpm run test:coverage` sweep progressed past the prior `onboard-rights-holder` timeout and completed the test-file execution phase, but the monolithic coverage wrapper did not emit a final repo summary before stalling, so the next pass should focus on the coverage runner/reporting path or on the remaining low-branch hotspots once the final aggregate report is deterministic again.
+
 ## [0.1.152] - 2026-05-17
 
 ### Fixed
