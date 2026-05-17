@@ -309,6 +309,44 @@ describe("alchemy-debug-lib", () => {
     expect(mocked.readFile).not.toHaveBeenCalled();
   });
 
+  it("rethrows the original verification error when parsed fixture metadata contains no usable RPC candidates", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "",
+        upstreamRpcUrl: "",
+        forkedFrom: "",
+      },
+    }));
+
+    await expect(resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+      },
+      async () => {
+        throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+      },
+    )).rejects.toThrow("connect ECONNREFUSED 127.0.0.1:8548");
+  });
+
+  it("does not inspect fixture fallbacks when a non-loopback configured RPC fails verification", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+
+    await expect(resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "https://rpc.example.com/base-sepolia",
+      },
+      async () => {
+        throw new Error("upstream rpc unavailable");
+      },
+    )).rejects.toThrow("upstream rpc unavailable");
+    expect(mocked.readFile).not.toHaveBeenCalled();
+  });
+
   it("keeps the configured alchemy RPC when loopback fallback only replaces the primary URL", async () => {
     mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
     mocked.readFile.mockResolvedValue(JSON.stringify({
@@ -557,6 +595,25 @@ describe("alchemy-debug-lib", () => {
     expect(mocked.spawn).not.toHaveBeenCalled();
   });
 
+  it("skips auto-fork bootstrapping when auto-forking is explicitly disabled", async () => {
+    process.env.API_LAYER_AUTO_FORK = "0";
+
+    await expect(startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+      },
+      rpcResolution: {
+        configuredRpcUrl: "http://127.0.0.1:8548",
+        source: "base-sepolia-fixture",
+      },
+    } as any)).resolves.toEqual({
+      rpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+      forkProcess: null,
+      forkedFrom: null,
+    });
+    expect(mocked.spawn).not.toHaveBeenCalled();
+  });
+
   it("starts an anvil fork when the configured listener is loopback and verification eventually succeeds", async () => {
     vi.useFakeTimers();
     process.env.API_LAYER_ANVIL_BIN = "custom-anvil";
@@ -701,6 +758,12 @@ describe("alchemy-debug-lib", () => {
 
     const runtime = await loadRuntimeEnvironment();
     expect(runtime.scenarioCommit).toBeNull();
+  });
+
+  it("fails loading the runtime environment when no contracts workspace can be located", async () => {
+    await expect(loadRuntimeEnvironment()).rejects.toThrow(
+      "unable to locate contracts workspace; set API_LAYER_PARENT_REPO_DIR",
+    );
   });
 
   it("runs API scenarios, captures diagnostics, and cleans up temp files", async () => {
