@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.147] - 2026-05-16
+
+### Fixed
+- **Base Sepolia Operator Setup Fallback Coverage Is Broader Without Runtime Changes:** Expanded [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove zero-gas fee-data fallback handling, sticky blocked-domain deduplication, non-loopback and already-purchase-ready marketplace lock branches, failed operator-approval evidence retention, and equal-age marketplace scan ordering by token id. This raises [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) from `85.35%` branch coverage in the focused V8 slice to `85.52%` without modifying setup behavior.
+
+### Verified
+- **Base Sepolia Setup Recovered To Ready:** Re-ran `pnpm run setup:base-sepolia`; the live setup artifact now reports `setup.status: "ready"` with no blockers, founder governance still `ready` at `840000000000000000` votes, buyer USDC balance/allowance at `1000 / 1000`, and aged marketplace fixture token `162` back in `purchase-ready` state with listing readback `{ tokenId: "162", seller: "0x276D8504239A02907BA5e7dD42eEb5A651274bCd", price: "1000", createdAt: "1779155996", createdBlock: "41433757", expiresAt: "1781747996", isActive: true }`.
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **Focused Setup Hotspot Regression Passed:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `58/58` assertions passed after the new fallback-path proofs landed.
+- **Repo Coverage Sweep Improved Again:** Re-ran `pnpm run test:coverage`; the suite remains green at `126` passing files, `917` passing tests, and `18` skipped live contract proofs. Repo-wide Istanbul coverage improved from `98.92% / 93.59% / 99.51% / 98.92%` to `98.98% / 93.82% / 99.51% / 98.99%` for statements/branches/functions/lines.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Not Met At Repo Level:** API surface coverage, wrapper coverage, Base Sepolia setup readiness, and the validated baseline remain complete, but repo-wide branch/function/line/statement coverage still remains below the automation target. The clearest remaining branch hotspots are still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/stake-and-delegate.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/stake-and-delegate.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-license-template-lifecycle.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts).
+
 ## [0.1.146] - 2026-05-16
 
 ### Fixed

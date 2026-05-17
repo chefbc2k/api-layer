@@ -350,6 +350,18 @@ describe("base sepolia operator setup helpers", () => {
     expect(spendable).toBe(0n);
   });
 
+  it("falls back to a zero gas price when fee data omits both maxFeePerGas and gasPrice", async () => {
+    const spendable = await nativeTransferSpendable({
+      address: "0x1234",
+      provider: {
+        getBalance: vi.fn().mockResolvedValue(ethers.parseEther("0.000002")),
+        getFeeData: vi.fn().mockResolvedValue({}),
+      },
+    } as any);
+
+    expect(spendable).toBe(ethers.parseEther("0.000001"));
+  });
+
   it("posts API calls with JSON headers, auth, and parsed payloads", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       status: 202,
@@ -894,6 +906,27 @@ describe("base sepolia operator setup helpers", () => {
       blockers: [
         "governance: votes still below threshold",
         "marketplace: listing could not be activated",
+      ],
+    });
+  });
+
+  it("deduplicates repeated blockers and keeps blocked setup status sticky", () => {
+    const status = {
+      actors: {},
+      setup: { status: "blocked", blockers: ["marketplace: listing could not be activated"] as string[] },
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
+
+    applyDomainSetupStatus(status as any, "marketplace", "blocked", "listing could not be activated");
+    applyDomainSetupStatus(status as any, "governance", "partial", "votes still below threshold");
+
+    expect(status.setup).toEqual({
+      status: "blocked",
+      blockers: [
+        "marketplace: listing could not be activated",
+        "governance: votes still below threshold",
       ],
     });
   });
@@ -1510,6 +1543,61 @@ describe("base sepolia operator setup helpers", () => {
     expect(marketplace.getListing).toHaveBeenCalledWith(11n);
   });
 
+  it("falls back early without time travel when the listing is not loopback-eligible", async () => {
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: {
+        getBlock: vi.fn(),
+        send: vi.fn(),
+      } as any,
+      rpcUrl: "https://base-sepolia.example",
+      listing: {
+        isActive: true,
+        createdAt: "1000",
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: {
+        getBlock: vi.fn(),
+        send: vi.fn(),
+      } as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        isActive: false,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: null,
+    });
+  });
+
+  it("does not advance a loopback listing that is already purchase-ready", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 100_000 }),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "0",
+        expiresAt: "200000",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "86401",
+    });
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
   it("ages an existing active listing on a local fork before returning the preferred fixture", async () => {
     const apiCallFn = vi.fn()
       .mockResolvedValueOnce({ status: 200, payload: true })
@@ -1776,6 +1864,95 @@ describe("base sepolia operator setup helpers", () => {
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(1, 8787, "0xapprove");
     expect(waitForReceiptFn).toHaveBeenNthCalledWith(2, 8787, "0xlist");
     expect(retryApiReadFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps approval evidence without waiting when operator approval submission is not accepted", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: false })
+      .mockResolvedValueOnce({ status: 400, payload: { error: "approval denied" } })
+      .mockResolvedValueOnce({ status: 404, payload: null })
+      .mockResolvedValueOnce({ status: 500, payload: { error: "listing failed" } })
+      .mockResolvedValueOnce({ status: 404, payload: null });
+    const waitForReceiptFn = vi.fn();
+    const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>) => {
+      await read();
+      return {
+        status: 404,
+        payload: null,
+      };
+    });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xinactive"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(33n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+      waitForReceiptFn,
+      retryApiReadFn: retryApiReadFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xinactive",
+      tokenId: "33",
+      status: "blocked",
+      approval: { status: 400, payload: { error: "approval denied" } },
+    });
+    expect(waitForReceiptFn).not.toHaveBeenCalled();
+  });
+
+  it("breaks equal-age marketplace candidate scan ties by token id", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({ status: 404, payload: null })
+      .mockResolvedValueOnce({ status: 404, payload: null })
+      .mockResolvedValueOnce({ status: 500, payload: { error: "listing failed" } })
+      .mockResolvedValueOnce({ status: 404, payload: null });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xtoken-22", "0xtoken-11"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn(async (voiceHash: string) => (voiceHash === "0xtoken-22" ? 22n : 11n)),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+      retryApiReadFn: vi.fn(async (read: () => Promise<unknown>) => {
+        await read();
+        return {
+          status: 404,
+          payload: null,
+        };
+      }) as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xtoken-11",
+      tokenId: "11",
+      status: "blocked",
+    });
+    expect(apiCallFn).toHaveBeenNthCalledWith(
+      2,
+      8787,
+      "GET",
+      "/v1/marketplace/queries/get-listing?tokenId=11",
+      { apiKey: "read-key" },
+    );
+    expect(apiCallFn).toHaveBeenNthCalledWith(
+      3,
+      8787,
+      "GET",
+      "/v1/marketplace/queries/get-listing?tokenId=22",
+      { apiKey: "read-key" },
+    );
   });
 
   it("falls back from an inactive preferred listing without waiting on a failed list transaction", async () => {
