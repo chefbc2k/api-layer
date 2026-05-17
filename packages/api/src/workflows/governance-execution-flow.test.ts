@@ -603,6 +603,68 @@ describe("runGovernanceExecutionFlowWorkflow", () => {
     expect(result.executionReadiness.proposalStateLabel).toBe("Active");
   });
 
+  it("reports unknown readiness when vote and window states are malformed and timing data is unreadable", async () => {
+    mocks.runGovernanceAdminFlowWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: {
+          snapshot: "120",
+          deadline: 240,
+        },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: 150,
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: "active",
+      },
+      vote: {
+        result: {
+          proposalStateAfterVote: "queued",
+        },
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        voteRequested: true,
+        voteCast: true,
+        voteSupport: "1",
+        voter: "0x00000000000000000000000000000000000000bb",
+      },
+    });
+
+    const result = await runGovernanceExecutionFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "malformed state",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      vote: {
+        support: "1",
+      },
+    });
+
+    expect(result.executionReadiness).toEqual({
+      proposalState: null,
+      proposalStateLabel: "Unknown",
+      deadline: null,
+      currentBlock: null,
+      votingClosed: null,
+      queueEligible: false,
+      executeEligible: false,
+      phase: "unknown",
+      nextGovernanceStep: "inspect-proposal-state",
+      readinessBasis: "proposal-state-derived",
+    });
+  });
+
   it("propagates child-workflow failures", async () => {
     mocks.runGovernanceAdminFlowWorkflow.mockRejectedValueOnce(new Error("governance child failed"));
 

@@ -74,6 +74,21 @@ describe("marketplace listing helpers", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("treats successful escrow reads with missing bodies as null readbacks", async () => {
+    const marketplace = {
+      getListing: vi.fn(),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200 }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+    };
+
+    await expect(readMarketplaceEscrowState(marketplace, { apiKey: "test-key" } as never, undefined, "11")).resolves.toEqual({
+      assetState: "1",
+      originalOwner: null,
+      inEscrow: false,
+    });
+  });
+
   it("treats null listing reads as retryable and returns null when no stabilized read ever arrives", async () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
       if (typeof callback === "function") {
