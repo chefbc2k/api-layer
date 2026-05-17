@@ -120,6 +120,24 @@ describe("runtime config", () => {
     expect(config.alchemyEndpointDetected).toBe(false);
   });
 
+  it("accepts native boolean and numeric values when callers provide already-parsed env data", () => {
+    const config = readConfigFromEnv({
+      CBDP_RPC_URL: "https://cbdp.example.com/base-sepolia",
+      DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+      API_LAYER_ENABLE_GASLESS: true as never,
+      API_LAYER_ENABLE_ALCHEMY_DIAGNOSTICS: false as never,
+      API_LAYER_ENABLE_ALCHEMY_SIMULATION: true as never,
+      API_LAYER_ENFORCE_ALCHEMY_SIMULATION: false as never,
+      API_LAYER_PROVIDER_RECOVERY_COOLDOWN_MS: 1234 as never,
+    } as NodeJS.ProcessEnv);
+
+    expect(config.enableGasless).toBe(true);
+    expect(config.alchemyDiagnosticsEnabled).toBe(false);
+    expect(config.alchemySimulationEnabled).toBe(true);
+    expect(config.alchemySimulationEnforced).toBe(false);
+    expect(config.providerRecoveryCooldownMs).toBe(1234);
+  });
+
   it("treats 0, blank, and whitespace boolean env values as explicit disables", () => {
     const config = readConfigFromEnv({
       CBDP_RPC_URL: "https://cbdp.example.com/base-sepolia",

@@ -45,9 +45,10 @@ describe("cdp-smart-wallet", () => {
 
   it("requires the CDP credentials and wallet secret", async () => {
     delete process.env.CDP_API_KEY_ID;
+    process.env.CDP_API_KEY_NAME = "fallback-key-name";
 
     await expect(submitSmartWalletCall({ to: "0x1", data: "0x" })).rejects.toThrow(
-      "CDP_API_KEY_ID/CDP_API_KEY_SECRET/CDP_WALLET_SECRET are required for cdpSmartWallet",
+      "Provide COINBASE_SMART_WALLET_ADDRESS or COINBASE_SMART_WALLET_OWNER_NAME/COINBASE_SMART_WALLET_OWNER_ADDRESS",
     );
   });
 
@@ -193,6 +194,16 @@ describe("cdp-smart-wallet", () => {
         receipt: { status: "queued" },
       },
     });
+  });
+
+  it("rejects owner-based account resolution when the resulting smart account has no address", async () => {
+    process.env.COINBASE_SMART_WALLET_OWNER_NAME = "founder";
+    mocks.getAccount.mockResolvedValue({ address: "0x00000000000000000000000000000000000000ee" });
+    mocks.getOrCreateSmartAccount.mockResolvedValue({});
+
+    await expect(submitSmartWalletCall({ to: "0x1", data: "0x" })).rejects.toThrow(
+      "unable to resolve smart wallet address",
+    );
   });
 
   it("normalizes null call values to 0x0 before relaying the user operation", async () => {

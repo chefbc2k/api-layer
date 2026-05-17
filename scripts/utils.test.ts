@@ -97,6 +97,15 @@ describe("script utils", () => {
     await expect(resolveDeploymentManifestPath()).resolves.toBe(manifestPath);
   });
 
+  it("resolves explicit relative deployment manifest paths from the repo root", async () => {
+    const manifestPath = path.join(tempDir, "relative-manifest.json");
+    await writeFile(manifestPath, "{}\n", "utf8");
+
+    process.env.API_LAYER_DEPLOYMENT_MANIFEST = path.relative(process.cwd(), manifestPath);
+
+    await expect(resolveDeploymentManifestPath()).resolves.toBe(manifestPath);
+  });
+
   it("falls back to the local ABI directory and returns null for missing optional inputs", async () => {
     process.env.API_LAYER_ABI_SOURCE_DIR = path.join(tempDir, "missing-abis");
     process.env.API_LAYER_SCENARIO_SOURCE_DIR = path.join(tempDir, "missing-scenarios");

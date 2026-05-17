@@ -165,6 +165,51 @@ describe("runTransferAndResecureVoiceAssetWorkflow", () => {
     });
   });
 
+  it("fails when an authorize-voice collaborator is not fully authorized", async () => {
+    mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
+      roleGrant: {
+        submission: { txHash: "0xrole" },
+        txHash: "0xrole",
+        hasRole: true,
+      },
+      authorizations: [
+        {
+          voiceHash,
+          authorization: { txHash: "0xauth" },
+          txHash: "0xauth",
+          isAuthorized: false,
+        },
+      ],
+      summary: {
+        role,
+        account: "0x00000000000000000000000000000000000000cc",
+        expiryTime: "3600",
+        requestedVoiceCount: 1,
+        authorizedVoiceCount: 0,
+      },
+    });
+
+    await expect(
+      runTransferAndResecureVoiceAssetWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        transfer: {
+          from: "0x00000000000000000000000000000000000000aa",
+          to: "0x00000000000000000000000000000000000000bb",
+          tokenId: "17",
+          safe: false,
+        },
+        postTransferAccess: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000cc",
+            expiryTime: "3600",
+            authorizeVoice: true,
+          },
+        ],
+      }),
+    ).rejects.toThrow("post-transfer authorization confirmation");
+  });
+
   it("runs transfer plus re-secure with encryption", async () => {
     mocks.runRegisterWhisperBlockWorkflow.mockResolvedValueOnce({
       fingerprint: {

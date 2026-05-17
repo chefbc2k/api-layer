@@ -30,6 +30,7 @@ describe("vesting helpers", () => {
   it("supports tuple-style totals and scalar release extraction", () => {
     expect(getReleasableFromSummary(["100", "20", "5"])).toBe(5n);
     expect(getReleasableFromSummary(null)).toBe(0n);
+    expect(getReleasableFromSummary("not-a-record")).toBe(0n);
     expect(extractReleasedAmount({ result: "12" })).toBe("12");
     expect(extractReleasedAmount({ result: 13 })).toBe("13");
     expect(extractReleasedAmount({ result: 14n })).toBe("14");
@@ -116,6 +117,25 @@ describe("vesting helpers", () => {
     )).rejects.toThrow("NoScheduleFound");
   });
 
+  it("rethrows totals readback failures when the schedule is not revoked", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100", revoked: false } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: false } }),
+      getVestingReleasableAmount: async () => ({ statusCode: 200, body: "5" }),
+      getVestingTotalAmount: async () => {
+        throw new Error("execution reverted: totals failed");
+      },
+    };
+
+    await expect(() => readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      undefined,
+      "0x00000000000000000000000000000000000000aa",
+    )).rejects.toThrow("totals failed");
+  });
+
   it("normalizes create-vesting execution errors into workflow-specific HttpErrors", () => {
     const diagnostics = { txHash: "0xcreate" };
 
@@ -147,6 +167,24 @@ describe("vesting helpers", () => {
       });
   });
 
+  it("preserves unknown create/release errors and normalizes selector-only diagnostics", () => {
+    expect(
+      normalizeCreateVestingExecutionError(
+        { diagnostics: { nested: [{ selector: "0x2ce551cb" }, true, 7n] } },
+        "team",
+      ),
+    ).toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "create-beneficiary-vesting blocked by wrong beneficiary state: beneficiary already has a vesting schedule",
+    });
+
+    const createUnknown = new Error("execution reverted: unknown create");
+    expect(normalizeCreateVestingExecutionError(createUnknown, "team")).toBe(createUnknown);
+
+    const releaseUnknown = new Error("execution reverted: unknown release");
+    expect(normalizeReleaseVestingExecutionError(releaseUnknown)).toBe(releaseUnknown);
+  });
+
   it("normalizes release-vesting execution errors, including cliff-period diagnostics", () => {
     expect(normalizeReleaseVestingExecutionError(new Error("execution reverted: NoScheduleFound(address)")))
       .toMatchObject<HttpError>({
@@ -172,6 +210,11 @@ describe("vesting helpers", () => {
       .toMatchObject<HttpError>({
         statusCode: 409,
         message: "release-beneficiary-vesting blocked by setup/state: no releasable amount",
+      });
+    expect(normalizeReleaseVestingExecutionError(new Error("execution reverted: InCliffPeriod()")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "release-beneficiary-vesting blocked by setup/state: beneficiary is still in cliff period until unknown",
       });
   });
 

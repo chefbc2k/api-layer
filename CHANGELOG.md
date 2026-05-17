@@ -2609,3 +2609,19 @@
 
 ### Status
 - **Remaining Setup Partials:** None in the current Base Sepolia fixture artifact. Marketplace and governance now both emit `ready` setup state.
+
+## [0.1.8] - 2026-05-17
+
+### Fixed
+- **Coverage Branch Gaps Narrowed In Helper Suites:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.test.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/config.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/config.test.ts), and [/Users/chef/Public/api-layer/scripts/utils.test.ts](/Users/chef/Public/api-layer/scripts/utils.test.ts) to cover previously untested error normalization, owner-resolution, collaborator authorization, native env parsing, and relative manifest path branches without changing runtime behavior.
+- **Transfer/Re-Secure Workflow Coverage Closed:** `packages/api/src/workflows/transfer-and-resecure-voice-asset.ts` now reports full line, statement, function, and branch coverage after adding the missing failed-authorization path.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; both remain green against the repo’s local Base Sepolia fork baseline on `http://127.0.0.1:8548`, chain ID `84532`.
+- **API Surface / Wrapper Coverage:** Re-ran `pnpm run coverage:check`; wrapper coverage remains `492` functions and `218` events, and HTTP coverage remains validated for `492` methods.
+- **Targeted Regression Suites:** Re-ran `pnpm exec vitest run packages/api/src/workflows/vesting-helpers.test.ts packages/api/src/shared/cdp-smart-wallet.test.ts packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts packages/client/src/runtime/config.test.ts scripts/utils.test.ts --maxWorkers 1`; all `58` targeted tests passed.
+- **Full Coverage Harness:** Re-ran `pnpm run test:coverage`; the command exited green with aggregate Istanbul coverage of `99.30%` statements, `95.22%` branches, `99.59%` functions, and `99.34%` lines, improving the previous baseline from `99.22%` statements, `95.04%` branches, `99.59%` functions, and `99.25%` lines.
+
+### Remaining Issues
+- **Strict 100% Coverage Requirement Still Open:** The repo is green, but the hard coverage mandate is still not met. The largest remaining misses are concentrated in branch-heavy helpers and setup/runtime utilities, especially [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts).
+- **Forward Progress For This Run:** Aggregate uncovered statements dropped from `38` to `34`, uncovered lines from `35` to `31`, and uncovered branches from `216` to `208`, which closes more than 20% of the prior statement and line gaps but not yet 20% of the branch gap.
