@@ -86,6 +86,15 @@ describe("run-test-coverage helpers", () => {
         if (target.endsWith("/.runtime/coverage-shards")) {
           return ["workflow-unit-01", "workflow-unit-02", "non-workflow-01"] as any;
         }
+        if (target.endsWith("/workflow-unit-01/.tmp")) {
+          return ["coverage-0.json"] as any;
+        }
+        if (target.endsWith("/workflow-unit-02/.tmp")) {
+          return ["coverage-0.json"] as any;
+        }
+        if (target.endsWith("/non-workflow-01/.tmp")) {
+          return ["coverage-0.json"] as any;
+        }
         throw Object.assign(new Error(`unexpected path ${target}`), { code: "ENOENT" });
       }) as any;
     const readFileFn = vi.fn()
@@ -165,6 +174,82 @@ describe("run-test-coverage helpers", () => {
 
   }, 20_000);
 
+  it("prefers raw shard fragments over shard coverage-final summaries when both exist", async () => {
+    const spawnFn = vi.fn().mockImplementation(() => {
+      const child = new EventEmitter() as EventEmitter & { on: typeof EventEmitter.prototype.on };
+      queueMicrotask(() => {
+        child.emit("exit", 0, null);
+      });
+      return child;
+    });
+    const readdirFn = vi.fn()
+      .mockImplementation(async (target: string) => {
+        if (target.endsWith("/packages") || target.endsWith("/scripts") || target.endsWith("/scenario-adapter")) {
+          throw Object.assign(new Error("missing"), { code: "ENOENT" });
+        }
+        if (target.endsWith("/.runtime/coverage-shards")) {
+          return ["workflow-unit-01"] as any;
+        }
+        if (target.endsWith("/workflow-unit-01/.tmp")) {
+          return ["coverage-2.json", "coverage-10.json"] as any;
+        }
+        throw Object.assign(new Error(`unexpected path ${target}`), { code: "ENOENT" });
+      }) as any;
+    const readFileFn = vi.fn()
+      .mockImplementation(async (filename: string) => {
+        if (filename.endsWith("/workflow-unit-01/.tmp/coverage-2.json")) {
+          return JSON.stringify({
+            "/tmp/alpha.ts": {
+              path: "/tmp/alpha.ts",
+              statementMap: { "0": { start: { line: 1, column: 0 }, end: { line: 1, column: 1 } } },
+              fnMap: {},
+              branchMap: {},
+              s: { "0": 1 },
+              f: {},
+              b: {},
+            },
+          });
+        }
+        if (filename.endsWith("/workflow-unit-01/.tmp/coverage-10.json")) {
+          return JSON.stringify({
+            "/tmp/beta.ts": {
+              path: "/tmp/beta.ts",
+              statementMap: { "0": { start: { line: 1, column: 0 }, end: { line: 1, column: 1 } } },
+              fnMap: {},
+              branchMap: {},
+              s: { "0": 1 },
+              f: {},
+              b: {},
+            },
+          });
+        }
+        if (filename.endsWith("/workflow-unit-01/coverage-final.json")) {
+          throw new Error("coverage-final should not be read when raw fragments exist");
+        }
+        throw new Error(`unexpected file ${filename}`);
+      }) as any;
+    const writeFileFn = vi.fn().mockResolvedValue(undefined);
+    const processExit = vi.fn((code?: number) => {
+      throw new Error(`exit:${code}`);
+    });
+
+    await expect(runCoverage({
+      env: { NODE_OPTIONS: "--inspect" },
+      mkdirFn: vi.fn().mockResolvedValue(undefined) as any,
+      processExit: processExit as any,
+      readFileFn,
+      readdirFn,
+      rmFn: vi.fn().mockResolvedValue(undefined) as any,
+      spawnFn: spawnFn as any,
+      writeFileFn: writeFileFn as any,
+    })).rejects.toThrow("exit:0");
+
+    expect(readFileFn.mock.calls.map(([filename]) => filename)).toEqual([
+      expect.stringMatching(/\/workflow-unit-01\/\.tmp\/coverage-2\.json$/),
+      expect.stringMatching(/\/workflow-unit-01\/\.tmp\/coverage-10\.json$/),
+    ]);
+  });
+
   it("defers provider selection to the repo vitest config", () => {
     expect(coverageVitestArgs).not.toContain("--coverage.provider=v8");
     expect(coverageVitestArgs).not.toContain("--coverage.reporter=text");
@@ -212,7 +297,11 @@ describe("run-test-coverage helpers", () => {
           ] as any;
         }
         if (target.endsWith("/packages/api/src/shared")) {
-          return [{ name: "delta.test.ts", isDirectory: () => false }] as any;
+          return [
+            { name: "delta.test.ts", isDirectory: () => false },
+            { name: "epsilon.test.ts", isDirectory: () => false },
+            { name: "zeta.test.ts", isDirectory: () => false },
+          ] as any;
         }
         throw Object.assign(new Error("missing"), { code: "ENOENT" });
       }) as any;
@@ -222,6 +311,8 @@ describe("run-test-coverage helpers", () => {
       { name: "workflow-unit-02", files: ["packages/api/src/workflows/beta.test.ts"] },
       { name: "workflow-integration-01", files: ["packages/api/src/workflows/gamma.integration.test.ts"] },
       { name: "non-workflow-01", files: ["packages/api/src/shared/delta.test.ts"] },
+      { name: "non-workflow-02", files: ["packages/api/src/shared/epsilon.test.ts"] },
+      { name: "non-workflow-03", files: ["packages/api/src/shared/zeta.test.ts"] },
     ]);
   });
 });

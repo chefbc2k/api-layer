@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.157] - 2026-05-17
+
+### Fixed
+- **Coverage Runner No Longer Dies In The Final Non-Workflow Shard:** Updated [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) so the standard-coverage runner now fans non-workflow tests out across three deterministic shards instead of forcing the entire non-workflow suite through a single Vitest worker that was timing out during `onAfterSuiteRun`.
+- **Coverage Merge Now Prefers Raw Shard Fragments Over Shard Summaries:** Hardened [`/Users/chef/Public/api-layer/scripts/run-test-coverage.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) so merge order consumes `.tmp/coverage-*.json` fragments first when they exist, and only falls back to shard-level `coverage-final.json` when no raw fragments were emitted. This keeps the merged report aligned with the actual shard outputs instead of depending on potentially stale shard summaries.
+- **Coverage Runner Tests Now Lock The Shard-Fanout And Fragment-Preference Behavior:** Expanded [`/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts`](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) to prove deterministic three-way non-workflow sharding and to assert that raw shard fragments are merged before any shard summary artifact is read.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Coverage Runner Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/run-test-coverage.test.ts --maxWorkers 1`; all `8/8` assertions passed after the shard-planning and merge-order hardening landed.
+- **Standard Coverage Command Returned Green Again:** Re-ran `pnpm run test:coverage`; the sharded suite now exits `0` instead of dying in `non-workflow-01`, and it emits a merged Istanbul report at `89.17% / 81.76% / 89.78% / 89.62%` for statements/branches/functions/lines with `715` passing tests plus `18` intentionally skipped live contract-integration proofs across the shard set.
+
+### Remaining Issues
+- **100% Standard Coverage Is Still Unmet And The Revenue Workflow Files Still Show Anomalously Low Per-File Attribution:** The standard-coverage command is usable again, but repo-wide coverage remains below the automation target and [`/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-revenue-posture.ts) plus [`/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/treasury-revenue-operations.ts) still report `8.82% / 0% / 0% / 10.71%` and `11.42% / 0% / 0% / 13.79%` in the merged artifact despite their targeted tests passing. The next pass should isolate whether those files are being loaded through duplicate module paths during the workflow shards.
+
 ## [0.1.156] - 2026-05-17
 
 ### Fixed

@@ -144,7 +144,7 @@ export async function discoverCoverageShards(
   return [
     ...splitIntoShards(workflowUnit, 2, "workflow-unit"),
     ...splitIntoShards(workflowIntegration, 1, "workflow-integration"),
-    ...splitIntoShards(everythingElse, 1, "non-workflow"),
+    ...splitIntoShards(everythingElse, 3, "non-workflow"),
   ];
 }
 
@@ -244,6 +244,24 @@ async function mergeCoverageReports(
 
   for (const shardName of shardNames) {
     const coveragePath = path.join(coverageShardDir, shardName, "coverage-final.json");
+    const shardTmpDir = path.join(coverageShardDir, shardName, ".tmp");
+    try {
+      const fragmentNames = (await readdirFn(shardTmpDir))
+        .filter((entry) => /^coverage-\d+\.json$/u.test(entry))
+        .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
+      if (fragmentNames.length > 0) {
+        for (const fragmentName of fragmentNames) {
+          const raw = await readFileFn(path.join(shardTmpDir, fragmentName), "utf8");
+          coverageMap.merge(JSON.parse(raw));
+        }
+        continue;
+      }
+    } catch (error) {
+      if (!isErrnoException(error) || error.code !== "ENOENT") {
+        throw error;
+      }
+    }
+
     try {
       const raw = await readFileFn(coveragePath, "utf8");
       coverageMap.merge(JSON.parse(raw));
@@ -254,17 +272,7 @@ async function mergeCoverageReports(
       }
     }
 
-    const shardTmpDir = path.join(coverageShardDir, shardName, ".tmp");
-    const fragmentNames = (await readdirFn(shardTmpDir))
-      .filter((entry) => /^coverage-\d+\.json$/u.test(entry))
-      .sort((left, right) => left.localeCompare(right, undefined, { numeric: true }));
-    if (fragmentNames.length === 0) {
-      throw new Error(`missing merged coverage artifact and shard fragments for ${shardName}`);
-    }
-    for (const fragmentName of fragmentNames) {
-      const raw = await readFileFn(path.join(shardTmpDir, fragmentName), "utf8");
-      coverageMap.merge(JSON.parse(raw));
-    }
+    throw new Error(`missing shard fragments and merged coverage artifact for ${shardName}`);
   }
 
   await writeFileFn(
