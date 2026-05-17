@@ -125,6 +125,40 @@ describe("verify marketplace purchase live target selection", () => {
     });
   });
 
+  it("marks funding failures as unresolved when no marketplace target was found yet", () => {
+    expect(buildBlockedFundingOutput({
+      chainId: 84532,
+      diamondAddress: "0xdiamond",
+      sellerAddress: "0xseller",
+      buyerAddress: "0xbuyer",
+      fundingWallet: "0xfounder",
+      funding: {
+        ok: false,
+        balance: 100n,
+        minimum: 500n,
+        missing: 400n,
+        fundingWallet: "0xfounder",
+        recipient: "0xbuyer",
+      },
+      target: null,
+    })).toMatchObject({
+      target: {
+        source: "unresolved",
+        chainId: 84532,
+        diamond: "0xdiamond",
+        tokenId: null,
+        voiceHash: null,
+      },
+      actors: {
+        seller: "0xseller",
+        buyer: "0xbuyer",
+        fundingWallet: "0xfounder",
+      },
+      classification: "blocked by setup/state",
+      failureKind: "environment limitation",
+    });
+  });
+
   it("wraps marketplace purchase outputs in the shared verify-report shape", () => {
     const output = buildMarketplacePurchaseVerifyOutput({
       classification: "proven working",
