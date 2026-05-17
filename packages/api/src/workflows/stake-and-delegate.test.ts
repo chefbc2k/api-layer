@@ -510,6 +510,53 @@ describe("runStakeAndDelegateWorkflow", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = previousSignerMap;
   });
 
+  it("treats non-200 pre-stake reads as zeroed pre-state before continuing the workflow", async () => {
+    const receiptByTxHash = new Map([
+      ["0xstake-receipt", { blockNumber: 71 }],
+      ["0xdelegate-receipt", { blockNumber: 72 }],
+    ]);
+    const context = {
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async (txHash: string) => receiptByTxHash.get(txHash) ?? null),
+        })),
+      },
+    } as never;
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance: vi.fn().mockResolvedValue({ statusCode: 200, body: "100" }),
+      tokenApprove: vi.fn(),
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      getStakeInfo: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 503, body: { error: "not ready" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { amount: "100" } }),
+      stake: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xstake-write" } }),
+      stakedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xstake-receipt" }]),
+      delegates: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000000" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+      delegate: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xdelegate-write" } }),
+      getCurrentVotes: vi.fn().mockResolvedValue({ statusCode: 200, body: "100" }),
+      delegateChangedAddressAddressAddressEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xdelegate-receipt" }]),
+    });
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xstake-receipt")
+      .mockResolvedValueOnce("0xdelegate-receipt");
+
+    const result = await runStakeAndDelegateWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      amount: "100",
+      delegatee: "0x00000000000000000000000000000000000000bb",
+    });
+
+    expect(result.stake.stakeInfoBefore).toEqual({ amount: "0" });
+    expect(result.stake.stakeInfoAfter).toEqual({ amount: "100" });
+  });
+
   it("surfaces EchoScore-too-low stake reverts as an explicit workflow state block", async () => {
     const context = {
       addressBook: {
@@ -693,7 +740,9 @@ describe("runStakeAndDelegateWorkflow", () => {
     expect(stakeAndDelegateTestUtils.normalizeEventLogs([{ transactionHash: "0x1" }])).toEqual([{ transactionHash: "0x1" }]);
     expect(stakeAndDelegateTestUtils.normalizeEventLogs({ statusCode: 200, body: [{ transactionHash: "0x2" }] })).toEqual([{ transactionHash: "0x2" }]);
     expect(stakeAndDelegateTestUtils.normalizeEventLogs({ statusCode: 200, body: null })).toEqual([]);
+    expect(stakeAndDelegateTestUtils.normalizeEventLogs("not-an-object" as never)).toEqual([]);
     expect(stakeAndDelegateTestUtils.hasTransactionHash([{ transactionHash: "0x2" }], null)).toBe(false);
+    expect(stakeAndDelegateTestUtils.extractUint256Words("execution reverted")).toEqual([]);
     expect(stakeAndDelegateTestUtils.extractUint256Words("execution reverted: 0x06a35408")).toEqual([]);
     expect(
       stakeAndDelegateTestUtils.extractUint256Words(
