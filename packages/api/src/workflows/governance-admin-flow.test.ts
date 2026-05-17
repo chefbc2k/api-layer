@@ -146,6 +146,26 @@ describe("runGovernanceAdminFlowWorkflow", () => {
     });
   });
 
+  it("keeps the summary voter null when no vote or caller wallet is supplied", async () => {
+    const result = await runGovernanceAdminFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "submit only without wallet",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+    });
+
+    expect(result.vote).toBeNull();
+    expect(result.summary).toMatchObject({
+      voteRequested: false,
+      voteCast: false,
+      voteSupport: null,
+      voter: null,
+    });
+  });
+
   it("runs the submit plus eligible vote path", async () => {
     const result = await runGovernanceAdminFlowWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
       proposal: {

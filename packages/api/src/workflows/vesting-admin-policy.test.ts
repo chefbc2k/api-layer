@@ -174,6 +174,52 @@ describe("vesting admin policy workflows", () => {
     expect(result.timewave.quarterlyUnlockRate.after).toBe("3000");
   });
 
+  it("supports standard-only updates without forcing twave readbacks", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getMinTwaveVestingDuration: vi.fn().mockResolvedValue({ statusCode: 200, body: "7776000" }),
+      getQuarterlyUnlockRate: vi.fn().mockResolvedValue({ statusCode: 200, body: "2500" }),
+      setMinimumVestingDuration: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xstandard" } }),
+      setMinimumTwaveVestingDuration: vi.fn(),
+      setQuarterlyUnlockRate: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xstandard-receipt");
+
+    const result = await runUpdateVestingAdminPolicyWorkflow({} as never, auth, undefined, {
+      standardMinimumDuration: "86400",
+    });
+
+    expect(result.standardVesting.minimumDuration).toEqual({
+      before: null,
+      requested: "86400",
+      submission: { txHash: "0xstandard" },
+      txHash: "0xstandard-receipt",
+      confirmation: "receipt-only",
+      readableAfter: false,
+    });
+    expect(result.timewave.minimumDuration).toEqual({
+      before: "7776000",
+      requested: null,
+      submission: null,
+      txHash: null,
+      after: "7776000",
+      confirmation: "not-requested",
+    });
+    expect(result.timewave.quarterlyUnlockRate).toEqual({
+      before: "2500",
+      requested: null,
+      submission: null,
+      txHash: null,
+      after: "2500",
+      confirmation: "not-requested",
+    });
+    expect(result.summary).toEqual({
+      requestedStandardMinimumDuration: "86400",
+      requestedTwaveMinimumDuration: null,
+      requestedTwaveQuarterlyUnlockRate: null,
+      standardMinimumDurationReadable: false,
+    });
+  });
+
   it("normalizes insufficient admin authority failures for standard and twave controls", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
       getMinTwaveVestingDuration: vi.fn().mockResolvedValue({ statusCode: 200, body: "2592000" }),

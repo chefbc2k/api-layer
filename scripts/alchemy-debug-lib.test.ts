@@ -377,6 +377,7 @@ describe("alchemy-debug-lib", () => {
     expect(isLoopbackRpcUrl("http://127.0.0.1:8548")).toBe(true);
     expect(isLoopbackRpcUrl("https://localhost:8545")).toBe(true);
     expect(isLoopbackRpcUrl(" localhost fallback")).toBe(true);
+    expect(isLoopbackRpcUrl("totally malformed")).toBe(false);
     expect(isLoopbackRpcUrl("https://rpc.example.com")).toBe(false);
   });
 
@@ -796,6 +797,19 @@ describe("alchemy-debug-lib", () => {
       cbdpRpcUrl: "https://rpc.example.com/base-sepolia",
       alchemyRpcUrl: "https://alchemy.example.com/base-sepolia",
     }));
+  });
+
+  it("prefers the default parent-directory contracts workspace when no explicit override is set", async () => {
+    mocked.existsSync.mockImplementation((target: string) =>
+      target.endsWith("/Public/package.json") ||
+      target.endsWith("/Public/scripts/deployment"),
+    );
+    mocked.execFileSync.mockReturnValue("cafebabe\n");
+
+    const runtime = await loadRuntimeEnvironment();
+
+    expect(runtime.contractsRoot).toMatch(/\/Public$/);
+    expect(runtime.scenarioCommit).toBe("cafebabe");
   });
 
   it("returns a null scenario commit when git metadata is unavailable", async () => {

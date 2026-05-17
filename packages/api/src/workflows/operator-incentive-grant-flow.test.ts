@@ -25,7 +25,10 @@ vi.mock("./vesting-admin-policy.js", async () => {
   };
 });
 
-import { runOperatorIncentiveGrantFlowWorkflow } from "./operator-incentive-grant-flow.js";
+import {
+  operatorIncentiveGrantFlowWorkflowSchema,
+  runOperatorIncentiveGrantFlowWorkflow,
+} from "./operator-incentive-grant-flow.js";
 
 describe("runOperatorIncentiveGrantFlowWorkflow", () => {
   const participantAuth = {
@@ -296,6 +299,22 @@ describe("runOperatorIncentiveGrantFlowWorkflow", () => {
     );
     expect(result.policy.before.status).toBe("not-requested");
     expect(result.policy.after.status).toBe("completed");
+  });
+
+  it("rejects policy sections that provide an actor override but no requested policy action", () => {
+    expect(() => operatorIncentiveGrantFlowWorkflowSchema.parse({
+      policy: {
+        actor: {
+          apiKey: "policy-key",
+        },
+      },
+      activation: {
+        staking: {
+          amount: "10",
+          delegatee: "0x00000000000000000000000000000000000000bb",
+        },
+      },
+    })).toThrow("operator-incentive-grant-flow policy expected inspectBefore, inspectAfter, or update");
   });
 
   it("propagates non-409 policy inspection failures instead of reclassifying them", async () => {

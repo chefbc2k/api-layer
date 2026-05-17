@@ -148,7 +148,9 @@ describe("multisig protocol change helper utilities", () => {
     expect(readCanExecute([true, "ready"])).toEqual({ canExecute: true, reason: "ready" });
     expect(readCanExecute({ result: "invalid" })).toEqual({ canExecute: false, reason: "" });
 
+    expect(readScalarBody(7)).toBe("7");
     expect(mapMultisigStatusLabel("9")).toBe("Unknown");
+    expect(mapMultisigStatusLabel("0")).toBe("NonExistent");
 
     expect(extractOperationIdFromPayload({ result: UPGRADE_ID })).toBe(UPGRADE_ID);
     expect(extractOperationIdFromPayload({ result: "0x1234" })).toBeNull();
@@ -156,6 +158,7 @@ describe("multisig protocol change helper utilities", () => {
     expect(extractOperationIdFromLogs([], null)).toBeNull();
     expect(extractOperationIdFromLogs([{ transactionHash: "0xabc", id: UPGRADE_ID }], "0xdef")).toBeNull();
     expect(extractOperationIdFromLogs([{ transactionHash: "0xabc", operationId: UPGRADE_ID }], "0xabc")).toBe(UPGRADE_ID);
+    expect(extractOperationIdFromLogs([{ transactionHash: "0xabc", id: "0x1234" }], "0xabc")).toBeNull();
   });
 
   it("collects consequence targets and action results across ownership and upgrade actions", () => {
@@ -273,6 +276,96 @@ describe("multisig protocol change helper utilities", () => {
           error: "missing upgrade",
         },
       ],
+    });
+  });
+
+  it("reads ownership consequence snapshots without target approvals and resolves actor overrides", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const childAuth = {
+      apiKey: "child-key",
+      label: "child",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const context = {
+      apiKeys: {
+        "child-key": childAuth,
+      },
+    } as never;
+    const services = {
+      ownership: {
+        owner: vi.fn().mockResolvedValue({ body: 123n }),
+        pendingOwner: vi.fn().mockResolvedValue({ body: null }),
+        isOwnershipPolicyEnforced: vi.fn().mockResolvedValue({ body: { result: true } }),
+        isOwnerTargetApproved: vi.fn(),
+      },
+    } as never;
+
+    expect(resolveActorOverride(context, auth, "0x00000000000000000000000000000000000000aa", undefined, "flow", "actor")).toEqual({
+      auth,
+      walletAddress: "0x00000000000000000000000000000000000000aa",
+    });
+    expect(resolveActorOverride(context, auth, "0x00000000000000000000000000000000000000aa", {
+      apiKey: "child-key",
+    }, "flow", "actor")).toEqual({
+      auth: childAuth,
+      walletAddress: "0x00000000000000000000000000000000000000aa",
+    });
+    expect(() => resolveActorOverride(context, auth, undefined, {
+      apiKey: "missing-key",
+    }, "flow", "actor")).toThrowError(HttpError);
+
+    await expect(readOwnershipConsequence(
+      services,
+      auth,
+      undefined,
+      [],
+    )).resolves.toEqual({
+      owner: "123",
+      pendingOwner: null,
+      ownershipPolicyEnforced: true,
+      targetApprovals: [],
+    });
+    expect(services.ownership.isOwnerTargetApproved).not.toHaveBeenCalled();
+  });
+
+  it("keeps primitive upgrade status payloads and null tuple fields when upgrade reads are sparse", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      diamondAdmin: {
+        getUpgradeControlStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "frozen" }),
+        getUpgradeDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: 60 } }),
+        getUpgradeThreshold: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: 2n } }),
+        getUpgrade: vi.fn().mockResolvedValue({ statusCode: 200, body: ["0x1234", null, null, "yes"] }),
+      },
+    } as never;
+
+    await expect(readUpgradeConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      [UPGRADE_ID],
+    )).resolves.toEqual({
+      controlStatus: "frozen",
+      upgradeDelay: "60",
+      upgradeThreshold: "2",
+      upgrades: [{
+        upgradeId: UPGRADE_ID,
+        proposer: "0x1234",
+        proposedAt: null,
+        approvalCount: null,
+        executed: null,
+      }],
     });
   });
 
