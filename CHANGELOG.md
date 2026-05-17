@@ -2610,6 +2610,22 @@
 ### Status
 - **Remaining Setup Partials:** None in the current Base Sepolia fixture artifact. Marketplace and governance now both emit `ready` setup state.
 
+## [0.1.9] - 2026-05-17
+
+### Fixed
+- **Coverage Harness No Longer Trips On The Slow Catalog Workflow Shard:** Updated [/Users/chef/Public/api-layer/scripts/run-test-coverage.ts](/Users/chef/Public/api-layer/scripts/run-test-coverage.ts) to isolate `packages/api/src/workflows/catalog-listing-operations.test.ts` into its own dedicated coverage shard instead of batching it with the rest of the workflow-unit suite. This removes the long-running shard imbalance that was causing `pnpm run test:coverage` to terminate with `Error: [vitest-worker]: Timeout calling "onTaskUpdate"` after the tests themselves had already passed.
+- **Shard Planner Regression Locked:** Expanded [/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts](/Users/chef/Public/api-layer/scripts/run-test-coverage.test.ts) so the deterministic shard planner now asserts the dedicated `workflow-unit-dedicated-01` bucket for the catalog listing workflow suite.
+
+### Verified
+- **Baseline Commands:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo remains aligned to the local Base Sepolia fork baseline on `http://127.0.0.1:8548`, chain ID `84532`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`.
+- **Coverage Surface Gates:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP endpoint coverage remains validated for `492` methods.
+- **Coverage Harness Regression Test:** Re-ran `pnpm exec vitest run scripts/run-test-coverage.test.ts --maxWorkers 1`; all `9` shard-runner tests passed.
+- **Full Coverage Sweep:** Re-ran `pnpm run test:coverage`; the command now exits green end-to-end instead of failing on the workflow-unit shard timeout. The measured aggregate Istanbul snapshot for this run is `96.81%` statements, `91.05%` branches, `96.91%` functions, and `96.94%` lines.
+
+### Remaining Issues
+- **Strict 100% Standard Coverage Is Still Open:** The coverage runner is now reliable again, but the repo still falls short of the hard `100%` branch / functional / line / statement mandate. The largest remaining misses are concentrated in branch-heavy workflow orchestration and setup/runtime helpers, including [/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/release-beneficiary-vesting.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/revoke-beneficiary-vesting.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/revoke-beneficiary-vesting.ts), and [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts).
+- **Forward Progress For This Run:** This session closed the immediate coverage-harness failure mode entirely: `pnpm run test:coverage` moved from a deterministic red failure on `workflow-unit-02` to a full green completion across all shards, restoring coverage observability for the remaining 100% push.
+
 ## [0.1.8] - 2026-05-17
 
 ### Fixed

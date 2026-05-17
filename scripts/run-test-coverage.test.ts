@@ -309,6 +309,7 @@ describe("run-test-coverage helpers", () => {
           return [
             { name: "alpha.test.ts", isDirectory: () => false },
             { name: "beta.test.ts", isDirectory: () => false },
+            { name: "catalog-listing-operations.test.ts", isDirectory: () => false },
             { name: "gamma.integration.test.ts", isDirectory: () => false },
           ] as any;
         }
@@ -323,6 +324,7 @@ describe("run-test-coverage helpers", () => {
       }) as any;
 
     await expect(discoverCoverageShards(readdirFn)).resolves.toEqual([
+      { name: "workflow-unit-dedicated-01", files: ["packages/api/src/workflows/catalog-listing-operations.test.ts"] },
       { name: "workflow-unit-01", files: ["packages/api/src/workflows/alpha.test.ts"] },
       { name: "workflow-unit-02", files: ["packages/api/src/workflows/beta.test.ts"] },
       { name: "workflow-integration-01", files: ["packages/api/src/workflows/gamma.integration.test.ts"] },

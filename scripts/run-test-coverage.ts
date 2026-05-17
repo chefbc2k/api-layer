@@ -37,6 +37,10 @@ export type CoverageShard = {
   files: string[];
 };
 
+const dedicatedCoverageShardFiles = [
+  "packages/api/src/workflows/catalog-listing-operations.test.ts",
+] as const;
+
 const excludedCoverageTestPatterns = [
   ".contract-integration.test.ts",
 ] as const;
@@ -149,11 +153,24 @@ export async function discoverCoverageShards(
     .filter((file) => !shouldExcludeFromCoverage(file))
     .sort((left, right) => left.localeCompare(right));
 
-  const workflowUnit = discovered.filter((file) => file.includes("packages/api/src/workflows/") && !file.includes(".integration."));
+  const dedicatedCoverageShards = dedicatedCoverageShardFiles
+    .filter((file) => discovered.includes(file))
+    .map((file, index) => ({
+      name: `workflow-unit-dedicated-${String(index + 1).padStart(2, "0")}`,
+      files: [file],
+    }));
+  const dedicatedFileSet = new Set(dedicatedCoverageShards.flatMap((shard) => shard.files));
+
+  const workflowUnit = discovered.filter((file) => (
+    file.includes("packages/api/src/workflows/")
+    && !file.includes(".integration.")
+    && !dedicatedFileSet.has(file)
+  ));
   const workflowIntegration = discovered.filter((file) => file.includes("packages/api/src/workflows/") && file.includes(".integration."));
   const everythingElse = discovered.filter((file) => !file.includes("packages/api/src/workflows/"));
 
   return [
+    ...dedicatedCoverageShards,
     ...splitIntoShards(workflowUnit, 2, "workflow-unit"),
     ...splitIntoShards(workflowIntegration, 1, "workflow-integration"),
     ...splitIntoShards(everythingElse, 3, "non-workflow"),
