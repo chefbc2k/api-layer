@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.164] - 2026-05-17
+
+### Fixed
+- **API Surface Regression Coverage Expanded Across Missing Resource Fallback Branches:** Extended [`/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) to prove the generated route/resource mapping for default dataset methods, default license methods, marketplace payment methods, and default marketplace listing methods. These assertions close previously unverified `inferResource` fallback branches in [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) without changing generation behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted API Surface Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/api-surface-lib.test.ts --maxWorkers 1`; all `7/7` assertions passed after the route/resource fallback additions landed.
+- **Focused API Surface Coverage Improved:** Re-ran `pnpm exec vitest run scripts/api-surface-lib.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='scripts/api-surface-lib.ts' --maxWorkers 1`; [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) improved from `95.07% / 93.33% / 96.29% / 94.96%` to `97.88% / 96.00% / 96.29% / 97.84%` for statements/branches/functions/lines.
+- **Repo-Wide Standard Coverage Improved Again While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and the merged Istanbul totals improved from `99.33% / 95.59% / 99.59% / 99.36%` to `99.41% / 95.68% / 99.59% / 99.44%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The most visible remaining branch hotspots are still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
 ## [0.1.163] - 2026-05-17
 
 ### Fixed

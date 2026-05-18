@@ -181,6 +181,22 @@ describe("api surface helpers", () => {
 
   it("maps resource domains, HTTP verbs, and output shapes across non-voice facets", () => {
     expect(buildMethodSurface(method({
+      facetName: "VoiceDatasetFacet",
+      wrapperKey: "createDataset",
+      methodName: "createDataset",
+      category: "write",
+      inputs: [{ name: "name", type: "string" }],
+      outputs: [{ name: "datasetId", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "datasets",
+      resource: "datasets",
+      classification: "create",
+      httpMethod: "POST",
+      path: "/v1/datasets/datasets",
+      outputShape: { kind: "scalar" },
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "VoiceLicenseTemplateFacet",
       wrapperKey: "createTemplate",
       methodName: "createTemplate",
@@ -193,6 +209,22 @@ describe("api surface helpers", () => {
       classification: "create",
       httpMethod: "POST",
       path: "/v1/licensing/license-templates",
+      outputShape: { kind: "scalar" },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VoiceLicenseFacet",
+      wrapperKey: "issueLicense",
+      methodName: "issueLicense",
+      category: "write",
+      inputs: [{ name: "templateId", type: "uint256" }],
+      outputs: [{ name: "licenseId", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "licensing",
+      resource: "licenses",
+      classification: "create",
+      httpMethod: "POST",
+      path: "/v1/licensing/licenses",
       outputShape: { kind: "scalar" },
     });
 
@@ -215,6 +247,21 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "PaymentFacet",
+      wrapperKey: "withdrawPayments",
+      methodName: "withdrawPayments",
+      category: "write",
+      inputs: [{ name: "payee", type: "address" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "marketplace",
+      resource: "payments",
+      classification: "action",
+      httpMethod: "POST",
+      path: "/v1/marketplace/commands/withdraw-payments",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "EscrowFacet",
       wrapperKey: "cancelEscrow",
       methodName: "cancelEscrow",
@@ -227,6 +274,21 @@ describe("api surface helpers", () => {
       classification: "delete",
       httpMethod: "DELETE",
       path: "/v1/marketplace/commands/cancel-escrow",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "MarketplaceFacet",
+      wrapperKey: "getMarketplaceListing",
+      methodName: "getMarketplaceListing",
+      inputs: [{ name: "listingId", type: "uint256" }],
+      outputs: [{ name: "listing", type: "tuple", components: [{ name: "price", type: "uint256" }] }],
+    }))).toMatchObject({
+      domain: "marketplace",
+      resource: "listings",
+      classification: "read",
+      httpMethod: "GET",
+      path: "/v1/marketplace/queries/get-marketplace-listing",
+      outputShape: { kind: "object" },
     });
 
     expect(buildMethodSurface(method({
