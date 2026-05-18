@@ -80,6 +80,13 @@ async function signerRunnerFor(
   return signer;
 }
 
+function requireSignerId(auth: AuthContext, definitionKey: string): string {
+  if (!auth.signerId) {
+    throw new Error(`write method ${definitionKey} requires signerFactory`);
+  }
+  return auth.signerId;
+}
+
 function signerQueueKey(auth: AuthContext, providerName: string): string {
   return `${auth.signerId ?? "anonymous"}:${providerName}`;
 }
@@ -227,10 +234,8 @@ async function prepareWriteInvocationOnProvider(
   provider: Provider,
   providerName: string,
 ): Promise<PreparedWriteInvocation> {
-  const signer = await signerRunnerFor(context, auth, provider, providerName);
-  if (!signer) {
-    throw new Error(`write method ${definition.key} requires signerFactory`);
-  }
+  const signerId = requireSignerId(auth, definition.key);
+  const signer = await signerRunnerFor(context, { ...auth, signerId }, provider, providerName);
   const contract = new (await import("ethers")).Contract(
     context.addressBook.resolveFacetAddress(definition.facetName),
     facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
@@ -322,9 +327,7 @@ async function staticCallPreview(
 }
 
 async function sendTransaction(context: ApiExecutionContext, definition: HttpMethodDefinition, runtimeArgs: unknown[], auth: AuthContext): Promise<{ hash?: string; response: unknown }> {
-  if (!auth.signerId) {
-    throw new Error(`write method ${definition.key} requires signerFactory`);
-  }
+  requireSignerId(auth, definition.key);
   return context.providerRouter.withProvider("write", definition.key, async (provider: Provider, providerName) => {
     const prepared = await prepareWriteInvocationOnProvider(context, definition, runtimeArgs, auth, provider, providerName);
     return withSignerQueue(context, prepared.queueKey, async () => {

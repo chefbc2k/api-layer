@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.170] - 2026-05-18
+
+### Fixed
+- **Execution Context Write Preconditions Now Share A Single Signer Requirement Guard:** Refined [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) so write execution and provider-preparation paths both use the same `requireSignerId` precondition instead of carrying an unreachable fallback branch after the caller had already enforced signer identity.
+- **ABI Codec Regression Coverage Now Locks In Missing Nested Tuple Output Failures:** Expanded [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) to prove object-shaped tuple result serialization still fails deterministically when nested tuple-array leaves are omitted, protecting the current normalization/error contract without changing runtime behavior.
+- **Transient RPC Retry Logging Is Now Explicitly Proven In Setup Tests:** Expanded [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so the `setup:base-sepolia` main wrapper now proves its configured retry logger actually forwards warnings through `console.warn`.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Guard Suites Stayed Green:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts packages/api/src/shared/execution-context.test.ts packages/api/src/workflows/withdraw-marketplace-payments.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `141/141` targeted assertions passed after the guard/test updates landed.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the full sharded coverage sweep remains green and the merged Istanbul totals improved from `99.41% / 96.03% / 99.59% / 99.44%` to `99.43% / 96.05% / 99.59% / 99.46%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The largest remaining hotspots are [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), with `withdraw-marketplace-payments.ts` still short of full branch coverage at `95.45%`.
+
 ## [0.1.169] - 2026-05-18
 
 ### Fixed

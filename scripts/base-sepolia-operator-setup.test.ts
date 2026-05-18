@@ -477,6 +477,7 @@ describe("base sepolia operator setup helpers", () => {
     vi.doMock("./transient-rpc-retry.js", () => ({
       runWithTransientRpcRetries,
     }));
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     const previousArgv = [...process.argv];
     process.argv[1] = "/tmp/not-the-setup-script.ts";
@@ -494,6 +495,9 @@ describe("base sepolia operator setup helpers", () => {
       baseDelayMs: 1500,
       log: expect.any(Function),
     });
+    const transientOptions = runWithTransientRpcRetries.mock.calls[0]?.[1] as { log: (message: string) => void };
+    transientOptions.log("retry warning");
+    expect(consoleWarn).toHaveBeenCalledWith("retry warning");
   });
 
   it("logs and exits when the setup script is imported as the main module and main rejects", async () => {

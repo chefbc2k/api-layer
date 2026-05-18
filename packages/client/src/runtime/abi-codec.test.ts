@@ -108,6 +108,33 @@ describe("abi-codec", () => {
     });
   });
 
+  it("rejects named tuple outputs when nested tuple values are missing or malformed", () => {
+    const definition = {
+      signature: "tupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "items",
+            type: "tuple[]",
+            components: [{ name: "amount", type: "uint256" }],
+          },
+          {
+            name: "meta",
+            type: "tuple",
+            components: [{ name: "flag", type: "bool" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => serializeResultToWire(definition as never, {
+      items: undefined,
+      meta: undefined,
+    })).toThrow("invalid result for tupleResult(): expected array value for tuple[]");
+  });
+
   it("rejects invalid param and response shapes", () => {
     const paramsDefinition = {
       signature: "setTuple((uint256,address)[2])",
