@@ -636,6 +636,29 @@ describe("base sepolia operator setup helpers", () => {
     expect(result.blockedReason).toContain("need 45 additional wei");
   });
 
+  it("falls back to the ranked candidate label when no explicit funder label is configured", async () => {
+    const balances = new Map<string, bigint>([
+      ["0xtarget", 1_000_000_000_005n],
+      ["0xfunder", 1_000_000_000_080n],
+    ]);
+    const provider = {
+      getBalance: vi.fn(async (address: string) => balances.get(address) ?? 0n),
+      getFeeData: vi.fn().mockResolvedValue({ gasPrice: 0n }),
+    };
+    const target = { address: "0xtarget", provider } as any;
+    const funder = {
+      address: "0xfunder",
+      provider,
+      sendTransaction: vi.fn().mockResolvedValue({
+        wait: vi.fn().mockResolvedValue({ status: 0, hash: "0xdead" }),
+      }),
+    } as any;
+
+    const result = await ensureNativeBalance([funder, target], new Map(), target, 1_000_000_000_090n);
+
+    expect(result.attemptedFunders).toEqual([{ label: "candidate", address: "0xfunder", spendable: "80" }]);
+  });
+
   it("detects existing roles, grants missing ones, and reports grant failures", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
@@ -1641,6 +1664,29 @@ describe("base sepolia operator setup helpers", () => {
       listing: {
         createdAt: "0",
         expiresAt: "200000",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "86401",
+    });
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("uses the wall clock fallback when the latest block omits a timestamp", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-05-18T12:00:00.000Z"));
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({}),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "0",
         isActive: true,
       },
     })).resolves.toEqual({

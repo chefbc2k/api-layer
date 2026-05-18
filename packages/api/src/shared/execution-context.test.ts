@@ -754,6 +754,44 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.signerRunners.get("founder:read")).toBe(signerRunner);
   });
 
+  it("reuses cached signer runners for repeated signer-backed reads on the same provider", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValue([]);
+    mocked.invokeRead.mockImplementation(async (runtime) => runtime.signerFactory?.({ name: "provider" } as never));
+    mocked.serializeResultToWire
+      .mockReturnValueOnce("signer-read-one")
+      .mockReturnValueOnce("signer-read-two");
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({ walletAddress: undefined }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "signer-read-one",
+    });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({ walletAddress: undefined }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "signer-read-two",
+    });
+
+    const firstRunner = mocked.serializeResultToWire.mock.calls[0]?.[1];
+    const secondRunner = mocked.serializeResultToWire.mock.calls[1]?.[1];
+    expect(firstRunner).toBe(secondRunner);
+    expect(context.signerRunners.size).toBe(1);
+  });
+
   it("falls back to the provider runner when signer resolution fails for a read without a wallet", async () => {
     const definition = buildReadDefinition();
     const context = buildContext();

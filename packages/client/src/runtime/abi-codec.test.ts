@@ -791,6 +791,55 @@ describe("abi-codec", () => {
     expect(decodeResultFromWire(multiOutput as never, ["8", true])).toEqual([8n, true]);
   });
 
+  it("falls back to numeric tuple keys when named object fields are omitted", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        { name: "count", type: "uint256" },
+        { name: "enabled", type: "bool" },
+      ],
+    };
+    const tupleResult = {
+      signature: "numericFallbackTuple()",
+      outputs: [tupleParam],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeToWire(tupleParam as never, { 0: 12n, 1: true })).toEqual({
+      count: "12",
+      enabled: true,
+    });
+    expect(decodeFromWire(tupleParam as never, { count: "5", 1: false })).toEqual({
+      count: 5n,
+      enabled: undefined,
+    });
+    expect(serializeResultToWire(tupleResult as never, { 0: 9n, 1: true })).toEqual({
+      count: "9",
+      enabled: true,
+    });
+  });
+
+  it("preserves malformed nested tuple-array leaves until output validation rejects them", () => {
+    const definition = {
+      signature: "malformedTupleLeaf()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "nested",
+            type: "tuple[]",
+            components: [{ name: "owner", type: "address" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => serializeResultToWire(definition as never, {
+      nested: "not-an-array",
+    })).toThrow("invalid result for malformedTupleLeaf(): expected array");
+  });
+
   it("rejects object-shaped tuple results when nested tuple-array leaves are null", () => {
     const sparseNestedTupleDefinition = {
       signature: "sparseNestedTuple()",
