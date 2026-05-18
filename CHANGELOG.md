@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.169] - 2026-05-18
+
+### Fixed
+- **Provider Router Branch Proofs Now Cover Secondary Retry Handling And Raw Error Fallbacks:** Expanded [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.test.ts) to prove [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts) preserves the active Alchemy failover state when a retryable Alchemy read fails, retries that single request back through CBDP, and logs raw string upstream failures through the default error-class/message fallbacks without changing production behavior.
+- **Withdraw Marketplace Payment Coverage Now Proves Nullish Pending-After Summaries:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.test.ts) to prove [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts) normalizes a non-scalar post-withdraw pending-payment readback to `null` in the returned workflow summary while preserving the standard withdrawal path.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Provider Router Coverage Reached 100%:** Re-ran `pnpm exec vitest run packages/client/src/runtime/provider-router.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/client/src/runtime/provider-router.ts' --maxWorkers 1`; [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts) now reports `100%` statements, branches, functions, and lines.
+- **Focused Marketplace Withdrawal Coverage Improved Materially:** Re-ran `pnpm exec vitest run packages/api/src/workflows/withdraw-marketplace-payments.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/api/src/workflows/withdraw-marketplace-payments.ts' --maxWorkers 1`; [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts) improved from `100% / 90.9% / 100% / 100%` to `100% / 95.45% / 100% / 100%`.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and the merged Istanbul totals improved from `99.41% / 95.94% / 99.59% / 99.44%` to `99.41% / 96.03% / 99.59% / 99.44%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage still remains below the automation target. The clearest remaining hotspots are now [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts).
+
 ## [0.1.168] - 2026-05-18
 
 ### Fixed

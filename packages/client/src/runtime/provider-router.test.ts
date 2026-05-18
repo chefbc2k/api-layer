@@ -287,6 +287,42 @@ describe("ProviderRouter", () => {
     expect(router.getStatus().cbdp.errorCount).toBe(0);
   });
 
+  it("keeps alchemy active when a retryable alchemy read fails and only falls back for that request", async () => {
+    const router = new ProviderRouter({
+      chainId: 84532,
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
+      errorThreshold: 1,
+      errorWindowMs: 60_000,
+      recoveryCooldownMs: 60_000,
+    });
+
+    let activateFailover = true;
+    await router.withProvider("read", "AccessControlFacet.getQuorum", async (_provider, providerName) => {
+      if (providerName === "cbdp" && activateFailover) {
+        activateFailover = false;
+        throw new Error("HTTP 429 from upstream");
+      }
+      return providerName;
+    });
+
+    const attempts: string[] = [];
+    const result = await router.withProvider("read", "AccessControlFacet.getQuorum", async (_provider, providerName) => {
+      attempts.push(providerName);
+      if (providerName === "alchemy") {
+        throw "service unavailable";
+      }
+      return providerName;
+    });
+
+    expect(result).toBe("cbdp");
+    expect(attempts).toEqual(["alchemy", "cbdp"]);
+    expect(router.getStatus()).toEqual({
+      cbdp: { active: false, errorCount: 1 },
+      alchemy: { active: true, errorCount: 1 },
+    });
+  });
+
   it.each([
     "rate limit exceeded upstream",
     "too many requests from upstream",

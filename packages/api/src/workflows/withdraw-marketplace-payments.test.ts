@@ -234,4 +234,29 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
       deadline: null,
     });
   });
+
+  it("normalizes a missing pending-after payee to null in the workflow summary", async () => {
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "15" })
+        .mockResolvedValueOnce({ statusCode: 200, body: {} }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xwithdraw-write" } }),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+
+    const result = await runWithdrawMarketplacePaymentsWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
+
+    expect(result.preflight.pendingBefore).toBe("15");
+    expect(result.withdrawal.pendingAfter).toBe(null);
+  });
 });
