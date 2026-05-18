@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.167] - 2026-05-17
+
+### Fixed
+- **Alchemy Runtime Fallback Coverage Now Proves Upstream-Only Fixture Metadata, Missing-Signer Headers, Null-Receipt Tx Debugging, And Absolute Contracts Roots:** Expanded [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) to prove [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) accepts absolute `API_LAYER_PARENT_REPO_DIR` overrides, resolves Base Sepolia fallback RPCs from fixture `upstreamRpcUrl` metadata when `rpcUrl` is absent, renders runtime headers with `signerAddress: "missing"` when no private key is configured, and skips decode work while deduplicating actor reads when tx receipts are unavailable.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Alchemy Debug Coverage Improved Materially:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='scripts/alchemy-debug-lib.ts' --maxWorkers 1`; all `35/35` assertions passed and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) improved from `100% / 89.65% / 100% / 100%` to `100% / 93.10% / 100% / 100%` for statements/branches/functions/lines.
+- **Repo-Wide Standard Coverage Improved Again While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and the merged Istanbul totals improved from `99.41% / 95.80% / 99.59% / 99.44%` to `99.41% / 95.87% / 99.59% / 99.44%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), and [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts).
+
 ## [0.1.166] - 2026-05-17
 
 ### Fixed

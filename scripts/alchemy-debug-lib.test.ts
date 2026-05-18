@@ -253,6 +253,31 @@ describe("alchemy-debug-lib", () => {
     expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
   });
 
+  it("uses a persisted upstream RPC URL when fixture metadata omits rpcUrl", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        upstreamRpcUrl: "https://base-sepolia.g.alchemy.com/v2/upstream-only",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl) => {
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/upstream-only");
+    expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
+  });
+
   it("falls back to a loopback fixture rpc when no upstream fixture origin is persisted", async () => {
     mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
     mocked.readFile.mockResolvedValue(JSON.stringify({
@@ -442,6 +467,43 @@ describe("alchemy-debug-lib", () => {
     }, null, 2));
   });
 
+  it("prints missing signer metadata when no private key is configured", () => {
+    const consoleLog = vi.spyOn(console, "log").mockImplementation(() => undefined);
+
+    printRuntimeHeader({
+      configSources: {
+        envPath: "/tmp/.env",
+        values: { NETWORK: { value: "base-sepolia" }, PRIVATE_KEY: { value: undefined } },
+      },
+      config: {
+        chainId: 84532,
+        diamondAddress: "0x1",
+        cbdpRpcUrl: "https://rpc.example.com",
+      },
+      rpcResolution: {
+        configuredRpcUrl: "https://rpc.example.com",
+        effectiveRpcUrl: "https://rpc.example.com",
+        source: "configured",
+        fallbackReason: null,
+        fixturePath: null,
+      },
+      scenarioCommit: null,
+    } as any);
+
+    expect(consoleLog).toHaveBeenCalledWith(JSON.stringify({
+      envPath: "/tmp/.env",
+      network: "base-sepolia",
+      chainId: 84532,
+      diamondAddress: "0x1",
+      rpcUrl: "https://rpc.example.com",
+      configuredRpcUrl: "https://rpc.example.com",
+      rpcSource: "configured",
+      rpcFallbackReason: null,
+      signerAddress: "missing",
+      scenarioBaselineCommit: null,
+    }, null, 2));
+  });
+
   it("builds transaction debug reports through the configured provider path", async () => {
     mocked.decodeReceiptLogs.mockReturnValue([{ eventName: "Transfer" }]);
     mocked.traceTransactionWithAlchemy.mockResolvedValue({ status: "ok" });
@@ -497,6 +559,31 @@ describe("alchemy-debug-lib", () => {
     });
     expect(mocked.traceTransactionWithAlchemy).not.toHaveBeenCalled();
     expect(mocked.readActorStates).not.toHaveBeenCalled();
+  });
+
+  it("skips decoded logs when no receipt exists and deduplicates actor reads", async () => {
+    mocked.readActorStates.mockResolvedValue([{ address: "0xsame" }]);
+    const runtime = {
+      alchemy: null,
+      provider: {
+        getTransactionReceipt: vi.fn().mockResolvedValue(null),
+        getTransaction: vi.fn().mockResolvedValue({ from: "0xsame", to: "0xsame" }),
+      },
+      config: {
+        alchemyDiagnosticsEnabled: false,
+      },
+    };
+
+    await expect(buildTxDebugReport(runtime as any, "0xhash")).resolves.toEqual({
+      txHash: "0xhash",
+      source: "rpc",
+      receipt: null,
+      decodedLogs: [],
+      trace: { status: "disabled" },
+      actors: [{ address: "0xsame" }],
+    });
+    expect(mocked.decodeReceiptLogs).not.toHaveBeenCalled();
+    expect(mocked.readActorStates).toHaveBeenCalledWith(runtime.provider, ["0xsame"]);
   });
 
   it("builds simulation reports with expected-event verification", async () => {
@@ -797,6 +884,20 @@ describe("alchemy-debug-lib", () => {
       cbdpRpcUrl: "https://rpc.example.com/base-sepolia",
       alchemyRpcUrl: "https://alchemy.example.com/base-sepolia",
     }));
+  });
+
+  it("accepts absolute contract-root overrides without re-resolving them", async () => {
+    process.env.API_LAYER_PARENT_REPO_DIR = "/tmp/contracts-root";
+    mocked.existsSync.mockImplementation((target: string) =>
+      target === "/tmp/contracts-root/package.json" ||
+      target === "/tmp/contracts-root/scripts/deployment",
+    );
+    mocked.execFileSync.mockReturnValue("feedface\n");
+
+    const runtime = await loadRuntimeEnvironment();
+
+    expect(runtime.contractsRoot).toBe("/tmp/contracts-root");
+    expect(runtime.scenarioCommit).toBe("feedface");
   });
 
   it("prefers the default parent-directory contracts workspace when no explicit override is set", async () => {
