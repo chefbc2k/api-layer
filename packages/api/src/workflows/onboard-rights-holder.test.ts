@@ -290,4 +290,73 @@ describe("runOnboardRightsHolderWorkflow", () => {
     expect(voiceAssets.isAuthorized).toHaveBeenCalledTimes(20);
     setTimeoutSpy.mockRestore();
   });
+
+  it("uses the production readback delay outside the test environment", async () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler, delay?: number) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return Number(delay ?? 0) as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+
+    vi.resetModules();
+
+    const dynamicMocks = {
+      createAccessControlPrimitiveService: vi.fn(),
+      createVoiceAssetsPrimitiveService: vi.fn(),
+      waitForWorkflowWriteReceipt: vi.fn(),
+    };
+
+    vi.doMock("../modules/access-control/primitives/generated/index.js", () => ({
+      createAccessControlPrimitiveService: dynamicMocks.createAccessControlPrimitiveService,
+    }));
+    vi.doMock("../modules/voice-assets/primitives/generated/index.js", () => ({
+      createVoiceAssetsPrimitiveService: dynamicMocks.createVoiceAssetsPrimitiveService,
+    }));
+    vi.doMock("./wait-for-write.js", () => ({
+      waitForWorkflowWriteReceipt: dynamicMocks.waitForWorkflowWriteReceipt,
+    }));
+
+    try {
+      process.env.NODE_ENV = "production";
+      const access = {
+        grantRole: vi.fn().mockResolvedValue({
+          statusCode: 202,
+          body: { txHash: "0xrole", result: true },
+        }),
+        hasRole: vi.fn().mockResolvedValue({
+          statusCode: 200,
+          body: false,
+        }),
+      };
+      dynamicMocks.createAccessControlPrimitiveService.mockReturnValue(access);
+      dynamicMocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+        authorizeUser: vi.fn(),
+        isAuthorized: vi.fn(),
+      });
+      dynamicMocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xreceipt-role");
+
+      const { runOnboardRightsHolderWorkflow: runWorkflow } = await import("./onboard-rights-holder.js");
+
+      await expect(runWorkflow(context, auth, undefined, {
+        role: "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        account: "0x00000000000000000000000000000000000000ff",
+        expiryTime: "40",
+        voiceHashes: [],
+      })).rejects.toThrow("onboardRightsHolder.hasRole readback timeout");
+
+      expect(access.hasRole).toHaveBeenCalledTimes(20);
+      expect(setTimeoutSpy).toHaveBeenCalled();
+      expect(setTimeoutSpy.mock.calls[0]?.[1]).toBe(500);
+    } finally {
+      if (originalNodeEnv === undefined) {
+        delete process.env.NODE_ENV;
+      } else {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
+      setTimeoutSpy.mockRestore();
+      vi.resetModules();
+    }
+  });
 });

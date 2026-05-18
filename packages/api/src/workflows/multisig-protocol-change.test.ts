@@ -405,4 +405,115 @@ describe("multisig protocol change workflows", () => {
       { transactionHash: "0xdef" },
     ], null)).toBe(0);
   });
+
+  it("falls back to the readback status when approval status polling returns null", async () => {
+    vi.resetModules();
+
+    const helperModule = await vi.importActual<typeof import("./multisig-protocol-change-helpers.js")>("./multisig-protocol-change-helpers.js");
+    const waitForOperationStatus = vi.fn().mockResolvedValue(null);
+    const createMultisigPrimitiveService = vi.fn();
+    const createOwnershipPrimitiveService = vi.fn();
+    const createDiamondAdminPrimitiveService = vi.fn();
+    const waitForWorkflowWriteReceipt = vi.fn().mockResolvedValue("0xapprove");
+
+    vi.doMock("./multisig-protocol-change-helpers.js", () => ({
+      ...helperModule,
+      waitForOperationStatus,
+    }));
+    vi.doMock("../modules/multisig/primitives/generated/index.js", () => ({
+      createMultisigPrimitiveService,
+    }));
+    vi.doMock("../modules/ownership/primitives/generated/index.js", () => ({
+      createOwnershipPrimitiveService,
+    }));
+    vi.doMock("../modules/diamond-admin/primitives/generated/index.js", () => ({
+      createDiamondAdminPrimitiveService,
+    }));
+    vi.doMock("./wait-for-write.js", () => ({
+      waitForWorkflowWriteReceipt,
+    }));
+
+    createMultisigPrimitiveService.mockReturnValue(makeMultisigService({
+      getOperationStatus: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" }),
+      canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: [true, ""] }),
+      hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+    }));
+    createOwnershipPrimitiveService.mockReturnValue({});
+    createDiamondAdminPrimitiveService.mockReturnValue({});
+
+    const { runApproveMultisigProtocolChangeWorkflow: runApproveWorkflow } = await import("./multisig-protocol-change.js");
+
+    const result = await runApproveWorkflow(context, auth, undefined, {
+      operationId: OPERATION_ID,
+      actions: [],
+    });
+
+    expect(waitForOperationStatus).toHaveBeenCalledOnce();
+    expect(result.operation.after.status).toBe(result.operation.after.statusLabel === "ReadyForExecution" ? "2" : "1");
+    expect(result.summary.status).toBe(result.operation.after.status);
+
+    vi.resetModules();
+  });
+
+  it("falls back to the readback status when execution status polling returns null", async () => {
+    vi.resetModules();
+
+    const helperModule = await vi.importActual<typeof import("./multisig-protocol-change-helpers.js")>("./multisig-protocol-change-helpers.js");
+    const waitForOperationStatus = vi.fn().mockResolvedValue(null);
+    const createMultisigPrimitiveService = vi.fn();
+    const createOwnershipPrimitiveService = vi.fn();
+    const createDiamondAdminPrimitiveService = vi.fn();
+    const waitForWorkflowWriteReceipt = vi.fn().mockResolvedValue("0xexec");
+
+    vi.doMock("./multisig-protocol-change-helpers.js", () => ({
+      ...helperModule,
+      waitForOperationStatus,
+    }));
+    vi.doMock("../modules/multisig/primitives/generated/index.js", () => ({
+      createMultisigPrimitiveService,
+    }));
+    vi.doMock("../modules/ownership/primitives/generated/index.js", () => ({
+      createOwnershipPrimitiveService,
+    }));
+    vi.doMock("../modules/diamond-admin/primitives/generated/index.js", () => ({
+      createDiamondAdminPrimitiveService,
+    }));
+    vi.doMock("./wait-for-write.js", () => ({
+      waitForWorkflowWriteReceipt,
+    }));
+
+    createMultisigPrimitiveService.mockReturnValue(makeMultisigService({
+      getOperationStatus: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" }),
+      canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: [false, "Already executed"] }),
+      hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+    }));
+    createOwnershipPrimitiveService.mockReturnValue({
+      ownershipTransferProposedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      ownershipTransferredEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      ownershipTransferCancelledEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      ownershipTargetApprovalSetEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+    });
+    createDiamondAdminPrimitiveService.mockReturnValue({
+      upgradeProposedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      upgradeApprovedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      upgradeExecutedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+    });
+
+    const { runExecuteMultisigProtocolChangeWorkflow: runExecuteWorkflow } = await import("./multisig-protocol-change.js");
+
+    const result = await runExecuteWorkflow(context, auth, undefined, {
+      operationId: OPERATION_ID,
+      actions: [],
+    });
+
+    expect(waitForOperationStatus).toHaveBeenCalledOnce();
+    expect(result.operation.after.status).toBe(result.operation.after.statusLabel === "Executed" ? "3" : "2");
+    expect(result.summary.status).toBe(result.operation.after.status);
+
+    vi.resetModules();
+  });
 });

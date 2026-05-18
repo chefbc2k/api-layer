@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.166] - 2026-05-17
+
+### Fixed
+- **Workflow Regression Coverage Now Proves Production Polling And Null-Status Fallbacks:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.test.ts) to reload [`/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.ts) under `NODE_ENV=production` and prove the live `500ms` readback polling branch, and expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts) to force `waitForOperationStatus` to return `null` so approval/execution summaries fall back to post-readback status state without changing runtime behavior.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Focused Onboard Rights Holder Coverage Reached Full Coverage:** Re-ran `pnpm exec vitest run packages/api/src/workflows/onboard-rights-holder.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/api/src/workflows/onboard-rights-holder.ts' --maxWorkers 1`; [`/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/onboard-rights-holder.ts) improved from `100% / 87.5% / 100% / 100%` to `100% / 100% / 100% / 100%` for statements/branches/functions/lines.
+- **Focused Multisig Workflow Coverage Improved Materially:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change.test.ts --coverage.enabled true --coverage.reporter=text --coverage.include='packages/api/src/workflows/multisig-protocol-change.ts' --maxWorkers 1`; [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) improved from `100% / 90.16% / 100% / 100%` to `100% / 96.72% / 100% / 100%`.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and the merged Istanbul totals improved from `99.41% / 95.68% / 99.59% / 99.44%` to `99.41% / 95.80% / 99.59% / 99.44%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts`](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts).
+
 ## [0.1.165] - 2026-05-17
 
 ### Fixed
