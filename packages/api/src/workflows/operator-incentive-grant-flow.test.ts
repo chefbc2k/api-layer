@@ -301,6 +301,48 @@ describe("runOperatorIncentiveGrantFlowWorkflow", () => {
     expect(result.policy.after.status).toBe("completed");
   });
 
+  it("falls back to the parent wallet when a policy actor override omits walletAddress", async () => {
+    await runOperatorIncentiveGrantFlowWorkflow(context, participantAuth, "0x00000000000000000000000000000000000000aa", {
+      policy: {
+        actor: {
+          apiKey: "policy-key",
+        },
+        inspectBefore: true,
+      },
+      activation: {
+        staking: {
+          amount: "10",
+          delegatee: "0x00000000000000000000000000000000000000bb",
+        },
+      },
+    });
+
+    expect(mocks.runInspectVestingAdminPolicyWorkflow).toHaveBeenCalledWith(
+      context,
+      policyAuth,
+      "0x00000000000000000000000000000000000000aa",
+      {},
+    );
+  });
+
+  it("accepts a policy actor override with an explicit wallet address", () => {
+    expect(() => operatorIncentiveGrantFlowWorkflowSchema.parse({
+      policy: {
+        actor: {
+          apiKey: "policy-key",
+          walletAddress: "0x00000000000000000000000000000000000000cc",
+        },
+        inspectBefore: true,
+      },
+      activation: {
+        staking: {
+          amount: "10",
+          delegatee: "0x00000000000000000000000000000000000000bb",
+        },
+      },
+    })).not.toThrow();
+  });
+
   it("rejects policy sections that provide an actor override but no requested policy action", () => {
     expect(() => operatorIncentiveGrantFlowWorkflowSchema.parse({
       policy: {

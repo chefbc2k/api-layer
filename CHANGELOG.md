@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.168] - 2026-05-18
+
+### Fixed
+- **Marketplace Payment Helper Coverage Now Proves Nullish And Extra-Key Payment Readbacks:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/marketplace-payment-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/marketplace-payment-helpers.test.ts) so [`/Users/chef/Public/api-layer/packages/api/src/workflows/marketplace-payment-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/marketplace-payment-helpers.ts) now proves non-address/non-boolean config readbacks collapse to `null`, omitted `payee` addresses do not materialize a `payee` field, numeric and bigint pending-payment payloads normalize to strings, and arbitrary extra payee keys survive the snapshot merge with malformed route bodies safely mapped to `null`.
+- **Operator Incentive Grant Coverage Now Proves Policy-Actor Wallet Fallback Semantics:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.test.ts) to prove [`/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/operator-incentive-grant-flow.ts) accepts explicit policy actor wallet overrides at schema level and falls back to the parent workflow wallet when a valid policy actor omits `walletAddress`.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Workflow Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/marketplace-payment-helpers.test.ts packages/api/src/workflows/operator-incentive-grant-flow.test.ts --maxWorkers 1`; all `14/14` assertions passed after the helper and actor-fallback additions landed.
+- **Repo-Wide Standard Coverage Improved Again While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and the merged Istanbul totals improved from `99.41% / 95.87% / 99.59% / 99.44%` to `99.41% / 95.94% / 99.59% / 99.44%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are still [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/provider-router.ts), and [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.167] - 2026-05-17
 
 ### Fixed
