@@ -913,6 +913,30 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toThrow("non-zero spend caps are not yet supported for VoiceAssetFacet.setApprovalForAll");
+
+    process.env.API_LAYER_GASLESS_SPEND_CAPS_JSON = JSON.stringify({ "SomeOtherFacet.other": "7" });
+    mocked.submitSmartWalletCall.mockResolvedValueOnce({
+      userOperationHash: "0xuserop-zero-cap",
+      status: "submitted",
+    });
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          api: { gaslessMode: "cdpSmartWallet", executionSource: "auto" },
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toMatchObject({
+      statusCode: 202,
+      body: {
+        relay: {
+          userOperationHash: "0xuserop-zero-cap",
+        },
+      },
+    });
   });
 
   it("submits cdp smart-wallet requests and persists relay metadata", async () => {
@@ -1377,6 +1401,84 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("continues enforced writes when Alchemy returns an empty simulation error field", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: false,
+        alchemySimulationEnabled: true,
+        alchemySimulationEnforced: true,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    mocked.simulateTransactionWithAlchemy.mockResolvedValueOnce({
+      topLevelCall: { error: undefined },
+    });
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xsubmitted",
+        result: false,
+      },
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("preserves simulation diagnostics when nonce retries are exhausted", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: false,
+        alchemySimulationEnabled: true,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.simulateTransactionWithAlchemy.mockResolvedValueOnce({ topLevelCall: { gasUsed: "999" } });
+    mocked.walletSendTransaction
+      .mockRejectedValueOnce(new Error("nonce too low"))
+      .mockRejectedValueOnce(new Error("replacement transaction underpriced"))
+      .mockRejectedValueOnce(new Error("already known"));
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "already known",
+      diagnostics: expect.objectContaining({
+        simulation: { topLevelCall: { gasUsed: "999" } },
+        cause: "already known",
+      }),
+    });
   });
 
   it("wraps preview failures with diagnostics and wallet fallback context", async () => {
