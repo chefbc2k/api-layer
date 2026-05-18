@@ -287,4 +287,36 @@ describe("ProviderRouter", () => {
     expect(router.getStatus().cbdp.errorCount).toBe(0);
   });
 
+  it.each([
+    "rate limit exceeded upstream",
+    "too many requests from upstream",
+    "compute units per second exhausted",
+    "throughput limit reached",
+    "bad gateway from upstream",
+  ])("treats \"%s\" as retryable upstream pressure", async (message) => {
+    const router = new ProviderRouter({
+      chainId: 84532,
+      cbdpRpcUrl: "https://primary-rpc.example/base-sepolia",
+      alchemyRpcUrl: "https://secondary-rpc.example/base-sepolia",
+      errorThreshold: 1,
+      errorWindowMs: 60_000,
+      recoveryCooldownMs: 60_000,
+    });
+
+    let attempts = 0;
+    const result = await router.withProvider("read", "AccessControlFacet.getQuorum", async (_provider, providerName) => {
+      attempts += 1;
+      if (attempts === 1) {
+        throw new Error(message);
+      }
+      return providerName;
+    });
+
+    expect(result).toBe("alchemy");
+    expect(router.getStatus()).toEqual({
+      cbdp: { active: false, errorCount: 1 },
+      alchemy: { active: true, errorCount: 0 },
+    });
+  });
+
 });

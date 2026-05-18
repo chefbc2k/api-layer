@@ -157,6 +157,14 @@ describe("runtime config", () => {
     expect(config.alchemySimulationEnforced).toBe(false);
   });
 
+  it("rejects invalid boolean-like env strings instead of coercing arbitrary values", () => {
+    expect(() => readConfigFromEnv({
+      CBDP_RPC_URL: "https://cbdp.example.com/base-sepolia",
+      DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+      API_LAYER_ENABLE_GASLESS: "sometimes",
+    })).toThrow(/boolean/u);
+  });
+
   it("loads repo env files once and lets process env override cached file values", async () => {
     const existsSync = vi.fn(() => true);
     const readFileSync = vi.fn(() => [

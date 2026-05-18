@@ -171,4 +171,55 @@ describe("projection common helpers", () => {
     expect(client.query.mock.calls[1][0]).toBe("UPDATE governance_votes SET is_current = FALSE WHERE is_current = TRUE");
     expect(client.query.mock.calls[2][0]).toContain("WITH latest AS");
   });
+
+  it("normalizes alternate arg aliases and non-finite numeric support values", () => {
+    expect(inferProjectionRecord("licenses", "ledger", "license-1", {
+      buyer: "0x00000000000000000000000000000000000000bb",
+      recipient: "0x00000000000000000000000000000000000000cc",
+      target: "0x00000000000000000000000000000000000000dd",
+      newVotes: 12n,
+      quorum: 4n,
+      metadata: "ipfs://meta",
+      trusted: true,
+      tokenId: 99n,
+      purchaseId: 44n,
+      id: 123n,
+      requestId: 55n,
+      support: "nan",
+    })).toEqual({
+      entityId: "license-1",
+      mode: "ledger",
+      actorAddress: "0x00000000000000000000000000000000000000bb",
+      subjectAddress: "0x00000000000000000000000000000000000000cc",
+      relatedAddress: "0x00000000000000000000000000000000000000dd",
+      status: "true",
+      metadataUri: "ipfs://meta",
+      amount: "12",
+      secondaryAmount: "4",
+      proposalId: null,
+      assetId: "99",
+      datasetId: null,
+      licenseId: null,
+      templateId: null,
+      listingId: null,
+      saleId: "44",
+      operationId: "123",
+      withdrawalId: "55",
+      support: null,
+      eventPayload: {
+        buyer: "0x00000000000000000000000000000000000000bb",
+        recipient: "0x00000000000000000000000000000000000000cc",
+        target: "0x00000000000000000000000000000000000000dd",
+        newVotes: "12",
+        quorum: "4",
+        metadata: "ipfs://meta",
+        trusted: true,
+        tokenId: "99",
+        purchaseId: "44",
+        id: "123",
+        requestId: "55",
+        support: "nan",
+      },
+    });
+  });
 });

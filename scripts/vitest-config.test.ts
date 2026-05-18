@@ -14,6 +14,7 @@ describe("coverage runner configuration", () => {
       "packages/indexer/src/**/*.ts",
       "scripts/**/*.ts",
     ]);
+    expect(config.test?.coverage?.exclude).toContain("packages/client/src/types.ts");
     expect(config.test?.coverage?.exclude).toContain("scripts/verify-*.ts");
     expect(config.test?.coverage?.excludeAfterRemap).toBe(true);
   });

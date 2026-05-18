@@ -701,4 +701,64 @@ describe("abi-codec", () => {
       { count: ["3"] },
     ]);
   });
+
+  it("uses positional fallbacks for unnamed tuple components across object and result decoding paths", () => {
+    const unnamedTupleParam = {
+      type: "tuple",
+      components: [
+        { type: "uint256" },
+        { name: "flag", type: "bool" },
+      ],
+    };
+    const unnamedTupleResult = {
+      signature: "unnamedTupleResult()",
+      outputs: [unnamedTupleParam],
+      outputShape: { kind: "object" },
+    };
+    const multiOutput = {
+      signature: "multiArrayPath()",
+      outputs: [{ type: "uint256" }, { type: "bool" }],
+    };
+
+    expect(serializeToWire(unnamedTupleParam as never, { 0: 12n, flag: true })).toEqual({
+      0: "12",
+      flag: true,
+    });
+    expect(decodeFromWire(unnamedTupleParam as never, { 0: "12", flag: true })).toEqual({
+      0: 12n,
+      flag: true,
+    });
+    expect(serializeResultToWire(unnamedTupleResult as never, { 0: 15n, flag: false })).toEqual({
+      0: "15",
+      flag: false,
+    });
+    expect(decodeResultFromWire(unnamedTupleResult as never, { 0: "15", flag: false })).toEqual({
+      0: 15n,
+      flag: false,
+    });
+    expect(decodeResultFromWire(multiOutput as never, ["8", true])).toEqual([8n, true]);
+  });
+
+  it("rejects object-shaped tuple results when nested tuple-array leaves are null", () => {
+    const sparseNestedTupleDefinition = {
+      signature: "sparseNestedTuple()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          {
+            name: "nested",
+            type: "tuple[]",
+            components: [{ name: "owner", type: "address" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => decodeResultFromWire(sparseNestedTupleDefinition as never, {
+      count: "3",
+      nested: null,
+    })).toThrow("invalid response for sparseNestedTuple(): Invalid input");
+  });
 });

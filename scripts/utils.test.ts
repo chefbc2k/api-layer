@@ -106,6 +106,21 @@ describe("script utils", () => {
     await expect(resolveDeploymentManifestPath()).resolves.toBe(manifestPath);
   });
 
+  it("ignores deployment manifest candidates that exist as directories", async () => {
+    const directoryManifest = path.join(tempDir, "manifest-dir");
+    await mkdir(directoryManifest, { recursive: true });
+
+    process.env.API_LAYER_DEPLOYMENT_MANIFEST = directoryManifest;
+
+    const resolved = await resolveDeploymentManifestPath();
+    expect(
+      resolved === null
+      || resolved === localDeploymentManifestPath
+      || path.normalize(resolved).endsWith(path.join("artifacts", "release-readiness", "deployment-manifest.json")),
+    ).toBe(true);
+    expect(resolved).not.toBe(directoryManifest);
+  });
+
   it("falls back to the local ABI directory and returns null for missing optional inputs", async () => {
     process.env.API_LAYER_ABI_SOURCE_DIR = path.join(tempDir, "missing-abis");
     process.env.API_LAYER_SCENARIO_SOURCE_DIR = path.join(tempDir, "missing-scenarios");

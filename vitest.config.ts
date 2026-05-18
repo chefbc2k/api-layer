@@ -19,6 +19,7 @@ export default defineConfig({
         "generated/**",
         "packages/**/generated/**",
         "packages/client/src/generated/**",
+        "packages/client/src/types.ts",
         "packages/**/index.ts",
         "packages/api/src/shared/route-types.ts",
         "scenario-adapter/**",
