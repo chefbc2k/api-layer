@@ -361,6 +361,57 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     expect(service.licenseRevokedEventQuery).not.toHaveBeenCalled();
   });
 
+  it("keeps collaborator and issuance event counts at zero when those receipts are unavailable", async () => {
+    const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
+    service.collaboratorUpdatedEventQuery.mockClear();
+    service.licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery.mockClear();
+    service.licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery.mockClear();
+    service.licenseCreatedEventQuery.mockClear();
+
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const explicitTemplateHash = `0x${"9".repeat(64)}`;
+    const result = await runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+      voiceAsset: { voiceHash },
+      collaborators: [
+        {
+          account: "0x00000000000000000000000000000000000000bb",
+          collaboratorShare: {
+            mode: "add",
+            share: "2500",
+          },
+        },
+      ],
+      issue: {
+        mode: "template",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        templateHash: explicitTemplateHash,
+        duration: "86400",
+      },
+    });
+
+    expect(result.collaboratorSetup.collaborators[0]?.collaboratorShare).toMatchObject({
+      mode: "add",
+      txHash: null,
+      eventCount: 0,
+      share: "2500",
+    });
+    expect(result.license.issuance).toMatchObject({
+      mode: "template",
+      templateHashUsed: explicitTemplateHash,
+      txHash: null,
+      eventCount: 0,
+    });
+    expect(result.summary.templateHashUsed).toBe(explicitTemplateHash);
+    expect(service.collaboratorUpdatedEventQuery).not.toHaveBeenCalled();
+    expect(service.licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery).not.toHaveBeenCalled();
+    expect(service.licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery).not.toHaveBeenCalled();
+    expect(service.licenseCreatedEventQuery).not.toHaveBeenCalled();
+  });
+
   it("propagates collaborator authorization failure", async () => {
     mocks.runOnboardRightsHolderWorkflow.mockResolvedValueOnce({
       roleGrant: {

@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.172] - 2026-05-18
+
+### Fixed
+- **CDP Smart Wallet Coverage Now Proves Missing-Credential Failure:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.test.ts) so [`/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.ts) now explicitly proves the hard failure path when neither `CDP_API_KEY_ID` nor `CDP_API_KEY_NAME` is configured, instead of only covering the later owner-resolution guard.
+- **Collaborator Licensing Coverage Now Proves Receipt-Less Collaborator And Issuance Branches:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts) so [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts) now locks in the `null`-receipt branches for collaborator share writes and template-based license issuance while preserving explicit-template-hash behavior without a template lifecycle child workflow.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/shared/cdp-smart-wallet.test.ts packages/api/src/workflows/collaborator-license-lifecycle.test.ts --maxWorkers 1`; all `23/23` assertions passed after the branch-expansion pass.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and the merged Istanbul totals improved from `99.43% / 96.16% / 99.59% / 99.46%` to `99.47% / 96.28% / 99.59% / 99.51%` for statements/branches/functions/lines. Within the directly targeted hotspots, [`/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/cdp-smart-wallet.ts) is now `100% / 100% / 100% / 100%`, and [`/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts) improved from `91.46%` to `96.34%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/stake-and-delegate.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/stake-and-delegate.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), and the remaining receipt/fallback branches in [`/Users/chef/Public/api-layer/packages/api/src/modules/voice-assets/workflows/register-voice-asset.ts`](/Users/chef/Public/api-layer/packages/api/src/modules/voice-assets/workflows/register-voice-asset.ts).
+
 ## [0.1.171] - 2026-05-18
 
 ### Fixed

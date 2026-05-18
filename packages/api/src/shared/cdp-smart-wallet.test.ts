@@ -52,6 +52,15 @@ describe("cdp-smart-wallet", () => {
     );
   });
 
+  it("fails fast when neither CDP key id nor fallback key name is configured", async () => {
+    delete process.env.CDP_API_KEY_ID;
+    delete process.env.CDP_API_KEY_NAME;
+
+    await expect(submitSmartWalletCall({ to: "0x1", data: "0x" })).rejects.toThrow(
+      "CDP_API_KEY_ID/CDP_API_KEY_SECRET/CDP_WALLET_SECRET are required for cdpSmartWallet",
+    );
+  });
+
   it("fails fast when the installed SDK shape is incomplete", async () => {
     mocks.CdpClient.mockImplementationOnce(() => ({
       evm: {
