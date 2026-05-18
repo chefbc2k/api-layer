@@ -499,6 +499,31 @@ describe("abi-codec", () => {
     );
   });
 
+  it("passes through malformed tuple outputs that cannot be normalized into named objects", () => {
+    const tupleDefinition = {
+      signature: "brokenTuple()",
+      outputs: [{
+        type: "tuple",
+        components: [{ name: "count", type: "uint256" }],
+      }],
+      outputShape: { kind: "object" },
+    };
+    const tupleArrayDefinition = {
+      signature: "brokenTupleArray()",
+      outputs: [{
+        type: "tuple[]",
+        components: [{ name: "count", type: "uint256" }],
+      }],
+    };
+
+    expect(() => serializeResultToWire(tupleDefinition as never, "not-an-object")).toThrow(
+      "invalid result for brokenTuple(): expected tuple-compatible value",
+    );
+    expect(() => serializeResultToWire(tupleArrayDefinition as never, "not-an-array")).toThrow(
+      "invalid result for brokenTupleArray(): expected array value for tuple[]",
+    );
+  });
+
   it("handles unknown scalar types and malformed array suffixes permissively", () => {
     const passthroughDefinition = {
       signature: "mystery(customType,bad])",

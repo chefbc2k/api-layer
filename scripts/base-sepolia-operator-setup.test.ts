@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 import { ethers } from "ethers";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -467,6 +469,53 @@ describe("base sepolia operator setup helpers", () => {
     await expect(retryApiRead(async () => ({ ready: false }), (value) => value.ready, 0)).rejects.toThrow(
       "retryApiRead received no values",
     );
+  });
+
+  it("routes main through transient RPC retries with the configured defaults", async () => {
+    vi.resetModules();
+    const runWithTransientRpcRetries = vi.fn().mockResolvedValue(undefined);
+    vi.doMock("./transient-rpc-retry.js", () => ({
+      runWithTransientRpcRetries,
+    }));
+
+    const previousArgv = [...process.argv];
+    process.argv[1] = "/tmp/not-the-setup-script.ts";
+
+    try {
+      const module = await import("./base-sepolia-operator-setup.js");
+      await module.main();
+    } finally {
+      process.argv = previousArgv;
+    }
+
+    expect(runWithTransientRpcRetries).toHaveBeenCalledWith(expect.any(Function), {
+      label: "setup:base-sepolia",
+      maxAttempts: 3,
+      baseDelayMs: 1500,
+      log: expect.any(Function),
+    });
+  });
+
+  it("logs and exits when the setup script is imported as the main module and main rejects", async () => {
+    vi.resetModules();
+    const boom = new Error("setup failed");
+    vi.doMock("./transient-rpc-retry.js", () => ({
+      runWithTransientRpcRetries: vi.fn().mockRejectedValue(boom),
+    }));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const processExit = vi.spyOn(process, "exit").mockImplementation((() => undefined) as never);
+    const previousArgv = [...process.argv];
+    process.argv[1] = fileURLToPath(new URL("./base-sepolia-operator-setup.ts", import.meta.url));
+
+    try {
+      await import("./base-sepolia-operator-setup.js");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    } finally {
+      process.argv = previousArgv;
+    }
+
+    expect(consoleError).toHaveBeenCalledWith(boom);
+    expect(processExit).toHaveBeenCalledWith(1);
   });
 
   it("reports native top-ups as already satisfied when the target has enough balance", async () => {
