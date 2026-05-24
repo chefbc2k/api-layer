@@ -394,6 +394,41 @@ describe("alchemy-diagnostics", () => {
     });
   });
 
+  it("normalizes fallback simulations that omit call addresses and trace errors", async () => {
+    const fallbackAlchemy = {
+      transact: {
+        simulateExecution: vi.fn()
+          .mockRejectedValueOnce(new Error("tracing on top of pending is not supported"))
+          .mockResolvedValueOnce({
+            calls: [{
+              from: "0x1",
+              to: "0x2",
+              gasUsed: "21000",
+              type: "CALL",
+            }],
+            logs: [],
+          }),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(fallbackAlchemy as never, { from: "0x1" } as never, "pending")).resolves.toEqual({
+      status: "available",
+      blockTag: "pending",
+      fallbackBlockTag: "latest",
+      callCount: 1,
+      logCount: 0,
+      topLevelCall: {
+        from: "0x1",
+        to: "0x2",
+        gasUsed: "21000",
+        type: "CALL",
+        revertReason: undefined,
+        error: undefined,
+      },
+      decodedLogs: [],
+    });
+  });
+
   it("classifies trace availability and hard failures distinctly", async () => {
     const unavailableAlchemy = {
       debug: {
@@ -582,6 +617,45 @@ describe("alchemy-diagnostics", () => {
       status: "available",
       topLevelCall: undefined,
       callTree: [],
+    });
+  });
+
+  it("preserves undefined nested traces when flattening call trees", async () => {
+    const sparseTrace = {
+      from: "0x1",
+      to: "0x2",
+      gasUsed: "100",
+      type: "CALL",
+      calls: [undefined],
+    };
+    const alchemy = {
+      debug: {
+        traceTransaction: vi.fn().mockResolvedValue(sparseTrace),
+      },
+    };
+
+    await expect(traceTransactionWithAlchemy(alchemy as never, "0xtx")).resolves.toEqual({
+      status: "available",
+      txHash: "0xtx",
+      topLevelCall: {
+        from: "0x1",
+        to: "0x2",
+        gasUsed: "100",
+        type: "CALL",
+        revertReason: undefined,
+        error: undefined,
+      },
+      callTree: [
+        {
+          depth: 0,
+          from: "0x1",
+          to: "0x2",
+          gasUsed: "100",
+          type: "CALL",
+          revertReason: undefined,
+          error: undefined,
+        },
+      ],
     });
   });
 

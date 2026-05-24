@@ -242,6 +242,30 @@ describe("runTreasuryRevenueOperationsWorkflow", () => {
     });
   });
 
+  it("rejects unknown payout actor overrides before attempting a sweep", async () => {
+    await expect(runTreasuryRevenueOperationsWorkflow(context, auth, undefined, {
+      payouts: {
+        sweeps: [{
+          actor: {
+            apiKey: "missing-key",
+          },
+        }],
+      },
+    })).rejects.toThrow("unknown payout actor apiKey");
+
+    expect(mocks.runWithdrawMarketplacePaymentsWorkflow).not.toHaveBeenCalled();
+  });
+
+  it("rethrows non-409 workflow failures instead of classifying them as external preconditions", async () => {
+    mocks.runWithdrawMarketplacePaymentsWorkflow.mockRejectedValueOnce(new HttpError(500, "rpc down"));
+
+    await expect(runTreasuryRevenueOperationsWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      payouts: {
+        sweeps: [{ label: "seller" }],
+      },
+    })).rejects.toThrow("rpc down");
+  });
+
   it("runs only the pre-sweep posture inspection when payouts are omitted", async () => {
     const result = await runTreasuryRevenueOperationsWorkflow(context, auth, undefined, {
       posture: {

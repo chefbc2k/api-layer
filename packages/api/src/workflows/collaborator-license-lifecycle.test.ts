@@ -558,6 +558,71 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     ).rejects.toThrow("template lifecycle failed");
   });
 
+  it("leaves license terms null when no external licensee actor is used", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xissue-direct");
+
+    const result = await runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+      voiceAsset: { voiceHash },
+      collaborators: [],
+      issue: {
+        mode: "direct",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        terms: {
+          licenseHash: `0x${"0".repeat(64)}`,
+          duration: "86400",
+          price: "0",
+          maxUses: "7",
+          transferable: true,
+          rights: ["Podcast"],
+          restrictions: [],
+        },
+      },
+    });
+
+    expect(result.license.issuance.licenseTerms).toBeNull();
+    const service = mocks.createLicensingPrimitiveService.mock.results.at(-1)?.value;
+    expect(service.getLicenseTerms).not.toHaveBeenCalled();
+  });
+
+  it("fails template issuance when neither the body nor lifecycle produces a template hash", async () => {
+    mocks.runManageLicenseTemplateLifecycleWorkflow.mockResolvedValueOnce({
+      template: {
+        source: "created",
+        templateHash: null,
+        templateId: "5",
+        current: { isActive: true },
+      },
+      create: { submission: { txHash: "0xtemplate" }, txHash: "0xtemplate", eventCount: 1 },
+      update: null,
+      status: null,
+      summary: {
+        templateHash: null,
+        templateId: "5",
+        source: "created",
+        created: true,
+        updated: false,
+        statusChanged: false,
+        active: true,
+      },
+    });
+
+    await expect(
+      runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+        voiceAsset: { voiceHash },
+        collaborators: [],
+        templateLifecycle: {
+          create: {},
+        },
+        issue: {
+          mode: "template",
+          licensee: "0x00000000000000000000000000000000000000cc",
+          duration: "86400",
+        },
+      }),
+    ).rejects.toThrow("requires templateHash for template issue mode");
+  });
+
   it("rejects template issue mode when no template hash is available", async () => {
     mocks.runManageLicenseTemplateLifecycleWorkflow.mockResolvedValueOnce({
       template: {
