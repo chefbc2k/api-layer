@@ -913,4 +913,68 @@ describe("abi-codec", () => {
       nested: null,
     })).toThrow("invalid response for sparseNestedTuple(): Invalid input");
   });
+
+  it("keeps unnamed tuple component indices across direct object encode and decode paths", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        { type: "uint256" },
+        { name: "enabled", type: "bool" },
+      ],
+    };
+
+    expect(serializeToWire(tupleParam as never, { 0: 12n, enabled: true })).toEqual({
+      0: "12",
+      enabled: true,
+    });
+    expect(decodeFromWire(tupleParam as never, { 0: "13", enabled: false })).toEqual({
+      0: 13n,
+      enabled: false,
+    });
+  });
+
+  it("normalizes nested dynamic tuple arrays from both positional and keyed object result payloads", () => {
+    const tupleResult = {
+      signature: "nestedDynamicTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            type: "tuple[][]",
+            components: [{ type: "uint256" }],
+          },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(tupleResult as never, [
+      [
+        [1n, 2n].map((count) => [count]),
+        [[3n]],
+      ],
+      true,
+    ])).toEqual({
+      0: [
+        [{ 0: "1" }, { 0: "2" }],
+        [{ 0: "3" }],
+      ],
+      enabled: true,
+    });
+
+    expect(serializeResultToWire(tupleResult as never, {
+      0: [
+        [{ 0: 4n }],
+        [{ 0: 5n }, { 0: 6n }],
+      ],
+      enabled: false,
+    })).toEqual({
+      0: [
+        [{ 0: "4" }],
+        [{ 0: "5" }, { 0: "6" }],
+      ],
+      enabled: false,
+    });
+  });
 });

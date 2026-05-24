@@ -193,6 +193,18 @@ describe("alchemy-debug-lib", () => {
     expect(calls).toEqual(["https://rpc.example.com/base-sepolia:84532"]);
   });
 
+  it("loads repo env by default and preserves the fixture path when the configured RPC is already valid", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+
+    const result = await resolveRuntimeConfig(undefined, async () => undefined);
+
+    expect(mocked.loadRepoEnv).toHaveBeenCalledTimes(1);
+    expect(result.rpcResolution).toMatchObject({
+      source: "configured",
+      fixturePath: expect.stringContaining(".runtime/base-sepolia-operator-fixtures.json"),
+    });
+  });
+
   it("falls back to the Base Sepolia fixture RPC when the local fork is unreachable", async () => {
     const calls: string[] = [];
     mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
@@ -225,6 +237,30 @@ describe("alchemy-debug-lib", () => {
       "http://127.0.0.1:8548:84532",
       "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4:84532",
     ]);
+  });
+
+  it("stringifies non-Error verification failures when reporting fallback reasons", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "https://base-sepolia.g.alchemy.com/v2/string-throw",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl) => {
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw "rpc offline";
+        }
+      },
+    );
+
+    expect(result.rpcResolution.fallbackReason).toBe("rpc offline");
   });
 
   it("uses a persisted fork origin when the fixture rpcUrl was overwritten with loopback", async () => {
@@ -825,6 +861,26 @@ describe("alchemy-debug-lib", () => {
         source: "base-sepolia-fixture",
       },
     } as any)).rejects.toThrow("anvil exited before contract integration bootstrap: fork died");
+  });
+
+  it("reports the numeric exit code when the fork process exits before writing startup output", async () => {
+    mocked.spawn.mockReturnValue({
+      exitCode: 12,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn() },
+    } as any);
+
+    await expect(startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+        chainId: 84532,
+      },
+      rpcResolution: {
+        configuredRpcUrl: "http://127.0.0.1:8548",
+        source: "base-sepolia-fixture",
+      },
+    } as any)).rejects.toThrow("anvil exited before contract integration bootstrap: 12");
   });
 
   it("times out fork bootstrap after repeated verification failures", async () => {
