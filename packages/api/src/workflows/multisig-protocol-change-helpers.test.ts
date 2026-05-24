@@ -151,6 +151,9 @@ describe("multisig protocol change helper utilities", () => {
     expect(readScalarBody(7)).toBe("7");
     expect(mapMultisigStatusLabel("9")).toBe("Unknown");
     expect(mapMultisigStatusLabel("0")).toBe("NonExistent");
+    expect(mapMultisigStatusLabel("1")).toBe("Pending");
+    expect(mapMultisigStatusLabel("2")).toBe("ReadyForExecution");
+    expect(mapMultisigStatusLabel("4")).toBe("Cancelled");
 
     expect(extractOperationIdFromPayload({ result: UPGRADE_ID })).toBe(UPGRADE_ID);
     expect(extractOperationIdFromPayload({ result: "0x1234" })).toBeNull();

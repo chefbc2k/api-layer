@@ -263,6 +263,48 @@ describe("alchemy-diagnostics", () => {
     ]);
   });
 
+  it("normalizes named parse-log arguments while dropping numeric keys", () => {
+    const parseLogSpy = vi.spyOn(Interface.prototype, "parseLog").mockReturnValue({
+      name: "Structured",
+      signature: "Structured(address,uint256[],(bool,uint256))",
+      args: {
+        0: "ignored",
+        owner: "0x00000000000000000000000000000000000000aa",
+        amounts: [3n, 5n],
+        meta: {
+          flag: true,
+          count: 9n,
+        },
+      },
+    } as never);
+
+    expect(decodeReceiptLogs({
+      logs: [{
+        address: "0x0000000000000000000000000000000000000001",
+        data: "0x1234",
+        topics: ["0xtopic"],
+        logIndex: 2,
+        transactionHash: "0xnamed",
+      }],
+    } as never)).toEqual([
+      expect.objectContaining({
+        eventName: "Structured",
+        signature: "Structured(address,uint256[],(bool,uint256))",
+        facetName: "TestFacet",
+        args: {
+          owner: "0x00000000000000000000000000000000000000aa",
+          amounts: ["3", "5"],
+          meta: {
+            flag: true,
+            count: "9",
+          },
+        },
+      }),
+    ]);
+
+    parseLogSpy.mockRestore();
+  });
+
   it("simulates transactions, including pending-to-latest fallback behavior", async () => {
     const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
     const fragment = iface.getEvent("TestEvent");

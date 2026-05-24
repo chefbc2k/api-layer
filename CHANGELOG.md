@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.178] - 2026-05-24
+
+### Fixed
+- **Multisig Protocol Change Helper Coverage Now Proves The Remaining Status-Label Branches:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts) so [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts) now explicitly proves `mapMultisigStatusLabel()` returns the expected `Pending`, `ReadyForExecution`, and `Cancelled` labels instead of leaving those enum cases implicit behind broader workflow tests.
+- **Alchemy Diagnostics Coverage Now Proves Named Event-Arg Normalization While Dropping Numeric Result Keys:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) so [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) now explicitly proves decoded receipt logs preserve named event arguments, recursively stringify bigint payloads, and ignore positional numeric keys when normalizing parse-log results.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Multisig Helper Coverage Improved:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change-helpers.test.ts --coverage.enabled true --coverage.reporter=json-summary --coverage.reporter=text --coverage.include='packages/api/src/workflows/multisig-protocol-change-helpers.ts' --maxWorkers 1`; all `12/12` assertions passed and the focused `multisig-protocol-change-helpers.ts` report improved to `98.68% / 93.82% / 96.55% / 98.67%` for statements/branches/functions/lines.
+- **Targeted Alchemy Diagnostics Coverage Improved:** Re-ran `pnpm exec vitest run packages/api/src/shared/alchemy-diagnostics.test.ts --coverage.enabled true --coverage.reporter=json-summary --coverage.reporter=text --coverage.include='packages/api/src/shared/alchemy-diagnostics.ts' --maxWorkers 1`; all `17/17` assertions passed and the focused `alchemy-diagnostics.ts` report improved to `100% / 94.33% / 100% / 100%` for statements/branches/functions/lines.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and merged Istanbul totals improved from `99.55% / 96.92% / 99.75% / 99.57%` to `99.59% / 96.94% / 99.83% / 99.59%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The highest remaining branch hotspots are [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), and [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts).
+
 ## [0.1.177] - 2026-05-24
 
 ### Fixed
