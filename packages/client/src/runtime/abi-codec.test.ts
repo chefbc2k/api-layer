@@ -457,6 +457,57 @@ describe("abi-codec", () => {
     expect(decodeResultFromWire(definition as never, { 0: "9", 1: false })).toEqual({ 0: 9n, 1: false });
   });
 
+  it("falls back to positional tuple keys when named object fields are missing", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        { name: "count", type: "uint256" },
+        { name: "enabled", type: "bool" },
+      ],
+    };
+    const definition = {
+      signature: "namedTupleFallback()",
+      outputs: [tupleParam],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeToWire(tupleParam as never, { 0: 5n, 1: false })).toEqual({
+      count: "5",
+      enabled: false,
+    });
+    expect(serializeResultToWire(definition as never, { 0: 6n, 1: true })).toEqual({
+      count: "6",
+      enabled: true,
+    });
+    expect(decodeFromWire(tupleParam as never, { count: "7", enabled: false })).toEqual({
+      count: 7n,
+      enabled: false,
+    });
+  });
+
+  it("passes through malformed tuple-array outputs until result validation rejects them", () => {
+    const definition = {
+      signature: "brokenTupleArrayResult()",
+      outputs: [{
+        type: "tuple[]",
+        components: [{ name: "count", type: "uint256" }],
+      }],
+    };
+
+    expect(() => serializeResultToWire(definition as never, { bad: true })).toThrow(
+      "invalid result for brokenTupleArrayResult(): expected array value for tuple[]",
+    );
+  });
+
+  it("serializes multi-output array results without coercing them through array-like object handling", () => {
+    const definition = {
+      signature: "multiArrayResult(uint256,bool)",
+      outputs: [{ type: "uint256" }, { type: "bool" }],
+    };
+
+    expect(serializeResultToWire(definition as never, [9n, false])).toEqual(["9", false]);
+  });
+
   it("accepts pre-serialized integer strings across encode and decode entrypoints", () => {
     const definition = {
       signature: "signed(int256,uint256)",

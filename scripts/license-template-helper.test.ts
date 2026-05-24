@@ -214,6 +214,45 @@ describe("ensureActiveLicenseTemplate", () => {
     expect(provider.getTransactionReceipt).not.toHaveBeenCalled();
   });
 
+  it("creates a template when creator templates payload is malformed and uses endpoint defaults without a path builder", async () => {
+    const apiCall: ApiCall = vi.fn(async (_port, method, path, options) => {
+      if (path === "/v1/licensing/queries/get-creator-templates?creator=0xCreator") {
+        return { status: 200, payload: { unexpected: true } };
+      }
+      expect(method).toBe("POST");
+      expect(path).toBe("/custom/template/create");
+      expect(options?.apiKey).toBe("writer-key");
+      return {
+        status: 202,
+        payload: {
+          result: "0x30",
+        },
+      };
+    });
+
+    await expect(
+      ensureActiveLicenseTemplate({
+        port: 8453,
+        provider: { getTransactionReceipt: vi.fn() } as never,
+        apiCall,
+        creatorAddress: "0xCreator",
+        label: "Verifier",
+        writeApiKey: "writer-key",
+        endpointRegistry: {
+          "VoiceLicenseTemplateFacet.createTemplate": {
+            httpMethod: "POST",
+            path: "/custom/template/create",
+            inputShape: { kind: "body", bindings: [] },
+          },
+        },
+      }),
+    ).resolves.toEqual({
+      templateHashHex: "0x30",
+      templateIdDecimal: "48",
+      created: true,
+    });
+  });
+
   it("times out when the template creation receipt never arrives", async () => {
     vi.useFakeTimers();
     const provider = {

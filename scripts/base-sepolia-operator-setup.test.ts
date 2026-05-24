@@ -1674,6 +1674,27 @@ describe("base sepolia operator setup helpers", () => {
     expect(provider.send).not.toHaveBeenCalled();
   });
 
+  it("keeps a loopback listing in place when it is already old enough even without an expiry", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 100_000 }),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "0",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "86401",
+    });
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
   it("uses the wall clock fallback when the latest block omits a timestamp", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-05-18T12:00:00.000Z"));
@@ -2003,6 +2024,43 @@ describe("base sepolia operator setup helpers", () => {
       approval: { status: 400, payload: { error: "approval denied" } },
     });
     expect(waitForReceiptFn).not.toHaveBeenCalled();
+  });
+
+  it("keeps an already purchase-ready preferred listing without attempting local fork time travel", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const provider = {
+      getBlock: vi.fn(),
+      send: vi.fn(),
+    };
+    const marketplace = {
+      getListing: vi.fn().mockResolvedValue([33n, "0xseller", 1000n, 0n, 10n, 10n, 200000n, true] as const),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xready"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(33n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xready",
+      tokenId: "33",
+      status: "ready",
+      purchaseReadiness: "purchase-ready",
+      localForkTimeAdvance: null,
+    });
+    expect(provider.getBlock).not.toHaveBeenCalled();
+    expect(provider.send).not.toHaveBeenCalled();
   });
 
   it("breaks equal-age marketplace candidate scan ties by token id", async () => {
