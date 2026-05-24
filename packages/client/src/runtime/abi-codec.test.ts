@@ -457,6 +457,52 @@ describe("abi-codec", () => {
     expect(decodeResultFromWire(definition as never, { 0: "9", 1: false })).toEqual({ 0: 9n, 1: false });
   });
 
+  it("normalizes unnamed tuple result objects and tuple arrays through numeric fallback keys", () => {
+    const tupleObjectDefinition = {
+      signature: "unnamedTupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+    const tupleArrayParam = {
+      type: "tuple[]",
+      components: [
+        { type: "uint256" },
+        { type: "bool" },
+      ],
+    };
+
+    expect(serializeResultToWire(tupleObjectDefinition as never, [11n, true])).toEqual({
+      0: "11",
+      1: true,
+    });
+    expect(serializeResultToWire(tupleObjectDefinition as never, { 0: 12n, 1: false })).toEqual({
+      0: "12",
+      1: false,
+    });
+    expect(decodeFromWire(tupleArrayParam as never, [{ 0: "13", 1: true }])).toEqual([
+      { 0: 13n, 1: true },
+    ]);
+  });
+
+  it("treats tuple definitions without components as empty tuple objects", () => {
+    const tupleParam = { type: "tuple" };
+    const tupleResultDefinition = {
+      signature: "emptyTuple()",
+      outputs: [tupleParam],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeToWire(tupleParam as never, {})).toEqual({});
+    expect(decodeFromWire(tupleParam as never, {})).toEqual({});
+    expect(serializeResultToWire(tupleResultDefinition as never, {})).toEqual({});
+  });
+
   it("falls back to positional tuple keys when named object fields are missing", () => {
     const tupleParam = {
       type: "tuple",

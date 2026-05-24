@@ -106,6 +106,28 @@ describe("base sepolia operator setup helpers", () => {
     expect(provider.getBlock).not.toHaveBeenCalled();
   });
 
+  it("falls back to provider block reads when the raw latest-block RPC is unavailable", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 7 }),
+      send: vi.fn().mockRejectedValue(new Error("raw rpc unavailable")),
+    };
+
+    await expect(readLatestProviderTimestamp(provider as any, 5n)).resolves.toBe(7n);
+    expect(provider.send).toHaveBeenCalledWith("eth_getBlockByNumber", ["latest", false]);
+    expect(provider.getBlock).toHaveBeenCalledWith("latest");
+  });
+
+  it("returns the explicit fallback timestamp when both latest-block reads omit timestamps", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({}),
+      send: vi.fn().mockResolvedValue({}),
+    };
+
+    await expect(readLatestProviderTimestamp(provider as any, 55n)).resolves.toBe(55n);
+    expect(provider.send).toHaveBeenCalledWith("eth_getBlockByNumber", ["latest", false]);
+    expect(provider.getBlock).toHaveBeenCalledWith("latest");
+  });
+
   it("hashes role names consistently", () => {
     expect(roleId("PROPOSER_ROLE")).toMatch(/^0x[a-f0-9]{64}$/);
   });
@@ -471,6 +493,19 @@ describe("base sepolia operator setup helpers", () => {
     );
   });
 
+  it("uses the default retry attempts and delay when both optional arguments are omitted", async () => {
+    vi.useFakeTimers();
+    const read = vi.fn()
+      .mockResolvedValueOnce({ ready: false })
+      .mockResolvedValueOnce({ ready: true });
+
+    const resultPromise = retryApiRead(read, (value) => value.ready);
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    await expect(resultPromise).resolves.toEqual({ ready: true });
+    expect(read).toHaveBeenCalledTimes(2);
+  });
+
   it("routes main through transient RPC retries with the configured defaults", async () => {
     vi.resetModules();
     const runWithTransientRpcRetries = vi.fn().mockResolvedValue(undefined);
@@ -657,6 +692,74 @@ describe("base sepolia operator setup helpers", () => {
     const result = await ensureNativeBalance([funder, target], new Map(), target, 1_000_000_000_090n);
 
     expect(result.attemptedFunders).toEqual([{ label: "candidate", address: "0xfunder", spendable: "80" }]);
+  });
+
+  it("skips zero-value funders and keeps scanning when an earlier transfer receipt fails", async () => {
+    const balances = new Map<string, bigint>([
+      ["0xtarget", 1_000_000_000_005n],
+      ["0xzero-funder", 1_000_000_000_001n],
+      ["0xfailed-funder", 1_000_000_000_100n],
+      ["0xgood-funder", 1_000_000_000_100n],
+    ]);
+    const provider = {
+      getBalance: vi.fn(async (address: string) => balances.get(address) ?? 0n),
+      getFeeData: vi.fn().mockResolvedValue({ gasPrice: 0n }),
+    };
+    const target = { address: "0xtarget", provider } as any;
+    const zeroFunder = {
+      address: "0xzero-funder",
+      provider,
+      sendTransaction: vi.fn(),
+    } as any;
+    const failedFunder = {
+      address: "0xfailed-funder",
+      provider,
+      sendTransaction: vi.fn(async ({ value }: { to: string; value: bigint }) => {
+        balances.set("0xfailed-funder", (balances.get("0xfailed-funder") ?? 0n) - value);
+        return {
+          wait: vi.fn().mockResolvedValue({ status: 0, hash: "0xfailed" }),
+        };
+      }),
+    } as any;
+    const goodFunder = {
+      address: "0xgood-funder",
+      provider,
+      sendTransaction: vi.fn(async ({ to, value }: { to: string; value: bigint }) => {
+        balances.set("0xgood-funder", (balances.get("0xgood-funder") ?? 0n) - value);
+        balances.set(to, (balances.get(to) ?? 0n) + value);
+        return {
+          wait: vi.fn().mockResolvedValue({ status: 1, hash: "0xgood" }),
+        };
+      }),
+    } as any;
+
+    const result = await ensureNativeBalance(
+      [zeroFunder, failedFunder, goodFunder, target],
+      new Map([
+        ["0xzero-funder", "zero"],
+        ["0xfailed-funder", "failed"],
+        ["0xgood-funder", "good"],
+      ]),
+      target,
+      1_000_000_000_060n,
+    );
+
+    expect(zeroFunder.sendTransaction).not.toHaveBeenCalled();
+    expect(failedFunder.sendTransaction).toHaveBeenCalledTimes(1);
+    expect(goodFunder.sendTransaction).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      funded: true,
+      balance: "1000000000105",
+      fundingStrategy: "transfer",
+      attemptedFunders: [
+        { label: "failed", address: "0xfailed-funder", spendable: "100" },
+        { label: "good", address: "0xgood-funder", spendable: "100" },
+        { label: "zero", address: "0xzero-funder", spendable: "1" },
+      ],
+      fundingTransactions: [
+        { label: "good", address: "0xgood-funder", txHash: "0xgood", amount: "100" },
+      ],
+    });
   });
 
   it("detects existing roles, grants missing ones, and reports grant failures", async () => {
@@ -2061,6 +2164,61 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(provider.getBlock).not.toHaveBeenCalled();
     expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("normalizes object-form marketplace listings before building the preferred fixture", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const marketplace = {
+      getListing: vi.fn().mockResolvedValue({
+        tokenId: 88n,
+        seller: "0xseller",
+        price: 1000n,
+        createdAt: 0n,
+        createdBlock: 10n,
+        lastUpdateBlock: 11n,
+        expiresAt: 200000n,
+        isActive: true,
+      }),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xobject-listing"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(88n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xobject-listing",
+      tokenId: "88",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      listing: {
+        submission: null,
+        readback: {
+          status: 200,
+          payload: {
+            tokenId: "88",
+            seller: "0xseller",
+            price: "1000",
+            createdAt: "0",
+            createdBlock: "10",
+            lastUpdateBlock: "11",
+            expiresAt: "200000",
+            isActive: true,
+          },
+        },
+      },
+    });
+    expect(marketplace.getListing).toHaveBeenCalledWith(88n);
   });
 
   it("breaks equal-age marketplace candidate scan ties by token id", async () => {
