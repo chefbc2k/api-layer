@@ -753,4 +753,72 @@ describe("runStakeAndDelegateWorkflow", () => {
     const unknownError = new Error("unhandled");
     expect(stakeAndDelegateTestUtils.normalizeStakeExecutionError(unknownError, "1")).toBe(unknownError);
   });
+
+  it("falls back to unknown or attempted amounts when selector-only stake rule errors omit uint256 payload words", () => {
+    const echoScoreOnlySelector = {
+      diagnostics: {
+        simulation: {
+          topLevelCall: {
+            error: "execution reverted: 0xbf5d1cac",
+          },
+        },
+      },
+    };
+    const minimumOnlySelector = {
+      diagnostics: {
+        simulation: {
+          topLevelCall: {
+            error: "execution reverted: 0x06a35408",
+          },
+        },
+      },
+    };
+    const maximumOnlySelector = {
+      diagnostics: {
+        simulation: {
+          topLevelCall: {
+            error: "execution reverted: 0x3265e09b",
+          },
+        },
+      },
+    };
+
+    expect((stakeAndDelegateTestUtils.normalizeStakeExecutionError(echoScoreOnlySelector, "7") as Error).message).toBe(
+      "stake-and-delegate blocked by stake rule violation: EchoScore too low (unknown < unknown)",
+    );
+    expect((stakeAndDelegateTestUtils.normalizeStakeExecutionError(minimumOnlySelector, "7") as Error).message).toBe(
+      "stake-and-delegate blocked by stake rule violation: amount 7 is below minimum stake unknown",
+    );
+    expect((stakeAndDelegateTestUtils.normalizeStakeExecutionError(maximumOnlySelector, "7") as Error).message).toBe(
+      "stake-and-delegate blocked by degraded-mode cap or maximum stake rule: 7 exceeds unknown",
+    );
+  });
+
+  it("normalizes selector-only pause and zero-amount errors without a message field", () => {
+    const stakingPaused = {
+      diagnostics: {
+        simulation: {
+          topLevelCall: {
+            error: "0x26d1807b",
+          },
+        },
+      },
+    };
+    const zeroAmount = {
+      diagnostics: {
+        simulation: {
+          topLevelCall: {
+            error: "0xf69a94d3",
+          },
+        },
+      },
+    };
+
+    expect((stakeAndDelegateTestUtils.normalizeStakeExecutionError(stakingPaused, "5") as Error).message).toBe(
+      "stake-and-delegate requires staking to be unpaused",
+    );
+    expect((stakeAndDelegateTestUtils.normalizeStakeExecutionError(zeroAmount, "5") as Error).message).toBe(
+      "stake-and-delegate requires a non-zero amount",
+    );
+  });
 });

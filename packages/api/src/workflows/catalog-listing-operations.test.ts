@@ -735,4 +735,76 @@ describe("runCatalogListingOperationsWorkflow", () => {
       "setLicenseTemplateId cannot be combined with templateLifecycle in catalog-listing-operations",
     );
   });
+
+  it("handles receipt-less remove and license maintenance writes without querying events", async () => {
+    const service = datasetService({
+      getDataset: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1", "2"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1"],
+            licenseTemplateId: "9",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        }),
+    });
+    mocks.createDatasetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(null);
+
+    const result = await runCatalogListingOperationsWorkflow(context, auth, undefined, {
+      dataset: {
+        datasetId: "11",
+        maintenance: {
+          removeAssetId: "2",
+          setLicenseTemplateId: "9",
+        },
+      },
+      listing: {
+        inspect: false,
+        cancel: false,
+      },
+    });
+
+    expect(service.assetRemovedEventQuery).not.toHaveBeenCalled();
+    expect(service.licenseChangedEventQuery).not.toHaveBeenCalled();
+    expect(result.packaging.maintenance.removeAsset).toEqual(expect.objectContaining({
+      txHash: null,
+      eventCount: 0,
+    }));
+    expect(result.packaging.maintenance.setLicense).toEqual(expect.objectContaining({
+      txHash: null,
+      eventCount: 0,
+    }));
+    expect(result.packaging.after).toEqual(expect.objectContaining({
+      assetIds: ["1"],
+      licenseTemplateId: "9",
+    }));
+  });
 });

@@ -478,4 +478,97 @@ describe("runRegisterVoiceAssetWorkflow", () => {
     expect(service.getTokenId).toHaveBeenCalledTimes(40);
     setTimeoutSpy.mockRestore();
   });
+
+  it("surfaces metadata readback timeouts after transient feature-read errors without a message field", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const voiceHash = "0x3333333333333333333333333333333333333333333333333333333333333333";
+    const features = { pitch: "140" };
+    const service = {
+      registerVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xreg-timeout", result: voiceHash },
+      }),
+      registerVoiceAssetForCaller: vi.fn(),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { voiceHash, owner: "0x0000000000000000000000000000000000000001" },
+      }),
+      getTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: "301",
+      }),
+      updateBasicAcousticFeatures: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xmeta-timeout" },
+      }),
+      getBasicAcousticFeatures: vi.fn().mockRejectedValue({
+        diagnostics: { code: "E_TRANSIENT" },
+      }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreceipt-registration")
+      .mockResolvedValueOnce("0xreceipt-metadata");
+
+    await expect(runRegisterVoiceAssetWorkflow(context, auth, undefined, {
+      ipfsHash: "QmTimeout",
+      royaltyRate: "120",
+      features,
+    })).rejects.toThrow(
+      "registerVoiceAsset.featuresRead readback timeout after transient read errors: [object Object]",
+    );
+
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("surfaces metadata readback timeouts with null payloads when no successful feature read ever matches", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const voiceHash = "0x4444444444444444444444444444444444444444444444444444444444444444";
+    const features = { pitch: "141" };
+    const service = {
+      registerVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xreg-null-body", result: voiceHash },
+      }),
+      registerVoiceAssetForCaller: vi.fn(),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { voiceHash, owner: "0x0000000000000000000000000000000000000002" },
+      }),
+      getTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: "302",
+      }),
+      updateBasicAcousticFeatures: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xmeta-null-body" },
+      }),
+      getBasicAcousticFeatures: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: undefined,
+      }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreceipt-registration")
+      .mockResolvedValueOnce("0xreceipt-metadata");
+
+    await expect(runRegisterVoiceAssetWorkflow(context, auth, undefined, {
+      ipfsHash: "QmNullBody",
+      royaltyRate: "121",
+      features,
+    })).rejects.toThrow("registerVoiceAsset.featuresRead readback timeout: null");
+
+    setTimeoutSpy.mockRestore();
+  });
 });
