@@ -705,6 +705,14 @@ describe("alchemy-diagnostics", () => {
     const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
     const fragment = iface.getEvent("TestEvent");
     const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 7n]);
+    const parseLogSpy = vi.spyOn(Interface.prototype, "parseLog").mockReturnValue({
+      name: "TestEvent",
+      signature: "TestEvent(address,uint256)",
+      args: {
+        owner: "0x00000000000000000000000000000000000000AA",
+        amount: 7n,
+      },
+    } as never);
     const alchemy = {
       core: {
         getLogs: vi.fn().mockResolvedValue([
@@ -722,11 +730,15 @@ describe("alchemy-diagnostics", () => {
       facetName: "TestFacet",
       eventName: "TestEvent",
       fromBlock: 10,
+      indexedMatches: {
+        owner: "0x00000000000000000000000000000000000000AA",
+      },
     })).resolves.toEqual(expect.objectContaining({
       status: "available",
       expectedEvent: "TestFacet.TestEvent",
       matchedCount: 1,
     }));
+    parseLogSpy.mockRestore();
 
     await expect(verifyExpectedEventWithAlchemy(alchemy as never, {
       address: "0x0000000000000000000000000000000000000001",

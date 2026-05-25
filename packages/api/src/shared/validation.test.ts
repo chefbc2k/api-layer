@@ -111,6 +111,7 @@ const managedTemplateDefinition: HttpMethodDefinition = {
 describe("validation helpers", () => {
   it("validates scalar, tuple, and fixed-array wire schemas", () => {
     expect(buildWireSchema(writeDefinition, { type: "int256" }).parse("-15")).toBe("-15");
+    expect(buildWireSchema(writeDefinition, { type: "uint256" }).parse("15")).toBe("15");
     expect(buildWireSchema(writeDefinition, { type: "address" }).parse("0x00000000000000000000000000000000000000AA"))
       .toBe("0x00000000000000000000000000000000000000AA");
     expect(buildWireSchema(writeDefinition, { type: "bool" }).parse(true)).toBe(true);
@@ -184,11 +185,13 @@ describe("validation helpers", () => {
       fromBlock: "10",
       toBlock: "latest",
     });
+    expect(eventSchema.body.parse({ toBlock: "12" })).toEqual({ toBlock: "12" });
   });
 
   it("coerces query and path values into wire parameters", () => {
     expect(coerceHttpInput({ type: "bool" }, "true", "query")).toBe(true);
     expect(coerceHttpInput({ type: "bool" }, "false", "query")).toBe(false);
+    expect(coerceHttpInput({ type: "bool" }, "TRUE", "query")).toBe("TRUE");
     expect(coerceHttpInput({ type: "tuple" }, "{\"recipient\":\"0xabc\"}", "query")).toEqual({ recipient: "0xabc" });
     expect(coerceHttpInput({ type: "bytes32[]" }, "[\"0x1\"]", "path")).toEqual(["0x1"]);
     expect(() => coerceHttpInput({ type: "tuple" }, "{not-json", "query")).toThrow(SyntaxError);

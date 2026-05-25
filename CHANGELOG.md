@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.183] - 2026-05-25
+
+### Fixed
+- **Residual Coverage Branches Now Prove More Validation, Vesting, And Alchemy Paths:** Expanded [`/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.test.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/vesting-helpers.test.ts), and [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) so the corresponding runtime helpers now explicitly prove unsigned integer validation, numeric event-block parsing, non-lowercase bool passthrough, the active non-revoked vesting readback path, and enumerable indexed-event matching through the Alchemy verifier.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm vitest run packages/api/src/shared/alchemy-diagnostics.test.ts packages/api/src/workflows/vesting-helpers.test.ts packages/api/src/shared/validation.test.ts`; all `36/36` targeted assertions passed after the branch-coverage additions.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and merged Istanbul totals improved from `99.71% / 97.03% / 99.91% / 99.72%` to `99.71% / 97.08% / 99.91% / 99.72%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and [`/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.182] - 2026-05-24
 
 ### Verified

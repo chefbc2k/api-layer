@@ -136,6 +136,28 @@ describe("vesting helpers", () => {
     )).rejects.toThrow("totals failed");
   });
 
+  it("returns live readbacks unchanged for active non-revoked schedules", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100", releasedAmount: "20", revoked: false } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: false, beneficiary: "0x00000000000000000000000000000000000000aa" } }),
+      getVestingReleasableAmount: async () => ({ statusCode: 200, body: "5" }),
+      getVestingTotalAmount: async () => ({ statusCode: 200, body: { totalVested: "100", totalReleased: "20", releasable: "5" } }),
+    };
+
+    const result = await readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      "0x00000000000000000000000000000000000000bb",
+      "0x00000000000000000000000000000000000000aa",
+    );
+
+    expect(result.schedule.body).toEqual({ totalAmount: "100", releasedAmount: "20", revoked: false });
+    expect(result.details.body).toEqual({ revoked: false, beneficiary: "0x00000000000000000000000000000000000000aa" });
+    expect(result.releasable.body).toBe("5");
+    expect(result.totals.body).toEqual({ totalVested: "100", totalReleased: "20", releasable: "5" });
+  });
+
   it("normalizes create-vesting execution errors into workflow-specific HttpErrors", () => {
     const diagnostics = { txHash: "0xcreate" };
 
