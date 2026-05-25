@@ -111,6 +111,28 @@ describe("invoke runtime helpers", () => {
     expect(mocks.contractCalls).toEqual([{ args: [3], runner: provider }]);
   });
 
+  it("bypasses cache for fixture reads when the endpoint is marked live-required", async () => {
+    const provider = { tag: "provider" };
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode, _method, work) => work(provider)),
+    };
+    const cache = { get: vi.fn(), set: vi.fn() };
+    const addressBook = { resolveFacetAddress: vi.fn().mockReturnValue("0x0000000000000000000000000000000000000001") };
+    mocks.functionImpl.mockResolvedValue("fresh-live-required");
+
+    const result = await invokeRead({
+      executionSource: "fixture",
+      providerRouter,
+      cache,
+      addressBook,
+    } as never, "TestFacet", "readValue", [5], true, 60);
+
+    expect(result).toBe("fresh-live-required");
+    expect(cache.get).not.toHaveBeenCalled();
+    expect(cache.set).not.toHaveBeenCalled();
+    expect(mocks.contractCalls).toEqual([{ args: [5], runner: provider }]);
+  });
+
   it("requires signerFactory for writes and forwards writes through the write provider", async () => {
     await expect(invokeWrite({
       providerRouter: { withProvider: vi.fn() },

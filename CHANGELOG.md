@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.187] - 2026-05-25
+
+### Fixed
+- **Wrapper Runtime Cache-Busting And Event-Fallback Paths Are Now Explicitly Pinned:** Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts) so [/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts) now explicitly proves that fixture-backed reads still bypass cache whenever an endpoint is marked `liveRequired`.
+- **Indexer Event Decoding Now Proves Multi-Candidate Fallback Behavior:** Expanded [/Users/chef/Public/api-layer/packages/indexer/src/events.test.ts](/Users/chef/Public/api-layer/packages/indexer/src/events.test.ts) so [/Users/chef/Public/api-layer/packages/indexer/src/events.ts](/Users/chef/Public/api-layer/packages/indexer/src/events.ts) now explicitly proves that malformed earlier candidates do not prevent a later compatible ABI decoder from recovering the log.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Runtime Regression Slice Passed:** Re-ran `pnpm vitest run packages/client/src/runtime/abi-codec.test.ts packages/client/src/runtime/invoke.test.ts packages/indexer/src/events.test.ts --maxWorkers 1`; all `56/56` targeted assertions passed after the runtime-helper additions.
+- **Repo-Wide Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and merged Istanbul totals held at `99.73% / 97.42% / 99.91% / 99.74%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.186] - 2026-05-25
 
 ### Fixed

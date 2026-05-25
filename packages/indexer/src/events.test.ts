@@ -112,6 +112,50 @@ describe("decodeEvent", () => {
     expect(decodeEvent(badRegistry, log)).toBeNull();
   });
 
+  it("falls through malformed candidates until a later candidate decodes successfully", () => {
+    const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 42n]);
+    const log = {
+      address: "0x0000000000000000000000000000000000000001",
+      data: encoded.data,
+      topics: encoded.topics,
+      transactionHash: "0xtx",
+      blockHash: "0xblock",
+      blockNumber: 1,
+      index: 0,
+      removed: false,
+    } as unknown as Log;
+    const mixedRegistry = new Map([
+      [encoded.topics[0], [
+        {
+          facetName: "BrokenFacet",
+          eventName: "Broken",
+          wrapperKey: "Broken",
+          fullEventKey: "BrokenFacet.Broken",
+          iface: new Interface(["event Broken(address indexed owner)"]),
+        },
+        {
+          facetName: "TestFacet",
+          eventName: "TestEvent",
+          wrapperKey: "TestEvent",
+          fullEventKey: "TestFacet.TestEvent",
+          iface,
+        },
+      ]],
+    ]);
+
+    expect(decodeEvent(mixedRegistry, log)).toMatchObject({
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fullEventKey: "TestFacet.TestEvent",
+      args: {
+        owner: "0x00000000000000000000000000000000000000AA",
+        amount: 42n,
+      },
+    });
+  });
+
   it("returns null when the topic is not present in the registry", () => {
     const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
     const fragment = iface.getEvent("TestEvent");
