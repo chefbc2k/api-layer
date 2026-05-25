@@ -306,13 +306,6 @@ export async function advanceLocalForkPastMarketplaceTradingLock(args: {
 
   const readyAt = BigInt(listing.createdAt) + 24n * 60n * 60n + 1n;
   const secondsToAdvance = readyAt > latestTimestamp ? readyAt - latestTimestamp : 0n;
-  if (secondsToAdvance <= 0n) {
-    return {
-      advanced: false,
-      secondsAdvanced: "0",
-      readyAt: readyAt.toString(),
-    };
-  }
 
   await args.provider.send("evm_increaseTime", [Number(secondsToAdvance)]);
   await args.provider.send("evm_mine", []);
@@ -499,9 +492,6 @@ export async function ensureNativeBalance(
     }
     const deficit = minimum - updatedBalance + ethers.parseEther("0.00001");
     const amount = funder.spendable >= deficit ? deficit : funder.spendable;
-    if (amount <= 0n) {
-      continue;
-    }
     const receipt = await (await funder.wallet.sendTransaction({ to: target.address, value: amount })).wait();
     if (!receipt || receipt.status !== 1) {
       continue;

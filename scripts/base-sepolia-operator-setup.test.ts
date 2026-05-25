@@ -72,6 +72,13 @@ describe("base sepolia operator setup helpers", () => {
     expect(read).toHaveBeenCalledTimes(3);
   });
 
+  it("throws when retryApiRead is given zero attempts", async () => {
+    const read = vi.fn();
+
+    await expect(retryApiRead(read, () => true, 0, 25)).rejects.toThrow("retryApiRead received no values");
+    expect(read).not.toHaveBeenCalled();
+  });
+
   it("advances a local fork past the marketplace trading lock when a listing is still fresh", async () => {
     const provider = {
       getBlock: vi.fn().mockResolvedValue({ timestamp: 1_000 }),
@@ -93,6 +100,50 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(provider.send).toHaveBeenNthCalledWith(1, "evm_increaseTime", [86401]);
     expect(provider.send).toHaveBeenNthCalledWith(2, "evm_mine", []);
+  });
+
+  it("skips local-fork time travel when the RPC is not loopback or the listing is not advanceable", async () => {
+    const remoteProvider = {
+      getBlock: vi.fn(),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: remoteProvider as any,
+      rpcUrl: "https://base-sepolia.example.invalid",
+      listing: {
+        createdAt: "1000",
+        expiresAt: "999999",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+    expect(remoteProvider.getBlock).not.toHaveBeenCalled();
+    expect(remoteProvider.send).not.toHaveBeenCalled();
+
+    const readyProvider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 90_000 }),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: readyProvider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "1000",
+        expiresAt: "999999",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+    expect(readyProvider.getBlock).toHaveBeenCalledWith("latest");
+    expect(readyProvider.send).not.toHaveBeenCalled();
   });
 
   it("falls back to a raw latest-block RPC read when provider block caching is stale", async () => {

@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.179] - 2026-05-24
+
+### Fixed
+- **Base Sepolia Setup Coverage Now Proves Zero-Attempt Retry Guards And Local-Fork No-Op Time-Advance Paths While Deleting Two Impossible Branches:** Expanded [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) now explicitly proves `retryApiRead()` throws when configured with zero attempts, `advanceLocalForkPastMarketplaceTradingLock()` cleanly skips non-loopback and already-ready listings, and two dead defensive branches in the local-fork time-advance/native-top-up helpers were removed because earlier guards make them unreachable in real execution.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Setup Coverage Slice Improved Again:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts scripts/base-sepolia-operator-setup.helpers.test.ts --coverage.enabled true --coverage.reporter=json-summary --coverage.reporter=text --coverage.include='scripts/base-sepolia-operator-setup.ts' --maxWorkers 1`; all `84/84` assertions passed and the focused `base-sepolia-operator-setup.ts` report improved to `100% / 90.88% / 100% / 100%` for statements/branches/functions/lines.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and merged Istanbul totals improved from `99.59% / 96.94% / 99.83% / 99.59%` to `99.63% / 96.99% / 99.83% / 99.63%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The highest remaining branch hotspots are [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), and [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts).
+
 ## [0.1.178] - 2026-05-24
 
 ### Fixed
