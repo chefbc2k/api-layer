@@ -5,6 +5,7 @@ import {
   buildMethodSurface,
   buildOperationId,
   classifyMethod,
+  domainByFacet,
   keyForEvent,
   keyForMethod,
   sortObject,
@@ -63,6 +64,9 @@ describe("api surface helpers", () => {
     }))).toBe("safeTransferFromAddressAddressUint256");
     expect(toKebabCase("Already Clean")).toBe("already-clean");
     expect(toCamelCase("Already Clean")).toBe("alreadyClean");
+    expect(toCamelCase("()")).toBe("");
+    expect(toCamelCase("   ")).toBe("");
+    expect(domainByFacet.RightsFacet).toBe("licensing");
   });
 
   it("classifies reads, creates, updates, deletes, admin writes, and actions", () => {
