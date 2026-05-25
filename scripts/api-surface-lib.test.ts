@@ -8,6 +8,7 @@ import {
   domainByFacet,
   keyForEvent,
   keyForMethod,
+  loadAbiRegistry,
   sortObject,
   toCamelCase,
   toKebabCase,
@@ -67,6 +68,19 @@ describe("api surface helpers", () => {
     expect(toCamelCase("()")).toBe("");
     expect(toCamelCase("   ")).toBe("");
     expect(domainByFacet.RightsFacet).toBe("licensing");
+    expect(domainByFacet.MarketplaceFacet).toBe("marketplace");
+    expect(domainByFacet.WhisperBlockFacet).toBe("whisperblock");
+  });
+
+  it("loads the generated ABI registry manifest from disk", async () => {
+    const registry = await loadAbiRegistry();
+
+    expect(Object.keys(registry.methods).length).toBeGreaterThan(0);
+    expect(Object.keys(registry.events).length).toBeGreaterThan(0);
+    expect(registry.methods["VoiceAssetFacet.registerVoiceAsset"]).toMatchObject({
+      facetName: "VoiceAssetFacet",
+      methodName: "registerVoiceAsset",
+    });
   });
 
   it("classifies reads, creates, updates, deletes, admin writes, and actions", () => {

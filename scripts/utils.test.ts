@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   copyTree,
@@ -166,5 +166,28 @@ describe("script utils", () => {
   it("converts PascalCase identifiers to camelCase", () => {
     expect(pascalToCamel("VoiceAssetFacet")).toBe("voiceAssetFacet");
     expect(pascalToCamel("X")).toBe("x");
+  });
+
+  it("returns null or throws cleanly when every filesystem candidate lookup misses", async () => {
+    vi.resetModules();
+    const actualFs = await vi.importActual<typeof import("node:fs/promises")>("node:fs/promises");
+    const stat = vi.fn().mockRejectedValue(Object.assign(new Error("ENOENT"), { code: "ENOENT" }));
+    vi.doMock("node:fs/promises", () => ({
+      ...actualFs,
+      stat,
+    }));
+
+    process.env.API_LAYER_ABI_SOURCE_DIR = path.join(tempDir, "missing-abis-only");
+    process.env.API_LAYER_SCENARIO_SOURCE_DIR = path.join(tempDir, "missing-scenarios-only");
+    process.env.API_LAYER_DEPLOYMENT_MANIFEST = path.join(tempDir, "missing-manifest-only.json");
+
+    const mockedUtils = await import("./utils.js");
+
+    await expect(mockedUtils.resolveScenarioSourceDir()).resolves.toBeNull();
+    await expect(mockedUtils.resolveDeploymentManifestPath()).resolves.toBeNull();
+    await expect(mockedUtils.resolveAbiSourceDir()).rejects.toThrow("unable to locate ABI source directory");
+
+    vi.doUnmock("node:fs/promises");
+    vi.resetModules();
   });
 });

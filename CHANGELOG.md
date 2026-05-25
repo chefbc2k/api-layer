@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.181] - 2026-05-24
+
+### Fixed
+- **Filesystem Fallback Coverage Now Proves Full Miss Paths In Script Utils:** Expanded [`/Users/chef/Public/api-layer/scripts/utils.test.ts`](/Users/chef/Public/api-layer/scripts/utils.test.ts) so [`/Users/chef/Public/api-layer/scripts/utils.ts`](/Users/chef/Public/api-layer/scripts/utils.ts) now explicitly proves the all-candidates-missing paths for ABI/scenario/deployment-manifest lookup, including the clean `null` returns for optional sources and the explicit failure path for required ABI discovery.
+- **API Surface Coverage Now Proves Registry Loading Against The Generated Manifest:** Expanded [`/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) so [`/Users/chef/Public/api-layer/scripts/api-surface-lib.ts`](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) now explicitly proves `loadAbiRegistry()` reads the generated manifest successfully and keeps additional domain mappings for `MarketplaceFacet` and `WhisperBlockFacet` pinned in the test suite.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm vitest run scripts/utils.test.ts scripts/api-surface-lib.test.ts --maxWorkers 1`; all `18/18` targeted assertions passed after the fallback and manifest-loading coverage additions.
+- **Repo-Wide Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and merged Istanbul totals improved from `99.63% / 97.01% / 99.83% / 99.63%` to `99.71% / 97.03% / 99.91% / 99.72%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification artifacts remain fully `proven working`, API surface coverage and wrapper coverage remain complete, and no new Base Sepolia/local-fork regressions were introduced. Repo-wide standard coverage is still below the automation target, with the clearest remaining branch hotspots concentrated in [`/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts`](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [`/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [`/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts`](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and [`/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts`](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.180] - 2026-05-24
 
 ### Fixed
