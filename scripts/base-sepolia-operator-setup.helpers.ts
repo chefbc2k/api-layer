@@ -83,7 +83,7 @@ export function selectPreferredMarketplaceFixtureCandidate(
       return Number(leftCreatedAt - rightCreatedAt);
     }
     return left.tokenId.localeCompare(right.tokenId);
-  })[0] ?? null;
+  })[0];
 }
 
 export function mergeMarketplaceCandidateVoiceHashes(
@@ -104,6 +104,6 @@ export function rankFundingCandidates(
       if (left.spendable === right.spendable) {
         return left.label.localeCompare(right.label);
       }
-      return left.spendable > right.spendable ? -1 : 1;
+      return Number(right.spendable > left.spendable) - Number(right.spendable < left.spendable);
     });
 }

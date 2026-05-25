@@ -26,6 +26,7 @@ describe("base-sepolia marketplace fixture helpers", () => {
 
   it("treats expiration as a hard stop for both readiness and active-age checks", () => {
     expect(isExpiredListing(undefined, 10n)).toBe(false);
+    expect(isExpiredListing(null, 10n)).toBe(false);
     expect(isExpiredListing({ tokenId: "11", expiresAt: "10", isActive: true }, 10n)).toBe(true);
     expect(isPurchaseReadyListing({
       tokenId: "11",
@@ -68,6 +69,15 @@ describe("base-sepolia marketplace fixture helpers", () => {
       tokenId: "3",
       listingReadback: {
         status: 404,
+        payload: null,
+      },
+    }, 20n)).toBe(1);
+
+    expect(classifyCandidatePriority({
+      voiceHash: "0xnull-active",
+      tokenId: "4",
+      listingReadback: {
+        status: 200,
         payload: null,
       },
     }, 20n)).toBe(1);
@@ -187,6 +197,29 @@ describe("base-sepolia marketplace fixture helpers", () => {
     expect(candidate?.tokenId).toBe("12");
   });
 
+  it("treats missing createdAt values on the right-hand candidate as zero during tie-breaking", () => {
+    const candidate = selectPreferredMarketplaceFixtureCandidate([
+      {
+        voiceHash: "0xwith-created-at",
+        tokenId: "13",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "13", createdAt: "50", isActive: true },
+        },
+      },
+      {
+        voiceHash: "0xmissing-created-at-right",
+        tokenId: "12",
+        listingReadback: {
+          status: 200,
+          payload: { tokenId: "12", isActive: true },
+        },
+      },
+    ], 60n);
+
+    expect(candidate?.tokenId).toBe("12");
+  });
+
   it("merges seller-owned and escrowed voice hashes without dropping escrow-only candidates", () => {
     expect(
       mergeMarketplaceCandidateVoiceHashes(
@@ -226,6 +259,21 @@ describe("base-sepolia marketplace fixture helpers", () => {
     ).toEqual([
       { label: "alpha", address: "0xbbb", spendable: 2n },
       { label: "zeta", address: "0xAAA", spendable: 2n },
+    ]);
+  });
+
+  it("sorts larger spendable balances ahead even when they appear later in the input", () => {
+    expect(
+      rankFundingCandidates(
+        [
+          { label: "small", address: "0x111", spendable: 1n },
+          { label: "large", address: "0x222", spendable: 3n },
+        ],
+        "0x999",
+      ),
+    ).toEqual([
+      { label: "large", address: "0x222", spendable: 3n },
+      { label: "small", address: "0x111", spendable: 1n },
     ]);
   });
 });

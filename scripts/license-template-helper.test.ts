@@ -182,6 +182,32 @@ describe("ensureActiveLicenseTemplate", () => {
     ).rejects.toThrow('license template create returned invalid hash: {"result":"not-a-hash"}');
   });
 
+  it("treats non-object create payloads as missing tx hashes and invalid template hashes", async () => {
+    const provider = {
+      getTransactionReceipt: vi.fn(),
+    };
+    const apiCall: ApiCall = vi.fn(async (_port, _method, path) => {
+      if (path.includes("get-creator-templates")) {
+        return { status: 200, payload: [] };
+      }
+      return {
+        status: 202,
+        payload: "0xnot-an-object",
+      };
+    });
+
+    await expect(
+      ensureActiveLicenseTemplate({
+        port: 8453,
+        provider: provider as never,
+        apiCall,
+        creatorAddress: "0xCreator",
+        label: "Verifier",
+      }),
+    ).rejects.toThrow('license template create returned invalid hash: "0xnot-an-object"');
+    expect(provider.getTransactionReceipt).not.toHaveBeenCalled();
+  });
+
   it("accepts a created template response that omits txHash when the hash result is still valid", async () => {
     const provider = {
       getTransactionReceipt: vi.fn(),
