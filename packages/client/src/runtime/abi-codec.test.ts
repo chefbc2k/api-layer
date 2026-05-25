@@ -851,6 +851,36 @@ describe("abi-codec", () => {
     ]);
   });
 
+  it("passes through non-normalizable tuple leaves until result validation rejects them", () => {
+    const tupleObjectDefinition = {
+      signature: "tupleLeafPassthrough()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+    const tupleArrayDefinition = {
+      signature: "tupleArrayLeafPassthrough()",
+      outputs: [{
+        type: "tuple[]",
+        components: [
+          { name: "count", type: "uint256" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => serializeResultToWire(tupleObjectDefinition as never, 7n)).toThrow(
+      "invalid result for tupleLeafPassthrough(): expected tuple-compatible value",
+    );
+    expect(() => serializeResultToWire(tupleArrayDefinition as never, 7n)).toThrow(
+      "invalid result for tupleArrayLeafPassthrough(): expected array value for tuple[]",
+    );
+  });
+
   it("uses positional fallbacks for unnamed tuple components across object and result decoding paths", () => {
     const unnamedTupleParam = {
       type: "tuple",

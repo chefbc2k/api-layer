@@ -977,6 +977,43 @@ describe("executeHttpMethodDefinition", () => {
     });
   });
 
+  it("uses the built-in cdp smart-wallet allowlist when no override is configured", async () => {
+    mocked.decodeParamsFromWire.mockReset();
+    mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001"]);
+    mocked.submitSmartWalletCall.mockResolvedValue({
+      userOperationHash: "0xdefault-allowlist-userop",
+      status: "submitted",
+    });
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition({
+          key: "DelegationFacet.delegate",
+          facetName: "DelegationFacet",
+          wrapperKey: "delegate",
+          methodName: "delegate",
+          signature: "delegate",
+          inputs: [{ type: "address" }],
+          outputs: [],
+        }) as never,
+        buildRequest({
+          api: { gaslessMode: "cdpSmartWallet", executionSource: "auto" },
+          wireParams: ["0x0000000000000000000000000000000000000001"],
+        }) as never,
+      ),
+    ).resolves.toMatchObject({
+      statusCode: 202,
+      body: {
+        relay: {
+          userOperationHash: "0xdefault-allowlist-userop",
+          status: "submitted",
+        },
+      },
+    });
+  });
+
   it("submits cdp smart-wallet requests and persists relay metadata", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
@@ -1575,6 +1612,43 @@ describe("executeHttpMethodDefinition", () => {
         provider: null,
         signer: "0x00000000000000000000000000000000000000aa",
         cause: "missing private key for signer founder",
+      }),
+    });
+  });
+
+  it("stringifies non-Error preview failures before attaching diagnostics", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: true,
+        alchemySimulationEnabled: false,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockRejectedValueOnce("preview reverted");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", allowGasless: true, roles: ["service"] },
+          api: { gaslessMode: "signature", executionSource: "auto" },
+          walletAddress: "0x00000000000000000000000000000000000000aa",
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "preview reverted",
+      diagnostics: expect.objectContaining({
+        cause: "preview reverted",
+        signer: "0x00000000000000000000000000000000000000aa",
+        trace: { status: "disabled" },
       }),
     });
   });

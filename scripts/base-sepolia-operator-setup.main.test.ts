@@ -281,6 +281,138 @@ describe("base-sepolia-operator-setup main", () => {
     expect(consoleWarn).toHaveBeenCalledWith("transient retry probe");
   });
 
+  it("falls back to the default port and prefers the configured remote fixture RPC when cbdp is already non-loopback", async () => {
+    appMocks.createApiServer.mockReturnValue({
+      listen: vi.fn().mockReturnValue({
+        address: vi.fn().mockReturnValue("pipe"),
+        close: vi.fn((callback?: () => void) => callback?.()),
+        closeAllConnections: vi.fn(),
+        closeIdleConnections: vi.fn(),
+      }),
+    });
+    alchemyMocks.resolveRuntimeConfig.mockResolvedValue({
+      config: {
+        chainId: 84532,
+        diamondAddress: "0xdiamond",
+        cbdpRpcUrl: "https://fixtures.example",
+        alchemyRpcUrl: "https://alchemy.example",
+      },
+      rpcResolution: {
+        effectiveRpcUrl: "https://effective.example",
+      },
+    });
+    alchemyMocks.startLocalForkIfNeeded.mockResolvedValue({
+      rpcUrl: "http://127.0.0.1:9999",
+      forkedFrom: null,
+      forkProcess: {
+        kill: vi.fn(),
+      },
+    });
+    ethersMocks.contractFactory.mockImplementation((address: string, abi: unknown) => {
+      if (abi === generatedMocks.facetRegistry.VoiceAssetFacet.abi) {
+        return {
+          getVoiceAssetsByOwner: vi.fn().mockResolvedValue([]),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.PaymentFacet.abi) {
+        return {
+          getUsdcToken: vi.fn().mockResolvedValue("0x00000000000000000000000000000000000000cc"),
+        };
+      }
+      if (address === "0x00000000000000000000000000000000000000cc") {
+        return {
+          balanceOf: vi.fn().mockResolvedValue(0n),
+          allowance: vi.fn().mockResolvedValue(0n),
+          connect: vi.fn(),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.EscrowFacet.abi) {
+        return {
+          getOriginalOwner: vi.fn(),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.MarketplaceFacet.abi) {
+        return {
+          getListing: vi.fn().mockRejectedValue(new Error("missing listing")),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.AccessControlFacet.abi) {
+        return {
+          hasRole: vi.fn().mockResolvedValue(true),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.GovernorFacet.abi) {
+        return {
+          getVotingConfig: vi.fn().mockResolvedValue([0n, 0n, 100n]),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.DelegationFacet.abi) {
+        return {
+          getCurrentVotes: vi.fn().mockResolvedValue(150n),
+        };
+      }
+      if (abi === generatedMocks.facetRegistry.TokenSupplyFacet.abi) {
+        return {
+          tokenBalanceOf: vi.fn().mockResolvedValue(500n),
+          supplyIsMintingFinished: vi.fn().mockResolvedValue(true),
+        };
+      }
+      return {};
+    });
+
+    const module = await import("./base-sepolia-operator-setup.ts");
+    await module.main();
+
+    const writePayload = JSON.parse(String(fsMocks.writeFile.mock.calls[0]?.[1] ?? "{}"));
+    expect(writePayload.network).toMatchObject({
+      rpcUrl: "https://fixtures.example",
+      upstreamRpcUrl: "https://fixtures.example",
+      runtimeRpcUrl: "http://127.0.0.1:9999",
+      forkedFrom: null,
+    });
+    expect(ethersMocks.contractFactory).toHaveBeenCalledWith(
+      "0x00000000000000000000000000000000000000cc",
+      expect.arrayContaining([
+        "function balanceOf(address) view returns (uint256)",
+        "function allowance(address,address) view returns (uint256)",
+        "function transfer(address,uint256) returns (bool)",
+      ]),
+      expect.anything(),
+    );
+  });
+
+  it("falls back to the resolved Alchemy RPC when every earlier fixture source is loopback", async () => {
+    alchemyMocks.resolveRuntimeConfig.mockResolvedValue({
+      config: {
+        chainId: 84532,
+        diamondAddress: "0xdiamond",
+        cbdpRpcUrl: "http://127.0.0.1:8548",
+        alchemyRpcUrl: "https://alchemy-backfill.example",
+      },
+      rpcResolution: {
+        effectiveRpcUrl: "http://localhost:8545",
+      },
+    });
+    alchemyMocks.startLocalForkIfNeeded.mockResolvedValue({
+      rpcUrl: "http://127.0.0.1:9999",
+      forkedFrom: null,
+      forkProcess: {
+        kill: vi.fn(),
+      },
+    });
+
+    const module = await import("./base-sepolia-operator-setup.ts");
+    await module.main();
+
+    const writePayload = JSON.parse(String(fsMocks.writeFile.mock.calls[0]?.[1] ?? "{}"));
+    expect(writePayload.network).toMatchObject({
+      rpcUrl: "https://alchemy-backfill.example",
+      upstreamRpcUrl: "https://alchemy-backfill.example",
+      runtimeRpcUrl: "http://127.0.0.1:9999",
+      forkedFrom: null,
+    });
+  });
+
   it("logs and exits when invoked as the main module and startup fails", async () => {
     process.argv[1] = scriptPath;
     const startupError = new Error("startup failed");
