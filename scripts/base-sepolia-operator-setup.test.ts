@@ -72,6 +72,13 @@ describe("base sepolia operator setup helpers", () => {
     expect(read).toHaveBeenCalledTimes(3);
   });
 
+  it("rejects retryApiRead when no attempts are allowed", async () => {
+    const read = vi.fn();
+
+    await expect(retryApiRead(read, () => false, 0, 25)).rejects.toThrow("retryApiRead received no values");
+    expect(read).not.toHaveBeenCalled();
+  });
+
   it("throws when retryApiRead is given zero attempts", async () => {
     const read = vi.fn();
 
@@ -275,6 +282,24 @@ describe("base sepolia operator setup helpers", () => {
       purchaseReadiness: "unverified",
       status: "blocked",
       reason: "listing remains active in readback, but its expiration time has already passed",
+    });
+  });
+
+  it("treats missing preferred listing payloads as unverified marketplace fixtures", () => {
+    expect(createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-missing",
+      tokenId: "15",
+      listingReadback: {
+        status: 404,
+        payload: null,
+      },
+    }, 100_000n)).toMatchObject({
+      voiceHash: "0xvoice-missing",
+      tokenId: "15",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "seller owns aged assets, but none currently have an active listing",
     });
   });
 
@@ -1798,6 +1823,21 @@ describe("base sepolia operator setup helpers", () => {
       rpcUrl: "http://127.0.0.1:8548",
       listing: {
         isActive: false,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: null,
+    });
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: {
+        getBlock: vi.fn(),
+        send: vi.fn(),
+      } as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        isActive: true,
       },
     })).resolves.toEqual({
       advanced: false,
