@@ -792,6 +792,70 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.signerRunners.size).toBe(1);
   });
 
+  it("falls back to canonical tuple signatures when ethers rejects shorthand tuple fragments", async () => {
+    const context = buildContext();
+    const definition = buildWriteDefinition({
+      key: "VoiceAssetFacet.configureNestedTuple",
+      wrapperKey: "configureNestedTuple",
+      methodName: "configureNestedTuple",
+      signature: "configureNestedTuple(tuple)",
+      inputs: [{
+        type: "tuple",
+        components: [
+          { type: "address" },
+          {
+            type: "tuple[]",
+            components: [
+              { type: "uint256" },
+              { type: "address" },
+            ],
+          },
+        ],
+      }],
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce([
+      [
+        "0x0000000000000000000000000000000000000001",
+        [[1n, "0x0000000000000000000000000000000000000002"]],
+      ],
+    ]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.contractGetFunction.mockImplementation((signature: string) => {
+      if (signature === "configureNestedTuple(tuple)") {
+        throw new Error("invalid function fragment");
+      }
+      expect(signature).toBe("configureNestedTuple((address,(uint256,address)[]))");
+      return {
+        staticCall: mocked.contractStaticCall,
+        populateTransaction: mocked.contractPopulateTransaction,
+      };
+    });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          wireParams: [[
+            "0x0000000000000000000000000000000000000001",
+            [["1", "0x0000000000000000000000000000000000000002"]],
+          ]],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xsubmitted",
+        result: false,
+      },
+    });
+
+    expect(mocked.contractGetFunction).toHaveBeenNthCalledWith(1, "configureNestedTuple(tuple)");
+    expect(mocked.contractGetFunction).toHaveBeenNthCalledWith(2, "configureNestedTuple((address,(uint256,address)[]))");
+  });
+
   it("falls back to the provider runner when signer resolution fails for a read without a wallet", async () => {
     const definition = buildReadDefinition();
     const context = buildContext();
@@ -1319,6 +1383,66 @@ describe("executeHttpMethodDefinition", () => {
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
     expect(context.signerNonces.get("founder:primary")).toBe(6);
+  });
+
+  it("preserves the active signer queue entry until a queued write finishes", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    let releaseFirst!: () => void;
+    const firstSubmission = new Promise<{ hash: string }>((resolve) => {
+      releaseFirst = () => resolve({ hash: "0xfirst" });
+    });
+    mocked.walletSendTransaction
+      .mockImplementationOnce(() => firstSubmission)
+      .mockResolvedValueOnce({ hash: "0xsecond" });
+
+    const firstWrite = executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    await vi.waitFor(() => {
+      expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    const secondWrite = executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    await Promise.resolve();
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(1);
+
+    releaseFirst();
+
+    await expect(firstWrite).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xfirst",
+        result: false,
+      },
+    });
+    await expect(secondWrite).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xsecond",
+        result: false,
+      },
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
+    expect(context.signerQueues.size).toBe(0);
   });
 
   it("fails after exhausting nonce-expired retries and returns the last retry diagnostics", async () => {

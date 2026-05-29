@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.188] - 2026-05-28
+
+### Fixed
+- **Execution-Context Concurrency And Canonical Tuple Fallbacks Are Now Explicitly Proven:** Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) now explicitly proves that signer-queue cleanup preserves a newer queued write until it completes, and that write preparation still succeeds when ethers rejects shorthand tuple fragments and the API layer must fall back to the canonical nested-tuple method signature.
+
+### Verified
+- **Baseline Guard Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the validated Base Sepolia/local-fork baseline remains healthy on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Execution-Context Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/shared/execution-context.test.ts packages/api/src/workflows/multisig-protocol-change-helpers.test.ts --maxWorkers 1`; all `62/62` targeted assertions passed after the queue/fallback additions.
+- **Repo-Wide Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the sharded suite remains green and merged Istanbul totals held at `99.73% / 97.42% / 99.91% / 99.74%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain complete, but repo-wide standard coverage is still below the automation target. The clearest remaining branch hotspots are [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.187] - 2026-05-25
 
 ### Fixed
