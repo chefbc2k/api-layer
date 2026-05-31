@@ -823,6 +823,24 @@ describe("alchemy-debug-lib", () => {
     expect(mocked.spawn).not.toHaveBeenCalled();
   });
 
+  it("reuses an already-running loopback fork when the configured listener is healthy", async () => {
+    await expect(startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+        chainId: 84532,
+      },
+      rpcResolution: {
+        configuredRpcUrl: "http://127.0.0.1:8548",
+        source: "base-sepolia-fixture",
+      },
+    } as any)).resolves.toEqual({
+      rpcUrl: "http://127.0.0.1:8548",
+      forkProcess: null,
+      forkedFrom: "https://base-sepolia.g.alchemy.com/v2/live",
+    });
+    expect(mocked.spawn).not.toHaveBeenCalled();
+  });
+
   it("starts an anvil fork when the configured listener is loopback and verification eventually succeeds", async () => {
     vi.useFakeTimers();
     process.env.API_LAYER_ANVIL_BIN = "custom-anvil";
@@ -935,6 +953,10 @@ describe("alchemy-debug-lib", () => {
       stdout: { on: vi.fn((_: string, handler: (chunk: Buffer) => void) => handler(Buffer.from("fork died"))) },
       stderr: { on: vi.fn() },
     } as any);
+    mocked.jsonRpcProvider.mockImplementationOnce(() => ({
+      getNetwork: vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 127.0.0.1:8548")),
+      destroy: vi.fn().mockResolvedValue(undefined),
+    }));
 
     await expect(startLocalForkIfNeeded({
       config: {
@@ -955,6 +977,10 @@ describe("alchemy-debug-lib", () => {
       stdout: { on: vi.fn() },
       stderr: { on: vi.fn() },
     } as any);
+    mocked.jsonRpcProvider.mockImplementationOnce(() => ({
+      getNetwork: vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 127.0.0.1:8548")),
+      destroy: vi.fn().mockResolvedValue(undefined),
+    }));
 
     await expect(startLocalForkIfNeeded({
       config: {
@@ -966,6 +992,58 @@ describe("alchemy-debug-lib", () => {
         source: "base-sepolia-fixture",
       },
     } as any)).rejects.toThrow("anvil exited before contract integration bootstrap: 12");
+  });
+
+  it("retries fork bootstrap when the configured port is transiently unavailable", async () => {
+    vi.useFakeTimers();
+    const failedChild = {
+      exitCode: 1,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn((_: string, handler: (chunk: Buffer) => void) => handler(Buffer.from("Address already in use (os error 48)"))) },
+    };
+    const healthyChild = {
+      exitCode: null,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn() },
+    };
+    mocked.spawn
+      .mockReturnValueOnce(failedChild as any)
+      .mockReturnValueOnce(healthyChild as any);
+    mocked.jsonRpcProvider
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 127.0.0.1:8548")),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 127.0.0.1:8548")),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockResolvedValue({ chainId: 84532n }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }));
+
+    const promise = startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+        chainId: 84532,
+      },
+      rpcResolution: {
+        configuredRpcUrl: "http://127.0.0.1:8548",
+        source: "base-sepolia-fixture",
+      },
+    } as any);
+
+    await vi.advanceTimersByTimeAsync(1000);
+
+    await expect(promise).resolves.toEqual({
+      rpcUrl: "http://127.0.0.1:8548",
+      forkProcess: healthyChild,
+      forkedFrom: "https://base-sepolia.g.alchemy.com/v2/live",
+    });
+    expect(mocked.spawn).toHaveBeenCalledTimes(2);
   });
 
   it("times out fork bootstrap after repeated verification failures", async () => {
@@ -1069,6 +1147,12 @@ describe("alchemy-debug-lib", () => {
         rpcUrl,
         chainId,
         getNetwork: vi.fn().mockResolvedValue({ chainId: BigInt(chainId) }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce((rpcUrl: string, chainId: number) => ({
+        rpcUrl,
+        chainId,
+        getNetwork: vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 127.0.0.1:8548")),
         destroy: vi.fn().mockResolvedValue(undefined),
       }))
       .mockImplementationOnce((rpcUrl: string, chainId: number) => ({

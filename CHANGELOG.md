@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.194] - 2026-05-31
+
+### Fixed
+- **Base Sepolia Baseline Bootstrap Now Reuses Healthy Forks And Retries Transient Loopback Bind Races:** Updated [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) so `startLocalForkIfNeeded()` first reuses an already-healthy loopback fork instead of always spawning `anvil`, and now retries the specific `Address already in use` startup race that can occur while `127.0.0.1:8548` is still in `TIME_WAIT` even though no listener is accepting connections.
+- **Alchemy Runtime Tests Now Lock The Reused-Fork And Port-Retry Paths:** Expanded [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) so the runtime helper now proves both the "reuse an existing healthy local fork" path and the "retry after transient loopback bind failure" path alongside the earlier fast-fail and timeout branches.
+
+### Verified
+- **Validated Baseline Returned To Green Under Real Base Sepolia Fallback Conditions:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo again verifies against diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` with runtime fallback from `http://127.0.0.1:8548` to `https://sepolia.base.org`, signer configured, and final status `baseline verified`.
+- **Targeted Runtime Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts --maxWorkers 1`; all `44/44` assertions passed after the loopback reuse and `EADDRINUSE` retry proofs landed.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Stayed Green With The Runtime Helper Improved:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals finished at `99.71% / 97.48% / 99.91% / 99.72%` for statements/branches/functions/lines, with [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) itself improving to `99.23% / 96.49% / 100% / 99.2%` in the merged report while the repo stays green.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live baseline verification, API surface coverage, and wrapper coverage are green again, but repo-wide branch coverage still remains below the automation target. The clearest remaining hotspots after this run continue to concentrate in [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and branch-heavy workflow helpers under [/Users/chef/Public/api-layer/packages/api/src/workflows](/Users/chef/Public/api-layer/packages/api/src/workflows).
+
 ## [0.1.193] - 2026-05-31
 
 ### Fixed

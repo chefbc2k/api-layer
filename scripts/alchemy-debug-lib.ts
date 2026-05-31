@@ -232,50 +232,72 @@ export async function startLocalForkIfNeeded(
     };
   }
 
-  const { host, port } = parseRpcListener(configuredRpcUrl);
-  const child = spawn(
-    process.env.API_LAYER_ANVIL_BIN ?? "anvil",
-    [
-      "--host",
-      host,
-      "--port",
-      String(port),
-      "--chain-id",
-      String(runtimeConfig.config.chainId),
-      "--fork-url",
-      runtimeConfig.config.cbdpRpcUrl,
-    ],
-    {
-      stdio: ["ignore", "pipe", "pipe"],
-      env: process.env,
-    },
-  );
-  let startupOutput = "";
-  child.stdout.on("data", (chunk) => {
-    startupOutput += chunk.toString();
-  });
-  child.stderr.on("data", (chunk) => {
-    startupOutput += chunk.toString();
-  });
+  try {
+    await verifyNetwork(configuredRpcUrl, runtimeConfig.config.chainId);
+    return {
+      rpcUrl: configuredRpcUrl,
+      forkProcess: null,
+      forkedFrom: runtimeConfig.config.cbdpRpcUrl,
+    };
+  } catch {
+    // No healthy fork is already serving the configured loopback listener.
+  }
 
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    if (child.exitCode !== null) {
-      throw new Error(`anvil exited before contract integration bootstrap: ${startupOutput.trim() || child.exitCode}`);
+  const { host, port } = parseRpcListener(configuredRpcUrl);
+  for (let spawnAttempt = 0; spawnAttempt < 3; spawnAttempt += 1) {
+    const child = spawn(
+      process.env.API_LAYER_ANVIL_BIN ?? "anvil",
+      [
+        "--host",
+        host,
+        "--port",
+        String(port),
+        "--chain-id",
+        String(runtimeConfig.config.chainId),
+        "--fork-url",
+        runtimeConfig.config.cbdpRpcUrl,
+      ],
+      {
+        stdio: ["ignore", "pipe", "pipe"],
+        env: process.env,
+      },
+    );
+    let startupOutput = "";
+    child.stdout.on("data", (chunk) => {
+      startupOutput += chunk.toString();
+    });
+    child.stderr.on("data", (chunk) => {
+      startupOutput += chunk.toString();
+    });
+
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      if (child.exitCode !== null) {
+        const startupMessage = startupOutput.trim() || String(child.exitCode);
+        if (startupMessage.includes("Address already in use") && spawnAttempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          break;
+        }
+        throw new Error(`anvil exited before contract integration bootstrap: ${startupMessage}`);
+      }
+      try {
+        await verifyNetwork(configuredRpcUrl, runtimeConfig.config.chainId);
+        return {
+          rpcUrl: configuredRpcUrl,
+          forkProcess: child,
+          forkedFrom: runtimeConfig.config.cbdpRpcUrl,
+        };
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
     }
-    try {
-      await verifyNetwork(configuredRpcUrl, runtimeConfig.config.chainId);
-      return {
-        rpcUrl: configuredRpcUrl,
-        forkProcess: child,
-        forkedFrom: runtimeConfig.config.cbdpRpcUrl,
-      };
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+
+    if (child.exitCode === null) {
+      child.kill("SIGTERM");
+      throw new Error(`timed out waiting for anvil fork on ${configuredRpcUrl}: ${startupOutput.trim()}`);
     }
   }
 
-  child.kill("SIGTERM");
-  throw new Error(`timed out waiting for anvil fork on ${configuredRpcUrl}: ${startupOutput.trim()}`);
+  throw new Error(`anvil exited before contract integration bootstrap: failed to bind ${configuredRpcUrl}`);
 }
 
 function gitCommit(root: string): string | null {
