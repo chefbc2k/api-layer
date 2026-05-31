@@ -73,4 +73,21 @@ describe("show-validated-baseline", () => {
     expect(errorSpy).not.toHaveBeenCalled();
     expect(exitSpy).not.toHaveBeenCalled();
   });
+
+  it("reports runtime bootstrap failures and exits with status 1", async () => {
+    const boom = new Error("baseline load failed");
+    mocks.loadRuntimeEnvironment.mockRejectedValue(boom);
+
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((() => undefined) as typeof process.exit);
+
+    await import("./show-validated-baseline.ts");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(logSpy).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledWith(boom);
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(mocks.closeRuntimeEnvironment).not.toHaveBeenCalled();
+  });
 });

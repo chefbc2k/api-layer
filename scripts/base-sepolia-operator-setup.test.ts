@@ -79,6 +79,19 @@ describe("base sepolia operator setup helpers", () => {
     expect(read).not.toHaveBeenCalled();
   });
 
+  it("uses the default retry delay when no explicit delay is provided", async () => {
+    vi.useFakeTimers();
+    const read = vi.fn()
+      .mockResolvedValueOnce({ ready: false })
+      .mockResolvedValueOnce({ ready: true });
+
+    const resultPromise = retryApiRead(read, (value) => value.ready, 2);
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    await expect(resultPromise).resolves.toEqual({ ready: true });
+    expect(read).toHaveBeenCalledTimes(2);
+  });
+
   it("throws when retryApiRead is given zero attempts", async () => {
     const read = vi.fn();
 
@@ -151,6 +164,27 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(readyProvider.getBlock).toHaveBeenCalledWith("latest");
     expect(readyProvider.send).not.toHaveBeenCalled();
+  });
+
+  it("returns a null readyAt marker when a skipped listing has no creation timestamp", async () => {
+    const provider = {
+      getBlock: vi.fn(),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: null,
+    });
+    expect(provider.getBlock).not.toHaveBeenCalled();
+    expect(provider.send).not.toHaveBeenCalled();
   });
 
   it("falls back to a raw latest-block RPC read when provider block caching is stale", async () => {

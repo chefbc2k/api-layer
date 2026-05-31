@@ -402,6 +402,26 @@ describe("abi-codec", () => {
     } as never, ["7", false])).toEqual([7n, false]);
   });
 
+  it("normalizes array-shaped tuple object results with unnamed component fallbacks", () => {
+    const definition = {
+      signature: "arrayTupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, [4n, true])).toEqual({
+      0: "4",
+      enabled: true,
+    });
+    expect(decodeResultFromWire(definition as never, ["4", true])).toEqual([4n, true]);
+  });
+
   it("rejects invalid items in multi-output result serialization", () => {
     expect(() => serializeResultToWire({
       signature: "pair(uint256,address)",
@@ -430,6 +450,20 @@ describe("abi-codec", () => {
     expect(decodeFromWire({ type: "bool" } as never, false)).toBe(false);
     expect(decodeFromWire({ type: "string" } as never, "beta")).toBe("beta");
     expect(decodeFromWire({ type: "bytes32" } as never, "0x" + "11".repeat(32))).toBe("0x" + "11".repeat(32));
+  });
+
+  it("preserves non-array dynamic tuple leaves until validation rejects the result payload", () => {
+    const definition = {
+      signature: "dynamicTupleLeaf()",
+      outputs: [{
+        type: "tuple[][]",
+        components: [{ type: "uint256" }],
+      }],
+    };
+
+    expect(() => serializeResultToWire(definition as never, "not-an-array")).toThrow(
+      "invalid result for dynamicTupleLeaf(): expected array value for tuple[][]",
+    );
   });
 
   it("serializes and decodes unnamed tuple components through numeric fallback keys", () => {
