@@ -516,6 +516,50 @@ describe("abi-codec", () => {
     });
   });
 
+  it("normalizes nested object-backed tuple results with unnamed component fallbacks", () => {
+    const definition = {
+      signature: "nestedObjectTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "nested",
+            type: "tuple",
+            components: [
+              { type: "uint256" },
+              { name: "enabled", type: "bool" },
+            ],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, {
+      nested: {
+        0: 12n,
+        enabled: true,
+      },
+    })).toEqual({
+      nested: {
+        0: "12",
+        enabled: true,
+      },
+    });
+
+    expect(decodeResultFromWire(definition as never, {
+      nested: {
+        0: "12",
+        enabled: true,
+      },
+    })).toEqual({
+      nested: {
+        0: 12n,
+        enabled: true,
+      },
+    });
+  });
+
   it("rejects invalid items in multi-output result serialization", () => {
     expect(() => serializeResultToWire({
       signature: "pair(uint256,address)",

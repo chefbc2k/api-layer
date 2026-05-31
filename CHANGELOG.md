@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.199] - 2026-05-31
+
+### Fixed
+- **Marketplace Setup And ABI Codec Tests Now Prove More Real Fallback Shapes:** Expanded [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so the Base Sepolia fixture helper suite now explicitly proves purchase-ready fallback fixture classification, full default-helper fallback execution for approval/list/receipt/readback flows, and nullification of non-object marketplace API read payloads before fallback activation. Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) so nested object-backed tuple result normalization now explicitly proves unnamed numeric fallback keys survive serialize/decode flows.
+
+### Verified
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `133/133` targeted assertions passed after the new fallback-shape proofs landed.
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Repo-Wide Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals remain `99.71% / 97.50% / 99.91% / 99.72%` for statements/branches/functions/lines while the new fallback-path assertions stay green.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** The repo remains green on live baseline verification, API surface coverage, wrapper coverage, and merged tests, but repo-wide branch coverage is still below the automation target. The highest visible hotspots after this run remain [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.198] - 2026-05-31
 
 ### Fixed

@@ -416,6 +416,24 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("marks fallback listings ready when the refreshed listing is already purchase-ready", () => {
+    expect(createFallbackMarketplaceFixture(
+      { voiceHash: "0xvoice", tokenId: "103" },
+      { status: 202, payload: { txHash: "0xlist" } },
+      { status: 200, payload: { isActive: true, createdAt: "0", expiresAt: "200000" } },
+      null,
+      100_000n,
+    )).toMatchObject({
+      voiceHash: "0xvoice",
+      tokenId: "103",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+      localForkTimeAdvance: null,
+    });
+  });
+
   it("classifies governance readiness from proposer role and voting power", () => {
     expect(createGovernanceStatus({
       founderAddress: "0xfounder",
@@ -2510,6 +2528,120 @@ describe("base sepolia operator setup helpers", () => {
     } finally {
       vi.unstubAllGlobals();
     }
+  });
+
+  it("uses default helper fallbacks to approve, list, and read back a newly activated fixture", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        status: 200,
+        json: vi.fn().mockResolvedValue(false),
+      })
+      .mockResolvedValueOnce({
+        status: 202,
+        json: vi.fn().mockResolvedValue({ txHash: "0xapprove" }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: vi.fn().mockResolvedValue({ receipt: { status: 1 } }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: vi.fn().mockResolvedValue(true),
+      })
+      .mockResolvedValueOnce({
+        status: 202,
+        json: vi.fn().mockResolvedValue({ txHash: "0xlist" }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: vi.fn().mockResolvedValue({ receipt: { status: 1 } }),
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: vi.fn().mockResolvedValue({
+          isActive: true,
+          createdAt: "99999",
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    try {
+      const result = await prepareAgedListingFixture({
+        candidateVoiceHashes: ["0xdefault-fallback"],
+        voiceAsset: {
+          getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+          getTokenId: vi.fn().mockResolvedValue(66n),
+        },
+        sellerAddress: "0xseller",
+        diamondAddress: "0xdiamond",
+        port: 8787,
+        latestTimestamp: 100_000n,
+      });
+
+      expect(result).toMatchObject({
+        voiceHash: "0xdefault-fallback",
+        tokenId: "66",
+        activeListing: true,
+        purchaseReadiness: "listed-not-yet-purchase-proven",
+        status: "partial",
+        approval: { status: 202, payload: { txHash: "0xapprove" } },
+        listing: {
+          submission: { status: 202, payload: { txHash: "0xlist" } },
+          readback: { status: 200, payload: { isActive: true, createdAt: "99999" } },
+        },
+      });
+      expect(fetchMock).toHaveBeenCalledWith(
+        "http://127.0.0.1:8787/v1/transactions/0xapprove",
+        expect.objectContaining({ method: "GET" }),
+      );
+      expect(fetchMock).toHaveBeenCalledWith(
+        "http://127.0.0.1:8787/v1/transactions/0xlist",
+        expect.objectContaining({ method: "GET" }),
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("treats non-object marketplace API payloads as missing readbacks before fallback activation", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({ status: 500, payload: { error: "listing failed" } })
+      .mockResolvedValueOnce({ status: 404, payload: null });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xprimitive-listing"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(77n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+      retryApiReadFn: vi.fn(async (read: () => Promise<unknown>) => {
+        await read();
+        return {
+          status: 404,
+          payload: null,
+        };
+      }) as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xprimitive-listing",
+      tokenId: "77",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "listing could not be activated",
+      listing: {
+        submission: { status: 500, payload: { error: "listing failed" } },
+        readback: { status: 404, payload: null },
+      },
+    });
   });
 
   it("breaks equal-age marketplace candidate scan ties by token id", async () => {
