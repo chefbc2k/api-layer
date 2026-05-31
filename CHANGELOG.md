@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.198] - 2026-05-31
+
+### Fixed
+- **Shared Runtime Coverage Now Proves Primitive Alchemy Failures And Extra Setup/Signer Edge Cases:** Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) so `simulateTransactionWithAlchemy()` now explicitly proves primitive string failures flow through the shared error-normalization path. Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) so direct writes now explicitly prove signer-runner cache reuse across repeated submissions on the same provider. Expanded [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so setup helpers now explicitly prove governance stays partial when proposer role exists but voting power remains below threshold, non-loopback RPCs do not take the local `anvil_setBalance` shortcut, and young active listings stay partial when no loopback time-advance path is available.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Shared Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/shared/alchemy-diagnostics.test.ts packages/api/src/shared/execution-context.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `151/151` targeted assertions passed after the new coverage proofs landed.
+- **Focused Alchemy Diagnostics Coverage Improved:** Re-ran focused coverage for [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts); branch coverage improved from `98.11%` to `99.05%`, leaving only one remaining uncovered branch on the `flattenTrace()` nullish fallback expression.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals improved from `99.71% / 97.48% / 99.91% / 99.72%` to `99.71% / 97.50% / 99.91% / 99.72%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live baseline verification, API surface coverage, wrapper coverage, and merged tests remain green, but repo-wide branch coverage is still below the automation target. The clearest remaining hotspots after this run remain [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and branch-heavy workflow helpers under [/Users/chef/Public/api-layer/packages/api/src/workflows](/Users/chef/Public/api-layer/packages/api/src/workflows).
+
 ## [0.1.197] - 2026-05-31
 
 ### Fixed

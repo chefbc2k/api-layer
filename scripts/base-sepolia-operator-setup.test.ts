@@ -458,6 +458,21 @@ describe("base sepolia operator setup helpers", () => {
       status: "partial",
       reason: "promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state",
     });
+
+    expect(createGovernanceStatus({
+      founderAddress: "0xfounder",
+      proposerRolePresent: true,
+      threshold: 100n,
+      currentVotes: 99n,
+      currentVotesAfterSetup: 99n,
+      tokenBalance: 500n,
+      mintingFinished: true,
+    })).toMatchObject({
+      proposerRolePresent: true,
+      currentVotesAfterSetup: "99",
+      status: "partial",
+      reason: "promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state",
+    });
   });
 
   it("computes native spendable balance after gas reserve", async () => {
@@ -761,6 +776,51 @@ describe("base sepolia operator setup helpers", () => {
       balance: "60",
       fundingStrategy: "local-rpc-balance-seed",
       attemptedFunders: [],
+    });
+  });
+
+  it("does not use local-rpc balance seeding for non-loopback rpc urls", async () => {
+    const balances = new Map<string, bigint>([
+      ["0xtarget", 5n],
+      ["0xfunder", 1_000_000_000_100n],
+    ]);
+    const provider = {
+      getBalance: vi.fn(async (address: string) => balances.get(address) ?? 0n),
+      getFeeData: vi.fn().mockResolvedValue({ gasPrice: 0n }),
+      send: vi.fn(),
+    };
+    const target = { address: "0xtarget", provider } as any;
+    const funder = {
+      address: "0xfunder",
+      provider,
+      sendTransaction: vi.fn(async ({ to, value }: { to: string; value: bigint }) => {
+        balances.set("0xfunder", (balances.get("0xfunder") ?? 0n) - value);
+        balances.set(to, (balances.get(to) ?? 0n) + value);
+        return {
+          wait: vi.fn().mockResolvedValue({ status: 1, hash: "0xremote-topup" }),
+        };
+      }),
+    } as any;
+
+    const result = await ensureNativeBalance(
+      [funder, target],
+      new Map([["0xfunder", "seller"]]),
+      target,
+      50n,
+      "https://sepolia.base.org",
+    );
+
+    expect(provider.send).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      funded: true,
+      balance: "105",
+      fundingStrategy: "transfer",
+      attemptedFunders: [
+        { label: "seller", address: "0xfunder", spendable: "100" },
+      ],
+      fundingTransactions: [
+        { label: "seller", address: "0xfunder", txHash: "0xremote-topup", amount: "100" },
+      ],
     });
   });
 
@@ -2310,6 +2370,44 @@ describe("base sepolia operator setup helpers", () => {
       tokenId: "33",
       status: "ready",
       purchaseReadiness: "purchase-ready",
+      localForkTimeAdvance: null,
+    });
+    expect(provider.getBlock).not.toHaveBeenCalled();
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("keeps a young active preferred listing partial when no loopback advance path is available", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const provider = {
+      getBlock: vi.fn(),
+      send: vi.fn(),
+    };
+    const marketplace = {
+      getListing: vi.fn().mockResolvedValue([77n, "0xseller", 1000n, 99_999n, 10n, 10n, 200000n, true] as const),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xyoung-active"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(77n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      provider: provider as any,
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xyoung-active",
+      tokenId: "77",
+      activeListing: true,
+      purchaseReadiness: "listed-not-yet-purchase-proven",
+      status: "partial",
+      reason: "active listing exists, but it is still within the marketplace contract's 1 day trading lock",
       localForkTimeAdvance: null,
     });
     expect(provider.getBlock).not.toHaveBeenCalled();

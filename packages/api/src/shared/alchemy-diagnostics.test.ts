@@ -405,6 +405,18 @@ describe("alchemy-diagnostics", () => {
       blockTag: "latest",
       error: "boom",
     });
+
+    const primitiveFailingAlchemy = {
+      transact: {
+        simulateExecution: vi.fn().mockRejectedValue("string boom"),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(primitiveFailingAlchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "failed",
+      blockTag: "latest",
+      error: "string boom",
+    });
   });
 
   it("reports direct simulation success and fallback failure distinctly", async () => {

@@ -1260,6 +1260,47 @@ describe("executeHttpMethodDefinition", () => {
     }));
   });
 
+  it("reuses the cached signer runner across repeated direct writes on the same provider", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toMatchObject({
+      statusCode: 202,
+      body: { txHash: "0xsubmitted" },
+    });
+
+    const firstRunner = context.signerRunners.get("founder:primary");
+    expect(firstRunner).toBeDefined();
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toMatchObject({
+      statusCode: 202,
+      body: { txHash: "0xsubmitted" },
+    });
+
+    expect(context.signerRunners.get("founder:primary")).toBe(firstRunner);
+    expect(context.signerRunners.size).toBe(1);
+  });
+
   it("preserves submissions that return no transaction hash", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
