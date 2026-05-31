@@ -286,6 +286,43 @@ describe("multisig protocol change helper utilities", () => {
     });
   });
 
+  it("preserves primitive control-status bodies when the upgrade status route is not object-shaped", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      diamondAdmin: {
+        getUpgradeControlStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "paused" }),
+        getUpgradeDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: "60" } }),
+        getUpgradeThreshold: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+        getUpgrade: vi.fn().mockResolvedValue({ statusCode: 200, body: ["0x00000000000000000000000000000000000000aa", "100", "2", false] }),
+      },
+    } as never;
+
+    await expect(readUpgradeConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      [UPGRADE_ID],
+    )).resolves.toEqual({
+      controlStatus: "paused",
+      upgradeDelay: "60",
+      upgradeThreshold: "2",
+      upgrades: [
+        {
+          upgradeId: UPGRADE_ID,
+          proposer: "0x00000000000000000000000000000000000000aa",
+          proposedAt: "100",
+          approvalCount: "2",
+          executed: false,
+        },
+      ],
+    });
+  });
+
   it("reads ownership consequence snapshots without target approvals and resolves actor overrides", async () => {
     const auth = {
       apiKey: "admin-key",

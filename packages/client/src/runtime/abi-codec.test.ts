@@ -157,6 +157,58 @@ describe("abi-codec", () => {
     });
   });
 
+  it("normalizes unnamed tuple components from both positional and object-backed outputs", () => {
+    const definition = {
+      signature: "mixedTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, [3n, true])).toEqual({
+      count: "3",
+      1: true,
+    });
+
+    expect(decodeResultFromWire(definition as never, {
+      count: "4",
+      1: false,
+    })).toEqual({
+      count: 4n,
+      1: false,
+    });
+  });
+
+  it("supports empty outputs and array-like multi-output result payloads", () => {
+    const emptyDefinition = {
+      signature: "noResult()",
+      outputs: [],
+    };
+    const multiDefinition = {
+      signature: "arrayLikeResult(uint256,address)",
+      outputs: [
+        { type: "uint256" },
+        { type: "address" },
+      ],
+    };
+
+    expect(serializeResultToWire(emptyDefinition as never, undefined)).toBeNull();
+    expect(decodeResultFromWire(emptyDefinition as never, undefined)).toBeNull();
+    expect(serializeResultToWire(multiDefinition as never, {
+      0: 9n,
+      1: "0x0000000000000000000000000000000000000009",
+      length: 2,
+    })).toEqual([
+      "9",
+      "0x0000000000000000000000000000000000000009",
+    ]);
+  });
+
   it("rejects named tuple outputs when nested tuple values are missing or malformed", () => {
     const definition = {
       signature: "tupleResult()",

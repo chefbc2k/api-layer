@@ -337,6 +337,24 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("treats null preferred listing payloads on 200 responses as inactive fixtures", () => {
+    expect(createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-null",
+      tokenId: "16",
+      listingReadback: {
+        status: 200,
+        payload: null,
+      },
+    }, 100_000n)).toMatchObject({
+      voiceHash: "0xvoice-null",
+      tokenId: "16",
+      activeListing: false,
+      purchaseReadiness: "unverified",
+      status: "blocked",
+      reason: "seller owns aged assets, but none currently have an active listing",
+    });
+  });
+
   it("records fallback and inactive preferred listing outcomes", () => {
     expect(createFallbackMarketplaceFixture(
       { voiceHash: "0xvoice", tokenId: "99" },
