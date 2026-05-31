@@ -471,6 +471,51 @@ describe("abi-codec", () => {
     expect(decodeResultFromWire(definition as never, ["4", true])).toEqual([4n, true]);
   });
 
+  it("normalizes object-shaped tuple object results with unnamed component fallbacks", () => {
+    const definition = {
+      signature: "objectTupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, {
+      0: 9n,
+      enabled: false,
+    })).toEqual({
+      0: "9",
+      enabled: false,
+    });
+    expect(decodeResultFromWire(definition as never, {
+      0: "9",
+      enabled: false,
+    })).toEqual({
+      0: 9n,
+      enabled: false,
+    });
+  });
+
+  it("decodes object-backed tuple payloads through unnamed numeric fallback keys", () => {
+    expect(decodeFromWire({
+      type: "tuple",
+      components: [
+        { type: "uint256" },
+        { name: "enabled", type: "bool" },
+      ],
+    } as never, {
+      0: "7",
+      enabled: true,
+    })).toEqual({
+      0: 7n,
+      enabled: true,
+    });
+  });
+
   it("rejects invalid items in multi-output result serialization", () => {
     expect(() => serializeResultToWire({
       signature: "pair(uint256,address)",
@@ -512,6 +557,29 @@ describe("abi-codec", () => {
 
     expect(() => serializeResultToWire(definition as never, "not-an-array")).toThrow(
       "invalid result for dynamicTupleLeaf(): expected array value for tuple[][]",
+    );
+  });
+
+  it("surfaces validation failures for object-shaped tuple results with non-array tuple-array leaves", () => {
+    const definition = {
+      signature: "dynamicTupleLeafObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "items",
+            type: "tuple[]",
+            components: [{ name: "amount", type: "uint256" }],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(() => serializeResultToWire(definition as never, {
+      items: "not-an-array",
+    })).toThrow(
+      "invalid result for dynamicTupleLeafObject(): expected array value for tuple[]",
     );
   });
 

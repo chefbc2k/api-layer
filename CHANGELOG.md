@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.197] - 2026-05-31
+
+### Fixed
+- **Tuple Codec Edge Cases Now Lock Additional Object-Backed Fallback Paths:** Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) so the codec suite now explicitly proves object-shaped tuple result normalization with unnamed numeric fallback keys, direct object-backed tuple decoding for unnamed components, and validation failure surfacing when object-shaped tuple results carry non-array tuple-array leaves.
+
+### Verified
+- **Baseline Commands Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still resolves the validated Base Sepolia baseline through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, `chainId: 84532`, and final status `baseline verified`.
+- **Targeted Hotspot Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `127/127` targeted assertions passed after the new tuple-codec edge cases landed.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals remain `99.71% / 97.48% / 99.91% / 99.72%` for statements/branches/functions/lines while the expanded codec and setup regression slices stay green.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** The repo remains green on baseline verification, API surface coverage, wrapper coverage, and merged tests, but repo-wide branch coverage is still below the automation target. The clearest remaining hotspots on this run continue to concentrate in [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.196] - 2026-05-31
 
 ### Fixed
