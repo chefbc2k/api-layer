@@ -1,4 +1,4 @@
-import { loadRuntimeEnvironment } from "./alchemy-debug-lib.js";
+import { closeRuntimeEnvironment, loadRuntimeEnvironment } from "./alchemy-debug-lib.js";
 
 async function main(): Promise<void> {
   const runtime = await loadRuntimeEnvironment();
@@ -25,7 +25,7 @@ async function main(): Promise<void> {
       ),
     );
   } finally {
-    await runtime.provider.destroy();
+    await closeRuntimeEnvironment(runtime);
   }
 }
 

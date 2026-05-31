@@ -134,6 +134,24 @@ async function readFixtureRpcUrl(fixturePath: string): Promise<string | null> {
   }
 }
 
+function readEnvString(env: NodeJS.ProcessEnv, key: string): string | null {
+  const value = env[key];
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function inferBaseSepoliaPublicRpcUrl(env: NodeJS.ProcessEnv): string | null {
+  const chainId = Number(readEnvString(env, "CHAIN_ID") ?? "0");
+  const network = (readEnvString(env, "NETWORK") ?? "").toLowerCase();
+  if (chainId !== 84532 && network !== "base-sepolia") {
+    return null;
+  }
+  return "https://sepolia.base.org";
+}
+
 export async function resolveRuntimeConfig(
   env: NodeJS.ProcessEnv = loadRepoEnv(),
   verifyNetworkImpl: typeof verifyNetwork = verifyNetwork,
@@ -160,9 +178,15 @@ export async function resolveRuntimeConfig(
       },
     };
   } catch (error) {
-    const fallbackRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
+    const fixtureRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
       ? await readFixtureRpcUrl(fixturePath)
       : null;
+    const publicRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
+      ? inferBaseSepoliaPublicRpcUrl(env)
+      : null;
+    const fallbackRpcUrl = fixtureRpcUrl && (!isLoopbackRpcUrl(fixtureRpcUrl) || !publicRpcUrl)
+      ? fixtureRpcUrl
+      : (publicRpcUrl ?? fixtureRpcUrl);
 
     if (!fallbackRpcUrl || fallbackRpcUrl === config.cbdpRpcUrl) {
       throw error;

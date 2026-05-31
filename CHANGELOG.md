@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.191] - 2026-05-31
+
+### Fixed
+- **Cold Baseline Recovery No Longer Depends On A Pre-Running Fork:** Hardened [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) so a dead loopback Base Sepolia baseline now falls back to the official public RPC `https://sepolia.base.org` when fixture metadata is stale or loopback-only, then reuses that upstream to auto-start the local `anvil` fork on demand.
+- **Baseline Show Now Cleans Up Auto-Started Forks:** Updated [/Users/chef/Public/api-layer/scripts/show-validated-baseline.ts](/Users/chef/Public/api-layer/scripts/show-validated-baseline.ts) to close the full runtime environment instead of only destroying the provider, which prevents `baseline:show` from hanging after it spawns a temporary local fork.
+- **Fallback Regression Coverage Expanded:** Extended [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) with explicit proofs for stale loopback fixture metadata, empty fixture metadata, and non-Base generic loopback fallback behavior so the Base Sepolia public-RPC recovery path is locked in.
+
+### Verified
+- **Targeted Runtime Regression Slice Passed:** Re-ran `pnpm vitest run scripts/alchemy-debug-lib.test.ts scripts/base-sepolia-operator-setup.main.test.ts --maxWorkers 1`; all `48/48` targeted assertions passed after the fallback and cleanup changes.
+- **Cold Baseline Guard Returned To Green:** Stopped the local fork, then re-ran `pnpm run baseline:show` and `pnpm run baseline:verify` from a cold repo state. `baseline:show` resolved through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, effective upstream `https://sepolia.base.org`, and the validated diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`; `baseline:verify` completed with final status `baseline verified`.
+- **Base Sepolia Setup Fixture Refreshed On The Local Fork:** Re-ran `pnpm run setup:base-sepolia` and regenerated [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) with `generatedAt: "2026-05-31T07:08:50.418Z"`, `setup.status: "ready"`, fork-seeded actor balances, a purchase-ready marketplace fixture on token `11`, listing tx `0x893398fdebb68128015011d57307fff4cefad282826803ec929cde33b62c1b22`, and local-fork time advance evidence `secondsAdvanced: "86401"`.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** API surface coverage and wrapper coverage remain complete in the current repo history, and the baseline/setup proofs are green again, but repo-wide branch coverage still remains below the automation target. The clearest remaining hotspots on this run are [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+- **Parallel Fork Bootstrap Can Still Race On Port 8548:** Running `baseline:show` and `baseline:verify` concurrently can still surface `Address already in use (os error 48)` while both processes try to auto-start `anvil` on `127.0.0.1:8548`. The single-command automation path is verified green, but cross-process fork coordination remains unimplemented.
+
 ## [0.1.190] - 2026-05-30
 
 ### Fixed

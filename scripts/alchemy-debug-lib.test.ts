@@ -249,7 +249,8 @@ describe("alchemy-debug-lib", () => {
 
     const result = await resolveRuntimeConfig(
       {
-        CHAIN_ID: "84532",
+        NETWORK: "ethereum",
+        CHAIN_ID: "1",
         DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
         RPC_URL: "http://127.0.0.1:8548",
       },
@@ -274,7 +275,8 @@ describe("alchemy-debug-lib", () => {
 
     const result = await resolveRuntimeConfig(
       {
-        CHAIN_ID: "84532",
+        NETWORK: "ethereum",
+        CHAIN_ID: "1",
         DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
         RPC_URL: "http://127.0.0.1:8548",
       },
@@ -299,6 +301,7 @@ describe("alchemy-debug-lib", () => {
 
     const result = await resolveRuntimeConfig(
       {
+        NETWORK: "ethereum",
         CHAIN_ID: "84532",
         DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
         RPC_URL: "http://127.0.0.1:8548",
@@ -324,7 +327,8 @@ describe("alchemy-debug-lib", () => {
 
     const result = await resolveRuntimeConfig(
       {
-        CHAIN_ID: "84532",
+        NETWORK: "ethereum",
+        CHAIN_ID: "1",
         DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
         RPC_URL: "http://127.0.0.1:8548",
       },
@@ -338,6 +342,76 @@ describe("alchemy-debug-lib", () => {
     expect(result.config.cbdpRpcUrl).toBe("http://127.0.0.1:9555");
     expect(result.config.alchemyRpcUrl).toBe("http://127.0.0.1:9555");
     expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
+  });
+
+  it("prefers the official Base Sepolia public RPC over stale loopback fixture metadata", async () => {
+    const calls: string[] = [];
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "http://127.0.0.1:9555",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        NETWORK: "base-sepolia",
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+        ALCHEMY_RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl, expectedChainId) => {
+        calls.push(`${rpcUrl}:${expectedChainId}`);
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://sepolia.base.org");
+    expect(result.config.alchemyRpcUrl).toBe("https://sepolia.base.org");
+    expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
+    expect(calls).toEqual([
+      "http://127.0.0.1:8548:84532",
+      "https://sepolia.base.org:84532",
+    ]);
+  });
+
+  it("falls back to the official Base Sepolia public RPC when fixture metadata is unusable", async () => {
+    const calls: string[] = [];
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "",
+        upstreamRpcUrl: "",
+        forkedFrom: "",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        NETWORK: "base-sepolia",
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+        ALCHEMY_RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl, expectedChainId) => {
+        calls.push(`${rpcUrl}:${expectedChainId}`);
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://sepolia.base.org");
+    expect(result.config.alchemyRpcUrl).toBe("https://sepolia.base.org");
+    expect(result.rpcResolution.source).toBe("base-sepolia-fixture");
+    expect(calls).toEqual([
+      "http://127.0.0.1:8548:84532",
+      "https://sepolia.base.org:84532",
+    ]);
   });
 
   it("treats unreadable fixture payloads as missing fallback metadata", async () => {
@@ -382,6 +456,7 @@ describe("alchemy-debug-lib", () => {
 
     await expect(resolveRuntimeConfig(
       {
+        NETWORK: "ethereum",
         CHAIN_ID: "84532",
         DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
         RPC_URL: "http://127.0.0.1:8548",
