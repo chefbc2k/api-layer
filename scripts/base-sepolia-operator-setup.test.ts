@@ -166,6 +166,29 @@ describe("base sepolia operator setup helpers", () => {
     expect(readyProvider.send).not.toHaveBeenCalled();
   });
 
+  it("skips local-fork time travel when the listing is already expired on loopback RPC", async () => {
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({ timestamp: 10_000 }),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "1000",
+        expiresAt: "9999",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+    expect(provider.getBlock).toHaveBeenCalledWith("latest");
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
   it("returns a null readyAt marker when a skipped listing has no creation timestamp", async () => {
     const provider = {
       getBlock: vi.fn(),
@@ -355,6 +378,27 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("treats non-200 preferred listing readbacks as inactive even when they carry active-looking payloads", () => {
+    expect(createPreferredMarketplaceFixture({
+      voiceHash: "0xvoice-read-failed",
+      tokenId: "17",
+      listingReadback: {
+        status: 503,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      },
+    }, 100_000n)).toMatchObject({
+      voiceHash: "0xvoice-read-failed",
+      tokenId: "17",
+      activeListing: false,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+    });
+  });
+
   it("records fallback and inactive preferred listing outcomes", () => {
     expect(createFallbackMarketplaceFixture(
       { voiceHash: "0xvoice", tokenId: "99" },
@@ -430,6 +474,25 @@ describe("base sepolia operator setup helpers", () => {
         submission: { status: 500, payload: { error: "listing failed" } },
         readback: { status: 404, payload: null },
       },
+      localForkTimeAdvance: null,
+    });
+  });
+
+  it("treats non-200 fallback listing readbacks as inactive even when the payload still looks active", () => {
+    expect(createFallbackMarketplaceFixture(
+      { voiceHash: "0xvoice", tokenId: "104" },
+      { status: 500, payload: { error: "listing failed" } },
+      { status: 500, payload: { isActive: true, createdAt: "0" } },
+      { status: 202, payload: { txHash: "0xapproval" } },
+      100_000n,
+    )).toMatchObject({
+      voiceHash: "0xvoice",
+      tokenId: "104",
+      activeListing: false,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      reason: "listing is active and older than the marketplace contract's 1 day trading lock",
+      approval: { status: 202, payload: { txHash: "0xapproval" } },
       localForkTimeAdvance: null,
     });
   });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  abiCodecInternals,
   decodeFromWire,
   decodeParamsFromWire,
   decodeResultFromWire,
@@ -897,6 +898,18 @@ describe("abi-codec", () => {
     expect(() => serializeResultToWire(definition as never, { bad: true })).toThrow(
       "invalid result for brokenTupleArrayResult(): expected array value for tuple[]",
     );
+  });
+
+  it("preserves scalar fallback values in tuple-object normalization internals", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [{ name: "count", type: "uint256" }],
+    } as never, "leave-me-alone")).toBe("leave-me-alone");
+
+    expect(abiCodecInternals.normalizeTupleOutputs({
+      type: "tuple[]",
+      components: [{ name: "count", type: "uint256" }],
+    } as never, "still-not-an-array")).toBe("still-not-an-array");
   });
 
   it("serializes multi-output array results without coercing them through array-like object handling", () => {

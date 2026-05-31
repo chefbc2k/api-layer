@@ -174,6 +174,11 @@ function normalizeTupleOutputs(param: AbiParameter, value: unknown): unknown {
   return value;
 }
 
+export const abiCodecInternals = {
+  normalizeTupleOutputs,
+  tupleToNamedObject,
+};
+
 export function serializeToWire(param: AbiParameter, value: unknown): unknown {
   const { baseType, lengths } = parseArrayType(param.type);
   if (lengths.length === 0) {

@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.202] - 2026-05-31
+
+### Fixed
+- **ABI Codec And Setup Regression Coverage Now Lock In More Defensive Fallbacks:** Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) and exposed test-only internals from [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) so tuple-object normalization now explicitly proves the scalar pass-through guards that are otherwise unreachable from the public codec entrypoints. Expanded [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so Base Sepolia fixture setup now explicitly proves loopback-expired listing time-travel skips and preserves the current semantics where non-200 listing readbacks can still classify as purchase-ready when their payload carries active aged-listing fields.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slices Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts --coverage.enabled true --coverage.reporter text --coverage.reporter json-summary --coverage.include 'packages/client/src/runtime/abi-codec.ts' --maxWorkers 1` and `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts scripts/base-sepolia-operator-setup.main.test.ts scripts/base-sepolia-operator-setup.helpers.test.ts --coverage.enabled true --coverage.reporter text --coverage.reporter json-summary --coverage.include 'scripts/base-sepolia-operator-setup.ts' --maxWorkers 1`; all targeted assertions passed after the new fallback proofs landed.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals improved from `99.73% / 97.57% / 99.91% / 99.74%` to `99.77% / 97.62% / 99.91% / 99.78%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia baseline remain green, but repo-wide branch coverage is still below the automation target. The clearest remaining hotspots after this run remain [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.201] - 2026-05-31
 
 ### Fixed
