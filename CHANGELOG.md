@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.195] - 2026-05-31
+
+### Fixed
+- **Coverage Regression Tests Now Lock Additional Multisig And Setup Fallback Paths:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts) so the multisig helper suite now explicitly proves malformed protocol calldata cleanly falls through both decoder stacks and that ownership consequence reads preserve target approval snapshots across direct boolean and `{ result }` payload shapes. Expanded [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so the Base Sepolia setup helper suite now proves skipped loopback time-travel still computes `readyAt` when an inactive listing has `createdAt`, and that `prepareAgedListingFixture()` can run through its default fetch-based approval helper while a direct marketplace readback is already purchase-ready.
+
+### Verified
+- **Targeted Hotspot Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change-helpers.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `90/90` targeted assertions passed after the new fallback proofs landed.
+- **Validated Baseline Stayed Green On Public Base Sepolia Fallback:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still resolves the validated deployment through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, `chainId: 84532`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Stayed Green While Tightening The Same Hotspots:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals remain `99.71% / 97.48% / 99.91% / 99.72%` for statements/branches/functions/lines while the touched multisig and setup helper suites stay green under the expanded fallback cases.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live baseline verification, API surface coverage, and wrapper coverage remain green, but repo-wide branch coverage still remains below the automation target. The largest remaining hotspots on this run continue to concentrate in [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.194] - 2026-05-31
 
 ### Fixed

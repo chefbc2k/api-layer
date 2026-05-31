@@ -144,6 +144,10 @@ describe("multisig protocol change helper utilities", () => {
     });
   });
 
+  it("returns null for malformed calldata after both transaction decoders throw", () => {
+    expect(decodeProtocolAction("0x123")).toBeNull();
+  });
+
   it("covers execution readiness, status, and operation-id fallback branches", () => {
     expect(readCanExecute([true, "ready"])).toEqual({ canExecute: true, reason: "ready" });
     expect(readCanExecute({ result: "invalid" })).toEqual({ canExecute: false, reason: "" });
@@ -335,6 +339,44 @@ describe("multisig protocol change helper utilities", () => {
       targetApprovals: [],
     });
     expect(services.ownership.isOwnerTargetApproved).not.toHaveBeenCalled();
+  });
+
+  it("reads ownership target approvals when classified targets are present", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      ownership: {
+        owner: vi.fn().mockResolvedValue({ body: "0x00000000000000000000000000000000000000aa" }),
+        pendingOwner: vi.fn().mockResolvedValue({ body: { result: "0x00000000000000000000000000000000000000bb" } }),
+        isOwnershipPolicyEnforced: vi.fn().mockResolvedValue({ body: false }),
+        isOwnerTargetApproved: vi
+          .fn()
+          .mockResolvedValueOnce({ body: true })
+          .mockResolvedValueOnce({ body: { result: false } }),
+      },
+    } as never;
+
+    await expect(readOwnershipConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000cc",
+      [
+        "0x00000000000000000000000000000000000000dd",
+        "0x00000000000000000000000000000000000000ee",
+      ],
+    )).resolves.toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      pendingOwner: "0x00000000000000000000000000000000000000bb",
+      ownershipPolicyEnforced: false,
+      targetApprovals: [
+        { target: "0x00000000000000000000000000000000000000dd", approved: true },
+        { target: "0x00000000000000000000000000000000000000ee", approved: false },
+      ],
+    });
   });
 
   it("keeps primitive upgrade status payloads and null tuple fields when upgrade reads are sparse", async () => {

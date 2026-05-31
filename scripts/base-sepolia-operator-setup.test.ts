@@ -1878,6 +1878,22 @@ describe("base sepolia operator setup helpers", () => {
       secondsAdvanced: "0",
       readyAt: null,
     });
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: {
+        getBlock: vi.fn(),
+        send: vi.fn(),
+      } as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        isActive: false,
+        createdAt: "1000",
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
   });
 
   it("does not advance a loopback listing that is already purchase-ready", async () => {
@@ -2344,6 +2360,49 @@ describe("base sepolia operator setup helpers", () => {
       },
     });
     expect(marketplace.getListing).toHaveBeenCalledWith(88n);
+  });
+
+  it("uses default API helpers when a marketplace read is already purchase-ready", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      status: 200,
+      json: vi.fn().mockResolvedValue(true),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const marketplace = {
+      getListing: vi.fn().mockResolvedValue([55n, "0xseller", 1000n, 0n, 10n, 10n, 200000n, true] as const),
+    };
+
+    try {
+      const result = await prepareAgedListingFixture({
+        candidateVoiceHashes: ["0xdefault-helpers"],
+        voiceAsset: {
+          getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+          getTokenId: vi.fn().mockResolvedValue(55n),
+        },
+        sellerAddress: "0xseller",
+        diamondAddress: "0xdiamond",
+        port: 8787,
+        latestTimestamp: 100_000n,
+        marketplace,
+      });
+
+      expect(result).toMatchObject({
+        voiceHash: "0xdefault-helpers",
+        tokenId: "55",
+        activeListing: true,
+        purchaseReadiness: "purchase-ready",
+        status: "ready",
+        approval: null,
+        localForkTimeAdvance: null,
+      });
+      expect(fetchMock).toHaveBeenCalledWith(
+        "http://127.0.0.1:8787/v1/voice-assets/queries/is-approved-for-all?owner=0xseller&operator=0xdiamond",
+        expect.objectContaining({ method: "GET" }),
+      );
+      expect(marketplace.getListing).toHaveBeenCalledWith(55n);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("breaks equal-age marketplace candidate scan ties by token id", async () => {
