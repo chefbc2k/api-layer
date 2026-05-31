@@ -305,6 +305,47 @@ describe("alchemy-diagnostics", () => {
     parseLogSpy.mockRestore();
   });
 
+  it("preserves decoded logs with null topic0 and stringifies event verification failures", async () => {
+    const parseLogSpy = vi.spyOn(Interface.prototype, "parseLog").mockReturnValue({
+      name: "TestEvent",
+      signature: "TestEvent(address,uint256)",
+      args: {
+        owner: "0x00000000000000000000000000000000000000aa",
+      },
+    } as never);
+
+    expect(decodeReceiptLogs({
+      logs: [{
+        address: "0x0000000000000000000000000000000000000001",
+        data: "0x1234",
+        topics: [],
+      }],
+    } as never)).toEqual([
+      expect.objectContaining({
+        topic0: null,
+        eventName: "TestEvent",
+        signature: "TestEvent(address,uint256)",
+      }),
+    ]);
+
+    parseLogSpy.mockRestore();
+
+    await expect(verifyExpectedEventWithAlchemy({
+      core: {
+        getLogs: vi.fn().mockRejectedValue("log query exploded"),
+      },
+    } as never, {
+      address: "0x0000000000000000000000000000000000000001",
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fromBlock: 10,
+    })).resolves.toEqual({
+      status: "failed",
+      expectedEvent: "TestFacet.TestEvent",
+      error: "log query exploded",
+    });
+  });
+
   it("simulates transactions, including pending-to-latest fallback behavior", async () => {
     const iface = new Interface(mocks.facetRegistry.TestFacet.abi);
     const fragment = iface.getEvent("TestEvent");
@@ -410,6 +451,38 @@ describe("alchemy-diagnostics", () => {
       blockTag: "pending",
       fallbackBlockTag: "latest",
       error: "fallback failed",
+    });
+  });
+
+  it("reports direct simulation success with a populated top-level call", async () => {
+    const alchemy = {
+      transact: {
+        simulateExecution: vi.fn().mockResolvedValue({
+          calls: [{
+            from: "0x1",
+            to: "0x2",
+            gasUsed: "45000",
+            type: "CALL",
+          }],
+          logs: [],
+        }),
+      },
+    };
+
+    await expect(simulateTransactionWithAlchemy(alchemy as never, { from: "0x1" } as never, "latest")).resolves.toEqual({
+      status: "available",
+      blockTag: "latest",
+      callCount: 1,
+      logCount: 0,
+      topLevelCall: {
+        from: "0x1",
+        to: "0x2",
+        gasUsed: "45000",
+        type: "CALL",
+        revertReason: undefined,
+        error: undefined,
+      },
+      decodedLogs: [],
     });
   });
 

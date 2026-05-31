@@ -1776,6 +1776,44 @@ describe("executeHttpMethodDefinition", () => {
       }),
     });
   });
+
+  it("preserves preview failures when auth omits signer identity and write preparation is skipped", async () => {
+    const context = buildContext({
+      config: {
+        alchemyDiagnosticsEnabled: true,
+        alchemySimulationEnabled: false,
+        alchemySimulationEnforced: false,
+        alchemyEndpointDetected: true,
+        alchemyRpcUrl: "https://alchemy.example",
+        alchemySimulationBlock: "latest",
+        alchemyTraceTimeout: 5_000,
+      },
+      alchemy: { mocked: true },
+    });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockRejectedValueOnce(new Error("preview reverted"));
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", signerId: undefined, allowGasless: true, roles: ["service"] },
+          api: { gaslessMode: "signature", executionSource: "auto" },
+          walletAddress: undefined,
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message: "preview reverted",
+      diagnostics: expect.objectContaining({
+        signer: null,
+        provider: null,
+        trace: { status: "disabled" },
+        cause: "preview reverted",
+      }),
+    });
+  });
 });
 
 describe("executeHttpEventDefinition", () => {

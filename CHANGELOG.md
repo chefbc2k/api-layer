@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.193] - 2026-05-31
+
+### Fixed
+- **Alchemy Diagnostics Coverage Now Proves Null-Topic Decode And String Error Paths:** Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) now explicitly proves decoded logs preserve `topic0: null` when a successful parse arrives without topics, direct Alchemy simulations surface a populated top-level call on first-pass success, and event-verification failures stringify non-`Error` throw values instead of dropping diagnostic context.
+- **Execution Context Coverage Now Proves Preview-Failure Diagnostics When Signer Preparation Is Intentionally Skipped:** Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) now explicitly proves preview-stage write failures preserve the original revert message and null prepared-write diagnostics when the auth context omits `signerId`.
+
+### Verified
+- **Targeted Shared Runtime Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/shared/alchemy-diagnostics.test.ts packages/api/src/shared/execution-context.test.ts --maxWorkers 1`; all `70/70` assertions passed after the new branch proofs landed.
+- **Focused Coverage Improved On Both Shared Hotspots:** Re-ran targeted coverage for the touched files. [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts) improved from `95.28%` to `98.11%` branch coverage, and [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts) improved from `97.26%` to `97.81%` branch coverage.
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:verify`; the Base Sepolia baseline still verifies against diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` with runtime fallback from `http://127.0.0.1:8548` to `https://sepolia.base.org`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals improved from `99.73% / 97.39% / 99.91% / 99.74%` to `99.73% / 97.48% / 99.91% / 99.74%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live baseline verification, API surface coverage, and wrapper coverage remain complete, but repo-wide branch coverage is still below the automation target. The clearest remaining hotspots after this run remain [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and several branch-heavy workflow helpers under [/Users/chef/Public/api-layer/packages/api/src/workflows](/Users/chef/Public/api-layer/packages/api/src/workflows).
+
 ## [0.1.192] - 2026-05-31
 
 ### Fixed
