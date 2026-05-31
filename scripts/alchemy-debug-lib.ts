@@ -26,6 +26,8 @@ export type RuntimeEnvironment = {
   provider: JsonRpcProvider;
   alchemy: ReturnType<typeof createAlchemyClient>;
   scenarioCommit: string | null;
+  forkProcess: ChildProcessWithoutNullStreams | null;
+  forkedFrom: string | null;
 };
 
 export type RpcResolution = {
@@ -263,7 +265,8 @@ function gitCommit(root: string): string | null {
 export async function loadRuntimeEnvironment(): Promise<RuntimeEnvironment> {
   const env = loadRepoEnv();
   const { config, configSources, rpcResolution } = await resolveRuntimeConfig(env);
-  const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
+  const forkRuntime = await startLocalForkIfNeeded({ config, configSources, rpcResolution });
+  const provider = new JsonRpcProvider(forkRuntime.rpcUrl, config.chainId);
   const contractsRoot = resolveContractsRoot();
   return {
     contractsRoot,
@@ -274,6 +277,8 @@ export async function loadRuntimeEnvironment(): Promise<RuntimeEnvironment> {
     provider,
     alchemy: createAlchemyClient(config),
     scenarioCommit: gitCommit(contractsRoot),
+    forkProcess: forkRuntime.forkProcess,
+    forkedFrom: forkRuntime.forkedFrom,
   };
 }
 
@@ -364,6 +369,7 @@ export async function buildSimulationReport(
 
 export async function closeRuntimeEnvironment(runtime: RuntimeEnvironment): Promise<void> {
   await runtime.provider.destroy();
+  runtime.forkProcess?.kill("SIGTERM");
 }
 
 export async function runScenarioCommand(

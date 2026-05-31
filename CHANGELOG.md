@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.190] - 2026-05-30
+
+### Fixed
+- **Baseline Runtime Bootstrap Now Preserves Auto-Fork Lifecycle Cleanup:** Hardened [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) so `loadRuntimeEnvironment()` now routes through the existing `startLocalForkIfNeeded()` helper before creating its provider, and `closeRuntimeEnvironment()` now terminates any fork process it spawned. This closes the prior gap where the baseline helpers contained loopback auto-fork logic but never actually invoked it from the runtime entrypoint.
+
+### Verified
+- **Runtime Bootstrap Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/alchemy-debug-lib.test.ts scripts/verify-governance-workflows.test.ts --maxWorkers 1`; all `42/42` targeted assertions passed, including new proofs that runtime loading binds the provider to the loopback fork when fixture fallback metadata is available and that teardown kills spawned fork processes.
+- **Baseline Guard Returned To Green On A Real Base Sepolia Fork:** Started `anvil` against Base Sepolia’s official public RPC endpoint `https://sepolia.base.org` per Base’s docs, then re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`. The validated baseline again resolved on `chainId: 84532` with diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, configured/runtime RPC `http://127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Repo-Wide Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals remain `99.73% / 97.42% / 99.91% / 99.74%` for statements/branches/functions/lines after the runtime bootstrap patch.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** The automation baseline, API surface coverage, wrapper coverage, and current live verifier artifacts remain green, but repo-wide branch coverage is still below the target. The largest remaining hotspots on this run remain [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.189] - 2026-05-30
 
 ### Fixed

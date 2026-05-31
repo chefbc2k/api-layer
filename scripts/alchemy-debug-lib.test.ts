@@ -702,6 +702,16 @@ describe("alchemy-debug-lib", () => {
     expect(provider.destroy).toHaveBeenCalledTimes(1);
   });
 
+  it("terminates an auto-started fork when closing the runtime environment", async () => {
+    const provider = { destroy: vi.fn().mockResolvedValue(undefined) };
+    const forkProcess = { kill: vi.fn() };
+
+    await expect(closeRuntimeEnvironment({ provider, forkProcess } as any)).resolves.toBeUndefined();
+
+    expect(provider.destroy).toHaveBeenCalledTimes(1);
+    expect(forkProcess.kill).toHaveBeenCalledWith("SIGTERM");
+  });
+
   it("skips auto-fork bootstrapping when fallback mode is not active", async () => {
     await expect(startLocalForkIfNeeded({
       config: {
@@ -939,6 +949,83 @@ describe("alchemy-debug-lib", () => {
     expect(mocked.createAlchemyClient).toHaveBeenCalledWith(expect.objectContaining({
       cbdpRpcUrl: "https://rpc.example.com/base-sepolia",
       alchemyRpcUrl: "https://alchemy.example.com/base-sepolia",
+    }));
+  });
+
+  it("boots a loopback fork for the runtime environment when the configured listener is down but fixture RPC metadata is available", async () => {
+    vi.useFakeTimers();
+    process.env.API_LAYER_PARENT_REPO_DIR = "contracts-root";
+    mocked.existsSync.mockImplementation((target: string) =>
+      target.includes(".runtime/base-sepolia-operator-fixtures.json") ||
+      target.endsWith("/contracts-root/package.json") ||
+      target.endsWith("/contracts-root/scripts/deployment"),
+    );
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "https://base-sepolia.g.alchemy.com/v2/fork-source",
+      },
+    }));
+    mocked.execFileSync.mockReturnValue("deadbeef\n");
+    const child = {
+      exitCode: null,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn() },
+    };
+    mocked.spawn.mockReturnValue(child as any);
+    mocked.loadRepoEnv.mockReturnValue({
+      NETWORK: "base-sepolia",
+      CHAIN_ID: "84532",
+      DIAMOND_ADDRESS: "0x00000000000000000000000000000000000000aa",
+      RPC_URL: "http://127.0.0.1:8548",
+      ALCHEMY_RPC_URL: "https://alchemy.example.com/base-sepolia",
+      PRIVATE_KEY: "0xabc",
+      ALCHEMY_DIAGNOSTICS_ENABLED: "1",
+      ALCHEMY_SIMULATION_ENABLED: "1",
+    });
+    mocked.jsonRpcProvider
+      .mockImplementationOnce((rpcUrl: string, chainId: number) => ({
+        rpcUrl,
+        chainId,
+        getNetwork: vi.fn().mockRejectedValue(new Error("connect ECONNREFUSED 127.0.0.1:8548")),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce((rpcUrl: string, chainId: number) => ({
+        rpcUrl,
+        chainId,
+        getNetwork: vi.fn().mockResolvedValue({ chainId: BigInt(chainId) }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce((rpcUrl: string, chainId: number) => ({
+        rpcUrl,
+        chainId,
+        getNetwork: vi.fn().mockResolvedValue({ chainId: BigInt(chainId) }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }));
+
+    const runtimePromise = loadRuntimeEnvironment();
+    await vi.advanceTimersByTimeAsync(500);
+    const runtime = await runtimePromise;
+
+    expect(runtime.config.cbdpRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/fork-source");
+    expect(runtime.provider).toMatchObject({
+      rpcUrl: "http://127.0.0.1:8548",
+      chainId: 84532,
+    });
+    expect(runtime.forkProcess).toBe(child);
+    expect(runtime.forkedFrom).toBe("https://base-sepolia.g.alchemy.com/v2/fork-source");
+    expect(mocked.spawn).toHaveBeenCalledWith("anvil", [
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "8548",
+      "--chain-id",
+      "84532",
+      "--fork-url",
+      "https://base-sepolia.g.alchemy.com/v2/fork-source",
+    ], expect.objectContaining({
+      stdio: ["ignore", "pipe", "pipe"],
+      env: process.env,
     }));
   });
 
