@@ -471,6 +471,33 @@ describe("abi-codec", () => {
     expect(decodeResultFromWire(definition as never, ["4", true])).toEqual([4n, true]);
   });
 
+  it("normalizes mixed named and unnamed nested tuple components from array payloads", () => {
+    const definition = {
+      signature: "nestedArrayTupleObject()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "nested",
+            type: "tuple",
+            components: [
+              { type: "uint256" },
+              { name: "enabled", type: "bool" },
+            ],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, [[12n, true]])).toEqual({
+      nested: {
+        0: "12",
+        enabled: true,
+      },
+    });
+  });
+
   it("normalizes object-shaped tuple object results with unnamed component fallbacks", () => {
     const definition = {
       signature: "objectTupleObject()",

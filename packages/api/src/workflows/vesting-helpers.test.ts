@@ -29,8 +29,10 @@ describe("vesting helpers", () => {
 
   it("supports tuple-style totals and scalar release extraction", () => {
     expect(getReleasableFromSummary(["100", "20", "5"])).toBe(5n);
+    expect(getReleasableFromSummary({ releasable: "8" })).toBe(8n);
     expect(getReleasableFromSummary(null)).toBe(0n);
     expect(getReleasableFromSummary("not-a-record")).toBe(0n);
+    expect(extractReleasedAmount(null)).toBeNull();
     expect(extractReleasedAmount({ result: "12" })).toBe("12");
     expect(extractReleasedAmount({ result: 13 })).toBe("13");
     expect(extractReleasedAmount({ result: 14n })).toBe("14");
@@ -156,6 +158,30 @@ describe("vesting helpers", () => {
     expect(result.details.body).toEqual({ revoked: false, beneficiary: "0x00000000000000000000000000000000000000aa" });
     expect(result.releasable.body).toBe("5");
     expect(result.totals.body).toEqual({ totalVested: "100", totalReleased: "20", releasable: "5" });
+  });
+
+  it("treats detail-only revoked schedules as zeroed when post-state amount reads return AlreadyRevoked", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100", revoked: false } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: true } }),
+      getVestingReleasableAmount: async () => {
+        throw new Error("execution reverted: AlreadyRevoked(bytes32)");
+      },
+      getVestingTotalAmount: async () => {
+        throw new Error("execution reverted: AlreadyRevoked(bytes32)");
+      },
+    };
+
+    const result = await readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      undefined,
+      "0x00000000000000000000000000000000000000aa",
+    );
+
+    expect(result.releasable.body).toBe("0");
+    expect(result.totals.body).toEqual({ totalVested: "0", totalReleased: "0", releasable: "0" });
   });
 
   it("normalizes create-vesting execution errors into workflow-specific HttpErrors", () => {
