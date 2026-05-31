@@ -1,3 +1,6 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { createApiServer } from "../packages/api/src/app.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
 import { facetRegistry } from "../packages/client/src/generated/index.js";
@@ -402,7 +405,11 @@ async function main(): Promise<void> {
   });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

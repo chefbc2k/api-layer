@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.189] - 2026-05-30
+
+### Fixed
+- **Governance Verifier Imports No Longer Poison Coverage Shards:** Hardened [/Users/chef/Public/api-layer/scripts/verify-governance-workflows.ts](/Users/chef/Public/api-layer/scripts/verify-governance-workflows.ts) with the same import-safe main-module guard already used by the other long-running verifier scripts, so importing the helper module in tests no longer executes `main()` or triggers `process.exit(1)` during sharded coverage collection.
+
+### Verified
+- **Governance Verifier Helper Slice Stayed Green:** Re-ran `pnpm exec vitest run scripts/verify-governance-workflows.test.ts --maxWorkers 1`; the targeted helper suite passed `2/2` after the entrypoint guard was added.
+- **Repo-Wide Standard Coverage Recovered To Green:** Re-ran `pnpm run test:coverage`; the sharded Istanbul merge completed successfully and wrote [/Users/chef/Public/api-layer/coverage/coverage-summary.json](/Users/chef/Public/api-layer/coverage/coverage-summary.json) with merged totals of `99.73% / 97.42% / 99.91% / 99.74%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **Validated Baseline Still Requires A Running Local Fork:** Attempted `pnpm run baseline:show` and `pnpm run baseline:verify`, but both failed immediately with `ECONNREFUSED 127.0.0.1:8548` because the expected local Base Sepolia fork was not running in this session. This is an environment limitation, not a newly introduced regression.
+- **100% Standard Coverage Remains Unmet:** API surface coverage and wrapper coverage remain complete in the current repo history, and repo-wide coverage is green again, but branch coverage still caps below the automation target. The clearest remaining hotspots on this run are [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts](/Users/chef/Public/api-layer/packages/api/src/shared/alchemy-diagnostics.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts).
+
 ## [0.1.188] - 2026-05-28
 
 ### Fixed
