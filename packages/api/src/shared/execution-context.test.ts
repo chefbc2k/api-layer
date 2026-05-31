@@ -1541,6 +1541,37 @@ describe("executeHttpMethodDefinition", () => {
     });
   });
 
+  it("retries direct writes across the alternate nonce-expired message variants before succeeding", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.walletSendTransaction
+      .mockRejectedValueOnce(new Error("nonce has already been used"))
+      .mockRejectedValueOnce(new Error("transaction underpriced"))
+      .mockResolvedValueOnce({ hash: "0xrecovered" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 202,
+      body: {
+        requestId: "req-1",
+        txHash: "0xrecovered",
+        result: false,
+      },
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
+    expect(context.signerNonces.get("founder:primary")).toBe(7);
+  });
+
   it("wraps non-nonce submission failures with failure diagnostics and simulation output", async () => {
     const context = buildContext({
       config: {

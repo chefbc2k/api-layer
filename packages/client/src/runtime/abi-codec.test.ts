@@ -184,6 +184,65 @@ describe("abi-codec", () => {
     });
   });
 
+  it("normalizes nested tuple arrays from positional and object-backed outputs with unnamed components", () => {
+    const definition = {
+      signature: "nestedTupleArrayResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          {
+            name: "items",
+            type: "tuple[]",
+            components: [
+              { type: "bool" },
+              {
+                name: "meta",
+                type: "tuple",
+                components: [{ name: "count", type: "uint256" }],
+              },
+            ],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, [
+      [
+        [true, [9n]],
+      ],
+    ])).toEqual({
+      items: [
+        {
+          0: true,
+          meta: {
+            count: "9",
+          },
+        },
+      ],
+    });
+
+    expect(decodeResultFromWire(definition as never, {
+      items: [
+        {
+          0: false,
+          meta: {
+            count: "12",
+          },
+        },
+      ],
+    })).toEqual({
+      items: [
+        {
+          0: false,
+          meta: {
+            count: 12n,
+          },
+        },
+      ],
+    });
+  });
+
   it("supports empty outputs and array-like multi-output result payloads", () => {
     const emptyDefinition = {
       signature: "noResult()",

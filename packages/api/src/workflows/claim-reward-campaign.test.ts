@@ -392,6 +392,36 @@ describe("runClaimRewardCampaignWorkflow", () => {
     });
   });
 
+  it("normalizes selector-only claim failures when the thrown value has no message field", async () => {
+    const claimError = {
+      diagnostics: {
+        selector: "0x939fc1db",
+        nested: {
+          reason: "ExceedsCampaignCap",
+        },
+      },
+    };
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      claim: vi.fn().mockRejectedValue(claimError),
+      claimedEventQuery: vi.fn(),
+    });
+
+    await expect(runClaimRewardCampaignWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      campaignId: "19",
+      totalAllocation: "5",
+      proof: [],
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: "claim-reward-campaign blocked by campaign cap",
+      diagnostics: claimError.diagnostics,
+    });
+  });
+
   it("rethrows unknown claim failures unchanged", async () => {
     const claimError = new Error("unexpected claim failure");
     mocks.createTokenomicsPrimitiveService.mockReturnValue({

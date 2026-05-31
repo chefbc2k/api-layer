@@ -2450,6 +2450,58 @@ describe("base sepolia operator setup helpers", () => {
     expect(provider.send).not.toHaveBeenCalled();
   });
 
+  it("records an attempted but ineffective local-fork time advance when the refreshed listing stays young", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const retryApiReadFn = vi.fn(async (read: () => Promise<unknown>, condition: (value: any) => boolean) => {
+      const value = await read();
+      expect(condition(value)).toBe(true);
+      return value;
+    });
+    const provider = {
+      getBlock: vi.fn().mockResolvedValueOnce({ timestamp: 100_000 }),
+      send: vi.fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ timestamp: "0x2d821" }),
+    };
+    const marketplace = {
+      getListing: vi.fn().mockResolvedValue([99n, "0xseller", 1000n, 99_999n, 10n, 10n, 200000n, true] as const),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xyoung-after-advance"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(99n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      marketplace,
+      apiCallFn: apiCallFn as any,
+      retryApiReadFn: retryApiReadFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xyoung-after-advance",
+      tokenId: "99",
+      activeListing: true,
+      purchaseReadiness: "purchase-ready",
+      status: "ready",
+      localForkTimeAdvance: {
+        attempted: true,
+        advanced: true,
+        secondsAdvanced: "86400",
+        readyAt: "186400",
+        latestTimestampAfterAdvance: "186401",
+      },
+    });
+    expect(marketplace.getListing).toHaveBeenCalledTimes(2);
+  });
+
   it("normalizes object-form marketplace listings before building the preferred fixture", async () => {
     const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
     const marketplace = {

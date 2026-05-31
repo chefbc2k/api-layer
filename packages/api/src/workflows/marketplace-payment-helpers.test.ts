@@ -103,4 +103,33 @@ describe("marketplace payment helpers", () => {
       collaborator: null,
     });
   });
+
+  it("treats undefined core and extra payee addresses as null pending-payment readbacks", async () => {
+    const marketplace = {
+      getUsdcToken: vi.fn(),
+      isPaused: vi.fn(),
+      paymentPaused: vi.fn(),
+      getTreasuryAddress: vi.fn(),
+      getDevFundAddress: vi.fn(),
+      getUnionTreasuryAddress: vi.fn(),
+      getPendingPayments: vi.fn().mockResolvedValue({ statusCode: 200, body: "9" }),
+    };
+
+    await expect(readPendingPaymentsSnapshot(marketplace, { apiKey: "test-key" } as never, undefined, {
+      seller: undefined,
+      treasury: "0x00000000000000000000000000000000000000bb",
+      devFund: undefined,
+      unionTreasury: "0x00000000000000000000000000000000000000dd",
+      payee: undefined,
+      collaborator: undefined,
+    } as never)).resolves.toEqual({
+      seller: null,
+      treasury: "9",
+      devFund: null,
+      unionTreasury: "9",
+      payee: null,
+      collaborator: null,
+    });
+    expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(2);
+  });
 });
