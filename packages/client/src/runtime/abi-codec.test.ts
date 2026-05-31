@@ -108,6 +108,55 @@ describe("abi-codec", () => {
     });
   });
 
+  it("serializes and decodes object-backed tuple payloads with named and numeric fallback keys", () => {
+    const definition = {
+      signature: "objectTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { type: "bool" },
+          {
+            name: "nested",
+            type: "tuple",
+            components: [
+              { name: "owner", type: "address" },
+            ],
+          },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    const wire = serializeResultToWire(definition as never, {
+      count: 12n,
+      1: false,
+      nested: { owner: "0x0000000000000000000000000000000000000012" },
+    });
+
+    expect(wire).toEqual({
+      count: "12",
+      1: false,
+      nested: {
+        owner: "0x0000000000000000000000000000000000000012",
+      },
+    });
+    expect(decodeResultFromWire(definition as never, wire)).toEqual({
+      count: 12n,
+      1: false,
+      nested: {
+        owner: "0x0000000000000000000000000000000000000012",
+      },
+    });
+    expect(decodeFromWire(definition.outputs[0] as never, wire)).toEqual({
+      count: 12n,
+      1: false,
+      nested: {
+        owner: "0x0000000000000000000000000000000000000012",
+      },
+    });
+  });
+
   it("rejects named tuple outputs when nested tuple values are missing or malformed", () => {
     const definition = {
       signature: "tupleResult()",
@@ -489,6 +538,27 @@ describe("abi-codec", () => {
     expect(paramsWire).toEqual([{ 0: "7", 1: true }]);
     expect(decodeParamsFromWire(definition as never, paramsWire)).toEqual([{ 0: 7n, 1: true }]);
     expect(decodeResultFromWire(definition as never, { 0: "9", 1: false })).toEqual({ 0: 9n, 1: false });
+  });
+
+  it("decodes named tuple params from wire objects without array coercion", () => {
+    const definition = {
+      signature: "named((uint256,address))",
+      inputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "owner", type: "address" },
+        ],
+      }],
+    };
+
+    expect(decodeParamsFromWire(definition as never, [{
+      count: "4",
+      owner: "0x0000000000000000000000000000000000000004",
+    }])).toEqual([{
+      count: 4n,
+      owner: "0x0000000000000000000000000000000000000004",
+    }]);
   });
 
   it("normalizes unnamed tuple result objects and tuple arrays through numeric fallback keys", () => {

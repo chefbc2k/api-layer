@@ -572,6 +572,15 @@ describe("base sepolia operator setup helpers", () => {
     await expect(waitForReceipt(8787, "0xdef")).rejects.toThrow("transaction reverted: 0xdef");
   });
 
+  it("treats string receipt status values as successful confirmations", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      status: 200,
+      json: vi.fn().mockResolvedValue({ receipt: { status: "1" } }),
+    }));
+
+    await expect(waitForReceipt(8787, "0xstring-ok")).resolves.toBeUndefined();
+  });
+
   it("times out when receipts never materialize", async () => {
     vi.useFakeTimers();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
@@ -2589,6 +2598,41 @@ describe("base sepolia operator setup helpers", () => {
 
     expect(result).toEqual(createEmptyAgedListingFixture());
     expect(apiCallFn).not.toHaveBeenCalled();
+  });
+
+  it("skips future-dated candidates while still preparing the first eligible aged listing", async () => {
+    const getTokenId = vi.fn(async (voiceHash: string) => (voiceHash === "0xaged" ? 7n : 99n));
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xfuture", "0xaged"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn(async (voiceHash: string) => ({ createdAt: voiceHash === "0xfuture" ? "100001" : "0" })),
+        getTokenId,
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xaged",
+      tokenId: "7",
+      status: "ready",
+      purchaseReadiness: "purchase-ready",
+    });
+    expect(getTokenId).toHaveBeenCalledTimes(1);
+    expect(getTokenId).toHaveBeenCalledWith("0xaged");
   });
 
   it("builds the licensing status payload with actor guidance", () => {

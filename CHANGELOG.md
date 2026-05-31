@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.196] - 2026-05-31
+
+### Fixed
+- **Tuple Codec Regression Cases Now Lock Additional Object-Backed Decode Paths:** Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) so the wire codec suite now explicitly exercises object-backed tuple result payloads that mix named fields with numeric fallback keys, and decodes named tuple params directly from object-shaped wire payloads without array coercion.
+- **Base Sepolia Setup Helper Tests Now Cover String Receipts And Mixed-Age Listing Scans:** Expanded [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so the setup helper suite now proves `waitForReceipt()` accepts `"1"` string receipt statuses and that `prepareAgedListingFixture()` skips future-dated candidates while still selecting the first eligible aged asset for marketplace preparation.
+
+### Verified
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `124/124` targeted assertions passed after the new tuple-codec and setup-helper cases landed.
+- **Base Sepolia Operator Setup Returned To Ready State On The Local Fork Baseline:** Re-ran `pnpm run setup:base-sepolia`; [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) refreshed with `setup.status: "ready"`, founder `0x3605020bb497c0ad07635E9ca0021Ba60f1244a2`, seller `0x276D8504239A02907BA5e7dD42eEb5A651274bCd`, buyer `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, licensee `0x433Ec7884C9f191e357e32d6331832F44DE0FCD0`, transferee `0x38715AB647049A755810B2eEcf29eE79CcC649BE`, governance `status: "ready"`, and a purchase-ready aged listing fixture on token `11` after `MarketplaceFacet.cancelListing` and `MarketplaceFacet.listAsset` refreshed tx `0xaf3ec43c51c9a9b00eda5ca9584534157b17b2f6538e47876f7708b2e9eb3218`.
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still resolves the validated deployment through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`, `chainId: 84532`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the merged Istanbul totals remain `99.71% / 97.48% / 99.91% / 99.72%` for statements/branches/functions/lines while the new tuple-codec and setup-helper regression cases pass in the full merge.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Behavioral live proofs, setup readiness, API surface coverage, wrapper coverage, and the validated Base Sepolia/local-fork baseline remain green, but repo-wide branch coverage is still below the automation target. The largest remaining hotspots on this run remain concentrated in [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and branch-heavy workflow helpers under [/Users/chef/Public/api-layer/packages/api/src/workflows](/Users/chef/Public/api-layer/packages/api/src/workflows).
+
 ## [0.1.195] - 2026-05-31
 
 ### Fixed
