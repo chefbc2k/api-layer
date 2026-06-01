@@ -236,7 +236,7 @@ export function validateWireParams(definition: Pick<AbiMethodDefinition, "inputs
   definition.inputs.forEach((input, index) => {
     const result = buildWireSchema(input).safeParse(params[index]);
     if (!result.success) {
-      throw new Error(`invalid param ${index} for ${definition.signature}: ${result.error.issues[0]?.message ?? "validation failed"}`);
+      throw new Error(`invalid param ${index} for ${definition.signature}: ${result.error.issues[0]!.message}`);
     }
   });
 }
@@ -277,7 +277,7 @@ export function serializeResultToWire(
     }
     const validation = buildWireSchema(definition.outputs[0]).safeParse(serialized);
     if (!validation.success) {
-      throw new Error(`invalid result for ${definition.signature}: ${validation.error.issues[0]?.message ?? "validation failed"}`);
+      throw new Error(`invalid result for ${definition.signature}: ${validation.error.issues[0]!.message}`);
     }
     return serialized;
   }
@@ -292,7 +292,7 @@ export function serializeResultToWire(
   definition.outputs.forEach((output, index) => {
     const validation = buildWireSchema(output).safeParse(serialized[index]);
     if (!validation.success) {
-      throw new Error(`invalid result item ${index} for ${definition.signature}: ${validation.error.issues[0]?.message ?? "validation failed"}`);
+      throw new Error(`invalid result item ${index} for ${definition.signature}: ${validation.error.issues[0]!.message}`);
     }
   });
   return serialized;
@@ -305,7 +305,7 @@ export function decodeResultFromWire(definition: Pick<AbiMethodDefinition, "outp
   if (definition.outputs.length === 1) {
     const validation = buildWireSchema(definition.outputs[0]).safeParse(payload);
     if (!validation.success) {
-      throw new Error(`invalid response for ${definition.signature}: ${validation.error.issues[0]?.message ?? "validation failed"}`);
+      throw new Error(`invalid response for ${definition.signature}: ${validation.error.issues[0]!.message}`);
     }
     return decodeFromWire(definition.outputs[0], payload);
   }
@@ -318,7 +318,7 @@ export function decodeResultFromWire(definition: Pick<AbiMethodDefinition, "outp
   return definition.outputs.map((output, index) => {
     const validation = buildWireSchema(output).safeParse(payload[index]);
     if (!validation.success) {
-      throw new Error(`invalid response item ${index} for ${definition.signature}: ${validation.error.issues[0]?.message ?? "validation failed"}`);
+      throw new Error(`invalid response item ${index} for ${definition.signature}: ${validation.error.issues[0]!.message}`);
     }
     return decodeFromWire(output, payload[index]);
   });

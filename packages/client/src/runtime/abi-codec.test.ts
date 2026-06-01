@@ -1054,6 +1054,38 @@ describe("abi-codec", () => {
     } as never, {})).toEqual({});
   });
 
+  it("normalizes object-backed named tuple leaves from positional fallback keys", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [
+        {
+          name: "nested",
+          type: "tuple",
+          components: [{ name: "count", type: "uint256" }],
+        },
+      ],
+    } as never, {
+      0: {
+        0: "16",
+      },
+    })).toEqual({
+      nested: {
+        count: "16",
+      },
+    });
+  });
+
+  it("normalizes object-backed unnamed tuple leaves through positional object keys", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [{ type: "uint256" }],
+    } as never, {
+      0: "17",
+    })).toEqual({
+      0: "17",
+    });
+  });
+
   it("normalizes tuple-object internals when unnamed components rely on numeric fallback keys", () => {
     expect(abiCodecInternals.tupleToNamedObject({
       type: "tuple",
@@ -1214,6 +1246,21 @@ describe("abi-codec", () => {
     );
     expect(() => serializeResultToWire(tupleArrayDefinition as never, "not-an-array")).toThrow(
       "invalid result for brokenTupleArray(): expected array value for tuple[]",
+    );
+  });
+
+  it("surfaces non-Error thrown values while formatting single-result serialization failures", () => {
+    const definition = {
+      signature: "stringThrown()",
+      outputs: [{
+        get type() {
+          throw "string-backed failure";
+        },
+      }],
+    };
+
+    expect(() => serializeResultToWire(definition as never, "ignored")).toThrow(
+      "invalid result for stringThrown(): string-backed failure",
     );
   });
 

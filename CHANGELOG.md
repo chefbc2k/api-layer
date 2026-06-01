@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.211] - 2026-06-01
+
+### Fixed
+- **ABI Codec Validation Fallbacks Tightened And Tuple Fallback Coverage Extended:** Updated [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) to rely on Zod's guaranteed first issue message instead of dead-path `"validation failed"` fallbacks, and expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) to prove object-backed tuple normalization through positional fallback keys plus non-`Error` thrown-value formatting during single-result serialization failures.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, `rpcUrl: "https://sepolia.base.org"`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Improved Again While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remained green at `99.83%` statements, `98.46%` branches, `99.91%` functions, and `99.85%` lines. This run pushed [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) branch coverage from `95.20%` to `98.72%` while all `70/70` codec assertions stayed green.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification artifacts remain fully `proven working`, API surface coverage and wrapper coverage remain complete, and no Base Sepolia/local-fork regressions were introduced. Repo-wide branch coverage still remains below the automation target, with the clearest remaining hotspots now concentrated in [/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.210] - 2026-06-01
 
 ### Fixed
