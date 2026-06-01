@@ -256,6 +256,49 @@ describe("validation helpers", () => {
     });
   });
 
+  it("only defaults top-level managed template identity fields and preserves nested tuple values", () => {
+    const nestedManagedDefinition: HttpMethodDefinition = {
+      ...managedTemplateDefinition,
+      inputs: [{
+        name: "template",
+        type: "tuple",
+        components: [
+          { name: "creator", type: "address" },
+          { name: "createdAt", type: "uint256" },
+          { name: "updatedAt", type: "uint256" },
+          {
+            name: "terms",
+            type: "tuple",
+            components: [
+              { name: "creator", type: "address" },
+              { name: "createdAt", type: "uint256" },
+              { name: "updatedAt", type: "uint256" },
+            ],
+          },
+        ],
+      }],
+    };
+
+    const schema = buildWireSchema(nestedManagedDefinition, nestedManagedDefinition.inputs[0], ["template"]);
+
+    expect(schema.parse({
+      terms: {
+        creator: "0x00000000000000000000000000000000000000DD",
+        createdAt: "44",
+        updatedAt: "45",
+      },
+    })).toEqual({
+      creator: "0x0000000000000000000000000000000000000000",
+      createdAt: "0",
+      updatedAt: "0",
+      terms: {
+        creator: "0x00000000000000000000000000000000000000DD",
+        createdAt: "44",
+        updatedAt: "45",
+      },
+    });
+  });
+
   it("falls back to unknown schemas for non-body bindings and unnamed body inputs", () => {
     const definition = {
       ...writeDefinition,

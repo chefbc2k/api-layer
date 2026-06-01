@@ -828,6 +828,38 @@ describe("executeHttpMethodDefinition", () => {
     });
   });
 
+  it("falls back to a wallet-backed void signer for reads when no signer key is available", async () => {
+    const definition = buildReadDefinition();
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce([]);
+    mocked.invokeRead.mockImplementationOnce(async (runtime) => {
+      const runner = await runtime.signerFactory?.({ name: "provider" });
+      return runner;
+    });
+    mocked.serializeResultToWire.mockReturnValueOnce("ok");
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: { apiKey: "reader-key", label: "reader", allowGasless: false, roles: ["service"] },
+          walletAddress: "0x00000000000000000000000000000000000000cc",
+        }) as never,
+      ),
+    ).resolves.toEqual({
+      statusCode: 200,
+      body: "ok",
+    });
+
+    const walletRunner = mocked.serializeResultToWire.mock.calls.at(-1)?.[1];
+    const { VoidSigner } = await import("ethers");
+    expect(walletRunner).toBeInstanceOf(VoidSigner);
+    expect(walletRunner).toMatchObject({
+      address: "0x00000000000000000000000000000000000000cc",
+    });
+  });
+
   it("uses signer-backed reads when the API key maps to a private key", async () => {
     const definition = buildReadDefinition();
     const context = buildContext();
