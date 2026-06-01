@@ -1629,6 +1629,30 @@ describe("abi-codec", () => {
     });
   });
 
+  it("falls back to numeric tuple result keys when named fields are explicitly undefined", () => {
+    const tupleResult = {
+      signature: "numericFallbackTupleUndefined()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(tupleResult as never, {
+      count: undefined,
+      0: 15n,
+      enabled: undefined,
+      1: false,
+    })).toEqual({
+      count: "15",
+      enabled: false,
+    });
+  });
+
   it("preserves malformed nested tuple-array leaves until output validation rejects them", () => {
     const definition = {
       signature: "malformedTupleLeaf()",

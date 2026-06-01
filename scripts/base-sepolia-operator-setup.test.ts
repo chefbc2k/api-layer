@@ -3293,6 +3293,40 @@ describe("base sepolia operator setup helpers", () => {
     expect(getTokenId).toHaveBeenCalledWith("0xaged");
   });
 
+  it("normalizes aged candidate token ids from custom toString objects", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xaged"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue({
+          toString: () => "42",
+        }),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xaged",
+      tokenId: "42",
+      status: "ready",
+      purchaseReadiness: "purchase-ready",
+    });
+  });
+
   it("builds the licensing status payload with actor guidance", () => {
     expect(createLicensingStatus({
       sellerAddress: "0xseller",

@@ -953,6 +953,64 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
         },
       },
     })).rejects.toThrow("unknown queue apiKey");
+
+    mocks.runGovernanceExecutionFlowWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: { snapshot: "120", proposalState: "5", deadline: "240" },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: "300",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: "5",
+      },
+      vote: null,
+      executionReadiness: {
+        proposalState: "5",
+        proposalStateLabel: "Queued",
+        deadline: "240",
+        currentBlock: "300",
+        votingClosed: true,
+        queueEligible: false,
+        executeEligible: true,
+        phase: "queued-ready-to-execute",
+        nextGovernanceStep: "execute-when-governance-operator-is-ready",
+        readinessBasis: "timelock-operation-derived",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        currentProposalState: "5",
+        currentProposalStateLabel: "Queued",
+        voteRequested: false,
+        voteCast: false,
+        queueEligible: false,
+        executeEligible: true,
+        nextGovernanceStep: "execute-when-governance-operator-is-ready",
+        voter: null,
+      },
+    });
+
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "bad execute actor",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        execute: {
+          apiKey: "missing-key",
+        },
+      },
+    })).rejects.toThrow("unknown execute apiKey");
   });
 
   it("surfaces unknown proposal-state labels in queue and execute state blocks", async () => {

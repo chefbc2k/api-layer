@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.218] - 2026-06-01
+
+### Fixed
+- **More Source-Map-Sensitive Fallback Paths Now Have Explicit Regression Proofs:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.test.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts), and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) to prove receipt-less template-lifecycle license propagation, execute-actor override validation, explicitly undefined named tuple-result fallback normalization, and aged-listing fixture token ID normalization through custom `toString()` providers.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Stayed Green:** Re-ran `pnpm exec vitest run packages/api/src/workflows/governance-timelock-consequence-flow.test.ts packages/api/src/workflows/catalog-listing-operations.test.ts packages/client/src/runtime/abi-codec.test.ts scripts/base-sepolia-operator-setup.test.ts --maxWorkers 1`; all `202/202` targeted assertions passed.
+- **Merged Standard Coverage Stayed Green:** Re-ran `pnpm run test:coverage`; the merged suite remained green at `99.83% / 98.74% / 99.91% / 99.85%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Still Remains Unmet And Several Reported Misses Continue To Behave As Source-Map-Sensitive Counters:** The new tests materially improve explicit regression proof around several fallback paths, but the aggregate Istanbul counters did not move. The clearest persistent hotspots remain [/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), where added tests did not reduce the reported uncovered branch locations.
+
 ## [0.1.217] - 2026-06-01
 
 ### Fixed
