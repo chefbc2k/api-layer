@@ -222,4 +222,11 @@ describe("projection common helpers", () => {
       },
     });
   });
+
+  it("treats nullish numeric support values as absent", () => {
+    expect(inferProjectionRecord("licenses", "ledger", "license-2", {
+      account: "0x00000000000000000000000000000000000000dd",
+      support: undefined,
+    }).support).toBeNull();
+  });
 });

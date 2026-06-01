@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.206] - 2026-06-01
+
+### Fixed
+- **Projection And API-Surface Regression Coverage Now Proves More Null/Fallback Branches:** Expanded [/Users/chef/Public/api-layer/packages/indexer/src/projections/common.test.ts](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.test.ts) so [/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts) now explicitly proves nullish `support` normalization. Expanded [/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) so [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) now explicitly proves empty-signature overload suffix handling and the `VoiceMetadataFacet` / `LegacyViewFacet` voice-asset resource mapping branches without changing runtime behavior.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, `rpcUrl: "https://sepolia.base.org"`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/indexer/src/projections/common.test.ts scripts/api-surface-lib.test.ts --maxWorkers 1`; all `13/13` targeted assertions passed after the new null/fallback proofs landed.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remained green and merged Istanbul totals improved from `99.77% / 98.08% / 99.91% / 99.78%` to `99.83% / 98.14% / 99.91% / 99.85%` for statements/branches/functions/lines. [/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts) now reaches `100%` statements/branches/functions/lines, and [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) now reaches `100%` statements/lines/functions with `98%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia baseline remain green, but repo-wide branch coverage is still below the automation target. The clearest remaining hotspots after this run are [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and branch-heavy workflow helpers such as [/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts) and [/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts).
+
 ## [0.1.205] - 2026-05-31
 
 ### Fixed

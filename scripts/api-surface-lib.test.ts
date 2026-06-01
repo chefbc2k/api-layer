@@ -63,6 +63,10 @@ describe("api surface helpers", () => {
       wrapperKey: "safeTransferFrom(address,address,uint256)",
       methodName: "safeTransferFrom",
     }))).toBe("safeTransferFromAddressAddressUint256");
+    expect(buildOperationId(method({
+      wrapperKey: "safeTransferFrom()",
+      methodName: "safeTransferFrom",
+    }))).toBe("safeTransferFrom");
     expect(toKebabCase("Already Clean")).toBe("already-clean");
     expect(toCamelCase("Already Clean")).toBe("alreadyClean");
     expect(toCamelCase("()")).toBe("");
@@ -112,6 +116,28 @@ describe("api surface helpers", () => {
         bindings: [{ name: "voiceHash", source: "path", field: "voiceHash" }],
       },
       outputShape: { kind: "scalar" },
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VoiceMetadataFacet",
+      wrapperKey: "getMetadataURI",
+      methodName: "getMetadataURI",
+      outputs: [{ name: "uri", type: "string" }],
+    }))).toMatchObject({
+      domain: "voice-assets",
+      resource: "metadata",
+      path: "/v1/voice-assets/queries/get-metadata-uri",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "LegacyViewFacet",
+      wrapperKey: "getLegacyVoiceAsset",
+      methodName: "getLegacyVoiceAsset",
+      outputs: [{ name: "owner", type: "address" }],
+    }))).toMatchObject({
+      domain: "voice-assets",
+      resource: "legacy",
+      path: "/v1/voice-assets/queries/get-legacy-voice-asset",
     });
 
     expect(buildMethodSurface(method({
