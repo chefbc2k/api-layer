@@ -1031,6 +1031,29 @@ describe("abi-codec", () => {
     } as never, [{}])).toEqual([{}]);
   });
 
+  it("falls back from missing named tuple object fields to positional wire keys", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [{ name: "count", type: "uint256" }],
+    } as never, {
+      0: "15",
+    })).toEqual({
+      count: "15",
+    });
+
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: undefined,
+    } as never, {
+      arbitrary: "ignored",
+    })).toEqual({});
+
+    expect(decodeFromWire({
+      type: "tuple",
+      components: undefined,
+    } as never, {})).toEqual({});
+  });
+
   it("normalizes tuple-object internals when unnamed components rely on numeric fallback keys", () => {
     expect(abiCodecInternals.tupleToNamedObject({
       type: "tuple",
@@ -1073,6 +1096,27 @@ describe("abi-codec", () => {
 
     expect(serializeParamsToWire(definition as never, ["-7", "11"])).toEqual(["-7", "11"]);
     expect(decodeParamsFromWire(definition as never, ["-7", "11"])).toEqual([-7n, 11n]);
+  });
+
+  it("serializes and decodes nested dynamic arrays without fixed-length suffixes", () => {
+    const param = { type: "uint256[][]" };
+    const definition = {
+      signature: "matrix(uint256[][])",
+      inputs: [param],
+      outputs: [param],
+    };
+    const value = [
+      [1n, 2n],
+      [3n],
+    ];
+    const wire = [["1", "2"], ["3"]];
+
+    expect(serializeToWire(param as never, value)).toEqual(wire);
+    expect(decodeFromWire(param as never, wire)).toEqual(value);
+    expect(serializeParamsToWire(definition as never, [value])).toEqual([wire]);
+    expect(decodeParamsFromWire(definition as never, [wire])).toEqual([value]);
+    expect(serializeResultToWire(definition as never, value)).toEqual(wire);
+    expect(decodeResultFromWire(definition as never, wire)).toEqual(value);
   });
 
   it("rejects param-count mismatches across encode and decode entrypoints", () => {

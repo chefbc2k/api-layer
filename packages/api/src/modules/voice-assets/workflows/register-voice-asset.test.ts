@@ -211,6 +211,71 @@ describe("runRegisterVoiceAssetWorkflow", () => {
     expect(service.registerVoiceAsset).not.toHaveBeenCalled();
   });
 
+  it("retries metadata feature readback until the stored acoustic features converge", async () => {
+    const features = {
+      pitch: "120",
+      volume: "70",
+      speechRate: "85",
+      timbre: "warm",
+      formants: ["101", "202", "303"],
+      harmonicsToNoise: "40",
+      dynamicRange: "55",
+    };
+    const service = {
+      registerVoiceAsset: vi.fn(),
+      registerVoiceAssetForCaller: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xreg3", result: "0x3333333333333333333333333333333333333333333333333333333333333333" },
+      }),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          voiceHash: "0x3333333333333333333333333333333333333333333333333333333333333333",
+          owner: "0x00000000000000000000000000000000000000aa",
+        },
+      }),
+      getTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: "305",
+      }),
+      updateBasicAcousticFeatures: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xmeta3" },
+      }),
+      getBasicAcousticFeatures: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { ...features, pitch: "119" },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: features,
+        }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreceipt-registration")
+      .mockResolvedValueOnce("0xreceipt-metadata");
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+
+    const result = await runRegisterVoiceAssetWorkflow(context, auth, "0xwallet", {
+      ipfsHash: "QmVoiceWithRetries",
+      royaltyRate: "180",
+      owner: "0x00000000000000000000000000000000000000aa",
+      features,
+    });
+
+    expect(service.getBasicAcousticFeatures).toHaveBeenCalledTimes(2);
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    expect(result.metadataUpdate).toMatchObject({
+      txHash: "0xreceipt-metadata",
+      features,
+    });
+  });
+
   it("skips metadata update when registration does not yield a voice hash", async () => {
     const service = {
       registerVoiceAsset: vi.fn().mockResolvedValue({

@@ -213,4 +213,27 @@ describe("runtime config", () => {
       process.env = originalEnv;
     }
   });
+
+  it("uses the default repo env loader when runtime config sources are read without an explicit env object", async () => {
+    const existsSync = vi.fn(() => true);
+    const readFileSync = vi.fn(() => [
+      "CBDP_RPC_URL=https://repo-cbdp.example.com",
+      "DIAMOND_ADDRESS=0x0000000000000000000000000000000000000003",
+    ].join("\n"));
+
+    const configModule = await importConfigWithFs({ existsSync, readFileSync });
+
+    expect(configModule.readRuntimeConfigSources()).toMatchObject({
+      values: {
+        RPC_URL: {
+          value: "https://repo-cbdp.example.com",
+          source: ".env",
+        },
+        DIAMOND_ADDRESS: {
+          value: "0x0000000000000000000000000000000000000003",
+          source: ".env",
+        },
+      },
+    });
+  });
 });

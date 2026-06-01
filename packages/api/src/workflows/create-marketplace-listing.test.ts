@@ -260,4 +260,56 @@ describe("runCreateMarketplaceListingWorkflow", () => {
       setTimeoutSpy.mockRestore();
     }
   });
+
+  it("retries approval confirmation until operator approval stabilizes to true", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const voiceAssets = {
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000ddd" }),
+      isApprovedForAll: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: false })
+        .mockResolvedValueOnce({ statusCode: 200, body: false })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      setApprovalForAll: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapproval" } }),
+    };
+    const marketplace = {
+      listAsset: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xlist" } }),
+      getListing: vi.fn().mockResolvedValue({ statusCode: 200, body: { tokenId: "15", price: "1500", isActive: true } }),
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      assetListedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xlist-receipt" }]),
+      marketplaceAssetEscrowedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xlist-receipt" }]),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(voiceAssets);
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xapproval-receipt")
+      .mockResolvedValueOnce("0xlist-receipt");
+
+    try {
+      const result = await runCreateMarketplaceListingWorkflow({
+        addressBook: { toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }) },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+            getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1105 })) })),
+        },
+      } as never, auth as never, "0x00000000000000000000000000000000000000aa", {
+        tokenId: "15",
+        price: "1500",
+        duration: "0",
+      });
+
+      expect(voiceAssets.isApprovedForAll).toHaveBeenCalledTimes(3);
+      expect(setTimeoutSpy).toHaveBeenCalled();
+      expect(result.ownership.approval.approvedForAllAfter).toBe(true);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
 });

@@ -107,6 +107,28 @@ describe("EventIndexer", () => {
     expect(mocks.db.query).toHaveBeenNthCalledWith(2, expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "8", "8", null]);
   });
 
+  it("rewinds a block-one reorg checkpoint back to zero", async () => {
+    mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.detectReorg") {
+        return work({
+          getBlock: vi.fn().mockResolvedValue({ hash: "0xnew" }),
+        });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    const result = await (indexer as any).detectReorg({
+      cursorBlock: 1n,
+      cursorBlockHash: "0xold",
+    });
+
+    expect(result).toBe(true);
+    expect(mocks.db.query).toHaveBeenNthCalledWith(1, expect.stringContaining("UPDATE raw_events"), [84532, "1"]);
+    expect(mocks.db.query).toHaveBeenNthCalledWith(2, expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "0", "0", null]);
+  });
+
   it("does not mark orphaned data when the checkpoint cannot be verified as a reorg", async () => {
     mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
     mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
@@ -131,6 +153,28 @@ describe("EventIndexer", () => {
     await expect((indexer as any).detectReorg({
       cursorBlock: 9n,
       cursorBlockHash: "0xsame",
+    })).resolves.toBe(false);
+
+    expect(mocks.db.query).not.toHaveBeenCalled();
+    expect(mocks.rebuildCurrentRows).not.toHaveBeenCalled();
+  });
+
+  it("does not mark orphaned data when the checkpoint block can no longer be read", async () => {
+    mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.detectReorg") {
+        return work({
+          getBlock: vi.fn().mockResolvedValue(null),
+        });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+
+    await expect((indexer as any).detectReorg({
+      cursorBlock: 9n,
+      cursorBlockHash: "0xold",
     })).resolves.toBe(false);
 
     expect(mocks.db.query).not.toHaveBeenCalled();

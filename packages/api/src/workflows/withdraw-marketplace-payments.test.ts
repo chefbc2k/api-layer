@@ -235,6 +235,46 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     });
   });
 
+  it("retries pending-payment confirmation until the payee balance clears to zero", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xwithdraw-write" } }),
+      usdcpaymentWithdrawnEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xwithdraw-receipt" }]),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xwithdraw-receipt");
+
+    try {
+      const result = await runWithdrawMarketplacePaymentsWorkflow({
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+            getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1903 })) })),
+        },
+      } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
+
+      expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(3);
+      expect(setTimeoutSpy).toHaveBeenCalled();
+      expect(result.withdrawal.pendingAfter).toBe("0");
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
+
   it("normalizes a missing pending-after payee to null in the workflow summary", async () => {
     mocks.createMarketplacePrimitiveService.mockReturnValue({
       getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),

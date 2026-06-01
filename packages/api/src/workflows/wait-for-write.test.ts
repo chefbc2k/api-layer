@@ -80,4 +80,30 @@ describe("waitForWorkflowWriteReceipt", () => {
     } as never, { txHash: "0xbeef" }, "timeout")).rejects.toThrow("timeout transaction receipt timeout: 0xbeef");
     expect(withProvider).toHaveBeenCalledTimes(120);
   });
+
+  it("uses the non-test poll delay when imported under a production node environment", async () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    const withProvider = vi.fn()
+      .mockImplementationOnce(async (_mode, _label, work) => work({ getTransactionReceipt: vi.fn(async () => null) }))
+      .mockImplementationOnce(async (_mode, _label, work) => work({ getTransactionReceipt: vi.fn(async () => ({ status: 1 })) }));
+    const setTimeoutSpy = vi.spyOn(global, "setTimeout").mockImplementation(((fn: (...args: Array<unknown>) => void) => {
+      fn();
+      return 0 as never;
+    }) as typeof setTimeout);
+
+    process.env.NODE_ENV = "production";
+    vi.resetModules();
+
+    try {
+      const { waitForWorkflowWriteReceipt: waitForProdReceipt } = await import("./wait-for-write.js");
+
+      await expect(waitForProdReceipt({
+        providerRouter: { withProvider },
+      } as never, { txHash: "0xprod" }, "prod")).resolves.toBe("0xprod");
+      expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 500);
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+      vi.resetModules();
+    }
+  });
 });
