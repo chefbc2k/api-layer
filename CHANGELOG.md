@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.214] - 2026-06-01
+
+### Fixed
+- **Manage Reward Campaign Fallback Coverage Closed:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts) now explicitly proves the defensive fallback chains that preserve pre-update merkle roots, collapse fully missing merkle roots to `null`, and collapse fully missing pause states to `null` when the workflow’s readback helpers cannot guarantee those fields remain materialized.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Improved Again While Staying Green:** Re-ran `pnpm exec vitest run packages/api/src/workflows/manage-reward-campaign.test.ts --maxWorkers 1` plus `pnpm run test:coverage`; the focused reward-campaign suite stayed green at `13/13` assertions, [/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts) now holds `100%` statements/branches/functions/lines in isolated coverage, and merged Istanbul totals improved from `99.83% / 98.62% / 99.91% / 99.85%` to `99.83% / 98.69% / 99.91% / 99.85%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification artifacts, Base Sepolia fallback verification, API surface coverage, wrapper coverage, and merged tests remain green with no regressions, but repo-wide branch coverage still remains below the automation target. The clearest remaining workflow and script hotspots after this run are [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), and [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts).
+
 ## [0.1.213] - 2026-06-01
 
 ### Fixed

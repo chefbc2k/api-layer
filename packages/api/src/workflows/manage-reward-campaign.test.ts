@@ -467,4 +467,140 @@ describe("runManageRewardCampaignWorkflow", () => {
     });
   });
 
+  it("falls back to the pre-update merkle root when the confirmed readback only satisfied the predicate once", async () => {
+    let merkleRootReads = 0;
+    const ephemeralReadback = {
+      get merkleRoot() {
+        merkleRootReads += 1;
+        return merkleRootReads === 1
+          ? "0x6666666666666666666666666666666666666666666666666666666666666666"
+          : undefined;
+      },
+    };
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      getCampaign: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { merkleRoot: "0x5555555555555555555555555555555555555555555555555555555555555555", paused: false },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: ephemeralReadback,
+        }),
+      setMerkleRoot: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xroot-write" } }),
+      campaignMerkleRootUpdatedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xroot-receipt" }]),
+      pauseCampaign: vi.fn(),
+      campaignPausedEventQuery: vi.fn(),
+      unpauseCampaign: vi.fn(),
+      campaignUnpausedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xroot-receipt");
+
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getTransactionReceipt: () => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 801 })),
+        })),
+      },
+    } as never;
+
+    const result = await runManageRewardCampaignWorkflow(context, auth, undefined, {
+      campaignId: "18",
+      newMerkleRoot: "0x6666666666666666666666666666666666666666666666666666666666666666",
+    });
+
+    expect(result).toMatchObject({
+      merkleRootUpdate: {
+        requested: "0x6666666666666666666666666666666666666666666666666666666666666666",
+        merkleRootAfter: "0x5555555555555555555555555555555555555555555555555555555555555555",
+      },
+      summary: {
+        finalMerkleRoot: null,
+      },
+    });
+  });
+
+  it("falls back to a null merkle root when neither the prior campaign nor the confirmed readback retains it", async () => {
+    vi.resetModules();
+    const createTokenomicsPrimitiveService = vi.fn().mockReturnValue({
+      setMerkleRoot: vi.fn().mockResolvedValue({ body: { txHash: "0xroot-write" } }),
+    });
+    const waitForWorkflowReadback = vi.fn()
+      .mockResolvedValueOnce({ statusCode: 200, body: {} })
+      .mockResolvedValueOnce({ statusCode: 200, body: {} });
+
+    vi.doMock("../modules/tokenomics/primitives/generated/index.js", () => ({
+      createTokenomicsPrimitiveService,
+    }));
+    vi.doMock("./wait-for-write.js", () => ({
+      waitForWorkflowWriteReceipt: vi.fn().mockResolvedValue("0xroot-receipt"),
+    }));
+    vi.doMock("./reward-campaign-helpers.js", () => ({
+      asRecord: (value: unknown) => (value && typeof value === "object" ? value as Record<string, unknown> : null),
+      hasTransactionHash: vi.fn().mockReturnValue(true),
+      readWorkflowReceipt: vi.fn().mockResolvedValue({ blockNumber: 1 }),
+      waitForWorkflowEventQuery: vi.fn().mockResolvedValue([]),
+      waitForWorkflowReadback,
+    }));
+
+    const { runManageRewardCampaignWorkflow: runWorkflow } = await import("./manage-reward-campaign.js");
+    const result = await runWorkflow({} as never, auth, undefined, {
+      campaignId: "19",
+      newMerkleRoot: "0x7777777777777777777777777777777777777777777777777777777777777777",
+    });
+
+    expect(waitForWorkflowReadback).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({
+      merkleRootUpdate: {
+        requested: "0x7777777777777777777777777777777777777777777777777777777777777777",
+        merkleRootAfter: null,
+      },
+      summary: {
+        finalMerkleRoot: null,
+      },
+    });
+  });
+
+  it("falls back to a null pause state when the campaign never exposed one", async () => {
+    vi.resetModules();
+    const createTokenomicsPrimitiveService = vi.fn().mockReturnValue({
+      pauseCampaign: vi.fn().mockResolvedValue({ body: { txHash: "0xpause-write" } }),
+    });
+    const waitForWorkflowReadback = vi.fn().mockResolvedValue({ statusCode: 200, body: {} });
+
+    vi.doMock("../modules/tokenomics/primitives/generated/index.js", () => ({
+      createTokenomicsPrimitiveService,
+    }));
+    vi.doMock("./wait-for-write.js", () => ({
+      waitForWorkflowWriteReceipt: vi.fn().mockResolvedValue(null),
+    }));
+    vi.doMock("./reward-campaign-helpers.js", () => ({
+      asRecord: (value: unknown) => (value && typeof value === "object" ? value as Record<string, unknown> : null),
+      hasTransactionHash: vi.fn().mockReturnValue(true),
+      readWorkflowReceipt: vi.fn(),
+      waitForWorkflowEventQuery: vi.fn(),
+      waitForWorkflowReadback,
+    }));
+
+    const { runManageRewardCampaignWorkflow: runWorkflow } = await import("./manage-reward-campaign.js");
+    const result = await runWorkflow({} as never, auth, undefined, {
+      campaignId: "20",
+      paused: true,
+    });
+
+    expect(waitForWorkflowReadback).toHaveBeenCalled();
+    expect(result).toMatchObject({
+      pauseState: {
+        requested: true,
+        pausedAfter: null,
+        source: "paused",
+      },
+      summary: {
+        finalPaused: null,
+      },
+    });
+  });
+
 });
