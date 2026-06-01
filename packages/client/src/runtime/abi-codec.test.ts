@@ -244,6 +244,89 @@ describe("abi-codec", () => {
     });
   });
 
+  it("supports tuple normalization when component metadata is omitted entirely", () => {
+    expect(abiCodecInternals.tupleToNamedObject({ type: "tuple" } as never, ["ignored"])).toEqual({});
+    expect(abiCodecInternals.tupleToNamedObject({ type: "tuple" } as never, { arbitrary: true })).toEqual({});
+  });
+
+  it("falls back to numeric tuple keys during object normalization and decode", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        { name: "owner", type: "address" },
+        { type: "uint256" },
+      ],
+    };
+
+    expect(abiCodecInternals.tupleToNamedObject(tupleParam as never, {
+      owner: "0x0000000000000000000000000000000000000007",
+      1: "9",
+    })).toEqual({
+      owner: "0x0000000000000000000000000000000000000007",
+      1: "9",
+    });
+
+    expect(decodeFromWire(tupleParam as never, {
+      owner: "0x0000000000000000000000000000000000000008",
+      1: "10",
+    })).toEqual({
+      owner: "0x0000000000000000000000000000000000000008",
+      1: 10n,
+    });
+  });
+
+  it("serializes and decodes fixed-length nested arrays inside tuples", () => {
+    const param = {
+      type: "tuple[1]",
+      components: [
+        { name: "owners", type: "address[2]" },
+      ],
+    };
+
+    const wire = serializeToWire(param as never, [{
+      owners: [
+        "0x0000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000002",
+      ],
+    }]);
+
+    expect(wire).toEqual([{
+      owners: [
+        "0x0000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000002",
+      ],
+    }]);
+
+    expect(decodeFromWire(param as never, wire)).toEqual([{
+      owners: [
+        "0x0000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000002",
+      ],
+    }]);
+  });
+
+  it("normalizes object-shaped tuple results that rely on numeric fallback keys", () => {
+    const definition = {
+      signature: "tupleObjectFallback()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(definition as never, {
+      count: 6n,
+      1: true,
+    })).toEqual({
+      count: "6",
+      1: true,
+    });
+  });
+
   it("supports empty outputs and array-like multi-output result payloads", () => {
     const emptyDefinition = {
       signature: "noResult()",
