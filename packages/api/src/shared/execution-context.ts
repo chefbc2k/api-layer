@@ -157,6 +157,14 @@ function resolveContractMethod(contract: import("ethers").Contract, definition: 
   }
 }
 
+export const __testOnly = {
+  signerQueueKey,
+  withSignerQueue,
+  formatCanonicalAbiType,
+  canonicalMethodSignature,
+  resolveContractMethod,
+};
+
 function parseGaslessAllowlist(): Set<string> {
   const raw = process.env.API_LAYER_GASLESS_ALLOWLIST ?? "DelegationFacet.delegate,DelegationFacet.delegateBySig,ProposalFacet.prCastVote";
   return new Set(raw.split(",").map((value) => value.trim()).filter(Boolean));

@@ -131,6 +131,7 @@ vi.mock("ethers", async () => {
 });
 
 import {
+  __testOnly,
   createApiExecutionContext,
   enforceRateLimit,
   executeHttpEventDefinition,
@@ -534,6 +535,92 @@ describe("getTransactionStatus", () => {
     });
 
     expect(mocked.decodeReceiptLogs).toHaveBeenCalledWith(receipt);
+  });
+});
+
+describe("__testOnly helpers", () => {
+  it("uses an anonymous signer queue key when no signer id is present", () => {
+    expect(__testOnly.signerQueueKey({
+      apiKey: "public-key",
+      label: "public",
+      allowGasless: false,
+      roles: [],
+    }, "primary")).toBe("anonymous:primary");
+  });
+
+  it("does not clear a queue entry that has been replaced while work is still unwinding", async () => {
+    const context = buildContext();
+    const replacement = Promise.resolve();
+
+    await expect(__testOnly.withSignerQueue(context as never, "shared", async () => {
+      context.signerQueues.set("shared", replacement);
+      return "done";
+    })).resolves.toBe("done");
+
+    expect(context.signerQueues.get("shared")).toBe(replacement);
+  });
+
+  it("formats canonical nested tuple arrays directly from ABI component metadata", () => {
+    expect(__testOnly.formatCanonicalAbiType("tuple[]", [
+      { type: "address" },
+      {
+        type: "tuple[2]",
+        components: [
+          { type: "uint256" },
+          { type: "bool" },
+        ],
+      },
+    ])).toBe("(address,(uint256,bool)[2])[]");
+
+    expect(__testOnly.canonicalMethodSignature(buildWriteDefinition({
+      methodName: "setOperators",
+      inputs: [{
+        type: "tuple[]",
+        components: [
+          { type: "address" },
+          { type: "bool" },
+        ],
+      }],
+    }) as never)).toBe("setOperators((address,bool)[])");
+  });
+
+  it("resolves contract methods through the canonical signature fallback only for fragment errors", () => {
+    const canonicalMethod = { populateTransaction: vi.fn() };
+    const contract = {
+      getFunction: vi.fn((signature: string) => {
+        if (signature === "setOperators(tuple[])") {
+          throw new Error("invalid function fragment");
+        }
+        if (signature === "setOperators((address,bool)[])") {
+          return canonicalMethod;
+        }
+        throw new Error(`unexpected signature ${signature}`);
+      }),
+    };
+    const definition = buildWriteDefinition({
+      signature: "setOperators(tuple[])",
+      methodName: "setOperators",
+      inputs: [{
+        type: "tuple[]",
+        components: [
+          { type: "address" },
+          { type: "bool" },
+        ],
+      }],
+    });
+
+    expect(__testOnly.resolveContractMethod(contract as never, definition as never)).toBe(canonicalMethod);
+    expect(contract.getFunction).toHaveBeenNthCalledWith(1, "setOperators(tuple[])");
+    expect(contract.getFunction).toHaveBeenNthCalledWith(2, "setOperators((address,bool)[])");
+
+    const explodingContract = {
+      getFunction: vi.fn(() => {
+        throw new Error("resolver exploded");
+      }),
+    };
+
+    expect(() => __testOnly.resolveContractMethod(explodingContract as never, definition as never)).toThrow("resolver exploded");
+    expect(explodingContract.getFunction).toHaveBeenCalledTimes(1);
   });
 });
 
