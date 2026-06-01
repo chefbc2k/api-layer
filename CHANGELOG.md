@@ -4,6 +4,23 @@
 
 ## [0.1.207] - 2026-06-01
 
+## [0.1.208] - 2026-06-01
+
+### Fixed
+- **ABI Tuple Fallback Regression Coverage Expanded Again:** Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) to lock explicit tuple-metadata omission handling, unnamed numeric-key object decode paths, and empty tuple-input decoding without touching runtime behavior.
+- **Facet-Mapping Guard Coverage Expanded:** Expanded [/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) so [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) now explicitly proves missing reviewed facet mappings fail fast for both method and event surfaces.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, `rpcUrl: "https://sepolia.base.org"`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slices Passed:** Re-ran `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts scripts/api-surface-lib.test.ts scripts/alchemy-debug-lib.test.ts --maxWorkers 1`; all `118/118` targeted assertions passed.
+- **Merged Standard Coverage Stayed Green But Flat:** Re-ran `pnpm run test:coverage`; the sharded suite remained green at `99.83%` statements, `98.21%` branches, `99.91%` functions, and `99.85%` lines. The newly added tests held the fallback semantics in place, but they did not move the merged Istanbul totals, which indicates the remaining deficit is concentrated elsewhere.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** This run preserved the proven Base Sepolia baseline and added regression guards, but it did not reduce the aggregate coverage gap. The highest-yield remaining hotspots are still [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts), [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), and branch-heavy workflow helpers across [/Users/chef/Public/api-layer/packages/api/src/workflows](/Users/chef/Public/api-layer/packages/api/src/workflows).
+
+## [0.1.207] - 2026-06-01
+
 ### Fixed
 - **Create-Dataset Workflow Coverage Now Proves The Remaining Null/Fallback Branches:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/create-dataset-and-list-for-sale.ts) now explicitly proves lowercase signer fallback diagnostics when address normalization fails, approval-read timeout reporting when the final readback body is absent, and null listing readback normalization when stabilization exhausts without a usable body.
 - **ABI Codec Regression Coverage Now Locks More Tuple Fallback Semantics:** Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) so [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) now explicitly proves tuple normalization without component metadata, numeric-key fallback handling across object-backed tuple normalization and decode paths, fixed-length nested array tuple serialization, and object-shaped tuple result normalization that relies on positional fallback keys.

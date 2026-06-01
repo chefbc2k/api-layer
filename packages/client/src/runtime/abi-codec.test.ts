@@ -995,6 +995,42 @@ describe("abi-codec", () => {
     } as never, "still-not-an-array")).toBe("still-not-an-array");
   });
 
+  it("normalizes tuple internals when tuple metadata and names are omitted", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: undefined,
+    } as never, ["ignored"])).toEqual({});
+
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [{ type: "uint256" }, { name: "enabled", type: "bool" }],
+    } as never, {
+      0: "14",
+      enabled: false,
+    })).toEqual({
+      0: "14",
+      enabled: false,
+    });
+  });
+
+  it("decodes unnamed tuple objects and empty tuple definitions from wire payloads", () => {
+    expect(decodeFromWire({
+      type: "tuple",
+      components: [{ type: "uint256" }, { type: "bool" }],
+    } as never, {
+      0: "5",
+      1: true,
+    })).toEqual({
+      0: 5n,
+      1: true,
+    });
+
+    expect(decodeParamsFromWire({
+      signature: "emptyTupleInput(( ))",
+      inputs: [{ type: "tuple", components: undefined }],
+    } as never, [{}])).toEqual([{}]);
+  });
+
   it("normalizes tuple-object internals when unnamed components rely on numeric fallback keys", () => {
     expect(abiCodecInternals.tupleToNamedObject({
       type: "tuple",

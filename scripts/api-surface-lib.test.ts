@@ -494,6 +494,16 @@ describe("api surface helpers", () => {
     });
   });
 
+  it("fails fast when a facet has no reviewed domain mapping", () => {
+    expect(() => buildMethodSurface(method({
+      facetName: "UnknownFacet",
+    } as Partial<AbiMethodDefinition>))).toThrow("missing domain mapping for UnknownFacet");
+
+    expect(() => buildEventSurface(event({
+      facetName: "UnknownFacet",
+    } as Partial<AbiEventDefinition>))).toThrow("missing domain mapping for UnknownFacet");
+  });
+
   it("applies voice-asset route overrides for write, read, and transfer variants", () => {
     expect(buildMethodSurface(method({
       wrapperKey: "registerVoiceAssetForCaller",
