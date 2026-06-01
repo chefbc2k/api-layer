@@ -1289,6 +1289,31 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("includes the transferee actor mapping when the repo env exposes that signer", () => {
+    const provider = {
+      getBalance: vi.fn(),
+    } as any;
+    const founder = ethers.Wallet.createRandom();
+    const seller = ethers.Wallet.createRandom();
+    const transferee = ethers.Wallet.createRandom();
+
+    const context = buildWalletContext({
+      PRIVATE_KEY: founder.privateKey,
+      ORACLE_SIGNER_PRIVATE_KEY_1: seller.privateKey,
+      ORACLE_SIGNER_PRIVATE_KEY_4: transferee.privateKey,
+    } as any, provider);
+
+    expect(context.transferee?.address).toBe(transferee.address);
+
+    setApiLayerActorEnvironment(context);
+    expect(JSON.parse(process.env.API_LAYER_KEYS_JSON ?? "{}")).toMatchObject({
+      "transferee-key": { signerId: "transferee" },
+    });
+    expect(JSON.parse(process.env.API_LAYER_SIGNER_MAP_JSON ?? "{}")).toMatchObject({
+      transferee: transferee.privateKey,
+    });
+  });
+
   it("rejects repo envs that omit the founder private key", () => {
     expect(() => buildWalletContext({} as any, {} as any)).toThrow("missing PRIVATE_KEY in repo .env");
   });
@@ -1608,6 +1633,154 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("falls back to the current clock when populateSetupStatus cannot read the latest block timestamp", async () => {
+    const nowSpy = vi.spyOn(Date, "now").mockReturnValue(321_000);
+    const provider = {} as any;
+    const founder = ethers.Wallet.createRandom().connect(provider);
+    const seller = ethers.Wallet.createRandom().connect(provider);
+    const status = {
+      actors: {},
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
+    const prepareAgedListingFixtureFn = vi.fn().mockResolvedValue({ tokenId: "11", status: "ready", reason: "ok" });
+
+    await populateSetupStatus({
+      status,
+      fundingWallets: [founder, seller],
+      availableSpecsForFunding: new Map([[founder.address.toLowerCase(), "founder"]]),
+      founder,
+      seller,
+      buyer: null,
+      licensee: null,
+      transferee: null,
+      rpcUrl: "http://127.0.0.1:8548",
+      erc20: null,
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+        { label: "seller", privateKey: seller.privateKey },
+      ],
+      provider: {
+        getBlock: vi.fn().mockResolvedValue(null),
+      } as any,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: null,
+      voiceAsset: {
+        getVoiceAssetsByOwner: vi.fn(async (address: string) => (address === seller.address ? ["0xseller"] : [])),
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      escrow: {
+        getOriginalOwner: vi.fn().mockResolvedValue(seller.address),
+      },
+      accessControl: {
+        hasRole: vi.fn().mockResolvedValue(true),
+      },
+      governorFacet: {
+        getVotingConfig: vi.fn().mockResolvedValue([0n, 0n, 100n]),
+      },
+      delegationFacet: {
+        getCurrentVotes: vi.fn().mockResolvedValue(150n),
+      },
+      tokenSupply: {
+        tokenBalanceOf: vi.fn().mockResolvedValue(500n),
+        supplyIsMintingFinished: vi.fn().mockResolvedValue(true),
+      },
+      applyNativeSetupTopUpsFn: vi.fn(async () => undefined) as any,
+      buildUsdcFundingStatusFn: vi.fn().mockResolvedValue(null) as any,
+      collectSellerEscrowedVoiceHashesFn: vi.fn().mockResolvedValue([]) as any,
+      prepareAgedListingFixtureFn: prepareAgedListingFixtureFn as any,
+    });
+
+    expect(prepareAgedListingFixtureFn).toHaveBeenCalledWith(expect.objectContaining({
+      latestTimestamp: 321n,
+    }));
+    nowSpy.mockRestore();
+  });
+
+  it("marks governance partial during setup when proposer voting power still trails the threshold", async () => {
+    const provider = {} as any;
+    const founder = ethers.Wallet.createRandom().connect(provider);
+    const seller = ethers.Wallet.createRandom().connect(provider);
+    const status = {
+      actors: {},
+      setup: { status: "ready", blockers: [] as string[] },
+      marketplace: {},
+      governance: {},
+      licensing: {},
+    };
+
+    await populateSetupStatus({
+      status,
+      fundingWallets: [founder, seller],
+      availableSpecsForFunding: new Map([[founder.address.toLowerCase(), "founder"]]),
+      founder,
+      seller,
+      buyer: null,
+      licensee: null,
+      transferee: null,
+      rpcUrl: "http://127.0.0.1:8548",
+      erc20: null,
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+        { label: "seller", privateKey: seller.privateKey },
+      ],
+      provider: {
+        getBlock: vi.fn().mockResolvedValue({ timestamp: 1000 }),
+      } as any,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: null,
+      voiceAsset: {
+        getVoiceAssetsByOwner: vi.fn(async (address: string) => (address === seller.address ? ["0xseller"] : [])),
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      escrow: {
+        getOriginalOwner: vi.fn().mockResolvedValue(seller.address),
+      },
+      accessControl: {
+        hasRole: vi.fn().mockResolvedValue(false),
+      },
+      governorFacet: {
+        getVotingConfig: vi.fn().mockResolvedValue([0n, 0n, 1_000n]),
+      },
+      delegationFacet: {
+        getCurrentVotes: vi.fn()
+          .mockResolvedValueOnce(100n)
+          .mockResolvedValueOnce(100n),
+      },
+      tokenSupply: {
+        tokenBalanceOf: vi.fn().mockResolvedValue(500n),
+        supplyIsMintingFinished: vi.fn().mockResolvedValue(true),
+      },
+      applyNativeSetupTopUpsFn: vi.fn(async () => undefined) as any,
+      buildUsdcFundingStatusFn: vi.fn().mockResolvedValue(null) as any,
+      collectSellerEscrowedVoiceHashesFn: vi.fn().mockResolvedValue([]) as any,
+      prepareAgedListingFixtureFn: vi.fn().mockResolvedValue({
+        tokenId: "11",
+        status: "ready",
+        reason: "fixture ready",
+      }) as any,
+    });
+
+    expect(status.governance).toMatchObject({
+      status: "partial",
+      proposerRolePresent: false,
+      threshold: "1000",
+      currentVotesAfterSetup: "100",
+    });
+    expect(status.setup).toEqual({
+      status: "partial",
+      blockers: [
+        "governance: promoted baseline is expected to be ready without API-side bootstrap repair; inspect live role or voting power state",
+      ],
+    });
+  });
+
   it("persists setup status to disk using JSON-safe serialization", async () => {
     const mkdirFn = vi.fn().mockResolvedValue(undefined);
     const writeFileFn = vi.fn().mockResolvedValue(undefined);
@@ -1746,6 +1919,36 @@ describe("base sepolia operator setup helpers", () => {
     expect(waitForReceiptFn).not.toHaveBeenCalled();
   });
 
+  it("uses the default API helpers when custom USDC repair hooks are not provided", async () => {
+    const provider = {} as any;
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+    const availableSpecs = [
+      { label: "buyer", privateKey: buyer.privateKey },
+    ];
+    const erc20 = {
+      balanceOf: vi.fn(async () => 30_000_000n),
+      allowance: vi.fn(async () => 30_000_000n),
+      connect: vi.fn(),
+    };
+
+    const result = await buildUsdcFundingStatus({
+      erc20,
+      availableSpecs,
+      buyer,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+    });
+
+    expect(result).toMatchObject({
+      token: "0xusdc",
+      buyerBalance: "30000000",
+      buyerAllowance: "30000000",
+    });
+    expect(erc20.connect).not.toHaveBeenCalled();
+  });
+
   it("records approval failures without waiting for a receipt when buyer remains underfunded", async () => {
     const provider = {} as any;
     const buyer = ethers.Wallet.createRandom().connect(provider);
@@ -1794,6 +1997,57 @@ describe("base sepolia operator setup helpers", () => {
     expect(erc20.connect).not.toHaveBeenCalled();
     expect(apiCallFn).toHaveBeenCalledTimes(1);
     expect(waitForReceiptFn).not.toHaveBeenCalled();
+  });
+
+  it("keeps a null transfer hash when an ERC20 top-up settles without returning one", async () => {
+    const provider = {} as any;
+    const founder = ethers.Wallet.createRandom().connect(provider);
+    const buyer = ethers.Wallet.createRandom().connect(provider);
+    const balances = new Map<string, bigint>([
+      [founder.address, 50_000_000n],
+      [buyer.address, 1_000_000n],
+    ]);
+    const allowances = new Map<string, bigint>([
+      [buyer.address, 0n],
+    ]);
+    const transfer = vi.fn(async (recipient: string, amount: bigint) => {
+      balances.set(recipient, (balances.get(recipient) ?? 0n) + amount);
+      return {
+        wait: vi.fn().mockResolvedValue({ status: 1 }),
+      };
+    });
+    const erc20 = {
+      balanceOf: vi.fn(async (address: string) => balances.get(address) ?? 0n),
+      allowance: vi.fn(async (address: string) => allowances.get(address) ?? 0n),
+      connect: vi.fn(() => ({
+        transfer,
+      })),
+    };
+    const apiCallFn = vi.fn().mockResolvedValue({
+      status: 400,
+      payload: { error: "approval denied" },
+    });
+
+    const result = await buildUsdcFundingStatus({
+      erc20,
+      availableSpecs: [
+        { label: "founder", privateKey: founder.privateKey },
+        { label: "buyer", privateKey: buyer.privateKey },
+      ],
+      buyer,
+      provider,
+      port: 8787,
+      diamondAddress: "0xdiamond",
+      usdcAddress: "0xusdc",
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      transferTxHash: null,
+      buyerBalanceAfterTransfer: "25000000",
+      buyerAllowanceAfterApproval: "0",
+    });
+    expect(transfer).toHaveBeenCalledWith(buyer.address, 24_000_000n);
   });
 
   it("returns null USDC funding status when the ERC20 contract or buyer is unavailable", async () => {
@@ -1998,6 +2252,47 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(apiCallFn).toHaveBeenCalledTimes(1);
     expect(marketplace.getListing).toHaveBeenCalledWith(11n);
+  });
+
+  it("normalizes sparse direct marketplace tuple readbacks through default field fallbacks", async () => {
+    const apiCallFn = vi.fn().mockResolvedValueOnce({ status: 200, payload: true });
+    const marketplace = {
+      getListing: vi.fn(async () => [undefined, undefined, undefined, 0n, undefined, undefined, 200000n, true] as const),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xolder"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      status: "ready",
+      purchaseReadiness: "purchase-ready",
+      listing: {
+        readback: {
+          status: 200,
+          payload: {
+            tokenId: "11",
+            seller: ethers.ZeroAddress,
+            price: "0",
+            createdAt: "0",
+            createdBlock: "0",
+            lastUpdateBlock: "0",
+            expiresAt: "200000",
+            isActive: true,
+          },
+        },
+      },
+    });
   });
 
   it("falls back early without time travel when the listing is not loopback-eligible", async () => {

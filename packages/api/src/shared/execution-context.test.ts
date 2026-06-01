@@ -582,6 +582,8 @@ describe("__testOnly helpers", () => {
         ],
       }],
     }) as never)).toBe("setOperators((address,bool)[])");
+
+    expect(__testOnly.formatCanonicalAbiType("tuple")).toBe("()");
   });
 
   it("resolves contract methods through the canonical signature fallback only for fragment errors", () => {
@@ -621,6 +623,22 @@ describe("__testOnly helpers", () => {
 
     expect(() => __testOnly.resolveContractMethod(explodingContract as never, definition as never)).toThrow("resolver exploded");
     expect(explodingContract.getFunction).toHaveBeenCalledTimes(1);
+
+    const stringThrowingContract = {
+      getFunction: vi.fn((signature: string) => {
+        if (signature === "setOperators(tuple[])") {
+          throw "invalid function fragment";
+        }
+        if (signature === "setOperators((address,bool)[])") {
+          return canonicalMethod;
+        }
+        throw new Error(`unexpected signature ${signature}`);
+      }),
+    };
+
+    expect(__testOnly.resolveContractMethod(stringThrowingContract as never, definition as never)).toBe(canonicalMethod);
+    expect(stringThrowingContract.getFunction).toHaveBeenNthCalledWith(1, "setOperators(tuple[])");
+    expect(stringThrowingContract.getFunction).toHaveBeenNthCalledWith(2, "setOperators((address,bool)[])");
   });
 });
 

@@ -489,6 +489,40 @@ describe("base-sepolia-operator-setup main", () => {
     expect(consoleLog).toHaveBeenCalledTimes(1);
   });
 
+  it("falls back to the configured cbdp rpc when every upstream hint remains loopback-only", async () => {
+    const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+    alchemyMocks.resolveRuntimeConfig.mockResolvedValue({
+      config: {
+        chainId: 84532,
+        diamondAddress: "0xdiamond",
+        cbdpRpcUrl: "http://127.0.0.1:8548",
+        alchemyRpcUrl: "http://127.0.0.1:7545",
+      },
+      rpcResolution: {
+        effectiveRpcUrl: "http://localhost:8545",
+      },
+    });
+    alchemyMocks.startLocalForkIfNeeded.mockResolvedValue({
+      rpcUrl: "http://127.0.0.1:9999",
+      forkedFrom: "http://127.0.0.1:9555",
+      forkProcess: {
+        kill: vi.fn(),
+      },
+    });
+
+    const module = await import("./base-sepolia-operator-setup.ts");
+    await module.main();
+
+    const writePayload = JSON.parse(String(fsMocks.writeFile.mock.calls[0]?.[1] ?? "{}"));
+    expect(writePayload.network).toMatchObject({
+      rpcUrl: "http://127.0.0.1:8548",
+      upstreamRpcUrl: "http://127.0.0.1:8548",
+      runtimeRpcUrl: "http://127.0.0.1:9999",
+      forkedFrom: "http://127.0.0.1:9555",
+    });
+    expect(consoleLog).toHaveBeenCalledTimes(1);
+  });
+
   it("logs and exits when invoked as the main module and startup fails", async () => {
     process.argv[1] = scriptPath;
     const startupError = new Error("startup failed");
