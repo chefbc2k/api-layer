@@ -640,6 +640,29 @@ describe("__testOnly helpers", () => {
     expect(stringThrowingContract.getFunction).toHaveBeenNthCalledWith(1, "setOperators(tuple[])");
     expect(stringThrowingContract.getFunction).toHaveBeenNthCalledWith(2, "setOperators((address,bool)[])");
   });
+
+  it("fails write execution when the signer id has no configured private key", async () => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({});
+    mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001", true]);
+
+    await expect(
+      executeHttpMethodDefinition(
+        buildContext() as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          auth: {
+            apiKey: "founder-key",
+            label: "founder",
+            signerId: "founder",
+            allowGasless: false,
+            roles: ["service"],
+          },
+          api: { gaslessMode: "none", executionSource: "auto" },
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toThrow("missing private key for signer founder");
+  });
 });
 
 describe("executeHttpMethodDefinition", () => {

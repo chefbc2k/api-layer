@@ -340,4 +340,46 @@ describe("validation helpers", () => {
       body: {},
     })).toEqual(["88", undefined]);
   });
+
+  it("treats null component names as unmanaged tuple fields", () => {
+    const nullNamedManagedDefinition: HttpMethodDefinition = {
+      ...managedTemplateDefinition,
+      inputs: [{
+        ...managedTemplateDefinition.inputs[0],
+        components: [
+          { name: null as never, type: "address" },
+          { name: "isActive", type: "bool" },
+          { name: "createdAt", type: "uint256" },
+          { name: "updatedAt", type: "uint256" },
+          {
+            name: "terms",
+            type: "tuple",
+            components: [
+              { name: "licenseHash", type: "bytes32" },
+              { name: "transferable", type: "bool" },
+            ],
+          },
+        ],
+      }],
+    };
+
+    const schema = buildWireSchema(nullNamedManagedDefinition, nullNamedManagedDefinition.inputs[0], ["template"]);
+    expect(schema.parse({
+      0: "0x00000000000000000000000000000000000000BB",
+      isActive: true,
+      terms: {
+        transferable: true,
+      },
+    })).toEqual({
+      creator: "0x0000000000000000000000000000000000000000",
+      createdAt: "0",
+      updatedAt: "0",
+      0: "0x00000000000000000000000000000000000000BB",
+      isActive: true,
+      terms: {
+        licenseHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        transferable: true,
+      },
+    });
+  });
 });

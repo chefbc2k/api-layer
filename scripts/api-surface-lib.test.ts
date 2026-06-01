@@ -273,6 +273,29 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "GovernorFacet",
+      wrapperKey: "getProposalThreshold",
+      methodName: "getProposalThreshold",
+      outputs: [{ name: "threshold", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "governance",
+      path: "/v1/governance/queries/get-proposal-threshold",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "StakingFacet",
+      wrapperKey: "getStake",
+      methodName: "getStake",
+      inputs: [{ name: "staker", type: "address" }],
+      outputs: [{ name: "amount", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "stakes",
+      path: "/v1/staking/queries/get-stake",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "RightsFacet",
       wrapperKey: "getRight",
       methodName: "getRight",

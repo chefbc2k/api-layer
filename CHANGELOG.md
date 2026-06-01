@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.217] - 2026-06-01
+
+### Fixed
+- **Additional Coverage Fallbacks Are Now Explicitly Proven:** Expanded [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.test.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts), [/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts), and [/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts](/Users/chef/Public/api-layer/packages/api/src/shared/validation.test.ts) to cover missing signer-key failure handling, numeric fallback object normalization for named tuple components, default governance/staking resource derivation, and null-named managed tuple field handling.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Stayed Green:** Re-ran `pnpm exec vitest run packages/api/src/shared/execution-context.test.ts packages/client/src/runtime/abi-codec.test.ts scripts/api-surface-lib.test.ts packages/api/src/shared/validation.test.ts --maxWorkers 1`; all `147/147` targeted assertions passed.
+- **Merged Standard Coverage Moved Slightly Forward:** Re-ran `pnpm run test:coverage`; the full merged suite remained green and aggregate Istanbul totals now sit at `99.83% / 98.74% / 99.91% / 99.85%` for statements/branches/functions/lines, improving branch coverage from `98.71%` to `98.74%` with no regression in any other metric.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet And The Remaining Misses Still Skew Source-Map-Sensitive:** The newly added fallback assertions moved the merged branch total again, but only slightly. The highest-value remaining misses are still concentrated in [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), and the stubborn utility/reporting files [/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts), [/Users/chef/Public/api-layer/packages/indexer/src/events.ts](/Users/chef/Public/api-layer/packages/indexer/src/events.ts), [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), and [/Users/chef/Public/api-layer/scripts/transient-rpc-retry.ts](/Users/chef/Public/api-layer/scripts/transient-rpc-retry.ts).
+
 ## [0.1.216] - 2026-06-01
 
 ### Fixed
