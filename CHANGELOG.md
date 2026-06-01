@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.213] - 2026-06-01
+
+### Fixed
+- **Whisperblock Retry Normalization Coverage Expanded:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts) now explicitly proves non-`Error` thrown values from authenticity readbacks and event-query retries are surfaced through the workflow timeout wrappers instead of silently depending on `.message` branches.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`, while wrapper coverage remains complete at `492` functions and `218` events and HTTP API coverage remains complete at `492` validated methods.
+- **Standard Tests Stayed Green And Branch Coverage Improved Again:** Re-ran `pnpm test`, `pnpm exec vitest run packages/api/src/workflows/manage-reward-campaign.test.ts packages/api/src/workflows/register-whisper-block.test.ts --maxWorkers 1`, and `pnpm run test:coverage`; the full suite stayed green at `127` passed files, `1145` passed tests, and `18` skipped live-contract proofs, while merged Istanbul totals improved from `99.83% / 98.58% / 99.91% / 99.85%` to `99.83% / 98.62% / 99.91% / 99.85%` for statements/branches/functions/lines. The touched whisperblock workflow moved from `95.45%` to `98.48%` branch coverage.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification artifacts, API surface coverage, wrapper coverage, baseline verification, and the full standard suite remain green with no regressions, but repo-wide branch coverage is still below the automation target. The clearest remaining workflow hotspots on this run are [/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts), and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.212] - 2026-06-01
 
 ### Fixed
