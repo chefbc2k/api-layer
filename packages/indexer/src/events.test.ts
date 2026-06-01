@@ -212,4 +212,21 @@ describe("decodeEvent", () => {
       removed: false,
     } as unknown as Log)).toBeNull();
   });
+
+  it("falls through an empty candidate list without throwing", () => {
+    const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 42n]);
+
+    expect(decodeEvent(new Map([[encoded.topics[0], []]]), {
+      address: "0x0000000000000000000000000000000000000001",
+      data: encoded.data,
+      topics: encoded.topics,
+      transactionHash: "0xtx",
+      blockHash: "0xblock",
+      blockNumber: 1,
+      index: 0,
+      removed: false,
+    } as unknown as Log)).toBeNull();
+  });
 });

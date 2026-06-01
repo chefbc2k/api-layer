@@ -20,6 +20,7 @@ describe("transient rpc retry helpers", () => {
       },
     })).toBe(true);
     expect(isRetryableRpcError(new Error("execution reverted"))).toBe(false);
+    expect(isRetryableRpcError({ info: 503 })).toBe(false);
   });
 
   it("retries retryable failures until the operation succeeds", async () => {

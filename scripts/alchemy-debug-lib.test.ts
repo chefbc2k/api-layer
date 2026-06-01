@@ -239,6 +239,33 @@ describe("alchemy-debug-lib", () => {
     ]);
   });
 
+  it("stringifies non-Error RPC verification failures when recording the fallback reason", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "https://base-sepolia.g.alchemy.com/v2/non-error-fallback",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+        ALCHEMY_RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl) => {
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw "offline";
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/non-error-fallback");
+    expect(result.rpcResolution.fallbackReason).toBe("offline");
+    expect(result.rpcResolution.fixturePath).toContain(".runtime/base-sepolia-operator-fixtures.json");
+  });
+
   it("preserves a configured non-loopback alchemy RPC while falling back only the primary RPC", async () => {
     mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
     mocked.readFile.mockResolvedValue(JSON.stringify({

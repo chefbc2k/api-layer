@@ -133,6 +133,8 @@ describe("validation helpers", () => {
     const fixedArraySchema = buildWireSchema(writeDefinition, { type: "bytes32[2]" });
     expect(fixedArraySchema.parse(["0x01", "0x02"])).toEqual(["0x01", "0x02"]);
     expect(() => fixedArraySchema.parse(["0x01"])).toThrow("expected array length 2");
+    expect(() => buildWireSchema(writeDefinition, { type: "uint256" }).parse("1.5")).toThrow("invalid uint256 decimal string");
+    expect(() => buildWireSchema(writeDefinition, { type: "address" }).parse("0x1234")).toThrow("invalid address");
 
     expect(buildWireSchema(writeDefinition, { type: "]" }).parse("opaque")).toBe("opaque");
   });
