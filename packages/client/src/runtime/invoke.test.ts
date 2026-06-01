@@ -217,6 +217,26 @@ describe("invoke runtime helpers", () => {
     } as never, "TestFacet", "MissingEvent")).rejects.toThrow();
   });
 
+  it("omits both block bounds when callers pass nullish filters", async () => {
+    const provider = { getLogs: vi.fn().mockResolvedValue([]) };
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode, _method, work) => work(provider)),
+    };
+    const addressBook = { resolveFacetAddress: vi.fn().mockReturnValue("0x0000000000000000000000000000000000000001") };
+
+    await expect(queryEvent({
+      providerRouter,
+      addressBook,
+    } as never, "TestFacet", "ValueSet", undefined, undefined)).resolves.toEqual([]);
+
+    expect(provider.getLogs).toHaveBeenCalledWith({
+      address: "0x0000000000000000000000000000000000000001",
+      topics: [expect.any(String)],
+      fromBlock: undefined,
+      toBlock: undefined,
+    });
+  });
+
   it("omits bounded block filters when callers pass nullish values", async () => {
     const provider = { getLogs: vi.fn().mockResolvedValue([]) };
     const providerRouter = {

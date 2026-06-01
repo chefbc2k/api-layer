@@ -156,6 +156,46 @@ describe("decodeEvent", () => {
     });
   });
 
+  it("skips candidates that parse to null before accepting a later match", () => {
+    const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 42n]);
+    const log = {
+      address: "0x0000000000000000000000000000000000000001",
+      data: encoded.data,
+      topics: encoded.topics,
+      transactionHash: "0xtx",
+      blockHash: "0xblock",
+      blockNumber: 1,
+      index: 0,
+      removed: false,
+    } as unknown as Log;
+    const mixedRegistry = new Map([
+      [encoded.topics[0], [
+        {
+          facetName: "NullFacet",
+          eventName: "NullEvent",
+          wrapperKey: "NullEvent",
+          fullEventKey: "NullFacet.NullEvent",
+          iface: { parseLog: () => null },
+        },
+        {
+          facetName: "TestFacet",
+          eventName: "TestEvent",
+          wrapperKey: "TestEvent",
+          fullEventKey: "TestFacet.TestEvent",
+          iface,
+        },
+      ]],
+    ]);
+
+    expect(decodeEvent(mixedRegistry as never, log)).toMatchObject({
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fullEventKey: "TestFacet.TestEvent",
+    });
+  });
+
   it("returns null when the topic is not present in the registry", () => {
     const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
     const fragment = iface.getEvent("TestEvent");

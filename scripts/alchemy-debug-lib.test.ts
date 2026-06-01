@@ -239,6 +239,32 @@ describe("alchemy-debug-lib", () => {
     ]);
   });
 
+  it("preserves a configured non-loopback alchemy RPC while falling back only the primary RPC", async () => {
+    mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
+    mocked.readFile.mockResolvedValue(JSON.stringify({
+      network: {
+        rpcUrl: "https://base-sepolia.g.alchemy.com/v2/fallback-only-primary",
+      },
+    }));
+
+    const result = await resolveRuntimeConfig(
+      {
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+        ALCHEMY_RPC_URL: "https://alchemy.example.com/dedicated",
+      },
+      async (rpcUrl) => {
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/fallback-only-primary");
+    expect(result.config.alchemyRpcUrl).toBe("https://alchemy.example.com/dedicated");
+  });
+
   it("stringifies non-Error verification failures when reporting fallback reasons", async () => {
     mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));
     mocked.readFile.mockResolvedValue(JSON.stringify({
@@ -515,6 +541,7 @@ describe("alchemy-debug-lib", () => {
     expect(isLoopbackRpcUrl(" localhost fallback")).toBe(true);
     expect(isLoopbackRpcUrl("totally malformed")).toBe(false);
     expect(isLoopbackRpcUrl("https://rpc.example.com")).toBe(false);
+    expect(isLoopbackRpcUrl("ws://rpc.example.com/socket")).toBe(false);
   });
 
   it("verifies chain id and always destroys the temporary provider", async () => {
