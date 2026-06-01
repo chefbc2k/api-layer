@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.203] - 2026-06-01
+
+### Fixed
+- **Multisig And ABI Codec Regression Coverage Now Proves More Fallback/Error Branches:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts) now explicitly proves generated primitive service wiring, malformed multisig state readbacks collapsing to null/empty readiness values, `NotPending` operation-state classification, and generic `Error` passthrough semantics. Expanded [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.test.ts) so [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts) now explicitly proves numeric-key tuple normalization internals, encode/decode param-count guards, single-output bytes validation, multi-output serialization failures, and direct multi-output response validation failures.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, `rpcUrl: "https://sepolia.base.org"`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slices Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/multisig-protocol-change-helpers.test.ts --coverage.enabled true --coverage.reporter text --coverage.reporter json-summary --coverage.include 'packages/api/src/workflows/multisig-protocol-change-helpers.ts' --maxWorkers 1` and `pnpm exec vitest run packages/client/src/runtime/abi-codec.test.ts --coverage.enabled true --coverage.reporter text --coverage.reporter json-summary --coverage.include 'packages/client/src/runtime/abi-codec.ts' --maxWorkers 1`; all `17/17` multisig-helper assertions and `59/59` ABI-codec assertions passed after the new fallback proofs landed.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remained green and merged Istanbul totals improved from `99.77% / 97.62% / 99.91% / 99.78%` to `99.77% / 97.64% / 99.91% / 99.78%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia baseline remain green, but repo-wide branch coverage is still below the automation target. The clearest remaining hotspots after this run remain [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts).
+
 ## [0.1.202] - 2026-05-31
 
 ### Fixed

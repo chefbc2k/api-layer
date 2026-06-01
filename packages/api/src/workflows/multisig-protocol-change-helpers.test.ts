@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  createProtocolAdminServices,
   collectConsequenceTargets,
   decodeProtocolAction,
   encodeProtocolAction,
@@ -22,10 +23,33 @@ import {
   waitForOperationStatus,
 } from "./multisig-protocol-change-helpers.js";
 import { HttpError } from "../shared/errors.js";
+import * as diamondAdminPrimitives from "../modules/diamond-admin/primitives/generated/index.js";
+import * as multisigPrimitives from "../modules/multisig/primitives/generated/index.js";
+import * as ownershipPrimitives from "../modules/ownership/primitives/generated/index.js";
 
 const UPGRADE_ID = `0x${"b".repeat(64)}`;
 
 describe("multisig protocol change helper utilities", () => {
+  it("creates protocol admin services from the generated primitive factories", () => {
+    const context = { marker: true } as never;
+    const multisig = { service: "multisig" };
+    const ownership = { service: "ownership" };
+    const diamondAdmin = { service: "diamond-admin" };
+    const multisigSpy = vi.spyOn(multisigPrimitives, "createMultisigPrimitiveService").mockReturnValue(multisig as never);
+    const ownershipSpy = vi.spyOn(ownershipPrimitives, "createOwnershipPrimitiveService").mockReturnValue(ownership as never);
+    const diamondSpy = vi.spyOn(diamondAdminPrimitives, "createDiamondAdminPrimitiveService").mockReturnValue(diamondAdmin as never);
+
+    expect(createProtocolAdminServices(context)).toEqual({
+      multisig,
+      ownership,
+      diamondAdmin,
+    });
+
+    expect(multisigSpy).toHaveBeenCalledWith(context);
+    expect(ownershipSpy).toHaveBeenCalledWith(context);
+    expect(diamondSpy).toHaveBeenCalledWith(context);
+  });
+
   it("normalizes scalar, boolean, and tuple bodies across route result shapes", () => {
     expect(readScalarBody("7")).toBe("7");
     expect(readScalarBody({ result: 9n })).toBe("9");
@@ -564,6 +588,38 @@ describe("multisig protocol change helper utilities", () => {
     expect(services.multisig.hasApprovedOperation).toHaveBeenCalledTimes(1);
   });
 
+  it("degrades malformed multisig state payloads to null and empty readiness fields", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      multisig: {
+        getOperationStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: { bad: true } } }),
+        canExecuteOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: [null, 7] } }),
+        hasApprovedOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { result: "nope" } }),
+      },
+    } as never;
+
+    await expect(readMultisigState(
+      services,
+      auth,
+      undefined,
+      UPGRADE_ID,
+      "0x00000000000000000000000000000000000000cc",
+      "execute",
+    )).resolves.toEqual({
+      label: "execute",
+      status: null,
+      statusLabel: "Unknown",
+      canExecute: false,
+      readinessReason: "",
+      actorApproved: null,
+    });
+  });
+
   it("reads consequence reports when only ownership or upgrade targets are classified", async () => {
     const auth = {
       apiKey: "admin-key",
@@ -683,9 +739,14 @@ describe("multisig protocol change helper utilities", () => {
     expect(normalizeProtocolActionError(new Error("InvalidOperationType(bytes32)"), "wf", "propose")).toMatchObject<HttpError>({
       statusCode: 409,
     });
+    expect(normalizeProtocolActionError(new Error("NotPending"), "wf", "execute")).toMatchObject<HttpError>({
+      statusCode: 409,
+    });
     expect(normalizeProtocolActionError(new Error("not permitted"), "wf", "execute")).toMatchObject<HttpError>({
       statusCode: 409,
     });
+    const generic = new Error("keep original error");
+    expect(normalizeProtocolActionError(generic, "wf", "execute")).toBe(generic);
     const plain = normalizeProtocolActionError("plain failure", "wf", "execute");
     expect(plain).toBeInstanceOf(Error);
     expect((plain as Error).message).toContain("plain failure");

@@ -912,6 +912,31 @@ describe("abi-codec", () => {
     } as never, "still-not-an-array")).toBe("still-not-an-array");
   });
 
+  it("normalizes tuple-object internals when unnamed components rely on numeric fallback keys", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [
+        { type: "uint256" },
+        { name: "flag", type: "bool" },
+      ],
+    } as never, {
+      0: "9",
+      flag: true,
+    })).toEqual({
+      0: "9",
+      flag: true,
+    });
+
+    expect(abiCodecInternals.normalizeTupleOutputs({
+      type: "tuple[][]",
+      components: [{ type: "uint256" }],
+    } as never, [
+      [{ 0: "3" }],
+    ])).toEqual([
+      [{ 0: "3" }],
+    ]);
+  });
+
   it("serializes multi-output array results without coercing them through array-like object handling", () => {
     const definition = {
       signature: "multiArrayResult(uint256,bool)",
@@ -929,6 +954,20 @@ describe("abi-codec", () => {
 
     expect(serializeParamsToWire(definition as never, ["-7", "11"])).toEqual(["-7", "11"]);
     expect(decodeParamsFromWire(definition as never, ["-7", "11"])).toEqual([-7n, 11n]);
+  });
+
+  it("rejects param-count mismatches across encode and decode entrypoints", () => {
+    const definition = {
+      signature: "signed(int256,uint256)",
+      inputs: [{ type: "int256" }, { type: "uint256" }],
+    };
+
+    expect(() => serializeParamsToWire(definition as never, ["-7"])).toThrow(
+      "expected 2 params for signed(int256,uint256), received 1",
+    );
+    expect(() => decodeParamsFromWire(definition as never, ["-7"])).toThrow(
+      "expected 2 params for signed(int256,uint256), received 1",
+    );
   });
 
   it("surfaces nested tuple validation failures from positional payloads", () => {
@@ -1093,6 +1132,55 @@ describe("abi-codec", () => {
       1: "0x0000000000000000000000000000000000000001",
       length: 2,
     })).toThrow("invalid response for multiResult(uint256,address): expected array");
+  });
+
+  it("surfaces single and multi-output validation failures after serialization succeeds", () => {
+    const singleDefinition = {
+      signature: "single(bytes32)",
+      outputs: [{ type: "bytes32" }],
+    };
+    const multiSerializeDefinition = {
+      signature: "pair(address,uint256)",
+      outputs: [{ type: "address" }, { type: "uint256" }],
+    };
+    const multiValidateDefinition = {
+      signature: "pair(bytes32,address)",
+      outputs: [{ type: "bytes32" }, { type: "address" }],
+    };
+
+    expect(() => serializeResultToWire(singleDefinition as never, "not-hex")).toThrow(
+      "invalid result for single(bytes32): invalid hex string",
+    );
+    expect(() => serializeResultToWire(multiSerializeDefinition as never, [
+      "0x0000000000000000000000000000000000000001",
+      { bad: true },
+    ])).toThrow(
+      "invalid result item 1 for pair(address,uint256): expected integer-compatible value for uint256",
+    );
+    expect(() => serializeResultToWire(multiValidateDefinition as never, [
+      "not-hex",
+      "0x0000000000000000000000000000000000000001",
+    ])).toThrow(
+      "invalid result item 0 for pair(bytes32,address): invalid hex string",
+    );
+  });
+
+  it("surfaces direct response validation failures for single and multi-output payloads", () => {
+    const singleDefinition = {
+      signature: "single(bytes32)",
+      outputs: [{ type: "bytes32" }],
+    };
+    const multiDefinition = {
+      signature: "pair(uint256,bool)",
+      outputs: [{ type: "uint256" }, { type: "bool" }],
+    };
+
+    expect(() => decodeResultFromWire(singleDefinition as never, "not-hex")).toThrow(
+      "invalid response for single(bytes32): invalid hex string",
+    );
+    expect(() => decodeResultFromWire(multiDefinition as never, ["7", "nope"])).toThrow(
+      "invalid response item 1 for pair(uint256,bool): Invalid input: expected boolean, received string",
+    );
   });
 
   it("keeps named tuple objects stable when object-shaped output normalization re-runs", () => {
