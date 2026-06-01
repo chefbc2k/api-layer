@@ -440,6 +440,61 @@ describe("multisig protocol change helper utilities", () => {
     });
   });
 
+  it("preserves nullish ownership and upgrade scalar fallbacks when primitive bodies are unstructured", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const services = {
+      ownership: {
+        owner: vi.fn().mockResolvedValue({ body: { ignored: true } }),
+        pendingOwner: vi.fn().mockResolvedValue({ body: { ignored: true } }),
+        isOwnershipPolicyEnforced: vi.fn().mockResolvedValue({ body: { ignored: true } }),
+        isOwnerTargetApproved: vi.fn().mockResolvedValue({ body: { ignored: true } }),
+      },
+      diamondAdmin: {
+        getUpgradeControlStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: null }),
+        getUpgradeDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: { ignored: true } }),
+        getUpgradeThreshold: vi.fn().mockResolvedValue({ statusCode: 200, body: { ignored: true } }),
+        getUpgrade: vi.fn().mockResolvedValue({ statusCode: 200, body: [123, { ignored: true }, { ignored: true }, "pending"] }),
+      },
+    } as never;
+
+    await expect(readOwnershipConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      ["0x00000000000000000000000000000000000000bb"],
+    )).resolves.toEqual({
+      owner: null,
+      pendingOwner: null,
+      ownershipPolicyEnforced: null,
+      targetApprovals: [
+        { target: "0x00000000000000000000000000000000000000bb", approved: null },
+      ],
+    });
+
+    await expect(readUpgradeConsequence(
+      services,
+      auth,
+      undefined,
+      [UPGRADE_ID],
+    )).resolves.toEqual({
+      controlStatus: null,
+      upgradeDelay: null,
+      upgradeThreshold: null,
+      upgrades: [{
+        upgradeId: UPGRADE_ID,
+        proposer: null,
+        proposedAt: null,
+        approvalCount: null,
+        executed: null,
+      }],
+    });
+  });
+
   it("keeps primitive upgrade status payloads and null tuple fields when upgrade reads are sparse", async () => {
     const auth = {
       apiKey: "admin-key",

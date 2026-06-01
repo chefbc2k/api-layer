@@ -229,4 +229,8 @@ describe("decodeEvent", () => {
       removed: false,
     } as unknown as Log)).toBeNull();
   });
+
+  it("returns null when the first topic entry is explicitly undefined", () => {
+    expect(decodeEvent(new Map(), { topics: [undefined] } as unknown as Log)).toBeNull();
+  });
 });

@@ -184,6 +184,25 @@ describe("vesting helpers", () => {
     expect(result.totals.body).toEqual({ totalVested: "0", totalReleased: "0", releasable: "0" });
   });
 
+  it("rethrows totals readback failures for revoked schedules when the revert is not AlreadyRevoked", async () => {
+    const vesting = {
+      hasVestingSchedule: async () => ({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: async () => ({ statusCode: 200, body: { totalAmount: "100", revoked: true } }),
+      getVestingDetails: async () => ({ statusCode: 200, body: { revoked: false } }),
+      getVestingReleasableAmount: async () => ({ statusCode: 200, body: "5" }),
+      getVestingTotalAmount: async () => {
+        throw new Error("execution reverted: totals failed while revoked");
+      },
+    };
+
+    await expect(() => readVestingState(
+      vesting,
+      { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
+      undefined,
+      "0x00000000000000000000000000000000000000aa",
+    )).rejects.toThrow("totals failed while revoked");
+  });
+
   it("normalizes create-vesting execution errors into workflow-specific HttpErrors", () => {
     const diagnostics = { txHash: "0xcreate" };
 

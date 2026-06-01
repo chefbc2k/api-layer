@@ -110,4 +110,25 @@ describe("transient rpc retry helpers", () => {
     await expect(promise).resolves.toBe("ok");
     expect(operation).toHaveBeenCalledTimes(2);
   });
+
+  it("uses shortMessage text in retry logs when both shortMessage and message are present", async () => {
+    vi.useFakeTimers();
+    const log = vi.fn();
+    const operation = vi.fn()
+      .mockRejectedValueOnce({ shortMessage: "socket hang up", message: "longer message" })
+      .mockResolvedValueOnce("ok");
+
+    const promise = runWithTransientRpcRetries(operation, {
+      label: "setup",
+      maxAttempts: 2,
+      baseDelayMs: 1,
+      log,
+    });
+
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(promise).resolves.toBe("ok");
+    expect(log).toHaveBeenCalledWith(
+      "setup transient RPC failure on attempt 1/2: socket hang up. Retrying...",
+    );
+  });
 });

@@ -133,6 +133,28 @@ describe("invoke runtime helpers", () => {
     expect(mocks.contractCalls).toEqual([{ args: [5], runner: provider }]);
   });
 
+  it("bypasses cache for fixture reads when the TTL is disabled", async () => {
+    const provider = { tag: "provider" };
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode, _method, work) => work(provider)),
+    };
+    const cache = { get: vi.fn(), set: vi.fn() };
+    const addressBook = { resolveFacetAddress: vi.fn().mockReturnValue("0x0000000000000000000000000000000000000001") };
+    mocks.functionImpl.mockResolvedValue("fresh-no-ttl");
+
+    const result = await invokeRead({
+      executionSource: "fixture",
+      providerRouter,
+      cache,
+      addressBook,
+    } as never, "TestFacet", "readValue", [6], false, null);
+
+    expect(result).toBe("fresh-no-ttl");
+    expect(cache.get).not.toHaveBeenCalled();
+    expect(cache.set).not.toHaveBeenCalled();
+    expect(mocks.contractCalls).toEqual([{ args: [6], runner: provider }]);
+  });
+
   it("requires signerFactory for writes and forwards writes through the write provider", async () => {
     await expect(invokeWrite({
       providerRouter: { withProvider: vi.fn() },
