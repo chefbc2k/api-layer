@@ -1180,4 +1180,134 @@ describe("governance timelock consequence helpers", () => {
     }, "77", "0x1111111111111111111111111111111111111111111111111111111111111111");
     expect(executeError).toBeInstanceOf(HttpError);
   });
+
+  it("normalizes raw scalar queue errors and tolerates malformed optional event payloads", async () => {
+    expect(governanceTimelockConsequenceTestUtils.normalizeQueueExecutionError("GovernancePaused", "77")).toBeInstanceOf(HttpError);
+
+    const workflowAuth = {
+      apiKey: "submit-key",
+      label: "submit",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const workflowQueueAuth = {
+      apiKey: "queue-key",
+      label: "queue",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const workflowContext = {
+      apiKeys: {
+        "submit-key": workflowAuth,
+        "queue-key": workflowQueueAuth,
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: {
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+          getBlockNumber: () => Promise<number>;
+        }) => Promise<unknown>) => work({
+          getTransactionReceipt: vi.fn(async (txHash: string) => {
+            if (txHash === "0xqueue-write" || label.includes("receipt")) {
+              return { blockNumber: 401 };
+            }
+            return null;
+          }),
+          getBlockNumber: vi.fn(async () => 405),
+        })),
+      },
+    } as never;
+
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xqueue-write");
+    mocks.runGovernanceExecutionFlowWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: {
+          snapshot: "120",
+          proposalState: "4",
+          deadline: "240",
+        },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: "250",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: "4",
+      },
+      vote: null,
+      executionReadiness: {
+        proposalState: "4",
+        proposalStateLabel: "Succeeded",
+        deadline: "240",
+        currentBlock: "250",
+        votingClosed: true,
+        queueEligible: true,
+        executeEligible: false,
+        phase: "succeeded-awaiting-queue",
+        nextGovernanceStep: "queue-when-governance-operator-is-ready",
+        readinessBasis: "proposal-state-derived",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        currentProposalState: "4",
+        currentProposalStateLabel: "Succeeded",
+        voteRequested: false,
+        voteCast: false,
+        queueEligible: true,
+        executeEligible: false,
+        nextGovernanceStep: "queue-when-governance-operator-is-ready",
+        voter: "0x00000000000000000000000000000000000000aa",
+      },
+    });
+
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce({
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn().mockResolvedValue({ statusCode: 503, body: { ignored: true } }),
+      getTimestamp: vi.fn().mockResolvedValue({ statusCode: 200, body: "500" }),
+      isOperationPending: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationReady: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationExecuted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      prQueue: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xqueue-write" } }),
+      prExecute: vi.fn(),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      proposalQueuedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", proposalId: "77" }] }),
+      operationStoredEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", id: "not-a-bytes32" }] }),
+      operationScheduledEventQuery: vi.fn().mockResolvedValue({ statusCode: 200 }),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    });
+
+    const result = await runGovernanceTimelockConsequenceFlowWorkflow(workflowContext, workflowAuth, undefined, {
+      proposal: {
+        description: "queue malformed optional events",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        queue: {
+          apiKey: "queue-key",
+        },
+      },
+    });
+
+    expect(result.timelock.queue?.eventCount).toEqual({
+      proposalQueued: 1,
+      operationStored: 1,
+      operationScheduled: 0,
+    });
+    expect(result.timelock.inspection).toEqual({
+      operationId: null,
+      source: "unavailable",
+      inspection: null,
+      note: "timelock operation id is not available from the mounted flow inputs or events",
+      minDelay: "60",
+    });
+  });
 });

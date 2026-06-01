@@ -361,6 +361,39 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     expect(service.licenseRevokedEventQuery).not.toHaveBeenCalled();
   });
 
+  it("keeps usage event counts at zero when the usage receipt is unavailable", async () => {
+    const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
+    service.licenseUsedEventQuery.mockClear();
+
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xissue-template")
+      .mockResolvedValueOnce(null);
+
+    const explicitTemplateHash = `0x${"7".repeat(64)}`;
+    const result = await runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+      voiceAsset: { voiceHash },
+      collaborators: [],
+      issue: {
+        mode: "template",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        templateHash: explicitTemplateHash,
+        duration: "86400",
+      },
+      usage: {
+        usageRef: `0x${"3".repeat(64)}`,
+      },
+    });
+
+    expect(result.license.usage).toMatchObject({
+      txHash: null,
+      usageRef: `0x${"3".repeat(64)}`,
+      eventCount: 0,
+      usageCount: "1",
+    });
+    expect(service.licenseUsedEventQuery).not.toHaveBeenCalled();
+  });
+
   it("keeps collaborator and issuance event counts at zero when those receipts are unavailable", async () => {
     const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
     service.collaboratorUpdatedEventQuery.mockClear();

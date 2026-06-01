@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.212] - 2026-06-01
+
+### Fixed
+- **Governance And Licensing Workflow Coverage Tightened Around Missing Receipt/Event Branches:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.test.ts) so the collaborator lifecycle now proves usage recording still converges when the usage write never yields a receipt, preserving zero event counts without skipping downstream `isUsageRefUsed` and `getUsageCount` verification. Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.test.ts) so the governance consequence flow now proves raw scalar queue errors still normalize into `HttpError` blocks and malformed optional timelock event payloads keep queue inspection honest when no valid `operationId` can be extracted.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`, while wrapper coverage remains complete at `492` functions and `218` events and HTTP API coverage remains complete at `492` validated methods.
+- **Merged Standard Coverage Improved Again While Staying Green:** Re-ran `pnpm exec vitest run packages/api/src/workflows/manage-reward-campaign.test.ts packages/api/src/workflows/collaborator-license-lifecycle.test.ts packages/api/src/workflows/governance-timelock-consequence-flow.test.ts --maxWorkers 1` plus `pnpm run test:coverage`; the targeted hotspot slice stayed green at `46/46` assertions, and merged Istanbul totals improved from `99.83% / 98.46% / 99.91% / 99.85%` to `99.83% / 98.58% / 99.91% / 99.85%` for statements/branches/functions/lines. This run pushed `collaborator-license-lifecycle.ts` to `100%` statements with `98.78%` branches and moved `governance-timelock-consequence-flow.ts` branch coverage to `97.64%`.
+
+### Remaining Issues
+- **100% Standard Coverage Remains Unmet:** Live verification artifacts, Base Sepolia fallback verification, API surface coverage, and wrapper coverage remain green with no regressions, but repo-wide branch coverage still remains below the automation target. The clearest remaining workflow hotspots on this run are [/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/manage-reward-campaign.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/register-whisper-block.ts), and [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts).
+
 ## [0.1.211] - 2026-06-01
 
 ### Fixed
