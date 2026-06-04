@@ -289,6 +289,57 @@ describe("multisig protocol change workflows", () => {
     ).rejects.toThrow("could not derive operationId");
   });
 
+  it("falls back to the readback status when propose status polling returns null", async () => {
+    vi.resetModules();
+
+    const helperModule = await vi.importActual<typeof import("./multisig-protocol-change-helpers.js")>("./multisig-protocol-change-helpers.js");
+    const waitForOperationStatus = vi.fn().mockResolvedValue(null);
+    const createMultisigPrimitiveService = vi.fn();
+    const createOwnershipPrimitiveService = vi.fn();
+    const createDiamondAdminPrimitiveService = vi.fn();
+    const waitForWorkflowWriteReceipt = vi.fn().mockResolvedValue("0xprop");
+
+    vi.doMock("./multisig-protocol-change-helpers.js", () => ({
+      ...helperModule,
+      waitForOperationStatus,
+    }));
+    vi.doMock("../modules/multisig/primitives/generated/index.js", () => ({
+      createMultisigPrimitiveService,
+    }));
+    vi.doMock("../modules/ownership/primitives/generated/index.js", () => ({
+      createOwnershipPrimitiveService,
+    }));
+    vi.doMock("../modules/diamond-admin/primitives/generated/index.js", () => ({
+      createDiamondAdminPrimitiveService,
+    }));
+    vi.doMock("./wait-for-write.js", () => ({
+      waitForWorkflowWriteReceipt,
+    }));
+
+    createMultisigPrimitiveService.mockReturnValue(makeMultisigService({
+      getOperationStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+    }));
+    createOwnershipPrimitiveService.mockReturnValue({});
+    createDiamondAdminPrimitiveService.mockReturnValue({});
+
+    const { runProposeMultisigProtocolChangeWorkflow: runProposeWorkflow } = await import("./multisig-protocol-change.js");
+
+    const result = await runProposeWorkflow(context, auth, undefined, {
+      operation: {
+        actions: [{
+          kind: "accept-ownership",
+        }],
+        requiredApprovals: "1",
+      },
+    });
+
+    expect(waitForOperationStatus).toHaveBeenCalledOnce();
+    expect(result.operation.state.status).toBe("1");
+    expect(result.summary.status).toBe("1");
+
+    vi.resetModules();
+  });
+
   it("returns zeroed execution event counts when no receipt is available", async () => {
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
     mocks.createMultisigPrimitiveService.mockReturnValueOnce(makeMultisigService({

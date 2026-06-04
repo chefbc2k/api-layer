@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.226] - 2026-06-04
+
+### Fixed
+- **Multisig Proposal Status Fallback Coverage Is Now Fully Proven:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change.ts) now explicitly proves the propose-flow fallback that reuses the mounted multisig readback status when status polling returns `null`.
+- **Base Sepolia Marketplace Time-Lock Helper Guards Are More Explicitly Locked:** Expanded [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.test.ts) so [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts) now carries explicit regressions for skipped inactive listings that still surface a computed `readyAt` marker and for `retryApiRead` invocations that pass `undefined` into the delay slot while still relying on the default retry cadence.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, `rpcUrl: "https://sepolia.base.org"`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/base-sepolia-operator-setup.test.ts packages/api/src/workflows/multisig-protocol-change.test.ts --coverage.enabled true --coverage.reporter text --coverage.reporter json-summary --coverage.include 'scripts/base-sepolia-operator-setup.ts' --coverage.include 'packages/api/src/workflows/multisig-protocol-change.ts' --maxWorkers 1`; all `113/113` assertions passed, and `multisig-protocol-change.ts` now holds `100%` statements/branches/functions/lines in isolation.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the sharded suite remained green and aggregate Istanbul totals improved from `99.83% / 99.01% / 99.91% / 99.85%` to `99.83% / 99.06% / 99.91% / 99.85%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Repo-Wide Standard Coverage Remains Unmet:** Live verification parity, the validated Base Sepolia baseline, API surface coverage, and wrapper coverage remain green, but repo-wide branch coverage still misses the automation target. The clearest remaining hotspots after this run are [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts).
+
 ## [0.1.225] - 2026-06-04
 
 ### Fixed
