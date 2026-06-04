@@ -52,6 +52,20 @@ export function isRetryableRpcError(error: unknown): boolean {
   return retryableFragments.some((fragment) => message.includes(fragment));
 }
 
+function readRetryErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    const shortMessage = (error as { shortMessage?: unknown }).shortMessage;
+    if (typeof shortMessage === "string" && shortMessage.length > 0) {
+      return shortMessage;
+    }
+    const message = (error as { message?: unknown }).message;
+    if (typeof message === "string" && message.length > 0) {
+      return message;
+    }
+  }
+  return String(error);
+}
+
 export async function runWithTransientRpcRetries<T>(
   operation: () => Promise<T>,
   options: {
@@ -69,14 +83,8 @@ export async function runWithTransientRpcRetries<T>(
   if (Number.isFinite(options.baseDelayMs)) {
     normalizedBaseDelayMs = Math.trunc(options.baseDelayMs as number);
   }
-  let maxAttempts = normalizedMaxAttempts;
-  if (maxAttempts < 1) {
-    maxAttempts = 1;
-  }
-  let baseDelayMs = normalizedBaseDelayMs;
-  if (baseDelayMs < 0) {
-    baseDelayMs = 0;
-  }
+  const maxAttempts = normalizedMaxAttempts < 1 ? 1 : normalizedMaxAttempts;
+  const baseDelayMs = normalizedBaseDelayMs < 0 ? 0 : normalizedBaseDelayMs;
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -87,10 +95,9 @@ export async function runWithTransientRpcRetries<T>(
       if (!isRetryableRpcError(error) || attempt >= maxAttempts) {
         throw error;
       }
+      const retryErrorMessage = readRetryErrorMessage(error);
       options.log?.(
-        `${options.label} transient RPC failure on attempt ${attempt}/${maxAttempts}: ${
-          String((error as { shortMessage?: string; message?: string })?.shortMessage ?? (error as { message?: string })?.message ?? error)
-        }. Retrying...`,
+        `${options.label} transient RPC failure on attempt ${attempt}/${maxAttempts}: ${retryErrorMessage}. Retrying...`,
       );
       await delay(baseDelayMs * attempt);
     }

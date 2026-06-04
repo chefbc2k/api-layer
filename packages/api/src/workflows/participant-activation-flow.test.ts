@@ -353,6 +353,72 @@ describe("runParticipantActivationFlowWorkflow", () => {
     expect(result.vesting.inspect.status).toBe("not-requested");
   });
 
+  it("reuses an explicitly managed campaign id when no create step is requested", async () => {
+    mocks.runManageRewardCampaignWorkflow.mockResolvedValueOnce({
+      campaign: {
+        before: { paused: true },
+        after: { paused: false },
+      },
+      merkleRootUpdate: { source: "updated" },
+      pauseState: { source: "updated" },
+      summary: {
+        campaignId: "9",
+      },
+    });
+
+    const result = await runParticipantActivationFlowWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      staking: {
+        amount: "10",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+      rewards: {
+        campaign: {
+          actor: {
+            apiKey: "reward-admin-key",
+            walletAddress: "0x00000000000000000000000000000000000000cc",
+          },
+          manage: {
+            campaignId: "9",
+            paused: false,
+          },
+        },
+        claim: {
+          totalAllocation: "2",
+          proof: [
+            "0x2222222222222222222222222222222222222222222222222222222222222222",
+          ],
+        },
+      },
+    });
+
+    expect(mocks.runCreateRewardCampaignWorkflow).not.toHaveBeenCalled();
+    expect(mocks.runManageRewardCampaignWorkflow).toHaveBeenCalledWith(
+      context,
+      rewardAdminAuth,
+      "0x00000000000000000000000000000000000000cc",
+      {
+        campaignId: "9",
+        newMerkleRoot: undefined,
+        paused: false,
+      },
+    );
+    expect(mocks.runClaimRewardCampaignWorkflow).toHaveBeenCalledWith(
+      context,
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      {
+        campaignId: "9",
+        totalAllocation: "2",
+        proof: [
+          "0x2222222222222222222222222222222222222222222222222222222222222222",
+        ],
+      },
+    );
+    expect(result.rewards.campaign.campaignId).toBe("9");
+    expect(result.summary.rewardCampaignId).toBe("9");
+    expect(result.summary.claimCompleted).toBe(true);
+  });
+
   it("skips dependent campaign-management and claim steps when a new campaign id is not established", async () => {
     mocks.runCreateRewardCampaignWorkflow.mockRejectedValueOnce(
       new HttpError(409, "create-reward-campaign blocked by setup/state: missing admin authority"),
@@ -437,6 +503,32 @@ describe("runParticipantActivationFlowWorkflow", () => {
       reason: "staking did not complete",
     });
     expect(result.vesting.create).toEqual({
+      status: "skipped",
+      result: null,
+      block: null,
+      reason: "staking did not complete",
+    });
+  });
+
+  it("skips explicit vesting inspection when staking is state-blocked", async () => {
+    mocks.runStakeAndDelegateWorkflow.mockRejectedValueOnce(
+      new HttpError(409, "stake-and-delegate blocked by stake rule violation: EchoScore too low (0 < 1000)"),
+    );
+
+    const result = await runParticipantActivationFlowWorkflow(context, auth, undefined, {
+      staking: {
+        amount: "10",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+      vesting: {
+        inspect: {
+          beneficiary: "0x00000000000000000000000000000000000000aa",
+        },
+      },
+    });
+
+    expect(result.staking.status).toBe("blocked-by-external-precondition");
+    expect(result.vesting.inspect).toEqual({
       status: "skipped",
       result: null,
       block: null,

@@ -131,4 +131,25 @@ describe("transient rpc retry helpers", () => {
       "setup transient RPC failure on attempt 1/2: socket hang up. Retrying...",
     );
   });
+
+  it("falls back to message text before stringifying opaque retry errors", async () => {
+    vi.useFakeTimers();
+    const log = vi.fn();
+    const operation = vi.fn()
+      .mockRejectedValueOnce({ message: "network error", extra: true })
+      .mockResolvedValueOnce("ok");
+
+    const promise = runWithTransientRpcRetries(operation, {
+      label: "setup",
+      maxAttempts: 2,
+      baseDelayMs: 1,
+      log,
+    });
+
+    await vi.advanceTimersByTimeAsync(1);
+    await expect(promise).resolves.toBe("ok");
+    expect(log).toHaveBeenCalledWith(
+      "setup transient RPC failure on attempt 1/2: network error. Retrying...",
+    );
+  });
 });

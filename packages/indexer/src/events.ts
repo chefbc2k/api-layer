@@ -42,12 +42,15 @@ export function buildEventRegistry(): Map<string, EventDescriptor[]> {
   return registry;
 }
 
-export function decodeEvent(registry: Map<string, EventDescriptor[]>, log: Log): DecodedEvent | null {
+export const decodeEvent = (registry: Map<string, EventDescriptor[]>, log: Log): DecodedEvent | null => {
   const topic0 = log.topics[0];
   if (!topic0) {
     return null;
   }
-  const candidates = registry.get(topic0) ?? [];
+  const candidates = registry.get(topic0);
+  if (!candidates || candidates.length === 0) {
+    return null;
+  }
   for (const candidate of candidates) {
     try {
       const parsed = candidate.iface.parseLog(log);
@@ -67,4 +70,4 @@ export function decodeEvent(registry: Map<string, EventDescriptor[]>, log: Log):
     }
   }
   return null;
-}
+};

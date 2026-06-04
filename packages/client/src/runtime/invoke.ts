@@ -56,13 +56,13 @@ export async function invokeWrite(
   });
 }
 
-export async function queryEvent(
+export const queryEvent = async (
   context: FacetWrapperContext,
   facetName: keyof typeof facetRegistry,
   eventName: string,
   fromBlock?: bigint | number,
   toBlock?: bigint | number | "latest",
-): Promise<Array<EventLog | Log>> {
+): Promise<Array<EventLog | Log>> => {
   return context.providerRouter.withProvider("events", `${String(facetName)}.${eventName}`, async (provider) => {
     const facet = facetRegistry[facetName];
     const iface = new Interface(facet.abi);
@@ -70,14 +70,26 @@ export async function queryEvent(
     if (!fragment) {
       throw new Error(`unknown event ${String(facetName)}.${eventName}`);
     }
+    let normalizedFromBlock: number | undefined;
+    if (fromBlock != null) {
+      normalizedFromBlock = Number(fromBlock);
+    }
+    let normalizedToBlock: number | "latest" | null | undefined;
+    if (toBlock === "latest") {
+      normalizedToBlock = "latest";
+    } else if (toBlock === null) {
+      normalizedToBlock = toBlock;
+    } else if (toBlock != null) {
+      normalizedToBlock = Number(toBlock);
+    }
     return provider.getLogs({
       address: context.addressBook.resolveFacetAddress(facetName),
       topics: [fragment.topicHash],
-      fromBlock: fromBlock == null ? undefined : Number(fromBlock),
-      toBlock: toBlock == null || toBlock === "latest" ? toBlock : Number(toBlock),
+      fromBlock: normalizedFromBlock,
+      toBlock: normalizedToBlock,
     });
   });
-}
+};
 
 export function decodeLog(facetName: keyof typeof facetRegistry, log: Log): ReturnType<Interface["parseLog"]> | null {
   const iface = new Interface(facetRegistry[facetName].abi);

@@ -197,22 +197,24 @@ export async function resolveRuntimeConfig(
     const publicRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
       ? inferBaseSepoliaPublicRpcUrl(env)
       : null;
-    const fallbackRpcUrl = fixtureRpcUrl && (!isLoopbackRpcUrl(fixtureRpcUrl) || !publicRpcUrl)
-      ? fixtureRpcUrl
-      : (publicRpcUrl ?? fixtureRpcUrl);
+    let fallbackRpcUrl = publicRpcUrl ?? fixtureRpcUrl;
+    if (fixtureRpcUrl && (!isLoopbackRpcUrl(fixtureRpcUrl) || !publicRpcUrl)) {
+      fallbackRpcUrl = fixtureRpcUrl;
+    }
 
     if (!fallbackRpcUrl || fallbackRpcUrl === config.cbdpRpcUrl) {
       throw error;
     }
 
     await verifyNetworkImpl(fallbackRpcUrl, config.chainId);
+    let fallbackAlchemyRpcUrl = fallbackRpcUrl;
+    if (env.ALCHEMY_RPC_URL && !isLoopbackRpcUrl(env.ALCHEMY_RPC_URL)) {
+      fallbackAlchemyRpcUrl = env.ALCHEMY_RPC_URL;
+    }
     const resolvedConfig = readConfigFromEnv({
       ...env,
       RPC_URL: fallbackRpcUrl,
-      ALCHEMY_RPC_URL:
-        env.ALCHEMY_RPC_URL && !isLoopbackRpcUrl(env.ALCHEMY_RPC_URL)
-          ? env.ALCHEMY_RPC_URL
-          : fallbackRpcUrl,
+      ALCHEMY_RPC_URL: fallbackAlchemyRpcUrl,
     });
 
     const fallbackReason = error instanceof Error ? error.message : String(error);
