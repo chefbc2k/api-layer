@@ -1864,4 +1864,35 @@ describe("abi-codec", () => {
       enabled: true,
     });
   });
+
+  it("normalizes object-backed tuple components whose declared name is an empty string", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [
+        { name: "", type: "uint256" },
+        { name: "enabled", type: "bool" },
+      ],
+    } as never, {
+      0: "22",
+      enabled: true,
+    })).toEqual({
+      0: "22",
+      enabled: true,
+    });
+  });
+
+  it("prefers thrown object messages when formatting single-result serialization failures", () => {
+    const definition = {
+      signature: "objectThrown()",
+      outputs: [{
+        get type() {
+          throw { message: "object-backed failure" };
+        },
+      }],
+    };
+
+    expect(() => serializeResultToWire(definition as never, "ignored")).toThrow(
+      "invalid result for objectThrown(): object-backed failure",
+    );
+  });
 });
