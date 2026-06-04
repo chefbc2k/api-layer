@@ -37,7 +37,8 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
     (result) => result.statusCode === 200,
     "withdrawMarketplacePayments.pendingBefore",
   );
-  if (readBigInt((pendingBefore.body as { payee?: unknown }).payee) === 0n) {
+  const pendingBeforePayee = (pendingBefore.body as { payee?: unknown }).payee;
+  if (readBigInt(pendingBeforePayee) === 0n) {
     throw new HttpError(409, "withdraw-marketplace-payments requires pending payments");
   }
 
@@ -81,7 +82,7 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
       payee,
       paymentToken: paymentConfig.paymentToken,
       paymentPaused: paymentConfig.paymentPaused,
-      pendingBefore: (pendingBefore.body as { payee?: unknown }).payee ?? null,
+      pendingBefore: pendingBeforePayee,
     },
     withdrawal: {
       mode: body.deadline ? "deadline" : "standard",

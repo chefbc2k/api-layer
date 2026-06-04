@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.221] - 2026-06-03
+
+### Fixed
+- **Withdraw Marketplace Payments Preflight Now Matches The Proven Success Invariant:** Updated [/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts) so the success payload reuses the already-validated `pendingBeforePayee` value instead of carrying an unreachable null-coalescing fallback after the workflow has already rejected zero/null pending balances.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Withdraw Marketplace Payments Workflow Reached 100% Standard Coverage:** Re-ran `pnpm exec vitest run packages/api/src/workflows/withdraw-marketplace-payments.test.ts --coverage.enabled true --coverage.reporter text --coverage.reporter json-summary --coverage.include 'packages/api/src/workflows/withdraw-marketplace-payments.ts' --maxWorkers 1`; the targeted slice now reaches `100%` statements/branches/functions/lines.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the full sharded suite remained green and aggregate Istanbul totals improved from `99.81% / 98.80% / 99.91% / 99.83%` to `99.83% / 98.83% / 99.91% / 99.85%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Repo-Wide Standard Coverage Remains Unmet:** Live verification parity, API surface coverage, wrapper coverage, and the validated Base Sepolia baseline remain green, but repo-wide branch coverage is still below the automation target. The clearest remaining workflow hotspots after this run are [/Users/chef/Public/api-layer/packages/api/src/workflows/create-marketplace-listing.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/create-marketplace-listing.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-timelock-consequence-flow.ts), and [/Users/chef/Public/api-layer/packages/api/src/modules/voice-assets/workflows/register-voice-asset.ts](/Users/chef/Public/api-layer/packages/api/src/modules/voice-assets/workflows/register-voice-asset.ts).
+
 ## [0.1.220] - 2026-06-03
 
 ### Fixed
