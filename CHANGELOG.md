@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.228] - 2026-06-04
+
+### Fixed
+- **Coverage Guardrails Now Prove More Script Fallbacks:** Expanded [/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.test.ts) so [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts) now explicitly proves the default governance and staking resource inference paths instead of only the specialized proposal, timelock, delegation, voting-power, and echo-score branches.
+- **Fork Bootstrap Defaults Are More Rigidly Locked:** Expanded [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.test.ts) so [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts) now explicitly proves malformed loopback detection for `127.0.0.1` strings and the auto-fork fallback that binds `http://localhost` to the implicit port `80`.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, `rpcUrl: "https://sepolia.base.org"`, signer configured, oracle signer configured, and final status `baseline verified`.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run scripts/api-surface-lib.test.ts scripts/alchemy-debug-lib.test.ts --maxWorkers 1` plus a focused coverage slice over `scripts/api-surface-lib.ts` and `scripts/alchemy-debug-lib.ts`; all `58/58` assertions passed.
+- **Merged Standard Coverage Improved While Staying Green:** Re-ran `pnpm run test:coverage`; the merged suite stayed green and aggregate Istanbul totals improved from `99.83% / 99.15% / 99.91% / 99.85%` to `99.83% / 99.17% / 99.91% / 99.85%` for statements/branches/functions/lines.
+
+### Remaining Issues
+- **100% Repo-Wide Standard Coverage Remains Unmet:** API surface coverage, wrapper coverage, and the validated Base Sepolia baseline remain complete, but repo-wide branch coverage still misses the automation target. The clearest remaining hotspots after this run are [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts](/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/multisig-protocol-change-helpers.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/catalog-listing-operations.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/collaborator-license-lifecycle.ts).
+
 ## [0.1.226] - 2026-06-04
 
 ## [0.1.227] - 2026-06-04

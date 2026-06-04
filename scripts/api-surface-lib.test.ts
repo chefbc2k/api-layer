@@ -241,6 +241,28 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "GovernorFacet",
+      wrapperKey: "quorum",
+      methodName: "quorum",
+      outputs: [{ name: "value", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "governance",
+      path: "/v1/governance/queries/quorum",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "StakingFacet",
+      wrapperKey: "getStake",
+      methodName: "getStake",
+      outputs: [{ name: "stake", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "stakes",
+      path: "/v1/staking/queries/get-stake",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "VoiceLicenseTemplateFacet",
       wrapperKey: "createTemplate",
       methodName: "createTemplate",

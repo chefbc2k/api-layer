@@ -565,6 +565,7 @@ describe("alchemy-debug-lib", () => {
   it("detects loopback RPC URLs from both valid and malformed inputs", () => {
     expect(isLoopbackRpcUrl("http://127.0.0.1:8548")).toBe(true);
     expect(isLoopbackRpcUrl("https://localhost:8545")).toBe(true);
+    expect(isLoopbackRpcUrl("127.0.0.1 fallback")).toBe(true);
     expect(isLoopbackRpcUrl(" localhost fallback")).toBe(true);
     expect(isLoopbackRpcUrl("totally malformed")).toBe(false);
     expect(isLoopbackRpcUrl("https://rpc.example.com")).toBe(false);
@@ -990,6 +991,58 @@ describe("alchemy-debug-lib", () => {
       "localhost",
       "--port",
       "443",
+      "--chain-id",
+      "84532",
+      "--fork-url",
+      "https://base-sepolia.g.alchemy.com/v2/live",
+    ], expect.objectContaining({
+      stdio: ["ignore", "pipe", "pipe"],
+      env: process.env,
+    }));
+  });
+
+  it("uses the default http port when auto-forking a loopback listener without an explicit port", async () => {
+    vi.useFakeTimers();
+    const child = {
+      exitCode: null,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn() },
+    };
+    mocked.spawn.mockReturnValue(child as any);
+    mocked.jsonRpcProvider
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockRejectedValue(new Error("not ready")),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockResolvedValue({ chainId: 84532n }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }));
+
+    const promise = startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+        chainId: 84532,
+      },
+      rpcResolution: {
+        configuredRpcUrl: "http://localhost",
+        source: "base-sepolia-fixture",
+      },
+    } as any);
+
+    await vi.advanceTimersByTimeAsync(500);
+
+    await expect(promise).resolves.toEqual({
+      rpcUrl: "http://localhost",
+      forkProcess: child,
+      forkedFrom: "https://base-sepolia.g.alchemy.com/v2/live",
+    });
+    expect(mocked.spawn).toHaveBeenCalledWith("anvil", [
+      "--host",
+      "localhost",
+      "--port",
+      "80",
       "--chain-id",
       "84532",
       "--fork-url",
