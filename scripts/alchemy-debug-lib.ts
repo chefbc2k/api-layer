@@ -85,17 +85,31 @@ export async function verifyNetwork(rpcUrl: string, expectedChainId: number): Pr
 export function isLoopbackRpcUrl(rpcUrl: string): boolean {
   try {
     const parsed = new URL(rpcUrl);
-    return parsed.hostname === "127.0.0.1" || parsed.hostname === "localhost";
+    if (parsed.hostname === "127.0.0.1") {
+      return true;
+    }
+    return parsed.hostname === "localhost";
   } catch {
-    return rpcUrl.includes("127.0.0.1") || rpcUrl.includes("localhost");
+    if (rpcUrl.includes("127.0.0.1")) {
+      return true;
+    }
+    return rpcUrl.includes("localhost");
   }
 }
 
 function parseRpcListener(rpcUrl: string): { host: string; port: number } {
   const parsed = new URL(rpcUrl);
+  let port: number;
+  if (parsed.port) {
+    port = Number(parsed.port);
+  } else if (parsed.protocol === "https:") {
+    port = 443;
+  } else {
+    port = 80;
+  }
   return {
     host: parsed.hostname,
-    port: parsed.port ? Number(parsed.port) : parsed.protocol === "https:" ? 443 : 80,
+    port,
   };
 }
 
@@ -202,6 +216,7 @@ export async function resolveRuntimeConfig(
           : fallbackRpcUrl,
     });
 
+    const fallbackReason = error instanceof Error ? error.message : String(error);
     return {
       config: resolvedConfig,
       configSources,
@@ -209,7 +224,7 @@ export async function resolveRuntimeConfig(
         configuredRpcUrl: config.cbdpRpcUrl,
         effectiveRpcUrl: fallbackRpcUrl,
         source: "base-sepolia-fixture",
-        fallbackReason: error instanceof Error ? error.message : String(error),
+        fallbackReason,
         fixturePath,
       },
     };
@@ -244,9 +259,10 @@ export async function startLocalForkIfNeeded(
   }
 
   const { host, port } = parseRpcListener(configuredRpcUrl);
+  const anvilBin = process.env.API_LAYER_ANVIL_BIN === undefined ? "anvil" : process.env.API_LAYER_ANVIL_BIN;
   for (let spawnAttempt = 0; spawnAttempt < 3; spawnAttempt += 1) {
     const child = spawn(
-      process.env.API_LAYER_ANVIL_BIN ?? "anvil",
+      anvilBin,
       [
         "--host",
         host,

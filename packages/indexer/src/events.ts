@@ -42,7 +42,7 @@ export function buildEventRegistry(): Map<string, EventDescriptor[]> {
   return registry;
 }
 
-export const decodeEvent = (registry: Map<string, EventDescriptor[]>, log: Log): DecodedEvent | null => {
+export function decodeEvent(registry: Map<string, EventDescriptor[]>, log: Log): DecodedEvent | null {
   const topic0 = log.topics[0];
   if (!topic0) {
     return null;
@@ -67,4 +67,4 @@ export const decodeEvent = (registry: Map<string, EventDescriptor[]>, log: Log):
     }
   }
   return null;
-};
+}

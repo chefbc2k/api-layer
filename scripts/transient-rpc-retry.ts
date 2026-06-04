@@ -69,8 +69,14 @@ export async function runWithTransientRpcRetries<T>(
   if (Number.isFinite(options.baseDelayMs)) {
     normalizedBaseDelayMs = Math.trunc(options.baseDelayMs as number);
   }
-  const maxAttempts = Math.max(1, normalizedMaxAttempts);
-  const baseDelayMs = Math.max(0, normalizedBaseDelayMs);
+  let maxAttempts = normalizedMaxAttempts;
+  if (maxAttempts < 1) {
+    maxAttempts = 1;
+  }
+  let baseDelayMs = normalizedBaseDelayMs;
+  if (baseDelayMs < 0) {
+    baseDelayMs = 0;
+  }
   let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {

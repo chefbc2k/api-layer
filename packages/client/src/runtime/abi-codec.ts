@@ -153,7 +153,10 @@ function tupleToNamedObject(param: AbiParameter, value: unknown): unknown {
       components.map((component, index) => {
         const key = component.name && component.name.length > 0 ? component.name : String(index);
         const namedValue = record[key];
-        const componentValue = namedValue === undefined ? record[String(index)] : namedValue;
+        let componentValue = namedValue;
+        if (componentValue === undefined) {
+          componentValue = record[String(index)];
+        }
         return [key, normalizeTupleOutputs(component, componentValue)];
       }),
     );
@@ -273,10 +276,13 @@ export function serializeResultToWire(
     } catch (error) {
       throw new Error(`invalid result for ${definition.signature}: ${String((error as { message?: string })?.message ?? error)}`);
     }
-    if (output.type === "tuple" && definition.outputShape?.kind === "object" && Array.isArray(serialized)) {
-      serialized = tupleToNamedObject(output, serialized);
-    } else if (output.type === "tuple" && definition.outputShape?.kind === "object") {
-      serialized = normalizeTupleOutputs(output, serialized);
+    const objectShapedTuple = output.type === "tuple" && definition.outputShape?.kind === "object";
+    if (objectShapedTuple) {
+      if (Array.isArray(serialized)) {
+        serialized = tupleToNamedObject(output, serialized);
+      } else {
+        serialized = normalizeTupleOutputs(output, serialized);
+      }
     }
     const validation = buildWireSchema(definition.outputs[0]).safeParse(serialized);
     if (!validation.success) {

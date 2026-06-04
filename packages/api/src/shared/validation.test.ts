@@ -301,6 +301,19 @@ describe("validation helpers", () => {
     });
   });
 
+  it("does not treat nested template paths as top-level managed tuples", () => {
+    const nestedTermsSchema = buildWireSchema(
+      managedTemplateDefinition,
+      managedTemplateDefinition.inputs[0].components![4]!,
+      ["template", "terms"],
+    );
+
+    expect(nestedTermsSchema.parse({ transferable: true })).toEqual({
+      licenseHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
+      transferable: true,
+    });
+  });
+
   it("falls back to unknown schemas for non-body bindings and unnamed body inputs", () => {
     const definition = {
       ...writeDefinition,

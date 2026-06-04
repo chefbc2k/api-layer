@@ -28,14 +28,20 @@ function integerWireSchema(type: string): z.ZodType<string> {
 }
 
 function isManagedTemplateIdentityField(definition: HttpMethodDefinition, path: string[], component: AbiParameter): boolean {
-  return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) &&
-    path.length === 2 &&
-    path[0] === "template" &&
-    ["creator", "createdAt", "updatedAt"].includes(component.name ?? "");
+  if (!TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key)) {
+    return false;
+  }
+  if (path.length !== 2 || path[0] !== "template") {
+    return false;
+  }
+  return ["creator", "createdAt", "updatedAt"].includes(component.name ?? "");
 }
 
 function isManagedTemplateTuple(definition: HttpMethodDefinition, path: string[]): boolean {
-  return TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key) && path.length === 1 && path[0] === "template";
+  if (!TEMPLATE_IDENTITY_MANAGED_KEYS.has(definition.key)) {
+    return false;
+  }
+  return path.length === 1 && path[0] === "template";
 }
 
 function buildWireScalarSchema(definition: HttpMethodDefinition, param: AbiParameter, path: string[]): z.ZodTypeAny {
