@@ -112,6 +112,19 @@ describe("base sepolia operator setup helpers", () => {
     expect(read).not.toHaveBeenCalled();
   });
 
+  it("returns the last observed value when retryApiRead exhausts all attempts", async () => {
+    vi.useFakeTimers();
+    const read = vi.fn()
+      .mockResolvedValueOnce({ ready: false, attempt: 1 })
+      .mockResolvedValueOnce({ ready: false, attempt: 2 });
+
+    const resultPromise = retryApiRead(read, (value) => value.ready, 2, 25);
+    await vi.advanceTimersByTimeAsync(50);
+
+    await expect(resultPromise).resolves.toEqual({ ready: false, attempt: 2 });
+    expect(read).toHaveBeenCalledTimes(2);
+  });
+
   it("advances a local fork past the marketplace trading lock when a listing is still fresh", async () => {
     const provider = {
       getBlock: vi.fn().mockResolvedValue({ timestamp: 1_000 }),
@@ -242,6 +255,51 @@ describe("base sepolia operator setup helpers", () => {
       readyAt: "87401",
     });
     expect(provider.getBlock).not.toHaveBeenCalled();
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("skips time travel cleanly when no listing is available", async () => {
+    const provider = {
+      getBlock: vi.fn(),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: null,
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: null,
+    });
+    expect(provider.getBlock).not.toHaveBeenCalled();
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("falls back to wall-clock time when the latest block timestamp is unavailable", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-04T20:00:00.000Z"));
+
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue(null),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "1000",
+        expiresAt: "9999999999",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+    expect(provider.getBlock).toHaveBeenCalledWith("latest");
     expect(provider.send).not.toHaveBeenCalled();
   });
 
@@ -1349,6 +1407,31 @@ describe("base sepolia operator setup helpers", () => {
     });
   });
 
+  it("omits optional actor API keys when buyer, licensee, and transferee are unavailable", () => {
+    const provider = {
+      getBalance: vi.fn(),
+    } as any;
+    const founder = ethers.Wallet.createRandom();
+    const seller = ethers.Wallet.createRandom();
+
+    const context = buildWalletContext({
+      PRIVATE_KEY: founder.privateKey,
+      ORACLE_SIGNER_PRIVATE_KEY_1: seller.privateKey,
+    } as any, provider);
+
+    setApiLayerActorEnvironment(context);
+
+    expect(JSON.parse(process.env.API_LAYER_KEYS_JSON ?? "{}")).toEqual({
+      "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
+      "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+      "seller-key": { label: "seller", signerId: "seller", roles: ["service"], allowGasless: false },
+    });
+    expect(JSON.parse(process.env.API_LAYER_SIGNER_MAP_JSON ?? "{}")).toEqual({
+      founder: founder.privateKey,
+      seller: seller.privateKey,
+    });
+  });
+
   it("rejects repo envs that omit the founder private key", () => {
     expect(() => buildWalletContext({} as any, {} as any)).toThrow("missing PRIVATE_KEY in repo .env");
   });
@@ -2328,6 +2411,56 @@ describe("base sepolia operator setup helpers", () => {
         },
       },
     });
+  });
+
+  it("fills missing tuple createdAt and expiresAt fields with zero defaults during marketplace read normalization", async () => {
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({ status: 500, payload: { error: "cancel failed" } });
+    const marketplace = {
+      getListing: vi.fn(async () => [33n, "0xseller", 1000n, undefined, 10n, 10n, undefined, true] as const),
+    };
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xolder"],
+      voiceAsset: {
+        getVoiceAsset: vi.fn().mockResolvedValue({ createdAt: "0" }),
+        getTokenId: vi.fn().mockResolvedValue(11n),
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      marketplace,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      status: "blocked",
+      purchaseReadiness: "unverified",
+      listing: {
+        readback: {
+          status: 200,
+          payload: {
+            tokenId: "33",
+            seller: "0xseller",
+            price: "1000",
+            createdAt: "0",
+            createdBlock: "10",
+            lastUpdateBlock: "10",
+            expiresAt: "0",
+            isActive: true,
+          },
+        },
+      },
+    });
+    expect(apiCallFn).toHaveBeenNthCalledWith(
+      2,
+      8787,
+      "DELETE",
+      "/v1/marketplace/commands/cancel-listing",
+      expect.objectContaining({ apiKey: "seller-key", body: { tokenId: "11" } }),
+    );
   });
 
   it("falls back early without time travel when the listing is not loopback-eligible", async () => {
@@ -3326,6 +3459,60 @@ describe("base sepolia operator setup helpers", () => {
     });
     expect(getTokenId).toHaveBeenCalledTimes(1);
     expect(getTokenId).toHaveBeenCalledWith("0xaged");
+  });
+
+  it("prefers the oldest eligible aged candidate before newer seller assets", async () => {
+    const getVoiceAsset = vi.fn(async (voiceHash: string) => {
+      if (voiceHash === "0xoldest") {
+        return { createdAt: "0" };
+      }
+      if (voiceHash === "0xnewer") {
+        return { createdAt: "1" };
+      }
+      return { createdAt: "100001" };
+    });
+    const getTokenId = vi.fn(async (voiceHash: string) => {
+      if (voiceHash === "0xoldest") {
+        return 7n;
+      }
+      if (voiceHash === "0xnewer") {
+        return 8n;
+      }
+      return 9n;
+    });
+    const apiCallFn = vi.fn()
+      .mockResolvedValueOnce({ status: 200, payload: true })
+      .mockResolvedValueOnce({
+        status: 200,
+        payload: {
+          isActive: true,
+          createdAt: "0",
+        },
+      });
+
+    const result = await prepareAgedListingFixture({
+      candidateVoiceHashes: ["0xfuture", "0xnewer", "0xoldest"],
+      voiceAsset: {
+        getVoiceAsset,
+        getTokenId,
+      },
+      sellerAddress: "0xseller",
+      diamondAddress: "0xdiamond",
+      port: 8787,
+      latestTimestamp: 100_000n,
+      apiCallFn: apiCallFn as any,
+    });
+
+    expect(result).toMatchObject({
+      voiceHash: "0xoldest",
+      tokenId: "7",
+      status: "ready",
+      purchaseReadiness: "purchase-ready",
+    });
+    expect(getTokenId).toHaveBeenCalledTimes(2);
+    expect(getTokenId).toHaveBeenNthCalledWith(1, "0xnewer");
+    expect(getTokenId).toHaveBeenNthCalledWith(2, "0xoldest");
+    expect(getTokenId).not.toHaveBeenCalledWith("0xfuture");
   });
 
   it("normalizes aged candidate token ids from custom toString objects", async () => {
