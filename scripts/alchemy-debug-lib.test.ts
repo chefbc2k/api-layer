@@ -1159,6 +1159,20 @@ describe("alchemy-debug-lib", () => {
     }));
   });
 
+  it("resolves an explicitly configured absolute contracts root", async () => {
+    process.env.API_LAYER_PARENT_REPO_DIR = "/tmp/contracts-root";
+    mocked.existsSync.mockImplementation((target: string) =>
+      target === "/tmp/contracts-root/package.json" ||
+      target === "/tmp/contracts-root/scripts/deployment",
+    );
+    mocked.execFileSync.mockReturnValue("beadfeed\n");
+
+    const runtime = await loadRuntimeEnvironment();
+
+    expect(runtime.contractsRoot).toBe("/tmp/contracts-root");
+    expect(runtime.scenarioCommit).toBe("beadfeed");
+  });
+
   it("boots a loopback fork for the runtime environment when the configured listener is down but fixture RPC metadata is available", async () => {
     vi.useFakeTimers();
     process.env.API_LAYER_PARENT_REPO_DIR = "contracts-root";
@@ -1287,6 +1301,10 @@ describe("alchemy-debug-lib", () => {
     await expect(loadRuntimeEnvironment()).rejects.toThrow(
       "unable to locate contracts workspace; set API_LAYER_PARENT_REPO_DIR",
     );
+  });
+
+  it("treats malformed strings containing localhost as loopback RPC urls", () => {
+    expect(isLoopbackRpcUrl("not-a-url-localhost")).toBe(true);
   });
 
   it("runs API scenarios, captures diagnostics, and cleans up temp files", async () => {

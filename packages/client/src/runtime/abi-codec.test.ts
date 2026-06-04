@@ -1760,4 +1760,28 @@ describe("abi-codec", () => {
       enabled: false,
     });
   });
+
+  it("falls back to positional tuple result keys when named object fields are missing", () => {
+    const tupleResult = {
+      signature: "fallbackTupleResult()",
+      outputs: [{
+        type: "tuple",
+        components: [
+          { name: "count", type: "uint256" },
+          { name: "enabled", type: "bool" },
+        ],
+      }],
+      outputShape: { kind: "object" },
+    };
+
+    expect(serializeResultToWire(tupleResult as never, {
+      count: undefined,
+      0: 21n,
+      enabled: undefined,
+      1: true,
+    })).toEqual({
+      count: "21",
+      enabled: true,
+    });
+  });
 });

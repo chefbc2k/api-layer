@@ -172,6 +172,11 @@ describe("multisig protocol change helper utilities", () => {
     expect(decodeProtocolAction("0x123")).toBeNull();
   });
 
+  it("returns null when ownership decoding fails and the diamond-admin parser yields no recognized action", () => {
+    const encodedUnknownDiamondSelector = "0xdeadbeef";
+    expect(decodeProtocolAction(encodedUnknownDiamondSelector)).toBeNull();
+  });
+
   it("covers execution readiness, status, and operation-id fallback branches", () => {
     expect(readCanExecute([true, "ready"])).toEqual({ canExecute: true, reason: "ready" });
     expect(readCanExecute({ result: "invalid" })).toEqual({ canExecute: false, reason: "" });

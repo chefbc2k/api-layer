@@ -636,4 +636,47 @@ describe("runRegisterVoiceAssetWorkflow", () => {
 
     setTimeoutSpy.mockRestore();
   });
+
+  it("skips metadata work when features are provided but registration never returns a voice hash", async () => {
+    const features = { pitch: "142" };
+    const service = {
+      registerVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xreg-no-hash" },
+      }),
+      registerVoiceAssetForCaller: vi.fn(),
+      getVoiceAsset: vi.fn(),
+      getTokenId: vi.fn(),
+      updateBasicAcousticFeatures: vi.fn(),
+      getBasicAcousticFeatures: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xreceipt-registration");
+
+    const result = await runRegisterVoiceAssetWorkflow(context, auth, undefined, {
+      ipfsHash: "QmNoHash",
+      royaltyRate: "122",
+      features,
+    });
+
+    expect(result).toEqual({
+      registration: {
+        submission: { txHash: "0xreg-no-hash" },
+        txHash: "0xreceipt-registration",
+        voiceAsset: null,
+        tokenId: null,
+      },
+      metadataUpdate: null,
+      voiceHash: null,
+      summary: {
+        owner: null,
+        hasFeatures: true,
+        tokenId: null,
+      },
+    });
+    expect(service.getVoiceAsset).not.toHaveBeenCalled();
+    expect(service.getTokenId).not.toHaveBeenCalled();
+    expect(service.updateBasicAcousticFeatures).not.toHaveBeenCalled();
+    expect(service.getBasicAcousticFeatures).not.toHaveBeenCalled();
+  });
 });
