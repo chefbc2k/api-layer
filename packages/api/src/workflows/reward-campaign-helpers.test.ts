@@ -126,4 +126,47 @@ describe("reward campaign helpers", () => {
     expect(setTimeoutSpy).toHaveBeenCalled();
     setTimeoutSpy.mockRestore();
   });
+
+  it("falls back to structured error and log payloads when timeout errors omit a message", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+
+    await expect(waitForWorkflowEventQuery(async () => {
+      throw { code: "INDEX_LAG" };
+    }, () => false, "rewardTest.eventObjectError")).rejects.toThrow("rewardTest.eventObjectError event query timeout: []");
+
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
+  });
+
+  it("uses the non-test poll delay outside the test environment", async () => {
+    const originalEnv = process.env.NODE_ENV;
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler, delay?: number) => {
+      expect(delay).toBe(500);
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+
+    try {
+      vi.resetModules();
+      process.env.NODE_ENV = "production";
+      const module = await import("./reward-campaign-helpers.js");
+
+      await expect(module.waitForWorkflowReadback(
+        async () => ({ statusCode: 202, body: "pending" }),
+        () => false,
+        "rewardTest.productionDelay",
+      )).rejects.toThrow("rewardTest.productionDelay readback timeout");
+    } finally {
+      setTimeoutSpy.mockRestore();
+      process.env.NODE_ENV = originalEnv;
+      vi.resetModules();
+    }
+  });
 });

@@ -224,6 +224,47 @@ describe("runGovernanceAdminFlowWorkflow", () => {
     expect(result.summary.voter).toBe("0x00000000000000000000000000000000000000bb");
   });
 
+  it("falls back to the requested vote wallet when the vote summary omits a voter", async () => {
+    mocks.runVoteOnProposalWorkflow.mockResolvedValueOnce({
+      proposalWindow: {
+        proposalId: "77",
+        snapshot: "120",
+        deadline: "240",
+        proposalState: "1",
+        currentBlock: "150",
+      },
+      vote: {
+        submission: { txHash: "0xvote-write" },
+        txHash: "0xvote-receipt",
+        receipt: { hasVoted: true, support: "1", reason: "workflow vote", votes: "5" },
+        proposalStateAfterVote: "1",
+        eventCount: 1,
+      },
+      summary: {
+        proposalId: "77",
+        support: "1",
+        voter: undefined,
+        reason: "workflow vote",
+      },
+    });
+
+    const result = await runGovernanceAdminFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "vote wallet fallback",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      vote: {
+        support: "1",
+        walletAddress: "0x00000000000000000000000000000000000000cc",
+      },
+    });
+
+    expect(result.summary.voter).toBe("0x00000000000000000000000000000000000000cc");
+  });
+
   it("rejects pre-snapshot votes as an explicit timing block", async () => {
     mocks.runSubmitProposalWorkflow.mockResolvedValueOnce({
       proposal: {
