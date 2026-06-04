@@ -130,6 +130,9 @@ describe("validation helpers", () => {
       2: "terms-v1",
     });
 
+    expect(buildWireSchema(writeDefinition, { type: "tuple" }, ["licenseConfig"]).parse({ passthrough: true }))
+      .toEqual({ passthrough: true });
+
     const fixedArraySchema = buildWireSchema(writeDefinition, { type: "bytes32[2]" });
     expect(fixedArraySchema.parse(["0x01", "0x02"])).toEqual(["0x01", "0x02"]);
     expect(() => fixedArraySchema.parse(["0x01"])).toThrow("expected array length 2");

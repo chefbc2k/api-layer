@@ -416,6 +416,51 @@ describe("vote on proposal workflow", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("surfaces readback timeouts with a null fallback when the last observed body is absent", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
+      if (typeof callback === "function") {
+        callback();
+      }
+      return 0 as ReturnType<typeof setTimeout>;
+    }) as typeof setTimeout);
+    const context = {
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          getBlockNumber: () => Promise<number>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          getBlockNumber: vi.fn(async () => 150),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: 64 })),
+        })),
+      },
+    } as never;
+    mocks.createGovernancePrimitiveService.mockReturnValue({
+      proposalSnapshot: vi.fn().mockResolvedValue({ statusCode: 200, body: "120" }),
+      proposalDeadline: vi.fn().mockResolvedValue({ statusCode: 200, body: "240" }),
+      prState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValue({ statusCode: 200, body: "1" }),
+      prCastVote: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xvote-write" },
+      }),
+      getReceipt: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: undefined,
+      }),
+      voteCastEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    await expect(runVoteOnProposalWorkflow(context, auth, "0x00000000000000000000000000000000000000aa", {
+      proposalId: "62",
+      support: "1",
+      reason: "timeout-null-body",
+    })).rejects.toThrow("voteOnProposal.voteReceipt.62 readback timeout: null");
+
+    setTimeoutSpy.mockRestore();
+  });
+
   it("fails proposal-window lookup after exhausting retries", async () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
       if (typeof callback === "function") {
