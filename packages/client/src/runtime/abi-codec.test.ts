@@ -158,6 +158,37 @@ describe("abi-codec", () => {
     });
   });
 
+  it("normalizes object-backed tuple outputs when only explicit named keys are present", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        { name: "owner", type: "address" },
+        { name: "count", type: "uint256" },
+      ],
+    };
+
+    expect(abiCodecInternals.tupleToNamedObject(tupleParam as never, {
+      owner: "0x0000000000000000000000000000000000000007",
+      count: "9",
+    })).toEqual({
+      owner: "0x0000000000000000000000000000000000000007",
+      count: "9",
+    });
+  });
+
+  it("normalizes nested fixed-length tuple arrays through the tuple output helper", () => {
+    expect(abiCodecInternals.normalizeTupleOutputs({
+      type: "tuple[2][1]",
+      components: [{ name: "owner", type: "address" }],
+    } as never, [[
+      ["0x0000000000000000000000000000000000000001"],
+      ["0x0000000000000000000000000000000000000002"],
+    ]])).toEqual([[
+      { owner: "0x0000000000000000000000000000000000000001" },
+      { owner: "0x0000000000000000000000000000000000000002" },
+    ]]);
+  });
+
   it("normalizes unnamed tuple components from both positional and object-backed outputs", () => {
     const definition = {
       signature: "mixedTupleResult()",
@@ -1359,6 +1390,39 @@ describe("abi-codec", () => {
 
     expect(() => serializeResultToWire(definition as never, "ignored")).toThrow(
       "invalid result for stringThrown(): string-backed failure",
+    );
+  });
+
+  it("stringifies thrown objects without message fields for single-result serialization failures", () => {
+    const definition = {
+      signature: "objectWithoutMessageThrown()",
+      outputs: [{
+        get type() {
+          throw { reason: "missing-message" };
+        },
+      }],
+    };
+
+    expect(() => serializeResultToWire(definition as never, "ignored")).toThrow(
+      "invalid result for objectWithoutMessageThrown(): [object Object]",
+    );
+  });
+
+  it("stringifies thrown objects without message fields for multi-result serialization failures", () => {
+    const definition = {
+      signature: "multiObjectWithoutMessageThrown()",
+      outputs: [
+        { type: "uint256" },
+        {
+          get type() {
+            throw { reason: "missing-message" };
+          },
+        },
+      ],
+    };
+
+    expect(() => serializeResultToWire(definition as never, [1n, "ignored"])).toThrow(
+      "invalid result item 1 for multiObjectWithoutMessageThrown(): [object Object]",
     );
   });
 

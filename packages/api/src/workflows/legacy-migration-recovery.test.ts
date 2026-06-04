@@ -531,6 +531,89 @@ describe("runLegacyMigrationRecoveryWorkflow", () => {
     });
   });
 
+  it("skips inheritance initiation when execution omits proof documents and still preserves non-authorizing collaborator setup", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          memo: "",
+          voiceAssets: [],
+          datasetIds: [],
+          beneficiaries: [],
+          conditions: {},
+          isActive: false,
+          isExecuted: false,
+        },
+      }),
+      isInheritanceReady: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { result: false } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { result: false } }),
+      createLegacyPlan: vi.fn(),
+      addVoiceAssets: vi.fn(),
+      addDatasets: vi.fn(),
+      addInheritanceRequirement: vi.fn(),
+      validateBeneficiary: vi.fn(),
+      addBeneficiary: vi.fn(),
+      setBeneficiaryRelationship: vi.fn(),
+      setInheritanceConditions: vi.fn(),
+      initiateInheritance: vi.fn(),
+      approveInheritance: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true } }),
+      executeInheritance: vi.fn(),
+      delegateRights: vi.fn(),
+      getTokenId: vi.fn().mockResolvedValue({ statusCode: 200, body: "77" }),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          owner: "0x00000000000000000000000000000000000000aa",
+        },
+      }),
+      legacyPlanCreatedEventQuery: vi.fn(),
+      inheritanceConditionsUpdatedEventQuery: vi.fn(),
+      inheritanceApprovedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      inheritanceActivatedEventQuery: vi.fn(),
+      rightsDelegatedEventQuery: vi.fn(),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValueOnce(service);
+
+    const result = await runLegacyMigrationRecoveryWorkflow(context, auth, undefined, {
+      legacy: {
+        owner: "0x00000000000000000000000000000000000000aa",
+        execution: {
+          voiceHash,
+          approverActors: [{ apiKey: "approver-key" }],
+        },
+      },
+      normalization: {
+        accessSetup: [
+          {
+            role,
+            account: "0x00000000000000000000000000000000000000ee",
+            expiryTime: "3600",
+            authorizeVoice: false,
+          },
+        ],
+      },
+    });
+
+    expect(service.initiateInheritance).not.toHaveBeenCalled();
+    expect(service.approveInheritance).toHaveBeenCalledWith(expect.objectContaining({
+      auth: approverAuth,
+      wireParams: [voiceHash],
+    }));
+    expect(mocks.runOnboardRightsHolderWorkflow).toHaveBeenCalledWith(context, auth, undefined, {
+      role,
+      account: "0x00000000000000000000000000000000000000ee",
+      expiryTime: "3600",
+      voiceHashes: [],
+    });
+    expect(result.legacy.migration.initiation).toBeNull();
+    expect(result.normalization.accessSetup).toEqual([
+      expect.objectContaining({
+        authorizeVoice: false,
+      }),
+    ]);
+  });
+
   it("handles tx-hashless plan and migration writes while falling back approver wallet addresses", async () => {
     const service = {
       getLegacyPlan: vi.fn()

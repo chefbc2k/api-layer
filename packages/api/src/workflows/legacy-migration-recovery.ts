@@ -470,7 +470,7 @@ export async function runLegacyMigrationRecoveryWorkflow(
           statusCode: 200,
           body: {
             tokenId: tokenIdValue,
-            owner: normalizeAddress(asRecord(voiceAsset.body)?.owner ?? null),
+            owner: normalizeAddress(asRecord(voiceAsset.body)?.owner),
             voiceAsset: voiceAsset.body,
           },
         };

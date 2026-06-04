@@ -276,6 +276,63 @@ describe("runRegisterVoiceAssetWorkflow", () => {
     });
   });
 
+  it("retries after a transient metadata feature read error before succeeding", async () => {
+    const features = {
+      pitch: "120",
+      volume: "70",
+    };
+    const service = {
+      registerVoiceAsset: vi.fn(),
+      registerVoiceAssetForCaller: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xreg-features-transient", result: "0x3838383838383838383838383838383838383838383838383838383838383838" },
+      }),
+      getVoiceAsset: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          voiceHash: "0x3838383838383838383838383838383838383838383838383838383838383838",
+          owner: "0x00000000000000000000000000000000000000aa",
+        },
+      }),
+      getTokenId: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: "308",
+      }),
+      updateBasicAcousticFeatures: vi.fn().mockResolvedValue({
+        statusCode: 202,
+        body: { txHash: "0xmeta-features-transient" },
+      }),
+      getBasicAcousticFeatures: vi.fn()
+        .mockRejectedValueOnce(new Error("temporary rpc failure"))
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: features,
+        }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xreceipt-registration")
+      .mockResolvedValueOnce("0xreceipt-metadata");
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+
+    const result = await runRegisterVoiceAssetWorkflow(context, auth, "0xwallet", {
+      ipfsHash: "QmVoiceWithTransientFeatureRead",
+      royaltyRate: "180",
+      owner: "0x00000000000000000000000000000000000000aa",
+      features,
+    });
+
+    expect(service.getBasicAcousticFeatures).toHaveBeenCalledTimes(2);
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    expect(result.metadataUpdate).toMatchObject({
+      txHash: "0xreceipt-metadata",
+      features,
+    });
+  });
+
   it("skips metadata update when registration does not yield a voice hash", async () => {
     const service = {
       registerVoiceAsset: vi.fn().mockResolvedValue({
