@@ -239,6 +239,33 @@ describe("invoke runtime helpers", () => {
     } as never, "TestFacet", "MissingEvent")).rejects.toThrow();
   });
 
+  it("surfaces explicit unknown-event null fragments from the interface lookup", async () => {
+    const provider = { getLogs: vi.fn().mockResolvedValue([]) };
+    const providerRouter = {
+      withProvider: vi.fn().mockImplementation(async (_mode, _method, work) => work(provider)),
+    };
+    const addressBook = { resolveFacetAddress: vi.fn().mockReturnValue("0x0000000000000000000000000000000000000001") };
+    const getEventSpy = vi.spyOn(Interface.prototype, "getEvent").mockReturnValueOnce(null as never);
+
+    await expect(queryEvent({
+      providerRouter,
+      addressBook,
+    } as never, "TestFacet", "ValueSet")).rejects.toThrow("unknown event TestFacet.ValueSet");
+
+    expect(provider.getLogs).not.toHaveBeenCalled();
+    getEventSpy.mockRestore();
+  });
+
+  it("returns null when log decoding throws", () => {
+    const parseLogSpy = vi.spyOn(Interface.prototype, "parseLog").mockImplementationOnce(() => {
+      throw new Error("bad log");
+    });
+
+    expect(decodeLog("TestFacet", { topics: ["0xdeadbeef"] } as unknown as Log)).toBeNull();
+
+    parseLogSpy.mockRestore();
+  });
+
   it("omits both block bounds when callers pass nullish filters", async () => {
     const provider = { getLogs: vi.fn().mockResolvedValue([]) };
     const providerRouter = {

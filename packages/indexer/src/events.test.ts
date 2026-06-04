@@ -156,6 +156,46 @@ describe("decodeEvent", () => {
     });
   });
 
+  it("continues after a candidate throws before a later candidate matches", () => {
+    const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
+    const fragment = iface.getEvent("TestEvent");
+    const encoded = iface.encodeEventLog(fragment!, ["0x00000000000000000000000000000000000000aa", 42n]);
+    const log = {
+      address: "0x0000000000000000000000000000000000000001",
+      data: encoded.data,
+      topics: encoded.topics,
+      transactionHash: "0xtx",
+      blockHash: "0xblock",
+      blockNumber: 1,
+      index: 0,
+      removed: false,
+    } as unknown as Log;
+    const mixedRegistry = new Map([
+      [encoded.topics[0], [
+        {
+          facetName: "ThrowingFacet",
+          eventName: "Throwing",
+          wrapperKey: "Throwing",
+          fullEventKey: "ThrowingFacet.Throwing",
+          iface: { parseLog: () => { throw new Error("decode failed"); } },
+        },
+        {
+          facetName: "TestFacet",
+          eventName: "TestEvent",
+          wrapperKey: "TestEvent",
+          fullEventKey: "TestFacet.TestEvent",
+          iface,
+        },
+      ]],
+    ]);
+
+    expect(decodeEvent(mixedRegistry as never, log)).toMatchObject({
+      facetName: "TestFacet",
+      eventName: "TestEvent",
+      fullEventKey: "TestFacet.TestEvent",
+    });
+  });
+
   it("skips candidates that parse to null before accepting a later match", () => {
     const iface = new Interface(["event TestEvent(address indexed owner, uint256 amount)"]);
     const fragment = iface.getEvent("TestEvent");
@@ -232,5 +272,9 @@ describe("decodeEvent", () => {
 
   it("returns null when the first topic entry is explicitly undefined", () => {
     expect(decodeEvent(new Map(), { topics: [undefined] } as unknown as Log)).toBeNull();
+  });
+
+  it("returns null when the first topic entry is a falsy empty string", () => {
+    expect(decodeEvent(new Map(), { topics: [""] } as unknown as Log)).toBeNull();
   });
 });

@@ -102,6 +102,4 @@ export async function runWithTransientRpcRetries<T>(
       await delay(baseDelayMs * attempt);
     }
   }
-
-  throw lastError;
 }

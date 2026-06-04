@@ -203,6 +203,20 @@ describe("vesting helpers", () => {
     )).rejects.toThrow("totals failed while revoked");
   });
 
+  it("collects primitive diagnostics text while ignoring nullish and function-shaped fields", () => {
+    const error = normalizeCreateVestingExecutionError({
+      message: "execution reverted: UnauthorizedUser(address)",
+      diagnostics: {
+        nested: [null, undefined, () => "ignored", { enabled: false, remaining: 7n }],
+      },
+    }, "team");
+
+    expect(error).toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "create-beneficiary-vesting blocked by insufficient caller authority: signer lacks VESTING_MANAGER_ROLE for team schedules",
+    });
+  });
+
   it("normalizes create-vesting execution errors into workflow-specific HttpErrors", () => {
     const diagnostics = { txHash: "0xcreate" };
 
@@ -291,6 +305,16 @@ describe("vesting helpers", () => {
         message: "release-beneficiary-vesting blocked by setup/state: no releasable amount",
       });
     expect(normalizeReleaseVestingExecutionError(new Error("execution reverted: InCliffPeriod()")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "release-beneficiary-vesting blocked by setup/state: beneficiary is still in cliff period until unknown",
+      });
+    expect(normalizeReleaseVestingExecutionError(new Error("execution reverted data=\"0x4b53d0ef\"")))
+      .toMatchObject<HttpError>({
+        statusCode: 409,
+        message: "release-beneficiary-vesting blocked by setup/state: beneficiary is still in cliff period until unknown",
+      });
+    expect(normalizeReleaseVestingExecutionError(new Error("execution reverted data=\"0x4b53d0ef01\"")))
       .toMatchObject<HttpError>({
         statusCode: 409,
         message: "release-beneficiary-vesting blocked by setup/state: beneficiary is still in cliff period until unknown",
