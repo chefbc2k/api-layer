@@ -860,4 +860,63 @@ describe("runCatalogListingOperationsWorkflow", () => {
       }),
     }));
   });
+
+  it("retries license readback until the new template id appears", async () => {
+    const service = datasetService({
+      getDataset: vi.fn()
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1"],
+            licenseTemplateId: "2",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: {
+            datasetId: "11",
+            assetIds: ["1"],
+            licenseTemplateId: "9",
+            metadataURI: "ipfs://dataset",
+            royaltyBps: "250",
+            active: true,
+          },
+        }),
+    });
+    mocks.createDatasetsPrimitiveService.mockReturnValue(service);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
+
+    const result = await runCatalogListingOperationsWorkflow(context, auth, undefined, {
+      dataset: {
+        datasetId: "11",
+        maintenance: {
+          setLicenseTemplateId: "9",
+        },
+      },
+      listing: {
+        inspect: false,
+        cancel: false,
+      },
+    });
+
+    expect(service.getDataset).toHaveBeenCalledTimes(3);
+    expect(result.packaging.maintenance.setLicense?.read).toEqual(expect.objectContaining({
+      licenseTemplateId: "9",
+    }));
+  });
 });

@@ -293,6 +293,26 @@ describe("abi-codec", () => {
     });
   });
 
+  it("prefers numeric tuple fallback keys when named tuple fields are explicitly undefined", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        { name: "owner", type: "address" },
+        { name: "count", type: "uint256" },
+      ],
+    };
+
+    expect(abiCodecInternals.tupleToNamedObject(tupleParam as never, {
+      owner: undefined,
+      0: "0x000000000000000000000000000000000000000a",
+      count: undefined,
+      1: "12",
+    })).toEqual({
+      owner: "0x000000000000000000000000000000000000000a",
+      count: "12",
+    });
+  });
+
   it("prefers explicit named tuple fields over numeric fallback slots", () => {
     const tupleParam = {
       type: "tuple",

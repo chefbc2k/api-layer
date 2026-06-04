@@ -288,6 +288,41 @@ describe("runCollaboratorLicenseLifecycleWorkflow", () => {
     expect(result.summary.revoked).toBe(true);
   });
 
+  it("preserves an undefined revoke reason when the request omits it", async () => {
+    const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
+    service.getLicense
+      .mockResolvedValueOnce({
+        statusCode: 200,
+        body: { licensee: "0x00000000000000000000000000000000000000cc", templateHash: `0x${"0".repeat(63)}5` },
+      })
+      .mockResolvedValueOnce({
+        statusCode: 500,
+        body: { error: "revoked" },
+      });
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xissue-template")
+      .mockResolvedValueOnce("0xrevoke");
+
+    const result = await runCollaboratorLicenseLifecycleWorkflow(context, auth, undefined, {
+      voiceAsset: { voiceHash },
+      collaborators: [],
+      templateLifecycle: {
+        create: {},
+      },
+      issue: {
+        mode: "template",
+        licensee: "0x00000000000000000000000000000000000000cc",
+        duration: "86400",
+      },
+      revoke: {},
+    });
+
+    expect(result.license.revoke).toEqual(expect.objectContaining({
+      reason: undefined,
+    }));
+  });
+
   it("keeps transfer and revoke event counts at zero when receipts are unavailable", async () => {
     const service = mocks.createLicensingPrimitiveService.mock.results[0]?.value ?? mocks.createLicensingPrimitiveService();
     service.licenseTransferredEventQuery.mockClear();

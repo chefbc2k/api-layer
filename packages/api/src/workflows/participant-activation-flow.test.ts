@@ -568,6 +568,51 @@ describe("runParticipantActivationFlowWorkflow", () => {
     );
   });
 
+  it("skips reward-campaign manage when create does not establish a campaign id", async () => {
+    mocks.runCreateRewardCampaignWorkflow.mockResolvedValueOnce({
+      campaign: {
+        submission: { txHash: "0xcreate-campaign" },
+        txHash: "0xcreate-campaign",
+        campaignId: null,
+        read: { paused: false },
+        eventCount: 1,
+      },
+      counts: { before: "0", after: "1" },
+      summary: {
+        campaignId: null,
+      },
+    });
+
+    const result = await runParticipantActivationFlowWorkflow(context, auth, undefined, {
+      staking: {
+        amount: "10",
+        delegatee: "0x00000000000000000000000000000000000000bb",
+      },
+      rewards: {
+        campaign: {
+          create: {
+            merkleRoot: "0x1111111111111111111111111111111111111111111111111111111111111111",
+            startTime: "100",
+            cliffSeconds: "0",
+            durationSeconds: "0",
+            tgeUnlockBps: "10000",
+            maxTotalClaimable: "2",
+          },
+          manage: {
+            paused: true,
+          },
+        },
+      },
+    });
+
+    expect(result.rewards.campaign.manage).toEqual({
+      status: "skipped",
+      result: null,
+      block: null,
+      reason: "reward campaign id was not established",
+    });
+  });
+
   it("requires a vesting create or inspect step when vesting is present", () => {
     const result = participantActivationFlowWorkflowSchema.safeParse({
       staking: {

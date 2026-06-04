@@ -210,11 +210,15 @@ export function createPreferredMarketplaceFixture(
     voiceHash: preferredCandidate.voiceHash,
     tokenId: preferredCandidate.tokenId,
     activeListing,
-    purchaseReadiness: purchaseReady
-      ? "purchase-ready"
-      : activeListing && !listingExpired
-        ? "listed-not-yet-purchase-proven"
-        : "unverified",
+    purchaseReadiness: (() => {
+      if (purchaseReady) {
+        return "purchase-ready" as const;
+      }
+      if (activeListing && !listingExpired) {
+        return "listed-not-yet-purchase-proven" as const;
+      }
+      return "unverified" as const;
+    })(),
     status: purchaseReady
       ? "ready"
       : activeListing
@@ -287,10 +291,14 @@ export async function advanceLocalForkPastMarketplaceTradingLock(args: {
 }): Promise<{ advanced: boolean; secondsAdvanced: string; readyAt: string | null }> {
   const { listing } = args;
   if (!isLoopbackRpcUrl(args.rpcUrl) || !listing?.isActive || !listing.createdAt) {
+    let readyAt: string | null = null;
+    if (listing?.createdAt) {
+      readyAt = (BigInt(listing.createdAt) + 24n * 60n * 60n + 1n).toString();
+    }
     return {
       advanced: false,
       secondsAdvanced: "0",
-      readyAt: listing?.createdAt ? (BigInt(listing.createdAt) + 24n * 60n * 60n + 1n).toString() : null,
+      readyAt,
     };
   }
 

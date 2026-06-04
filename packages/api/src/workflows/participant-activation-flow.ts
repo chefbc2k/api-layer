@@ -114,8 +114,10 @@ export async function runParticipantActivationFlowWorkflow(
   let rewardCampaignManage: StepState<Awaited<ReturnType<typeof runManageRewardCampaignWorkflow>>> = notRequestedStep();
   if (body.rewards?.campaign?.manage) {
     const campaignId = body.rewards.campaign.manage.campaignId ?? rewardCampaignId;
-    rewardCampaignManage = campaignId
-      ? await runStateAwareStep(() => runManageRewardCampaignWorkflow(
+    if (!campaignId) {
+      rewardCampaignManage = skippedStep("reward campaign id was not established");
+    } else {
+      rewardCampaignManage = await runStateAwareStep(() => runManageRewardCampaignWorkflow(
         context,
         rewardCampaignActor.auth,
         rewardCampaignActor.walletAddress,
@@ -124,8 +126,8 @@ export async function runParticipantActivationFlowWorkflow(
           newMerkleRoot: body.rewards!.campaign!.manage!.newMerkleRoot,
           paused: body.rewards!.campaign!.manage!.paused,
         },
-      ))
-      : skippedStep("reward campaign id was not established");
+      ));
+    }
     if (rewardCampaignManage.status === "completed") {
       rewardCampaignId = rewardCampaignManage.result.summary.campaignId;
     }

@@ -99,13 +99,12 @@ export function isLoopbackRpcUrl(rpcUrl: string): boolean {
 
 function parseRpcListener(rpcUrl: string): { host: string; port: number } {
   const parsed = new URL(rpcUrl);
-  let port: number;
+  let port = 80;
+  if (parsed.protocol === "https:") {
+    port = 443;
+  }
   if (parsed.port) {
     port = Number(parsed.port);
-  } else if (parsed.protocol === "https:") {
-    port = 443;
-  } else {
-    port = 80;
   }
   return {
     host: parsed.hostname,
@@ -259,7 +258,10 @@ export async function startLocalForkIfNeeded(
   }
 
   const { host, port } = parseRpcListener(configuredRpcUrl);
-  const anvilBin = process.env.API_LAYER_ANVIL_BIN === undefined ? "anvil" : process.env.API_LAYER_ANVIL_BIN;
+  let anvilBin = "anvil";
+  if (process.env.API_LAYER_ANVIL_BIN !== undefined) {
+    anvilBin = process.env.API_LAYER_ANVIL_BIN;
+  }
   for (let spawnAttempt = 0; spawnAttempt < 3; spawnAttempt += 1) {
     const child = spawn(
       anvilBin,

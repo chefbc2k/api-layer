@@ -195,7 +195,13 @@ export async function runCatalogListingOperationsWorkflow(
         walletAddress,
         wireParams: [datasetId],
       }),
-      (result) => readDatasetField(result.body, "licenseTemplateId") === templateIdToApply,
+      (result) => {
+        const appliedTemplateId = readDatasetField(result.body, "licenseTemplateId");
+        if (appliedTemplateId !== templateIdToApply) {
+          return false;
+        }
+        return true;
+      },
       "catalogListingOperations.setLicenseRead",
     );
     setLicense = {

@@ -152,10 +152,10 @@ function tupleToNamedObject(param: AbiParameter, value: unknown): unknown {
     return Object.fromEntries(
       components.map((component, index) => {
         const key = component.name && component.name.length > 0 ? component.name : String(index);
-        const namedValue = record[key];
-        let componentValue = namedValue;
+        let componentValue = record[key];
         if (componentValue === undefined) {
-          componentValue = record[String(index)];
+          const numericFallbackKey = String(index);
+          componentValue = record[numericFallbackKey];
         }
         return [key, normalizeTupleOutputs(component, componentValue)];
       }),
@@ -269,7 +269,7 @@ export function serializeResultToWire(
     return null;
   }
   if (outputCount === 1) {
-    const output = definition.outputs[0];
+    const [output] = definition.outputs;
     let serialized: unknown;
     try {
       serialized = serializeToWire(output, result);
