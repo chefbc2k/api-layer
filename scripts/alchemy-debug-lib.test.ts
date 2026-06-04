@@ -1360,6 +1360,63 @@ describe("alchemy-debug-lib", () => {
     expect(isLoopbackRpcUrl("not-a-url-localhost")).toBe(true);
   });
 
+  it("treats malformed strings containing 127.0.0.1 as loopback RPC urls", () => {
+    expect(isLoopbackRpcUrl("not-a-url-127.0.0.1")).toBe(true);
+  });
+
+  it("uses an explicit loopback port and custom anvil binary when auto-forking", async () => {
+    vi.useFakeTimers();
+    process.env.API_LAYER_ANVIL_BIN = "custom-anvil";
+    const child = {
+      exitCode: null,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn() },
+    };
+    mocked.spawn.mockReturnValue(child as any);
+    mocked.jsonRpcProvider
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockRejectedValue(new Error("not ready")),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockResolvedValue({ chainId: 84532n }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }));
+
+    const promise = startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+        chainId: 84532,
+      },
+      rpcResolution: {
+        configuredRpcUrl: "http://127.0.0.1:8548",
+        source: "base-sepolia-fixture",
+      },
+    } as any);
+
+    await vi.advanceTimersByTimeAsync(500);
+
+    await expect(promise).resolves.toEqual({
+      rpcUrl: "http://127.0.0.1:8548",
+      forkProcess: child,
+      forkedFrom: "https://base-sepolia.g.alchemy.com/v2/live",
+    });
+    expect(mocked.spawn).toHaveBeenCalledWith("custom-anvil", [
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "8548",
+      "--chain-id",
+      "84532",
+      "--fork-url",
+      "https://base-sepolia.g.alchemy.com/v2/live",
+    ], expect.objectContaining({
+      stdio: ["ignore", "pipe", "pipe"],
+      env: process.env,
+    }));
+  });
+
   it("runs API scenarios, captures diagnostics, and cleans up temp files", async () => {
     const stdoutWrite = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     const stderrWrite = vi.spyOn(process.stderr, "write").mockImplementation(() => true);

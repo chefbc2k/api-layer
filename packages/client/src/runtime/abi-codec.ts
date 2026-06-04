@@ -152,7 +152,9 @@ function tupleToNamedObject(param: AbiParameter, value: unknown): unknown {
     return Object.fromEntries(
       components.map((component, index) => {
         const key = component.name && component.name.length > 0 ? component.name : String(index);
-        return [key, normalizeTupleOutputs(component, record[key] ?? record[String(index)])];
+        const namedValue = record[key];
+        const componentValue = namedValue === undefined ? record[String(index)] : namedValue;
+        return [key, normalizeTupleOutputs(component, componentValue)];
       }),
     );
   }
@@ -259,10 +261,11 @@ export function serializeResultToWire(
   definition: Pick<AbiMethodDefinition, "outputs" | "signature"> & { outputShape?: { kind?: string } },
   result: unknown,
 ): unknown {
-  if (definition.outputs.length === 0) {
+  const outputCount = definition.outputs.length;
+  if (outputCount === 0) {
     return null;
   }
-  if (definition.outputs.length === 1) {
+  if (outputCount === 1) {
     const output = definition.outputs[0];
     let serialized: unknown;
     try {

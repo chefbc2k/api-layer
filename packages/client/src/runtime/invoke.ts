@@ -56,13 +56,13 @@ export async function invokeWrite(
   });
 }
 
-export async function queryEvent(
+export const queryEvent = async (
   context: FacetWrapperContext,
   facetName: keyof typeof facetRegistry,
   eventName: string,
   fromBlock?: bigint | number,
   toBlock?: bigint | number | "latest",
-): Promise<Array<EventLog | Log>> {
+): Promise<Array<EventLog | Log>> => {
   return context.providerRouter.withProvider("events", `${String(facetName)}.${eventName}`, async (provider) => {
     const facet = facetRegistry[facetName];
     const iface = new Interface(facet.abi);
@@ -77,7 +77,7 @@ export async function queryEvent(
       toBlock: toBlock == null || toBlock === "latest" ? toBlock : Number(toBlock),
     });
   });
-}
+};
 
 export function decodeLog(facetName: keyof typeof facetRegistry, log: Log): ReturnType<Interface["parseLog"]> | null {
   const iface = new Interface(facetRegistry[facetName].abi);

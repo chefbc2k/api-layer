@@ -293,6 +293,31 @@ describe("abi-codec", () => {
     });
   });
 
+  it("uses numeric fallback keys for nested named tuple components during object normalization", () => {
+    const tupleParam = {
+      type: "tuple",
+      components: [
+        {
+          name: "meta",
+          type: "tuple",
+          components: [
+            { name: "count", type: "uint256" },
+          ],
+        },
+      ],
+    };
+
+    expect(abiCodecInternals.tupleToNamedObject(tupleParam as never, {
+      0: {
+        count: "11",
+      },
+    })).toEqual({
+      meta: {
+        count: "11",
+      },
+    });
+  });
+
   it("serializes and decodes fixed-length nested arrays inside tuples", () => {
     const param = {
       type: "tuple[1]",
