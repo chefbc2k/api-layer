@@ -218,6 +218,31 @@ describe("runTreasuryRevenueOperationsWorkflow", () => {
     ]);
   });
 
+  it("collapses the payout actor to null when neither the override nor parent wallet is available", async () => {
+    const result = await runTreasuryRevenueOperationsWorkflow(context, auth, undefined, {
+      payouts: {
+        sweeps: [{
+          actor: {
+            apiKey: "ops-key",
+          },
+        }],
+      },
+    });
+
+    expect(mocks.runWithdrawMarketplacePaymentsWorkflow).toHaveBeenCalledWith(
+      context,
+      opsAuth,
+      undefined,
+      { deadline: undefined },
+    );
+    expect(result.payouts.sweeps).toEqual([
+      expect.objectContaining({
+        label: "sweep-1",
+        actor: null,
+      }),
+    ]);
+  });
+
   it("returns not-requested posture steps when no work is requested", async () => {
     const result = await runTreasuryRevenueOperationsWorkflow(context, auth, undefined, {});
 
