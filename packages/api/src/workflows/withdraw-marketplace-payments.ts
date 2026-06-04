@@ -63,17 +63,18 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
     "withdrawMarketplacePayments.pendingAfter",
   );
 
-  const withdrawalEvents = withdrawalReceipt
-    ? await waitForWorkflowEventQuery(
-        () => marketplace.usdcpaymentWithdrawnEventQuery({
-          auth,
-          fromBlock: BigInt(withdrawalReceipt.blockNumber),
-          toBlock: BigInt(withdrawalReceipt.blockNumber),
-        }),
-        (logs) => hasTransactionHash(logs, withdrawalTxHash),
-        "withdrawMarketplacePayments.withdrawnEvent",
-      )
-    : [];
+  let withdrawalEvents: Awaited<ReturnType<typeof waitForWorkflowEventQuery>> = [];
+  if (withdrawalReceipt) {
+    withdrawalEvents = await waitForWorkflowEventQuery(
+      () => marketplace.usdcpaymentWithdrawnEventQuery({
+        auth,
+        fromBlock: BigInt(withdrawalReceipt.blockNumber),
+        toBlock: BigInt(withdrawalReceipt.blockNumber),
+      }),
+      (logs) => hasTransactionHash(logs, withdrawalTxHash),
+      "withdrawMarketplacePayments.withdrawnEvent",
+    );
+  }
 
   return {
     preflight: {

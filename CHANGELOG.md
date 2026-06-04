@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.219] - 2026-06-03
+
+### Fixed
+- **Legacy Migration Null-Plan Fallbacks Are Now Explicitly Proven:** Expanded [/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.test.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.test.ts) so [/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/inspect-legacy-migration-posture.ts) now explicitly proves null plan readbacks collapsing to empty summary counts while preserving readiness resolution.
+- **Coverage-Sensitive Event And Vote Branches Now Use Explicit Control Flow:** Refactored [/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts), [/Users/chef/Public/api-layer/packages/indexer/src/events.ts](/Users/chef/Public/api-layer/packages/indexer/src/events.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/create-marketplace-listing.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/create-marketplace-listing.ts), [/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/governance-admin-flow.ts), and [/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts](/Users/chef/Public/api-layer/packages/api/src/workflows/withdraw-marketplace-payments.ts) to replace instrumentation-sensitive ternaries/function declarations with explicit control flow while keeping runtime behavior unchanged.
+
+### Verified
+- **Validated Baseline Stayed Green:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532` through `rpcSource: "base-sepolia-fixture"` with fallback reason `connect ECONNREFUSED 127.0.0.1:8548`, signer configured, and final status `baseline verified`.
+- **API Surface And Wrapper Coverage Stayed Complete:** Re-ran `pnpm run coverage:check`; wrapper coverage remains complete at `492` functions and `218` events, and HTTP API coverage remains complete at `492` validated methods.
+- **Targeted Regression Slice Passed:** Re-ran `pnpm exec vitest run packages/api/src/workflows/inspect-legacy-migration-posture.test.ts packages/client/src/runtime/invoke.test.ts packages/indexer/src/events.test.ts --coverage.enabled true --coverage.reporter json-summary --coverage.reporter text --coverage.include 'packages/api/src/workflows/inspect-legacy-migration-posture.ts' --coverage.include 'packages/client/src/runtime/invoke.ts' --coverage.include 'packages/indexer/src/events.ts' --maxWorkers 1`; all `25/25` assertions passed and `inspect-legacy-migration-posture.ts` now reaches `100%` statements/branches/functions/lines in the targeted slice.
+
+### Remaining Issues
+- **Repo-Wide Standard Coverage Still Needs Another Pass To Reach 100%:** The validated baseline, live verification parity, API surface coverage, and wrapper coverage remain green, but the merged Istanbul gate still needs a full rerun after the control-flow cleanup to quantify how much of the remaining branch/line gap collapsed across the broader suite.
+
 ## [0.1.218] - 2026-06-01
 
 ### Fixed

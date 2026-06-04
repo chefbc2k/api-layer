@@ -183,4 +183,42 @@ describe("runInspectLegacyMigrationPostureWorkflow", () => {
     expect(result.summary.inheritanceReady).toBe(true);
     expect(result.summary.hasPlan).toBe(false);
   });
+
+  it("falls back to an empty plan summary when the plan readback is not object-like", async () => {
+    const service = {
+      getLegacyPlan: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: null,
+      }),
+      isInheritanceReady: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: { result: true },
+      }),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue(service);
+
+    const result = await runInspectLegacyMigrationPostureWorkflow(context, auth, undefined, {
+      owner: "0x00000000000000000000000000000000000000aa",
+      voiceHash: `0x${"5".repeat(64)}`,
+    });
+
+    expect(result.legacy.plan).toBeNull();
+    expect(result.legacy.summary).toEqual({
+      beneficiaryCount: 0,
+      voiceAssetCount: 0,
+      datasetCount: 0,
+      requiresProof: null,
+      minApprovals: null,
+      active: null,
+      executed: null,
+    });
+    expect(result.summary).toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      voiceHash: `0x${"5".repeat(64)}`,
+      hasPlan: false,
+      beneficiaryCount: 0,
+      voiceAssetCount: 0,
+      inheritanceReady: true,
+    });
+  });
 });

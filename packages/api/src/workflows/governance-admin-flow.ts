@@ -72,6 +72,19 @@ export async function runGovernanceAdminFlowWorkflow(
     }
   }
 
+  let vote: {
+    proposalWindow: typeof voteResult.proposalWindow;
+    result: typeof voteResult.vote;
+    summary: typeof voteResult.summary;
+  } | null = null;
+  if (voteResult) {
+    vote = {
+      proposalWindow: voteResult.proposalWindow,
+      result: voteResult.vote,
+      summary: voteResult.summary,
+    };
+  }
+
   return {
     proposal: {
       ...proposalResult.proposal,
@@ -81,13 +94,7 @@ export async function runGovernanceAdminFlowWorkflow(
       ...proposalResult.votingWindow,
       proposalState: proposalResult.readback.proposalState,
     },
-    vote: voteResult
-      ? {
-          proposalWindow: voteResult.proposalWindow,
-          result: voteResult.vote,
-          summary: voteResult.summary,
-        }
-      : null,
+    vote,
     summary: {
       proposalId,
       proposalType: proposalResult.summary.proposalType,

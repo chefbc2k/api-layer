@@ -108,28 +108,28 @@ export async function runCreateMarketplaceListingWorkflow(
     "createMarketplaceListing.ownerAfter",
   );
 
-  const listedEvents = listingReceipt
-    ? await waitForWorkflowEventQuery(
-        () => marketplace.assetListedEventQuery({
-          auth,
-          fromBlock: BigInt(listingReceipt.blockNumber),
-          toBlock: BigInt(listingReceipt.blockNumber),
-        }),
-        (logs) => logs.some((entry) => asRecord(entry)?.transactionHash === listingTxHash),
-        "createMarketplaceListing.assetListed",
-      )
-    : [];
-  const escrowedEvents = listingReceipt
-    ? await waitForWorkflowEventQuery(
-        () => marketplace.marketplaceAssetEscrowedEventQuery({
-          auth,
-          fromBlock: BigInt(listingReceipt.blockNumber),
-          toBlock: BigInt(listingReceipt.blockNumber),
-        }),
-        (logs) => logs.some((entry) => asRecord(entry)?.transactionHash === listingTxHash),
-        "createMarketplaceListing.assetEscrowed",
-      )
-    : [];
+  let listedEvents: Awaited<ReturnType<typeof waitForWorkflowEventQuery>> = [];
+  let escrowedEvents: Awaited<ReturnType<typeof waitForWorkflowEventQuery>> = [];
+  if (listingReceipt) {
+    listedEvents = await waitForWorkflowEventQuery(
+      () => marketplace.assetListedEventQuery({
+        auth,
+        fromBlock: BigInt(listingReceipt.blockNumber),
+        toBlock: BigInt(listingReceipt.blockNumber),
+      }),
+      (logs) => logs.some((entry) => asRecord(entry)?.transactionHash === listingTxHash),
+      "createMarketplaceListing.assetListed",
+    );
+    escrowedEvents = await waitForWorkflowEventQuery(
+      () => marketplace.marketplaceAssetEscrowedEventQuery({
+        auth,
+        fromBlock: BigInt(listingReceipt.blockNumber),
+        toBlock: BigInt(listingReceipt.blockNumber),
+      }),
+      (logs) => logs.some((entry) => asRecord(entry)?.transactionHash === listingTxHash),
+      "createMarketplaceListing.assetEscrowed",
+    );
+  }
 
   return {
     ownership: {
