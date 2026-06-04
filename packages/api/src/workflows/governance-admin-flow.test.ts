@@ -626,4 +626,42 @@ describe("runGovernanceAdminFlowWorkflow", () => {
       },
     })).rejects.toThrow("governance-admin-flow vote result proposalId mismatch");
   });
+
+  it("rejects vote results with a non-object receipt payload", async () => {
+    mocks.runVoteOnProposalWorkflow.mockResolvedValueOnce({
+      proposalWindow: {
+        proposalId: "77",
+        snapshot: "120",
+        deadline: "240",
+        proposalState: "1",
+        currentBlock: "150",
+      },
+      vote: {
+        submission: { txHash: "0xvote-write" },
+        txHash: "0xvote-receipt",
+        receipt: "not-an-object",
+        proposalStateAfterVote: "1",
+        eventCount: 1,
+      },
+      summary: {
+        proposalId: "77",
+        support: "1",
+        voter: "0x00000000000000000000000000000000000000aa",
+        reason: "workflow vote",
+      },
+    });
+
+    await expect(runGovernanceAdminFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "receipt payload malformed",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      vote: {
+        support: "1",
+      },
+    })).rejects.toThrow("governance-admin-flow requires confirmed vote receipt");
+  });
 });
