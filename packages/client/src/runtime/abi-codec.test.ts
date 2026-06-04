@@ -1104,6 +1104,22 @@ describe("abi-codec", () => {
     });
   });
 
+  it("normalizes object-backed tuples when unnamed components rely on numeric fallback keys", () => {
+    expect(abiCodecInternals.tupleToNamedObject({
+      type: "tuple",
+      components: [
+        { name: "owner", type: "address" },
+        { type: "uint256" },
+      ],
+    } as never, {
+      owner: "0x0000000000000000000000000000000000000018",
+      1: "19",
+    })).toEqual({
+      owner: "0x0000000000000000000000000000000000000018",
+      1: "19",
+    });
+  });
+
   it("normalizes tuple-object internals when unnamed components rely on numeric fallback keys", () => {
     expect(abiCodecInternals.tupleToNamedObject({
       type: "tuple",
