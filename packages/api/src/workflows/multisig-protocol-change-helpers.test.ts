@@ -1,3 +1,4 @@
+import { Interface } from "ethers";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -175,6 +176,31 @@ describe("multisig protocol change helper utilities", () => {
   it("returns null when ownership decoding fails and the diamond-admin parser yields no recognized action", () => {
     const encodedUnknownDiamondSelector = "0xdeadbeef";
     expect(decodeProtocolAction(encodedUnknownDiamondSelector)).toBeNull();
+  });
+
+  it("normalizes sparse diamond-cut calldata when ownership decoding throws first", () => {
+    const parseTransactionSpy = vi.spyOn(Interface.prototype, "parseTransaction");
+    parseTransactionSpy
+      .mockImplementationOnce(() => {
+        throw new Error("ownership parse failed");
+      })
+      .mockImplementationOnce(() => ({
+        name: "proposeDiamondCut",
+        args: [[{}], undefined, undefined],
+      } as never));
+
+    expect(decodeProtocolAction("0x12345678")).toEqual({
+      kind: "propose-diamond-cut",
+      facetCuts: [{
+        facetAddress: "",
+        action: 0,
+        functionSelectors: [],
+      }],
+      initContract: "undefined",
+      initCalldata: "undefined",
+    });
+
+    parseTransactionSpy.mockRestore();
   });
 
   it("covers execution readiness, status, and operation-id fallback branches", () => {
@@ -533,6 +559,67 @@ describe("multisig protocol change helper utilities", () => {
         executed: null,
       }],
     });
+  });
+
+  it("preserves wallet routing and malformed upgrade tuple fallbacks when consequence reads stay sparse", async () => {
+    const auth = {
+      apiKey: "admin-key",
+      label: "admin",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const ownership = {
+      owner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      pendingOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+      isOwnershipPolicyEnforced: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      isOwnerTargetApproved: vi.fn().mockResolvedValue({ statusCode: 200, body: { ignored: true } }),
+    };
+    const diamondAdmin = {
+      getUpgradeControlStatus: vi.fn().mockResolvedValue({ statusCode: 200, body: "active" }),
+      getUpgradeDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "15" }),
+      getUpgradeThreshold: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      getUpgrade: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ ignored: true }, "9", "4", true] }),
+    };
+    const services = { ownership, diamondAdmin } as never;
+
+    await expect(readOwnershipConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000ff",
+      ["0x00000000000000000000000000000000000000dd"],
+    )).resolves.toEqual({
+      owner: "0x00000000000000000000000000000000000000aa",
+      pendingOwner: "0x00000000000000000000000000000000000000bb",
+      ownershipPolicyEnforced: true,
+      targetApprovals: [
+        { target: "0x00000000000000000000000000000000000000dd", approved: null },
+      ],
+    });
+
+    await expect(readUpgradeConsequence(
+      services,
+      auth,
+      "0x00000000000000000000000000000000000000ff",
+      [UPGRADE_ID],
+    )).resolves.toEqual({
+      controlStatus: "active",
+      upgradeDelay: "15",
+      upgradeThreshold: "2",
+      upgrades: [{
+        upgradeId: UPGRADE_ID,
+        proposer: null,
+        proposedAt: "9",
+        approvalCount: "4",
+        executed: true,
+      }],
+    });
+
+    expect(ownership.owner).toHaveBeenCalledWith(expect.objectContaining({
+      walletAddress: "0x00000000000000000000000000000000000000ff",
+    }));
+    expect(diamondAdmin.getUpgradeControlStatus).toHaveBeenCalledWith(expect.objectContaining({
+      walletAddress: "0x00000000000000000000000000000000000000ff",
+    }));
   });
 
   it("reads ownership consequence snapshots and waits for operation status convergence", async () => {

@@ -282,6 +282,77 @@ describe("runPurchaseMarketplaceAssetWorkflow", () => {
     });
   });
 
+  it("falls back from transient null listing snapshots before and after purchase convergence", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getListing: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 500, body: { error: "before-null" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "12", seller: "0x00000000000000000000000000000000000000aa", price: "1000", isActive: true } })
+        .mockResolvedValueOnce({ statusCode: 500, body: { error: "after-null" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "12", seller: "0x00000000000000000000000000000000000000aa", price: "1000", isActive: false } }),
+      getAssetState: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" }),
+      getOriginalOwner: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: null }),
+      getAssetRevenue: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { grossRevenue: "0" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { grossRevenue: "1000" } }),
+      getRevenueMetrics: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVolume: "100" } })
+        .mockResolvedValueOnce({ statusCode: 200, body: { totalVolume: "1100" } }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "2" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "3" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "4" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "5" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "6" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "7" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "8" }),
+      purchaseAsset: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xpurchase-write" } }),
+      assetPurchasedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xpurchase-receipt" }]),
+      paymentDistributedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xpurchase-receipt" }]),
+      assetReleasedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xpurchase-receipt" }]),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000ddd" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000bb" }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xpurchase-receipt");
+
+    try {
+      const result = await runPurchaseMarketplaceAssetWorkflow({
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1602 })) })),
+        },
+      } as never, auth as never, "0x00000000000000000000000000000000000000bb", {
+        tokenId: "12",
+      });
+
+      expect(result.preflight.listing).toMatchObject({ tokenId: "12", isActive: true });
+      expect(result.purchase.listingAfter).toMatchObject({ tokenId: "12", isActive: false });
+      expect(marketplace.getListing).toHaveBeenCalledTimes(4);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
+
   it("resolves the buyer from signer-backed auth and stabilizes null listing readbacks", async () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
       "buyer-signer": "0x59c6995e998f97a5a0044976f7d0b6d62f4ea6b2dff7e94ece66d3bb5dc4080a",
