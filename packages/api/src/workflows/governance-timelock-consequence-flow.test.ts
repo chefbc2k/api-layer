@@ -332,6 +332,46 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     expect(service.operationScheduledEventQuery).not.toHaveBeenCalled();
   });
 
+  it("falls back to the parent wallet for queue execution when no queue wallet override is supplied", async () => {
+    const service = {
+      getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
+      getOperation: vi.fn().mockResolvedValue({ statusCode: 200, body: { timestamp: "500", executed: false, canceled: false } }),
+      getTimestamp: vi.fn().mockResolvedValue({ statusCode: 200, body: "500" }),
+      isOperationPending: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      isOperationReady: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      isOperationExecuted: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      prQueue: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xqueue-write" } }),
+      prExecute: vi.fn(),
+      prState: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      proposalQueuedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", proposalId: "77" }] }),
+      operationStoredEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xqueue-write", id: "0x1111111111111111111111111111111111111111111111111111111111111111" }] }),
+      operationScheduledEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      proposalExecutedEventQuery: vi.fn(),
+      operationExecutedBytes32EventQuery: vi.fn(),
+    };
+    mocks.createGovernancePrimitiveService.mockReturnValueOnce(service);
+
+    await runGovernanceTimelockConsequenceFlowWorkflow(context, auth, "0x00000000000000000000000000000000000000dd", {
+      proposal: {
+        description: "queue parent wallet fallback",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        queue: {
+          apiKey: "queue-key",
+        },
+      },
+    });
+
+    expect(service.prQueue).toHaveBeenCalledWith(expect.objectContaining({
+      auth: queueAuth,
+      walletAddress: "0x00000000000000000000000000000000000000dd",
+    }));
+  });
+
   it("derives the timelock operation id from scheduled events when stored events omit it", async () => {
     mocks.createGovernancePrimitiveService.mockReturnValueOnce({
       getMinDelay: vi.fn().mockResolvedValue({ statusCode: 200, body: "60" }),
@@ -684,6 +724,69 @@ describe("runGovernanceTimelockConsequenceFlowWorkflow", () => {
     })).rejects.toMatchObject<HttpError>({
       statusCode: 409,
       message: expect.stringContaining("is not Queued"),
+    });
+  });
+
+  it("surfaces an unknown proposal state when execute is requested without a queued state readback", async () => {
+    mocks.runGovernanceExecutionFlowWorkflow.mockResolvedValueOnce({
+      proposal: {
+        submission: { txHash: "0xproposal-write" },
+        txHash: "0xproposal-receipt",
+        proposalId: "77",
+        eventCount: 1,
+        readback: { snapshot: "120", proposalState: null, deadline: "240" },
+      },
+      votingWindow: {
+        earliestVotingBlock: "120",
+        proposalDeadlineBlock: "240",
+        currentBlock: "300",
+        latestBlockTimestamp: "1000",
+        estimatedVotingStartTimestamp: "1000",
+        proposalState: null,
+      },
+      vote: null,
+      executionReadiness: {
+        proposalState: null,
+        proposalStateLabel: "Unknown",
+        deadline: "240",
+        currentBlock: "300",
+        votingClosed: true,
+        queueEligible: false,
+        executeEligible: false,
+        phase: "unknown",
+        nextGovernanceStep: "inspect-governance-state",
+        readinessBasis: "proposal-state-derived",
+      },
+      summary: {
+        proposalId: "77",
+        proposalType: "0",
+        currentProposalState: null,
+        currentProposalStateLabel: "Unknown",
+        voteRequested: false,
+        voteCast: false,
+        queueEligible: false,
+        executeEligible: false,
+        nextGovernanceStep: "inspect-governance-state",
+        voter: null,
+      },
+    });
+
+    await expect(runGovernanceTimelockConsequenceFlowWorkflow(context, auth, undefined, {
+      proposal: {
+        description: "unknown execute state",
+        targets: ["0x00000000000000000000000000000000000000bb"],
+        values: ["0"],
+        calldatas: ["0x1234"],
+        proposalType: "0",
+      },
+      consequence: {
+        execute: {
+          apiKey: "execute-key",
+        },
+      },
+    })).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "governance-timelock-consequence-flow execute blocked by state: proposal 77 is not Queued; proposalState=unknown",
     });
   });
 

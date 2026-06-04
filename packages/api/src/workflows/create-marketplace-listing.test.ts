@@ -508,4 +508,54 @@ describe("runCreateMarketplaceListingWorkflow", () => {
       setTimeoutSpy.mockRestore();
     }
   });
+
+  it("retries the workflow when the stabilized listing helper returns null before recovering", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
+    const getListing = vi.fn();
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      getListing.mockResolvedValueOnce(null);
+    }
+    getListing.mockResolvedValueOnce({ statusCode: 200, body: { tokenId: "16", price: "1502", isActive: true } });
+    const marketplace = {
+      listAsset: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xlist" } }),
+      getListing,
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      assetListedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xlist-receipt" }]),
+      marketplaceAssetEscrowedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xlist-receipt" }]),
+    };
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x00000000000000000000000000000000000000aa" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "0x0000000000000000000000000000000000000ddd" }),
+      isApprovedForAll: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      setApprovalForAll: vi.fn(),
+    });
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xlist-receipt");
+
+    try {
+      const result = await runCreateMarketplaceListingWorkflow({
+        addressBook: { toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }) },
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => {
+            return work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1107 })) });
+          }),
+        },
+      } as never, auth as never, "0x00000000000000000000000000000000000000aa", {
+        tokenId: "16",
+        price: "1502",
+        duration: "0",
+      });
+
+      expect(result.listing.read).toMatchObject({ tokenId: "16", price: "1502", isActive: true });
+      expect(getListing).toHaveBeenCalledTimes(21);
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
+  });
 });
