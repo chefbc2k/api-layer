@@ -34,21 +34,22 @@ function collectErrorMessages(error: unknown, seen = new Set<unknown>()): string
 
 export function isRetryableRpcError(error: unknown): boolean {
   const message = collectErrorMessages(error).join(" ").toLowerCase();
-  return (
-    message.includes("timeout") ||
-    message.includes("429") ||
-    message.includes("rate limit") ||
-    message.includes("too many requests") ||
-    message.includes("socket hang up") ||
-    message.includes("connection reset") ||
-    message.includes("econnreset") ||
-    message.includes("sendrequest") ||
-    message.includes("network error") ||
-    message.includes("etimedout") ||
-    message.includes("service unavailable") ||
-    message.includes("bad gateway") ||
-    message.includes("5xx")
-  );
+  const retryableFragments = [
+    "timeout",
+    "429",
+    "rate limit",
+    "too many requests",
+    "socket hang up",
+    "connection reset",
+    "econnreset",
+    "sendrequest",
+    "network error",
+    "etimedout",
+    "service unavailable",
+    "bad gateway",
+    "5xx",
+  ];
+  return retryableFragments.some((fragment) => message.includes(fragment));
 }
 
 export async function runWithTransientRpcRetries<T>(

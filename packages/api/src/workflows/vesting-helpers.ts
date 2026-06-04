@@ -163,29 +163,37 @@ export async function readVestingState(
 
   const revoked = isVestingScheduleRevoked(schedule.body) || isVestingScheduleRevoked(details.body);
 
-  const releasable = await vesting.getVestingReleasableAmount({
-    auth,
-    api: { executionSource: "live", gaslessMode: "none" },
-    walletAddress,
-    wireParams: [beneficiary],
-  }).catch((error: unknown) => {
+  let releasable;
+  try {
+    releasable = await vesting.getVestingReleasableAmount({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [beneficiary],
+    });
+  } catch (error) {
     if (revoked && isAlreadyRevokedError(error)) {
-      return { statusCode: 200, body: "0" };
+      releasable = { statusCode: 200, body: "0" };
+    } else {
+      throw error;
     }
-    throw error;
-  });
+  }
 
-  const totals = await vesting.getVestingTotalAmount({
-    auth,
-    api: { executionSource: "live", gaslessMode: "none" },
-    walletAddress,
-    wireParams: [beneficiary],
-  }).catch((error: unknown) => {
+  let totals;
+  try {
+    totals = await vesting.getVestingTotalAmount({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [beneficiary],
+    });
+  } catch (error) {
     if (revoked && isAlreadyRevokedError(error)) {
-      return { statusCode: 200, body: { totalVested: "0", totalReleased: "0", releasable: "0" } };
+      totals = { statusCode: 200, body: { totalVested: "0", totalReleased: "0", releasable: "0" } };
+    } else {
+      throw error;
     }
-    throw error;
-  });
+  }
 
   return { exists, schedule, details, releasable, totals };
 }
@@ -197,11 +205,11 @@ function collectErrorText(error: unknown): string {
       parts.add(String(value));
       return;
     }
-    if (!value || typeof value !== "object") {
+    if (value && typeof value === "object") {
+      for (const nested of Object.values(value as Record<string, unknown>)) {
+        visit(nested);
+      }
       return;
-    }
-    for (const nested of Object.values(value as Record<string, unknown>)) {
-      visit(nested);
     }
   };
   visit((error as { message?: unknown })?.message ?? error);

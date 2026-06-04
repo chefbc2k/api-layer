@@ -252,6 +252,31 @@ describe("api surface helpers", () => {
     });
 
     expect(buildMethodSurface(method({
+      facetName: "ProposalFacet",
+      wrapperKey: "proposalSnapshot",
+      methodName: "proposalSnapshot",
+      inputs: [{ name: "proposalId", type: "uint256" }],
+      outputs: [{ name: "snapshot", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "proposals",
+      path: "/v1/governance/queries/proposal-snapshot",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "TimelockFacet",
+      wrapperKey: "queue",
+      methodName: "queue",
+      category: "write",
+      inputs: [{ name: "proposalId", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "timelock-operations",
+      path: "/v1/governance/commands/queue",
+    });
+
+    expect(buildMethodSurface(method({
       facetName: "StakingFacet",
       wrapperKey: "getStake",
       methodName: "getStake",
@@ -260,6 +285,39 @@ describe("api surface helpers", () => {
       domain: "staking",
       resource: "stakes",
       path: "/v1/staking/queries/get-stake",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "DelegationFacet",
+      wrapperKey: "getDelegatee",
+      methodName: "getDelegatee",
+      outputs: [{ name: "delegatee", type: "address" }],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "delegations",
+      path: "/v1/staking/queries/get-delegatee",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "VotingPowerFacet",
+      wrapperKey: "getVotingPower",
+      methodName: "getVotingPower",
+      outputs: [{ name: "power", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "voting-power",
+      path: "/v1/staking/queries/get-voting-power",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "EchoScoreFacetV3",
+      wrapperKey: "getEchoScore",
+      methodName: "getEchoScore",
+      outputs: [{ name: "score", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "echo-scores",
+      path: "/v1/staking/queries/get-echo-score",
     });
 
     expect(buildMethodSurface(method({

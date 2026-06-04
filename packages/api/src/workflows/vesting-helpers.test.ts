@@ -111,7 +111,7 @@ describe("vesting helpers", () => {
       getVestingTotalAmount: async () => ({ statusCode: 200, body: { totalVested: "10", totalReleased: "2", releasable: "8" } }),
     };
 
-    await expect(() => readVestingState(
+    await expect(readVestingState(
       vesting,
       { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
       undefined,
@@ -130,7 +130,7 @@ describe("vesting helpers", () => {
       },
     };
 
-    await expect(() => readVestingState(
+    await expect(readVestingState(
       vesting,
       { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
       undefined,
@@ -195,7 +195,7 @@ describe("vesting helpers", () => {
       },
     };
 
-    await expect(() => readVestingState(
+    await expect(readVestingState(
       vesting,
       { apiKey: "test", label: "test", roles: ["service"], allowGasless: false },
       undefined,
@@ -249,6 +249,18 @@ describe("vesting helpers", () => {
     expect(normalizeCreateVestingExecutionError(createUnknown, "team")).toBe(createUnknown);
 
     const releaseUnknown = new Error("execution reverted: unknown release");
+    expect(normalizeReleaseVestingExecutionError(releaseUnknown)).toBe(releaseUnknown);
+  });
+
+  it("preserves unknown vesting errors while traversing primitive diagnostic payloads", () => {
+    const releaseUnknown = {
+      message: "execution reverted: unknown release",
+      diagnostics: {
+        gateOpen: false,
+        remaining: 7n,
+      },
+    };
+
     expect(normalizeReleaseVestingExecutionError(releaseUnknown)).toBe(releaseUnknown);
   });
 
