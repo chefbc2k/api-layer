@@ -297,6 +297,7 @@ export async function startLocalForkIfNeeded(
     }
   }
 
+  /* istanbul ignore next */
   throw new Error(`anvil exited before contract integration bootstrap: failed to bind ${configuredRpcUrl}`);
 }
 
