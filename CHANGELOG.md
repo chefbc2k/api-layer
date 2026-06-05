@@ -4,6 +4,16 @@
 
 ## [0.1.242] - 2026-06-04
 
+## [0.1.248] - 2026-06-05
+
+### Verified
+- **Validated Baseline And Full Coverage Remained Completely Closed:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, `pnpm run coverage:check`, and `pnpm run test:coverage`; the repo remains pinned to Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532`, wrapper coverage remains complete at `492` functions and `218` events, HTTP surface coverage remains complete at `492` validated methods, and the merged suite remains at `100%` statements, `100%` branches, `100%` functions, and `100%` lines.
+- **Base Sepolia Operator Setup Was Refreshed Back To A Purchase-Ready State:** Re-ran `pnpm run setup:base-sepolia`; the setup artifact refreshed with `setup.status: "ready"`, governance `status: "ready"`, and an aged marketplace listing fixture on token `91`, backed by relist tx `0x1479236d5498a1b56c7c89163a9e5cb765887fc650c946069fbd4debaec4b82e` at block `42459401` plus local-fork time advance `{ attempted: true, advanced: true, secondsAdvanced: "86401" }`.
+- **Governance And Marketplace Purchase Proofs Were Re-Proven With Fresh On-Chain Evidence:** Re-ran `pnpm run verify:governance:base-sepolia` and `pnpm run verify:marketplace:purchase:base-sepolia`; [/Users/chef/Public/api-layer/verify-governance-output.json](/Users/chef/Public/api-layer/verify-governance-output.json) remains `summary: "proven working"` with proposal submit tx `0xd37902c55bc9321ca01a3d6c02385231e15cabb77d0991320fdae367118f23e7` at block `42459403`, activation readback `{ snapshotBlock: "42466123", currentBlock: "42466124", proposalState: "1" }`, and vote tx `0xf78df409e776287c994408ba7aca9fb0019bd31cfc88793382ec4dfe0e0db849` at block `42466125`; [/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) remains `summary: "proven working"` with purchase tx `0xb73977909fa7f192a0d84988f81bac2d005bccd91de5e977b095762030fcdf6c` at block `42459404`, post-state owner `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, listing `isActive: false`, buyer USDC deltas `{ balance: "3000" -> "2000", allowance: "3000" -> "2000" }`, and settlement deltas `{ seller: "915", treasury: "60", devFund: "25", unionTreasury: "60" }`.
+
+### Remaining Issues
+- **No Product Partials Or Unknowns Were Reopened By This Run:** API surface coverage, wrapper coverage, repo-wide standard coverage, setup readiness, governance lifecycle proof, and marketplace purchase lifecycle proof all remain fully green. The only recurring runtime warning observed in this session remains the upstream `tsx` `DEP0205` deprecation notice under `node v26.0.0`, which does not reflect an application behavior regression.
+
 ## [0.1.247] - 2026-06-05
 
 ### Verified
