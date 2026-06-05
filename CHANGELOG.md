@@ -10,6 +10,19 @@
 
 ## [0.1.245] - 2026-06-05
 
+## [0.1.246] - 2026-06-05
+
+### Fixed
+- **Governance Live Proofs Now Persist In The Shared Verify Artifact Format:** Updated [/Users/chef/Public/api-layer/scripts/verify-governance-workflows.ts](/Users/chef/Public/api-layer/scripts/verify-governance-workflows.ts) and [/Users/chef/Public/api-layer/package.json](/Users/chef/Public/api-layer/package.json) so `pnpm run verify:governance:base-sepolia` now writes [`/Users/chef/Public/api-layer/verify-governance-output.json`](/Users/chef/Public/api-layer/verify-governance-output.json) through the same shared verify-report shape used by the other Base Sepolia proof runners, and expanded [/Users/chef/Public/api-layer/scripts/verify-governance-workflows.test.ts](/Users/chef/Public/api-layer/scripts/verify-governance-workflows.test.ts) to lock the new report contract.
+- **Governance Activation Off-By-One Was Collapsed On The Local Fork:** Hardened the governance activation wait loop so loopback fork mining advances one block past `proposalSnapshot` instead of stopping exactly on the snapshot boundary, which was leaving proposals pinned in state `0` (`Pending`) and timing out before the voting proof could start.
+
+### Verified
+- **Governance Workflow Proof Is Now Persisted And Fully Answered:** Re-ran `pnpm run verify:governance:base-sepolia`; [`/Users/chef/Public/api-layer/verify-governance-output.json`](/Users/chef/Public/api-layer/verify-governance-output.json) now lands on `summary: "proven working"` with `1/1` proven governance domain, proposal submit tx `0xd2a25f2c012bfa84a4ac29c555d5984b8aa68d654e731656ecc03100f521aa38` at block `42445950`, activation readback `{ snapshotBlock: "42452670", currentBlock: "42452671", proposalState: "1" }`, and vote tx `0xc406290907cb7ccd0472a88638d606ba6b7c3c937a10fee24ba7d6aa50c16b92` at block `42452672`.
+- **Validated Baseline And Full Coverage Stayed Green After The Governance Fix:** Re-ran `pnpm run baseline:verify`, `pnpm run coverage:check`, and `pnpm run test:coverage`; the runtime stays verified against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532`, wrapper coverage remains complete at `492` functions and `218` events, HTTP surface coverage remains complete at `492` validated methods, and the merged suite remains at `100%` statements, `100%` branches, `100%` functions, and `100%` lines.
+
+### Remaining Issues
+- **No Governance Partials Remain In The Tracked Live Proof Set:** The governance verifier is now persisted and proven working alongside the other tracked Base Sepolia artifacts. The only residual runtime warning observed in this session remains the upstream `tsx` `DEP0205` deprecation notice under `node v26.0.0`, which does not reflect an application behavior failure.
+
 ### Fixed
 - **Declared Node Support Now Matches The Proven Automation Host:** Updated [/Users/chef/Public/api-layer/package.json](/Users/chef/Public/api-layer/package.json) to widen the root engine range from `>=20 <26` to `>=20 <27`, removing the last persistent repo/runtime warning after repeated successful baseline, coverage, and Base Sepolia live-proof runs on `node v26.0.0`.
 

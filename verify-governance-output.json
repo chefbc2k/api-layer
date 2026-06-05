@@ -1,0 +1,195 @@
+{
+  "summary": "proven working",
+  "totals": {
+    "domainCount": 1,
+    "routeCount": 6,
+    "evidenceCount": 3
+  },
+  "statusCounts": {
+    "proven working": 1,
+    "blocked by setup/state": 0,
+    "semantically clarified but not fully proven": 0,
+    "deeper issue remains": 0
+  },
+  "reports": {
+    "governance": {
+      "routes": [
+        "POST /v1/workflows/submit-proposal",
+        "POST /v1/workflows/vote-on-proposal",
+        "GET /v1/governance/queries/proposal-snapshot",
+        "GET /v1/governance/queries/pr-state",
+        "GET /v1/governance/queries/proposal-deadline",
+        "GET /v1/transactions/:txHash"
+      ],
+      "actors": [
+        "founder-key",
+        "read-key"
+      ],
+      "executionResult": "governance proposal submission and voting completed through HTTP workflows",
+      "evidence": [
+        {
+          "step": "submitProposal",
+          "actor": "founder-key",
+          "status": 202,
+          "postState": {
+            "payload": {
+              "proposal": {
+                "submission": {
+                  "requestId": null,
+                  "txHash": "0xd2a25f2c012bfa84a4ac29c555d5984b8aa68d654e731656ecc03100f521aa38",
+                  "result": "41"
+                },
+                "txHash": "0xd2a25f2c012bfa84a4ac29c555d5984b8aa68d654e731656ecc03100f521aa38",
+                "proposalId": "41",
+                "eventCount": 1
+              },
+              "readback": {
+                "snapshot": "42452670",
+                "proposalState": "0",
+                "deadline": "42492990"
+              },
+              "votingWindow": {
+                "earliestVotingBlock": "42452670",
+                "proposalDeadlineBlock": "42492990",
+                "currentBlock": "42445949",
+                "latestBlockTimestamp": "1780646766",
+                "estimatedVotingStartTimestamp": "1780747581"
+              },
+              "summary": {
+                "proposalId": "41",
+                "proposalType": "0",
+                "targetCount": 1,
+                "calldataCount": 1
+              }
+            },
+            "txHash": "0xd2a25f2c012bfa84a4ac29c555d5984b8aa68d654e731656ecc03100f521aa38",
+            "receipt": {
+              "source": "rpc",
+              "receipt": {
+                "provider": {},
+                "to": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                "contractAddress": null,
+                "hash": "0xd2a25f2c012bfa84a4ac29c555d5984b8aa68d654e731656ecc03100f521aa38",
+                "index": 0,
+                "blockHash": "0x3d5e78fde372d9395709b300e5c9cb488c367e94d155c1fa190fdff24a9cc595",
+                "blockNumber": 42445950,
+                "logsBloom": "0x00000000000000000000000000008000000000000000000000000000000000000000000000040000000000000000000000000002000000000000000000000000002000000000000000000000000000000010000000000000000000000000000000000000000040000000000000400000000000000000000000000000800000000000000000000000000000000000000010000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000040000000000000000000000000000000000",
+                "gasUsed": "475428",
+                "blobGasUsed": null,
+                "cumulativeGasUsed": "475428",
+                "gasPrice": "1000000007",
+                "blobGasPrice": "1",
+                "type": 2,
+                "status": 1
+              },
+              "diagnostics": {
+                "alchemy": {
+                  "enabled": false,
+                  "simulationEnabled": false,
+                  "simulationEnforced": false,
+                  "endpointDetected": false,
+                  "rpcUrl": "http://127.0.0.1:8548",
+                  "available": false
+                },
+                "decodedLogs": [
+                  {
+                    "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                    "topic0": "0x768ac8474d0e7f0dac8bd98488d1fcce270691e04a50183313115af7a59d5dc8",
+                    "eventName": null,
+                    "signature": null,
+                    "facetName": "AccessControlFacet",
+                    "transactionHash": "0xd2a25f2c012bfa84a4ac29c555d5984b8aa68d654e731656ecc03100f521aa38",
+                    "args": {}
+                  }
+                ],
+                "trace": {
+                  "status": "disabled"
+                }
+              }
+            },
+            "proposalId": "41",
+            "proposalState": null,
+            "proposalReadbackError": null,
+            "snapshotBlock": "42452670",
+            "currentBlock": "42445949",
+            "currentVotingDelay": "6720",
+            "proposedVotingDelay": "6000"
+          }
+        },
+        {
+          "step": "proposalActivation",
+          "actor": "read-key",
+          "status": "active",
+          "postState": {
+            "snapshotBlock": "42452670",
+            "deadlineBlock": "42492990",
+            "currentBlock": "42452671",
+            "proposalState": "1",
+            "timedOut": false
+          }
+        },
+        {
+          "step": "voteOnProposal",
+          "actor": "founder-key",
+          "status": 202,
+          "postState": {
+            "txHash": "0xc406290907cb7ccd0472a88638d606ba6b7c3c937a10fee24ba7d6aa50c16b92",
+            "receipt": {
+              "source": "rpc",
+              "receipt": {
+                "provider": {},
+                "to": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                "contractAddress": null,
+                "hash": "0xc406290907cb7ccd0472a88638d606ba6b7c3c937a10fee24ba7d6aa50c16b92",
+                "index": 0,
+                "blockHash": "0xc83631d65ca67d896a073573c173a7733af2901f96725f9cc53ba9496a243801",
+                "blockNumber": 42452672,
+                "logsBloom": "0x00000000000000000000000008008000000000000000000000000000000000000000000000040000001000000000000000000000000000000000000000040000000000000000000000000000000000000010000000040000000000000000000000000000000040000000000000400000000000000000000000000000000000000000000000000000000000000000000010000080000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000040000000000000000000000000000000040000000000000000000000000000000000",
+                "gasUsed": "199952",
+                "blobGasUsed": null,
+                "cumulativeGasUsed": "199952",
+                "gasPrice": "1000000007",
+                "blobGasPrice": "1",
+                "type": 2,
+                "status": 1
+              },
+              "diagnostics": {
+                "alchemy": {
+                  "enabled": false,
+                  "simulationEnabled": false,
+                  "simulationEnforced": false,
+                  "endpointDetected": false,
+                  "rpcUrl": "http://127.0.0.1:8548",
+                  "available": false
+                },
+                "decodedLogs": [
+                  {
+                    "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+                    "topic0": "0x5be2678cab71c7d94235767eb1df3c57673f19e805cdc0edbd2e74854ae9f0f9",
+                    "eventName": null,
+                    "signature": null,
+                    "facetName": "AccessControlFacet",
+                    "transactionHash": "0xc406290907cb7ccd0472a88638d606ba6b7c3c937a10fee24ba7d6aa50c16b92",
+                    "args": {}
+                  }
+                ],
+                "trace": {
+                  "status": "disabled"
+                }
+              }
+            },
+            "proposalId": "41",
+            "proposalState": "1",
+            "snapshotBlock": "42452670",
+            "currentBlock": "42452672"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    }
+  }
+}

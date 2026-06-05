@@ -8,6 +8,7 @@ import { Contract, JsonRpcProvider, Wallet, ethers } from "ethers";
 
 import { isLoopbackRpcUrl, resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { runWithTransientRpcRetries } from "./transient-rpc-retry.js";
+import { buildVerifyReportOutput, getOutputPath, writeVerifyReportOutput } from "./verify-report.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -32,6 +33,21 @@ type TxStatusPayload = {
       args?: Record<string, unknown>;
     }>;
   } | null;
+};
+
+type GovernanceEvidence = {
+  step: string;
+  actor: string;
+  status: number | string;
+  postState: unknown;
+};
+
+type GovernanceDomainReport = {
+  routes: string[];
+  actors: string[];
+  executionResult: string;
+  evidence: GovernanceEvidence[];
+  finalClassification: "proven working" | "blocked by setup/state" | "deeper issue remains";
 };
 
 const ACTIVE_PROPOSAL_STATE = "1";
@@ -157,10 +173,10 @@ async function waitForActiveProposal(provider: JsonRpcProvider, rpcUrl: string, 
       latestState !== ACTIVE_PROPOSAL_STATE &&
       isLoopbackRpcUrl(rpcUrl) &&
       latestSnapshotBlock &&
-      BigInt(latestCurrentBlock) < BigInt(latestSnapshotBlock)
+      BigInt(latestCurrentBlock) <= BigInt(latestSnapshotBlock)
     ) {
       const delta = BigInt(latestSnapshotBlock) - BigInt(latestCurrentBlock);
-      const blocksToMine = delta > 0n ? delta : 1n;
+      const blocksToMine = delta >= 0n ? delta + 1n : 1n;
       await provider.send("anvil_mine", [ethers.toQuantity(blocksToMine)]);
       latestCurrentBlock = String(await currentBlockFromProvider(provider));
       continue;
@@ -221,7 +237,11 @@ export function isInsufficientFundsPayload(payload: unknown): boolean {
   return typeof error === "string" && error.toLowerCase().includes("insufficient funds");
 }
 
-async function runGovernanceProofOnce(): Promise<void> {
+export function buildGovernanceOutput(report: GovernanceDomainReport) {
+  return buildVerifyReportOutput({ governance: report });
+}
+
+async function runGovernanceProofOnce() {
   const repoEnv = loadRepoEnv();
   const runtimeConfig = await resolveRuntimeConfig(repoEnv);
   const forkRuntime = await startLocalForkIfNeeded(runtimeConfig);
@@ -260,31 +280,16 @@ async function runGovernanceProofOnce(): Promise<void> {
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : 8787;
 
-  const evidence: Record<string, unknown> = {
-    A: {
-      chain: "Base Sepolia",
-      chainId: config.chainId,
-      diamond: config.diamondAddress,
-      rpcUrl: config.cbdpRpcUrl,
-      alchemyRpcUrl: config.alchemyRpcUrl,
-    },
-    B: {
-      workflowRoutes: [
-        "POST /v1/workflows/submit-proposal",
-        "POST /v1/workflows/vote-on-proposal",
-      ],
-      supportingRoutes: [
-        "GET /v1/governance/queries/proposal-snapshot",
-        "GET /v1/governance/queries/pr-state",
-        "GET /v1/governance/queries/proposal-deadline",
-        "GET /v1/transactions/:txHash",
-      ],
-    },
-    C: {
-      apiKey: "founder-key",
-      actor: founder.address,
-    },
-  };
+  const routes = [
+    "POST /v1/workflows/submit-proposal",
+    "POST /v1/workflows/vote-on-proposal",
+    "GET /v1/governance/queries/proposal-snapshot",
+    "GET /v1/governance/queries/pr-state",
+    "GET /v1/governance/queries/proposal-deadline",
+    "GET /v1/transactions/:txHash",
+  ];
+  const actors = ["founder-key", "read-key"];
+  const evidence: GovernanceEvidence[] = [];
 
   try {
     await ensureNativeBalance(provider, forkRuntime.rpcUrl, founder.address, ethers.parseEther("0.00005"));
@@ -312,13 +317,11 @@ async function runGovernanceProofOnce(): Promise<void> {
     const proposalIdFromReceipt = proposalIdFromTransactionStatus(proposalTxStatus?.payload ?? null);
     const resolvedProposalId = proposalId ?? proposalIdFromReceipt;
     const proposalReceiptStatus = receiptStatus(proposalTxStatus?.payload ?? null);
-    evidence.D = {
-      submitProposal: submitResp.status === 202 ? "accepted" : "failed",
-      voteOnProposal: "not-run-yet",
-    };
-    evidence.E = {
-      submitProposal: {
-        httpStatus: submitResp.status,
+    evidence.push({
+      step: "submitProposal",
+      actor: "founder-key",
+      status: submitResp.status,
+      postState: normalize({
         payload: submitResp.payload,
         txHash: proposalTxHash,
         receipt: proposalTxStatus?.payload ?? null,
@@ -333,27 +336,35 @@ async function runGovernanceProofOnce(): Promise<void> {
           : null,
         currentVotingDelay: currentVotingDelay.toString(),
         proposedVotingDelay: proposedVotingDelay.toString(),
-      },
-    };
+      }),
+    });
 
     if (submitResp.status !== 202 || !resolvedProposalId || !proposalTxHash || proposalReceiptStatus !== "1") {
-      evidence.F = isInsufficientFundsPayload(submitResp.payload) ? "blocked by setup/state" : "broken";
-      console.log(JSON.stringify(normalize(evidence), null, 2));
-      process.exitCode = 1;
-      return;
+      return buildGovernanceOutput({
+        routes,
+        actors,
+        executionResult: "governance proposal submission failed before voting",
+        evidence,
+        finalClassification: isInsufficientFundsPayload(submitResp.payload) ? "blocked by setup/state" : "deeper issue remains",
+      });
     }
 
     const activation = await waitForActiveProposal(provider, forkRuntime.rpcUrl, port, resolvedProposalId);
-    (evidence.E as Record<string, unknown>).proposalActivation = activation;
+    evidence.push({
+      step: "proposalActivation",
+      actor: "read-key",
+      status: activation.timedOut ? "timeout" : "active",
+      postState: normalize(activation),
+    });
 
     if (activation.timedOut) {
-      evidence.D = {
-        submitProposal: "accepted",
-        voteOnProposal: "not-run",
-      };
-      evidence.F = "blocked by setup/state";
-      console.log(JSON.stringify(normalize(evidence), null, 2));
-      return;
+      return buildGovernanceOutput({
+        routes,
+        actors,
+        executionResult: "governance proposal accepted but did not become active before timeout",
+        evidence,
+        finalClassification: "blocked by setup/state",
+      });
     }
 
     const voteResp = await apiCall(port, "POST", "/v1/workflows/vote-on-proposal", {
@@ -369,27 +380,39 @@ async function runGovernanceProofOnce(): Promise<void> {
     const voteTxStatus = voteTxHash ? await getTransactionStatus(port, voteTxHash) : null;
     const latestBlock = await currentBlockFromProvider(provider);
 
-    evidence.D = {
-      submitProposal: "accepted",
-      voteOnProposal: voteResp.status === 202 ? "accepted" : "failed",
-    };
-    (evidence.E as Record<string, unknown>).voteOnProposal = {
-      httpStatus: voteResp.status,
-      txHash: voteTxHash,
-      receipt: voteTxStatus?.payload ?? null,
-      proposalId: resolvedProposalId,
-      proposalState: votePayload?.proposalStateAfterVote ?? votePayload?.proposalState ?? activation.proposalState,
-      snapshotBlock: votePayload?.snapshot ?? activation.snapshotBlock,
-      currentBlock: String(latestBlock),
-    };
+    evidence.push({
+      step: "voteOnProposal",
+      actor: "founder-key",
+      status: voteResp.status,
+      postState: normalize({
+        txHash: voteTxHash,
+        receipt: voteTxStatus?.payload ?? null,
+        proposalId: resolvedProposalId,
+        proposalState: votePayload?.proposalStateAfterVote ?? votePayload?.proposalState ?? activation.proposalState,
+        snapshotBlock: votePayload?.snapshot ?? activation.snapshotBlock,
+        currentBlock: String(latestBlock),
+      }),
+    });
 
     const voteReceiptStatus = receiptStatus(voteTxStatus?.payload ?? null);
     const voteSucceeded = voteResp.status === 202 && voteTxHash && voteReceiptStatus === "1";
-    evidence.F = voteSucceeded ? "proven working" : "broken";
-    console.log(JSON.stringify(normalize(evidence), null, 2));
     if (!voteSucceeded) {
       process.exitCode = 1;
+      return buildGovernanceOutput({
+        routes,
+        actors,
+        executionResult: "governance voting submission failed after proposal activation",
+        evidence,
+        finalClassification: "deeper issue remains",
+      });
     }
+    return buildGovernanceOutput({
+      routes,
+      actors,
+      executionResult: "governance proposal submission and voting completed through HTTP workflows",
+      evidence,
+      finalClassification: "proven working",
+    });
   } finally {
     server.close();
     await provider.destroy();
@@ -397,12 +420,15 @@ async function runGovernanceProofOnce(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  await runWithTransientRpcRetries(runGovernanceProofOnce, {
+  const outputPath = getOutputPath();
+  const output = await runWithTransientRpcRetries(runGovernanceProofOnce, {
     label: "verify:governance:base-sepolia",
     maxAttempts: Number(process.env.API_LAYER_TRANSIENT_RPC_MAX_ATTEMPTS ?? "3"),
     baseDelayMs: Number(process.env.API_LAYER_TRANSIENT_RPC_BASE_DELAY_MS ?? "1500"),
     log: (message) => console.warn(message),
   });
+  writeVerifyReportOutput(outputPath, output);
+  console.log(JSON.stringify(output, null, 2));
 }
 
 const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
