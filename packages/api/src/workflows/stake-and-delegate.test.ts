@@ -821,4 +821,17 @@ describe("runStakeAndDelegateWorkflow", () => {
       "stake-and-delegate requires a non-zero amount",
     );
   });
+
+  it("traverses nullable nested diagnostics while normalizing direct selector strings", () => {
+    const error = {
+      message: "execution reverted: 0x26d1807b",
+      diagnostics: {
+        nested: [null, { ignored: undefined }],
+      },
+    };
+
+    expect((stakeAndDelegateTestUtils.normalizeStakeExecutionError(error, "5") as Error).message).toBe(
+      "stake-and-delegate requires staking to be unpaused",
+    );
+  });
 });
