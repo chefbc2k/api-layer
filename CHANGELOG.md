@@ -4,6 +4,16 @@
 
 ## [0.1.242] - 2026-06-04
 
+## [0.1.247] - 2026-06-05
+
+### Verified
+- **Validated Baseline, Surface Coverage, And Standard Coverage Stayed Fully Closed:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, `pnpm run coverage:check`, and `pnpm run test:coverage`; the repo remains aligned to Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532`, wrapper coverage remains complete at `492` functions and `218` events, HTTP surface coverage remains complete at `492` validated methods, and the merged suite remains at `100%` statements, `100%` branches, `100%` functions, and `100%` lines (`5025/5025` statements, `4363/4363` branches, `1237/1237` functions, `4809/4809` lines).
+- **Base Sepolia Setup Artifact Was Refreshed Back To A Purchase-Ready State:** Re-ran `pnpm run setup:base-sepolia`; [`.runtime/base-sepolia-operator-fixtures.json`](/Users/chef/Public/api-layer/.runtime/base-sepolia-operator-fixtures.json) was refreshed at `2026-06-05T09:03:56.821Z` with `setup.status: "ready"`, governance `status: "ready"`, and a purchase-ready aged marketplace listing on token `11`, backed by relist tx `0x7b2a4bbb3c4210c9e469656b8741a7240dad4976a0a51247e89e763d72a83bf3` at block `42452674` plus local-fork time advance `{ attempted: true, advanced: true, secondsAdvanced: "86401" }`.
+- **Governance And Marketplace Live Proofs Were Re-Proven Against The Refreshed Fixture:** Re-ran `pnpm run verify:governance:base-sepolia` and `pnpm run verify:marketplace:purchase:base-sepolia`; [`/Users/chef/Public/api-layer/verify-governance-output.json`](/Users/chef/Public/api-layer/verify-governance-output.json) remains `summary: "proven working"` with proposal submit tx `0x0d6ff73b76080324e3e0c8eff0b213a73ddf3a305f654467614ca520be5e8c09` at block `42452676`, activation readback `{ snapshotBlock: "42459396", currentBlock: "42459398", proposalState: "1" }`, and vote tx `0xff8185a4c4721f24a90286c98a49ea5f7178277f504c7f28d97d76adf2a4cc99` at block `42459399`; [`/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json`](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) remains `summary: "proven working"` with purchase tx `0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9` at block `42452921`, post-state owner `0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709`, listing `isActive: false`, buyer USDC deltas `{ balance: "4000" -> "3000", allowance: "4000" -> "3000" }`, and settlement deltas `{ seller: "915", treasury: "60", devFund: "25", unionTreasury: "60" }`.
+
+### Remaining Issues
+- **No Product Partials Or Unknowns Remain In The Current Verified Baseline:** API surface coverage, wrapper coverage, repo-wide standard coverage, setup readiness, governance proof, and marketplace purchase proof all remain fully green after this run. The only recurring runtime warning remains the upstream `tsx` `DEP0205` deprecation notice under `node v26.0.0`, which does not reflect an application behavior regression.
+
 ## [0.1.243] - 2026-06-05
 
 ## [0.1.244] - 2026-06-05

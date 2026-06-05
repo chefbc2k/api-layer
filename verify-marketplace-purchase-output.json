@@ -3,7 +3,7 @@
   "totals": {
     "domainCount": 1,
     "routeCount": 5,
-    "evidenceCount": 6
+    "evidenceCount": 5
   },
   "statusCounts": {
     "proven working": 1,
@@ -30,24 +30,24 @@
         {
           "kind": "target",
           "value": {
-            "source": "fresh-founder-listing",
+            "source": "aged-fixture",
             "chainId": 84532,
             "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-            "tokenId": "248",
-            "voiceHash": "0x2cbfe9beef2f18131d5a306ba30785a9ce00eb872541928bcf3d25b973817127"
+            "tokenId": "11",
+            "voiceHash": "0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886"
           }
         },
         {
           "kind": "preState",
           "value": {
             "listing": {
-              "tokenId": "248",
-              "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "tokenId": "11",
+              "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
               "price": "1000",
-              "createdAt": "1780643005",
-              "createdBlock": "42437327",
-              "lastUpdateBlock": "42437327",
-              "expiresAt": "1783235005",
+              "createdAt": "1780650294",
+              "createdBlock": "42452674",
+              "lastUpdateBlock": "42452674",
+              "expiresAt": "1783242294",
               "isActive": true
             },
             "owner": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
@@ -71,18 +71,18 @@
                 "marketplacePaused": false,
                 "paymentPaused": false,
                 "listing": {
-                  "tokenId": "248",
-                  "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                  "tokenId": "11",
+                  "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
                   "price": "1000",
-                  "createdAt": "1780643005",
-                  "createdBlock": "42437327",
-                  "lastUpdateBlock": "42437327",
-                  "expiresAt": "1783235005",
+                  "createdAt": "1780650294",
+                  "createdBlock": "42452674",
+                  "lastUpdateBlock": "42452674",
+                  "expiresAt": "1783242294",
                   "isActive": true
                 },
                 "escrow": {
                   "assetState": "1",
-                  "originalOwner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                  "originalOwner": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
                   "inEscrow": true
                 },
                 "ownerBefore": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
@@ -90,18 +90,18 @@
               "purchase": {
                 "submission": {
                   "requestId": null,
-                  "txHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
+                  "txHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
                   "result": null
                 },
-                "txHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
+                "txHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
                 "listingAfter": {
-                  "tokenId": "248",
-                  "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                  "tokenId": "11",
+                  "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
                   "price": "1000",
-                  "createdAt": "1780643005",
-                  "createdBlock": "42437327",
-                  "lastUpdateBlock": "42437327",
-                  "expiresAt": "1783235005",
+                  "createdAt": "1780650294",
+                  "createdBlock": "42452674",
+                  "lastUpdateBlock": "42452674",
+                  "expiresAt": "1783242294",
                   "isActive": false
                 },
                 "ownerAfter": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
@@ -118,19 +118,19 @@
               },
               "settlement": {
                 "payees": {
-                  "seller": "0x3605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "seller": "0x276d8504239a02907ba5e7dd42eeb5a651274bcd",
                   "treasury": "0x4ec36f50ee25016a5db3a09cddcbea0069052f5a",
                   "devFund": "0x0fc9ce2a0d17668fd007fcf5668146bbe2560816",
                   "unionTreasury": "0x4ec36f50ee25016a5db3a09cddcbea0069052f5a"
                 },
                 "pendingBefore": {
-                  "seller": "0",
+                  "seller": "915",
                   "treasury": "60480",
                   "devFund": "25200",
                   "unionTreasury": "60480"
                 },
                 "pendingAfter": {
-                  "seller": "915",
+                  "seller": "1830",
                   "treasury": "60540",
                   "devFund": "25225",
                   "unionTreasury": "60540"
@@ -167,17 +167,17 @@
                 ]
               },
               "summary": {
-                "tokenId": "248",
+                "tokenId": "11",
                 "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-                "seller": "0x3605020bb497c0ad07635e9ca0021ba60f1244a2",
+                "seller": "0x276d8504239a02907ba5e7dd42eeb5a651274bcd",
                 "listingActiveAfter": false,
                 "fundingInspection": "external-usdc-precondition"
               }
             },
-            "txHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
+            "txHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
             "receipt": {
               "status": 1,
-              "blockNumber": 42437329
+              "blockNumber": 42452921
             }
           }
         },
@@ -186,13 +186,13 @@
           "value": {
             "owner": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
             "listing": {
-              "tokenId": "248",
-              "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "tokenId": "11",
+              "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
               "price": "1000",
-              "createdAt": "1780643005",
-              "createdBlock": "42437327",
-              "lastUpdateBlock": "42437327",
-              "expiresAt": "1783235005",
+              "createdAt": "1780650294",
+              "createdBlock": "42452674",
+              "lastUpdateBlock": "42452674",
+              "expiresAt": "1783242294",
               "isActive": false
             },
             "buyerUsdcBalance": "3000",
@@ -205,16 +205,16 @@
             "assetPurchased": [
               {
                 "provider": {},
-                "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-                "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-                "blockNumber": 42437329,
+                "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+                "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+                "blockNumber": 42452921,
                 "removed": false,
                 "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
                 "topics": [
                   "0x26f1a462b7fc1cbfaf87a0e804d3c0afd7c0a20e19d3d8ce3135c1155f9b736f",
-                  "0x00000000000000000000000000000000000000000000000000000000000000f8",
-                  "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "0x000000000000000000000000000000000000000000000000000000000000000b",
+                  "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
                   "0x0000000000000000000000000c14d2fbd9cf0a537a8e8fc38e8da005d00a1709"
                 ],
                 "index": 7,
@@ -224,16 +224,16 @@
             "paymentDistributed": [
               {
                 "provider": {},
-                "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-                "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-                "blockNumber": 42437329,
+                "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+                "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+                "blockNumber": 42452921,
                 "removed": false,
                 "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
                 "topics": [
                   "0xe3cd1dfbb0f7891be601b7da25be2a70ca5fc279108fdf1600118b83a4fa1b6f",
-                  "0x00000000000000000000000000000000000000000000000000000000000000f8",
-                  "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "0x000000000000000000000000000000000000000000000000000000000000000b",
+                  "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
                   "0x000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc9669"
                 ],
                 "index": 3,
@@ -241,16 +241,16 @@
               },
               {
                 "provider": {},
-                "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-                "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-                "blockNumber": 42437329,
+                "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+                "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+                "blockNumber": 42452921,
                 "removed": false,
                 "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
                 "topics": [
                   "0xe3cd1dfbb0f7891be601b7da25be2a70ca5fc279108fdf1600118b83a4fa1b6f",
-                  "0x00000000000000000000000000000000000000000000000000000000000000f8",
-                  "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+                  "0x000000000000000000000000000000000000000000000000000000000000000b",
+                  "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
                   "0x000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc9669"
                 ],
                 "index": 4,
@@ -260,15 +260,15 @@
             "assetReleased": [
               {
                 "provider": {},
-                "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-                "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-                "blockNumber": 42437329,
+                "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+                "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+                "blockNumber": 42452921,
                 "removed": false,
                 "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "data": "0x",
                 "topics": [
                   "0xa6beaa28c0fece1ae6319144a40bae517a3d55231c725f5aa07d3ba77edc2d97",
-                  "0x00000000000000000000000000000000000000000000000000000000000000f8",
+                  "0x000000000000000000000000000000000000000000000000000000000000000b",
                   "0x0000000000000000000000000c14d2fbd9cf0a537a8e8fc38e8da005d00a1709"
                 ],
                 "index": 6,
@@ -276,39 +276,29 @@
               }
             ]
           }
-        },
-        {
-          "kind": "notes",
-          "value": {
-            "localForkTimeAdvance": {
-              "advanced": true,
-              "secondsAdvanced": "86401",
-              "readyAt": "1780729406"
-            }
-          }
         }
       ],
       "finalClassification": "proven working",
       "target": {
-        "source": "fresh-founder-listing",
+        "source": "aged-fixture",
         "chainId": 84532,
         "diamond": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
-        "tokenId": "248",
-        "voiceHash": "0x2cbfe9beef2f18131d5a306ba30785a9ce00eb872541928bcf3d25b973817127"
+        "tokenId": "11",
+        "voiceHash": "0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886"
       },
       "actorWallets": {
-        "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
         "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
       },
       "preState": {
         "listing": {
-          "tokenId": "248",
-          "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          "tokenId": "11",
+          "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
           "price": "1000",
-          "createdAt": "1780643005",
-          "createdBlock": "42437327",
-          "lastUpdateBlock": "42437327",
-          "expiresAt": "1783235005",
+          "createdAt": "1780650294",
+          "createdBlock": "42452674",
+          "lastUpdateBlock": "42452674",
+          "expiresAt": "1783242294",
           "isActive": true
         },
         "owner": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
@@ -329,18 +319,18 @@
             "marketplacePaused": false,
             "paymentPaused": false,
             "listing": {
-              "tokenId": "248",
-              "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "tokenId": "11",
+              "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
               "price": "1000",
-              "createdAt": "1780643005",
-              "createdBlock": "42437327",
-              "lastUpdateBlock": "42437327",
-              "expiresAt": "1783235005",
+              "createdAt": "1780650294",
+              "createdBlock": "42452674",
+              "lastUpdateBlock": "42452674",
+              "expiresAt": "1783242294",
               "isActive": true
             },
             "escrow": {
               "assetState": "1",
-              "originalOwner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "originalOwner": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
               "inEscrow": true
             },
             "ownerBefore": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
@@ -348,18 +338,18 @@
           "purchase": {
             "submission": {
               "requestId": null,
-              "txHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
+              "txHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
               "result": null
             },
-            "txHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
+            "txHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
             "listingAfter": {
-              "tokenId": "248",
-              "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "tokenId": "11",
+              "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
               "price": "1000",
-              "createdAt": "1780643005",
-              "createdBlock": "42437327",
-              "lastUpdateBlock": "42437327",
-              "expiresAt": "1783235005",
+              "createdAt": "1780650294",
+              "createdBlock": "42452674",
+              "lastUpdateBlock": "42452674",
+              "expiresAt": "1783242294",
               "isActive": false
             },
             "ownerAfter": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
@@ -376,19 +366,19 @@
           },
           "settlement": {
             "payees": {
-              "seller": "0x3605020bb497c0ad07635e9ca0021ba60f1244a2",
+              "seller": "0x276d8504239a02907ba5e7dd42eeb5a651274bcd",
               "treasury": "0x4ec36f50ee25016a5db3a09cddcbea0069052f5a",
               "devFund": "0x0fc9ce2a0d17668fd007fcf5668146bbe2560816",
               "unionTreasury": "0x4ec36f50ee25016a5db3a09cddcbea0069052f5a"
             },
             "pendingBefore": {
-              "seller": "0",
+              "seller": "915",
               "treasury": "60480",
               "devFund": "25200",
               "unionTreasury": "60480"
             },
             "pendingAfter": {
-              "seller": "915",
+              "seller": "1830",
               "treasury": "60540",
               "devFund": "25225",
               "unionTreasury": "60540"
@@ -425,29 +415,29 @@
             ]
           },
           "summary": {
-            "tokenId": "248",
+            "tokenId": "11",
             "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
-            "seller": "0x3605020bb497c0ad07635e9ca0021ba60f1244a2",
+            "seller": "0x276d8504239a02907ba5e7dd42eeb5a651274bcd",
             "listingActiveAfter": false,
             "fundingInspection": "external-usdc-precondition"
           }
         },
-        "txHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
+        "txHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
         "receipt": {
           "status": 1,
-          "blockNumber": 42437329
+          "blockNumber": 42452921
         }
       },
       "postState": {
         "owner": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
         "listing": {
-          "tokenId": "248",
-          "seller": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          "tokenId": "11",
+          "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
           "price": "1000",
-          "createdAt": "1780643005",
-          "createdBlock": "42437327",
-          "lastUpdateBlock": "42437327",
-          "expiresAt": "1783235005",
+          "createdAt": "1780650294",
+          "createdBlock": "42452674",
+          "lastUpdateBlock": "42452674",
+          "expiresAt": "1783242294",
           "isActive": false
         },
         "buyerUsdcBalance": "3000",
@@ -457,16 +447,16 @@
         "assetPurchased": [
           {
             "provider": {},
-            "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-            "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-            "blockNumber": 42437329,
+            "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+            "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+            "blockNumber": 42452921,
             "removed": false,
             "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
             "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
             "topics": [
               "0x26f1a462b7fc1cbfaf87a0e804d3c0afd7c0a20e19d3d8ce3135c1155f9b736f",
-              "0x00000000000000000000000000000000000000000000000000000000000000f8",
-              "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+              "0x000000000000000000000000000000000000000000000000000000000000000b",
+              "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
               "0x0000000000000000000000000c14d2fbd9cf0a537a8e8fc38e8da005d00a1709"
             ],
             "index": 7,
@@ -476,16 +466,16 @@
         "paymentDistributed": [
           {
             "provider": {},
-            "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-            "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-            "blockNumber": 42437329,
+            "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+            "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+            "blockNumber": 42452921,
             "removed": false,
             "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
             "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
             "topics": [
               "0xe3cd1dfbb0f7891be601b7da25be2a70ca5fc279108fdf1600118b83a4fa1b6f",
-              "0x00000000000000000000000000000000000000000000000000000000000000f8",
-              "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+              "0x000000000000000000000000000000000000000000000000000000000000000b",
+              "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
               "0x000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc9669"
             ],
             "index": 3,
@@ -493,16 +483,16 @@
           },
           {
             "provider": {},
-            "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-            "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-            "blockNumber": 42437329,
+            "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+            "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+            "blockNumber": 42452921,
             "removed": false,
             "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
             "data": "0x00000000000000000000000000000000000000000000000000000000000003e8",
             "topics": [
               "0xe3cd1dfbb0f7891be601b7da25be2a70ca5fc279108fdf1600118b83a4fa1b6f",
-              "0x00000000000000000000000000000000000000000000000000000000000000f8",
-              "0x0000000000000000000000003605020bb497c0ad07635e9ca0021ba60f1244a2",
+              "0x000000000000000000000000000000000000000000000000000000000000000b",
+              "0x000000000000000000000000276d8504239a02907ba5e7dd42eeb5a651274bcd",
               "0x000000000000000000000000a14088acbf0639ef1c3655768a3001e6b8dc9669"
             ],
             "index": 4,
@@ -512,28 +502,21 @@
         "assetReleased": [
           {
             "provider": {},
-            "transactionHash": "0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c",
-            "blockHash": "0x2d206b06da1bdf67fb14819daf77cfb336e5657f5058be76092126cba82d41e9",
-            "blockNumber": 42437329,
+            "transactionHash": "0x158393b59a5419b325d7cdd5e2207a3df38a4f2884f49f812cb1930d8ffb0ca9",
+            "blockHash": "0xcdbd408a9f095068400f0347ea51ad04298e26c0cc93e6a5667df481d10ce2cd",
+            "blockNumber": 42452921,
             "removed": false,
             "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
             "data": "0x",
             "topics": [
               "0xa6beaa28c0fece1ae6319144a40bae517a3d55231c725f5aa07d3ba77edc2d97",
-              "0x00000000000000000000000000000000000000000000000000000000000000f8",
+              "0x000000000000000000000000000000000000000000000000000000000000000b",
               "0x0000000000000000000000000c14d2fbd9cf0a537a8e8fc38e8da005d00a1709"
             ],
             "index": 6,
             "transactionIndex": 0
           }
         ]
-      },
-      "notes": {
-        "localForkTimeAdvance": {
-          "advanced": true,
-          "secondsAdvanced": "86401",
-          "readyAt": "1780729406"
-        }
       },
       "classification": "proven working",
       "result": "proven working"
