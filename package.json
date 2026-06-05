@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.30.0",
   "engines": {
-    "node": ">=20 <26"
+    "node": ">=20 <27"
   },
   "scripts": {
     "sync:abis": "tsx scripts/sync-abis.ts",

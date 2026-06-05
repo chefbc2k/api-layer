@@ -8,6 +8,19 @@
 
 ## [0.1.244] - 2026-06-05
 
+## [0.1.245] - 2026-06-05
+
+### Fixed
+- **Declared Node Support Now Matches The Proven Automation Host:** Updated [/Users/chef/Public/api-layer/package.json](/Users/chef/Public/api-layer/package.json) to widen the root engine range from `>=20 <26` to `>=20 <27`, removing the last persistent repo/runtime warning after repeated successful baseline, coverage, and Base Sepolia live-proof runs on `node v26.0.0`.
+
+### Verified
+- **Validated Baseline Stayed Green On Node v26.0.0:** Re-ran `pnpm run baseline:show` and `pnpm run baseline:verify`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532`, still falls back from loopback `http://127.0.0.1:8548` to `https://sepolia.base.org` when the local fork is absent, and still reports `status: "baseline verified"` with signer configuration intact.
+- **Surface And Standard Coverage Gates Stayed Complete:** Re-ran `pnpm run coverage:check` and `pnpm run test:coverage`; wrapper coverage remains complete at `492` functions and `218` events, HTTP surface coverage remains complete at `492` validated methods, and the merged suite stays green at `100%` statements, `100%` branches, `100%` functions, and `100%` lines.
+- **Live Marketplace Purchase Proof Remained Fully Answered:** Re-ran `pnpm run verify:marketplace:purchase:base-sepolia`; [/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json](/Users/chef/Public/api-layer/verify-marketplace-purchase-output.json) remains `summary: "proven working"` with buyer-funded settlement and escrow release evidence preserved, including purchase tx `0x54a3b23d28bf82d73b4db112da699246ea57739874089e09d19ac4cf4cdb755c` at block `42437329`.
+
+### Remaining Issues
+- **No Verified Product Gaps Remain In The Current Baseline:** API surface coverage, wrapper coverage, repo-wide standard coverage, baseline verification, and the tracked Base Sepolia proof outputs all remain fully green after this session. The only residual warning observed during execution is a `node v26` `DEP0205` deprecation emitted by `tsx` itself, which is an upstream toolchain notice rather than a repo behavior failure.
+
 ### Verified
 - **Validated Baseline And Surface Gates Stayed Green:** Re-ran `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check`; the repo still verifies against Base Sepolia diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on `chainId: 84532`, still falls back from loopback `http://127.0.0.1:8548` to `https://sepolia.base.org` when the local fork is absent, and still holds complete wrapper / HTTP surface coverage at `492` functions, `218` events, and `492` validated methods.
 - **The Full Live HTTP Contract Suite Is No Longer Partial:** Re-ran `pnpm run test:contract:api:base-sepolia`; [`/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts`](/Users/chef/Public/api-layer/packages/api/src/app.contract-integration.test.ts) now completes end-to-end on Base Sepolia with `18/18` passing tests in `165.03s` and no skips, covering access control, voice assets, datasets, marketplace, governance, tokenomics, whisperblock, licensing, transfer-rights, onboard-rights-holder, register-whisper-block, and the remaining lifecycle workflows through the mounted HTTP API.
