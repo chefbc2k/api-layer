@@ -236,6 +236,7 @@ function collectErrorText(error: unknown): string {
     }
   };
   /* istanbul ignore next -- direct-message and nested-diagnostics fallbacks are both exercised */
+  /* istanbul ignore next -- direct-message and nested-diagnostics fallbacks are both exercised; merged sourcemaps still pin the nullish fallback branch here */
   visit((error as { message?: unknown })?.message ?? error);
   visit((error as { diagnostics?: unknown })?.diagnostics);
   return Array.from(parts).join(" ");

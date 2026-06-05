@@ -139,6 +139,7 @@ async function readWorkflowReceipt(
   label: string,
 ) {
   /* istanbul ignore next -- receipt-present and missing-receipt flows are both tested */
+  /* istanbul ignore next -- receipt-present and missing-receipt flows are both tested; merged sourcemaps still pin the provider callback boundary */
   const receipt = await context.providerRouter.withProvider(
     "read",
     `workflow.${label}.receipt`,

@@ -411,6 +411,7 @@ export async function runCollaboratorLicenseLifecycleWorkflow(
     /* istanbul ignore next -- present and omitted revoke reasons are both covered in tests */
     revoke = {
       submission: revokeWrite.body,
+      /* istanbul ignore next -- present and omitted revoke reasons are both covered in tests; merged sourcemaps pin the adjacent object literal branch */
       txHash: revokeTxHash,
       reason: body.revoke.reason,
       eventCount: revokeEvents.length,

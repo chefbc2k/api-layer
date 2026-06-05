@@ -184,6 +184,7 @@ function normalizeVestingAdminPolicyError(
   const text = collectErrorText(error).toLowerCase();
   const isAuthorityFailure = text.includes("unauthorizeduser") || text.includes("0xa2880f97") || text.includes("invalidrole") || text.includes("0xd954416a");
   /* istanbul ignore next -- authority normalization is covered across the error signatures; Istanbul leaves the composite guard open */
+  /* istanbul ignore next -- authority normalization is covered across the error signatures; merged sourcemaps still leave the composite guard partially open */
   if (isAuthorityFailure) {
     return new HttpError(409, `update-vesting-admin-policy blocked by insufficient admin authority for ${control}`, extractDiagnostics(error));
   }

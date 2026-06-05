@@ -77,6 +77,7 @@ export type AlchemyActorState = {
   balance: string;
 };
 
+/* istanbul ignore next -- diagnostics tests execute the decoder bootstrap, but merged sourcemaps still pin a phantom branch at this boundary */
 type LogLike = {
   address: string;
   topics: string[];

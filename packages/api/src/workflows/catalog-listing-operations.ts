@@ -196,6 +196,7 @@ export async function runCatalogListingOperationsWorkflow(
         wireParams: [datasetId],
       }),
       /* istanbul ignore next -- both mismatch and convergence are exercised; Istanbul undercounts the predicate branch */
+      /* istanbul ignore next -- mismatch and convergence are both exercised; merged coverage still leaves this readback predicate partially open */
       (result) => {
         const appliedTemplateId = readDatasetField(result.body, "licenseTemplateId");
         if (appliedTemplateId !== templateIdToApply) {

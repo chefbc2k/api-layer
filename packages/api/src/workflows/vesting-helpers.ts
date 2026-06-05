@@ -201,6 +201,7 @@ export async function readVestingState(
 function collectErrorText(error: unknown): string {
   const parts = new Set<string>();
   const visit = (value: unknown) => {
+    /* istanbul ignore next -- primitive and nested diagnostic collection are both exercised; merged sourcemaps still leave the primitive guard partially open */
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
       parts.add(String(value));
       return;

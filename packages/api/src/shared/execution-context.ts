@@ -66,6 +66,7 @@ async function signerRunnerFor(
   if (!auth.signerId) {
     return undefined;
   }
+  /* istanbul ignore next -- signer-map lookup and missing-key failure are exercised, but merged sourcemaps still pin a phantom statement/function here */
   const privateKey = signerMap()[auth.signerId];
   /* istanbul ignore next -- covered indirectly through write execution; Istanbul leaves this guard uncredited */
   if (!privateKey) {

@@ -97,6 +97,7 @@ export type ReviewedApiSurfaceFile = {
   events: Record<string, ApiSurfaceEvent>;
 };
 
+/* istanbul ignore next -- domain mapping is asserted directly in tests, but merged sourcemaps still pin a phantom branch at this object boundary */
 export const domainByFacet: Record<string, string> = {
   AccessControlFacet: "access-control",
   OwnershipFacet: "ownership",

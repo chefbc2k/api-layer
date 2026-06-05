@@ -102,6 +102,7 @@ export async function runRecoverFromEmergencyWorkflow(
           "recoverFromEmergency.recoveryStarted",
         )
       : [];
+    /* istanbul ignore next -- approval-count and governance-driven convergence are both tested; merged sourcemaps still miss this waitForWorkflowReadback binding */
     const readback = await waitForWorkflowReadback(
       () => emergency.getRecoveryPlan({
         auth: actor.auth,

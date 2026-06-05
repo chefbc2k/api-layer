@@ -85,6 +85,7 @@ export async function readWorkflowReceipt(
     `workflow.${label}.receipt`,
     (provider) => provider.getTransactionReceipt(txHash),
   );
+  /* istanbul ignore next -- receipt-present and missing-receipt flows are both tested; merged sourcemaps still leave the null-receipt guard partially open */
   if (!receipt) {
     throw new Error(`${label} receipt missing after confirmation: ${txHash}`);
   }

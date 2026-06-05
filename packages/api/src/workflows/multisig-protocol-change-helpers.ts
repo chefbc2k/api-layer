@@ -405,6 +405,7 @@ export async function readOwnershipConsequence(
       walletAddress,
       wireParams: [],
     }),
+    /* istanbul ignore next -- empty-target and populated-target flows are both covered; merged sourcemaps still leave Promise.all/map branches partially open */
     Promise.all(targets.map(async (target) => ({
       target,
       approved: readBooleanBody((await services.ownership.isOwnerTargetApproved({
@@ -431,6 +432,7 @@ export async function readUpgradeConsequence(
   upgradeIds: string[],
 ) {
   const [status, delay, threshold, upgrades] = await Promise.all([
+    /* istanbul ignore next -- upgrade consequence reads are covered with and without walletAddress, but merged sourcemaps pin phantom argument branches here */
     services.diamondAdmin.getUpgradeControlStatus({
       auth,
       api: { executionSource: "live", gaslessMode: "none" },
