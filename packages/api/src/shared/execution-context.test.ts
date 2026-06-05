@@ -539,6 +539,23 @@ describe("getTransactionStatus", () => {
 });
 
 describe("__testOnly helpers", () => {
+  it("surfaces unmapped signer ids directly from signerRunnerFor", async () => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({});
+
+    await expect(__testOnly.signerRunnerFor(
+      buildContext() as never,
+      {
+        apiKey: "founder-key",
+        label: "founder",
+        signerId: "founder",
+        allowGasless: false,
+        roles: ["service"],
+      },
+      { label: "provider" } as never,
+      "read",
+    )).rejects.toThrow("missing private key for signer founder");
+  });
+
   it("uses an anonymous signer queue key when no signer id is present", () => {
     expect(__testOnly.signerQueueKey({
       apiKey: "public-key",

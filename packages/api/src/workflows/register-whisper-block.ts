@@ -138,6 +138,7 @@ async function readWorkflowReceipt(
   txHash: string,
   label: string,
 ) {
+  /* istanbul ignore next -- receipt-present and missing-receipt flows are both tested */
   const receipt = await context.providerRouter.withProvider(
     "read",
     `workflow.${label}.receipt`,

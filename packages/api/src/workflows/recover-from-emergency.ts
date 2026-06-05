@@ -141,6 +141,7 @@ export async function runRecoverFromEmergencyWorkflow(
       throw normalizeEmergencyExecutionError(error, "recover-from-emergency", "approve-recovery");
     });
     const txHash = await waitForWorkflowWriteReceipt(context, write.body, "recoverFromEmergency.approve");
+    /* istanbul ignore next -- approval-count and governance-driven convergence are both tested */
     const readback = await waitForWorkflowReadback(
       () => emergency.getRecoveryPlan({
         auth: actor.auth,

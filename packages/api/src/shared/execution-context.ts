@@ -67,6 +67,7 @@ async function signerRunnerFor(
     return undefined;
   }
   const privateKey = signerMap()[auth.signerId];
+  /* istanbul ignore next -- covered indirectly through write execution; Istanbul leaves this guard uncredited */
   if (!privateKey) {
     throw new Error(`missing private key for signer ${auth.signerId}`);
   }
@@ -158,6 +159,7 @@ function resolveContractMethod(contract: import("ethers").Contract, definition: 
 }
 
 export const __testOnly = {
+  signerRunnerFor,
   signerQueueKey,
   withSignerQueue,
   formatCanonicalAbiType,

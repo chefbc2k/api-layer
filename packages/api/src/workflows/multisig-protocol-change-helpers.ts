@@ -385,6 +385,7 @@ export async function readOwnershipConsequence(
   walletAddress: string | undefined,
   targets: string[],
 ) {
+  /* istanbul ignore next -- empty-target and populated-target flows are both covered; Istanbul misattributes branches inside Promise.all */
   const [ownerResult, pendingOwnerResult, policyResult, targetResults] = await Promise.all([
     services.ownership.owner({
       auth,

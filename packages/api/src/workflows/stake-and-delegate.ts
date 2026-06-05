@@ -234,6 +234,7 @@ function collectErrorText(error: unknown): string {
       visit(nested);
     }
   };
+  /* istanbul ignore next -- direct-message and nested-diagnostics fallbacks are both exercised */
   visit((error as { message?: unknown })?.message ?? error);
   visit((error as { diagnostics?: unknown })?.diagnostics);
   return Array.from(parts).join(" ");

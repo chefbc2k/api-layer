@@ -1070,6 +1070,58 @@ describe("alchemy-debug-lib", () => {
     }));
   });
 
+  it("honors an explicit https loopback port when auto-forking", async () => {
+    vi.useFakeTimers();
+    const child = {
+      exitCode: null,
+      kill: vi.fn(),
+      stdout: { on: vi.fn() },
+      stderr: { on: vi.fn() },
+    };
+    mocked.spawn.mockReturnValue(child as any);
+    mocked.jsonRpcProvider
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockRejectedValue(new Error("not ready")),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }))
+      .mockImplementationOnce(() => ({
+        getNetwork: vi.fn().mockResolvedValue({ chainId: 84532n }),
+        destroy: vi.fn().mockResolvedValue(undefined),
+      }));
+
+    const promise = startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+        chainId: 84532,
+      },
+      rpcResolution: {
+        configuredRpcUrl: "https://localhost:9555",
+        source: "base-sepolia-fixture",
+      },
+    } as any);
+
+    await vi.advanceTimersByTimeAsync(500);
+
+    await expect(promise).resolves.toEqual({
+      rpcUrl: "https://localhost:9555",
+      forkProcess: child,
+      forkedFrom: "https://base-sepolia.g.alchemy.com/v2/live",
+    });
+    expect(mocked.spawn).toHaveBeenCalledWith("anvil", [
+      "--host",
+      "localhost",
+      "--port",
+      "9555",
+      "--chain-id",
+      "84532",
+      "--fork-url",
+      "https://base-sepolia.g.alchemy.com/v2/live",
+    ], expect.objectContaining({
+      stdio: ["ignore", "pipe", "pipe"],
+      env: process.env,
+    }));
+  });
+
   it("fails fast when the fork process exits before bootstrap completes", async () => {
     mocked.spawn.mockReturnValue({
       exitCode: 12,

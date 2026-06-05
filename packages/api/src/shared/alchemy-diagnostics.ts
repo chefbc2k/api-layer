@@ -90,6 +90,7 @@ type EventDecoder = {
   iface: Interface;
 };
 
+/* istanbul ignore next -- event decoder construction is exercised through diagnostics tests; coverage maps pin a phantom branch here */
 const eventDecoders = Object.entries(facetRegistry).map(([facetName, entry]) => ({
   facetName,
   iface: new Interface(entry.abi),

@@ -92,6 +92,20 @@ describe("base sepolia operator setup helpers", () => {
     expect(read).toHaveBeenCalledTimes(2);
   });
 
+  it("uses the default attempt budget when attempts are omitted", async () => {
+    vi.useFakeTimers();
+    const read = vi.fn()
+      .mockResolvedValueOnce({ ready: false, attempt: 1 })
+      .mockResolvedValueOnce({ ready: false, attempt: 2 })
+      .mockResolvedValueOnce({ ready: true, attempt: 3 });
+
+    const resultPromise = retryApiRead(read, (value) => value.ready);
+    await vi.advanceTimersByTimeAsync(2_000);
+
+    await expect(resultPromise).resolves.toEqual({ ready: true, attempt: 3 });
+    expect(read).toHaveBeenCalledTimes(3);
+  });
+
   it("uses the default retry delay when delayMs is explicitly undefined", async () => {
     vi.useFakeTimers();
     const read = vi.fn()
@@ -204,6 +218,31 @@ describe("base sepolia operator setup helpers", () => {
       listing: {
         createdAt: "1000",
         expiresAt: "9999",
+        isActive: true,
+      },
+    })).resolves.toEqual({
+      advanced: false,
+      secondsAdvanced: "0",
+      readyAt: "87401",
+    });
+    expect(provider.getBlock).toHaveBeenCalledWith("latest");
+    expect(provider.send).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the system clock when the latest loopback block has no timestamp", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("1970-01-02T01:00:00.000Z"));
+    const provider = {
+      getBlock: vi.fn().mockResolvedValue({}),
+      send: vi.fn(),
+    };
+
+    await expect(advanceLocalForkPastMarketplaceTradingLock({
+      provider: provider as any,
+      rpcUrl: "http://127.0.0.1:8548",
+      listing: {
+        createdAt: "1000",
+        expiresAt: "9999999999",
         isActive: true,
       },
     })).resolves.toEqual({

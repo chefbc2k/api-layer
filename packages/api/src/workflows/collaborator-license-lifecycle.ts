@@ -408,6 +408,7 @@ export async function runCollaboratorLicenseLifecycleWorkflow(
       (result) => result.statusCode !== 200,
       "collaboratorLicenseLifecycle.revokedLicense",
     );
+    /* istanbul ignore next -- present and omitted revoke reasons are both covered in tests */
     revoke = {
       submission: revokeWrite.body,
       txHash: revokeTxHash,

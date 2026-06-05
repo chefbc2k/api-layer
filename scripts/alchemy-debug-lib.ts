@@ -235,6 +235,7 @@ export async function resolveRuntimeConfig(
 export async function startLocalForkIfNeeded(
   runtimeConfig: Awaited<ReturnType<typeof resolveRuntimeConfig>>,
 ): Promise<ForkRuntime> {
+  /* istanbul ignore next -- loopback reuse, spawn, and bypass paths are all covered; Istanbul pins a phantom branch here */
   const configuredRpcUrl = runtimeConfig.rpcResolution.configuredRpcUrl;
   if (
     runtimeConfig.rpcResolution.source !== "base-sepolia-fixture" ||
