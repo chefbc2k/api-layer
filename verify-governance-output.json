@@ -36,33 +36,33 @@
               "proposal": {
                 "submission": {
                   "requestId": null,
-                  "txHash": "0xd37902c55bc9321ca01a3d6c02385231e15cabb77d0991320fdae367118f23e7",
-                  "result": "43"
+                  "txHash": "0x7f990cad58811562d128c8575714a8018ca9732c6e7ae01033872c0796725ac0",
+                  "result": "45"
                 },
-                "txHash": "0xd37902c55bc9321ca01a3d6c02385231e15cabb77d0991320fdae367118f23e7",
-                "proposalId": "43",
+                "txHash": "0x7f990cad58811562d128c8575714a8018ca9732c6e7ae01033872c0796725ac0",
+                "proposalId": "45",
                 "eventCount": 1
               },
               "readback": {
-                "snapshot": "42466123",
+                "snapshot": "42475250",
                 "proposalState": "0",
-                "deadline": "42506443"
+                "deadline": "42515570"
               },
               "votingWindow": {
-                "earliestVotingBlock": "42466123",
-                "proposalDeadlineBlock": "42506443",
-                "currentBlock": "42459402",
-                "latestBlockTimestamp": "1780826635",
-                "estimatedVotingStartTimestamp": "1780927450"
+                "earliestVotingBlock": "42475250",
+                "proposalDeadlineBlock": "42515570",
+                "currentBlock": "42468643",
+                "latestBlockTimestamp": "1781004127",
+                "estimatedVotingStartTimestamp": "1781103232"
               },
               "summary": {
-                "proposalId": "43",
+                "proposalId": "45",
                 "proposalType": "0",
                 "targetCount": 1,
                 "calldataCount": 1
               }
             },
-            "txHash": "0xd37902c55bc9321ca01a3d6c02385231e15cabb77d0991320fdae367118f23e7",
+            "txHash": "0x7f990cad58811562d128c8575714a8018ca9732c6e7ae01033872c0796725ac0",
             "receipt": {
               "source": "rpc",
               "receipt": {
@@ -70,11 +70,11 @@
                 "to": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
                 "contractAddress": null,
-                "hash": "0xd37902c55bc9321ca01a3d6c02385231e15cabb77d0991320fdae367118f23e7",
+                "hash": "0x7f990cad58811562d128c8575714a8018ca9732c6e7ae01033872c0796725ac0",
                 "index": 0,
-                "blockHash": "0x0b15ce1a70baf8799b31e696216245838bc03f48555e2eab0b4dd446160a2f81",
-                "blockNumber": 42459403,
-                "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000002000001000000000000000000002000000000000000800000000000000010000000000000000000000000000000000000000000000000000000400000000000000000000000000000800000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000020000000000000000000000000000000000000000000000000000040000000000000000000000000000000000",
+                "blockHash": "0x8e51b7e2fe8a55d54b6bb1f06d3b19af41c7cd274283dcb6a0b514dee11ad7ec",
+                "blockNumber": 42468530,
+                "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000002000000000000000400000000002000000000000000000000000000000010000000000000000000000000000000000000000000000000000000400000000000000000000000000000800000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000020000000000000000400000000000000000000000000000000000040000000000000000000000000000000000",
                 "gasUsed": "475428",
                 "blobGasUsed": null,
                 "cumulativeGasUsed": "475428",
@@ -99,7 +99,7 @@
                     "eventName": null,
                     "signature": null,
                     "facetName": "AccessControlFacet",
-                    "transactionHash": "0xd37902c55bc9321ca01a3d6c02385231e15cabb77d0991320fdae367118f23e7",
+                    "transactionHash": "0x7f990cad58811562d128c8575714a8018ca9732c6e7ae01033872c0796725ac0",
                     "args": {}
                   }
                 ],
@@ -108,11 +108,11 @@
                 }
               }
             },
-            "proposalId": "43",
+            "proposalId": "45",
             "proposalState": null,
             "proposalReadbackError": null,
-            "snapshotBlock": "42466123",
-            "currentBlock": "42459402",
+            "snapshotBlock": "42475250",
+            "currentBlock": "42468643",
             "currentVotingDelay": "6720",
             "proposedVotingDelay": "6000"
           }
@@ -122,9 +122,9 @@
           "actor": "read-key",
           "status": "active",
           "postState": {
-            "snapshotBlock": "42466123",
-            "deadlineBlock": "42506443",
-            "currentBlock": "42466124",
+            "snapshotBlock": "42475250",
+            "deadlineBlock": "42515570",
+            "currentBlock": "42479460",
             "proposalState": "1",
             "timedOut": false
           }
@@ -134,7 +134,7 @@
           "actor": "founder-key",
           "status": 202,
           "postState": {
-            "txHash": "0xf78df409e776287c994408ba7aca9fb0019bd31cfc88793382ec4dfe0e0db849",
+            "txHash": "0xa2e79e72f2290b2a87dc52c1472f9464a931a0d56f3793a8de462c72f4c70bc9",
             "receipt": {
               "source": "rpc",
               "receipt": {
@@ -142,11 +142,11 @@
                 "to": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
                 "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
                 "contractAddress": null,
-                "hash": "0xf78df409e776287c994408ba7aca9fb0019bd31cfc88793382ec4dfe0e0db849",
+                "hash": "0xa2e79e72f2290b2a87dc52c1472f9464a931a0d56f3793a8de462c72f4c70bc9",
                 "index": 0,
-                "blockHash": "0x0d3b875837aebb56723ce466addf8b962e1ced3fa90554e63f6ab6852ba1ea2d",
-                "blockNumber": 42466125,
-                "logsBloom": "0x00000000000000000000000008000000000000000000000000000000000000000000000000040000001000000000000000000000000001000000000000040000000000000000000000800000000000000010000000040000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000100000000000000000000000020000000000000000000040000000000000000000000000000000040000000000000000000000000000000000",
+                "blockHash": "0x8c1fa4de9bd735cf596ed4d70c1c85a7c43ae30692122bb9c9a61d88adfd39b6",
+                "blockNumber": 42479461,
+                "logsBloom": "0x00000000000000000000000008000000000000000000000000000000000000000000000000040000001000000000000000000000000000000000000400040000000000000000000000000000000000000010000000040000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000001000000000000000000000000010000000000000000000000000000000000000000000000000020000000000000000400040000000000000000000000000000000040000000000000000000000000000000000",
                 "gasUsed": "199952",
                 "blobGasUsed": null,
                 "cumulativeGasUsed": "199952",
@@ -171,7 +171,7 @@
                     "eventName": null,
                     "signature": null,
                     "facetName": "AccessControlFacet",
-                    "transactionHash": "0xf78df409e776287c994408ba7aca9fb0019bd31cfc88793382ec4dfe0e0db849",
+                    "transactionHash": "0xa2e79e72f2290b2a87dc52c1472f9464a931a0d56f3793a8de462c72f4c70bc9",
                     "args": {}
                   }
                 ],
@@ -180,10 +180,10 @@
                 }
               }
             },
-            "proposalId": "43",
+            "proposalId": "45",
             "proposalState": "1",
-            "snapshotBlock": "42466123",
-            "currentBlock": "42466125"
+            "snapshotBlock": "42475250",
+            "currentBlock": "42479461"
           }
         }
       ],
