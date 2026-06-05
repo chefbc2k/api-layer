@@ -178,6 +178,23 @@ describe("multisig protocol change helper utilities", () => {
     expect(decodeProtocolAction(encodedUnknownDiamondSelector)).toBeNull();
   });
 
+  it("returns null when both parsers succeed structurally but neither yields a supported action", () => {
+    const parseTransactionSpy = vi.spyOn(Interface.prototype, "parseTransaction");
+    parseTransactionSpy
+      .mockImplementationOnce(() => ({
+        name: "owner",
+        args: [],
+      } as never))
+      .mockImplementationOnce(() => ({
+        name: "diamondCut",
+        args: [],
+      } as never));
+
+    expect(decodeProtocolAction("0x12345678")).toBeNull();
+
+    parseTransactionSpy.mockRestore();
+  });
+
   it("normalizes sparse diamond-cut calldata when ownership decoding throws first", () => {
     const parseTransactionSpy = vi.spyOn(Interface.prototype, "parseTransaction");
     parseTransactionSpy
@@ -198,6 +215,27 @@ describe("multisig protocol change helper utilities", () => {
       }],
       initContract: "undefined",
       initCalldata: "undefined",
+    });
+
+    parseTransactionSpy.mockRestore();
+  });
+
+  it("normalizes non-array diamond-cut payloads into an empty facet-cut list", () => {
+    const parseTransactionSpy = vi.spyOn(Interface.prototype, "parseTransaction");
+    parseTransactionSpy
+      .mockImplementationOnce(() => {
+        throw new Error("ownership parse failed");
+      })
+      .mockImplementationOnce(() => ({
+        name: "proposeDiamondCut",
+        args: [undefined, "0x00000000000000000000000000000000000000bb", "0xfeed"],
+      } as never));
+
+    expect(decodeProtocolAction("0x12345678")).toEqual({
+      kind: "propose-diamond-cut",
+      facetCuts: [],
+      initContract: "0x00000000000000000000000000000000000000bb",
+      initCalldata: "0xfeed",
     });
 
     parseTransactionSpy.mockRestore();

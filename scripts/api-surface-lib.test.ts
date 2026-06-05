@@ -104,6 +104,34 @@ describe("api surface helpers", () => {
     expect(classifyMethod("voice-assets", method({ methodName: "URI" }))).toBe("query");
   });
 
+  it("falls back to default governance and staking resources when no facet-specific override applies", () => {
+    expect(buildMethodSurface(method({
+      facetName: "GovernorFacet",
+      wrapperKey: "proposeChange",
+      methodName: "proposeChange",
+      category: "write",
+      inputs: [{ name: "proposal", type: "bytes32" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "governance",
+      path: "/v1/governance/commands/propose-change",
+    });
+
+    expect(buildMethodSurface(method({
+      facetName: "StakingFacet",
+      wrapperKey: "claimStakeReward",
+      methodName: "claimStakeReward",
+      category: "write",
+      inputs: [{ name: "stakeId", type: "uint256" }],
+      outputs: [],
+    }))).toMatchObject({
+      domain: "staking",
+      resource: "stakes",
+      path: "/v1/staking/commands/claim-stake-reward",
+    });
+  });
+
   it("builds method surfaces with default and overridden route shapes", () => {
     expect(buildMethodSurface(method())).toMatchObject({
       domain: "voice-assets",
@@ -203,6 +231,19 @@ describe("api surface helpers", () => {
       inputShape: {
         kind: "query",
         bindings: [{ name: "value", source: "query", field: "value" }],
+      },
+    });
+
+    expect(buildMethodSurface(method({
+      wrapperKey: "setFlag",
+      methodName: "setFlag",
+      category: "write",
+      inputs: [{ name: "", type: "bool" }],
+      outputs: [],
+    }))).toMatchObject({
+      inputShape: {
+        kind: "body",
+        bindings: [{ name: "arg0", source: "body", field: "arg0" }],
       },
     });
 

@@ -878,6 +878,23 @@ describe("alchemy-debug-lib", () => {
     expect(mocked.spawn).not.toHaveBeenCalled();
   });
 
+  it("skips auto-fork bootstrapping when fallback mode is active but the configured RPC is already non-loopback", async () => {
+    await expect(startLocalForkIfNeeded({
+      config: {
+        cbdpRpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+      },
+      rpcResolution: {
+        configuredRpcUrl: "https://rpc.example.com/base-sepolia",
+        source: "base-sepolia-fixture",
+      },
+    } as any)).resolves.toEqual({
+      rpcUrl: "https://base-sepolia.g.alchemy.com/v2/live",
+      forkProcess: null,
+      forkedFrom: null,
+    });
+    expect(mocked.spawn).not.toHaveBeenCalled();
+  });
+
   it("reuses an already-running loopback fork when the configured listener is healthy", async () => {
     await expect(startLocalForkIfNeeded({
       config: {
