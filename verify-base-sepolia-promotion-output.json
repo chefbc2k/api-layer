@@ -1,0 +1,96 @@
+{
+  "generatedAt": "2026-08-02T17:09:55.990Z",
+  "target": {
+    "network": "base-sepolia",
+    "chainId": 84532,
+    "rpcOrigin": "http://127.0.0.1:8548",
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "readiness": {
+    "status": "blocked",
+    "checks": [
+      {
+        "name": "env-file",
+        "ready": true,
+        "detail": ".env is present"
+      },
+      {
+        "name": "explicit-live-opt-in",
+        "ready": false,
+        "detail": "set API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true in .env"
+      },
+      {
+        "name": "network",
+        "ready": true,
+        "detail": "NETWORK=base-sepolia"
+      },
+      {
+        "name": "chain-id",
+        "ready": true,
+        "detail": "CHAIN_ID=84532"
+      },
+      {
+        "name": "direct-live-rpc",
+        "ready": false,
+        "detail": "RPC origin is http://127.0.0.1:8548 (loopback is not allowed)"
+      },
+      {
+        "name": "direct-diagnostics-rpc",
+        "ready": false,
+        "detail": "Alchemy RPC origin is http://127.0.0.1:8548 (loopback is not allowed)"
+      },
+      {
+        "name": "diamond-address",
+        "ready": true,
+        "detail": "diamond=0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+      },
+      {
+        "name": "required-actors",
+        "ready": true,
+        "detail": "founder, seller, and buyer private keys must be valid"
+      },
+      {
+        "name": "distinct-actors",
+        "ready": true,
+        "detail": "founder, seller, and buyer must resolve to distinct addresses"
+      },
+      {
+        "name": "founder-sender",
+        "ready": true,
+        "detail": "SENDER must be valid and match PRIVATE_KEY"
+      }
+    ],
+    "blockers": [
+      "explicit-live-opt-in: set API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true in .env",
+      "direct-live-rpc: RPC origin is http://127.0.0.1:8548 (loopback is not allowed)",
+      "direct-diagnostics-rpc: Alchemy RPC origin is http://127.0.0.1:8548 (loopback is not allowed)"
+    ]
+  },
+  "liveTarget": {
+    "checked": false,
+    "chainId": null,
+    "diamondCodePresent": null,
+    "error": null
+  },
+  "safety": {
+    "destructiveProtocolAdminWrites": "disabled",
+    "reason": "the promotion runner only invokes fixture-backed user workflows; diamond upgrades, ownership changes, pause/recovery, treasury withdrawal, and other destructive admin writes are excluded",
+    "setupHelpers": [
+      "native user funding",
+      "test-token funding",
+      "buyer allowance",
+      "aged marketplace listing",
+      "governance role and voting-power readiness"
+    ]
+  },
+  "setup": null,
+  "scenarios": [],
+  "evidence": {
+    "txHashes": [],
+    "blockNumbers": [],
+    "actors": [],
+    "stateDeltas": [],
+    "decodedEvents": []
+  },
+  "finalClassification": "blocked by setup/state"
+}

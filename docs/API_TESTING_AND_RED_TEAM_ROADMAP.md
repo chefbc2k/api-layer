@@ -11,6 +11,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 - Standard TypeScript coverage currently reports `99.98%` lines, `99.96%` statements, `99.82%` branches, and `99.92%` functions across the measured API/client/indexer/script surface; the residual merged-Istanbul mappings are confined to already-exercised execution-context, red-team harness, and Alchemy diagnostic lines.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
+- A gated Base Sepolia promotion runner now wraps the existing operator setup, marketplace purchase, and governance proof commands. Its first preflight correctly refused to reuse the configured loopback fork as live evidence, so no Base Sepolia transaction was submitted by this automation run.
 
 The important caveat: complete generated API coverage is not the same as complete protocol assurance. The next phase should treat the ABI buildout as the inventory engine, then require each contract capability to carry proof across correctness, authorization, economic safety, state transitions, event/indexer projection, and adversarial behavior.
 
@@ -110,6 +111,18 @@ The Base Sepolia runner should:
 - avoid destructive protocol-admin writes unless flagged
 - consume existing setup helpers for new users, test funds, allowances, listings, and governance readiness
 - persist evidence with tx hashes, block numbers, actors, state deltas, decoded events, and final classifications
+
+#### 2026-08-02 Promotion Automation Evidence
+
+- Branch: `codex/base-sepolia-promotion`, created from an up-to-date `master` (`master...origin/master` was `0/0`).
+- Added `pnpm run verify:promotion:base-sepolia` and `pnpm run verify:promotion:base-sepolia:preflight` via `scripts/promote-base-sepolia-scenarios.ts`.
+- The runner requires `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` in `.env`, `NETWORK=base-sepolia`, `CHAIN_ID=84532`, a direct non-loopback RPC, deployed diamond bytecode, valid and distinct founder/seller/buyer keys, and a freshly generated direct-live setup artifact before it invokes proof writes.
+- Destructive protocol-admin writes are excluded: diamond upgrades, ownership changes, pause/recovery actions, and treasury withdrawals are not in the scenario manifest. The safe scenario manifest only uses existing user funding, test-token/allowance, aged-listing, governance-readiness, marketplace purchase, and governance proof helpers.
+- `pnpm run verify:promotion:base-sepolia:preflight` exited `2` with `finalClassification: "blocked by setup/state"` before any RPC call or transaction. The blockers are the missing explicit live opt-in and `.env` `RPC_URL`/`ALCHEMY_RPC_URL` both resolving to `http://127.0.0.1:8548`.
+- The refusal artifact is `verify-base-sepolia-promotion-output.json`; it contains readiness checks, the safety policy, empty transaction/block/event evidence, and the final blocked classification.
+- Focused runner tests passed `5/5`; `pnpm run coverage:check` remained green at `492` functions, `218` events, and `492` validated HTTP methods. Project-reference typechecking (`pnpm exec tsc -p tsconfig.json --noEmit`) also passed.
+- No live proof commands were run because readiness was not confirmed. No partial work was merged into `master`.
+- Next step: point `.env` at a direct Base Sepolia RPC, explicitly set `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true`, rerun the preflight, then allow the runner to refresh setup and execute only fixture-ready scenarios. Merge only after the aggregate artifact is `proven working` and all repository gates pass.
 
 ### Phase 4: Red-Team Harness
 
