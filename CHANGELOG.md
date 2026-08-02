@@ -2,6 +2,12 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.250] - 2026-08-02
+
+### Added
+- **Documented The Next API Assurance And Red-Team Roadmap:** Added [`docs/API_TESTING_AND_RED_TEAM_ROADMAP.md`](/Users/chef/Public/api-layer/docs/API_TESTING_AND_RED_TEAM_ROADMAP.md) to distinguish the repo's current mechanical coverage from deeper protocol assurance, summarize known coverage strength, and define the next automation phases for ABI-driven gap reporting, local-fork proofs, Base Sepolia proofs, economic invariant checks, event/indexer validation, and red-team testing.
+- **Established The Roadmap As The Master Automation Tracking File:** Updated [`docs/API_TESTING_AND_RED_TEAM_ROADMAP.md`](/Users/chef/Public/api-layer/docs/API_TESTING_AND_RED_TEAM_ROADMAP.md) with a daily automation tracking table, required merge evidence per section, and a rule that no section should merge into `master` until implementation, verification, artifacts, and roadmap status are complete.
+
 ## [0.1.242] - 2026-06-04
 
 ## [0.1.248] - 2026-06-05
