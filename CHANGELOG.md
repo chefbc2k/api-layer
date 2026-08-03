@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.251] - 2026-08-03
+
+### Added
+- **Local-Fork Assurance Orchestrator Is Implemented Behind Strict Safety Guards:** Added `pnpm run verify:local-fork`, an exhaustive ABI-shaped safe-read/event probe, deterministic proof staging, fixture/artifact collection, and structured gap aggregation. Loopback execution is the default; any live run requires `--allow-live`, and destructive/admin stages additionally require `--allow-live-destructive`.
+- **Runner Behavior Is Locked By Focused Tests:** Added `pnpm run test:local-fork-runner` with `7/7` passing tests for CLI parsing, live-network refusal, proof ordering, retry/failure handling, artifact-directory creation, inventory accounting, and deterministic fixture values.
+
+### Verified
+- **Surface, Fixture, And HTTP Write Proofs Stayed Green:** Re-ran code generation and `pnpm run coverage:check` at `492` wrapper functions, `218` wrapper events, and `492` validated HTTP methods. Fixture setup completed `ready` with funded actors, buyer USDC balance/allowance, role/governance readiness, and a purchase-ready aged listing; the HTTP contract suite passed `18/18` both in isolation and inside the final orchestrated attempt.
+- **Most Persistent Domain Proofs Completed:** The local fork persisted `proven working` artifacts for core Layer 1 domains (`8` domains / `30` routes / `36` evidence records), completion reads (`1` / `5` / `7`), remaining dataset/licensing/WhisperBlock domains (`3` / `36` / `36`), and marketplace purchase settlement (`1` / `5` / `5`). The exhaustive read/event probe attempted `446/446` reviewed routes and produced `416` successful responses, `25` `needs fixture` gaps, and `5` proof gaps.
+
+### Remaining Issues
+- **Local-Fork Workstream Is Not Merge-Ready:** Governance proposal `43` was submitted successfully in tx `0xb0212dc3ceabdf50a6b47cfc28eb1b148d61f71a3831ca9077b3f29dc8fcfb54`, but remained Pending at block `45010227` after snapshot block `45010226`. The governance artifact is `blocked by setup/state`, and disk-heavy fork mining exhausted the host before the aggregate report rewrite. The branch must not merge until governance activation, remaining fixture/probe gaps, final report persistence, and the complete quality/coverage gate are green.
+
 ## [0.1.250] - 2026-08-02
 
 ### Added

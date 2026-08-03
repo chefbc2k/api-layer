@@ -151,6 +151,15 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Local-Fork Automation Run — 2026-08-03
+
+- **Implementation:** `codex/local-fork-automation` now contains a deterministic `pnpm run verify:local-fork` orchestrator with loopback fork startup/validation, fixture provisioning, an exhaustive ABI-driven read/event probe, fixture-backed HTTP writes, persistent domain proof artifacts, structured gaps, and a two-flag live-network guard (`--allow-live` plus `--allow-live-destructive`) for destructive/admin stages.
+- **Runner tests:** `pnpm run test:local-fork-runner` passes `7/7`, including loopback/live safety behavior, proof-plan ordering, artifact-directory creation, sequential failure handling, inventory totals, and ABI-shaped fixture inputs.
+- **Surface and write evidence:** code generation plus `pnpm run coverage:check` remain green at `492` wrapper functions, `218` wrapper events, and `492` validated HTTP methods. The local-fork HTTP contract suite passes `18/18` in isolation and also passed `18/18` inside the final orchestrated run before later proof stages.
+- **Structured proof artifacts:** the final diagnostic run persisted `proven working` reports for `layer1-core` (`8` domains / `30` routes / `36` evidence records), `layer1-completion` (`1` / `5` / `7`), `layer1-remaining` (`3` / `36` / `36`), and marketplace purchase settlement (`1` / `5` / `5`). The safe-read probe attempted all `232` reviewed reads plus `214` reviewed event routes: `416/446` returned successful proof responses, `25` are classified `needs fixture`, and `5` remain proof gaps.
+- **Blocking evidence:** governance submission succeeded with proposal `43`, tx `0xb0212dc3ceabdf50a6b47cfc28eb1b148d61f71a3831ca9077b3f29dc8fcfb54`, and snapshot block `45010226`, but the proposal remained state `0` at block `45010227`; the persisted governance artifact is therefore `blocked by setup/state`. Mining the voting delay also exhausted the automation host's available disk before the aggregate report could be rewritten.
+- **Next steps:** make governance activation deterministic without disk-heavy per-block mining (prefer a fork-native block-number jump or compact mining strategy), provision valid campaign/proposal/license/dataset/rights-group fixtures for the remaining reads, correct the five non-fixture probe inputs, rerun `pnpm run verify:local-fork`, then run the full quality gate and coverage checks. Do not merge this branch until the aggregate report persists successfully with every stage green.
+
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
 | ABI-driven gap report | Pending | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, tests for report generation, and green `pnpm run coverage:check` |
@@ -158,7 +167,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Actor and signer negative paths | Pending | role/API-key mismatch tests for all write domains and green workflow/API tests |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
-| Local-fork destructive automation | Pending | deterministic local-fork runner, fixture setup, structured report output, and safe default flags |
+| Local-fork destructive automation | Blocked | implementation and focused tests are present; merge is blocked by governance activation remaining pending after fork advancement, `30` structured read gaps, and aggregate-report persistence exhausting host disk during governance mining |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
 | Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
 
