@@ -13,6 +13,36 @@ import {
 import { getAbiMethodDefinition } from "./abi-registry.js";
 
 describe("abi-codec", () => {
+  it("validates integer bounds, fixed bytes, function pointers, empty tuples, and malformed array types", () => {
+    const definition = {
+      signature: "redTeamProbe(uint8,int8,bytes32,bytes,function,tuple)",
+      inputs: [
+        { type: "uint8" },
+        { type: "int8" },
+        { type: "bytes32" },
+        { type: "bytes" },
+        { type: "function" },
+        { type: "tuple" },
+      ],
+    };
+    const valid = [
+      "255",
+      "-128",
+      `0x${"11".repeat(32)}`,
+      "0xdeadbeef",
+      `0x${"22".repeat(24)}`,
+      {},
+    ];
+
+    expect(() => validateWireParams(definition as never, valid)).not.toThrow();
+    expect(() => validateWireParams({
+      signature: "unsuffixed(uint,int)",
+      inputs: [{ type: "uint" }, { type: "int" }],
+    } as never, ["1", "-1"])).not.toThrow();
+    expect(() => validateWireParams(definition as never, ["256", ...valid.slice(1)])).toThrow("uint8 value out of range");
+    expect(() => validateWireParams(definition as never, [valid[0], "128", ...valid.slice(2)])).toThrow("int8 value out of range");
+  });
+
   it("serializes bigint params as decimal strings", () => {
     const definition = getAbiMethodDefinition("DelegationFacet.delegateBySig");
     expect(definition).not.toBeNull();

@@ -17,6 +17,7 @@ import {
   inspectTimelock,
   inspectValueConservation,
   replayFingerprint,
+  redTeamHarnessInternals,
   sampleWireValue,
 } from "./red-team-harness-lib.js";
 import { generatedManifestDir, readJson } from "./utils.js";
@@ -146,6 +147,65 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
       claimedWallet: "0x00000000000000000000000000000000000000cc",
     })[0]?.id).toBe("confused-deputy-wallet-mismatch");
     expect(inspectActorBinding({ apiKey: "anonymous-write" })[0]?.id).toBe("signer-missing");
+    expect(inspectActorBinding({
+      apiKey: "buyer-key",
+      signerId: "buyer",
+      signerAddress: "0x00000000000000000000000000000000000000bb",
+      claimedWallet: "0x00000000000000000000000000000000000000BB",
+    })).toEqual([]);
+    expect(inspectStateTransition({ from: "unknown", to: "listed", allowed: allowed as never })[0]?.id)
+      .toBe("state-machine-ordering");
+  });
+
+  it("covers scalar, tuple, array, and canonicalization mutation edge cases", () => {
+    expect(sampleWireValue({ type: "int8" }, 1)).toBe("-127");
+    expect(sampleWireValue({ type: "int8" }, 2)).toBe("3");
+    expect(sampleWireValue({ type: "function" })).toBe(`0x${"ab".repeat(24)}`);
+    expect(sampleWireValue({ type: "opaque" })).toBe("red-team-opaque-1");
+    expect(sampleWireValue({ type: "tuple" })).toEqual({});
+    expect(sampleWireValue({ type: "tuple", components: [{ type: "bool" }] })).toEqual({ 0: true });
+    expect(sampleWireValue({ type: "tuple", components: [{ name: "flag", type: "bool" }] })).toEqual({ flag: true });
+    expect(sampleWireValue({ type: "uint8[1][2]" })).toEqual([["4", "5"]]);
+    expect(sampleWireValue({ type: "uint8[1][]" })).toEqual([["4", "5"]]);
+
+    expect(buildWireMutations({ type: "function" }).map((mutation) => mutation.name)).toEqual([
+      "short-function-pointer",
+      "long-function-pointer",
+    ]);
+    expect(buildWireMutations({ type: "opaque" })).toEqual([]);
+    expect(buildWireMutations({ type: "tuple" })).toHaveLength(3);
+    expect(buildWireMutations({ type: "tuple", components: [{ type: "bool" }, { type: "bool" }] })[1]?.value)
+      .toEqual({ 0: false });
+    expect(buildWireMutations({ type: "opaque[]" }).map((mutation) => mutation.name)).toEqual([
+      "non-array",
+      "null-array",
+    ]);
+    expect(buildWireMutations({ type: "address[0]" }).map((mutation) => mutation.name)).toEqual([
+      "non-array",
+      "null-array",
+      "short-fixed-array",
+      "long-fixed-array",
+    ]);
+    expect(buildWireMutations({ type: "address[1][1]" }).map((mutation) => mutation.name)).toContain("nested-non-array");
+    expect(buildWireMutations({ type: "address[1][]" }).map((mutation) => mutation.name)).toContain("nested-non-array");
+
+    expect(redTeamHarnessInternals.canonicalize({ z: 1n, a: [2n, null] })).toEqual({ a: ["2", null], z: "1" });
+    expect(redTeamHarnessInternals.integerBounds("uint8")).toEqual({ minimum: 0n, maximum: 255n });
+    expect(redTeamHarnessInternals.integerBounds("int")).toEqual({
+      minimum: -(1n << 255n),
+      maximum: (1n << 255n) - 1n,
+    });
+    expect(() => redTeamHarnessInternals.integerBounds("address")).toThrow("not an integer ABI type");
+    expect(redTeamHarnessInternals.parseArrayType("bytes32[][2]")).toEqual({
+      baseType: "bytes32",
+      lengths: [null, 2],
+    });
+    expect(() => redTeamHarnessInternals.parseArrayType("uint]")).toThrow("invalid ABI array type uint]");
+    expect(inspectActorBinding({
+      apiKey: "unbound-key",
+      signerAddress: "0x00000000000000000000000000000000000000aa",
+      claimedWallet: "0x00000000000000000000000000000000000000bb",
+    })).toHaveLength(2);
   });
 });
 
@@ -168,6 +228,12 @@ describe("red-team RPC and protocol-admin oracles", () => {
       secondary: { blockNumber: 100, blockHash: "0xaaa", valueHash: "0x222" },
       maxBlockLag: 2,
     }).map((finding) => finding.id)).toContain("rpc-state-disagreement");
+
+    expect(inspectRpcSnapshots({
+      primary: { blockNumber: 100, blockHash: "0xaaa", valueHash: "0x111" },
+      secondary: { blockNumber: 99, blockHash: "0xbbb", valueHash: "0x222" },
+      maxBlockLag: 2,
+    })).toEqual([]);
   });
 
   it("detects selector collisions, duplicate selectors, and malicious init contracts", () => {
@@ -197,6 +263,22 @@ describe("red-team RPC and protocol-admin oracles", () => {
       "diamond-untrusted-init",
       "diamond-malformed-init-calldata",
     ]));
+
+    expect(inspectDiamondCut({
+      facetCuts: [],
+      mountedSelectors: new Set(),
+      trustedInitContracts: new Set(),
+      initContract: "0x0000000000000000000000000000000000000000",
+      initCalldata: "0x12345678",
+    }).map((finding) => finding.id)).toEqual(["diamond-init-calldata-without-contract"]);
+
+    expect(inspectDiamondCut({
+      facetCuts: [],
+      mountedSelectors: new Set(),
+      trustedInitContracts: new Set(["0x00000000000000000000000000000000000000cc"]),
+      initContract: "0x00000000000000000000000000000000000000CC",
+      initCalldata: "0x12345678",
+    })).toEqual([]);
   });
 
   it("detects timelock substitution/early execution and multisig threshold mistakes", () => {
@@ -227,6 +309,20 @@ describe("red-team RPC and protocol-admin oracles", () => {
       approvals: ["0xaaa", "0xbbb"],
       threshold: 3,
     }).map((finding) => finding.id)).toContain("multisig-invalid-threshold");
+
+    expect(inspectTimelock({
+      scheduledAt: 100n,
+      executeAfter: 110n,
+      attemptedAt: 110n,
+      minimumDelay: 10n,
+      operationId: "0xaaa",
+      expectedOperationId: "0xAAA",
+    })).toEqual([]);
+    expect(inspectMultisig({
+      operators: ["0xaaa", "0xbbb"],
+      approvals: ["0xAAA", "0xbbb"],
+      threshold: 2,
+    })).toEqual([]);
   });
 
   it("detects emergency state, approval, and timelock bypass attempts", () => {
@@ -249,5 +345,19 @@ describe("red-team RPC and protocol-admin oracles", () => {
       requiredApprovals: 2,
       timelockReady: true,
     })).toEqual([]);
+    expect(inspectEmergencyAction({
+      state: "NORMAL",
+      action: "resume",
+      approvals: 2,
+      requiredApprovals: 2,
+      timelockReady: true,
+    }).map((finding) => finding.id)).toEqual(["emergency-resume-state-bypass"]);
+    expect(inspectEmergencyAction({
+      state: "NORMAL",
+      action: "recover",
+      approvals: 2,
+      requiredApprovals: 2,
+      timelockReady: true,
+    }).map((finding) => finding.id)).toEqual(["emergency-normal-state-bypass"]);
   });
 });

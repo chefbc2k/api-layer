@@ -2,6 +2,25 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.254] - 2026-08-03
+
+### Added
+- **ABI-Wide Red-Team Mutation Harness:** Added deterministic valid-value generation and `1,914` invalid mutations across all `521` inputs on the `259` mounted HTTP writes. The `29` mutation classes exercise integer overflow/underflow and syntax, addresses, booleans, tuples, fixed/dynamic/nested arrays, bytes/calldata, function pointers, and the inventory's role IDs, nonces, token IDs, prices, deadlines, and signatures.
+- **Replay, Economic, State, RPC, And Admin Oracles:** Added reusable detectors for replay fingerprints, double-spend/value conservation, illegal state ordering, signer/API-key confused-deputy mismatches, stale/forked/inconsistent RPC responses, selector collisions, unsafe diamond initialization, timelock bypass, multisig threshold mistakes, and emergency state/approval/timelock bypass.
+- **Loopback-Only Destructive Probe Command:** Added `pnpm run redteam:local-fork`, which refuses non-loopback endpoints, snapshots/reverts fork state, funds a random attacker, tests raw signed-transaction replay and conservation, malformed diamond calldata, malicious upgrade initialization, emergency pause/resume abuse, timelock early execution, and real stale-block responses. The gate also includes relevant emergency/timelock/multisig workflows and indexer replay/reorg behavior.
+- **Repository Lint Gate:** Added a flat ESLint configuration and `pnpm run lint` so the TypeScript quality loop has an executable lint phase. Generated artifacts, coverage/report outputs, temporary files, and the separately maintained scenario adapter are excluded; existing non-functional style debt is baselined while correctness-oriented recommended rules remain active.
+
+### Fixed
+- **Malformed ABI Wire Values Now Fail Closed:** API and client validation now enforce integer bit widths, even-length dynamic bytes, exact fixed-byte lengths, and the 24-byte ABI function-pointer encoding instead of accepting values that would fail later during ABI encoding or execution.
+- **Client And Indexer Package Type Contracts:** Aligned the client runtime tests with the generated facet-name union, normalized null event bounds to ethers-compatible `undefined`, and corrected indexer test fixtures to use a declared projection table and Node timer type. The client and indexer package builds now pass independently; the remaining full-build blocker is isolated to the API package backlog below.
+
+### Verified
+- **Focused And Local-Fork Red-Team Gates Passed:** `pnpm run test:redteam` passed `103/103` tests and focused harness coverage reached `100%` statements, branches, functions, and lines. `pnpm run redteam:local-fork` passed `135/135` tests across `9` files, including `5/5` destructive loopback-fork probes.
+- **Assurance Gates Stayed Closed:** `pnpm run coverage:check`, `pnpm run test:coverage`, `pnpm exec tsc -p tsconfig.json --noEmit`, and `pnpm run lint` passed. Wrapper/API/invariant coverage remains `492` functions, `218` events, `492` HTTP methods, and `260/260` writes; repo-wide measured coverage is `99.98%` statements, `99.95%` branches, `99.92%` functions, and `100%` lines, while the red-team harness and modified wire codecs each remain at `100%` in all four categories.
+
+### Remaining Issues
+- **Merge Is Blocked On The Existing API Package Build Backlog:** Full codegen plus the client and indexer package builds pass, but `pnpm run build` still fails in `@uspeaks/api` on pre-existing duplicate TypeChain event declarations, unrelated package-level test/source type errors, and the inherited CommonJS `import.meta` mismatch. This red-team section remains on `codex/red-team-harness` and must not merge until that build gate is repaired and all assurance commands are rerun.
+
 ## [0.1.253] - 2026-08-03
 
 ### Added

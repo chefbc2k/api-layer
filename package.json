@@ -27,6 +27,9 @@
     "test:write-invariants": "vitest run scripts/write-invariants-lib.test.ts --maxWorkers 1",
     "report:actor-negative-paths": "tsx scripts/generate-actor-negative-path-report.ts",
     "test:actor-negative-paths": "vitest run scripts/actor-negative-paths-lib.test.ts packages/api/src/shared/auth.test.ts packages/api/src/shared/execution-context.test.ts packages/api/src/app.test.ts --maxWorkers 1",
+    "test:redteam": "vitest run scripts/red-team-harness-lib.test.ts packages/api/src/shared/validation.test.ts packages/client/src/runtime/abi-codec.test.ts --maxWorkers 1",
+    "redteam:local-fork": "API_LAYER_RUN_RED_TEAM_LOCAL_FORK=1 vitest run scripts/red-team-harness-lib.test.ts scripts/red-team-local-fork.test.ts packages/api/src/shared/validation.test.ts packages/client/src/runtime/abi-codec.test.ts packages/api/src/workflows/emergency-response.integration.test.ts packages/api/src/workflows/governance-timelock-consequence-flow.integration.test.ts packages/api/src/workflows/multisig-protocol-change.integration.test.ts packages/indexer/src/worker.test.ts packages/indexer/src/events.test.ts --maxWorkers 1",
+    "lint": "eslint .",
     "codegen": "pnpm run sync:abis && pnpm run sync:method-policy && pnpm run build:manifest && pnpm run sync:event-projections && pnpm run build:typechain && pnpm run build:abi-registry && pnpm run build:write-invariants && pnpm run build:rpc-registry && pnpm run seed:api-surface && pnpm run build:http-api && pnpm run build:wrappers && pnpm run coverage:check",
     "build": "pnpm run codegen && pnpm -r build",
     "test": "vitest run --maxWorkers 1",
@@ -51,6 +54,7 @@
     "ops:orchestrate": "tsx ops/orchestrate.ts"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@typechain/ethers-v6": "^0.5.1",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
@@ -59,10 +63,13 @@
     "@vitest/coverage-v8": "^3.2.4",
     "c8": "^11.0.0",
     "dotenv": "^16.4.7",
+    "eslint": "10.8.0",
     "ethers": "^6.15.0",
+    "globals": "16.5.0",
     "tsx": "^4.20.5",
     "typechain": "^8.3.2",
     "typescript": "^5.9.2",
+    "typescript-eslint": "8.65.0",
     "vitest": "^3.2.4"
   }
 }

@@ -17,9 +17,8 @@ function parseArrayType(type: string): { baseType: string; lengths: Array<number
 }
 
 function integerWireSchema(type: string): z.ZodType<string> {
-  const match = type.match(/^(u?int)(\d*)$/u);
-  const bits = Number(match?.[2] || "256");
   const unsigned = type.startsWith("uint");
+  const bits = Number(type.slice(unsigned ? "uint".length : "int".length) || "256");
   const minimum = unsigned ? 0n : -(1n << BigInt(bits - 1));
   const maximum = unsigned ? (1n << BigInt(bits)) - 1n : (1n << BigInt(bits - 1)) - 1n;
   return z

@@ -74,11 +74,9 @@ export const queryEvent = async (
     if (fromBlock != null) {
       normalizedFromBlock = Number(fromBlock);
     }
-    let normalizedToBlock: number | "latest" | null | undefined;
+    let normalizedToBlock: number | "latest" | undefined;
     if (toBlock === "latest") {
       normalizedToBlock = "latest";
-    } else if (toBlock === null) {
-      normalizedToBlock = toBlock;
     } else if (toBlock != null) {
       normalizedToBlock = Number(toBlock);
     }

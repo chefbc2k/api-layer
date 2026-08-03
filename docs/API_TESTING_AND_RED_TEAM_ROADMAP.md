@@ -162,7 +162,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
 | Local-fork destructive automation | Pending | deterministic local-fork runner, fixture setup, structured report output, and safe default flags |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
-| Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
+| Red-team mutation and fuzzing | Blocked from merge (implementation complete, 2026-08-03) | `1,914` invalid wire mutations across `259` mounted writes, deterministic replay/value/state/RPC/admin oracles, `5/5` loopback-fork probes, and `135/135` focused tests are green; merge awaits repair of the pre-existing `@uspeaks/api` package build backlog |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
 
@@ -204,6 +204,27 @@ Verification evidence:
 - `pnpm run test:coverage`: repo-wide measured coverage passed at `100%` statements, branches, functions, and lines.
 - `pnpm exec tsc -p tsconfig.json --noEmit`: TypeScript validation passed.
 - `pnpm exec tsc -p tsconfig.json --noEmit`: focused repository TypeScript validation passed.
+
+### Red-Team Mutation And Fuzzing Evidence
+
+The 2026-08-03 red-team harness generates valid wire values and `1,914` deterministic invalid mutations across all `521` inputs on the `259` mounted HTTP write endpoints. The `29` mutation classes cover integer syntax and overflow/underflow, addresses, booleans, tuples, fixed/dynamic/nested arrays, bytes and calldata length/encoding, and function pointers. The live write inventory includes direct mutation targets for role IDs (`9` inputs), nonces (`3`), calldata (`7`), token IDs (`16`), prices (`4`), deadlines (`5`), and signatures (`1`); actor/API-key signer confusion and scheduled/attempted timestamps are exercised by dedicated adversarial oracles.
+
+The harness also supplies deterministic detectors for replay fingerprints, double-spend/value conservation, illegal state transitions, stale/forked/inconsistent RPC snapshots, selector collisions and duplicates, missing replacement selectors, untrusted or malformed diamond initialization, early/substituted timelock operations, duplicate/insufficient multisig approvals, and emergency state/approval/timelock bypasses. API and client wire validation now fail closed on integer width overflow, odd-length dynamic bytes, incorrectly sized fixed bytes, and malformed 24-byte ABI function pointers.
+
+The loopback-only fork suite snapshots and reverts its chain state and refuses to run against a non-loopback RPC. It funds a random attacker, proves an identical signed transaction cannot transfer value twice, verifies balance conservation including gas burn, probes malformed/unknown diamond calldata, attempts an unauthorized selector-collision cut through a malicious initializer, attempts emergency stop/resume and timelock execution without privileges, and compares real fork block responses to detect stale reads. The same gate includes emergency, timelock, and multisig workflow suites plus indexer duplicate-log/reorg/decode tests.
+
+Verification evidence:
+
+- `pnpm run test:redteam`: `103/103` deterministic mutation, validation, and oracle tests passed; focused harness coverage is `100%` statements, branches, functions, and lines.
+- `pnpm run redteam:local-fork`: `135/135` tests passed across `9` files, including `5/5` real loopback-fork probes and the relevant workflow/indexer suites.
+- `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
+- `pnpm run test:coverage`: completed successfully at `99.98%` statements, `99.95%` branches, `99.92%` functions, and `100%` lines; the red-team harness and modified wire codecs each measure `100%` in all four categories.
+- `pnpm exec tsc -p tsconfig.json --noEmit`: repository TypeScript validation passed.
+
+Merge blocker and next steps:
+
+- `pnpm run build` completes codegen and the client/indexer builds, but the `@uspeaks/api` package build remains red on pre-existing issues outside this workstream: duplicate TypeChain declarations for repeated ABI events, package-level test/source typing debt, and the CommonJS `import.meta` mismatch inherited through `scripts/utils.ts`.
+- Keep this section on `codex/red-team-harness`; do not merge it into `master` until the API package build is repaired on master (or its intended build scope is formally corrected), then rerun TypeScript, lint, full build, `pnpm run redteam:local-fork`, `pnpm run coverage:check`, and `pnpm run test:coverage`.
 
 ## Definition Of Done
 

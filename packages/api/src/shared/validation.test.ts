@@ -126,6 +126,8 @@ describe("validation helpers", () => {
     expect(() => buildWireSchema(writeDefinition, { type: "function" }).parse("0x1234")).toThrow("invalid function hex string");
     expect(buildWireSchema(writeDefinition, { type: "uint8" }).parse("255")).toBe("255");
     expect(buildWireSchema(writeDefinition, { type: "int8" }).parse("-128")).toBe("-128");
+    expect(buildWireSchema(writeDefinition, { type: "uint" }).parse("1")).toBe("1");
+    expect(buildWireSchema(writeDefinition, { type: "int" }).parse("-1")).toBe("-1");
     expect(() => buildWireSchema(writeDefinition, { type: "uint8" }).parse("256")).toThrow("uint8 value out of range");
     expect(() => buildWireSchema(writeDefinition, { type: "int8" }).parse("128")).toThrow("int8 value out of range");
 

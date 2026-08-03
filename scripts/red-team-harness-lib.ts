@@ -27,7 +27,7 @@ function parseArrayType(type: string): ArrayShape {
   while (current.endsWith("]")) {
     const match = current.match(/^(.*)\[(\d*)\]$/u);
     if (!match) {
-      break;
+      throw new Error(`invalid ABI array type ${type}`);
     }
     current = match[1];
     lengths.unshift(match[2] === "" ? null : Number(match[2]));
@@ -56,11 +56,11 @@ function repeatHexByte(byte: string, count: number): string {
 
 function sampleScalar(param: AbiParameter, seed: number): unknown {
   if (/^u?int\d*$/u.test(param.type)) {
-    const { minimum, maximum } = integerBounds(param.type);
+    const { minimum } = integerBounds(param.type);
     if (minimum < 0n && seed % 2 === 1) {
       return (minimum + BigInt(seed % 7)).toString();
     }
-    return (maximum < 17n ? maximum : BigInt((seed % 16) + 1)).toString();
+    return BigInt((seed % 16) + 1).toString();
   }
   if (param.type === "address") {
     return `0x${(seed + 1).toString(16).padStart(40, "0")}`;
