@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { type Log, type Provider } from "ethers";
+import type { PoolClient } from "pg";
 
 import { ProviderRouter, readConfigFromEnv } from "../../client/src/index.js";
-import { buildEventRegistry, decodeEvent } from "./events.js";
+import { buildEventRegistry, decodeEvent, isAmbiguousEvent, type EventDecodeResult } from "./events.js";
 import { IndexerDatabase } from "./db.js";
 import { projectEvent } from "./projections/index.js";
-import { rebuildCurrentRows } from "./projections/common.js";
+import { rebuildCurrentRows, sanitizeArgs } from "./projections/common.js";
 import { projectionTables } from "./projections/tables.js";
 
 const envSchema = z.object({
@@ -119,8 +120,16 @@ export class EventIndexer {
     return true;
   }
 
-  private async insertRawLog(log: Log, decoded: ReturnType<typeof decodeEvent>, confirmations: number): Promise<number> {
-    const result = await this.db.query<{ id: number }>(
+  private async insertRawLog(client: PoolClient, log: Log, decoded: EventDecodeResult, confirmations: number): Promise<number> {
+    const ambiguous = decoded && isAmbiguousEvent(decoded) ? decoded : null;
+    const resolved = decoded && !isAmbiguousEvent(decoded) ? decoded : null;
+    const decodedArgs = ambiguous
+      ? {
+          _candidateEventKeys: ambiguous.candidateEventKeys,
+          _candidateArgs: ambiguous.candidateArgs,
+        }
+      : resolved?.args ?? {};
+    const result = await client.query<{ id: number }>(
       `
         INSERT INTO raw_events (
           chain_id,
@@ -162,8 +171,8 @@ export class EventIndexer {
         log.address,
         decoded?.eventName ?? "Unknown",
         decoded?.signature ?? null,
-        decoded?.facetName ?? null,
-        JSON.stringify(decoded?.args ?? {}),
+        resolved?.facetName ?? null,
+        JSON.stringify(sanitizeArgs(decodedArgs)),
         confirmations,
       ],
     );
@@ -185,11 +194,11 @@ export class EventIndexer {
     for (const log of logs) {
       const decoded = decodeEvent(this.eventRegistry, log);
       const confirmations = Number(head - BigInt(log.blockNumber));
-      const rawEventId = await this.insertRawLog(log, decoded, confirmations);
-      if (!decoded) {
-        continue;
-      }
       await this.db.withTransaction(async (client) => {
+        const rawEventId = await this.insertRawLog(client, log, decoded, confirmations);
+        if (!decoded || isAmbiguousEvent(decoded)) {
+          return;
+        }
         await projectEvent({
           chainId: this.config.chainId,
           client,

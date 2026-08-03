@@ -20,6 +20,19 @@ export type DecodedEvent = {
   signature: string;
 };
 
+export type AmbiguousEvent = {
+  eventName: string;
+  signature: string;
+  candidateEventKeys: string[];
+  candidateArgs: Record<string, Record<string, unknown>>;
+};
+
+export type EventDecodeResult = DecodedEvent | AmbiguousEvent | null;
+
+export function isAmbiguousEvent(event: Exclude<EventDecodeResult, null>): event is AmbiguousEvent {
+  return "candidateEventKeys" in event;
+}
+
 export function buildEventRegistry(): Map<string, EventDescriptor[]> {
   const registry = new Map<string, EventDescriptor[]>();
   for (const [eventKey, eventDefinition] of Object.entries(getAllAbiEventDefinitions()) as Array<[string, AbiEventDefinition]>) {
@@ -42,7 +55,7 @@ export function buildEventRegistry(): Map<string, EventDescriptor[]> {
   return registry;
 }
 
-export const decodeEvent = (registry: Map<string, EventDescriptor[]>, log: Log): DecodedEvent | null => {
+export const decodeEvent = (registry: Map<string, EventDescriptor[]>, log: Log): EventDecodeResult => {
   const topic0 = log.topics[0];
   if (!topic0) {
     return null;
@@ -51,23 +64,35 @@ export const decodeEvent = (registry: Map<string, EventDescriptor[]>, log: Log):
   if (!candidates || candidates.length === 0) {
     return null;
   }
+  const matches: DecodedEvent[] = [];
   for (const candidate of candidates) {
     try {
       const parsed = candidate.iface.parseLog(log);
       if (!parsed) {
         continue;
       }
-      return {
+      matches.push({
         facetName: candidate.facetName,
         eventName: candidate.eventName,
         wrapperKey: candidate.wrapperKey,
         fullEventKey: candidate.fullEventKey,
         args: parsed.args.toObject(),
         signature: parsed.signature,
-      };
+      });
     } catch {
       continue;
     }
   }
-  return null;
+  if (matches.length === 0) {
+    return null;
+  }
+  if (matches.length === 1) {
+    return matches[0];
+  }
+  return {
+    eventName: matches[0].eventName,
+    signature: matches[0].signature,
+    candidateEventKeys: matches.map((match) => match.fullEventKey),
+    candidateArgs: Object.fromEntries(matches.map((match) => [match.fullEventKey, match.args])),
+  };
 };

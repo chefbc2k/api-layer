@@ -29,7 +29,7 @@ vi.mock("../../client/src/index.js", () => ({
   getAllAbiEventDefinitions: mocks.getAllAbiEventDefinitions,
 }));
 
-import { buildEventRegistry, decodeEvent } from "./events.js";
+import { buildEventRegistry, decodeEvent, isAmbiguousEvent } from "./events.js";
 
 describe("buildEventRegistry", () => {
   it("indexes resolvable ABI events and skips missing wrappers", () => {
@@ -276,5 +276,65 @@ describe("decodeEvent", () => {
 
   it("returns null when the first topic entry is a falsy empty string", () => {
     expect(decodeEvent(new Map(), { topics: [""] } as unknown as Log)).toBeNull();
+  });
+
+  it("reports every successfully decoded candidate instead of choosing an arbitrary facet", () => {
+    const iface = new Interface(["event Transfer(address indexed from, address indexed to, uint256 value)"]);
+    const fragment = iface.getEvent("Transfer");
+    const encoded = iface.encodeEventLog(fragment!, [
+      "0x00000000000000000000000000000000000000aa",
+      "0x00000000000000000000000000000000000000bb",
+      42n,
+    ]);
+    const log = {
+      address: "0x0000000000000000000000000000000000000001",
+      data: encoded.data,
+      topics: encoded.topics,
+      transactionHash: "0xtx",
+      blockHash: "0xblock",
+      blockNumber: 1,
+      index: 0,
+      removed: false,
+    } as unknown as Log;
+    const ambiguousRegistry = new Map([
+      [encoded.topics[0], [
+        {
+          facetName: "TokenSupplyFacet",
+          eventName: "Transfer",
+          wrapperKey: "Transfer",
+          fullEventKey: "TokenSupplyFacet.Transfer",
+          iface,
+        },
+        {
+          facetName: "VoiceAssetFacet",
+          eventName: "Transfer",
+          wrapperKey: "Transfer",
+          fullEventKey: "VoiceAssetFacet.Transfer",
+          iface,
+        },
+      ]],
+    ]);
+
+    const decoded = decodeEvent(ambiguousRegistry, log);
+
+    expect(decoded).not.toBeNull();
+    expect(isAmbiguousEvent(decoded!)).toBe(true);
+    expect(decoded).toEqual({
+      eventName: "Transfer",
+      signature: "Transfer(address,address,uint256)",
+      candidateArgs: {
+        "TokenSupplyFacet.Transfer": {
+          from: "0x00000000000000000000000000000000000000AA",
+          to: "0x00000000000000000000000000000000000000bb",
+          value: 42n,
+        },
+        "VoiceAssetFacet.Transfer": {
+          from: "0x00000000000000000000000000000000000000AA",
+          to: "0x00000000000000000000000000000000000000bb",
+          value: 42n,
+        },
+      },
+      candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
+    });
   });
 });

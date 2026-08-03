@@ -5,11 +5,15 @@ const mocks = vi.hoisted(() => {
     query: vi.fn(),
     withTransaction: vi.fn(),
   };
+  const transactionClient = {
+    query: vi.fn(),
+  };
   const providerRouter = {
     withProvider: vi.fn(),
   };
   return {
     db,
+    transactionClient,
     providerRouter,
     IndexerDatabase: vi.fn(() => db),
     ProviderRouter: vi.fn(() => providerRouter),
@@ -29,6 +33,7 @@ vi.mock("../../client/src/index.js", () => ({
 vi.mock("./events.js", () => ({
   buildEventRegistry: mocks.buildEventRegistry,
   decodeEvent: mocks.decodeEvent,
+  isAmbiguousEvent: (event: Record<string, unknown>) => "candidateEventKeys" in event,
 }));
 
 vi.mock("./db.js", () => ({
@@ -39,7 +44,8 @@ vi.mock("./projections/index.js", () => ({
   projectEvent: mocks.projectEvent,
 }));
 
-vi.mock("./projections/common.js", () => ({
+vi.mock("./projections/common.js", async (importOriginal) => ({
+  ...await importOriginal<typeof import("./projections/common.js")>(),
   rebuildCurrentRows: mocks.rebuildCurrentRows,
 }));
 
@@ -66,9 +72,9 @@ describe("EventIndexer", () => {
       diamondAddress: "0xdiamond",
     });
     mocks.buildEventRegistry.mockReturnValue(new Map());
+    mocks.transactionClient.query.mockResolvedValue({ rows: [] });
     mocks.db.withTransaction.mockImplementation(async (work: (client: { query: typeof vi.fn }) => Promise<unknown>) => {
-      const client = { query: vi.fn().mockResolvedValue({ rows: [] }) };
-      return work(client as never);
+      return work(mocks.transactionClient as never);
     });
   });
 
@@ -182,9 +188,8 @@ describe("EventIndexer", () => {
   });
 
   it("processes logs, projects decoded events, and persists the block checkpoint", async () => {
-    mocks.db.query
-      .mockResolvedValueOnce({ rows: [{ id: 77 }], rowCount: 1 })
-      .mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    mocks.transactionClient.query.mockResolvedValueOnce({ rows: [{ id: 77 }], rowCount: 1 });
+    mocks.db.query.mockResolvedValueOnce({ rows: [], rowCount: 0 });
     mocks.decodeEvent.mockReturnValue({
       facetName: "AlphaFacet",
       eventName: "Transfer",
@@ -225,7 +230,7 @@ describe("EventIndexer", () => {
       blockHash: "0xblock",
       isOrphaned: false,
     }));
-    expect(mocks.db.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.arrayContaining([
+    expect(mocks.transactionClient.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.arrayContaining([
       84532,
       "0xtx",
       1,
@@ -236,9 +241,8 @@ describe("EventIndexer", () => {
   });
 
   it("persists undecoded logs without projecting them and clamps finalized block to zero", async () => {
-    mocks.db.query
-      .mockResolvedValueOnce({ rows: [{ id: 88 }], rowCount: 1 })
-      .mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    mocks.transactionClient.query.mockResolvedValueOnce({ rows: [{ id: 88 }], rowCount: 1 });
+    mocks.db.query.mockResolvedValueOnce({ rows: [], rowCount: 0 });
     mocks.decodeEvent.mockReturnValue(null);
     mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
       if (label === "indexer.getLogs") {
@@ -266,7 +270,7 @@ describe("EventIndexer", () => {
     await (indexer as any).processRange(4n, 4n, 10n);
 
     expect(mocks.projectEvent).not.toHaveBeenCalled();
-    expect(mocks.db.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.arrayContaining([
+    expect(mocks.transactionClient.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.arrayContaining([
       84532,
       "0xunknown",
       3,
@@ -282,6 +286,154 @@ describe("EventIndexer", () => {
     expect(mocks.db.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "4", "0", null]);
   });
 
+  it("persists ambiguous logs with candidate evidence and skips unsafe projection", async () => {
+    mocks.transactionClient.query.mockResolvedValueOnce({ rows: [{ id: 89 }], rowCount: 1 });
+    mocks.db.query.mockResolvedValueOnce({ rows: [], rowCount: 0 });
+    mocks.decodeEvent.mockReturnValue({
+      eventName: "Transfer",
+      signature: "Transfer(address,address,uint256)",
+      candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
+      candidateArgs: {
+        "TokenSupplyFacet.Transfer": { from: "0x1", to: "0x2", value: 3n },
+        "VoiceAssetFacet.Transfer": { from: "0x1", to: "0x2", tokenId: 3n },
+      },
+    });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({
+          getLogs: vi.fn().mockResolvedValue([{
+            transactionHash: "0xambiguous",
+            index: 4,
+            blockNumber: 5,
+            blockHash: "0xblock-5",
+            address: "0xdiamond",
+            topics: ["0xtransfer"],
+          }]),
+        });
+      }
+      if (label === "indexer.blockHash") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xblock-5" }) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await (indexer as any).processRange(5n, 5n, 25n);
+
+    expect(mocks.projectEvent).not.toHaveBeenCalled();
+    expect(mocks.transactionClient.query).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO raw_events"),
+      expect.arrayContaining([
+        "Transfer",
+        "Transfer(address,address,uint256)",
+        null,
+        expect.stringContaining("_candidateEventKeys"),
+      ]),
+    );
+  });
+
+  it("rolls back raw ingestion with the projection when a partial block fails", async () => {
+    mocks.transactionClient.query.mockResolvedValueOnce({ rows: [{ id: 90 }], rowCount: 1 });
+    mocks.decodeEvent.mockReturnValue({
+      facetName: "MarketplaceFacet",
+      eventName: "AssetListed",
+      wrapperKey: "AssetListed",
+      fullEventKey: "MarketplaceFacet.AssetListed",
+      args: { listingId: 1n },
+      signature: "AssetListed(uint256,address,uint256)",
+    });
+    mocks.projectEvent.mockRejectedValueOnce(new Error("projection failed"));
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({
+          getLogs: vi.fn().mockResolvedValue([{
+            transactionHash: "0xpartial",
+            index: 0,
+            blockNumber: 6,
+            blockHash: "0xblock-6",
+            address: "0xdiamond",
+            topics: ["0xlisted"],
+          }]),
+        });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await expect((indexer as any).processRange(6n, 6n, 26n)).rejects.toThrow("projection failed");
+
+    expect(mocks.db.withTransaction).toHaveBeenCalledTimes(1);
+    expect(mocks.transactionClient.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.any(Array));
+    expect(mocks.db.query).not.toHaveBeenCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), expect.any(Array));
+  });
+
+  it("replays duplicate logs through idempotent upserts before advancing the checkpoint", async () => {
+    mocks.transactionClient.query.mockResolvedValue({ rows: [{ id: 91 }], rowCount: 1 });
+    mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+    mocks.decodeEvent.mockReturnValue({
+      facetName: "MarketplaceFacet",
+      eventName: "AssetListed",
+      wrapperKey: "AssetListed",
+      fullEventKey: "MarketplaceFacet.AssetListed",
+      args: { listingId: 1n },
+      signature: "AssetListed(uint256,address,uint256)",
+    });
+    const duplicateLog = {
+      transactionHash: "0xduplicate",
+      index: 0,
+      blockNumber: 7,
+      blockHash: "0xblock-7",
+      address: "0xdiamond",
+      topics: ["0xlisted"],
+    };
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({ getLogs: vi.fn().mockResolvedValue([duplicateLog]) });
+      }
+      if (label === "indexer.blockHash") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xblock-7" }) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await (indexer as any).processRange(7n, 7n, 27n);
+    await (indexer as any).processRange(7n, 7n, 27n);
+
+    const rawInserts = mocks.transactionClient.query.mock.calls.filter(([sql]) => String(sql).includes("INSERT INTO raw_events"));
+    expect(rawInserts).toHaveLength(2);
+    expect(rawInserts[0][0]).toContain("ON CONFLICT (chain_id, tx_hash, log_index)");
+    expect(rawInserts[0][1]).toEqual(rawInserts[1][1]);
+    expect(mocks.projectEvent).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not persist logs or checkpoints while an RPC response is delayed", async () => {
+    let releaseLogs: ((logs: unknown[]) => void) | undefined;
+    const delayedLogs = new Promise<unknown[]>((resolve) => {
+      releaseLogs = resolve;
+    });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({ getLogs: vi.fn(() => delayedLogs) });
+      }
+      if (label === "indexer.blockHash") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xblock-8" }) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    const processing = (indexer as any).processRange(8n, 8n, 28n);
+    await Promise.resolve();
+
+    expect(mocks.db.withTransaction).not.toHaveBeenCalled();
+    expect(mocks.db.query).not.toHaveBeenCalled();
+
+    releaseLogs?.([]);
+    await processing;
+    expect(mocks.db.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "8", "8", "0xblock-8"]);
+  });
+
   it("skips empty ranges before querying providers", async () => {
     const indexer = new EventIndexer();
 
@@ -292,7 +444,7 @@ describe("EventIndexer", () => {
   });
 
   it("backfills from the next missing block through the current head in 500-block steps", async () => {
-    mocks.db.query.mockResolvedValueOnce({
+    mocks.db.query.mockReset().mockResolvedValueOnce({
       rowCount: 1,
       rows: [{
         cursor_block: "2",
@@ -324,11 +476,9 @@ describe("EventIndexer", () => {
 
   it("waits between realtime backfill iterations using the configured poll interval", async () => {
     process.env.API_LAYER_INDEXER_POLL_INTERVAL_MS = "1234";
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
-      if (typeof callback === "function") {
-        callback();
-      }
-      return 0 as ReturnType<typeof setTimeout>;
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: () => void) => {
+      callback();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
     }) as typeof setTimeout);
     const backfill = vi.spyOn(EventIndexer.prototype, "backfill")
       .mockResolvedValueOnce(undefined)
