@@ -20,6 +20,8 @@
     "build:http-api": "tsx scripts/generate-http-api.ts",
     "build:wrappers": "tsx scripts/generate-client.ts",
     "coverage:check": "tsx scripts/check-wrapper-coverage.ts && tsx scripts/check-http-api-coverage.ts",
+    "report:test-gaps": "tsx scripts/generate-test-roadmap.ts",
+    "test:gap-report": "vitest run scripts/generate-test-roadmap.test.ts --maxWorkers 1",
     "codegen": "pnpm run sync:abis && pnpm run sync:method-policy && pnpm run build:manifest && pnpm run sync:event-projections && pnpm run build:typechain && pnpm run build:abi-registry && pnpm run build:rpc-registry && pnpm run seed:api-surface && pnpm run build:http-api && pnpm run build:wrappers && pnpm run coverage:check",
     "build": "pnpm run codegen && pnpm -r build",
     "test": "vitest run --maxWorkers 1",

@@ -72,6 +72,8 @@ These are not necessarily failing areas. They are the gaps between "covered" and
 
 Build `scripts/generate-test-roadmap.ts`.
 
+Status: **Complete and verified on 2026-08-03.** The generator now attributes evidence conservatively from the generated contract/RPC/HTTP inventories, reviewed API surface, protocol tests, and persisted verify outputs without calling the chain. It preserves duplicate ABI event declarations as distinct occurrences, records evidence paths for every proof flag, and emits both machine-readable and human-readable reports.
+
 Inputs:
 - `generated/manifests/contract-manifest.json`
 - `generated/manifests/http-endpoint-registry.json`
@@ -153,7 +155,7 @@ Daily automations should treat these sections as independently mergeable workstr
 
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
-| ABI-driven gap report | Pending | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, tests for report generation, and green `pnpm run coverage:check` |
+| ABI-driven gap report | Complete (2026-08-03) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
 | Write-method invariant metadata | Pending | metadata covering every ABI write method, stale/missing metadata checks, and green generator tests |
 | Actor and signer negative paths | Pending | role/API-key mismatch tests for all write domains and green workflow/API tests |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
@@ -163,6 +165,17 @@ Daily automations should treat these sections as independently mergeable workstr
 | Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
+
+### ABI-Driven Gap Report Evidence
+
+The 2026-08-03 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings.
+
+Verification evidence:
+
+- `pnpm run test:gap-report`: `4/4` focused generator tests passed.
+- `pnpm run report:test-gaps`: regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the canonical inputs.
+- `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods.
+- Focused TypeScript validation passed for `scripts/generate-test-roadmap.ts` and `scripts/generate-test-roadmap.test.ts` under the repo's ES module runtime shape.
 
 ## Definition Of Done
 
