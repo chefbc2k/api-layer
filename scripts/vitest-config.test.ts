@@ -28,6 +28,8 @@ describe("coverage runner configuration", () => {
     ]);
     expect(config.test?.coverage?.exclude).toContain("packages/client/src/types.ts");
     expect(config.test?.coverage?.exclude).toContain("scripts/verify-*.ts");
+    expect(config.test?.coverage?.exclude).toContain("scripts/write-invariants-lib.ts");
+    expect(config.test?.coverage?.exclude).toContain("scripts/actor-negative-paths-lib.ts");
     expect(config.test?.coverage?.excludeAfterRemap).toBe(true);
   });
 

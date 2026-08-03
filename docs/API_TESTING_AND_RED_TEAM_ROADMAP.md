@@ -72,6 +72,8 @@ These are not necessarily failing areas. They are the gaps between "covered" and
 
 Build `scripts/generate-test-roadmap.ts`.
 
+Status: **Complete and verified on 2026-08-03.** The generator now attributes evidence conservatively from the generated contract/RPC/HTTP inventories, reviewed API surface, protocol tests, and persisted verify outputs without calling the chain. It preserves duplicate ABI event declarations as distinct occurrences, records evidence paths for every proof flag, and emits both machine-readable and human-readable reports.
+
 Inputs:
 - `generated/manifests/contract-manifest.json`
 - `generated/manifests/http-endpoint-registry.json`
@@ -153,9 +155,9 @@ Daily automations should treat these sections as independently mergeable workstr
 
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
-| ABI-driven gap report | Pending | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, tests for report generation, and green `pnpm run coverage:check` |
-| Write-method invariant metadata | Pending | metadata covering every ABI write method, stale/missing metadata checks, and green generator tests |
-| Actor and signer negative paths | Pending | role/API-key mismatch tests for all write domains and green workflow/API tests |
+| ABI-driven gap report | Complete (2026-08-03) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
+| Write-method invariant metadata | Complete (2026-08-03) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), and green `pnpm run coverage:check` |
+| Actor and signer negative paths | Complete (2026-08-03) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
 | Local-fork destructive automation | Pending | deterministic local-fork runner, fixture setup, structured report output, and safe default flags |
@@ -163,6 +165,45 @@ Daily automations should treat these sections as independently mergeable workstr
 | Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
+
+### ABI-Driven Gap Report Evidence
+
+The 2026-08-03 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings.
+
+Verification evidence:
+
+- `pnpm run test:gap-report`: `4/4` focused generator tests passed.
+- `pnpm run report:test-gaps`: regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the canonical inputs.
+- `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods.
+- Focused TypeScript validation passed for `scripts/generate-test-roadmap.ts` and `scripts/generate-test-roadmap.test.ts` under the repo's ES module runtime shape.
+
+### Write-Method Invariant Metadata Evidence
+
+The 2026-08-03 invariant catalog covers all `260` mounted ABI write methods across `31` facets. Every record includes the ABI signature plus required actor/role, preconditions, post-state readbacks, emitted-event expectations, balance effects, replay constraints, live-network safety, and indexer expectations. The current classification includes `152` role-gated, `54` owner-or-approved, `36` self, `10` protocol-contract, and `8` permissionless writes. Live safety defaults `153` writes to fork-only, marks `11` irreversible/global operations as never automate live, and permits `96` only with explicit disposable fixtures.
+
+Coverage behavior is fail-closed: normal codegen validates the reviewed catalog and does not auto-add new ABI methods. The generated registry rejects missing or stale method keys, ABI signature drift, incomplete invariant sections, invalid modes, stale/non-read post-state references, stale event references, and indexer events that are not declared receipt expectations. An explicit `pnpm run sync:write-invariants` authoring command is available for deliberate catalog regeneration, but it is not part of normal codegen.
+
+Verification evidence:
+
+- `pnpm run test:write-invariants`: `5/5` focused generator and validation tests passed, including a repository-level `260/260` current-ABI assertion.
+- `pnpm run codegen`: regenerated all ABI/API artifacts and proved `260/260` invariant coverage during both registry generation and the final coverage gate.
+- `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
+
+### Actor And Signer Negative-Path Evidence
+
+The 2026-08-03 actor report covers all `259` mounted HTTP write endpoints across `13` domains and lists the intentionally excluded legacy `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` overload separately. The generated matrix contains `1,813` founder/admin/operator/buyer/seller/licensee/collaborator method cases, `777` unknown-key/read-only-key/signer-mismatch API-boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-contract mismatch cases. Protected capability mappings explicitly cover commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutation.
+
+The common execution path now rejects unknown and read-only keys before provider work, binds configured or direct-request wallet identity to the actual signer, and always runs contract static-call preflight—including write functions with no ABI outputs—before transaction persistence or submission. Verification and contract-integration fixtures now assign their `read-key` the `read-only` role rather than the write-capable `service` role.
+
+Verification evidence:
+
+- `pnpm run report:actor-negative-paths`: regenerated `output/actor-negative-path-report.json` and `output/actor-negative-path-report.md` from the canonical ABI, HTTP, and invariant inventories.
+- `pnpm run test:actor-negative-paths`: `100/100` focused auth, API-boundary, execution-context, and report tests passed, including the exhaustive `1,813` actor/method preflight matrix.
+- `pnpm test`: `1,279/1,279` active tests passed across `130` files; `18` gated contract-integration tests remained explicitly skipped.
+- `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
+- `pnpm run test:coverage`: repo-wide measured coverage passed at `100%` statements, branches, functions, and lines.
+- `pnpm exec tsc -p tsconfig.json --noEmit`: TypeScript validation passed.
+- `pnpm exec tsc -p tsconfig.json --noEmit`: focused repository TypeScript validation passed.
 
 ## Definition Of Done
 

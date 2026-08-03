@@ -2,6 +2,43 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.253] - 2026-08-03
+
+### Added
+- **Every Mounted Write Has Actor Negative-Path Evidence:** Added [`scripts/actor-negative-paths-lib.ts`](/Users/chef/Public/api-layer/scripts/actor-negative-paths-lib.ts), [`scripts/generate-actor-negative-path-report.ts`](/Users/chef/Public/api-layer/scripts/generate-actor-negative-path-report.ts), and persisted JSON/Markdown evidence under [`output`](/Users/chef/Public/api-layer/output). The inventory covers all `259` mounted HTTP writes across `13` domains with `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` API-boundary cases, and `3,171` stale/revoked/expired or actor-ownership mismatch cases.
+- **Focused Actor-Assurance Command:** Added `pnpm run test:actor-negative-paths` and regression coverage for the inventory, role matrix, API key boundary, signer binding, and every actor/write-endpoint preflight combination. Capability mappings explicitly track commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations.
+
+### Fixed
+- **Write Authorization And Signer Identity Are Fail-Closed:** The shared write execution path now rejects unknown and read-only API keys before provider work, checks configured and direct-request wallet addresses against the actual signer, and classifies authorization errors consistently regardless of error-message casing.
+- **Void Writes Now Receive Contract Preflight:** Static-call preview now executes for every write before transaction persistence or submission, including functions with no ABI outputs. This closes a bypass where void-returning writes previously skipped the contract's stale, revoked, expired, ownership, self, or protocol-role checks.
+- **Reader Fixtures Are Actually Read-Only:** Contract integration, local-fork, and Base Sepolia verification setup now assigns `read-key` the `read-only` role instead of the write-capable `service` role. Coverage-runner tests and setup-script path assertions were also made worktree-portable.
+
+### Verified
+- **Focused And Full Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100` tests, the setup regression slice passed `112/112`, and `pnpm test` passed all `1,279` active tests across `130` files with `18` gated contract-integration tests explicitly skipped.
+- **All Required Gates Stayed Closed:** `pnpm run codegen`, `pnpm run coverage:check`, `pnpm run test:coverage`, and `pnpm exec tsc -p tsconfig.json --noEmit` passed. Surface coverage remains `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants; repo-wide measured coverage remains `100%` statements, branches, functions, and lines.
+
+## [0.1.252] - 2026-08-03
+
+### Added
+- **Every ABI Write Now Carries Structured Invariant Metadata:** Added [`reviewed/reviewed-write-invariants.json`](/Users/chef/Public/api-layer/reviewed/reviewed-write-invariants.json) with explicit metadata for all `260` mounted writes across `31` facets: ABI signature, required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations.
+- **Invariant Coverage Is Fail-Closed:** Added [`scripts/write-invariants-lib.ts`](/Users/chef/Public/api-layer/scripts/write-invariants-lib.ts) and [`scripts/generate-write-invariant-registry.ts`](/Users/chef/Public/api-layer/scripts/generate-write-invariant-registry.ts) so normal codegen rejects missing/stale method keys, signature drift, incomplete sections, invalid read/event references, and inconsistent indexer expectations before emitting `generated/manifests/write-invariant-registry.json`.
+- **Deliberate Catalog Authoring And Regression Coverage:** Added the explicit `pnpm run sync:write-invariants` authoring command and [`scripts/write-invariants-lib.test.ts`](/Users/chef/Public/api-layer/scripts/write-invariants-lib.test.ts). Normal codegen validates rather than synchronizes the catalog, ensuring a newly mounted write fails the gate until its invariants are deliberately reviewed.
+
+### Verified
+- **Current ABI Coverage Is Complete:** `pnpm run test:write-invariants` passed `5/5` tests, including a repository-level proof that metadata covers `260/260` writes; `pnpm run codegen` and `pnpm run coverage:check` both reported complete write-invariant coverage alongside `492` wrapper functions, `218` events, and `492` HTTP methods.
+- **Metadata Type Validation Passed:** `pnpm exec tsc -p tsconfig.json --noEmit` completed successfully for the added generator, authoring, validation, and test code.
+
+## [0.1.251] - 2026-08-03
+
+### Added
+- **ABI-Driven Assurance Gaps Are Now Persistently Visible:** Added [`scripts/generate-test-roadmap.ts`](/Users/chef/Public/api-layer/scripts/generate-test-roadmap.ts), `pnpm run report:test-gaps`, and committed JSON/Markdown artifacts under [`output`](/Users/chef/Public/api-layer/output). The report consumes the generated contract, RPC, and HTTP registries; the reviewed API surface; protocol tests; and persisted verify outputs to classify proof depth for all `33` facets, `492` functions, and `218` ABI event occurrences.
+- **Gap Classification Is Evidence-Backed And Conservative:** Each of the `710` report items records mechanical parity plus unit, workflow, local-fork, Base Sepolia, negative-path, economic, red-team, and indexer proof flags with source paths. Duplicate ABI event declarations remain individually visible, intentionally excluded API methods are explained, and event-query evidence is not promoted to indexer proof.
+- **Focused Generator Regression Coverage:** Added [`scripts/generate-test-roadmap.test.ts`](/Users/chef/Public/api-layer/scripts/generate-test-roadmap.test.ts) and `pnpm run test:gap-report` to prove evidence attribution, duplicate event occurrence handling, all required gap classifications, repository-shaped input discovery, persistent artifact writing, and empty-inventory rendering.
+
+### Verified
+- **Phase 1 Assurance Report Is Complete:** Regenerated [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md). The current baseline classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with no `needs contract change` or `needs API guard` findings.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `4/4` tests; focused TypeScript validation passed; and `pnpm run coverage:check` remained green at `492` wrapper functions, `218` events, and `492` validated HTTP methods.
+
 ## [0.1.250] - 2026-08-02
 
 ### Added

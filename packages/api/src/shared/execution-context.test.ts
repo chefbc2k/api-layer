@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import abiRegistryJson from "../../../../generated/manifests/abi-method-registry.json";
+import apiSurfaceJson from "../../../../reviewed/reviewed-api-surface.json";
+
 const mocked = vi.hoisted(() => {
   const invokeRead = vi.fn();
   const queryEvent = vi.fn();
@@ -27,6 +30,7 @@ const mocked = vi.hoisted(() => {
   const traceCallWithAlchemy = vi.fn().mockResolvedValue({ status: "ok" });
   const traceTransactionWithAlchemy = vi.fn().mockResolvedValue({ status: "ok" });
   const loadApiKeys = vi.fn().mockReturnValue({ founderKey: { apiKey: "founder-key" } });
+  const assertWriteAuthorized = vi.fn();
   return {
     invokeRead,
     queryEvent,
@@ -46,6 +50,7 @@ const mocked = vi.hoisted(() => {
     traceCallWithAlchemy,
     traceTransactionWithAlchemy,
     loadApiKeys,
+    assertWriteAuthorized,
   };
 });
 
@@ -76,6 +81,7 @@ vi.mock("./alchemy-diagnostics.js", () => ({
 
 vi.mock("./auth.js", () => ({
   loadApiKeys: mocked.loadApiKeys,
+  assertWriteAuthorized: mocked.assertWriteAuthorized,
 }));
 
 vi.mock("ethers", async () => {
@@ -147,6 +153,9 @@ beforeEach(() => {
   delete process.env.API_LAYER_GASLESS_ALLOWLIST;
   delete process.env.API_LAYER_GASLESS_SPEND_CAPS_JSON;
   delete process.env.API_LAYER_SIGNER_MAP_JSON;
+  process.env.RPC_URL = "http://127.0.0.1:8545";
+  process.env.ALCHEMY_RPC_URL = "http://127.0.0.1:8545";
+  process.env.DIAMOND_ADDRESS = "0x0000000000000000000000000000000000000001";
   mocked.walletSendTransaction.mockResolvedValue({
     hash: "0xsubmitted",
   });
@@ -167,6 +176,12 @@ beforeEach(() => {
   mocked.traceCallWithAlchemy.mockResolvedValue({ status: "ok" });
   mocked.traceTransactionWithAlchemy.mockResolvedValue({ status: "ok" });
   mocked.loadApiKeys.mockReturnValue({ founderKey: { apiKey: "founder-key" } });
+  mocked.assertWriteAuthorized.mockImplementation((auth: { roles?: string[] }) => {
+    const writeRoles = new Set(["service", "founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"]);
+    if (!auth.roles?.some((role) => writeRoles.has(role.toLowerCase()))) {
+      throw new Error("API key not permitted for write execution");
+    }
+  });
 });
 
 function buildReadDefinition(overrides: Record<string, unknown> = {}) {
@@ -283,7 +298,7 @@ function buildRequest(overrides: Record<string, unknown> = {}) {
       gaslessMode: "none",
       executionSource: "auto",
     },
-    walletAddress: "0x00000000000000000000000000000000000000aa",
+    walletAddress: undefined,
     wireParams: [],
     ...overrides,
   };
@@ -539,6 +554,40 @@ describe("getTransactionStatus", () => {
 });
 
 describe("__testOnly helpers", () => {
+  it("rejects a direct-write wallet identity that does not match the API-key signer", () => {
+    expect(() => __testOnly.assertRequestedWalletMatchesSigner(
+      {
+        apiKey: "founder-key",
+        label: "founder",
+        signerId: "founder",
+        allowGasless: false,
+        roles: ["founder"],
+      },
+      "0x00000000000000000000000000000000000000aa",
+      "0x00000000000000000000000000000000000000bb",
+    )).toThrow("API key not permitted: signerId founder does not match x-wallet-address");
+  });
+
+  it("accepts an omitted or matching direct-write wallet identity", () => {
+    const auth = {
+      apiKey: "seller-key",
+      label: "seller",
+      signerId: "seller",
+      allowGasless: false,
+      roles: ["seller"],
+    };
+    expect(() => __testOnly.assertRequestedWalletMatchesSigner(
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      undefined,
+    )).not.toThrow();
+    expect(() => __testOnly.assertRequestedWalletMatchesSigner(
+      auth,
+      "0x00000000000000000000000000000000000000aA",
+      "0x00000000000000000000000000000000000000Aa",
+    )).not.toThrow();
+  });
+
   it("surfaces unmapped signer ids directly from signerRunnerFor", async () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({});
 
@@ -680,9 +729,139 @@ describe("__testOnly helpers", () => {
       ),
     ).rejects.toThrow("missing private key for signer founder");
   });
+
+  it("rejects an API-key wallet binding that does not match its configured signer", async () => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+
+    await expect(__testOnly.signerRunnerFor(
+      buildContext() as never,
+      {
+        apiKey: "founder-key",
+        label: "founder",
+        signerId: "founder",
+        walletAddress: "0x00000000000000000000000000000000000000aa",
+        allowGasless: false,
+        roles: ["founder"],
+      },
+      { label: "provider" } as never,
+      "read",
+    )).rejects.toThrow("API key not permitted: configured walletAddress does not match signerId");
+  });
 });
 
 describe("executeHttpMethodDefinition", () => {
+  it("rejects read-only API keys before decoding or touching a provider for writes", async () => {
+    const context = buildContext();
+
+    await expect(executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        auth: {
+          apiKey: "read-only-key",
+          label: "read-only",
+          signerId: "reader",
+          allowGasless: false,
+          roles: ["read-only"],
+        },
+      }) as never,
+    )).rejects.toThrow("API key not permitted for write execution");
+
+    expect(mocked.decodeParamsFromWire).not.toHaveBeenCalled();
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects direct-write API-key/signer confusion before transaction persistence or submission", async () => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+
+    await expect(executeHttpMethodDefinition(
+      buildContext() as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        walletAddress: "0x00000000000000000000000000000000000000bb",
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    )).rejects.toThrow("API key not permitted: signerId founder does not match x-wallet-address");
+
+    expect(mocked.contractStaticCall).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    "stale role membership",
+    "revoked role membership",
+    "expired role validity window",
+    "unauthorized ownership-controlled mutation",
+  ])("preserves %s preflight rejections without submitting a transaction", async (reason) => {
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.contractStaticCall.mockRejectedValueOnce(new Error(reason));
+    const context = buildContext();
+
+    await expect(executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition({ outputs: [] }) as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    )).rejects.toThrow(reason);
+
+    expect(mocked.contractStaticCall).toHaveBeenCalledWith("0x0000000000000000000000000000000000000001", true);
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("preflights every founder/admin/operator/buyer/seller/licensee/collaborator write-endpoint case before mutation", async () => {
+    const actorRoles = ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"];
+    const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
+    const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown>> }).methods;
+    const writeDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write" && Boolean(surfaceMethods[key]))
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
+    const context = buildContext();
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify(Object.fromEntries(
+      actorRoles.map((role, index) => [role, `0x${String(index + 1).repeat(64)}`]),
+    ));
+    mocked.decodeParamsFromWire.mockReturnValue([]);
+    mocked.contractStaticCall.mockReset();
+    mocked.contractStaticCall.mockRejectedValue(new Error("contract authorization preflight rejected actor"));
+
+    expect(writeDefinitions).toHaveLength(259);
+    let rejectionCount = 0;
+    for (const role of actorRoles) {
+      for (const definition of writeDefinitions) {
+        try {
+          await executeHttpMethodDefinition(
+            context as never,
+            definition as never,
+            buildRequest({
+              auth: {
+                apiKey: `${role}-key`,
+                label: role,
+                signerId: role,
+                allowGasless: false,
+                roles: [role],
+              },
+              walletAddress: undefined,
+              wireParams: [],
+            }) as never,
+          );
+        } catch (error) {
+          expect(error).toMatchObject({ message: "contract authorization preflight rejected actor" });
+          rejectionCount += 1;
+        }
+      }
+    }
+
+    expect(rejectionCount).toBe(1_813);
+    expect(mocked.contractStaticCall).toHaveBeenCalledTimes(1_813);
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
   it("rejects invalid execution sources before any downstream work", async () => {
     const definition = buildReadDefinition({ liveRequired: true });
     const request = buildRequest({ api: { gaslessMode: "none", executionSource: "cache" } });
@@ -1983,7 +2162,7 @@ describe("executeHttpMethodDefinition", () => {
       message: "missing private key for signer founder",
       diagnostics: expect.objectContaining({
         provider: null,
-        signer: "0x00000000000000000000000000000000000000aa",
+        signer: null,
         cause: "missing private key for signer founder",
       }),
     });
