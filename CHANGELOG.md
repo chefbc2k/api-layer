@@ -2,6 +2,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.251] - 2026-08-03
+
+### Added
+- **ABI-Driven Assurance Gaps Are Now Persistently Visible:** Added [`scripts/generate-test-roadmap.ts`](/Users/chef/Public/api-layer/scripts/generate-test-roadmap.ts), `pnpm run report:test-gaps`, and committed JSON/Markdown artifacts under [`output`](/Users/chef/Public/api-layer/output). The report consumes the generated contract, RPC, and HTTP registries; the reviewed API surface; protocol tests; and persisted verify outputs to classify proof depth for all `33` facets, `492` functions, and `218` ABI event occurrences.
+- **Gap Classification Is Evidence-Backed And Conservative:** Each of the `710` report items records mechanical parity plus unit, workflow, local-fork, Base Sepolia, negative-path, economic, red-team, and indexer proof flags with source paths. Duplicate ABI event declarations remain individually visible, intentionally excluded API methods are explained, and event-query evidence is not promoted to indexer proof.
+- **Focused Generator Regression Coverage:** Added [`scripts/generate-test-roadmap.test.ts`](/Users/chef/Public/api-layer/scripts/generate-test-roadmap.test.ts) and `pnpm run test:gap-report` to prove evidence attribution, duplicate event occurrence handling, all required gap classifications, repository-shaped input discovery, persistent artifact writing, and empty-inventory rendering.
+
+### Verified
+- **Phase 1 Assurance Report Is Complete:** Regenerated [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md). The current baseline classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with no `needs contract change` or `needs API guard` findings.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `4/4` tests; focused TypeScript validation passed; and `pnpm run coverage:check` remained green at `492` wrapper functions, `218` events, and `492` validated HTTP methods.
+
 ## [0.1.250] - 2026-08-02
 
 ### Added
