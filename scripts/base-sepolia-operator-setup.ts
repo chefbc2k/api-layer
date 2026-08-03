@@ -701,7 +701,7 @@ export function setApiLayerActorEnvironment(args: {
 }): void {
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
-    "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+    "read-key": { label: "reader", roles: ["read-only"], allowGasless: false },
     ...(args.seller ? { "seller-key": { label: "seller", signerId: "seller", roles: ["service"], allowGasless: false } } : {}),
     ...(args.buyer ? { "buyer-key": { label: "buyer", signerId: "buyer", roles: ["service"], allowGasless: false } } : {}),
     ...(args.licensee ? { "licensee-key": { label: "licensee", signerId: "licensee", roles: ["service"], allowGasless: false } } : {}),

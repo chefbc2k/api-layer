@@ -162,7 +162,7 @@ async function main() {
 
   process.env.API_LAYER_KEYS_JSON = JSON.stringify({
     "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
-    "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+    "read-key": { label: "reader", roles: ["read-only"], allowGasless: false },
     "licensee-key": { label: "licensee", signerId: "licensee", roles: ["service"], allowGasless: false },
   });
   process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({

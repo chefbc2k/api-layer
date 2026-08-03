@@ -731,7 +731,7 @@ describeLive("HTTP API contract integration", () => {
       },
       "read-key": {
         label: "reader",
-        roles: ["service"],
+        roles: ["read-only"],
         allowGasless: false,
       },
       "licensee-key": {

@@ -1462,7 +1462,7 @@ describe("base sepolia operator setup helpers", () => {
 
     expect(JSON.parse(process.env.API_LAYER_KEYS_JSON ?? "{}")).toEqual({
       "founder-key": { label: "founder", signerId: "founder", roles: ["service"], allowGasless: false },
-      "read-key": { label: "reader", roles: ["service"], allowGasless: false },
+      "read-key": { label: "reader", roles: ["read-only"], allowGasless: false },
       "seller-key": { label: "seller", signerId: "seller", roles: ["service"], allowGasless: false },
     });
     expect(JSON.parse(process.env.API_LAYER_SIGNER_MAP_JSON ?? "{}")).toEqual({

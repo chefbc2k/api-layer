@@ -79,7 +79,7 @@ function ensureDefaultSignerConfig(env: NodeJS.ProcessEnv): void {
     },
     "read-key": {
       label: "reader",
-      roles: ["service"],
+      roles: ["read-only"],
       allowGasless: false,
     },
   };

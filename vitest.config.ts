@@ -38,6 +38,7 @@ export default defineConfig({
         "scripts/sync-*.ts",
         "scripts/verify-*.ts",
         "scripts/write-invariants-lib.ts",
+        "scripts/actor-negative-paths-lib.ts",
       ],
       excludeAfterRemap: true,
     },
