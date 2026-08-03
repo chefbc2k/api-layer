@@ -37,6 +37,7 @@ export default defineConfig({
         "scripts/show-validated-baseline.ts",
         "scripts/sync-*.ts",
         "scripts/verify-*.ts",
+        "scripts/write-invariants-lib.ts",
       ],
       excludeAfterRemap: true,
     },

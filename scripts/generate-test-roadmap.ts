@@ -607,11 +607,12 @@ export function renderGapReportMarkdown(report: GapReport): string {
 export async function loadGapReportInput(baseDir: string, generatedAt = new Date().toISOString()): Promise<BuildGapReportInput> {
   const resolveInput = (filePath: string) => path.join(baseDir, filePath);
   const testRoots = ["packages", "scripts", "scenario-adapter"];
+  const inventoryOnlyTests = new Set(["generate-test-roadmap.test.ts", "write-invariants-lib.test.ts"]);
   const testPaths = (await Promise.all(testRoots.map(async (testRoot) => {
     try {
       return await findFiles(
         path.join(baseDir, testRoot),
-        (name) => name.endsWith(".test.ts") && name !== "generate-test-roadmap.test.ts",
+        (name) => name.endsWith(".test.ts") && !inventoryOnlyTests.has(name),
       );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];

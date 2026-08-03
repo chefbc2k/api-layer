@@ -2,6 +2,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.252] - 2026-08-03
+
+### Added
+- **Every ABI Write Now Carries Structured Invariant Metadata:** Added [`reviewed/reviewed-write-invariants.json`](/Users/chef/Public/api-layer/reviewed/reviewed-write-invariants.json) with explicit metadata for all `260` mounted writes across `31` facets: ABI signature, required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations.
+- **Invariant Coverage Is Fail-Closed:** Added [`scripts/write-invariants-lib.ts`](/Users/chef/Public/api-layer/scripts/write-invariants-lib.ts) and [`scripts/generate-write-invariant-registry.ts`](/Users/chef/Public/api-layer/scripts/generate-write-invariant-registry.ts) so normal codegen rejects missing/stale method keys, signature drift, incomplete sections, invalid read/event references, and inconsistent indexer expectations before emitting `generated/manifests/write-invariant-registry.json`.
+- **Deliberate Catalog Authoring And Regression Coverage:** Added the explicit `pnpm run sync:write-invariants` authoring command and [`scripts/write-invariants-lib.test.ts`](/Users/chef/Public/api-layer/scripts/write-invariants-lib.test.ts). Normal codegen validates rather than synchronizes the catalog, ensuring a newly mounted write fails the gate until its invariants are deliberately reviewed.
+
+### Verified
+- **Current ABI Coverage Is Complete:** `pnpm run test:write-invariants` passed `5/5` tests, including a repository-level proof that metadata covers `260/260` writes; `pnpm run codegen` and `pnpm run coverage:check` both reported complete write-invariant coverage alongside `492` wrapper functions, `218` events, and `492` HTTP methods.
+- **Metadata Type Validation Passed:** `pnpm exec tsc -p tsconfig.json --noEmit` completed successfully for the added generator, authoring, validation, and test code.
+
 ## [0.1.251] - 2026-08-03
 
 ### Added
