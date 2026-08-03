@@ -116,9 +116,18 @@ describe("validation helpers", () => {
       .toBe("0x00000000000000000000000000000000000000AA");
     expect(buildWireSchema(writeDefinition, { type: "bool" }).parse(true)).toBe(true);
     expect(buildWireSchema(writeDefinition, { type: "string" }).parse("hello")).toBe("hello");
-    expect(buildWireSchema(writeDefinition, { type: "bytes32" }).parse("0x1234")).toBe("0x1234");
+    const bytes32 = `0x${"12".repeat(32)}`;
+    expect(buildWireSchema(writeDefinition, { type: "bytes32" }).parse(bytes32)).toBe(bytes32);
     expect(buildWireSchema(writeDefinition, { type: "bytes" }).parse("0xdeadbeef")).toBe("0xdeadbeef");
-    expect(buildWireSchema(writeDefinition, { type: "function" }).parse({ opaque: true })).toEqual({ opaque: true });
+    const functionPointer = `0x${"34".repeat(24)}`;
+    expect(buildWireSchema(writeDefinition, { type: "function" }).parse(functionPointer)).toBe(functionPointer);
+    expect(() => buildWireSchema(writeDefinition, { type: "bytes32" }).parse("0x1234")).toThrow("invalid hex string");
+    expect(() => buildWireSchema(writeDefinition, { type: "bytes" }).parse("0xabc")).toThrow("invalid hex string");
+    expect(() => buildWireSchema(writeDefinition, { type: "function" }).parse("0x1234")).toThrow("invalid function hex string");
+    expect(buildWireSchema(writeDefinition, { type: "uint8" }).parse("255")).toBe("255");
+    expect(buildWireSchema(writeDefinition, { type: "int8" }).parse("-128")).toBe("-128");
+    expect(() => buildWireSchema(writeDefinition, { type: "uint8" }).parse("256")).toThrow("uint8 value out of range");
+    expect(() => buildWireSchema(writeDefinition, { type: "int8" }).parse("128")).toThrow("int8 value out of range");
 
     const tupleSchema = buildWireSchema(writeDefinition, writeDefinition.inputs[3], ["licenseConfig"]);
     expect(tupleSchema.parse({
@@ -134,8 +143,9 @@ describe("validation helpers", () => {
       .toEqual({ passthrough: true });
 
     const fixedArraySchema = buildWireSchema(writeDefinition, { type: "bytes32[2]" });
-    expect(fixedArraySchema.parse(["0x01", "0x02"])).toEqual(["0x01", "0x02"]);
-    expect(() => fixedArraySchema.parse(["0x01"])).toThrow("expected array length 2");
+    const proof = [`0x${"01".repeat(32)}`, `0x${"02".repeat(32)}`];
+    expect(fixedArraySchema.parse(proof)).toEqual(proof);
+    expect(() => fixedArraySchema.parse([proof[0]])).toThrow("expected array length 2");
     expect(() => buildWireSchema(writeDefinition, { type: "uint256" }).parse("1.5")).toThrow("invalid uint256 decimal string");
     expect(() => buildWireSchema(writeDefinition, { type: "address" }).parse("0x1234")).toThrow("invalid address");
 
@@ -148,14 +158,14 @@ describe("validation helpers", () => {
     expect(schemas.query.parse({ note: 42 })).toEqual({ note: 42 });
     expect(schemas.body.parse({
       featured: true,
-      proof: ["0x01", "0x02"],
+      proof: [`0x${"01".repeat(32)}`, `0x${"02".repeat(32)}`],
       licenseConfig: {
         recipient: "0x00000000000000000000000000000000000000BB",
         2: "terms-v1",
       },
     })).toEqual({
       featured: true,
-      proof: ["0x01", "0x02"],
+      proof: [`0x${"01".repeat(32)}`, `0x${"02".repeat(32)}`],
       licenseConfig: {
         licenseHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
         recipient: "0x00000000000000000000000000000000000000BB",
