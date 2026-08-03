@@ -191,6 +191,7 @@ describe("API test gap report", () => {
       mkdir(path.join(tempDir, "generated/manifests"), { recursive: true }),
       mkdir(path.join(tempDir, "reviewed"), { recursive: true }),
       mkdir(path.join(tempDir, "packages/sample/nested"), { recursive: true }),
+      mkdir(path.join(tempDir, "scripts"), { recursive: true }),
     ]);
     const input = baseInput();
     const jsonFiles: Array<[string, unknown]> = [
@@ -204,6 +205,10 @@ describe("API test gap report", () => {
       await writeFile(path.join(tempDir, filePath), `${JSON.stringify(value)}\n`);
     }));
     await writeFile(path.join(tempDir, "packages/sample/nested/example.test.ts"), "getThing ThingSet");
+    await Promise.all([
+      writeFile(path.join(tempDir, "scripts/generate-test-roadmap.test.ts"), "getThing ThingSet"),
+      writeFile(path.join(tempDir, "scripts/write-invariants-lib.test.ts"), "getThing ThingSet"),
+    ]);
 
     const loaded = await loadGapReportInput(tempDir, "2026-08-03T01:02:03.000Z");
     expect(loaded.tests.map((test) => test.path)).toEqual(["packages/sample/nested/example.test.ts"]);
