@@ -5,23 +5,26 @@
 ## [0.1.254] - 2026-08-04
 
 ### Added
-- **Generated Event-To-Indexer Assurance Now Covers The Full Registry:** Added [`packages/indexer/src/event-assurance.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/event-assurance.test.ts) and the `pnpm run test:indexer:assurance` command. The suite synthesizes logs for all `214` generated registry entries, proves `200` uniquely decodable events, and exercises all `130` reviewed Postgres projection targets reachable without event-signature ambiguity.
-- **Indexer Resilience Cases Are Explicitly Proven:** Expanded [`packages/indexer/src/worker.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.test.ts) with duplicate ingestion/replay, delayed RPC, ambiguous event persistence, and partial projection failure checks alongside the existing reorg and checkpoint coverage.
+- **Generated Event-To-Indexer Assurance Now Covers Every Write Declaration:** Added [`packages/indexer/src/event-assurance.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/event-assurance.test.ts) and the `pnpm run test:indexer:assurance` command. The suite synthesizes all `214` generated event entries and binds all `260` write invariants to `287` declared event expectations, `150` declared projection references, and `27` intentionally eventless writes.
+- **Disposable PostgreSQL Assurance Is Now A Repeatable Gate:** Added `pnpm run test:indexer:postgres`, which starts a temporary PostgreSQL cluster, applies both migrations twice, and verifies duplicate replay, raw/projection rollback, orphaning, and current-row rebuild behavior under real constraints.
+- **Indexer Resilience Cases Are Explicitly Proven:** Expanded [`packages/indexer/src/worker.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.test.ts) with duplicate ingestion/replay, delayed RPC, transaction-context ambiguity resolution, two-log partial-range failure, and checkpoint reorg checks.
 
 ### Fixed
-- **Ambiguous Diamond Events Now Fail Closed:** Updated [`packages/indexer/src/events.ts`](/Users/chef/Public/api-layer/packages/indexer/src/events.ts) and [`packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts) so identical topics shared by multiple facets are persisted with candidate event keys and are not projected under an arbitrary facet.
-- **Raw Events And Projections Now Commit Atomically:** Moved raw-log insertion into the same Postgres transaction as projection, preventing a failed projection from leaving a committed raw row ahead of the checkpoint.
+- **Ambiguous Diamond Events Use Generated Write Context Or Fail Closed:** Updated [`packages/indexer/src/events.ts`](/Users/chef/Public/api-layer/packages/indexer/src/events.ts) and [`packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts) so identical topics are resolved only when the unique originating write selector's generated invariant names one candidate. Unresolved logs persist every candidate and skip unsafe projection.
+- **Whole Ranges Now Commit Atomically:** Raw-log insertion, all projections in a fetched range, and checkpoint advancement now use one PostgreSQL transaction, preventing an early log from committing when a later projection fails.
+- **Indexer Migrations Now Run On PostgreSQL And Remain Idempotent:** Replaced unsupported `CREATE POLICY IF NOT EXISTS`, made projection triggers replaceable, and corrected double-suffixed dynamic policy names after the real-database gate exposed each failure.
 - **Decoded Solidity Integers Can Be Persisted:** Raw decoded arguments now use the projection sanitizer before JSON encoding, eliminating the `JSON.stringify` failure caused by ethers `bigint` values.
 - **Existing Package Builds Were Unblocked:** Corrected generated-facet typing in [`packages/client/src/runtime/invoke.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts), normalized null event block bounds to `undefined` in [`packages/client/src/runtime/invoke.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts), and corrected stale indexer test table/timer types.
 
 ### Verified
-- **Indexer Assurance And Focused Regression Suites Pass:** `pnpm run test:indexer:assurance` passes `40/40` tests across `7/7` files; the combined client/indexer slice passes `53/53` tests across `8/8` files; standalone `@uspeaks/api-client` and `@uspeaks/api-indexer` builds pass.
-- **Touched Indexer Runtime Coverage Is Complete:** Focused coverage reports `100%` statements, branches, functions, and lines for the event decoder, worker, and measured projection helper surface.
-- **Generated Surface Coverage Remains Complete:** `pnpm run coverage:check` passes with wrapper coverage for `492` functions and `218` ABI events plus HTTP coverage for all `492` methods.
+- **Indexer And PostgreSQL Assurance Pass:** `pnpm run test:indexer:assurance` passes `44/44` active tests and `pnpm run test:indexer:postgres` passes `3/3` real-database tests.
+- **Touched Runtime Coverage Is Complete:** Focused coverage reports `100%` statements, branches, functions, and lines for the generated write-invariant client registry, event decoder, worker, and measured projection helper surface.
+- **TypeScript, Package, And Surface Gates:** Root TypeScript validation and standalone client/indexer builds pass. `pnpm run coverage:check` remains green at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 
 ### Remaining Issues
-- **Event/Indexer Proof Remains Blocked From Merge:** Although the merged invariant catalog now supplies expected events for all `260` ABI writes, `14` event entries still share `6` indistinguishable signatures on the same diamond address, no real Postgres/Supabase integration gate is configured, and deep reorg recovery lacks a canonical block journal. The roadmap records the required next steps; this partial work must not merge to `master`.
-- **Repository-Wide Quality Gates Have Existing Baseline Failures:** The repo has no lint command/configuration, the API package build reports broad pre-existing TypeScript failures including duplicate generated TypeChain declarations, and merged test coverage still contains clean-worktree assumptions around the ignored `.env` and absolute `/Users/chef/Public/api-layer` fixture paths. Client/indexer verification is green, but these failures are additional reasons not to merge this section.
+- **Event/Indexer Proof Remains Blocked From Merge:** The catalog-driven suite proves every declared synthetic write/event edge, but every real write receipt is not yet executed through deterministic fork fixtures; nested executor attribution and deep-reorg common-ancestor recovery also remain open.
+- **Repository-Wide Quality Gates Have Existing Baseline Failures:** The repo has no lint command/configuration, and `pnpm run build` reaches green codegen/client/indexer stages before the API package reports broad existing TypeScript failures including duplicate generated TypeChain declarations. This partial section must not merge to `master`.
+
 ## [0.1.253] - 2026-08-03
 
 ### Added

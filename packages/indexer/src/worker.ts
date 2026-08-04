@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { type Log, type Provider } from "ethers";
+import { id, type Log, type Provider } from "ethers";
 import type { PoolClient } from "pg";
 
-import { ProviderRouter, readConfigFromEnv } from "../../client/src/index.js";
-import { buildEventRegistry, decodeEvent, isAmbiguousEvent, type EventDecodeResult } from "./events.js";
+import { getAllWriteInvariantDefinitions, ProviderRouter, readConfigFromEnv } from "../../client/src/index.js";
+import { buildEventRegistry, decodeEvent, isAmbiguousEvent, resolveExpectedEvent, type EventDecodeResult } from "./events.js";
 import { IndexerDatabase } from "./db.js";
 import { projectEvent } from "./projections/index.js";
 import { rebuildCurrentRows, sanitizeArgs } from "./projections/common.js";
@@ -22,6 +22,18 @@ type CheckpointRow = {
   cursor_block_hash: string | null;
 };
 
+type WriteExpectation = {
+  methodKey: string;
+  eventKeys: string[];
+};
+
+function buildWriteExpectations(): Map<string, WriteExpectation> {
+  return new Map(Object.entries(getAllWriteInvariantDefinitions()).map(([methodKey, definition]) => [
+    id(definition.signature).slice(0, 10).toLowerCase(),
+    { methodKey, eventKeys: definition.invariants.indexerExpectations.events },
+  ]));
+}
+
 export class EventIndexer {
   private readonly config = readConfigFromEnv();
   private readonly env = envSchema.parse(process.env);
@@ -35,6 +47,19 @@ export class EventIndexer {
     recoveryCooldownMs: this.config.providerRecoveryCooldownMs,
   });
   private readonly eventRegistry = buildEventRegistry();
+  private readonly writeExpectations = buildWriteExpectations();
+
+  private async resolveAmbiguousLog(log: Log, decoded: EventDecodeResult): Promise<EventDecodeResult> {
+    if (!decoded || !isAmbiguousEvent(decoded)) {
+      return decoded;
+    }
+    const transaction = await this.providerRouter.withProvider("events", "indexer.transaction", (provider: Provider) =>
+      provider.getTransaction(log.transactionHash),
+    );
+    const selector = transaction?.data.slice(0, 10).toLowerCase();
+    const expectation = selector ? this.writeExpectations.get(selector) : undefined;
+    return expectation ? resolveExpectedEvent(decoded, expectation.eventKeys) : decoded;
+  }
 
   private async getCheckpoint(): Promise<{ cursorBlock: bigint; finalizedBlock: bigint; cursorBlockHash: string | null }> {
     const result = await this.db.query<CheckpointRow>(
@@ -56,8 +81,14 @@ export class EventIndexer {
     };
   }
 
-  private async saveCheckpoint(cursorBlock: bigint, finalizedBlock: bigint, cursorBlockHash: string | null): Promise<void> {
-    await this.db.query(
+  private async saveCheckpoint(
+    cursorBlock: bigint,
+    finalizedBlock: bigint,
+    cursorBlockHash: string | null,
+    client?: PoolClient,
+  ): Promise<void> {
+    const query = client ? client.query.bind(client) : this.db.query.bind(this.db);
+    await query(
       `
         INSERT INTO indexer_checkpoints (chain_id, cursor_block, finalized_block, cursor_block_hash)
         VALUES ($1, $2, $3, $4)
@@ -191,13 +222,21 @@ export class EventIndexer {
       }),
     );
 
-    for (const log of logs) {
-      const decoded = decodeEvent(this.eventRegistry, log);
-      const confirmations = Number(head - BigInt(log.blockNumber));
-      await this.db.withTransaction(async (client) => {
+    const preparedLogs = await Promise.all(logs.map(async (log) => ({
+      log,
+      decoded: await this.resolveAmbiguousLog(log, decodeEvent(this.eventRegistry, log)),
+      confirmations: Number(head - BigInt(log.blockNumber)),
+    })));
+    const block = await this.providerRouter.withProvider("events", "indexer.blockHash", (provider: Provider) => provider.getBlock(Number(toBlock)));
+    const finalizedBlock = head > BigInt(this.env.API_LAYER_FINALITY_CONFIRMATIONS)
+      ? head - BigInt(this.env.API_LAYER_FINALITY_CONFIRMATIONS)
+      : 0n;
+
+    await this.db.withTransaction(async (client) => {
+      for (const { log, decoded, confirmations } of preparedLogs) {
         const rawEventId = await this.insertRawLog(client, log, decoded, confirmations);
         if (!decoded || isAmbiguousEvent(decoded)) {
-          return;
+          continue;
         }
         await projectEvent({
           chainId: this.config.chainId,
@@ -209,14 +248,9 @@ export class EventIndexer {
           isOrphaned: false,
           decoded,
         });
-      });
-    }
-
-    const block = await this.providerRouter.withProvider("events", "indexer.blockHash", (provider: Provider) => provider.getBlock(Number(toBlock)));
-    const finalizedBlock = head > BigInt(this.env.API_LAYER_FINALITY_CONFIRMATIONS)
-      ? head - BigInt(this.env.API_LAYER_FINALITY_CONFIRMATIONS)
-      : 0n;
-    await this.saveCheckpoint(toBlock, finalizedBlock, block?.hash ?? null);
+      }
+      await this.saveCheckpoint(toBlock, finalizedBlock, block?.hash ?? null, client);
+    });
   }
 
   async backfill(): Promise<void> {

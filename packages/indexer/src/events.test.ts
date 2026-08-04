@@ -26,10 +26,15 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("../../client/src/index.js", () => ({
   facetRegistry: mocks.facetRegistry,
+  getAbiEventDefinition: (eventKey: string) => eventKey === "VoiceAssetFacet.Transfer" ? {
+    facetName: "VoiceAssetFacet",
+    eventName: "Transfer",
+    wrapperKey: "Transfer",
+  } : null,
   getAllAbiEventDefinitions: mocks.getAllAbiEventDefinitions,
 }));
 
-import { buildEventRegistry, decodeEvent, isAmbiguousEvent } from "./events.js";
+import { buildEventRegistry, decodeEvent, isAmbiguousEvent, resolveExpectedEvent } from "./events.js";
 
 describe("buildEventRegistry", () => {
   it("indexes resolvable ABI events and skips missing wrappers", () => {
@@ -336,5 +341,35 @@ describe("decodeEvent", () => {
       },
       candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
     });
+  });
+
+  it("resolves an ambiguous event only when one write expectation names one candidate", () => {
+    const ambiguous = {
+      eventName: "Transfer",
+      signature: "Transfer(address,address,uint256)",
+      candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
+      candidateArgs: {
+        "TokenSupplyFacet.Transfer": { value: 42n },
+        "VoiceAssetFacet.Transfer": { tokenId: 42n },
+      },
+    };
+
+    expect(resolveExpectedEvent(ambiguous, ["VoiceAssetFacet.Transfer"])).toMatchObject({
+      facetName: "VoiceAssetFacet",
+      fullEventKey: "VoiceAssetFacet.Transfer",
+      args: { tokenId: 42n },
+    });
+    expect(resolveExpectedEvent(ambiguous, [])).toBe(ambiguous);
+    expect(resolveExpectedEvent(ambiguous, ambiguous.candidateEventKeys)).toBe(ambiguous);
+    expect(resolveExpectedEvent({
+      ...ambiguous,
+      candidateEventKeys: ["MissingFacet.Transfer"],
+      candidateArgs: { "MissingFacet.Transfer": { tokenId: 42n } },
+    }, ["MissingFacet.Transfer"])).toMatchObject({ candidateEventKeys: ["MissingFacet.Transfer"] });
+    expect(resolveExpectedEvent({
+      ...ambiguous,
+      candidateEventKeys: ["VoiceAssetFacet.Transfer"],
+      candidateArgs: {},
+    }, ["VoiceAssetFacet.Transfer"])).toMatchObject({ candidateEventKeys: ["VoiceAssetFacet.Transfer"] });
   });
 });

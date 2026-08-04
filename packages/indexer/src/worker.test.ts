@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { id } from "ethers";
 
 const mocks = vi.hoisted(() => {
   const db = {
@@ -19,13 +20,16 @@ const mocks = vi.hoisted(() => {
     ProviderRouter: vi.fn(() => providerRouter),
     buildEventRegistry: vi.fn(),
     decodeEvent: vi.fn(),
+    getAllWriteInvariantDefinitions: vi.fn(() => ({})),
     readConfigFromEnv: vi.fn(),
+    resolveExpectedEvent: vi.fn((event: unknown) => event),
     projectEvent: vi.fn(),
     rebuildCurrentRows: vi.fn(),
   };
 });
 
 vi.mock("../../client/src/index.js", () => ({
+  getAllWriteInvariantDefinitions: mocks.getAllWriteInvariantDefinitions,
   ProviderRouter: mocks.ProviderRouter,
   readConfigFromEnv: mocks.readConfigFromEnv,
 }));
@@ -34,6 +38,7 @@ vi.mock("./events.js", () => ({
   buildEventRegistry: mocks.buildEventRegistry,
   decodeEvent: mocks.decodeEvent,
   isAmbiguousEvent: (event: Record<string, unknown>) => "candidateEventKeys" in event,
+  resolveExpectedEvent: mocks.resolveExpectedEvent,
 }));
 
 vi.mock("./db.js", () => ({
@@ -211,6 +216,9 @@ describe("EventIndexer", () => {
           }]),
         });
       }
+      if (label === "indexer.transaction") {
+        return work({ getTransaction: vi.fn().mockResolvedValue(null) });
+      }
       if (label === "indexer.blockHash") {
         return work({
           getBlock: vi.fn().mockResolvedValue({ hash: "0xblock" }),
@@ -237,7 +245,7 @@ describe("EventIndexer", () => {
       "10",
       "0xblock",
     ]));
-    expect(mocks.db.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "10", "10", "0xblock"]);
+    expect(mocks.transactionClient.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "10", "10", "0xblock"]);
   });
 
   it("persists undecoded logs without projecting them and clamps finalized block to zero", async () => {
@@ -256,6 +264,9 @@ describe("EventIndexer", () => {
             topics: ["0xtopic"],
           }]),
         });
+      }
+      if (label === "indexer.transaction") {
+        return work({ getTransaction: vi.fn().mockResolvedValue(null) });
       }
       if (label === "indexer.blockHash") {
         return work({
@@ -283,7 +294,7 @@ describe("EventIndexer", () => {
       "{}",
       6,
     ]));
-    expect(mocks.db.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "4", "0", null]);
+    expect(mocks.transactionClient.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "4", "0", null]);
   });
 
   it("persists ambiguous logs with candidate evidence and skips unsafe projection", async () => {
@@ -311,6 +322,9 @@ describe("EventIndexer", () => {
           }]),
         });
       }
+      if (label === "indexer.transaction") {
+        return work({ getTransaction: vi.fn().mockResolvedValue(null) });
+      }
       if (label === "indexer.blockHash") {
         return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xblock-5" }) });
       }
@@ -332,8 +346,65 @@ describe("EventIndexer", () => {
     );
   });
 
+  it("uses the originating write selector to resolve and project one ambiguous event candidate", async () => {
+    const signature = "registerVoiceAsset(bytes32,string)";
+    mocks.getAllWriteInvariantDefinitions.mockReturnValueOnce({
+      "VoiceAssetFacet.registerVoiceAsset": {
+        signature,
+        invariants: { indexerExpectations: { events: ["VoiceAssetFacet.Transfer"] } },
+      },
+    } as never);
+    mocks.transactionClient.query.mockResolvedValueOnce({ rows: [{ id: 92 }], rowCount: 1 });
+    mocks.decodeEvent.mockReturnValue({
+      eventName: "Transfer",
+      signature: "Transfer(address,address,uint256)",
+      candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
+      candidateArgs: {
+        "TokenSupplyFacet.Transfer": { value: 3n },
+        "VoiceAssetFacet.Transfer": { tokenId: 3n },
+      },
+    });
+    mocks.resolveExpectedEvent.mockReturnValueOnce({
+      facetName: "VoiceAssetFacet",
+      eventName: "Transfer",
+      wrapperKey: "Transfer",
+      fullEventKey: "VoiceAssetFacet.Transfer",
+      args: { tokenId: 3n },
+      signature: "Transfer(address,address,uint256)",
+    });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({ getLogs: vi.fn().mockResolvedValue([{
+          transactionHash: "0xresolved",
+          index: 0,
+          blockNumber: 6,
+          blockHash: "0xblock-6",
+          address: "0xdiamond",
+          topics: ["0xtransfer"],
+        }]) });
+      }
+      if (label === "indexer.transaction") {
+        return work({ getTransaction: vi.fn().mockResolvedValue({ data: `${id(signature).slice(0, 10)}00` }) });
+      }
+      if (label === "indexer.blockHash") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xblock-6" }) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await (indexer as any).processRange(6n, 6n, 26n);
+
+    expect(mocks.resolveExpectedEvent).toHaveBeenCalledWith(expect.objectContaining({ candidateEventKeys: expect.any(Array) }), ["VoiceAssetFacet.Transfer"]);
+    expect(mocks.projectEvent).toHaveBeenCalledWith(expect.objectContaining({
+      decoded: expect.objectContaining({ fullEventKey: "VoiceAssetFacet.Transfer" }),
+    }));
+  });
+
   it("rolls back raw ingestion with the projection when a partial block fails", async () => {
-    mocks.transactionClient.query.mockResolvedValueOnce({ rows: [{ id: 90 }], rowCount: 1 });
+    mocks.transactionClient.query
+      .mockResolvedValueOnce({ rows: [{ id: 90 }], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [{ id: 91 }], rowCount: 1 });
     mocks.decodeEvent.mockReturnValue({
       facetName: "MarketplaceFacet",
       eventName: "AssetListed",
@@ -342,19 +413,34 @@ describe("EventIndexer", () => {
       args: { listingId: 1n },
       signature: "AssetListed(uint256,address,uint256)",
     });
-    mocks.projectEvent.mockRejectedValueOnce(new Error("projection failed"));
+    mocks.projectEvent
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("projection failed"));
     mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
       if (label === "indexer.getLogs") {
         return work({
-          getLogs: vi.fn().mockResolvedValue([{
-            transactionHash: "0xpartial",
-            index: 0,
-            blockNumber: 6,
-            blockHash: "0xblock-6",
-            address: "0xdiamond",
-            topics: ["0xlisted"],
-          }]),
+          getLogs: vi.fn().mockResolvedValue([
+            {
+              transactionHash: "0xpartial-a",
+              index: 0,
+              blockNumber: 6,
+              blockHash: "0xblock-6",
+              address: "0xdiamond",
+              topics: ["0xlisted"],
+            },
+            {
+              transactionHash: "0xpartial-b",
+              index: 1,
+              blockNumber: 6,
+              blockHash: "0xblock-6",
+              address: "0xdiamond",
+              topics: ["0xlisted"],
+            },
+          ]),
         });
+      }
+      if (label === "indexer.blockHash") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xblock-6" }) });
       }
       throw new Error(`unexpected label ${label}`);
     });
@@ -363,8 +449,9 @@ describe("EventIndexer", () => {
     await expect((indexer as any).processRange(6n, 6n, 26n)).rejects.toThrow("projection failed");
 
     expect(mocks.db.withTransaction).toHaveBeenCalledTimes(1);
-    expect(mocks.transactionClient.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO raw_events"), expect.any(Array));
-    expect(mocks.db.query).not.toHaveBeenCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), expect.any(Array));
+    expect(mocks.transactionClient.query.mock.calls.filter(([sql]) => String(sql).includes("INSERT INTO raw_events"))).toHaveLength(2);
+    expect(mocks.projectEvent).toHaveBeenCalledTimes(2);
+    expect(mocks.transactionClient.query).not.toHaveBeenCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), expect.any(Array));
   });
 
   it("replays duplicate logs through idempotent upserts before advancing the checkpoint", async () => {
@@ -431,7 +518,7 @@ describe("EventIndexer", () => {
 
     releaseLogs?.([]);
     await processing;
-    expect(mocks.db.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "8", "8", "0xblock-8"]);
+    expect(mocks.transactionClient.query).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "8", "8", "0xblock-8"]);
   });
 
   it("skips empty ranges before querying providers", async () => {

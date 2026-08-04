@@ -4,9 +4,11 @@ import { Interface, type Log } from "ethers";
 import {
   facetRegistry,
   getAllAbiEventDefinitions,
+  getAllWriteInvariantDefinitions,
+  getWriteInvariantDefinition,
 } from "../../client/src/index.js";
 import type { AbiEventDefinition, AbiParameter } from "../../client/src/runtime/abi-registry.js";
-import { buildEventRegistry, decodeEvent, isAmbiguousEvent, type DecodedEvent } from "./events.js";
+import { buildEventRegistry, decodeEvent, isAmbiguousEvent, resolveExpectedEvent, type DecodedEvent } from "./events.js";
 import { projectEvent } from "./projections/index.js";
 
 const AMBIGUOUS_EVENT_KEYS = [
@@ -153,5 +155,64 @@ describe("generated event-to-indexer assurance", () => {
       .reduce((count, [, definition]) => count + definition.projection.targets.length, 0);
     expect(provenTargetCount).toBe(expectedProvenTargets);
     expect(client.query).toHaveBeenCalledTimes(expectedQueryCount);
+  });
+
+  it("binds every write invariant to decoded, replay-safe indexer evidence", async () => {
+    const writes = Object.entries(getAllWriteInvariantDefinitions()).sort(([left], [right]) => left.localeCompare(right));
+    const eventDefinitions = getAllAbiEventDefinitions();
+    const registry = buildEventRegistry();
+    const client = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    let expectationCount = 0;
+    let declaredProjectionCount = 0;
+    let projectedEventTargetCount = 0;
+    let noEventWriteCount = 0;
+
+    expect(writes).toHaveLength(260);
+    expect(getWriteInvariantDefinition(writes[0][0])).toBe(writes[0][1]);
+    expect(getWriteInvariantDefinition("MissingFacet.missingWrite")).toBeNull();
+
+    for (const [methodKey, write] of writes) {
+      const expectation = write.invariants.indexerExpectations;
+      expect(expectation.events, methodKey).toEqual(write.invariants.emittedEvents.events);
+      if (expectation.mode === "none") {
+        expect(expectation.events, methodKey).toEqual([]);
+        expect(expectation.projections, methodKey).toEqual([]);
+        noEventWriteCount += 1;
+        continue;
+      }
+      declaredProjectionCount += expectation.projections.length;
+
+      for (const eventKey of expectation.events) {
+        const definition = eventDefinitions[eventKey];
+        expect(definition, `${methodKey} -> ${eventKey}`).toBeDefined();
+        const decoded = decodeEvent(registry, encodeLog(definition, expectationCount));
+        expect(decoded, `${methodKey} -> ${eventKey}`).not.toBeNull();
+        const resolved = resolveExpectedEvent(decoded!, expectation.events);
+        expect(isAmbiguousEvent(resolved), `${methodKey} -> ${eventKey}`).toBe(false);
+        expect((resolved as DecodedEvent).fullEventKey, `${methodKey} -> ${eventKey}`).toBe(eventKey);
+
+        if (expectation.mode === "required") {
+          await projectEvent({
+            chainId: 84532,
+            client: client as never,
+            rawEventId: expectationCount + 1,
+            txHash: `0x${(expectationCount + 1).toString(16).padStart(64, "0")}`,
+            blockNumber: BigInt(expectationCount + 1),
+            blockHash: `0x${(expectationCount + 2).toString(16).padStart(64, "0")}`,
+            isOrphaned: false,
+            decoded: resolved as DecodedEvent,
+          });
+          projectedEventTargetCount += definition.projection.targets.length;
+        } else {
+          expect(definition.projection.targets, `${methodKey} -> ${eventKey}`).toEqual([]);
+        }
+        expectationCount += 1;
+      }
+    }
+
+    expect(expectationCount).toBe(287);
+    expect(declaredProjectionCount).toBe(150);
+    expect(projectedEventTargetCount).toBe(191);
+    expect(noEventWriteCount).toBe(27);
   });
 });

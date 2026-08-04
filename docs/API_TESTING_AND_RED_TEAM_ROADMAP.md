@@ -159,35 +159,35 @@ Daily automations should treat these sections as independently mergeable workstr
 | Write-method invariant metadata | Complete (2026-08-03) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete (2026-08-03) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
-| Event and indexer projection proof | Blocked — partial proof on `codex/event-indexer-proof` | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
+| Event and indexer projection proof | Blocked — proof expanded 2026-08-04 on `codex/event-indexer-proof` | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
 | Local-fork destructive automation | Pending | deterministic local-fork runner, fixture setup, structured report output, and safe default flags |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
 | Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
 
-### Event And Indexer Projection Run — 2026-08-03
+### Event And Indexer Projection Run — 2026-08-04
 
 Status: **blocked; do not merge this section yet**.
 
 Evidence added on `codex/event-indexer-proof`:
 
-- The generated-registry assurance test synthesizes and decodes logs for all `214` addressable event registry entries derived from the `218` ABI event declarations. It proves `200` entries are uniquely decodable and exercises all `130` reviewed projection targets attached to those unambiguous events.
-- The indexer now records ambiguous event candidates and skips projection instead of silently choosing the first facet with the same topic. This prevents known `Transfer`, `Approval`, `AssetEscrowed`, `VotingPowerUpdated`, `VoiceAssetUsed`, and `LicenseCreated` collisions from corrupting projection tables.
-- Raw event insertion and projection now share one database transaction. A projection failure therefore rolls back the raw insert, leaves the checkpoint unchanged, and permits a clean replay.
+- The generated-registry assurance test synthesizes and decodes logs for all `214` addressable event registry entries derived from the `218` ABI event declarations. The write-bound test consumes all `260` generated write invariants and proves `287` declared write-to-event expectations (`189` unique events), `150` declared write projection references, and `27` intentionally eventless writes.
+- All `260` mounted write selectors are unique. The indexer now reads an ambiguous log's originating transaction selector and resolves it only when that write's generated invariant metadata names exactly one candidate; otherwise it persists all candidates and skips projection. This covers the `14` registry entries sharing `6` diamond-level signatures without arbitrary facet selection.
+- Raw event insertion, every projection in the fetched range, and checkpoint advancement now share one database transaction. The two-log partial-failure test proves a failure on the second projection prevents checkpoint advancement and rolls the whole range back.
 - Raw decoded arguments are recursively sanitized before JSON persistence, including `bigint` values emitted by ethers for Solidity integers.
-- `pnpm run test:indexer:assurance` passes `40/40` tests across `7/7` files, covering duplicate log replay, delayed RPC responses, partial-block projection failure, transaction rollback, one-block reorg orphaning/checkpoint rewind, generated-registry decoding, and reviewed table projection SQL.
-- The same indexer assurance command with focused instrumentation reports `100%` statements, branches, functions, and lines for `events.ts`, `worker.ts`, and the measured projection helper surface.
-- A focused client/indexer regression run passes `53/53` tests across `8/8` files, and standalone client and indexer TypeScript builds pass after correcting existing test-fixture facet typing and nullable block-filter normalization.
-- `pnpm run coverage:check` passes with `492` functions and `218` ABI events covered by generated wrappers and all `492` HTTP methods validated.
+- `pnpm run test:indexer:assurance` passes `44/44` active tests across `7` files, with the separately gated PostgreSQL file's `3` tests skipped in the unit command. Coverage includes duplicate replay, delayed RPC, two-log partial-range failure, transaction-context event resolution, checkpoint-tip reorg orphaning/rewind, generated-registry decoding, and reviewed projection SQL.
+- `pnpm run test:indexer:postgres` starts disposable PostgreSQL, applies both migrations twice, and passes `3/3` real-database tests for unique-index replay idempotency, atomic raw/projection rollback, and reorg orphaning plus current-row rebuild. The run exposed and fixed invalid `CREATE POLICY IF NOT EXISTS`, non-idempotent trigger creation, and double-suffixed dynamic policy names.
+- Focused instrumentation reports `100%` statements, branches, functions, and lines for the new generated write-invariant client registry, event decoder, worker, and measured projection helpers.
+- `pnpm exec tsc -p tsconfig.json --noEmit`, standalone client/indexer builds, and `pnpm run coverage:check` pass. Surface coverage remains complete at `492` wrapper functions, `218` ABI events, `492` HTTP methods, and `260/260` write invariants.
 
 Blockers and next steps:
 
-- The merged invariant catalog now provides expected receipt events and indexer expectations for all `260` ABI write methods. The next test layer must consume that catalog directly and fail when any declared expected event lacks decode/projection evidence; the current generated-registry test proves event inventory breadth but does not yet bind every write method to its declared events.
-- Fourteen registry entries share six indistinguishable event signatures on the same diamond address, covering `9` reviewed projection targets. Topic, address, indexed layout, and data are identical, so the indexer cannot safely select a facet. Resolve this upstream with distinct event signatures/discriminants or provide a transaction-aware authoritative disambiguation policy backed by write/event metadata.
-- This run proves generated projection SQL but not committed rows in a real Supabase/Postgres service because `SUPABASE_DB_URL` is not configured. Add an ephemeral-Postgres or Supabase integration gate that applies both migrations and verifies replay, rollback, orphaning, and current-row rebuild behavior against actual constraints.
+- The `260`-write catalog test synthesizes declared logs and proves the generated decode/projection pipeline, but it does not execute every contract write against deterministic fork fixtures or compare each real receipt with its invariant declaration. Build the receipt-to-indexer local-fork runner before calling every write path proven end to end.
+- Direct mounted writes disambiguate by their unique outer selector. Nested writes executed through multisig, timelock, or generic execution calldata still need trace/nested-calldata-aware attribution when an inner call emits one of the six shared signatures.
 - Existing reorg coverage proves checkpoint-tip replacement. Deep reorg recovery still needs a canonical block journal and common-ancestor search so all divergent blocks, including empty blocks, can be rolled back deterministically.
-- The repository-wide quality baseline also prevents merge: there is no lint script, ESLint dependency, or ESLint configuration; `pnpm run build` reaches green client/indexer builds but the API package has extensive pre-existing TypeScript failures (including duplicate TypeChain declarations from repeated ABI events); and `pnpm run test:coverage` still depends on the ignored root `.env` and hard-coded `/Users/chef/Public/api-layer` coverage fixtures when executed from a clean worktree.
+- The repository-wide quality baseline also prevents merge: there is no lint script, ESLint dependency, or ESLint configuration, and `pnpm run build` reaches green codegen/client/indexer stages before the API package fails on extensive existing TypeScript errors, including duplicate TypeChain declarations from repeated ABI events.
+
 ### ABI-Driven Gap Report Evidence
 
 The 2026-08-03 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings.

@@ -1,6 +1,6 @@
 import { Interface, type Log } from "ethers";
 
-import { facetRegistry, getAllAbiEventDefinitions } from "../../client/src/index.js";
+import { facetRegistry, getAbiEventDefinition, getAllAbiEventDefinitions } from "../../client/src/index.js";
 import type { AbiEventDefinition } from "../../client/src/runtime/abi-registry.js";
 
 type EventDescriptor = {
@@ -31,6 +31,33 @@ export type EventDecodeResult = DecodedEvent | AmbiguousEvent | null;
 
 export function isAmbiguousEvent(event: Exclude<EventDecodeResult, null>): event is AmbiguousEvent {
   return "candidateEventKeys" in event;
+}
+
+export function resolveExpectedEvent(
+  event: Exclude<EventDecodeResult, null>,
+  expectedEventKeys: readonly string[],
+): Exclude<EventDecodeResult, null> {
+  if (!isAmbiguousEvent(event)) {
+    return event;
+  }
+  const matches = event.candidateEventKeys.filter((eventKey) => expectedEventKeys.includes(eventKey));
+  if (matches.length !== 1) {
+    return event;
+  }
+  const fullEventKey = matches[0];
+  const definition = getAbiEventDefinition(fullEventKey);
+  const args = event.candidateArgs[fullEventKey];
+  if (!definition || !args) {
+    return event;
+  }
+  return {
+    facetName: definition.facetName,
+    eventName: definition.eventName,
+    wrapperKey: definition.wrapperKey,
+    fullEventKey,
+    args,
+    signature: event.signature,
+  };
 }
 
 export function buildEventRegistry(): Map<string, EventDescriptor[]> {
