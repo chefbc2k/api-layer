@@ -153,6 +153,14 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Local-Fork Automation Run — 2026-08-04
+
+- **Branch alignment and hardening:** merged local `master` into `codex/local-fork-automation`, preserved all upstream actor/write-invariant gates, switched exhaustive probe keys to `read-only`, added valid beneficiary-share inputs, and made known missing-record responses classify as structured `needs fixture` gaps.
+- **Governance blocker resolved:** local-fork activation now mines two blocks past the initial snapshot boundary and continues advancing if the proposal is still pending. A bounded fresh-fork proof submitted proposal `40` in tx `0x8902d995109a44aa58802b067a1ff50818782bbf9e175b99bb7d6a026911b1e1`, reached active state `1` at block `45052563` after snapshot `45052561`, and voted in tx `0xaddb425f50c4a4dfa0834c7fe3eb39e1fa65e997fef5428fdc9d3621adef2143`; the refreshed governance artifact is `proven working` with `3` evidence records.
+- **Focused verification:** `pnpm run test:local-fork-runner` passes `8/8`; `pnpm vitest run scripts/verify-governance-workflows.test.ts --maxWorkers 1` passes `4/4`; `pnpm exec tsc -p tsconfig.json --noEmit` passes; and `pnpm run coverage:check` passes at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Remaining blockers:** the bounded fork proof reduced free disk to about `169 MiB`, so the full `pnpm run verify:local-fork` sequence and aggregate report were not safely rerun. The prior exhaustive artifact still contains missing campaign/proposal/upgrade/vesting/dataset/license/template/rights/fingerprint fixtures and must be regenerated after those fixtures are provisioned. The repo also has no `eslint.config.*`; `pnpm exec eslint .` exits `2`, and the ordered build gate was not run after lint failed.
+- **Merge decision:** do not merge. Recover disk, provision the remaining protocol fixtures, rerun the complete orchestrator and exhaustive probe, then complete lint/build and confirm the worktree contains only intended changes.
+
 ### Local-Fork Automation Run — 2026-08-03
 
 - **Implementation:** `codex/local-fork-automation` now contains a deterministic `pnpm run verify:local-fork` orchestrator with loopback fork startup/validation, fixture provisioning, an exhaustive ABI-driven read/event probe, fixture-backed HTTP writes, persistent domain proof artifacts, structured gaps, and a two-flag live-network guard (`--allow-live` plus `--allow-live-destructive`) for destructive/admin stages.
@@ -169,7 +177,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Actor and signer negative paths | Complete (2026-08-03) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
-| Local-fork destructive automation | Blocked | implementation and focused tests are present; merge is blocked by governance activation remaining pending after fork advancement, `30` structured read gaps, and aggregate-report persistence exhausting host disk during governance mining |
+| Local-fork destructive automation | Blocked | governance activation is fixed and proven; merge remains blocked by critically low host disk, a stale aggregate report, unprovisioned safe-read fixtures, and missing lint configuration/build evidence |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
 | Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
 

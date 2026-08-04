@@ -13,7 +13,7 @@ import {
   summarizeReviewedSurface,
   type ProofStage,
 } from "./verify-local-fork-lib.js";
-import { fixtureValue } from "./verify-local-fork-safe-read-values.js";
+import { classifySafeReadGap, fixtureValue } from "./verify-local-fork-safe-read-values.js";
 
 const tempDirs: string[] = [];
 
@@ -174,6 +174,7 @@ describe("safe-read fixture values", () => {
   it("builds deterministic scalar, array, and tuple values from fixtures", () => {
     expect(fixtureValue({ name: "owner", type: "address" }, fixture, 99, 123)).toBe(fixture.actors.seller.address);
     expect(fixtureValue({ name: "tokenId", type: "uint256" }, fixture, 99, 123)).toBe("42");
+    expect(fixtureValue({ name: "sharePercentage", type: "uint256" }, fixture, 99, 123)).toBe("10000");
     expect(fixtureValue({ name: "blockNumber", type: "uint256" }, fixture, 99, 123)).toBe("99");
     expect(fixtureValue({ name: "voiceHash", type: "bytes32" }, fixture, 99, 123)).toBe(fixture.marketplace.agedListingFixture.voiceHash);
     expect(fixtureValue({ name: "beneficiaries", type: "address[]" }, fixture, 99, 123)).toEqual([fixture.actors.founder.address]);
@@ -185,5 +186,12 @@ describe("safe-read fixture values", () => {
         { name: "at", type: "uint64" },
       ],
     }, fixture, 99, 123)).toEqual({ enabled: false, at: "0" });
+  });
+
+  it("distinguishes missing protocol fixtures from request-shape proof failures", () => {
+    expect(classifySafeReadGap(500, { error: "execution reverted: CampaignNotFound(uint256)" })).toBe("needs fixture");
+    expect(classifySafeReadGap(500, { error: "execution reverted: FingerprintNotRegistered(bytes32)" })).toBe("needs fixture");
+    expect(classifySafeReadGap(500, { error: "Panic due to ARRAY_RANGE_ERROR(50)" })).toBe("needs fixture");
+    expect(classifySafeReadGap(400, { error: "invalid tuple" })).toBe("proof gap");
   });
 });

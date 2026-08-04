@@ -10,6 +10,7 @@ import { isLoopbackRpcUrl, resolveRuntimeConfig } from "./alchemy-debug-lib.js";
 import { rootDir, writeJson } from "./utils.js";
 import {
   buildReadRequest,
+  classifySafeReadGap,
   fixtureValue,
   selectAbiFunction,
   type AbiFunction,
@@ -35,7 +36,7 @@ async function main(): Promise<void> {
   process.env.API_LAYER_KEYS_JSON = JSON.stringify(Object.fromEntries(
     readApiKeys.map((apiKey, index) => [
       apiKey,
-      { label: `local-fork-reader-${index}`, roles: ["service"], allowGasless: false },
+      { label: `local-fork-reader-${index}`, roles: ["read-only"], allowGasless: false },
     ]),
   ));
   process.env.API_LAYER_API_KEY = readApiKeys[0];
@@ -83,13 +84,10 @@ async function main(): Promise<void> {
         if (response.status === 200) {
           continue;
         }
-        const responseText = JSON.stringify(payload);
         gaps.push({
           methodKey,
           route: `${endpoint.httpMethod} ${endpoint.path}`,
-          classification: response.status === 404 || response.status === 409 || /NotFound|NoScheduleFound/u.test(responseText)
-            ? "needs fixture"
-            : "proof gap",
+          classification: classifySafeReadGap(response.status, payload),
           detail: `safe read returned HTTP ${response.status}`,
           response: payload,
         });

@@ -2,18 +2,24 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.254] - 2026-08-03
+## [0.1.254] - 2026-08-04
 
 ### Added
 - **Local-Fork Assurance Orchestrator Is Implemented Behind Strict Safety Guards:** Added `pnpm run verify:local-fork`, an exhaustive ABI-shaped safe-read/event probe, deterministic proof staging, fixture/artifact collection, and structured gap aggregation. Loopback execution is the default; any live run requires `--allow-live`, and destructive/admin stages additionally require `--allow-live-destructive`.
-- **Runner Behavior Is Locked By Focused Tests:** Added `pnpm run test:local-fork-runner` with `7/7` passing tests for CLI parsing, live-network refusal, proof ordering, retry/failure handling, artifact-directory creation, inventory accounting, and deterministic fixture values.
+- **Runner Behavior Is Locked By Focused Tests:** Added `pnpm run test:local-fork-runner` with `8/8` passing tests for CLI parsing, live-network refusal, proof ordering, retry/failure handling, artifact-directory creation, inventory accounting, deterministic fixture values, and structured gap classification.
+
+### Fixed
+- **Governance Activation Keeps Advancing Past A Stale Pending Boundary:** Local-fork governance mining now advances two blocks past the initial snapshot boundary and mines another block whenever the fork still reports `Pending`, instead of waiting indefinitely after a one-block advance. The focused governance helper suite passes `4/4`.
+- **Safe-Read Inputs And Reader Authorization Are Deterministic:** Exhaustive read probes now use the repository's `read-only` role, generate a valid `10000` basis-point beneficiary share, and classify known missing campaign/proposal/rights/fingerprint/schedule records as `needs fixture` rather than generic proof failures.
 
 ### Verified
 - **Surface, Fixture, And HTTP Write Proofs Stayed Green:** Re-ran code generation and `pnpm run coverage:check` at `492` wrapper functions, `218` wrapper events, and `492` validated HTTP methods. Fixture setup completed `ready` with funded actors, buyer USDC balance/allowance, role/governance readiness, and a purchase-ready aged listing; the HTTP contract suite passed `18/18` both in isolation and inside the final orchestrated attempt.
 - **Most Persistent Domain Proofs Completed:** The local fork persisted `proven working` artifacts for core Layer 1 domains (`8` domains / `30` routes / `36` evidence records), completion reads (`1` / `5` / `7`), remaining dataset/licensing/WhisperBlock domains (`3` / `36` / `36`), and marketplace purchase settlement (`1` / `5` / `5`). The exhaustive read/event probe attempted `446/446` reviewed routes and produced `416` successful responses, `25` `needs fixture` gaps, and `5` proof gaps.
+- **Governance Boundary Fix Is Proven On A Fresh Fork:** A bounded governance stage submitted proposal `40` in tx `0x8902d995109a44aa58802b067a1ff50818782bbf9e175b99bb7d6a026911b1e1`, activated it at block `45052563` after snapshot `45052561`, and cast a vote in tx `0xaddb425f50c4a4dfa0834c7fe3eb39e1fa65e997fef5428fdc9d3621adef2143`; the artifact now reports `summary: "proven working"` with `3` evidence records.
+- **Non-Network Gates Pass:** `pnpm exec tsc -p tsconfig.json --noEmit` passed, and `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 
 ### Remaining Issues
-- **Local-Fork Workstream Is Not Merge-Ready:** Governance proposal `43` was submitted successfully in tx `0xb0212dc3ceabdf50a6b47cfc28eb1b148d61f71a3831ca9077b3f29dc8fcfb54`, but remained Pending at block `45010227` after snapshot block `45010226`. The governance artifact is `blocked by setup/state`, and disk-heavy fork mining exhausted the host before the aggregate report rewrite. The branch must not merge until governance activation, remaining fixture/probe gaps, final report persistence, and the complete quality/coverage gate are green.
+- **Local-Fork Workstream Is Still Not Merge-Ready:** The governance blocker is fixed, but the proof reduced host free space to roughly `169 MiB`; the complete orchestrator, refreshed aggregate report, and exhaustive read probe were therefore not rerun. Remaining protocol fixtures still need provisioning and the repository still has no `eslint.config.*`, so `pnpm exec eslint .` exits `2`; per the strict quality-gate order, the build was not run after lint failed. Do not merge until disk is recovered, the full runner persists a fresh aggregate report, fixture-backed reads are re-proven, and lint/build are green.
 
 ## [0.1.253] - 2026-08-03
 

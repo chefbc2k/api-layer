@@ -78,6 +78,9 @@ function scalarFixtureValue(input: AbiInput, fixture: LocalForkFixture, blockNum
     return "0x";
   }
   if (input.type.startsWith("uint") || input.type.startsWith("int")) {
+    if (name === "sharePercentage") {
+      return "10000";
+    }
     if (name === "tokenId") {
       return fixture.marketplace?.agedListingFixture?.tokenId ?? "0";
     }
@@ -97,6 +100,18 @@ function scalarFixtureValue(input: AbiInput, fixture: LocalForkFixture, blockNum
     return "0";
   }
   return "0";
+}
+
+export function classifySafeReadGap(status: number, payload: unknown): "needs fixture" | "proof gap" {
+  const responseText = JSON.stringify(payload);
+  if (
+    status === 404 ||
+    status === 409 ||
+    /(?:NotFound|NoScheduleFound|NotRegistered|ProposalExpired|ARRAY_RANGE_ERROR)/u.test(responseText)
+  ) {
+    return "needs fixture";
+  }
+  return "proof gap";
 }
 
 export function fixtureValue(input: AbiInput, fixture: LocalForkFixture, blockNumber: number, timestamp: number): unknown {
