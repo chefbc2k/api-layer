@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.254] - 2026-08-04
+
+### Changed
+- **Actor Negative-Path Evidence Refreshed:** Regenerated the persisted actor/signer report without changing its assurance totals: all `259` mounted writes across `13` domains still produce `1,813` actor/method cases, `777` API-boundary cases, and `3,171` stale/revoked/expired or actor-ownership mismatch cases.
+
+### Verified
+- **Actor And API Gates Stayed Green:** `pnpm run test:actor-negative-paths` passed `100/100` focused tests, `pnpm test` passed all `1,279` active tests across `130` files with `18` gated contract-integration tests skipped, and `pnpm run coverage:check` retained `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **TypeScript Stayed Green:** `pnpm exec tsc -p tsconfig.json --noEmit` passed.
+
+### Remaining Issues
+- **Refresh Is Not Mergeable Yet:** The strict quality-gate lint fallback, `npx eslint .`, cannot run because the repository has neither a lint script nor an ESLint configuration. The refreshed artifacts and evidence remain on `codex/actor-negative-paths` until lint policy is configured or explicitly declared out of scope and the complete typecheck/lint/build sequence is green.
+
 ## [0.1.253] - 2026-08-03
 
 ### Added
