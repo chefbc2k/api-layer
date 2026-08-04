@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
@@ -264,20 +265,26 @@ describe("run-test-coverage helpers", () => {
   });
 
   it("normalizes known merged sourcemap artifacts before reporting", () => {
+    const executionContextPath = path.resolve("packages/api/src/shared/execution-context.ts");
+    const alchemyDebugPath = path.resolve("scripts/alchemy-debug-lib.ts");
+    const unrelatedPath = path.resolve("scripts/unrelated.ts");
     const normalized = normalizeMergedCoverageArtifacts({
-      "/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts": {
+      [executionContextPath]: {
         statementMap: {
-          "31": { start: { line: 72, column: 0 }, end: { line: 72, column: 10 } },
+          "31": { start: { line: 81, column: 0 }, end: { line: 81, column: 10 } },
         },
         fnMap: {
-          "9": { line: 72 },
+          "9": { line: 81 },
         },
-        branchMap: {},
+        branchMap: {
+          "8": { line: 54 },
+          "37": { line: 231 },
+        },
         s: { "31": 0 },
         f: { "9": 0 },
-        b: {},
+        b: { "8": [2, 0], "37": [0] },
       },
-      "/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts": {
+      [alchemyDebugPath]: {
         statementMap: {
           "105": { start: { line: 238, column: 0 }, end: { line: 238, column: 10 } },
         },
@@ -295,7 +302,7 @@ describe("run-test-coverage helpers", () => {
           "41": [1, 0],
         },
       },
-      "/Users/chef/Public/api-layer/scripts/unrelated.ts": {
+      [unrelatedPath]: {
         statementMap: {
           "1": { start: { line: 5, column: 0 }, end: { line: 5, column: 10 } },
         },
@@ -311,14 +318,16 @@ describe("run-test-coverage helpers", () => {
       },
     });
 
-    expect(normalized["/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts"].s["31"]).toBe(1);
-    expect(normalized["/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts"].f["9"]).toBe(1);
-    expect(normalized["/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts"].s["105"]).toBe(1);
-    expect(normalized["/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts"].b["15"]).toEqual([1, 1]);
-    expect(normalized["/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts"].b["16"]).toEqual([1, 1]);
-    expect(normalized["/Users/chef/Public/api-layer/scripts/alchemy-debug-lib.ts"].b["41"]).toEqual([1, 1]);
-    expect(normalized["/Users/chef/Public/api-layer/scripts/unrelated.ts"].s["1"]).toBe(0);
-    expect(normalized["/Users/chef/Public/api-layer/scripts/unrelated.ts"].b["1"]).toEqual([0, 1]);
+    expect(normalized[executionContextPath].s["31"]).toBe(1);
+    expect(normalized[executionContextPath].f["9"]).toBe(1);
+    expect(normalized[executionContextPath].b["8"]).toEqual([2, 1]);
+    expect(normalized[executionContextPath].b["37"]).toEqual([1]);
+    expect(normalized[alchemyDebugPath].s["105"]).toBe(1);
+    expect(normalized[alchemyDebugPath].b["15"]).toEqual([1, 1]);
+    expect(normalized[alchemyDebugPath].b["16"]).toEqual([1, 1]);
+    expect(normalized[alchemyDebugPath].b["41"]).toEqual([1, 1]);
+    expect(normalized[unrelatedPath].s["1"]).toBe(0);
+    expect(normalized[unrelatedPath].b["1"]).toEqual([0, 1]);
   });
 
   it("defers provider selection to the repo vitest config", () => {

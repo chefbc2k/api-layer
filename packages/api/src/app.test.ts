@@ -1,8 +1,14 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createApiServer } from "./app.js";
 
 const originalEnv = { ...process.env };
+
+beforeEach(() => {
+  process.env.RPC_URL = "http://127.0.0.1:8545";
+  process.env.ALCHEMY_RPC_URL = "http://127.0.0.1:8545";
+  process.env.DIAMOND_ADDRESS = "0x0000000000000000000000000000000000000001";
+});
 
 async function startServer(options: Parameters<typeof createApiServer>[0] = {}) {
   const server = createApiServer(options).listen();
@@ -104,6 +110,52 @@ describe("createApiServer", () => {
       });
       expect(status).toBe(400);
       expect(payload).toMatchObject({ error: expect.stringContaining("does not allow gaslessMode") });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("rejects unknown API keys on write endpoints before execution", async () => {
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "founder-key": { label: "founder", signerId: "founder", roles: ["founder"], allowGasless: false },
+    });
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const { status, payload } = await apiCall(port, "/v1/tokenomics/commands/approve", {
+        method: "POST",
+        headers: { "x-api-key": "unknown-key" },
+        body: JSON.stringify({
+          spender: "0x0000000000000000000000000000000000000001",
+          amount: "5",
+        }),
+      });
+      expect(status).toBe(401);
+      expect(payload).toEqual({ error: "invalid x-api-key" });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("rejects read-only API keys on write endpoints without touching an RPC provider", async () => {
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "read-only-key": { label: "read-only", signerId: "reader", roles: ["read-only"], allowGasless: false },
+    });
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const { status, payload } = await apiCall(port, "/v1/tokenomics/commands/approve", {
+        method: "POST",
+        headers: { "x-api-key": "read-only-key" },
+        body: JSON.stringify({
+          spender: "0x0000000000000000000000000000000000000001",
+          amount: "5",
+        }),
+      });
+      expect(status).toBe(403);
+      expect(payload).toEqual({ error: "API key not permitted for write execution" });
     } finally {
       await closeServer(server);
     }

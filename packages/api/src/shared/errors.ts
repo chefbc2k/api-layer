@@ -23,7 +23,7 @@ export function toHttpError(error: unknown): HttpError {
   if (lower.includes("missing x-api-key") || lower.includes("invalid x-api-key")) {
     return new HttpError(401, message, diagnostics);
   }
-  if (message.includes("API key not permitted")) {
+  if (lower.includes("api key not permitted")) {
     return new HttpError(403, message, diagnostics);
   }
   if (lower.includes("rate limit exceeded")) {

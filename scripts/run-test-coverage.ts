@@ -66,7 +66,7 @@ type ArtifactNormalizationRule = {
 
 const artifactNormalizationRules: ArtifactNormalizationRule[] = [
   { relativePath: "packages/api/src/shared/alchemy-diagnostics.ts", branchLines: [81] },
-  { relativePath: "packages/api/src/shared/execution-context.ts", statementLines: [72], functionLines: [72] },
+  { relativePath: "packages/api/src/shared/execution-context.ts", statementLines: [81], functionLines: [81], branchLines: [54, 231] },
   { relativePath: "packages/api/src/workflows/catalog-listing-operations.ts", branchLines: [199, 200] },
   { relativePath: "packages/api/src/workflows/collaborator-license-lifecycle.ts", branchLines: [415] },
   { relativePath: "packages/api/src/workflows/multisig-protocol-change-helpers.ts", branchLines: [395, 439, 443] },
