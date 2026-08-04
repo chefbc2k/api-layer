@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.255] - 2026-08-04
+
+### Verified
+- **Red-Team Harness Revalidated On A Real Loopback Fork:** Re-ran `pnpm run test:redteam` (`103/103`) and `pnpm run redteam:local-fork` (`135/135` across `9` files). All `5/5` real fork probes passed, including signed-transaction replay/value conservation, malformed diamond calldata, malicious initializer/selector collision, emergency/timelock privilege abuse, and stale RPC detection; the fork gate also kept the emergency, timelock, multisig, and indexer replay/reorg workflows green.
+- **Coverage And Static Gates Remain Green:** Re-ran `pnpm run coverage:check`, `pnpm run test:coverage`, `pnpm exec tsc -p tsconfig.json --noEmit`, and `pnpm run lint`. Coverage inventory remains complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured repo coverage remains `99.98%` statements, `99.95%` branches, `99.92%` functions, and `100%` lines.
+
+### Remaining Issues
+- **Red-Team Merge Is Still Blocked By The Existing API Build Backlog:** `pnpm run build` again completed codegen plus the client and indexer builds, then failed in `@uspeaks/api` on the already-recorded duplicate generated event declarations, unrelated package-level test/source typing debt, and CommonJS `import.meta` mismatch. No partial merge was attempted; `codex/red-team-harness` remains the complete, verified holding branch until the API package build is repaired and all gates can pass together.
+
 ## [0.1.254] - 2026-08-03
 
 ### Added
