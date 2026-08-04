@@ -2,6 +2,14 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.254] - 2026-08-05
+
+### Verified
+- **Write-Invariant Coverage Remains Complete:** Revalidated the merged invariant catalog against the current local `master` ABI. `pnpm run test:write-invariants` passed `5/5`; `pnpm run build:write-invariants` and full `pnpm run codegen` regenerated the registry without drift; TypeScript validation passed; and `pnpm run coverage:check` remained green at `260/260` ABI writes, `492` wrapper functions, `218` events, and `492` HTTP methods. No stale, missing, signature-drifted, or invalid-reference metadata was found.
+
+### Remaining Issues
+- **Repository-Wide Merge Gate Remains Blocked Outside The Invariant Workstream:** The local `master` baseline has no lint script, ESLint dependency, or ESLint configuration, so the required lint stage cannot start. Candidate lint/client/indexer repairs exist on a separate unmerged automation branch, which still records an `@uspeaks/api` build backlog. The 2026-08-05 documentation refresh remains unmerged pending those fixes landing on `master` and a clean rerun of TypeScript, lint, build, invariant, and coverage gates.
+
 ## [0.1.253] - 2026-08-03
 
 ### Added

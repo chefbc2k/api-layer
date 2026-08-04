@@ -156,7 +156,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
 | ABI-driven gap report | Complete (2026-08-03) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
-| Write-method invariant metadata | Complete (2026-08-03) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), and green `pnpm run coverage:check` |
+| Write-method invariant metadata | Complete; revalidated 2026-08-05 | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), and green `pnpm run coverage:check`; documentation refresh held from merge while the master baseline's repo-wide lint/build gates remain blocked |
 | Actor and signer negative paths | Complete (2026-08-03) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
@@ -188,6 +188,13 @@ Verification evidence:
 - `pnpm run test:write-invariants`: `5/5` focused generator and validation tests passed, including a repository-level `260/260` current-ABI assertion.
 - `pnpm run codegen`: regenerated all ABI/API artifacts and proved `260/260` invariant coverage during both registry generation and the final coverage gate.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
+
+2026-08-05 revalidation and merge status:
+
+- The dedicated `codex/write-invariant-metadata` worktree was fast-forwarded to local `master`; the implementation remains merged through `a2820f0` with no ABI or invariant-registry drift.
+- `pnpm run test:write-invariants` passed `5/5`; `pnpm run build:write-invariants`, full `pnpm run codegen`, and `pnpm run coverage:check` passed at `260/260` ABI writes, `492` wrapper functions, `218` events, and `492` HTTP methods; `pnpm exec tsc -p tsconfig.json --noEmit` also passed. The generated invariant registry remained byte-for-byte clean.
+- The repo-wide quality sequence remains blocked outside this workstream. The local `master` baseline has no lint script, ESLint dependency, or ESLint configuration, so the required `pnpm exec eslint .` step cannot start. A sibling unmerged branch contains candidate lint/client/indexer repairs, but importing that mixed workstream here would not address its remaining `@uspeaks/api` build backlog.
+- Do not merge the 2026-08-05 documentation refresh until the lint and full-build fixes land on `master`. Then fast-forward or rebase this branch and rerun TypeScript, lint, full build, `pnpm run test:write-invariants`, `pnpm run build:write-invariants`, and `pnpm run coverage:check`; no invariant metadata changes are currently required.
 
 ### Actor And Signer Negative-Path Evidence
 
