@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.254] - 2026-08-04
+
+### Changed
+- **ABI Gap Evidence Was Refreshed Against The Current Master Baseline:** Regenerated [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md) after the invariant and actor/signer workstreams merged. Inventory and gap classifications remain stable at `33` facets, `492` functions, `218` event occurrences, `223` ready, `223` needs fixture, `51` unsafe on live network, and `213` needs indexer proof.
+- **Three Methods Gained Adversarial Evidence:** Red-team-attributed proof increased from `8` to `11` items because current tests now directly support `MultiSigFacet.execute`, `OwnershipFacet.owner`, and `TimelockFacet.execute`.
+
+### Verified
+- **Section-Specific Gates Passed:** `pnpm run test:gap-report` passed `4/4` tests, `pnpm run report:test-gaps` regenerated both committed artifacts, `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants, and `pnpm exec tsc -p tsconfig.json --noEmit` completed successfully.
+
+### Remaining Issues
+- **Artifact Refresh Is Held Off Master:** `pnpm run build` still fails in `@uspeaks/api-client` because the test-only `TestFacet` is outside the generated facet-name union and a nullable block tag is passed to `ethers`; the repo also has no runnable ESLint configuration. The refresh remains on `codex/abi-gap-report` until those broader quality-gate issues are repaired or formally scoped.
+
 ## [0.1.253] - 2026-08-03
 
 ### Added
