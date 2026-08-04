@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { authenticate, loadApiKeys } from "./auth.js";
+import { assertWriteAuthorized, authenticate, loadApiKeys } from "./auth.js";
 
 describe("auth", () => {
   it("returns an empty api key map when the environment is unset", () => {
@@ -13,6 +13,7 @@ describe("auth", () => {
         "founder-key": {
           label: "founder",
           signerId: "founder",
+          walletAddress: "0x00000000000000000000000000000000000000aa",
         },
         "reader-key": {
           label: "reader",
@@ -27,6 +28,7 @@ describe("auth", () => {
         apiKey: "founder-key",
         label: "founder",
         signerId: "founder",
+        walletAddress: "0x00000000000000000000000000000000000000aa",
         allowGasless: false,
         roles: ["service"],
       },
@@ -69,5 +71,41 @@ describe("auth", () => {
     };
 
     expect(authenticate({ "founder-key": context }, "founder-key")).toBe(context);
+  });
+
+  it.each([
+    "service",
+    "founder",
+    "admin",
+    "operator",
+    "buyer",
+    "seller",
+    "licensee",
+    "collaborator",
+  ])("allows the %s API role to reach contract write preflight", (role) => {
+    expect(() => assertWriteAuthorized({
+      apiKey: `${role}-key`,
+      label: role,
+      allowGasless: false,
+      roles: [role.toUpperCase()],
+    })).not.toThrow();
+  });
+
+  it.each(["read-only", "reader", "auditor"])("rejects the non-writing %s API role", (role) => {
+    expect(() => assertWriteAuthorized({
+      apiKey: `${role}-key`,
+      label: role,
+      allowGasless: false,
+      roles: [role],
+    })).toThrow("API key not permitted for write execution");
+  });
+
+  it("rejects keys with no write-capable role even when role values are blank", () => {
+    expect(() => assertWriteAuthorized({
+      apiKey: "empty-key",
+      label: "empty",
+      allowGasless: false,
+      roles: ["  "],
+    })).toThrow("API key not permitted for write execution");
   });
 });

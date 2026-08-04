@@ -3,7 +3,7 @@ import path from "node:path";
 import { ethers } from "ethers";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const scriptPath = path.resolve("/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts");
+const scriptPath = path.resolve("scripts/base-sepolia-operator-setup.ts");
 
 const appMocks = vi.hoisted(() => ({
   createApiServer: vi.fn(),

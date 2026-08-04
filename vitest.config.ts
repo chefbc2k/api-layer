@@ -37,6 +37,8 @@ export default defineConfig({
         "scripts/show-validated-baseline.ts",
         "scripts/sync-*.ts",
         "scripts/verify-*.ts",
+        "scripts/write-invariants-lib.ts",
+        "scripts/actor-negative-paths-lib.ts",
       ],
       excludeAfterRemap: true,
     },

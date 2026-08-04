@@ -3,6 +3,7 @@ import { z } from "zod";
 const apiKeyRecordSchema = z.object({
   label: z.string(),
   signerId: z.string().optional(),
+  walletAddress: z.string().optional(),
   allowGasless: z.boolean().default(false),
   roles: z.array(z.string()).default(["service"]),
 });
@@ -33,4 +34,22 @@ export function authenticate(apiKeys: Record<string, AuthContext>, apiKey: strin
     throw new Error("invalid x-api-key");
   }
   return context;
+}
+
+const writeCapableRoles = new Set([
+  "service",
+  "founder",
+  "admin",
+  "operator",
+  "buyer",
+  "seller",
+  "licensee",
+  "collaborator",
+]);
+
+export function assertWriteAuthorized(auth: AuthContext): void {
+  const roles = auth.roles.map((role) => role.trim().toLowerCase());
+  if (!roles.some((role) => writeCapableRoles.has(role))) {
+    throw new Error("API key not permitted for write execution");
+  }
 }

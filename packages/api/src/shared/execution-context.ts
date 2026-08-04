@@ -14,7 +14,7 @@ import {
   traceCallWithAlchemy,
   traceTransactionWithAlchemy,
 } from "./alchemy-diagnostics.js";
-import { loadApiKeys } from "./auth.js";
+import { assertWriteAuthorized, loadApiKeys } from "./auth.js";
 import { submitSmartWalletCall } from "./cdp-smart-wallet.js";
 import { RateLimiter } from "./rate-limit.js";
 import type { ApiRequestOptions, EventInvocationRequest, HttpEventDefinition, HttpMethodDefinition, PrimitiveInvocationRequest, RouteResult } from "./route-types.js";
@@ -79,8 +79,21 @@ async function signerRunnerFor(
     return cached;
   }
   const signer = new Wallet(privateKey, provider);
+  if (auth.walletAddress && signer.address.toLowerCase() !== auth.walletAddress.toLowerCase()) {
+    throw new Error("API key not permitted: configured walletAddress does not match signerId");
+  }
   context.signerRunners.set(cacheKey, signer);
   return signer;
+}
+
+function assertRequestedWalletMatchesSigner(
+  auth: AuthContext,
+  signerAddress: string,
+  walletAddress: string | undefined,
+): void {
+  if (walletAddress && signerAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+    throw new Error(`API key not permitted: signerId ${auth.signerId ?? "<none>"} does not match x-wallet-address`);
+  }
 }
 
 function requireSignerId(auth: AuthContext, definitionKey: string): string {
@@ -167,6 +180,7 @@ export const __testOnly = {
   formatCanonicalAbiType,
   canonicalMethodSignature,
   resolveContractMethod,
+  assertRequestedWalletMatchesSigner,
 };
 
 function parseGaslessAllowlist(): Set<string> {
@@ -322,19 +336,22 @@ async function staticCallPreview(
   runtimeArgs: unknown[],
   auth: AuthContext,
   walletAddress?: string,
+  enforceSignerBinding = false,
 ): Promise<unknown> {
-  if (definition.outputs.length === 0) {
-    return null;
-  }
   return context.providerRouter.withProvider("read", `${definition.key}.preview`, async (provider: Provider, providerName) => {
-    const runner = await signerRunnerFor(context, auth, provider, providerName) ?? (walletAddress ? new VoidSigner(walletAddress, provider) : provider);
+    const signer = await signerRunnerFor(context, auth, provider, providerName);
+    if (enforceSignerBinding && signer) {
+      assertRequestedWalletMatchesSigner(auth, await signer.getAddress(), walletAddress);
+    }
+    const runner = signer ?? (walletAddress ? new VoidSigner(walletAddress, provider) : provider);
     const contract = new (await import("ethers")).Contract(
       context.addressBook.resolveFacetAddress(definition.facetName),
       facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
       runner,
     );
     const method = resolveContractMethod(contract, definition);
-    return method.staticCall(...runtimeArgs);
+    const result = await method.staticCall(...runtimeArgs);
+    return definition.outputs.length > 0 ? result : null;
   });
 }
 
@@ -481,6 +498,11 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
     throw new Error(`${definition.key} does not allow gaslessMode=${request.api.gaslessMode}`);
   }
 
+  const isWrite = definition.mutability !== "view" && definition.mutability !== "pure" && definition.rateLimitKind !== "read";
+  if (isWrite) {
+    assertWriteAuthorized(request.auth);
+  }
+
   const runtimeArgs = decodeParamsFromWire(definition, request.wireParams);
   if (definition.mutability === "view" || definition.mutability === "pure" || definition.rateLimitKind === "read") {
     const result = await invokeRead(
@@ -529,7 +551,14 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
 
   let preview: unknown;
   try {
-    preview = await staticCallPreview(context, definition, runtimeArgs, request.auth, request.walletAddress);
+    preview = await staticCallPreview(
+      context,
+      definition,
+      runtimeArgs,
+      request.auth,
+      request.walletAddress,
+      request.api.gaslessMode === "none",
+    );
   } catch (error) {
     const prepared = request.auth.signerId
       ? await prepareWriteInvocation(context, definition, runtimeArgs, request.auth).catch(() => null)
