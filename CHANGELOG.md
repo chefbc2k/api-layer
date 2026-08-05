@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.255] - 2026-08-05
+
+### Changed
+- **ABI Gap Evidence Was Revalidated Without Classification Drift:** Regenerated [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md). The inventory remains stable at `33` facets, `492` functions, `218` event occurrences, `223` ready, `223` needs fixture, `51` unsafe on live network, and `213` needs indexer proof.
+- **Quality-Gate Blockers Were Narrowed To The API Package:** Added the missing flat ESLint configuration, aligned client invoke tests with a generated facet key, normalized null block bounds for `ethers`, and corrected stale indexer test types. The client and indexer package builds now pass.
+
+### Verified
+- **Section Evidence Remains Green:** `pnpm run test:gap-report` passed `4/4` tests, `pnpm run report:test-gaps` regenerated both artifacts, and `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Focused And Static Gates Passed:** Client/indexer blocker regressions passed `28/28` tests; `pnpm exec tsc -p tsconfig.json --noEmit` and `pnpm run lint` both passed.
+
+### Remaining Issues
+- **Refresh Remains Held Off Master:** `pnpm run build` now completes codegen plus the client and indexer builds, but `@uspeaks/api` remains red on pre-existing duplicate TypeChain event declarations, broad package source/test typing debt, and the CommonJS `import.meta` mismatch inherited through `scripts/utils.ts`. The work remains on `codex/abi-gap-report` until the full build is green.
+
 ## [0.1.254] - 2026-08-04
 
 ### Changed
