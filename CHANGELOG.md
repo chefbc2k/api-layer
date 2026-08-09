@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.258] - 2026-08-09
+
+### Changed
+- **Actor Negative-Path Evidence Is Current:** Regenerated the persisted actor/signer report with no coverage drift: all `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch API-boundary cases, and `3,171` stale/revoked/expired or ownership-role lifecycle cases.
+
+### Verified
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100` focused tests, and `pnpm test` passed all `1,279` active tests across `130` files with `18` gated contract-integration tests explicitly skipped.
+- **All Merge Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, `pnpm run build`, `pnpm run coverage:check`, and `pnpm run test:coverage` passed. Surface coverage remains complete at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` ABI write invariants; measured coverage is `100%` statements, functions, and lines with `99.97%` branches.
+
 ## [0.1.257] - 2026-08-09
 
 ### Verified

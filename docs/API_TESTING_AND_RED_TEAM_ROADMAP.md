@@ -157,7 +157,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | --- | --- | --- |
 | ABI-driven gap report | Complete and verified (2026-08-09) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
 | Write-method invariant metadata | Complete and verified (2026-08-09) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
-| Actor and signer negative paths | Complete (2026-08-03) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
+| Actor and signer negative paths | Complete and verified (2026-08-09) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
 | Local-fork destructive automation | Pending | deterministic local-fork runner, fixture setup, structured report output, and safe default flags |
@@ -214,9 +214,9 @@ Verification evidence:
 - `pnpm run test:actor-negative-paths`: `100/100` focused auth, API-boundary, execution-context, and report tests passed, including the exhaustive `1,813` actor/method preflight matrix.
 - `pnpm test`: `1,279/1,279` active tests passed across `130` files; `18` gated contract-integration tests remained explicitly skipped.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
-- `pnpm run test:coverage`: repo-wide measured coverage passed at `100%` statements, branches, functions, and lines.
-- `pnpm exec tsc -p tsconfig.json --noEmit`: TypeScript validation passed.
-- `pnpm exec tsc -p tsconfig.json --noEmit`: focused repository TypeScript validation passed.
+- `pnpm run test:coverage`: repo-wide measured coverage passed at `100%` statements, functions, and lines with `99.97%` branches.
+- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: TypeScript, lint, codegen, and all client/indexer/API production builds passed on 2026-08-09.
+- The 2026-08-09 revalidation regenerated the actor report without semantic drift and confirmed that no actor/signer negative-path blocker remains.
 
 ## Definition Of Done
 
