@@ -11,5 +11,9 @@
     "src/**/*.ts",
     "../client/src/**/*.ts",
     "../../generated/**/*.json"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.integration.test.ts"
   ]
 }

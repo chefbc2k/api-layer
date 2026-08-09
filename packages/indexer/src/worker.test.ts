@@ -324,11 +324,9 @@ describe("EventIndexer", () => {
 
   it("waits between realtime backfill iterations using the configured poll interval", async () => {
     process.env.API_LAYER_INDEXER_POLL_INTERVAL_MS = "1234";
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: TimerHandler) => {
-      if (typeof callback === "function") {
-        callback();
-      }
-      return 0 as ReturnType<typeof setTimeout>;
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: () => void) => {
+      callback();
+      return 0 as unknown as ReturnType<typeof setTimeout>;
     }) as typeof setTimeout);
     const backfill = vi.spyOn(EventIndexer.prototype, "backfill")
       .mockResolvedValueOnce(undefined)

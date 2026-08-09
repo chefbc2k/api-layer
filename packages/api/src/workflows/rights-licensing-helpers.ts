@@ -118,7 +118,7 @@ export function collaboratorReadMatches(
   return false;
 }
 
-export function normalizeEventLogs(value: unknown[] | RouteResult): unknown[] {
+export function normalizeEventLogs(value: unknown): unknown[] {
   if (Array.isArray(value)) {
     return value;
   }

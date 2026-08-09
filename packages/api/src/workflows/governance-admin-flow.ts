@@ -18,6 +18,8 @@ export const governanceAdminFlowWorkflowSchema = z.object({
   }).optional(),
 });
 
+type VoteWorkflowResult = Awaited<ReturnType<typeof runVoteOnProposalWorkflow>>;
+
 export async function runGovernanceAdminFlowWorkflow(
   context: ApiExecutionContext,
   auth: AuthContext,
@@ -35,7 +37,7 @@ export async function runGovernanceAdminFlowWorkflow(
     throw new Error("governance-admin-flow requires confirmed proposal readback");
   }
 
-  let voteResult: Awaited<ReturnType<typeof runVoteOnProposalWorkflow>> | null = null;
+  let voteResult: VoteWorkflowResult | null = null;
   if (body.vote) {
     const earliestVotingBlock = parseBigInt(proposalResult.votingWindow.earliestVotingBlock);
     const currentBlock = parseBigInt(proposalResult.votingWindow.currentBlock);
@@ -73,9 +75,9 @@ export async function runGovernanceAdminFlowWorkflow(
   }
 
   let vote: {
-    proposalWindow: typeof voteResult.proposalWindow;
-    result: typeof voteResult.vote;
-    summary: typeof voteResult.summary;
+    proposalWindow: VoteWorkflowResult["proposalWindow"];
+    result: VoteWorkflowResult["vote"];
+    summary: VoteWorkflowResult["summary"];
   } | null = null;
   if (voteResult) {
     vote = {

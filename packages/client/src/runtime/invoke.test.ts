@@ -28,7 +28,7 @@ vi.mock("ethers", async () => {
 
 vi.mock("../generated/registry.js", () => ({
   facetRegistry: {
-    TestFacet: {
+    AccessControlFacet: {
       abi: [
         "function readValue(uint256 value) view returns (uint256)",
         "function writeValue(uint256 value) returns (uint256)",
@@ -55,10 +55,10 @@ describe("invoke runtime helpers", () => {
       providerRouter,
       cache,
       addressBook: { resolveFacetAddress: vi.fn() },
-    } as never, "TestFacet", "readValue", [1], false, 60);
+    } as never, "AccessControlFacet", "readValue", [1], false, 60);
 
     expect(result).toBe("cached");
-    expect(cache.get).toHaveBeenCalledWith("TestFacet:readValue:[1]");
+    expect(cache.get).toHaveBeenCalledWith("AccessControlFacet:readValue:[1]");
     expect(providerRouter.withProvider).not.toHaveBeenCalled();
   });
 
@@ -79,14 +79,14 @@ describe("invoke runtime helpers", () => {
       cache,
       addressBook,
       signerFactory,
-    } as never, "TestFacet", "readValue", [7n], false, 120);
+    } as never, "AccessControlFacet", "readValue", [7n], false, 120);
 
     expect(result).toBe("fresh");
-    expect(providerRouter.withProvider).toHaveBeenCalledWith("read", "TestFacet.readValue", expect.any(Function));
+    expect(providerRouter.withProvider).toHaveBeenCalledWith("read", "AccessControlFacet.readValue", expect.any(Function));
     expect(signerFactory).toHaveBeenCalledWith(provider);
-    expect(addressBook.resolveFacetAddress).toHaveBeenCalledWith("TestFacet");
+    expect(addressBook.resolveFacetAddress).toHaveBeenCalledWith("AccessControlFacet");
     expect(mocks.contractCalls).toEqual([{ args: [7n], runner: signer }]);
-    expect(cache.set).toHaveBeenCalledWith("TestFacet:readValue:[\"7\"]", "fresh", 120);
+    expect(cache.set).toHaveBeenCalledWith("AccessControlFacet:readValue:[\"7\"]", "fresh", 120);
   });
 
   it("bypasses cache on live reads and uses the provider when no signer factory exists", async () => {
@@ -103,7 +103,7 @@ describe("invoke runtime helpers", () => {
       providerRouter,
       cache,
       addressBook,
-    } as never, "TestFacet", "readValue", [3], false, 60);
+    } as never, "AccessControlFacet", "readValue", [3], false, 60);
 
     expect(result).toBe("live");
     expect(cache.get).not.toHaveBeenCalled();
@@ -125,7 +125,7 @@ describe("invoke runtime helpers", () => {
       providerRouter,
       cache,
       addressBook,
-    } as never, "TestFacet", "readValue", [5], true, 60);
+    } as never, "AccessControlFacet", "readValue", [5], true, 60);
 
     expect(result).toBe("fresh-live-required");
     expect(cache.get).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe("invoke runtime helpers", () => {
       providerRouter,
       cache,
       addressBook,
-    } as never, "TestFacet", "readValue", [6], false, null);
+    } as never, "AccessControlFacet", "readValue", [6], false, null);
 
     expect(result).toBe("fresh-no-ttl");
     expect(cache.get).not.toHaveBeenCalled();
@@ -158,7 +158,7 @@ describe("invoke runtime helpers", () => {
   it("requires signerFactory for writes and forwards writes through the write provider", async () => {
     await expect(invokeWrite({
       providerRouter: { withProvider: vi.fn() },
-    } as never, "TestFacet", "writeValue", [1])).rejects.toThrow("requires signerFactory");
+    } as never, "AccessControlFacet", "writeValue", [1])).rejects.toThrow("requires signerFactory");
 
     const provider = { tag: "provider" };
     const signer = { tag: "writer" };
@@ -173,9 +173,9 @@ describe("invoke runtime helpers", () => {
       providerRouter,
       signerFactory,
       addressBook,
-    } as never, "TestFacet", "writeValue", [9])).resolves.toBe("written");
+    } as never, "AccessControlFacet", "writeValue", [9])).resolves.toBe("written");
 
-    expect(providerRouter.withProvider).toHaveBeenCalledWith("write", "TestFacet.writeValue", expect.any(Function));
+    expect(providerRouter.withProvider).toHaveBeenCalledWith("write", "AccessControlFacet.writeValue", expect.any(Function));
     expect(mocks.contractCalls).toEqual([{ args: [9], runner: signer }]);
   });
 
@@ -202,7 +202,7 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "ValueSet", 120n, 130n)).resolves.toEqual([log]);
+    } as never, "AccessControlFacet", "ValueSet", 120n, 130n)).resolves.toEqual([log]);
 
     expect(provider.getLogs).toHaveBeenCalledWith({
       address: "0x0000000000000000000000000000000000000001",
@@ -210,8 +210,8 @@ describe("invoke runtime helpers", () => {
       fromBlock: 120,
       toBlock: 130,
     });
-    expect(decodeLog("TestFacet", log)?.args.toObject()).toMatchObject({ value: 55n });
-    expect(decodeLog("TestFacet", { ...log, topics: ["0xdeadbeef"] } as unknown as Log)).toBeNull();
+    expect(decodeLog("AccessControlFacet", log)?.args.toObject()).toMatchObject({ value: 55n });
+    expect(decodeLog("AccessControlFacet", { ...log, topics: ["0xdeadbeef"] } as unknown as Log)).toBeNull();
   });
 
   it("supports latest-block event queries and surfaces unknown event lookups", async () => {
@@ -224,7 +224,7 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "ValueSet", undefined, "latest")).resolves.toEqual([]);
+    } as never, "AccessControlFacet", "ValueSet", undefined, "latest")).resolves.toEqual([]);
 
     expect(provider.getLogs).toHaveBeenCalledWith({
       address: "0x0000000000000000000000000000000000000001",
@@ -236,7 +236,7 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "MissingEvent")).rejects.toThrow();
+    } as never, "AccessControlFacet", "MissingEvent")).rejects.toThrow();
   });
 
   it("surfaces explicit unknown-event null fragments from the interface lookup", async () => {
@@ -250,7 +250,7 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "ValueSet")).rejects.toThrow("unknown event TestFacet.ValueSet");
+    } as never, "AccessControlFacet", "ValueSet")).rejects.toThrow("unknown event AccessControlFacet.ValueSet");
 
     expect(provider.getLogs).not.toHaveBeenCalled();
     getEventSpy.mockRestore();
@@ -261,7 +261,7 @@ describe("invoke runtime helpers", () => {
       throw new Error("bad log");
     });
 
-    expect(decodeLog("TestFacet", { topics: ["0xdeadbeef"] } as unknown as Log)).toBeNull();
+    expect(decodeLog("AccessControlFacet", { topics: ["0xdeadbeef"] } as unknown as Log)).toBeNull();
 
     parseLogSpy.mockRestore();
   });
@@ -276,7 +276,7 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "ValueSet", undefined, undefined)).resolves.toEqual([]);
+    } as never, "AccessControlFacet", "ValueSet", undefined, undefined)).resolves.toEqual([]);
 
     expect(provider.getLogs).toHaveBeenCalledWith({
       address: "0x0000000000000000000000000000000000000001",
@@ -296,13 +296,13 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "ValueSet", null as never, null as never)).resolves.toEqual([]);
+    } as never, "AccessControlFacet", "ValueSet", null as never, null as never)).resolves.toEqual([]);
 
     expect(provider.getLogs).toHaveBeenCalledWith({
       address: "0x0000000000000000000000000000000000000001",
       topics: [expect.any(String)],
       fromBlock: undefined,
-      toBlock: null,
+      toBlock: undefined,
     });
   });
 
@@ -316,7 +316,7 @@ describe("invoke runtime helpers", () => {
     await expect(queryEvent({
       providerRouter,
       addressBook,
-    } as never, "TestFacet", "ValueSet", undefined, 155n)).resolves.toEqual([]);
+    } as never, "AccessControlFacet", "ValueSet", undefined, 155n)).resolves.toEqual([]);
 
     expect(provider.getLogs).toHaveBeenCalledWith({
       address: "0x0000000000000000000000000000000000000001",
