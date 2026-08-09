@@ -278,6 +278,8 @@ export async function startLocalForkIfNeeded(
         String(port),
         "--chain-id",
         String(runtimeConfig.config.chainId),
+        "--prune-history",
+        "512",
         "--fork-url",
         runtimeConfig.config.cbdpRpcUrl,
       ],
