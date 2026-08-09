@@ -1,0 +1,395 @@
+import { spawn } from "node:child_process";
+import { mkdir, readFile, rm } from "node:fs/promises";
+import path from "node:path";
+
+import { fileExists, readJson, rootDir, writeJson } from "./utils.js";
+
+export type LocalForkCliOptions = {
+  outputPath: string;
+  allowLive: boolean;
+  allowLiveDestructive: boolean;
+  continueOnGap: boolean;
+};
+
+export type ProofStage = {
+  id: string;
+  description: string;
+  command: string;
+  args: string[];
+  destructive: boolean;
+  artifactPath?: string;
+  maxAttempts?: number;
+};
+
+export type CommandResult = {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+};
+
+export type StageResult = ProofStage & {
+  status: "passed" | "failed";
+  exitCode: number;
+  attemptCount: number;
+  stdoutTail: string;
+  stderrTail: string;
+  artifact: unknown | null;
+};
+
+export type StructuredGap = {
+  id: string;
+  classification: "runner failure" | "proof gap" | "needs fixture" | "unsafe on live network";
+  stageId: string | null;
+  methodKey: string | null;
+  route: string | null;
+  detail: string;
+};
+
+type ReviewedMethod = {
+  rateLimitKind?: "read" | "write";
+  classification?: string;
+};
+
+type ReviewedSurface = {
+  methods?: Record<string, ReviewedMethod>;
+  events?: Record<string, unknown>;
+};
+
+type SafeReadArtifact = {
+  gaps?: Array<{
+    methodKey?: string;
+    route?: string;
+    classification?: string;
+    detail?: string;
+  }>;
+};
+
+const DEFAULT_OUTPUT_PATH = path.join(".runtime", "local-fork-assurance-report.json");
+const PROOF_DIR = path.join(".runtime", "local-fork-proofs");
+
+function isLoopbackRpcUrl(rpcUrl: string): boolean {
+  try {
+    const hostname = new URL(rpcUrl).hostname;
+    return hostname === "127.0.0.1" || hostname === "localhost";
+  } catch {
+    return rpcUrl.includes("127.0.0.1") || rpcUrl.includes("localhost");
+  }
+}
+
+function optionValue(argv: string[], flag: string): string | null {
+  const index = argv.indexOf(flag);
+  if (index < 0) {
+    return null;
+  }
+  const value = argv[index + 1];
+  if (!value || value.startsWith("--")) {
+    throw new Error(`${flag} requires a value`);
+  }
+  return value;
+}
+
+export function parseLocalForkCliOptions(argv: string[]): LocalForkCliOptions {
+  const knownFlags = new Set([
+    "--",
+    "--output",
+    "--allow-live",
+    "--allow-live-destructive",
+    "--continue-on-gap",
+  ]);
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (!arg.startsWith("--")) {
+      continue;
+    }
+    if (!knownFlags.has(arg)) {
+      throw new Error(`unknown option ${arg}`);
+    }
+    if (arg === "--output") {
+      index += 1;
+    }
+  }
+
+  return {
+    outputPath: optionValue(argv, "--output") ?? DEFAULT_OUTPUT_PATH,
+    allowLive: argv.includes("--allow-live"),
+    allowLiveDestructive: argv.includes("--allow-live-destructive"),
+    continueOnGap: argv.includes("--continue-on-gap"),
+  };
+}
+
+export function assertRunnerSafety(
+  rpcUrl: string,
+  options: Pick<LocalForkCliOptions, "allowLive" | "allowLiveDestructive">,
+  stages: ProofStage[],
+): "local-fork" | "live" {
+  if (isLoopbackRpcUrl(rpcUrl)) {
+    return "local-fork";
+  }
+  if (!options.allowLive) {
+    throw new Error(
+      `refusing non-loopback RPC ${rpcUrl}; pass --allow-live to acknowledge a live-network proof run`,
+    );
+  }
+  if (stages.some((stage) => stage.destructive) && !options.allowLiveDestructive) {
+    throw new Error(
+      "refusing destructive/admin proof stages on a live network; pass both --allow-live and --allow-live-destructive",
+    );
+  }
+  return "live";
+}
+
+export function buildLocalForkProofPlan(): ProofStage[] {
+  return [
+    {
+      id: "generate-inventory",
+      description: "regenerate ABI, wrapper, and HTTP inventory before probing",
+      command: "pnpm",
+      args: ["run", "codegen"],
+      destructive: false,
+    },
+    {
+      id: "provision-fixtures",
+      description: "provision actors, funds, approvals, roles, and an aged listing",
+      command: "pnpm",
+      args: ["run", "setup:base-sepolia"],
+      destructive: true,
+      artifactPath: path.join(".runtime", "base-sepolia-operator-fixtures.json"),
+    },
+    {
+      id: "http-contract-proof",
+      description: "run fixture-backed HTTP reads and writes with direct contract readbacks",
+      command: "pnpm",
+      args: ["vitest", "run", "packages/api/src/app.contract-integration.test.ts", "--maxWorkers", "1"],
+      destructive: true,
+      maxAttempts: 2,
+    },
+    {
+      id: "layer1-core-proof",
+      description: "record core workflow transaction, receipt, event, and state evidence",
+      command: "pnpm",
+      args: ["tsx", "scripts/verify-layer1-live.ts", "--output", path.join(PROOF_DIR, "layer1-core.json")],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "layer1-core.json"),
+    },
+    {
+      id: "layer1-completion-proof",
+      description: "record completion read evidence for remaining endpoint groups",
+      command: "pnpm",
+      args: ["tsx", "scripts/verify-layer1-completion.ts", "--output", path.join(PROOF_DIR, "layer1-completion.json")],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "layer1-completion.json"),
+    },
+    {
+      id: "layer1-remaining-proof",
+      description: "record fixture-backed lifecycle evidence for remaining domains",
+      command: "pnpm",
+      args: ["tsx", "scripts/verify-layer1-remaining.ts", "--output", path.join(PROOF_DIR, "layer1-remaining.json")],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "layer1-remaining.json"),
+    },
+    {
+      id: "marketplace-purchase-proof",
+      description: "record purchase settlement pre-state, transaction, receipt, event, and post-state",
+      command: "pnpm",
+      args: [
+        "tsx",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "--output",
+        path.join(PROOF_DIR, "marketplace-purchase.json"),
+      ],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "marketplace-purchase.json"),
+    },
+    {
+      id: "governance-proof",
+      description: "record proposal and vote pre-state, transactions, receipts, events, and post-state",
+      command: "pnpm",
+      args: [
+        "tsx",
+        "scripts/verify-governance-workflows.ts",
+        "--output",
+        path.join(PROOF_DIR, "governance.json"),
+      ],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "governance.json"),
+    },
+    {
+      id: "probe-safe-reads",
+      description: "execute every reviewed read and event endpoint with lifecycle fixture inputs",
+      command: "pnpm",
+      args: [
+        "tsx",
+        "scripts/verify-local-fork-safe-reads.ts",
+        "--output",
+        path.join(PROOF_DIR, "safe-reads.json"),
+      ],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "safe-reads.json"),
+    },
+  ];
+}
+
+function tail(value: string, maxLength = 4_000): string {
+  return value.length <= maxLength ? value : value.slice(-maxLength);
+}
+
+export async function executeCommand(
+  stage: ProofStage,
+  env: NodeJS.ProcessEnv,
+  cwd = rootDir,
+): Promise<CommandResult> {
+  return new Promise((resolve) => {
+    let stdout = "";
+    let stderr = "";
+    const child = spawn(stage.command, stage.args, {
+      cwd,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    child.stdout.on("data", (chunk) => {
+      const value = chunk.toString();
+      stdout += value;
+      process.stdout.write(value);
+    });
+    child.stderr.on("data", (chunk) => {
+      const value = chunk.toString();
+      stderr += value;
+      process.stderr.write(value);
+    });
+    child.on("error", (error) => {
+      stderr += error.message;
+    });
+    child.on("close", (code) => {
+      resolve({ exitCode: code ?? 1, stdout, stderr });
+    });
+  });
+}
+
+export async function readOptionalJson(filePath: string | undefined): Promise<unknown | null> {
+  if (!filePath) {
+    return null;
+  }
+  const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(rootDir, filePath);
+  if (!(await fileExists(resolved))) {
+    return null;
+  }
+  return JSON.parse(await readFile(resolved, "utf8")) as unknown;
+}
+
+export async function runProofStages(args: {
+  stages: ProofStage[];
+  env: NodeJS.ProcessEnv;
+  continueOnGap: boolean;
+  execute?: typeof executeCommand;
+}): Promise<StageResult[]> {
+  const execute = args.execute ?? executeCommand;
+  const results: StageResult[] = [];
+  for (const stage of args.stages) {
+    if (stage.artifactPath) {
+      const artifactPath = path.isAbsolute(stage.artifactPath)
+        ? stage.artifactPath
+        : path.resolve(rootDir, stage.artifactPath);
+      await mkdir(path.dirname(artifactPath), { recursive: true });
+      await rm(artifactPath, { force: true });
+    }
+    let commandResult: CommandResult = { exitCode: 1, stdout: "", stderr: "stage did not run" };
+    let attemptCount = 0;
+    const maxAttempts = stage.maxAttempts ?? 1;
+    while (attemptCount < maxAttempts) {
+      attemptCount += 1;
+      commandResult = await execute(stage, args.env);
+      if (commandResult.exitCode === 0) {
+        break;
+      }
+      if (attemptCount < maxAttempts) {
+        console.warn(`retrying ${stage.id} after exit ${commandResult.exitCode} (${attemptCount}/${maxAttempts})`);
+      }
+    }
+    const artifact = await readOptionalJson(stage.artifactPath);
+    results.push({
+      ...stage,
+      status: commandResult.exitCode === 0 ? "passed" : "failed",
+      exitCode: commandResult.exitCode,
+      attemptCount,
+      stdoutTail: tail(commandResult.stdout),
+      stderrTail: tail(commandResult.stderr),
+      artifact,
+    });
+    if (commandResult.exitCode !== 0 && !args.continueOnGap) {
+      break;
+    }
+  }
+  return results;
+}
+
+export function summarizeReviewedSurface(reviewed: ReviewedSurface): {
+  methodCount: number;
+  safeReadCount: number;
+  fixtureCandidateWriteCount: number;
+  adminWriteCount: number;
+  eventCount: number;
+} {
+  const methods = Object.values(reviewed.methods ?? {});
+  return {
+    methodCount: methods.length,
+    safeReadCount: methods.filter((method) => method.rateLimitKind === "read").length,
+    fixtureCandidateWriteCount: methods.filter(
+      (method) => method.rateLimitKind === "write" && method.classification !== "admin",
+    ).length,
+    adminWriteCount: methods.filter(
+      (method) => method.rateLimitKind === "write" && method.classification === "admin",
+    ).length,
+    eventCount: Object.keys(reviewed.events ?? {}).length,
+  };
+}
+
+function proofArtifactGaps(stage: StageResult): StructuredGap[] {
+  if (stage.status === "failed") {
+    return [{
+      id: `stage:${stage.id}`,
+      classification: "runner failure",
+      stageId: stage.id,
+      methodKey: null,
+      route: null,
+      detail: `command exited with ${stage.exitCode}: ${stage.stderrTail || stage.stdoutTail}`,
+    }];
+  }
+  if (stage.id === "probe-safe-reads" && stage.artifact && typeof stage.artifact === "object") {
+    const artifact = stage.artifact as SafeReadArtifact;
+    return (artifact.gaps ?? []).map((gap, index) => ({
+      id: `safe-read:${gap.methodKey ?? index}`,
+      classification: gap.classification === "needs fixture" ? "needs fixture" : "proof gap",
+      stageId: stage.id,
+      methodKey: gap.methodKey ?? null,
+      route: gap.route ?? null,
+      detail: gap.detail ?? "safe read did not return a successful proof response",
+    }));
+  }
+  if (stage.artifact && typeof stage.artifact === "object") {
+    const summary = (stage.artifact as { summary?: unknown }).summary;
+    if (typeof summary === "string" && summary !== "proven working") {
+      return [{
+        id: `artifact:${stage.id}`,
+        classification: "proof gap",
+        stageId: stage.id,
+        methodKey: null,
+        route: null,
+        detail: `proof artifact summary is ${summary}`,
+      }];
+    }
+  }
+  return [];
+}
+
+export function collectStructuredGaps(stages: StageResult[]): StructuredGap[] {
+  return stages.flatMap((stage) => proofArtifactGaps(stage));
+}
+
+export async function loadReviewedSurface(): Promise<ReviewedSurface> {
+  return readJson<ReviewedSurface>(path.join(rootDir, "reviewed", "reviewed-api-surface.json"));
+}
+
+export async function persistLocalForkReport(outputPath: string, report: unknown): Promise<void> {
+  const resolved = path.isAbsolute(outputPath) ? outputPath : path.resolve(rootDir, outputPath);
+  await writeJson(resolved, report);
+}

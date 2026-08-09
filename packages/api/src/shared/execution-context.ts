@@ -1,4 +1,4 @@
-import { Interface, VoidSigner, Wallet, type Provider, type TransactionRequest } from "ethers";
+import { Interface, VoidSigner, Wallet, getBigInt, type Provider, type TransactionRequest } from "ethers";
 
 import { AddressBook, LocalCache, ProviderRouter, facetRegistry, readConfigFromEnv } from "../../../client/src/index.js";
 import type { ApiLayerConfig } from "../../../client/src/runtime/config.js";
@@ -242,12 +242,13 @@ export async function resolveBufferedGasLimit(
   responseTemplate: TransactionRequest,
   signerAddress: string,
 ): Promise<bigint> {
-  const baseGasLimit =
+  const baseGasLimit = getBigInt(
     responseTemplate.gasLimit ??
     await provider.estimateGas({
       ...responseTemplate,
       from: signerAddress,
-    });
+    }),
+  );
   // Give live writes headroom over node estimates to avoid silent status=0 receipts.
   return baseGasLimit + (baseGasLimit / 5n) + 50_000n;
 }
@@ -261,7 +262,7 @@ async function prepareWriteInvocationOnProvider(
   providerName: string,
 ): Promise<PreparedWriteInvocation> {
   const signerId = requireSignerId(auth, definition.key);
-  const signer = await signerRunnerFor(context, { ...auth, signerId }, provider, providerName);
+  const signer = (await signerRunnerFor(context, { ...auth, signerId }, provider, providerName))!;
   const contract = new (await import("ethers")).Contract(
     context.addressBook.resolveFacetAddress(definition.facetName),
     facetRegistry[definition.facetName as keyof typeof facetRegistry].abi,
@@ -407,8 +408,8 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
           nonce: nextNonce,
         });
         context.signerNonces.set(prepared.queueKey, nextNonce + 1);
-        const hash = response && typeof response === "object" && "hash" in (response as Record<string, unknown>)
-          ? String((response as Record<string, unknown>).hash)
+        const hash = response && typeof response === "object" && "hash" in (response as unknown as Record<string, unknown>)
+          ? String((response as unknown as Record<string, unknown>).hash)
           : undefined;
         return { hash, response };
       };

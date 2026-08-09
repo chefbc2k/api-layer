@@ -1130,7 +1130,7 @@ describeLive("HTTP API contract integration", () => {
     const invalidRoyaltyResponse = await apiCall(port, "PATCH", `/v1/voice-assets/${primaryVoiceHash}/royalty-rate`, {
       body: { royaltyRate: invalidRoyalty },
     });
-    expect(invalidRoyaltyResponse.status).toBe(500);
+    expect(invalidRoyaltyResponse.status).toBe(400);
     expect((await voiceAsset.getVoiceAsset(primaryVoiceHash))[2]).toBe(200n);
 
     const revokeResponse = await apiCall(
@@ -4057,8 +4057,8 @@ describeLive("HTTP API contract integration", () => {
       apiKey: "read-key",
       body: { ipfsHash: `ipfs://signer-missing/${Date.now()}`, royaltyRate: "100" },
     });
-    expect(signerUnavailable.status).toBe(500);
-    expect(signerUnavailable.payload).toMatchObject({ error: expect.stringContaining("requires signerFactory") });
+    expect(signerUnavailable.status).toBe(403);
+    expect(signerUnavailable.payload).toMatchObject({ error: expect.stringContaining("not permitted for write execution") });
 
     const defaultRoyaltyRead = await waitForStableApiResponse(
       () => apiCall(port, "POST", "/v1/voice-assets/queries/get-default-royalty-rate", {

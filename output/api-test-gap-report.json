@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T18:18:13.732Z",
+  "generatedAt": "2026-08-09T18:02:31.056Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, name, wrapper key, signature, operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -140,6 +140,7 @@
       "scripts/utils.test.ts",
       "scripts/verify-governance-workflows.test.ts",
       "scripts/verify-layer1-helpers.test.ts",
+      "scripts/verify-local-fork-lib.test.ts",
       "scripts/verify-marketplace-purchase-live.test.ts",
       "scripts/verify-report.test.ts",
       "scripts/vitest-config.test.ts"
@@ -13812,7 +13813,8 @@
               "packages/client/src/runtime/invoke.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/red-team-local-fork.test.ts"
+              "scripts/red-team-local-fork.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/emergency-response.integration.test.ts",
@@ -13846,7 +13848,8 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/red-team-local-fork.test.ts"
+              "scripts/red-team-local-fork.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/shared/execution-context.test.ts",
@@ -15163,6 +15166,7 @@
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
+              "scripts/verify-local-fork-lib.test.ts",
               "scripts/verify-report.test.ts"
             ],
             "workflowTests": [
@@ -15228,7 +15232,8 @@
               "packages/indexer/src/events.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
-              "scripts/verify-layer1-helpers.test.ts"
+              "scripts/verify-layer1-helpers.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -15250,7 +15255,8 @@
               "packages/indexer/src/projections/tables.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
-              "scripts/base-sepolia-operator-setup.test.ts"
+              "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "redTeamTests": [
               "packages/api/src/shared/execution-context.test.ts"
@@ -20219,6 +20225,7 @@
               "scripts/run-test-coverage.test.ts",
               "scripts/verify-governance-workflows.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
+              "scripts/verify-local-fork-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts",
               "scripts/verify-report.test.ts"
             ],
@@ -20298,6 +20305,7 @@
               "scripts/run-test-coverage.test.ts",
               "scripts/verify-governance-workflows.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
+              "scripts/verify-local-fork-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "economicTests": [
@@ -23764,7 +23772,8 @@
               "packages/client/src/runtime/invoke.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/red-team-local-fork.test.ts"
+              "scripts/red-team-local-fork.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/emergency-response.integration.test.ts",
@@ -23798,7 +23807,8 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/red-team-local-fork.test.ts"
+              "scripts/red-team-local-fork.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/shared/execution-context.test.ts",
@@ -31976,7 +31986,8 @@
               "scripts/custom-coverage-provider.test.ts",
               "scripts/license-template-helper.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/run-test-coverage.test.ts"
+              "scripts/run-test-coverage.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
@@ -32049,7 +32060,8 @@
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/custom-coverage-provider.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/run-test-coverage.test.ts"
+              "scripts/run-test-coverage.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -32069,7 +32081,8 @@
               "scripts/api-surface-lib.test.ts",
               "scripts/license-template-helper.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/run-test-coverage.test.ts"
+              "scripts/run-test-coverage.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "redTeamTests": [
               "scripts/red-team-harness-lib.test.ts"
@@ -34313,7 +34326,8 @@
           "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
@@ -35734,13 +35748,15 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/verify-local-fork-lib.test.ts",
               "scripts/verify-report.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -35849,7 +35865,8 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
-              "scripts/base-sepolia-operator-setup.test.ts"
+              "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"

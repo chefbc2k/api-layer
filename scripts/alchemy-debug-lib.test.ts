@@ -958,6 +958,8 @@ describe("alchemy-debug-lib", () => {
       "8548",
       "--chain-id",
       "84532",
+      "--prune-history",
+      "512",
       "--fork-url",
       "https://base-sepolia.g.alchemy.com/v2/live",
     ], expect.objectContaining({
@@ -1010,6 +1012,8 @@ describe("alchemy-debug-lib", () => {
       "443",
       "--chain-id",
       "84532",
+      "--prune-history",
+      "512",
       "--fork-url",
       "https://base-sepolia.g.alchemy.com/v2/live",
     ], expect.objectContaining({
@@ -1062,6 +1066,8 @@ describe("alchemy-debug-lib", () => {
       "80",
       "--chain-id",
       "84532",
+      "--prune-history",
+      "512",
       "--fork-url",
       "https://base-sepolia.g.alchemy.com/v2/live",
     ], expect.objectContaining({
@@ -1114,6 +1120,8 @@ describe("alchemy-debug-lib", () => {
       "9555",
       "--chain-id",
       "84532",
+      "--prune-history",
+      "512",
       "--fork-url",
       "https://base-sepolia.g.alchemy.com/v2/live",
     ], expect.objectContaining({
@@ -1370,6 +1378,8 @@ describe("alchemy-debug-lib", () => {
       "8548",
       "--chain-id",
       "84532",
+      "--prune-history",
+      "512",
       "--fork-url",
       "https://base-sepolia.g.alchemy.com/v2/fork-source",
     ], expect.objectContaining({
@@ -1478,6 +1488,8 @@ describe("alchemy-debug-lib", () => {
       "8548",
       "--chain-id",
       "84532",
+      "--prune-history",
+      "512",
       "--fork-url",
       "https://base-sepolia.g.alchemy.com/v2/live",
     ], expect.objectContaining({

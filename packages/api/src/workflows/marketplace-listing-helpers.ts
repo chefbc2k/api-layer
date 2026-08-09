@@ -1,11 +1,11 @@
-import type { RouteResult } from "../shared/route-types.js";
+import type { PrimitiveInvocationRequest, RouteResult } from "../shared/route-types.js";
 import { asRecord, normalizeAddress, readWorkflowReceipt, waitForWorkflowEventQuery, waitForWorkflowReadback } from "./reward-campaign-helpers.js";
 
 export { asRecord, normalizeAddress, readWorkflowReceipt, waitForWorkflowEventQuery, waitForWorkflowReadback };
 
 export async function readListingWithStabilization(
   marketplace: {
-    getListing: (request: unknown) => Promise<RouteResult>;
+    getListing: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,
@@ -43,9 +43,9 @@ export async function safeReadRoute(read: () => Promise<RouteResult>): Promise<R
 
 export async function readMarketplaceEscrowState(
   marketplace: {
-    getAssetState: (request: unknown) => Promise<RouteResult>;
-    getOriginalOwner: (request: unknown) => Promise<RouteResult>;
-    isInEscrow: (request: unknown) => Promise<RouteResult>;
+    getAssetState: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getOriginalOwner: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    isInEscrow: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,
@@ -81,7 +81,7 @@ export async function readMarketplaceEscrowState(
 
 export async function readOwnerOf(
   voiceAssets: {
-    ownerOf: (request: unknown) => Promise<RouteResult>;
+    ownerOf: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,
