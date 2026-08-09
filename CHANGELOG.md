@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.259] - 2026-08-09
+
+### Added
+- **Local-Fork Assurance Is A Complete Cold-Start Workflow:** `pnpm run verify:local-fork` now starts or validates a loopback fork, provisions funded role-bound actors, buyer USDC and allowance, governance readiness, and an aged marketplace listing, then records HTTP contract, core, completion, remaining lifecycle, marketplace settlement, governance, and exhaustive read/event artifacts in deterministic order.
+- **Lifecycle Proofs Feed The Exhaustive Read Sweep:** The final sweep discovers an existing campaign and reuses proposal, dataset, template, license, and WhisperBlock identifiers from earlier proof artifacts, while emitting machine-readable `needs fixture` records for state that is intentionally not fabricated.
+
+### Fixed
+- **Governance Mining No Longer Exhausts Host Disk:** Auto-started Anvil uses `--prune-history 512`, bounding retained fork history during the voting-delay block jump and preventing the prior multi-gigabyte state spill.
+- **HTTP Contract Expectations Match Fail-Closed Behavior:** Invalid royalty input is asserted as `400`, and a read-only key attempting a write is asserted as `403` with the authorization message.
+
+### Verified
+- **Three Complete Cold Runs Finished Without Stage Retries:** The final persisted aggregate reports all `9/9` stages passed on their first attempt. The HTTP contract proof passed `18/18`; all five domain proof artifacts report `proven working`; and the final exhaustive artifact attempted `232` reads plus `214` events, passing `430/446` with `16` explicit `needs fixture` records and zero generic proof gaps.
+- **Focused Runner And Startup Coverage Passed:** `pnpm run test:local-fork-runner` passed `9/9`, and the Anvil startup/API regression slice passed `60/60`. Code generation inside the runner passed coverage at `492` wrapper functions, `218` wrapper events, `492` HTTP methods, and `260/260` ABI write invariants.
+- **All Merge Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order, followed by a green explicit `pnpm run coverage:check` at the same `492` / `218` / `492` / `260` surface totals.
+- **Live-Network Destruction Remains Explicitly Gated:** Loopback is the default; live execution requires `--allow-live`, and destructive/admin stages require the additional `--allow-live-destructive` acknowledgment.
+
 ## Local-Fork Automation Record - 2026-08-04
 
 ### Added

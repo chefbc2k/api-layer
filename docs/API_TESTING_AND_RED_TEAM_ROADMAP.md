@@ -153,6 +153,15 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Local-Fork Automation Run — 2026-08-09
+
+- **Deterministic cold runner completed:** `pnpm run verify:local-fork -- --continue-on-gap` completed from fork startup through the final exhaustive sweep with all `9/9` stages passing on their first attempt. Fixture setup funded founder/seller/buyer/licensee/transferee actors, provisioned buyer USDC balance and allowance, validated governance roles/votes, and produced a purchase-ready listing aged by `86,401` fork seconds.
+- **State, transaction, receipt, event, and settlement evidence persisted:** the HTTP contract proof passed `18/18`; core (`8` domains / `30` routes / `36` evidence records), completion (`1` / `5` / `7`), remaining lifecycle (`3` / `36` / `36`), marketplace purchase (`1` / `5` / `5`), and governance (`1` / `6` / `3`) artifacts all report `proven working`. The purchase proof records the `4000 -> 3000` buyer balance and allowance deltas, successful receipt, ownership/escrow transition, and decoded purchase/payment/release events.
+- **Exhaustive reads use lifecycle fixtures:** the safe-read sweep now runs after lifecycle proofs and reuses campaign, proposal, dataset, template, license, and fingerprint identifiers. The final cold artifact attempted all `232` reviewed reads and `214` event routes, passed `430/446`, and emitted `16` structured `needs fixture` records with zero generic proof gaps; the residual records require an active queue item, rights group, upgrade operation, or vesting schedule and are preserved as machine-readable state gaps rather than runner failures.
+- **Disk exhaustion and stale assertions resolved:** auto-started Anvil now uses bounded `--prune-history 512`, preventing the multi-gigabyte historical-state spill during governance block advancement. Current HTTP behavior is locked at `400` for invalid royalty input and `403` for read-only write attempts.
+- **Safety and verification:** loopback remains the default. Any live run requires `--allow-live`; destructive/admin live stages additionally require `--allow-live-destructive`. `pnpm run test:local-fork-runner` passes `9/9`; the startup/API regression slice passes `60/60`; and the complete runner regenerated coverage at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. The ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` gates pass, followed by a green explicit `pnpm run coverage:check`.
+- **Merge decision:** complete and merge-ready. The `needs fixture` records are the orchestrator's required structured gap output and do not represent incomplete runner stages.
+
 ### Local-Fork Automation Run — 2026-08-04
 
 - **Branch alignment and hardening:** merged local `master` into `codex/local-fork-automation`, preserved all upstream actor/write-invariant gates, switched exhaustive probe keys to `read-only`, added valid beneficiary-share inputs, and made known missing-record responses classify as structured `needs fixture` gaps.
@@ -177,7 +186,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Actor and signer negative paths | Complete and verified (2026-08-09) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
-| Local-fork destructive automation | Blocked | governance activation is fixed and proven; merge remains blocked by critically low host disk, a stale aggregate report, unprovisioned safe-read fixtures, and missing lint configuration/build evidence |
+| Local-fork destructive automation | Complete and verified (2026-08-09) | deterministic `9/9`-stage cold run, funded/approved/aged fixtures, `18/18` HTTP contract proof, `446/446` reviewed read/event attempts with structured state gaps, bounded Anvil history, strict live flags, `9/9` focused tests, and green TypeScript/lint/build/coverage gates |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
 | Red-team mutation and fuzzing | Pending | mutation suites for replay, double spend, malformed calldata, stale RPC, signer confusion, admin controls, emergency/timelock bypasses |
 

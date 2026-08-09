@@ -13,7 +13,7 @@ import {
   summarizeReviewedSurface,
   type ProofStage,
 } from "./verify-local-fork-lib.js";
-import { classifySafeReadGap, fixtureValue } from "./verify-local-fork-safe-read-values.js";
+import { classifySafeReadGap, fixtureValue, proofFixtureOverrides } from "./verify-local-fork-safe-read-values.js";
 
 const tempDirs: string[] = [];
 
@@ -69,12 +69,12 @@ describe("local-fork proof planning and reporting", () => {
       "generate-inventory",
       "provision-fixtures",
       "http-contract-proof",
-      "probe-safe-reads",
       "layer1-core-proof",
       "layer1-completion-proof",
       "layer1-remaining-proof",
       "marketplace-purchase-proof",
       "governance-proof",
+      "probe-safe-reads",
     ]);
     expect(plan.filter((stage) => stage.destructive).length).toBeGreaterThan(0);
     expect(plan.find((stage) => stage.id === "probe-safe-reads")?.artifactPath).toContain("safe-reads.json");
@@ -193,5 +193,33 @@ describe("safe-read fixture values", () => {
     expect(classifySafeReadGap(500, { error: "execution reverted: FingerprintNotRegistered(bytes32)" })).toBe("needs fixture");
     expect(classifySafeReadGap(500, { error: "Panic due to ARRAY_RANGE_ERROR(50)" })).toBe("needs fixture");
     expect(classifySafeReadGap(400, { error: "invalid tuple" })).toBe("proof gap");
+  });
+
+  it("reuses lifecycle proof identifiers for the final safe-read sweep", () => {
+    const voiceHash = `0x${"cd".repeat(32)}`;
+    const licenseeTopic = `0x${"0".repeat(24)}${"12".repeat(20)}`;
+    const artifacts = {
+      core: { reports: { datasets: { evidence: [
+        { route: "dataset", postState: { payload: { result: "1001" } } },
+        { route: "tokenA", postState: { payload: { result: "42" } } },
+        { route: "template", postState: { templateHashHex: voiceHash } },
+      ] } } },
+      remaining: { reports: { licensing: { evidence: [{
+        route: "POST /v1/licensing/licenses/create-license",
+        postState: { license: { licensee: `0x${"12".repeat(20)}` } },
+        eventQuery: { payload: [{ topics: ["topic0", voiceHash, licenseeTopic, "termsHash"] }] },
+      }] } } },
+      governance: { reports: { governance: { evidence: [{
+        step: "submitProposal",
+        postState: { proposalId: "77" },
+      }] } } },
+    };
+    expect(proofFixtureOverrides("ProposalFacet.state", artifacts)).toEqual({ proposalId: "77" });
+    expect(proofFixtureOverrides("VoiceDatasetFacet.containsAsset", artifacts)).toEqual({ datasetId: "1001", assetId: "42" });
+    expect(proofFixtureOverrides("VoiceLicenseFacet.getLicense", artifacts)).toEqual({
+      voiceHash,
+      licensee: `0x${"12".repeat(20)}`,
+    });
+    expect(fixtureValue({ name: "proposalId", type: "uint256" }, fixture, 99, 123, { proposalId: "77" })).toBe("77");
   });
 });

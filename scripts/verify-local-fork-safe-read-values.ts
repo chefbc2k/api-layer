@@ -1,4 +1,4 @@
-import { id, ZeroAddress, ZeroHash } from "ethers";
+import { concat, id, zeroPadValue, ZeroAddress, ZeroHash } from "ethers";
 
 export type Binding = { name: string; source: "path" | "query" | "body"; field: string };
 export type EndpointDefinition = {
@@ -21,6 +21,107 @@ export type LocalForkFixture = {
     };
   };
 };
+
+export type FixtureOverrides = Record<string, unknown>;
+export type ProofArtifacts = {
+  core?: unknown;
+  remaining?: unknown;
+  governance?: unknown;
+};
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function nested(value: unknown, ...keys: string[]): unknown {
+  let current = value;
+  for (const key of keys) {
+    current = Array.isArray(current) && /^\d+$/u.test(key)
+      ? current[Number(key)]
+      : asRecord(current)?.[key];
+  }
+  return current;
+}
+
+function evidence(value: unknown, domain: string): Array<Record<string, unknown>> {
+  const entries = nested(value, "reports", domain, "evidence");
+  return Array.isArray(entries) ? entries.map(asRecord).filter((entry): entry is Record<string, unknown> => entry !== null) : [];
+}
+
+function matchingEvidence(value: unknown, domain: string, field: string, expected: string): Record<string, unknown> | null {
+  return evidence(value, domain).find((entry) => entry[field] === expected) ?? null;
+}
+
+function stringValue(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function addressFromTopic(value: unknown): string | null {
+  const topic = stringValue(value);
+  return topic && /^0x[0-9a-fA-F]{64}$/u.test(topic) ? `0x${topic.slice(-40)}` : null;
+}
+
+export function proofFixtureOverrides(methodKey: string, artifacts: ProofArtifacts): FixtureOverrides {
+  const overrides: FixtureOverrides = {};
+  if (methodKey.startsWith("ProposalFacet.")) {
+    const governanceSubmit = evidence(artifacts.governance, "governance").find((entry) => entry.step === "submitProposal");
+    const coreSubmit = matchingEvidence(artifacts.core, "governance", "route", "submit");
+    const proposalId = stringValue(nested(governanceSubmit, "postState", "proposalId"))
+      ?? stringValue(nested(coreSubmit, "postState", "payload", "result"));
+    if (proposalId) overrides.proposalId = proposalId;
+  }
+  if (methodKey.startsWith("VoiceDatasetFacet.")) {
+    const dataset = matchingEvidence(artifacts.core, "datasets", "route", "dataset");
+    const asset = matchingEvidence(artifacts.core, "datasets", "route", "tokenA");
+    const datasetId = stringValue(nested(dataset, "postState", "payload", "result"));
+    const assetId = stringValue(nested(asset, "postState", "payload", "result"));
+    if (datasetId) overrides.datasetId = datasetId;
+    if (assetId) overrides.assetId = assetId;
+  }
+  if (methodKey.startsWith("VoiceLicenseFacet.")) {
+    const license = matchingEvidence(
+      artifacts.remaining,
+      "licensing",
+      "route",
+      "POST /v1/licensing/licenses/create-license",
+    );
+    const eventLog = nested(license, "eventQuery", "payload", "0");
+    const topics = nested(eventLog, "topics");
+    if (Array.isArray(topics)) {
+      const voiceHash = stringValue(topics[1]);
+      const licensee = stringValue(nested(license, "postState", "license", "licensee"))
+        ?? addressFromTopic(topics[2]);
+      if (voiceHash) overrides.voiceHash = voiceHash;
+      if (licensee) overrides.licensee = licensee;
+    }
+  }
+  if (methodKey.startsWith("VoiceLicenseTemplateFacet.")) {
+    const template = matchingEvidence(artifacts.core, "datasets", "route", "template");
+    const templateHash = stringValue(nested(template, "postState", "templateHashHex"));
+    if (templateHash) overrides.templateHash = templateHash;
+  }
+  if (methodKey === "WhisperBlockFacet.verifyVoiceAuthenticity") {
+    const fingerprint = matchingEvidence(
+      artifacts.remaining,
+      "whisperblock/security",
+      "route",
+      "POST /v1/whisperblock/whisperblocks",
+    );
+    const eventLog = nested(fingerprint, "eventQuery", "payload", "0");
+    const topics = nested(eventLog, "topics");
+    const voiceHash = Array.isArray(topics) ? stringValue(topics[1]) : null;
+    const fingerprintData = concat([
+      zeroPadValue("0x1111", 32),
+      zeroPadValue("0x2222", 32),
+      zeroPadValue("0x3333", 32),
+    ]);
+    if (voiceHash) overrides.voiceHash = voiceHash;
+    if (fingerprintData) overrides.fingerprintData = fingerprintData;
+  }
+  return overrides;
+}
 
 function actor(fixture: LocalForkFixture, name: string, fallback: string): string {
   return fixture.actors?.[name]?.address ?? fallback;
@@ -114,17 +215,26 @@ export function classifySafeReadGap(status: number, payload: unknown): "needs fi
   return "proof gap";
 }
 
-export function fixtureValue(input: AbiInput, fixture: LocalForkFixture, blockNumber: number, timestamp: number): unknown {
+export function fixtureValue(
+  input: AbiInput,
+  fixture: LocalForkFixture,
+  blockNumber: number,
+  timestamp: number,
+  overrides: FixtureOverrides = {},
+): unknown {
+  if (input.name && Object.hasOwn(overrides, input.name)) {
+    return overrides[input.name];
+  }
   const arrayMatch = input.type.match(/^(.*)\[([0-9]*)\]$/u);
   if (arrayMatch) {
     const length = arrayMatch[2] ? Number(arrayMatch[2]) : 1;
-    return Array.from({ length }, () => fixtureValue({ ...input, type: arrayMatch[1] }, fixture, blockNumber, timestamp));
+    return Array.from({ length }, () => fixtureValue({ ...input, type: arrayMatch[1] }, fixture, blockNumber, timestamp, overrides));
   }
   if (input.type === "tuple") {
     return Object.fromEntries(
       (input.components ?? []).map((component, index) => [
         component.name || String(index),
-        fixtureValue(component, fixture, blockNumber, timestamp),
+        fixtureValue(component, fixture, blockNumber, timestamp, overrides),
       ]),
     );
   }

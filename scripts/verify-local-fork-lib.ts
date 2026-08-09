@@ -164,19 +164,6 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       maxAttempts: 2,
     },
     {
-      id: "probe-safe-reads",
-      description: "execute every reviewed read and event endpoint with deterministic fixture inputs",
-      command: "pnpm",
-      args: [
-        "tsx",
-        "scripts/verify-local-fork-safe-reads.ts",
-        "--output",
-        path.join(PROOF_DIR, "safe-reads.json"),
-      ],
-      destructive: false,
-      artifactPath: path.join(PROOF_DIR, "safe-reads.json"),
-    },
-    {
       id: "layer1-core-proof",
       description: "record core workflow transaction, receipt, event, and state evidence",
       command: "pnpm",
@@ -225,6 +212,19 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       ],
       destructive: true,
       artifactPath: path.join(PROOF_DIR, "governance.json"),
+    },
+    {
+      id: "probe-safe-reads",
+      description: "execute every reviewed read and event endpoint with lifecycle fixture inputs",
+      command: "pnpm",
+      args: [
+        "tsx",
+        "scripts/verify-local-fork-safe-reads.ts",
+        "--output",
+        path.join(PROOF_DIR, "safe-reads.json"),
+      ],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "safe-reads.json"),
     },
   ];
 }

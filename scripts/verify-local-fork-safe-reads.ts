@@ -12,16 +12,47 @@ import {
   buildReadRequest,
   classifySafeReadGap,
   fixtureValue,
+  proofFixtureOverrides,
   selectAbiFunction,
   type AbiFunction,
   type EndpointDefinition,
   type LocalForkFixture,
+  type ProofArtifacts,
 } from "./verify-local-fork-safe-read-values.js";
 
 const outputIndex = process.argv.indexOf("--output");
 const outputPath = outputIndex >= 0 && process.argv[outputIndex + 1]
   ? process.argv[outputIndex + 1]
   : path.join(".runtime", "local-fork-proofs", "safe-reads.json");
+
+async function readOptionalArtifact(name: string): Promise<unknown> {
+  try {
+    return JSON.parse(await readFile(path.join(rootDir, ".runtime", "local-fork-proofs", name), "utf8")) as unknown;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw error;
+  }
+}
+
+async function discoverCampaignId(port: number, apiKey: string): Promise<string | null> {
+  const headers = { "content-type": "application/json", "x-api-key": apiKey };
+  const countResponse = await fetch(`http://127.0.0.1:${port}/v1/tokenomics/queries/campaign-count`, {
+    method: "POST",
+    headers,
+    body: "{}",
+    signal: AbortSignal.timeout(20_000),
+  });
+  const countPayload = await countResponse.json().catch(() => null);
+  if (countResponse.status !== 200 || !/^\d+$/u.test(String(countPayload))) return null;
+  for (let campaignId = BigInt(String(countPayload)); campaignId > 0n; campaignId -= 1n) {
+    const response = await fetch(
+      `http://127.0.0.1:${port}/v1/tokenomics/queries/get-campaign?campaignId=${campaignId}`,
+      { method: "GET", headers, signal: AbortSignal.timeout(20_000) },
+    );
+    if (response.status === 200) return campaignId.toString();
+  }
+  return null;
+}
 
 async function main(): Promise<void> {
   const repoEnv = loadRepoEnv();
@@ -48,6 +79,11 @@ async function main(): Promise<void> {
   const fixture = JSON.parse(
     await readFile(path.join(rootDir, ".runtime", "base-sepolia-operator-fixtures.json"), "utf8"),
   ) as LocalForkFixture;
+  const proofArtifacts: ProofArtifacts = {
+    core: await readOptionalArtifact("layer1-core.json"),
+    remaining: await readOptionalArtifact("layer1-remaining.json"),
+    governance: await readOptionalArtifact("governance.json"),
+  };
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
   const latestBlock = await provider.getBlock("latest");
   const blockNumber = latestBlock?.number ?? await provider.getBlockNumber();
@@ -59,6 +95,7 @@ async function main(): Promise<void> {
   const gaps: Array<Record<string, unknown>> = [];
 
   try {
+    const campaignId = await discoverCampaignId(port, readApiKeys[0]);
     for (const [methodKey, endpoint] of Object.entries(reviewed.methods).sort(([left], [right]) => left.localeCompare(right))) {
       if (endpoint.rateLimitKind !== "read") {
         continue;
@@ -68,7 +105,9 @@ async function main(): Promise<void> {
       ) as AbiFunction[];
       const abiFunction = selectAbiFunction(methodKey, endpoint, abi);
       const inputs = abiFunction?.inputs ?? [];
-      const values = inputs.map((input) => fixtureValue(input, fixture, blockNumber, timestamp));
+      const overrides = proofFixtureOverrides(methodKey, proofArtifacts);
+      if (methodKey.startsWith("CommunityRewardsFacet.") && campaignId) overrides.campaignId = campaignId;
+      const values = inputs.map((input) => fixtureValue(input, fixture, blockNumber, timestamp, overrides));
       const request = buildReadRequest(endpoint, inputs, values);
       const apiKey = readApiKeys[probes.length % readApiKeys.length];
       try {
