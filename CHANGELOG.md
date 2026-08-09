@@ -2,6 +2,12 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.257] - 2026-08-09
+
+### Verified
+- **Write-Invariant Metadata Is Fully Current:** Revalidated the structured actor/role, precondition, post-state readback, event, balance, replay, live-safety, and indexer metadata against the current ABI inventory. The focused stale/missing/signature/reference suite passed `5/5`, and both full codegen and the explicit coverage gate proved `260/260` ABI write methods without catalog or generated-registry drift.
+- **All Merge Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in sequence after refreshing the worktree's cached dependencies; the final build and explicit `pnpm run coverage:check` also passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.256] - 2026-08-09
 
 ### Changed
