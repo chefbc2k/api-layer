@@ -1,5 +1,5 @@
 import { HttpError } from "../shared/errors.js";
-import type { RouteResult } from "../shared/route-types.js";
+import type { PrimitiveInvocationRequest, RouteResult } from "../shared/route-types.js";
 import { asRecord, hasTransactionHash, readBigInt, readWorkflowReceipt, waitForWorkflowEventQuery, waitForWorkflowReadback } from "./reward-campaign-helpers.js";
 
 export { asRecord, hasTransactionHash, readBigInt, readWorkflowReceipt, waitForWorkflowEventQuery, waitForWorkflowReadback };
@@ -120,11 +120,11 @@ export function isAlreadyRevokedError(error: unknown): boolean {
 
 export async function readVestingState(
   vesting: {
-    hasVestingSchedule: (request: unknown) => Promise<RouteResult>;
-    getStandardVestingSchedule: (request: unknown) => Promise<RouteResult>;
-    getVestingDetails: (request: unknown) => Promise<RouteResult>;
-    getVestingReleasableAmount: (request: unknown) => Promise<RouteResult>;
-    getVestingTotalAmount: (request: unknown) => Promise<RouteResult>;
+    hasVestingSchedule: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getStandardVestingSchedule: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getVestingDetails: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getVestingReleasableAmount: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getVestingTotalAmount: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,

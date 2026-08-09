@@ -99,7 +99,7 @@ export async function runParticipantActivationFlowWorkflow(
 
   let rewardCampaignId: string | null = null;
 
-  const rewardCampaignCreate = body.rewards?.campaign?.create
+  const rewardCampaignCreate: StepState<Awaited<ReturnType<typeof runCreateRewardCampaignWorkflow>>> = body.rewards?.campaign?.create
     ? await runStateAwareStep(() => runCreateRewardCampaignWorkflow(
       context,
       rewardCampaignActor.auth,

@@ -45,7 +45,7 @@ export async function runTreasuryRevenueOperationsWorkflow(
   body: z.infer<typeof treasuryRevenueOperationsWorkflowSchema>,
 ) {
   const shouldInspectBefore = Boolean(body.posture || body.payouts);
-  const postureBefore = shouldInspectBefore
+  const postureBefore: StepState<Awaited<ReturnType<typeof runInspectRevenuePostureWorkflow>>> = shouldInspectBefore
     ? await runStateAwareStep(() => runInspectRevenuePostureWorkflow(
       context,
       auth,
@@ -71,7 +71,7 @@ export async function runTreasuryRevenueOperationsWorkflow(
     }))
     : [];
 
-  const postureAfter = body.payouts
+  const postureAfter: StepState<Awaited<ReturnType<typeof runInspectRevenuePostureWorkflow>>> = body.payouts
     ? await runStateAwareStep(() => runInspectRevenuePostureWorkflow(
       context,
       auth,
