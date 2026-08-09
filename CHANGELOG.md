@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.256] - 2026-08-09
+
+### Changed
+- **ABI Gap Evidence Is Merge-Ready:** Refreshed [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md) without classification drift: `33` facets, `492` functions, `218` event occurrences, `223` ready, `223` needs fixture, `51` unsafe on live network, and `213` needs indexer proof.
+- **API Builds Only Deployable Sources:** Excluded test and integration TypeScript from the API package production build so test-only TypeChain and repository-script imports no longer introduce duplicate event declarations or CommonJS `import.meta` conflicts.
+
+### Fixed
+- **API Production Types Are Strict-Clean:** Corrected shared marketplace and vesting service contracts, gas and log normalization, signer preparation, nullable workflow results, receipt status compatibility, and state-aware workflow inference without changing the ABI inventory or runtime API surface.
+
+### Verified
+- **Assurance Evidence Passed:** `pnpm run test:gap-report` passed `4/4`, `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:actor-negative-paths` passed `100/100`, both report generators refreshed their committed artifacts, and `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Repository Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, `pnpm run build`, `pnpm test`, and `pnpm run test:coverage` all passed; the full suite remained at `1,279` active tests with `18` gated tests skipped. Merged coverage reports `100%` lines, `99.98%` statements, `99.95%` branches, and `99.91%` functions, with residual mappings confined to already-exercised `execution-context.ts` signer/config lines.
+
 ## [0.1.255] - 2026-08-05
 
 ### Changed

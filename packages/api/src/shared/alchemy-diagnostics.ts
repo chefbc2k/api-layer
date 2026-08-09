@@ -80,7 +80,7 @@ export type AlchemyActorState = {
 /* istanbul ignore next -- diagnostics tests execute the decoder bootstrap, but merged sourcemaps still pin a phantom branch at this boundary */
 type LogLike = {
   address: string;
-  topics: string[];
+  topics: readonly string[];
   data: string;
   logIndex?: number | null;
   transactionHash?: string | null;
@@ -239,17 +239,18 @@ export function createAlchemyClient(config: ApiLayerConfig): Alchemy | null {
 }
 
 export function buildDebugTransaction(transaction: TransactionRequest, from: string): DebugTransaction {
+  const legacyGas = (transaction as TransactionRequest & { gas?: unknown }).gas;
   return {
     from,
     to: transaction.to ? String(transaction.to) : undefined,
     data: transaction.data ? String(transaction.data) : undefined,
     value: toHexQuantity(transaction.value),
-    gas: toHexQuantity(transaction.gasLimit ?? transaction.gas),
+    gas: toHexQuantity(transaction.gasLimit ?? legacyGas),
     gasPrice: toHexQuantity(transaction.gasPrice ?? transaction.maxFeePerGas),
   };
 }
 
-export function decodeReceiptLogs(receipt: Pick<TransactionReceipt, "logs"> | { logs: LogLike[] }): AlchemyLogMatch[] {
+export function decodeReceiptLogs(receipt: Pick<TransactionReceipt, "logs"> | { logs: readonly LogLike[] }): AlchemyLogMatch[] {
   return receipt.logs.map((log) => decodeLog(log));
 }
 
@@ -423,7 +424,7 @@ export async function verifyExpectedEventWithAlchemy(
   }
   const iface = new Interface(facetRegistry[options.facetName as keyof typeof facetRegistry].abi);
   try {
-    const event = iface.getEvent(options.eventName);
+    const event = iface.getEvent(options.eventName)!;
     const logs = await alchemy.core.getLogs({
       address: options.address,
       fromBlock: toHexQuantity(options.fromBlock),

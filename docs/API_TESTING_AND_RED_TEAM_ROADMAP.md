@@ -8,7 +8,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 
 - ABI/client wrapper coverage is complete for `33` facets, `492` functions, and `218` events.
 - HTTP surface generation is complete for `491` generated endpoints across access control, tokenomics, staking, diamond admin, emergency, marketplace, governance, voice assets, multisig, ownership, licensing, datasets, and WhisperBlock.
-- Standard TypeScript coverage currently reports `100%` lines, statements, functions, and branches across the measured API/client/indexer/script surface.
+- Standard TypeScript coverage currently reports `100%` lines, `99.98%` statements, `99.95%` branches, and `99.91%` functions across the measured API/client/indexer/script surface; the residual merged-Istanbul mappings are confined to already-exercised `execution-context.ts` signer/config lines.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
 
@@ -72,7 +72,7 @@ These are not necessarily failing areas. They are the gaps between "covered" and
 
 Build `scripts/generate-test-roadmap.ts`.
 
-Status: **Complete; evidence refreshed on 2026-08-05, with the refresh blocked from merge by the existing API package build backlog.** The generator attributes evidence conservatively from the generated contract/RPC/HTTP inventories, reviewed API surface, protocol tests, and persisted verify outputs without calling the chain. It preserves duplicate ABI event declarations as distinct occurrences, records evidence paths for every proof flag, and emits both machine-readable and human-readable reports.
+Status: **Complete and verified for merge on 2026-08-09.** The generator attributes evidence conservatively from the generated contract/RPC/HTTP inventories, reviewed API surface, protocol tests, and persisted verify outputs without calling the chain. It preserves duplicate ABI event declarations as distinct occurrences, records evidence paths for every proof flag, and emits both machine-readable and human-readable reports.
 
 Inputs:
 - `generated/manifests/contract-manifest.json`
@@ -155,7 +155,7 @@ Daily automations should treat these sections as independently mergeable workstr
 
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
-| ABI-driven gap report | Complete; 2026-08-05 refresh blocked from merge | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
+| ABI-driven gap report | Complete and verified (2026-08-09) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
 | Write-method invariant metadata | Complete (2026-08-03) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete (2026-08-03) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
@@ -168,7 +168,7 @@ Automation merge rule: do not merge a section into `master` unless all section-s
 
 ### ABI-Driven Gap Report Evidence
 
-The 2026-08-05 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Red-team-attributed proof remains at `11` items, including `MultiSigFacet.execute`, `OwnershipFacet.owner`, and `TimelockFacet.execute`.
+The 2026-08-09 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Red-team-attributed proof remains at `11` items, including `MultiSigFacet.execute`, `OwnershipFacet.owner`, and `TimelockFacet.execute`.
 
 Verification evidence:
 
@@ -176,14 +176,16 @@ Verification evidence:
 - `pnpm run report:test-gaps`: regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the canonical inputs.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
 - `pnpm exec tsc -p tsconfig.json --noEmit`: repository TypeScript validation passed.
-- `pnpm run lint`: repository lint validation passed after adding the missing flat ESLint configuration.
-- Focused blocker regressions passed `28/28` tests across the client invoke helpers and indexer projection/worker helpers; the client and indexer package builds now pass.
+- `pnpm run lint`: repository lint validation passed.
+- `pnpm run build`: codegen and the client, indexer, and API package builds all passed.
+- `pnpm test`: all `1,279` active tests passed across `130` files; `18` gated contract-integration tests remained explicitly skipped.
+- `pnpm run test:coverage`: the sharded coverage suite passed with `100%` lines, `99.98%` statements, `99.95%` branches, and `99.91%` functions; the only reported gaps are merged-Istanbul mappings on already-exercised `execution-context.ts` signer/config lines.
 
-Merge blocker and next steps:
+Build-blocker resolution:
 
-- The prior client and lint blockers are repaired on this branch, and `pnpm run build` now completes codegen plus the client and indexer package builds. It still fails in the existing `@uspeaks/api` package build on duplicate TypeChain declarations for repeated ABI events, package-level source/test typing debt, and the CommonJS `import.meta` mismatch inherited through `scripts/utils.ts`.
-- Repair the API package build at its source of truth while preserving duplicate event occurrences in the gap inventory, then rerun TypeScript, lint, the full build, `pnpm run test:gap-report`, `pnpm run report:test-gaps`, and `pnpm run coverage:check`.
-- Keep the 2026-08-05 artifact refresh on `codex/abi-gap-report`; do not merge it into `master` until that full verification sequence is green.
+- The API package production build now excludes test and integration sources, preventing test-only TypeChain and repository-script imports from contaminating deployable compilation while preserving those files under Vitest and root lint coverage.
+- Strict production type defects were repaired in shared marketplace/vesting helper contracts, receipt/log normalization, gas diagnostics, signer preparation, and workflow result narrowing. Duplicate ABI event occurrences remain intact in the generated inventory and gap report.
+- No merge blocker remains for the ABI-driven gap report section.
 
 ### Write-Method Invariant Metadata Evidence
 

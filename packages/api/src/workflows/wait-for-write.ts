@@ -27,7 +27,7 @@ export async function waitForWorkflowWriteReceipt(
       (provider) => provider.getTransactionReceipt(txHash),
     );
     if (receipt) {
-      if (receipt.status !== 1n && receipt.status !== 1) {
+      if (Number(receipt.status) !== 1) {
         throw new Error(`${label} transaction reverted: ${txHash}`);
       }
       return txHash;
