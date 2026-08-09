@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-08-03T12:18:07.001Z`
+Generated: `2026-08-09T11:20:59.965Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -32,7 +32,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | baseSepolia | 60 |
 | negativePath | 259 |
 | economic | 162 |
-| redTeam | 8 |
+| redTeam | 11 |
 | indexer | 5 |
 
 ## Methodology
@@ -487,7 +487,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## MultiSigFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.71/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.75/8`.
 
 ### Functions
 
@@ -498,7 +498,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `approveOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `canExecuteOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `cancelOperation` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `execute` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | unsafe on live network |
+| `execute` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | unsafe on live network |
 | `executeOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `getOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getOperationConfig` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
@@ -525,7 +525,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## OwnershipFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.53/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.6/8`.
 
 ### Functions
 
@@ -535,7 +535,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `cancelOwnershipTransfer` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `isOwnerTargetApproved` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOwnershipPolicyEnforced` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `owner` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `owner` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `pendingOwner` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `proposeOwnershipTransfer` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `setApprovedOwnerTarget` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
@@ -748,7 +748,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## TimelockFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2.19/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2.24/8`.
 
 ### Functions
 
@@ -757,7 +757,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `EXECUTOR_ROLE` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `PROPOSER_ROLE` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
 | `cancel` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `execute` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `execute` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `getMinDelay` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getTimestamp` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |

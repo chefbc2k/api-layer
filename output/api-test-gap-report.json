@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-03T12:18:07.001Z",
+  "generatedAt": "2026-08-09T11:20:59.965Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, name, wrapper key, signature, operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -121,6 +121,7 @@
       "packages/indexer/src/projections/tables.test.ts",
       "packages/indexer/src/schema.test.ts",
       "packages/indexer/src/worker.test.ts",
+      "scripts/actor-negative-paths-lib.test.ts",
       "scripts/alchemy-debug-lib.test.ts",
       "scripts/api-surface-lib.test.ts",
       "scripts/base-sepolia-operator-setup.helpers.test.ts",
@@ -166,7 +167,7 @@
       "baseSepolia": 60,
       "negativePath": 259,
       "economic": 162,
-      "redTeam": 8,
+      "redTeam": 11,
       "indexer": 5
     },
     "classificationCounts": {
@@ -12751,6 +12752,7 @@
               "packages/api/src/workflows/stake-and-delegate.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
             "workflowTests": [
@@ -12780,6 +12782,7 @@
               "packages/api/src/workflows/stake-and-delegate.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
             "economicTests": [
@@ -13428,7 +13431,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 1.71,
+          "averageScore": 1.75,
           "maximumScore": 8
         }
       },
@@ -13723,12 +13726,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "unsafe on live network",
@@ -13795,7 +13798,9 @@
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/shared/execution-context.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -14798,7 +14803,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 1.53,
+          "averageScore": 1.6,
           "maximumScore": 8
         }
       },
@@ -15043,12 +15048,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -15096,6 +15101,7 @@
               "packages/client/src/runtime/abi-codec.test.ts",
               "packages/indexer/src/events.test.ts",
               "packages/indexer/src/projections/tables.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
@@ -15163,6 +15169,7 @@
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
               "packages/indexer/src/events.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
@@ -15188,7 +15195,9 @@
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/shared/execution-context.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -19832,6 +19841,7 @@
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
               "packages/api/src/workflows/submit-proposal.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -19847,7 +19857,8 @@
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
-              "packages/api/src/workflows/submit-proposal.test.ts"
+              "packages/api/src/workflows/submit-proposal.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [
               "scripts/base-sepolia-operator-setup.test.ts"
@@ -19901,6 +19912,7 @@
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
               "packages/api/src/workflows/submit-proposal.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -19916,7 +19928,8 @@
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
-              "packages/api/src/workflows/submit-proposal.test.ts"
+              "packages/api/src/workflows/submit-proposal.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -20142,6 +20155,7 @@
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
               "packages/indexer/src/projections/common.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/run-test-coverage.test.ts",
               "scripts/verify-governance-workflows.test.ts",
@@ -20219,6 +20233,7 @@
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/run-test-coverage.test.ts",
               "scripts/verify-governance-workflows.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
@@ -23421,7 +23436,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 2.19,
+          "averageScore": 2.24,
           "maximumScore": 8
         }
       },
@@ -23639,12 +23654,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -23711,7 +23726,9 @@
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/shared/execution-context.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -26019,6 +26036,7 @@
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "workflowTests": [
@@ -26060,6 +26078,7 @@
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
@@ -27067,6 +27086,7 @@
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
               "packages/indexer/src/projections/tables.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
@@ -27097,6 +27117,7 @@
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/license-template-helper.test.ts"
@@ -36519,12 +36540,15 @@
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/execution-context.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
-              "scripts/custom-coverage-provider.test.ts"
+              "scripts/custom-coverage-provider.test.ts",
+              "scripts/run-test-coverage.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
-              "scripts/custom-coverage-provider.test.ts"
+              "packages/api/src/shared/execution-context.test.ts",
+              "scripts/custom-coverage-provider.test.ts",
+              "scripts/run-test-coverage.test.ts"
             ],
             "economicTests": [
               "packages/api/src/shared/alchemy-diagnostics.test.ts"

@@ -226,7 +226,7 @@ export async function runGovernanceTimelockConsequenceFlowWorkflow(
   const currentBlock = await readCurrentBlock(context);
   const finalExecutionReadiness = deriveExecutionReadiness(
     currentProposalState,
-    governance.proposal.readback?.deadline ?? null,
+    readScalarBody(governance.proposal.readback?.deadline),
     currentBlock,
     timelockInspection?.inspection ?? null,
   );

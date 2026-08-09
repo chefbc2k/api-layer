@@ -173,7 +173,7 @@ describe("projection common helpers", () => {
   });
 
   it("normalizes alternate arg aliases and non-finite numeric support values", () => {
-    expect(inferProjectionRecord("licenses", "ledger", "license-1", {
+    expect(inferProjectionRecord("voice_licenses", "ledger", "license-1", {
       buyer: "0x00000000000000000000000000000000000000bb",
       recipient: "0x00000000000000000000000000000000000000cc",
       target: "0x00000000000000000000000000000000000000dd",
@@ -224,7 +224,7 @@ describe("projection common helpers", () => {
   });
 
   it("treats nullish numeric support values as absent", () => {
-    expect(inferProjectionRecord("licenses", "ledger", "license-2", {
+    expect(inferProjectionRecord("voice_licenses", "ledger", "license-2", {
       account: "0x00000000000000000000000000000000000000dd",
       support: undefined,
     }).support).toBeNull();

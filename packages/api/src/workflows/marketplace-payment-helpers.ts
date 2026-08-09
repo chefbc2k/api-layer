@@ -1,4 +1,4 @@
-import type { RouteResult } from "../shared/route-types.js";
+import type { PrimitiveInvocationRequest, RouteResult } from "../shared/route-types.js";
 import { normalizeAddress } from "./reward-campaign-helpers.js";
 
 export type MarketplacePaymentConfig = {
@@ -20,12 +20,12 @@ export type MarketplacePendingPaymentsSnapshot = {
 
 export async function readMarketplacePaymentConfig(
   marketplace: {
-    getUsdcToken: (request: unknown) => Promise<RouteResult>;
-    isPaused: (request: unknown) => Promise<RouteResult>;
-    paymentPaused: (request: unknown) => Promise<RouteResult>;
-    getTreasuryAddress: (request: unknown) => Promise<RouteResult>;
-    getDevFundAddress: (request: unknown) => Promise<RouteResult>;
-    getUnionTreasuryAddress: (request: unknown) => Promise<RouteResult>;
+    getUsdcToken: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    isPaused: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    paymentPaused: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getTreasuryAddress: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getDevFundAddress: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
+    getUnionTreasuryAddress: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,
@@ -81,7 +81,7 @@ export async function readMarketplacePaymentConfig(
 
 export async function readPendingPaymentsSnapshot(
   marketplace: {
-    getPendingPayments: (request: unknown) => Promise<RouteResult>;
+    getPendingPayments: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,
@@ -116,7 +116,7 @@ export async function readPendingPaymentsSnapshot(
 
 async function readPendingPayment(
   marketplace: {
-    getPendingPayments: (request: unknown) => Promise<RouteResult>;
+    getPendingPayments: (request: PrimitiveInvocationRequest) => Promise<RouteResult>;
   },
   auth: import("../shared/auth.js").AuthContext,
   walletAddress: string | undefined,
