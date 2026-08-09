@@ -97,7 +97,7 @@ export async function runRegisterVoiceAssetWorkflow(
       ? {
           submission: metadataUpdate.body,
           txHash: metadataUpdateTxHash,
-          features: featuresRead.body,
+          features: featuresRead!.body,
         }
       : null,
     voiceHash,

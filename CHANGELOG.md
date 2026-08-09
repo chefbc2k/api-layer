@@ -2,7 +2,7 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.254] - 2026-08-04
+## [0.1.259] - 2026-08-09
 
 ### Added
 - **Generated Event-To-Indexer Assurance Now Covers Every Write Declaration:** Added [`packages/indexer/src/event-assurance.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/event-assurance.test.ts) and the `pnpm run test:indexer:assurance` command. The suite synthesizes all `214` generated event entries and binds all `260` write invariants to `287` declared event expectations, `150` declared projection references, and `27` intentionally eventless writes.
@@ -23,8 +23,59 @@
 
 ### Remaining Issues
 - **Event/Indexer Proof Remains Blocked From Merge:** The catalog-driven suite proves every declared synthetic write/event edge, but every real write receipt is not yet executed through deterministic fork fixtures; nested executor attribution and deep-reorg common-ancestor recovery also remain open.
-- **Repository-Wide Quality Gates Have Existing Baseline Failures:** The repo has no lint command/configuration, and `pnpm run build` reaches green codegen/client/indexer stages before the API package reports broad existing TypeScript failures including duplicate generated TypeChain declarations. This partial section must not merge to `master`.
 
+## [0.1.258] - 2026-08-09
+
+### Changed
+- **Actor Negative-Path Evidence Is Current:** Regenerated the persisted actor/signer report with no coverage drift: all `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch API-boundary cases, and `3,171` stale/revoked/expired or ownership-role lifecycle cases.
+
+### Verified
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100` focused tests, and `pnpm test` passed all `1,279` active tests across `130` files with `18` gated contract-integration tests explicitly skipped.
+- **All Merge Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, `pnpm run build`, `pnpm run coverage:check`, and `pnpm run test:coverage` passed. Surface coverage remains complete at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` ABI write invariants; measured coverage is `100%` statements, functions, and lines with `99.97%` branches.
+
+## [0.1.257] - 2026-08-09
+
+### Verified
+- **Write-Invariant Metadata Is Fully Current:** Revalidated the structured actor/role, precondition, post-state readback, event, balance, replay, live-safety, and indexer metadata against the current ABI inventory. The focused stale/missing/signature/reference suite passed `5/5`, and both full codegen and the explicit coverage gate proved `260/260` ABI write methods without catalog or generated-registry drift.
+- **All Merge Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in sequence after refreshing the worktree's cached dependencies; the final build and explicit `pnpm run coverage:check` also passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.256] - 2026-08-09
+
+### Changed
+- **ABI Gap Evidence Is Merge-Ready:** Refreshed [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md) without classification drift: `33` facets, `492` functions, `218` event occurrences, `223` ready, `223` needs fixture, `51` unsafe on live network, and `213` needs indexer proof.
+- **API Builds Only Deployable Sources:** Excluded test and integration TypeScript from the API package production build so test-only TypeChain and repository-script imports no longer introduce duplicate event declarations or CommonJS `import.meta` conflicts.
+
+### Fixed
+- **API Production Types Are Strict-Clean:** Corrected shared marketplace and vesting service contracts, gas and log normalization, signer preparation, nullable workflow results, receipt status compatibility, and state-aware workflow inference without changing the ABI inventory or runtime API surface.
+
+### Verified
+- **Assurance Evidence Passed:** `pnpm run test:gap-report` passed `4/4`, `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:actor-negative-paths` passed `100/100`, both report generators refreshed their committed artifacts, and `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Repository Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, `pnpm run build`, `pnpm test`, and `pnpm run test:coverage` all passed; the full suite remained at `1,279` active tests with `18` gated tests skipped. Merged coverage reports `100%` lines, `99.98%` statements, `99.95%` branches, and `99.91%` functions, with residual mappings confined to already-exercised `execution-context.ts` signer/config lines.
+
+## [0.1.255] - 2026-08-05
+
+### Changed
+- **ABI Gap Evidence Was Revalidated Without Classification Drift:** Regenerated [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md). The inventory remains stable at `33` facets, `492` functions, `218` event occurrences, `223` ready, `223` needs fixture, `51` unsafe on live network, and `213` needs indexer proof.
+- **Quality-Gate Blockers Were Narrowed To The API Package:** Added the missing flat ESLint configuration, aligned client invoke tests with a generated facet key, normalized null block bounds for `ethers`, and corrected stale indexer test types. The client and indexer package builds now pass.
+
+### Verified
+- **Section Evidence Remains Green:** `pnpm run test:gap-report` passed `4/4` tests, `pnpm run report:test-gaps` regenerated both artifacts, and `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Focused And Static Gates Passed:** Client/indexer blocker regressions passed `28/28` tests; `pnpm exec tsc -p tsconfig.json --noEmit` and `pnpm run lint` both passed.
+
+### Remaining Issues
+- **Refresh Remains Held Off Master:** `pnpm run build` now completes codegen plus the client and indexer builds, but `@uspeaks/api` remains red on pre-existing duplicate TypeChain event declarations, broad package source/test typing debt, and the CommonJS `import.meta` mismatch inherited through `scripts/utils.ts`. The work remains on `codex/abi-gap-report` until the full build is green.
+
+## [0.1.254] - 2026-08-04
+
+### Changed
+- **ABI Gap Evidence Was Refreshed Against The Current Master Baseline:** Regenerated [`output/api-test-gap-report.json`](/Users/chef/Public/api-layer/output/api-test-gap-report.json) and [`output/api-test-gap-report.md`](/Users/chef/Public/api-layer/output/api-test-gap-report.md) after the invariant and actor/signer workstreams merged. Inventory and gap classifications remain stable at `33` facets, `492` functions, `218` event occurrences, `223` ready, `223` needs fixture, `51` unsafe on live network, and `213` needs indexer proof.
+- **Three Methods Gained Adversarial Evidence:** Red-team-attributed proof increased from `8` to `11` items because current tests now directly support `MultiSigFacet.execute`, `OwnershipFacet.owner`, and `TimelockFacet.execute`.
+
+### Verified
+- **Section-Specific Gates Passed:** `pnpm run test:gap-report` passed `4/4` tests, `pnpm run report:test-gaps` regenerated both committed artifacts, `pnpm run coverage:check` passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants, and `pnpm exec tsc -p tsconfig.json --noEmit` completed successfully.
+
+### Remaining Issues
+- **Artifact Refresh Is Held Off Master:** `pnpm run build` still fails in `@uspeaks/api-client` because the test-only `TestFacet` is outside the generated facet-name union and a nullable block tag is passed to `ethers`; the repo also has no runnable ESLint configuration. The refresh remains on `codex/abi-gap-report` until those broader quality-gate issues are repaired or formally scoped.
 ## [0.1.253] - 2026-08-03
 
 ### Added
