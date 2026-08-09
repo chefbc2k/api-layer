@@ -61,7 +61,7 @@ async function projectListing(rawEventId: number, txHash: string, blockNumber: b
 
 describe.skipIf(!configuredConnectionString)("PostgreSQL indexer assurance", () => {
   beforeAll(async () => {
-    await db.query("TRUNCATE market_listings, raw_events RESTART IDENTITY CASCADE");
+    await db.query("TRUNCATE market_listings, raw_events, indexer_blocks RESTART IDENTITY CASCADE");
   });
 
   afterAll(async () => {
@@ -139,6 +139,34 @@ describe.skipIf(!configuredConnectionString)("PostgreSQL indexer assurance", () 
     expect(rows.rows).toEqual([
       { block_number: "10", canonical_status: "canonical", is_current: true },
       { block_number: "11", canonical_status: "orphaned", is_current: false },
+    ]);
+  });
+
+  it("journals empty canonical blocks and admits replacements only after orphaning", async () => {
+    const insert = `
+      INSERT INTO indexer_blocks (
+        chain_id, block_number, block_hash, parent_hash, canonical_status, is_orphaned
+      ) VALUES (84532, 20, $1, '0xblock-19', 'canonical', FALSE)
+      ON CONFLICT (chain_id, block_number, block_hash)
+      DO UPDATE SET canonical_status = 'canonical', is_orphaned = FALSE, orphaned_at = NULL
+    `;
+    await db.query(insert, ["0xold-20"]);
+    await db.query(insert, ["0xold-20"]);
+    await expect(db.query(insert, ["0xnew-20"])).rejects.toThrow();
+
+    await db.query(`
+      UPDATE indexer_blocks
+      SET canonical_status = 'orphaned', is_orphaned = TRUE, orphaned_at = timezone('utc', now())
+      WHERE chain_id = 84532 AND block_number = 20
+    `);
+    await db.query(insert, ["0xnew-20"]);
+
+    const rows = await db.query<{ block_hash: string; canonical_status: string; is_orphaned: boolean }>(
+      "SELECT block_hash, canonical_status, is_orphaned FROM indexer_blocks WHERE block_number = 20 ORDER BY block_hash",
+    );
+    expect(rows.rows).toEqual([
+      { block_hash: "0xnew-20", canonical_status: "canonical", is_orphaned: false },
+      { block_hash: "0xold-20", canonical_status: "orphaned", is_orphaned: true },
     ]);
   });
 });

@@ -54,7 +54,12 @@ async function main(): Promise<void> {
     await run(psql, [...databaseArgs, "-c", "create function auth.uid() returns uuid language sql stable as 'select null::uuid';"]);
     await run(psql, [...databaseArgs, "-c", "create function auth.jwt() returns json language sql stable as 'select json_build_object();';"]);
     for (let pass = 0; pass < 2; pass += 1) {
-      await run(psql, [...databaseArgs, "-f", "db/migrations/0001_initial.sql", "-f", "db/migrations/0002_hardening.sql"]);
+      await run(psql, [
+        ...databaseArgs,
+        "-f", "db/migrations/0001_initial.sql",
+        "-f", "db/migrations/0002_hardening.sql",
+        "-f", "db/migrations/0003_indexer_block_journal.sql",
+      ]);
     }
 
     const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "--maxWorkers", "1"], {
