@@ -153,6 +153,15 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Local-Fork Automation Run — 2026-08-10
+
+- **Current-master audit found no orchestrator or safety drift:** `pnpm run test:local-fork-runner` passed `9/9`, preserving deterministic stage order, structured gap collection, loopback-default execution, and the two explicit acknowledgements required for destructive/admin live runs.
+- **A fresh cold proof passed every stage on its first attempt:** `pnpm run verify:local-fork -- --continue-on-gap` started its own pruned loopback fork and passed all `9/9` stages. Fixture setup funded founder/seller/buyer/licensee/transferee actors, provisioned buyer USDC balance and allowance, validated governance readiness, and produced a purchase-ready listing aged by `86,401` fork seconds.
+- **Write and lifecycle artifacts remain proven:** the HTTP contract proof passed `18/18`; core, completion, remaining-lifecycle, marketplace-purchase, and governance artifacts all report `proven working`. The marketplace proof records the `4000 -> 3000` buyer balance and allowance deltas with successful receipt and purchase/payment/release events, while governance reached active state and persisted successful proposal and vote transactions.
+- **Exhaustive state gaps remain correctly structured:** the final sweep attempted all `232` reviewed reads and `214` event routes, passed `430/446`, and emitted the same `16` `needs fixture` records with zero runner failures or generic proof gaps. The aggregate report records local-fork mode, a runner-started fork, and both live-network acknowledgement flags as `false`.
+- **Quality and coverage gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. The build-embedded and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; regeneration produced no semantic artifact changes.
+- **Merge decision:** complete and verified for merge; no implementation change or blocker was found on current master.
+
 ### Write-Invariant Metadata Automation Run — 2026-08-10
 
 - **Current-master audit found no ABI or metadata drift:** the reviewed catalog still covers all `260` mounted ABI write methods across `31` facets, with structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer expectations for every write.
