@@ -2,6 +2,14 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.264] - 2026-08-10
+
+### Verified
+- **Local-Fork Assurance Has No Current-Master Drift:** Re-ran `pnpm run test:local-fork-runner` (`9/9`) and a cold `pnpm run verify:local-fork -- --continue-on-gap` from current master. The runner started its own pruned loopback fork and passed all `9/9` inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stages on their first attempt.
+- **Fresh Fixtures And Transaction Evidence Are Proven:** Fixture setup funded all actors, prepared buyer USDC balance and allowance, validated governance readiness, and produced a purchase-ready listing aged by `86,401` fork seconds. The HTTP contract suite passed `18/18`; core, completion, remaining-lifecycle, marketplace-purchase, and governance artifacts all report `proven working`, including receipt, event, and post-state evidence.
+- **Exhaustive Gaps Remain Structured State Requirements:** The final sweep attempted all `232` reviewed reads and `214` event routes, passed `430/446`, and persisted the same `16` `needs fixture` gaps with zero runner failures or generic proof gaps. Loopback remained the default, with neither live-network acknowledgement flag enabled.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. The explicit `pnpm run coverage:check` gate passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants; regeneration produced no semantic artifact changes.
+
 ## [0.1.263] - 2026-08-10
 
 ### Changed
