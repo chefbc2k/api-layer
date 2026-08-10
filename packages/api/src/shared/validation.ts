@@ -24,7 +24,33 @@ function parseArrayType(type: string): { baseType: string; lengths: Array<number
 }
 
 function integerWireSchema(type: string): z.ZodType<string> {
-  return z.string().regex(type.startsWith("uint") ? /^\d+$/u : /^-?\d+$/u, `invalid ${type} decimal string`);
+  const unsigned = type.startsWith("uint");
+  const bits = Number(type.slice(unsigned ? "uint".length : "int".length) || "256");
+  const minimum = unsigned ? 0n : -(1n << BigInt(bits - 1));
+  const maximum = unsigned ? (1n << BigInt(bits)) - 1n : (1n << BigInt(bits - 1)) - 1n;
+  return z
+    .string()
+    .regex(unsigned ? /^\d+$/u : /^-?\d+$/u, `invalid ${type} decimal string`)
+    .superRefine((value, ctx) => {
+      if (!(unsigned ? /^\d+$/u : /^-?\d+$/u).test(value)) {
+        return;
+      }
+      const parsed = BigInt(value);
+      if (parsed < minimum || parsed > maximum) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${type} value out of range`,
+        });
+      }
+    });
+}
+
+function bytesWireSchema(type: string): z.ZodType<string> {
+  if (type === "bytes") {
+    return z.string().regex(/^0x(?:[0-9a-fA-F]{2})*$/u, "invalid hex string");
+  }
+  const size = Number(type.slice("bytes".length));
+  return z.string().regex(new RegExp(`^0x[0-9a-fA-F]{${size * 2}}$`, "u"), "invalid hex string");
 }
 
 function isManagedTemplateIdentityField(definition: HttpMethodDefinition, path: string[], component: AbiParameter): boolean {
@@ -85,7 +111,10 @@ function buildWireScalarSchema(definition: HttpMethodDefinition, param: AbiParam
     return objectSchema;
   }
   if (/^bytes(\d+)?$/u.test(param.type)) {
-    return z.string().regex(/^0x[0-9a-fA-F]*$/u, "invalid hex string");
+    return bytesWireSchema(param.type);
+  }
+  if (param.type === "function") {
+    return z.string().regex(/^0x[0-9a-fA-F]{48}$/u, "invalid function hex string");
   }
   return z.unknown();
 }

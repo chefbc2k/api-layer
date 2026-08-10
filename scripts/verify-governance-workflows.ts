@@ -143,6 +143,13 @@ async function getTransactionStatus(port: number, txHash: string): Promise<ApiRe
   return apiCall(port, "GET", `/v1/transactions/${txHash}`, { apiKey: "read-key" });
 }
 
+export function activationBlocksToMine(currentBlock: bigint, snapshotBlock: bigint): bigint {
+  if (currentBlock <= snapshotBlock) {
+    return snapshotBlock - currentBlock + 2n;
+  }
+  return 1n;
+}
+
 async function waitForActiveProposal(provider: JsonRpcProvider, rpcUrl: string, port: number, proposalId: string): Promise<{
   snapshotBlock: string | null;
   deadlineBlock: string | null;
@@ -172,11 +179,12 @@ async function waitForActiveProposal(provider: JsonRpcProvider, rpcUrl: string, 
     if (
       latestState !== ACTIVE_PROPOSAL_STATE &&
       isLoopbackRpcUrl(rpcUrl) &&
-      latestSnapshotBlock &&
-      BigInt(latestCurrentBlock) <= BigInt(latestSnapshotBlock)
+      latestSnapshotBlock
     ) {
-      const delta = BigInt(latestSnapshotBlock) - BigInt(latestCurrentBlock);
-      const blocksToMine = delta >= 0n ? delta + 1n : 1n;
+      const blocksToMine = activationBlocksToMine(
+        BigInt(latestCurrentBlock),
+        BigInt(latestSnapshotBlock),
+      );
       await provider.send("anvil_mine", [ethers.toQuantity(blocksToMine)]);
       latestCurrentBlock = String(await currentBlockFromProvider(provider));
       continue;

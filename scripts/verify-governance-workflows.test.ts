@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  activationBlocksToMine,
   buildGovernanceOutput,
   isInsufficientFundsPayload,
   proposalIdFromSubmit,
 } from "./verify-governance-workflows.js";
 
 describe("verify-governance-workflows helpers", () => {
+  it("mines beyond the activation boundary and keeps advancing while a fork remains pending", () => {
+    expect(activationBlocksToMine(100n, 110n)).toBe(12n);
+    expect(activationBlocksToMine(110n, 110n)).toBe(2n);
+    expect(activationBlocksToMine(111n, 110n)).toBe(1n);
+  });
+
   it("extracts proposal ids from nested workflow payloads", () => {
     expect(proposalIdFromSubmit({ proposalId: "11" })).toBe("11");
     expect(proposalIdFromSubmit({ proposal: { proposalId: "42" } })).toBe("42");
