@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.265] - 2026-08-10
+
+### Verified
+
+- **Red-Team Harness Has No Current-Master Drift:** `pnpm run test:redteam` passed `103/103`, retaining deterministic valid values and `1,914` invalid mutations across all `521` inputs on the `259` mounted HTTP writes, plus replay, conservation, ordering, signer-confusion, stale-RPC, diamond, timelock, multisig, and emergency-control oracles.
+- **Guarded Fork And Workflow Probes Passed:** `pnpm run redteam:local-fork` passed `135/135` across `9` files, including all `5/5` real loopback probes and the emergency, governance/timelock, multisig, duplicate-log, decode, and reorg suites. Snapshot/revert cleanup completed without enabling a destructive live-network path.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. The explicit `pnpm run coverage:check` remained complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Coverage And Persistent Reporting Stayed Current:** `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines. `pnpm run report:test-gaps` refreshed the persistent artifacts without classification drift, with red-team evidence still attributed to `29` ABI items.
+
 ## [0.1.264] - 2026-08-10
 
 ### Verified

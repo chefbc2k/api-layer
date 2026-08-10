@@ -153,6 +153,14 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Red-Team Harness Automation Run — 2026-08-10
+
+- **Current-master audit found no mutation or oracle drift:** `pnpm run test:redteam` passed `103/103`, preserving deterministic valid-value generation and `1,914` invalid mutations across all `521` inputs on the `259` mounted HTTP writes, plus replay, value-conservation, state-ordering, signer-confusion, stale-RPC, diamond-admin, timelock, multisig, and emergency-control detectors.
+- **Guarded local-fork probes remain complete:** `pnpm run redteam:local-fork` passed `135/135` across `9` files. The `5/5` real loopback probes rejected malformed/unknown calldata, prevented a signed-transaction replay from transferring value twice, rejected an unprivileged selector-collision cut with a malicious initializer, preserved emergency state against unauthorized stop/resume and early timelock attempts, and detected stale fork responses.
+- **Relevant workflow and indexer coverage passed in the same gate:** emergency, governance/timelock, multisig, duplicate-log, event-decode, and reorg suites all remained green. The suite started or reused only a loopback fork, snapshot/revert cleanup completed, and no live-network destructive path was enabled.
+- **Quality, surface, and measured coverage gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. The explicit `pnpm run coverage:check` reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines.
+- **Reporting and merge decision:** `pnpm run report:test-gaps` refreshed the persistent reports without proof-depth or classification drift; red-team evidence remains attributed to `29` ABI items. The workstream is complete and verified for merge, with no implementation blocker on current master.
+
 ### Local-Fork Automation Run — 2026-08-10
 
 - **Current-master audit found no orchestrator or safety drift:** `pnpm run test:local-fork-runner` passed `9/9`, preserving deterministic stage order, structured gap collection, loopback-default execution, and the two explicit acknowledgements required for destructive/admin live runs.
@@ -213,7 +221,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
 | Local-fork destructive automation | Complete and verified (2026-08-09) | deterministic `9/9`-stage cold run, funded/approved/aged fixtures, `18/18` HTTP contract proof, `446/446` reviewed read/event attempts with structured state gaps, bounded Anvil history, strict live flags, `9/9` focused tests, and green TypeScript/lint/build/coverage gates |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
-| Red-team mutation and fuzzing | Complete and verified (2026-08-09) | `1,914` invalid wire mutations across `259` mounted writes, deterministic replay/value/state/RPC/signer/admin oracles, `5/5` loopback-fork probes, `135/135` fork/workflow tests, and green TypeScript/lint/build/coverage gates |
+| Red-team mutation and fuzzing | Complete and verified (2026-08-10) | `1,914` invalid wire mutations across `259` mounted writes, deterministic replay/value/state/RPC/signer/admin oracles, `5/5` loopback-fork probes, `135/135` fork/workflow tests, and green TypeScript/lint/build/coverage gates |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
 
@@ -271,7 +279,7 @@ Verification evidence:
 
 ### Red-Team Mutation And Fuzzing Evidence
 
-The red-team harness, completed and revalidated against current `master` on 2026-08-09, generates valid wire values and `1,914` deterministic invalid mutations across all `521` inputs on the `259` mounted HTTP write endpoints. The `29` mutation classes cover integer syntax and overflow/underflow, addresses, booleans, tuples, fixed/dynamic/nested arrays, bytes and calldata length/encoding, and function pointers. The live write inventory includes direct mutation targets for role IDs (`9` inputs), nonces (`3`), calldata (`7`), token IDs (`16`), prices (`4`), deadlines (`5`), and signatures (`1`); actor/API-key signer confusion and scheduled/attempted timestamps are exercised by dedicated adversarial oracles.
+The red-team harness, completed and revalidated against current `master` on 2026-08-10, generates valid wire values and `1,914` deterministic invalid mutations across all `521` inputs on the `259` mounted HTTP write endpoints. The `29` mutation classes cover integer syntax and overflow/underflow, addresses, booleans, tuples, fixed/dynamic/nested arrays, bytes and calldata length/encoding, and function pointers. The live write inventory includes direct mutation targets for role IDs (`9` inputs), nonces (`3`), calldata (`7`), token IDs (`16`), prices (`4`), deadlines (`5`), and signatures (`1`); actor/API-key signer confusion and scheduled/attempted timestamps are exercised by dedicated adversarial oracles.
 
 The harness also supplies deterministic detectors for replay fingerprints, double-spend/value conservation, illegal state transitions, stale/forked/inconsistent RPC snapshots, selector collisions and duplicates, missing replacement selectors, untrusted or malformed diamond initialization, early/substituted timelock operations, duplicate/insufficient multisig approvals, and emergency state/approval/timelock bypasses. API and client wire validation now fail closed on integer width overflow, odd-length dynamic bytes, incorrectly sized fixed bytes, and malformed 24-byte ABI function pointers.
 
