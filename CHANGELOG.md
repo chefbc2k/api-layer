@@ -9,6 +9,8 @@
 - **Disposable PostgreSQL Assurance Is Now A Repeatable Gate:** Added `pnpm run test:indexer:postgres`, which starts a temporary PostgreSQL cluster, applies all migrations twice, and verifies duplicate replay, raw/projection rollback, orphaning, and current-row rebuild behavior under real constraints.
 - **Indexer Resilience Cases Are Explicitly Proven:** Expanded [`packages/indexer/src/worker.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.test.ts) with duplicate ingestion/replay, delayed RPC, direct and nested transaction-context ambiguity resolution, two-log partial-range failure, empty-block journaling, and deep common-ancestor reorg recovery.
 - **Canonical Block History Is Persisted:** Added the internal `indexer_blocks` journal so every fetched height, including blocks with no logs, has enough canonical evidence for deterministic deep-reorg rollback.
+- **Real Workflow Receipts Now Feed Disposable PostgreSQL:** Added a tenth local-fork assurance stage that discovers persisted workflow transaction hashes, attributes each diamond write from its calldata selector, ingests the exact receipt blocks through the production indexer, checks declared event modes and projection tables, and replays the blocks against real PostgreSQL constraints.
+- **Receipt Proof Artifacts Quantify Fixture Coverage:** The new `.runtime/local-fork-proofs/event-indexer.json` artifact records per-receipt event/projection evidence, aggregate raw/projection row counts, replay counts, proven write methods, and the exact write-method remainder.
 
 ### Fixed
 - **Ambiguous Diamond Events Use Generated Write Context Or Fail Closed:** Updated [`packages/indexer/src/events.ts`](/Users/chef/Public/api-layer/packages/indexer/src/events.ts) and [`packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts) so identical topics are resolved only when the unique originating write selector's generated invariant names one candidate. Unresolved logs persist every candidate and skip unsafe projection.
@@ -20,12 +22,13 @@
 - **Existing Package Builds Were Unblocked:** Corrected generated-facet typing in [`packages/client/src/runtime/invoke.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts), normalized null event block bounds to `undefined` in [`packages/client/src/runtime/invoke.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts), and corrected stale indexer test table/timer types.
 
 ### Verified
-- **Indexer And PostgreSQL Assurance Pass:** `pnpm run test:indexer:assurance` passes `47/47` active tests and `pnpm run test:indexer:postgres` passes `4/4` real-database tests.
-- **Repository Coverage Passes:** `pnpm run test:coverage` passes at `99.96%` statements, `99.79%` branches, `100%` functions, and `99.95%` lines; the expanded indexer worker reports `98.23%` statements, `90.36%` branches, `100%` functions, and `98.11%` lines.
+- **Indexer And PostgreSQL Assurance Pass:** `pnpm run test:indexer:assurance` passes `51/51` active tests and `pnpm run test:indexer:postgres` passes `4/4` real-database tests.
+- **Fresh Local-Fork Receipts Pass End To End:** `pnpm run verify:local-fork -- --continue-on-gap` passed all `10/10` stages on the first attempt. The receipt stage indexed `38` successful transactions across `28` distinct catalog writes, persisted `68` canonical raw events and `53` projection rows, satisfied every declared event/projection assertion, and left every table count unchanged on replay.
+- **Repository Coverage Passes:** `pnpm run test:coverage` passes at `99.73%` statements, `99.61%` branches, `99.54%` functions, and `99.80%` lines; the indexer worker reports `96.52%` statements, `90.36%` branches, `92.59%` functions, and `96.29%` lines after exposing the bounded receipt-ingestion lifecycle.
 - **TypeScript, Package, And Surface Gates:** Root TypeScript validation, ESLint, and the full codegen/client/indexer/API build pass. The build's `pnpm run coverage:check` remains green at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 
 ### Remaining Issues
-- **Event/Indexer Proof Remains Blocked From Merge:** The catalog-driven suite proves every declared synthetic write/event edge, but every real write receipt is not yet executed through deterministic fork fixtures. The production RPC path also needs an explicit call-tracer capability proof for nested shared-signature attribution.
+- **Event/Indexer Proof Remains Blocked From Merge:** Real receipt coverage now proves `28/260` write methods, leaving `232` methods without deterministic fork receipts. The configured production RPC path also still needs an explicit call-tracer capability proof for nested shared-signature attribution.
 
 ## [0.1.263] - 2026-08-10
 

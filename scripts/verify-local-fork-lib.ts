@@ -214,6 +214,14 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       artifactPath: path.join(PROOF_DIR, "governance.json"),
     },
     {
+      id: "event-indexer-proof",
+      description: "decode real workflow receipts, project them into PostgreSQL, and prove replay idempotency",
+      command: "pnpm",
+      args: ["run", "proof:indexer:local-fork-receipts"],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
+    },
+    {
       id: "probe-safe-reads",
       description: "execute every reviewed read and event endpoint with lifecycle fixture inputs",
       command: "pnpm",

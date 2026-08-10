@@ -402,6 +402,10 @@ export class EventIndexer {
     });
   }
 
+  async ingestRange(fromBlock: bigint, toBlock: bigint, head: bigint): Promise<void> {
+    await this.processRange(fromBlock, toBlock, head);
+  }
+
   async backfill(): Promise<void> {
     const storedCheckpoint = await this.getCheckpoint();
     const checkpoint = await this.detectReorg(storedCheckpoint);
@@ -419,5 +423,9 @@ export class EventIndexer {
       await this.backfill();
       await new Promise((resolve) => setTimeout(resolve, this.env.API_LAYER_INDEXER_POLL_INTERVAL_MS));
     }
+  }
+
+  async close(): Promise<void> {
+    await this.db.close();
   }
 }
