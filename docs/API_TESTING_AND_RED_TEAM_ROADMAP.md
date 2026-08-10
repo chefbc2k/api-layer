@@ -153,6 +153,14 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Write-Invariant Metadata Automation Run — 2026-08-10
+
+- **Current-master audit found no ABI or metadata drift:** the reviewed catalog still covers all `260` mounted ABI write methods across `31` facets, with structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer expectations for every write.
+- **Fail-closed validation remains complete:** `pnpm run test:write-invariants` passed `5/5`, including missing and stale method detection, signature drift, incomplete sections, invalid modes, stale read/event references, inconsistent indexer expectations, and the repository-level `260/260` assertion.
+- **Generator and quality gates passed:** the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Regeneration was semantically clean:** neither `reviewed/reviewed-write-invariants.json` nor `generated/manifests/write-invariant-registry.json` changed. The reviewed API surface's transient generation timestamp was restored rather than committed as non-semantic churn.
+- **Merge decision:** complete and verified for merge; no blocker or follow-up metadata addition is required on the current ABI inventory.
+
 ### Local-Fork Automation Run — 2026-08-09
 
 - **Deterministic cold runner completed:** `pnpm run verify:local-fork -- --continue-on-gap` completed from fork startup through the final exhaustive sweep with all `9/9` stages passing on their first attempt. Fixture setup funded founder/seller/buyer/licensee/transferee actors, provisioned buyer USDC balance and allowance, validated governance roles/votes, and produced a purchase-ready listing aged by `86,401` fork seconds.
@@ -182,7 +190,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
 | ABI-driven gap report | Complete and verified (2026-08-10) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
-| Write-method invariant metadata | Complete and verified (2026-08-09) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
+| Write-method invariant metadata | Complete and verified (2026-08-10) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete and verified (2026-08-09) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
@@ -224,7 +232,7 @@ Verification evidence:
 - `pnpm run test:write-invariants`: `5/5` focused generator and validation tests passed, including a repository-level `260/260` current-ABI assertion.
 - `pnpm run codegen`: regenerated all ABI/API artifacts and proved `260/260` invariant coverage during both registry generation and the final coverage gate.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
-- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: the fixed-order repository quality sequence passed on 2026-08-09; the full build reran codegen and all client, indexer, and API package builds.
+- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: the fixed-order repository quality sequence passed on 2026-08-10; the full build reran codegen and all client, indexer, and API package builds.
 - Regeneration produced no semantic changes to the invariant catalog or generated registry. The only transient output was the reviewed API surface's generation timestamp, which was restored to avoid committing non-semantic churn.
 - No merge blocker remains for the write-method invariant metadata section.
 
