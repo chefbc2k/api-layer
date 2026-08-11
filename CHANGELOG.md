@@ -15,9 +15,15 @@
 - **Ambiguous Diamond Events Fail Closed:** Identical event topics are resolved only when the outer write selector or an optional nested call trace identifies exactly one generated invariant candidate; otherwise all candidates remain raw evidence and unsafe projection is skipped.
 - **Indexer Ranges Commit Atomically And Reorgs Resume From The Rewound Cursor:** Raw logs, projections, block-journal rows, and checkpoint advancement now share one transaction, while deep-reorg recovery finds a common canonical ancestor and resumes without skipping replacement blocks.
 
+### Verified
+
+- **Production Call-Tracer Capability Is Persisted:** Added `pnpm run proof:indexer:trace-capability` and [`output/indexer-trace-capability.json`](/Users/chef/Public/api-layer-event-indexer-proof/output/indexer-trace-capability.json). The credential-safe probe selected the runtime's Base Sepolia public fallback, confirmed chain `84532`, found a recent successful transaction, and received an object result from `debug_traceTransaction` with `callTracer`.
+- **Indexer, PostgreSQL, And Quality Gates Pass:** `pnpm run test:indexer:assurance` passes `56/56` active tests, `pnpm run test:indexer:postgres` passes `4/4`, and the ordered TypeScript, lint, and build gates pass. The explicit surface gate remains complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Passes:** `pnpm run test:coverage` passes at `99.70%` statements, `99.51%` branches, `99.54%` functions, and `99.76%` lines.
+
 ### Remaining Issues
 
-- **Event/Indexer Proof Is Not Merge-Ready:** The latest real-receipt run proves `28/260` catalog writes and leaves `232` without deterministic fork receipts. The configured RPC path also returned unsupported for `debug_traceTransaction` with `callTracer`, so nested shared-signature attribution cannot yet be guaranteed in production.
+- **Event/Indexer Proof Is Not Merge-Ready:** The latest real-receipt run proves `28/260` catalog writes and leaves `232` without deterministic fork receipts. Production call tracing is now proven; deterministic fixture and receipt expansion is the sole remaining section blocker.
 
 ## [0.1.268] - 2026-08-11
 
