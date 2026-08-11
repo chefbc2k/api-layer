@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.269] - 2026-08-11
+
+### Verified
+
+- **Local-Fork Assurance Has No Current-Master Drift:** `pnpm run test:local-fork-runner` passed `9/9`, and a cold `pnpm run verify:local-fork -- --continue-on-gap` started its own pruned loopback fork and passed all `9/9` inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stages on their first attempt.
+- **Fresh Fixtures And Write Evidence Remain Proven:** Fixture setup funded founder, seller, buyer, licensee, and transferee actors; provisioned buyer USDC balance and allowance at `4000/4000`; confirmed governance readiness; and aged a purchase-ready listing by `86,401` fork seconds. The HTTP contract suite passed `18/18`, and all five domain proof artifacts report `proven working` with transaction, receipt, event, and post-state evidence.
+- **Settlement, Governance, And Structured Gaps Stayed Deterministic:** Marketplace purchase moved buyer balance and allowance from `4000` to `3000` and persisted purchase/payment/release events. Governance submitted proposal `43`, advanced it to active state, and recorded a successful vote. The final sweep passed `430/446` reviewed routes and retained exactly `16` `needs fixture` gaps with no runner failures or generic proof gaps.
+- **Safety And Merge Gates Passed:** The aggregate report records local-fork mode, a runner-started fork, and both live-network acknowledgement flags as `false`. With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order; the explicit `pnpm run coverage:check` gate passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.268] - 2026-08-11
 
 ### Changed
