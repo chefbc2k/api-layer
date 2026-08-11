@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-10T15:02:01.421Z",
+  "generatedAt": "2026-08-11T15:06:02.626Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, name, wrapper key, signature, operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -132,6 +132,7 @@
       "scripts/coverage-fs-patch.test.ts",
       "scripts/custom-coverage-provider.test.ts",
       "scripts/http-registry.test.ts",
+      "scripts/indexer-receipt-proof-lib.test.ts",
       "scripts/license-template-helper.test.ts",
       "scripts/manifest.test.ts",
       "scripts/red-team-harness-lib.test.ts",
@@ -12907,6 +12908,7 @@
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "scripts/api-surface-lib.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "workflowTests": [
@@ -12916,6 +12918,7 @@
             "negativePathTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "economicTests": [
@@ -32022,6 +32025,7 @@
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/coverage-fs-patch.test.ts",
               "scripts/custom-coverage-provider.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/license-template-helper.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/run-test-coverage.test.ts",
@@ -32099,6 +32103,7 @@
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/custom-coverage-provider.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/run-test-coverage.test.ts",
               "scripts/verify-local-fork-lib.test.ts"

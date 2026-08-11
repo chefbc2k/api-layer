@@ -2,33 +2,73 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.264] - 2026-08-10
+## [0.1.269] - 2026-08-11
 
 ### Added
-- **Generated Event-To-Indexer Assurance Now Covers Every Write Declaration:** Added [`packages/indexer/src/event-assurance.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/event-assurance.test.ts) and the `pnpm run test:indexer:assurance` command. The suite synthesizes all `214` generated event entries and binds all `260` write invariants to `287` declared event expectations, `150` declared projection references, and `27` intentionally eventless writes.
-- **Disposable PostgreSQL Assurance Is Now A Repeatable Gate:** Added `pnpm run test:indexer:postgres`, which starts a temporary PostgreSQL cluster, applies all migrations twice, and verifies duplicate replay, raw/projection rollback, orphaning, and current-row rebuild behavior under real constraints.
-- **Indexer Resilience Cases Are Explicitly Proven:** Expanded [`packages/indexer/src/worker.test.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.test.ts) with duplicate ingestion/replay, delayed RPC, direct and nested transaction-context ambiguity resolution, two-log partial-range failure, empty-block journaling, and deep common-ancestor reorg recovery.
-- **Canonical Block History Is Persisted:** Added the internal `indexer_blocks` journal so every fetched height, including blocks with no logs, has enough canonical evidence for deterministic deep-reorg rollback.
-- **Real Workflow Receipts Now Feed Disposable PostgreSQL:** Added a tenth local-fork assurance stage that discovers persisted workflow transaction hashes, attributes each diamond write from its calldata selector, ingests the exact receipt blocks through the production indexer, checks declared event modes and projection tables, and replays the blocks against real PostgreSQL constraints.
-- **Receipt Proof Artifacts Quantify Fixture Coverage:** The new `.runtime/local-fork-proofs/event-indexer.json` artifact records per-receipt event/projection evidence, aggregate raw/projection row counts, replay counts, proven write methods, and the exact write-method remainder.
+
+- **Generated Event-To-Indexer Assurance Covers Every Write Declaration:** The indexer assurance suite synthesizes all `214` generated event-registry entries and binds all `260` write invariants to `287` declared event expectations, `150` projection references, and `27` intentionally eventless writes.
+- **Real Workflow Receipts Feed Disposable PostgreSQL:** The local-fork runner includes an `event-indexer-proof` stage that discovers workflow transaction hashes, attributes successful diamond writes through the generated selector registry, ingests their exact blocks with the production indexer, verifies declared events and projections, and checks replay idempotency across `raw_events` and all `22` projection tables.
+- **Disposable PostgreSQL And Resilience Gates Are Repeatable:** `pnpm run test:indexer:postgres` applies all migrations twice and verifies duplicate replay, atomic raw/projection rollback, reorg orphaning, current-row rebuild, delayed RPC handling, partial-range failure, and canonical block replacement against real constraints.
 
 ### Fixed
-- **Ambiguous Diamond Events Use Generated Write Context Or Fail Closed:** Updated [`packages/indexer/src/events.ts`](/Users/chef/Public/api-layer/packages/indexer/src/events.ts) and [`packages/indexer/src/worker.ts`](/Users/chef/Public/api-layer/packages/indexer/src/worker.ts) so identical topics are resolved only when the unique originating write selector's generated invariant names one candidate. Unresolved logs persist every candidate and skip unsafe projection.
-- **Whole Ranges Now Commit Atomically:** Raw-log insertion, all projections in a fetched range, and checkpoint advancement now use one PostgreSQL transaction, preventing an early log from committing when a later projection fails.
-- **Reorg Backfill Uses The Rewound Cursor:** Fixed `backfill()` continuing from its stale pre-reorg checkpoint after database rollback, which could skip replacement-chain blocks.
-- **Nested Executor Events Fail Closed:** Added optional call-trace selector attribution for multisig, timelock, and generic executor transactions. Unsupported tracing or non-unique nested candidates remain safely persisted as ambiguous raw evidence without projection.
-- **Indexer Migrations Now Run On PostgreSQL And Remain Idempotent:** Replaced unsupported `CREATE POLICY IF NOT EXISTS`, made projection triggers replaceable, and corrected double-suffixed dynamic policy names after the real-database gate exposed each failure.
-- **Decoded Solidity Integers Can Be Persisted:** Raw decoded arguments now use the projection sanitizer before JSON encoding, eliminating the `JSON.stringify` failure caused by ethers `bigint` values.
-- **Existing Package Builds Were Unblocked:** Corrected generated-facet typing in [`packages/client/src/runtime/invoke.test.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.test.ts), normalized null event block bounds to `undefined` in [`packages/client/src/runtime/invoke.ts`](/Users/chef/Public/api-layer/packages/client/src/runtime/invoke.ts), and corrected stale indexer test table/timer types.
 
-### Verified
-- **Indexer And PostgreSQL Assurance Pass:** `pnpm run test:indexer:assurance` passes `51/51` active tests and `pnpm run test:indexer:postgres` passes `4/4` real-database tests.
-- **Fresh Local-Fork Receipts Pass End To End:** `pnpm run verify:local-fork -- --continue-on-gap` passed all `10/10` stages on the first attempt. The receipt stage indexed `38` successful transactions across `28` distinct catalog writes, persisted `68` canonical raw events and `53` projection rows, satisfied every declared event/projection assertion, and left every table count unchanged on replay.
-- **Repository Coverage Passes:** `pnpm run test:coverage` passes at `99.73%` statements, `99.61%` branches, `99.54%` functions, and `99.80%` lines; the indexer worker reports `96.52%` statements, `90.36%` branches, `92.59%` functions, and `96.29%` lines after exposing the bounded receipt-ingestion lifecycle.
-- **TypeScript, Package, And Surface Gates:** Root TypeScript validation, ESLint, and the full codegen/client/indexer/API build pass. The build's `pnpm run coverage:check` remains green at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Ambiguous Diamond Events Fail Closed:** Identical event topics are resolved only when the outer write selector or an optional nested call trace identifies exactly one generated invariant candidate; otherwise all candidates remain raw evidence and unsafe projection is skipped.
+- **Indexer Ranges Commit Atomically And Reorgs Resume From The Rewound Cursor:** Raw logs, projections, block-journal rows, and checkpoint advancement now share one transaction, while deep-reorg recovery finds a common canonical ancestor and resumes without skipping replacement blocks.
 
 ### Remaining Issues
-- **Event/Indexer Proof Remains Blocked From Merge:** Real receipt coverage now proves `28/260` write methods, leaving `232` methods without deterministic fork receipts. The configured production RPC path also still needs an explicit call-tracer capability proof for nested shared-signature attribution.
+
+- **Event/Indexer Proof Is Not Merge-Ready:** The latest real-receipt run proves `28/260` catalog writes and leaves `232` without deterministic fork receipts. The configured RPC path also returned unsupported for `debug_traceTransaction` with `callTracer`, so nested shared-signature attribution cannot yet be guaranteed in production.
+
+## [0.1.268] - 2026-08-11
+
+### Changed
+
+- **Actor And Signer Evidence Is Current With No Coverage Drift:** Regenerated the persisted actor report against current master. All `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` stale/revoked/expired or ownership-role lifecycle cases.
+
+### Verified
+
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`; `pnpm test` passed all `1,300` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. The explicit `pnpm run coverage:check` gate passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merged Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines; shared API authorization remains fully covered.
+
+## [0.1.267] - 2026-08-11
+
+### Verified
+
+- **Write-Invariant Metadata Has No Current-Master Drift:** Revalidated the required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-safety, and indexer fields for all `260` ABI writes across `31` facets. Neither the reviewed catalog nor generated registry changed semantically.
+- **Fail-Closed Coverage Passed:** `pnpm run test:write-invariants` passed `5/5`, covering missing/stale methods, signature and reference drift, incomplete or invalid metadata, and the repository-wide `260/260` assertion. The explicit `pnpm run coverage:check` also passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order; build-time codegen independently reconfirmed complete invariant coverage.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines.
+
+## [0.1.266] - 2026-08-11
+
+### Changed
+
+- **ABI Gap Evidence Is Current With No Classification Drift:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the current ABI/API manifests, reviewed surface, protocol tests, and verify artifacts. The inventory remains `33` facets, `492` functions, and `218` event occurrences, with `223` ready, `223` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof; red-team attribution remains at `29` items.
+- **Reviewed Surface Was Revalidated During Codegen:** Refreshed `reviewed/reviewed-api-surface.json` without method or event drift while rebuilding the complete generated surface.
+
+### Verified
+
+- **Focused And Full Tests Passed:** `pnpm run test:gap-report` passed `4/4`, and `pnpm test` passed all `1,300` active tests across `132` files with `23` gated contract-integration and local-fork-only red-team tests explicitly skipped.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. The explicit `pnpm run coverage:check` gate passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines.
+
+## [0.1.265] - 2026-08-10
+
+### Verified
+
+- **Red-Team Harness Has No Current-Master Drift:** `pnpm run test:redteam` passed `103/103`, retaining deterministic valid values and `1,914` invalid mutations across all `521` inputs on the `259` mounted HTTP writes, plus replay, conservation, ordering, signer-confusion, stale-RPC, diamond, timelock, multisig, and emergency-control oracles.
+- **Guarded Fork And Workflow Probes Passed:** `pnpm run redteam:local-fork` passed `135/135` across `9` files, including all `5/5` real loopback probes and the emergency, governance/timelock, multisig, duplicate-log, decode, and reorg suites. Snapshot/revert cleanup completed without enabling a destructive live-network path.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. The explicit `pnpm run coverage:check` remained complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Coverage And Persistent Reporting Stayed Current:** `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines. `pnpm run report:test-gaps` refreshed the persistent artifacts without classification drift, with red-team evidence still attributed to `29` ABI items.
+
+## [0.1.264] - 2026-08-10
+
+### Verified
+- **Local-Fork Assurance Has No Current-Master Drift:** Re-ran `pnpm run test:local-fork-runner` (`9/9`) and a cold `pnpm run verify:local-fork -- --continue-on-gap` from current master. The runner started its own pruned loopback fork and passed all `9/9` inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stages on their first attempt.
+- **Fresh Fixtures And Transaction Evidence Are Proven:** Fixture setup funded all actors, prepared buyer USDC balance and allowance, validated governance readiness, and produced a purchase-ready listing aged by `86,401` fork seconds. The HTTP contract suite passed `18/18`; core, completion, remaining-lifecycle, marketplace-purchase, and governance artifacts all report `proven working`, including receipt, event, and post-state evidence.
+- **Exhaustive Gaps Remain Structured State Requirements:** The final sweep attempted all `232` reviewed reads and `214` event routes, passed `430/446`, and persisted the same `16` `needs fixture` gaps with zero runner failures or generic proof gaps. Loopback remained the default, with neither live-network acknowledgement flag enabled.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. The explicit `pnpm run coverage:check` gate passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants; regeneration produced no semantic artifact changes.
 
 ## [0.1.263] - 2026-08-10
 
