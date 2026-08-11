@@ -153,6 +153,14 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Actor Negative-Path Automation Run — 2026-08-11
+
+- **Current-master audit found no actor or signer coverage drift:** the regenerated report still covers all `259` mounted HTTP writes across `13` domains, with `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-role mismatch cases.
+- **Focused authorization evidence remains complete:** `pnpm run test:actor-negative-paths` passed `100/100`, including exhaustive write-endpoint preflight coverage and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity behavior.
+- **Workflow and repository gates passed:** `pnpm test` passed all `1,300` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped. With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed.
+- **Surface and measured coverage stayed green:** the build-embedded and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines.
+- **Merge decision:** complete and verified for merge; regeneration changed only the persisted actor-report timestamps, and no actor/signer blocker or implementation change is required on the current mounted write inventory.
+
 ### Write-Invariant Metadata Automation Run — 2026-08-11
 
 - **Current-master audit found no ABI or metadata drift:** the reviewed catalog still covers all `260` mounted ABI write methods across `31` facets, with structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer expectations for every write.
