@@ -1,4 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
 import { afterAll, beforeAll, describe, expect, it, type TestContext } from "vitest";
@@ -539,6 +541,7 @@ describeLive("HTTP API contract integration", () => {
   const nativeTransferReserve = ethers.parseEther("0.000001");
   let activeRpcUrl = "";
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
+  const confirmedTransactionHashes = new Set<string>();
 
   async function nativeTransferSpendable(wallet: Wallet) {
     const [balance, feeData] = await Promise.all([
@@ -563,12 +566,14 @@ describeLive("HTTP API contract integration", () => {
         });
         expect(receipt.status).toBe(1);
         expect(receipt.hash ?? receipt.transactionHash).toBe(txHash);
+        confirmedTransactionHashes.add(txHash);
         return txStatus.payload;
       }
 
       const directReceipt = await provider.getTransactionReceipt(txHash);
       if (directReceipt?.status === 1) {
         expect(directReceipt.hash).toBe(txHash);
+        confirmedTransactionHashes.add(txHash);
         return {
           source: "rpc-direct",
           receipt: {
@@ -818,6 +823,17 @@ describeLive("HTTP API contract integration", () => {
   }, 600_000);
 
   afterAll(async () => {
+    const receiptArtifactPath = process.env.API_LAYER_CONTRACT_RECEIPT_ARTIFACT;
+    if (receiptArtifactPath) {
+      const resolvedArtifactPath = path.resolve(receiptArtifactPath);
+      await mkdir(path.dirname(resolvedArtifactPath), { recursive: true });
+      await writeFile(resolvedArtifactPath, `${JSON.stringify({
+        schemaVersion: 1,
+        generatedAt: new Date().toISOString(),
+        status: "proven working",
+        transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
+      }, null, 2)}\n`);
+    }
     server?.close();
     await provider?.destroy();
     if (localForkProcess && localForkProcess.exitCode === null) {

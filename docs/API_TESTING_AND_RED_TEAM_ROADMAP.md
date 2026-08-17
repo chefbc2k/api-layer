@@ -305,30 +305,31 @@ Daily automations should treat these sections as independently mergeable workstr
 | Write-method invariant metadata | Complete and verified (2026-08-12) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete and verified (2026-08-12) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
-| Event and indexer projection proof | Blocked — `28/260` real writes proven on 2026-08-10 | generated-registry decode, PostgreSQL projection, replay/reorg/rollback resilience, and deterministic receipts for the remaining `232` writes; production call tracing was proven on 2026-08-11 |
+| Event and indexer projection proof | Blocked — `43/260` real writes proven on 2026-08-17 | generated-registry decode, PostgreSQL projection, replay/reorg/rollback resilience, and deterministic receipts for the remaining `217` writes; production call tracing was proven on 2026-08-11 |
 | Local-fork destructive automation | Complete and verified (2026-08-10) | deterministic `10/10`-stage cold run on this branch, funded/approved/aged fixtures, `18/18` HTTP contract proof, `38` real receipts indexed into PostgreSQL, `446/446` reviewed read/event attempts with structured state gaps, bounded Anvil history, strict live flags, `9/9` focused tests, and green TypeScript/lint/build/coverage gates |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
 | Red-team mutation and fuzzing | Complete and verified (2026-08-11) | `1,914` invalid wire mutations across `259` mounted writes, deterministic replay/value/state/RPC/signer/admin oracles, `5/5` loopback-fork probes, `135/135` fork/workflow tests, and green TypeScript/lint/build/coverage gates |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
 
-### Event And Indexer Projection Run — 2026-08-11
+### Event And Indexer Projection Run — 2026-08-17
 
 Status: **blocked; do not merge this section yet**.
 
 Evidence on `codex/event-indexer-proof`:
 
-- The local-fork runner has a tenth `event-indexer-proof` stage. It discovers real transaction hashes from prior workflow artifacts, keeps only successful writes to the configured diamond, attributes each selector through the generated write registry, and ingests each exact receipt block through `EventIndexer` into disposable PostgreSQL with all three migrations applied.
-- The latest cold run passed all `10/10` stages and indexed `38` workflow receipts across `28` distinct catalog write methods. It persisted `68` canonical raw events and `53` projection rows, satisfied every `all`, `one-of`, or `none` event assertion plus every declared projection-table assertion, and preserved every table count when all proven blocks were replayed.
+- The local-fork runner has a tenth `event-indexer-proof` stage. The preceding `18/18` HTTP contract stage now persists all `72` successful receipt-confirmed transaction hashes instead of discarding them; the indexer proof combines that artifact with the lifecycle reports, keeps only successful writes to the configured diamond, attributes each selector through the generated write registry, and ingests each exact receipt block through `EventIndexer` into disposable PostgreSQL with all three migrations applied.
+- The latest cold run passed all `10/10` stages and indexed `110` workflow receipts across `43` distinct catalog write methods, adding real access-control, tokenomics, metadata, marketplace-lifecycle, and WhisperBlock configuration paths to the prior proof. It persisted `180` canonical raw events and `118` projection rows, satisfied every `all`, `one-of`, or `none` event assertion plus every declared projection-table assertion, and preserved all `23` table counts when all proven blocks were replayed.
 - Generated-registry tests decode all `214` addressable registry entries derived from `218` ABI event declarations and bind all `260` write invariants to `287` declared event expectations, `150` projection references, and `27` intentionally eventless writes. The broader synthetic catalog proof remains separate from real-receipt coverage.
 - Duplicate ingestion, delayed RPC responses, partial block/range failure, projection rollback, empty-block journaling, deep common-ancestor reorg recovery, canonical replacement, and current-row rebuild are covered in unit tests and a disposable PostgreSQL gate.
 - Ambiguous diamond-level topics use the originating write selector or an optional `debug_traceTransaction` call trace only when exactly one generated invariant matches. Unsupported tracing and non-unique candidates fail closed by retaining candidate evidence without projecting it.
 - `pnpm run proof:indexer:trace-capability` now persists [`output/indexer-trace-capability.json`](/Users/chef/Public/api-layer-event-indexer-proof/output/indexer-trace-capability.json). The credential-safe probe selected the runtime's Base Sepolia public fallback (`sepolia.base.org`), confirmed chain `84532`, selected a recent successful transaction, and received an object result from `debug_traceTransaction` with `callTracer`. This closes the production trace-capability blocker while leaving fail-closed behavior intact for providers that do not expose tracing.
+- Current verification is green: `pnpm run test:indexer:assurance` passed `56/56` active tests, `pnpm run test:indexer:postgres` passed `4/4`, TypeScript/lint/build passed in order, and the explicit `pnpm run coverage:check` remained complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - Current gates pass `56/56` active indexer-assurance tests, `4/4` disposable-PostgreSQL tests, root TypeScript validation, lint, build, `coverage:check` (`492` functions, `218` events, `492` HTTP methods, `260/260` write invariants), and measured coverage at `99.70%` statements, `99.51%` branches, `99.54%` functions, and `99.76%` lines.
 
 Blockers and next steps:
 
-- Add deterministic fixtures and persisted receipt evidence for the remaining `232` write methods before claiming every write path is proven end to end.
+- Add deterministic fixtures and persisted receipt evidence for the remaining `217` write methods before claiming every write path is proven end to end.
 - The local fork can still return `Resource not found` for pruned historical traces, but the production fallback is now proven to support `callTracer`; local unavailability remains a fail-closed test condition rather than a production-readiness blocker.
 
 ### ABI-Driven Gap Report Evidence

@@ -8,6 +8,7 @@
 
 - **Generated Event-To-Indexer Assurance Covers Every Write Declaration:** The indexer assurance suite synthesizes all `214` generated event-registry entries and binds all `260` write invariants to `287` declared event expectations, `150` projection references, and `27` intentionally eventless writes.
 - **Real Workflow Receipts Feed Disposable PostgreSQL:** The local-fork runner includes an `event-indexer-proof` stage that discovers workflow transaction hashes, attributes successful diamond writes through the generated selector registry, ingests their exact blocks with the production indexer, verifies declared events and projections, and checks replay idempotency across `raw_events` and all `22` projection tables.
+- **HTTP Contract Receipts Now Reach The Indexer Gate:** The fixture-backed HTTP contract stage persists every successful receipt-confirmed transaction hash, and the indexer stage consumes that artifact alongside the lifecycle reports instead of discarding those real writes between stages.
 - **Disposable PostgreSQL And Resilience Gates Are Repeatable:** `pnpm run test:indexer:postgres` applies all migrations twice and verifies duplicate replay, atomic raw/projection rollback, reorg orphaning, current-row rebuild, delayed RPC handling, partial-range failure, and canonical block replacement against real constraints.
 
 ### Fixed
@@ -18,12 +19,13 @@
 ### Verified
 
 - **Production Call-Tracer Capability Is Persisted:** Added `pnpm run proof:indexer:trace-capability` and [`output/indexer-trace-capability.json`](/Users/chef/Public/api-layer-event-indexer-proof/output/indexer-trace-capability.json). The credential-safe probe selected the runtime's Base Sepolia public fallback, confirmed chain `84532`, found a recent successful transaction, and received an object result from `debug_traceTransaction` with `callTracer`.
+- **Cold Receipt Coverage Increased To `43/260`:** A guarded `10/10`-stage local-fork run passed the `18/18` HTTP contract suite, persisted `72` confirmed HTTP receipts, and indexed `110` total workflow receipts across `43` distinct write methods. The production indexer persisted `180` canonical raw events and `118` projection rows, and replay left every one of the `23` tracked table counts unchanged.
 - **Indexer, PostgreSQL, And Quality Gates Pass:** `pnpm run test:indexer:assurance` passes `56/56` active tests, `pnpm run test:indexer:postgres` passes `4/4`, and the ordered TypeScript, lint, and build gates pass. The explicit surface gate remains complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - **Measured Coverage Passes:** `pnpm run test:coverage` passes at `99.70%` statements, `99.51%` branches, `99.54%` functions, and `99.76%` lines.
 
 ### Remaining Issues
 
-- **Event/Indexer Proof Is Not Merge-Ready:** The latest real-receipt run proves `28/260` catalog writes and leaves `232` without deterministic fork receipts. Production call tracing is now proven; deterministic fixture and receipt expansion is the sole remaining section blocker.
+- **Event/Indexer Proof Is Not Merge-Ready:** The latest real-receipt run proves `43/260` catalog writes and leaves `217` without deterministic fork receipts. Production call tracing and all requested resilience classes are proven; deterministic fixture and receipt expansion is the sole remaining section blocker.
 
 ## [0.1.276] - 2026-08-17
 

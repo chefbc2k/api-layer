@@ -38,6 +38,14 @@ export function collectTransactionHashes(value: unknown, hashes = new Set<string
     return hashes;
   }
   for (const [key, entry] of Object.entries(value)) {
+    if (key === "transactionHashes" && Array.isArray(entry)) {
+      for (const candidate of entry) {
+        if (typeof candidate === "string" && TX_HASH_PATTERN.test(candidate)) {
+          hashes.add(candidate.toLowerCase());
+        }
+      }
+      continue;
+    }
     if ((key === "txHash" || key === "transactionHash" || key === "hash") && typeof entry === "string" && TX_HASH_PATTERN.test(entry)) {
       hashes.add(entry.toLowerCase());
       continue;

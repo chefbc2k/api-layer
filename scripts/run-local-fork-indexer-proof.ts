@@ -23,6 +23,7 @@ import { fileExists, rootDir, writeJson } from "./utils.js";
 const run = promisify(execFile);
 const proofDir = path.join(rootDir, ".runtime", "local-fork-proofs");
 const artifactPaths = [
+  "http-contract-receipts.json",
   "layer1-core.json",
   "layer1-completion.json",
   "layer1-remaining.json",

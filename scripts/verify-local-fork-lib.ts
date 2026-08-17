@@ -161,6 +161,7 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       command: "pnpm",
       args: ["vitest", "run", "packages/api/src/app.contract-integration.test.ts", "--maxWorkers", "1"],
       destructive: true,
+      artifactPath: path.join(PROOF_DIR, "http-contract-receipts.json"),
       maxAttempts: 2,
     },
     {

@@ -11,7 +11,10 @@ describe("local-fork receipt-to-indexer proof", () => {
   it("collects and deduplicates transaction hashes from nested workflow artifacts", () => {
     const first = `0x${"11".repeat(32)}`;
     const second = `0x${"22".repeat(32)}`;
-    expect([...collectTransactionHashes({ reports: [{ txHash: first }, { receipt: { hash: second } }, { transactionHash: first }] })])
+    expect([...collectTransactionHashes({
+      reports: [{ txHash: first }, { receipt: { hash: second } }, { transactionHash: first }],
+      transactionHashes: [second, "not-a-hash"],
+    })])
       .toEqual([first, second]);
   });
 

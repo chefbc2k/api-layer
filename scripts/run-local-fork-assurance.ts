@@ -48,6 +48,7 @@ async function main(): Promise<void> {
       ALCHEMY_RPC_URL: rpcUrl,
       API_LAYER_AUTO_FORK: "0",
       API_LAYER_RUN_CONTRACT_INTEGRATION: "1",
+      API_LAYER_CONTRACT_RECEIPT_ARTIFACT: path.join(".runtime", "local-fork-proofs", "http-contract-receipts.json"),
       API_LAYER_TEST_FOUNDER_PRIVATE_KEY: runtime.env.PRIVATE_KEY,
       API_LAYER_ASSURANCE_MODE: mode,
     };
