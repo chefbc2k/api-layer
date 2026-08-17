@@ -90,6 +90,8 @@ This phase should not call the chain. It should answer exactly what is covered, 
 
 ### Phase 2: Local-Fork Proof Orchestrator
 
+Status: **Complete and verified for merge on 2026-08-17.** The deterministic runner starts or validates a loopback Base Sepolia fork, provisions funded actors and lifecycle fixtures, executes safe reads and fixture-backed writes, persists transaction/receipt/event/state evidence, and emits structured fixture gaps. Destructive and admin stages remain local-fork-only by default; live execution requires explicit network and destructive acknowledgements.
+
 Build a deterministic local-fork runner that:
 - starts or validates the configured loopback fork
 - provisions users, funds, approvals, roles, fixtures, and aged listings
@@ -152,6 +154,14 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### Local-Fork Automation Run — 2026-08-17
+
+- **Current-master audit found no orchestrator or safety drift:** after fast-forwarding `codex/local-fork-automation` to local `master` at `b82ec82`, `pnpm run test:local-fork-runner` passed `9/9`, preserving deterministic stage order, structured gap collection, loopback-default execution, and the two explicit acknowledgements required for destructive/admin live runs.
+- **A fresh complete proof passed every stage:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed all `9/9` inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stages. Fixture setup funded founder/seller/buyer/licensee/transferee actors, provisioned buyer USDC balance and allowance at `4000/4000`, confirmed governance readiness, and aged purchase-ready listing token `11` by `86,401` fork seconds.
+- **Transaction, receipt, event, and post-state evidence remains proven:** the HTTP contract suite passed `18/18`, and all five domain proof artifacts report `proven working`. Marketplace purchase tx `0x6d33c19c9bc3f42d7ba2996f55a40c129cff540f1f40af485179decb458ca319` had receipt status `1`, transferred token `11` to the buyer, closed listing/escrow state, moved buyer USDC balance and allowance from `4000` to `3000`, and persisted decoded purchase/payment/release events. Governance submitted proposal `43` in tx `0xd5c2e4298176b517a22ec620897f1ebdb712ab0cae382f62d4c2f84a2005e31c`, activated it, and recorded the successful vote tx `0x3e0392b9e90d2d97c25836bb7334a368b44eb559678ea0fcfdc46b33543145c6`.
+- **Exhaustive gaps remain deterministic and safe:** the final sweep attempted all `232` reviewed reads and `214` event routes, passed `430/446`, and emitted exactly `16` `needs fixture` records with zero runner failures or generic proof gaps. The aggregate report records `local-fork` mode, `runnerStartedFork: true`, destructive stages defaulting to local fork, and both live-network acknowledgement flags as `false`.
+- **Quality, coverage, and merge decision:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Regeneration produced only transient timestamp churn, which was restored; the workstream remains complete and verified for merge with no implementation blocker.
 
 ### Write-Invariant Metadata Automation Run — 2026-08-17
 

@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.277] - 2026-08-17
+
+### Verified
+
+- **Local-Fork Assurance Remains Complete:** `pnpm run test:local-fork-runner` passed `9/9`, and `pnpm run verify:local-fork -- --continue-on-gap` started a loopback Base Sepolia fork and passed all `9/9` inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stages.
+- **Fixture And Lifecycle Evidence Stayed Deterministic:** The runner funded founder, seller, buyer, licensee, and transferee actors; provisioned buyer USDC balance/allowance at `4000/4000`; confirmed governance readiness; aged listing token `11` by `86,401` seconds; and passed the HTTP contract suite `18/18`. Marketplace settlement moved buyer balance/allowance to `3000/3000` with receipt status `1` and decoded purchase/payment/release events; governance submitted proposal `43`, activated it, and recorded a successful vote.
+- **Structured Gaps And Live Safety Stayed Stable:** The exhaustive sweep passed `430/446` reviewed read/event routes and emitted exactly `16` `needs fixture` gaps with zero runner failures. The aggregate report records local-fork mode, a runner-started fork, destructive stages defaulting to local fork, and both live-network acknowledgement flags as `false`.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.276] - 2026-08-17
 
 ### Verified
