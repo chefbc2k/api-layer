@@ -72,7 +72,7 @@ These are not necessarily failing areas. They are the gaps between "covered" and
 
 Build `scripts/generate-test-roadmap.ts`.
 
-Status: **Complete and verified for merge on 2026-08-09.** The generator attributes evidence conservatively from the generated contract/RPC/HTTP inventories, reviewed API surface, protocol tests, and persisted verify outputs without calling the chain. It preserves duplicate ABI event declarations as distinct occurrences, records evidence paths for every proof flag, and emits both machine-readable and human-readable reports.
+Status: **Complete and verified for merge on 2026-08-17.** The generator attributes evidence conservatively from the generated contract/RPC/HTTP inventories, reviewed API surface, protocol tests, and persisted verify outputs without calling the chain. It preserves duplicate ABI event declarations as distinct occurrences, records evidence paths for every proof flag, and emits both machine-readable and human-readable reports.
 
 Inputs:
 - `generated/manifests/contract-manifest.json`
@@ -152,6 +152,29 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### Write-Invariant Metadata Automation Run — 2026-08-17
+
+- **Current-master audit found no ABI or metadata drift:** the reviewed catalog still covers all `260` mounted ABI write methods across `31` facets, with structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer expectations present for every write.
+- **Fail-closed validation remains complete:** `pnpm run test:write-invariants` passed `5/5`, including missing and stale method detection, signature drift, incomplete sections, invalid modes, stale read/event references, inconsistent indexer expectations, and the repository-level `260/260` assertion.
+- **Generator and quality gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured coverage and regeneration stayed clean:** `pnpm run test:coverage` passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines. Neither `reviewed/reviewed-write-invariants.json` nor the generated registry changed semantically; the reviewed API surface's transient timestamp was restored rather than committed as non-semantic churn.
+- **Merge decision:** complete and verified for merge; no blocker or follow-up metadata addition is required on the current ABI inventory.
+
+### ABI Gap Report Automation Run — 2026-08-17
+
+- **Current-master audit found no ABI, API, or proof-classification drift:** `pnpm run report:test-gaps` regenerated the persistent JSON and Markdown reports from the canonical manifests, reviewed surface, protocol tests, and verify artifacts. The inventory remains `33` facets, `492` functions, and `218` event occurrences (`710` items), with `709` reviewed HTTP entries and red-team evidence attributed to `29` items.
+- **Proof depth and gap classifications remain stable:** the report still classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings.
+- **Focused, repository, and coverage tests passed:** `pnpm run test:gap-report` passed `4/4`; the clean `pnpm test` rerun passed `1,300/1,300` active tests across `132` files with `23` explicitly gated tests skipped; and `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines.
+- **Quality and surface gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. The build-embedded and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** the section remains complete and verified for merge; regeneration changed only the two persisted report timestamps and documentation, and no implementation blocker or follow-up generator change is required on the current inventory.
+
+### Actor Negative-Path Automation Run — 2026-08-17
+
+- **Current-master audit found no actor or signer coverage drift:** no authorization-sensitive source changed since the prior actor run, and the regenerated report still covers all `259` mounted HTTP writes across `13` domains, with `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-role mismatch cases.
+- **Focused authorization and repository evidence remains complete:** `pnpm run test:actor-negative-paths` passed `100/100`, including exhaustive write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity behavior. `pnpm test` passed all `1,300` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **Quality, surface, and measured coverage gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. The build-embedded and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines.
+- **Regeneration and merge decision:** only the two persisted actor-report timestamps changed; the reviewed API surface's transient timestamp was restored. The workstream remains complete and verified for merge, with no actor/signer blocker or implementation change required on the current mounted write inventory.
 
 ### Actor Negative-Path Automation Run — 2026-08-12
 
@@ -278,7 +301,7 @@ Daily automations should treat these sections as independently mergeable workstr
 
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
-| ABI-driven gap report | Complete and verified (2026-08-12) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
+| ABI-driven gap report | Complete and verified (2026-08-17) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
 | Write-method invariant metadata | Complete and verified (2026-08-12) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete and verified (2026-08-12) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
@@ -310,7 +333,7 @@ Blockers and next steps:
 
 ### ABI-Driven Gap Report Evidence
 
-The 2026-08-12 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Red-team-attributed proof remains at `29` items after the mutation harness, guarded fork probes, and dedicated admin-control oracles were added; no proof-depth or classification drift was detected in this refresh.
+The 2026-08-17 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Red-team-attributed proof remains at `29` items after the mutation harness, guarded fork probes, and dedicated admin-control oracles were added; no proof-depth or classification drift was detected in this refresh.
 
 Verification evidence:
 
@@ -321,7 +344,7 @@ Verification evidence:
 - `pnpm run lint`: repository lint validation passed.
 - `pnpm run build`: codegen and the client, indexer, and API package builds all passed.
 - `pnpm test`: all `1,300` active tests passed across `132` files; `23` gated contract-integration and local-fork-only red-team tests remained explicitly skipped.
-- `pnpm run test:coverage`: the sharded coverage suite passed with `99.98%` lines, `99.98%` statements, `99.95%` branches, and `100%` functions; the only reported gaps are merged-Istanbul mappings on already-exercised `execution-context.ts` and `alchemy-debug-lib.ts` lines.
+- `pnpm run test:coverage`: the sharded coverage suite passed with `99.98%` lines, `99.96%` statements, `99.93%` branches, and `99.92%` functions; the only reported gaps are merged-Istanbul mappings on already-exercised `execution-context.ts` and `alchemy-debug-lib.ts` lines.
 
 Build-blocker resolution:
 
