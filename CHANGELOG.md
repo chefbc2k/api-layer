@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.278] - 2026-08-17
+
+### Verified
+
+- **Red-Team Harness Has No Current-Master Drift:** `pnpm run test:redteam` passed `103/103`, retaining deterministic valid values and `1,914` invalid mutations across all `521` inputs on the `259` mounted HTTP writes, plus replay, conservation, ordering, signer-confusion, stale-RPC, diamond, timelock, multisig, and emergency-control oracles.
+- **Guarded Fork, Workflow, And Indexer Probes Passed:** `pnpm run redteam:local-fork` passed `135/135` across `9` files, including all `5/5` real loopback probes and the emergency, governance/timelock, multisig, duplicate-log, decode, and reorg suites. Snapshot/revert cleanup completed without enabling a destructive live-network path.
+- **All Merge Gates Passed:** The ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` remained complete at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Coverage And Persistent Reporting Stayed Current:** `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines. `pnpm run report:test-gaps` refreshed only the persistent report timestamps without classification drift, with red-team evidence still attributed to `29` ABI items; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.277] - 2026-08-17
 
 ### Verified
