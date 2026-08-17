@@ -153,6 +153,14 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Write-Invariant Metadata Automation Run — 2026-08-17
+
+- **Current-master audit found no ABI or metadata drift:** the reviewed catalog still covers all `260` mounted ABI write methods across `31` facets, with structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer expectations present for every write.
+- **Fail-closed validation remains complete:** `pnpm run test:write-invariants` passed `5/5`, including missing and stale method detection, signature drift, incomplete sections, invalid modes, stale read/event references, inconsistent indexer expectations, and the repository-level `260/260` assertion.
+- **Generator and quality gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured coverage and regeneration stayed clean:** `pnpm run test:coverage` passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines. Neither `reviewed/reviewed-write-invariants.json` nor the generated registry changed semantically; the reviewed API surface's transient timestamp was restored rather than committed as non-semantic churn.
+- **Merge decision:** complete and verified for merge; no blocker or follow-up metadata addition is required on the current ABI inventory.
+
 ### ABI Gap Report Automation Run — 2026-08-17
 
 - **Current-master audit found no ABI, API, or proof-classification drift:** `pnpm run report:test-gaps` regenerated the persistent JSON and Markdown reports from the canonical manifests, reviewed surface, protocol tests, and verify artifacts. The inventory remains `33` facets, `492` functions, and `218` event occurrences (`710` items), with `709` reviewed HTTP entries and red-team evidence attributed to `29` items.
