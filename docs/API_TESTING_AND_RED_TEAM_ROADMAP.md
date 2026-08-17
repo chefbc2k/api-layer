@@ -153,6 +153,14 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### Write-Invariant Metadata Automation Run — 2026-08-17
+
+- **Current-master audit found no ABI or metadata drift:** the reviewed catalog still covers all `260` mounted ABI write methods across `31` facets, with structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer expectations present for every write.
+- **Fail-closed validation remains complete:** `pnpm run test:write-invariants` passed `5/5`, including missing and stale method detection, signature drift, incomplete sections, invalid modes, stale read/event references, inconsistent indexer expectations, and the repository-level `260/260` assertion.
+- **Generator and quality gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured coverage and regeneration stayed clean:** `pnpm run test:coverage` passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines. Neither `reviewed/reviewed-write-invariants.json` nor the generated registry changed semantically; the reviewed API surface's transient timestamp was restored rather than committed as non-semantic churn.
+- **Merge decision:** complete and verified for merge; no blocker or follow-up metadata addition is required on the current ABI inventory.
+
 ### Actor Negative-Path Automation Run — 2026-08-12
 
 - **Current-master audit found no actor or signer coverage drift:** the regenerated report still covers all `259` mounted HTTP writes across `13` domains, with `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-role mismatch cases.
