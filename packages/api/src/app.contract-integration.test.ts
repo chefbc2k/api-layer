@@ -4054,6 +4054,73 @@ describeLive("HTTP API contract integration", () => {
     });
   }, 120_000);
 
+  it("proves reversible marketplace, voice, and dataset configuration writes through HTTP", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "reversible configuration writes", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (method: string, route: string, body: Record<string, unknown> = {}) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const originalRoyaltyRate = await voiceAsset.getDefaultRoyaltyRate();
+    const targetRoyaltyRate = originalRoyaltyRate === 10_000n ? 9_999n : originalRoyaltyRate + 1n;
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-royalty-rate", {
+      rate: targetRoyaltyRate.toString(),
+    });
+    expect(await voiceAsset.getDefaultRoyaltyRate()).toBe(targetRoyaltyRate);
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-royalty-rate", {
+      rate: originalRoyaltyRate.toString(),
+    });
+    expect(await voiceAsset.getDefaultRoyaltyRate()).toBe(originalRoyaltyRate);
+
+    const originalPlatformFee = await voiceAsset.getDefaultPlatformFee();
+    const targetPlatformFee = originalPlatformFee === 10_000n ? 9_999n : originalPlatformFee + 1n;
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-platform-fee", {
+      fee: targetPlatformFee.toString(),
+    });
+    expect(await voiceAsset.getDefaultPlatformFee()).toBe(targetPlatformFee);
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-platform-fee", {
+      fee: originalPlatformFee.toString(),
+    });
+    expect(await voiceAsset.getDefaultPlatformFee()).toBe(originalPlatformFee);
+
+    const registrationWasPaused = await voiceAsset.isRegistrationPaused();
+    await submit("PATCH", "/v1/voice-assets/commands/set-registration-paused", {
+      paused: !registrationWasPaused,
+    });
+    expect(await voiceAsset.isRegistrationPaused()).toBe(!registrationWasPaused);
+    await submit("PATCH", "/v1/voice-assets/commands/set-registration-paused", {
+      paused: registrationWasPaused,
+    });
+    expect(await voiceAsset.isRegistrationPaused()).toBe(registrationWasPaused);
+
+    const originalMaxAssets = await voiceDataset.getMaxAssetsPerDataset();
+    const targetMaxAssets = originalMaxAssets === 1n ? 2n : originalMaxAssets - 1n;
+    await submit("PATCH", "/v1/datasets/commands/set-max-assets-per-dataset", {
+      maxAssets: targetMaxAssets.toString(),
+    });
+    expect(await voiceDataset.getMaxAssetsPerDataset()).toBe(targetMaxAssets);
+    await submit("PATCH", "/v1/datasets/commands/set-max-assets-per-dataset", {
+      maxAssets: originalMaxAssets.toString(),
+    });
+    expect(await voiceDataset.getMaxAssetsPerDataset()).toBe(originalMaxAssets);
+
+    const marketplaceWasPaused = await marketplaceFacet.isPaused();
+    const firstMarketplaceRoute = marketplaceWasPaused ? "unpause" : "pause";
+    const secondMarketplaceRoute = marketplaceWasPaused ? "pause" : "unpause";
+    await submit("POST", `/v1/marketplace/commands/${firstMarketplaceRoute}`);
+    expect(await marketplaceFacet.isPaused()).toBe(!marketplaceWasPaused);
+    await submit("POST", `/v1/marketplace/commands/${secondMarketplaceRoute}`);
+    expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
+  }, 120_000);
+
   it("fails correctly for validation, signer, and provider errors", async () => {
     const invalidBody = await apiCall(port, "POST", "/v1/voice-assets", {
       body: { ipfsHash: "ipfs://missing-royalty" },

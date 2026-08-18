@@ -65,4 +65,19 @@ describe("local-fork receipt-to-indexer proof", () => {
     });
     expect(oneOfResult.failures).toEqual([]);
   });
+
+  it("accepts an eventless write receipt without inventing a projection", () => {
+    const write = [...buildWriteSelectorMap().values()]
+      .find(({ methodKey }) => methodKey === "VoiceDatasetFacet.setMaxAssetsPerDataset")!;
+    expect(write.definition.invariants.emittedEvents).toMatchObject({ mode: "none", events: [] });
+    expect(write.definition.invariants.indexerExpectations).toMatchObject({ mode: "none", events: [], projections: [] });
+
+    expect(evaluateReceiptExpectation({
+      txHash: `0x${"55".repeat(32)}`,
+      methodKey: write.methodKey,
+      definition: write.definition,
+      indexedRows: [],
+      projectedTables: [],
+    }).failures).toEqual([]);
+  });
 });

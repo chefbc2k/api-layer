@@ -5996,8 +5996,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MarketplaceFacet.getListing",
-            "assertion": "MarketplaceFacet.getListing reflects the receipt-confirmed MarketplaceFacet.unpause transition for the affected identifiers and actor."
+            "method": "MarketplaceFacet.isPaused",
+            "assertion": "MarketplaceFacet.isPaused returns false after the receipt-confirmed MarketplaceFacet.unpause transition."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -16430,12 +16430,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
-        "events": [
-          "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
-          "VoiceDatasetFacet.DatasetStatusChanged"
-        ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed implementation exposes no event for setMaxAssetsPerDataset; receipt and getMaxAssetsPerDataset readback are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -16455,15 +16452,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
-          "VoiceDatasetFacet.DatasetStatusChanged"
-        ],
-        "projections": [
-          "voice_datasets:current"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "VoiceDatasetFacet.setMetadata": {
