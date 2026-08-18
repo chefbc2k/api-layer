@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.283] - 2026-08-18
+
+### Fixed
+
+- **Local-Fork Upstream Resolution Is Deterministic:** When API-layer metadata contains only a loopback fork URL, the resolver now checks the authoritative contracts workspace environment for a non-loopback Base Sepolia upstream before falling back to the public endpoint. This prevents intermittent upstream resets and timeouts from degrading fixture-backed HTTP, marketplace, governance, and exhaustive proofs.
+- **Fallback Precedence Is Regression-Tested:** The resolver suite now verifies that a contracts workspace RPC is selected ahead of the public fallback while preserving explicit API-layer configuration and persisted non-loopback fixture precedence.
+
+### Verified
+
+- **Fresh Local-Fork Proof Passed All Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started a new loopback fork and passed all `9/9` stages. The HTTP contract suite passed `18/18`; marketplace settlement preserved pre-state, transaction, receipt, decoded-event, and post-state evidence; governance submitted proposal `43`, activated it, and recorded a successful vote.
+- **Fixtures, Gaps, And Safety Stayed Deterministic:** The runner provisioned funded actors, buyer USDC balance/allowance at `4000/4000`, required approvals and governance readiness, and listing token `11` aged by `86,401` seconds. The exhaustive sweep passed `430/446` reviewed read/event routes with exactly `16` structured `needs fixture` gaps and zero runner failures. Destructive/admin stages remained local-fork-only, with both live-network acknowledgement flags `false`.
+- **All Merge Gates Passed:** The focused resolver and runner suites passed `63/63`. With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. The explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.282] - 2026-08-18
 
 ### Verified

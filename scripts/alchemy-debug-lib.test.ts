@@ -431,6 +431,49 @@ describe("alchemy-debug-lib", () => {
     ]);
   });
 
+  it("uses the contracts workspace RPC before the public fallback when local metadata is loopback-only", async () => {
+    const calls: string[] = [];
+    mocked.existsSync.mockImplementation((target: string) =>
+      target.includes(".runtime/base-sepolia-operator-fixtures.json")
+      || target.endsWith("/CONTRACTS/package.json")
+      || target.endsWith("/CONTRACTS/scripts/deployment")
+      || target.endsWith("/CONTRACTS/.env"));
+    mocked.readFile.mockImplementation(async (target: string) => {
+      if (target.endsWith("/CONTRACTS/.env")) {
+        return "ALCHEMY_RPC_URL=https://base-sepolia.g.alchemy.com/v2/contracts-upstream\n";
+      }
+      return JSON.stringify({
+        network: {
+          rpcUrl: "http://127.0.0.1:9555",
+          upstreamRpcUrl: "http://127.0.0.1:9555",
+        },
+      });
+    });
+
+    const result = await resolveRuntimeConfig(
+      {
+        NETWORK: "base-sepolia",
+        CHAIN_ID: "84532",
+        DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
+        RPC_URL: "http://127.0.0.1:8548",
+        ALCHEMY_RPC_URL: "http://127.0.0.1:8548",
+      },
+      async (rpcUrl, expectedChainId) => {
+        calls.push(`${rpcUrl}:${expectedChainId}`);
+        if (rpcUrl === "http://127.0.0.1:8548") {
+          throw new Error("connect ECONNREFUSED 127.0.0.1:8548");
+        }
+      },
+    );
+
+    expect(result.config.cbdpRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/contracts-upstream");
+    expect(result.config.alchemyRpcUrl).toBe("https://base-sepolia.g.alchemy.com/v2/contracts-upstream");
+    expect(calls).toEqual([
+      "http://127.0.0.1:8548:84532",
+      "https://base-sepolia.g.alchemy.com/v2/contracts-upstream:84532",
+    ]);
+  });
+
   it("falls back to the official Base Sepolia public RPC when fixture metadata is unusable", async () => {
     const calls: string[] = [];
     mocked.existsSync.mockImplementation((target: string) => target.includes(".runtime/base-sepolia-operator-fixtures.json"));

@@ -90,7 +90,7 @@ This phase should not call the chain. It should answer exactly what is covered, 
 
 ### Phase 2: Local-Fork Proof Orchestrator
 
-Status: **Complete and verified for merge on 2026-08-17.** The deterministic runner starts or validates a loopback Base Sepolia fork, provisions funded actors and lifecycle fixtures, executes safe reads and fixture-backed writes, persists transaction/receipt/event/state evidence, and emits structured fixture gaps. Destructive and admin stages remain local-fork-only by default; live execution requires explicit network and destructive acknowledgements.
+Status: **Complete and verified for merge on 2026-08-18.** The deterministic runner starts or validates a loopback Base Sepolia fork, resolves a stable non-loopback upstream from explicit API-layer metadata or the contracts workspace before using the public fallback, provisions funded actors and lifecycle fixtures, executes safe reads and fixture-backed writes, persists transaction/receipt/event/state evidence, and emits structured fixture gaps. Destructive and admin stages remain local-fork-only by default; live execution requires explicit network and destructive acknowledgements.
 
 Build a deterministic local-fork runner that:
 - starts or validates the configured loopback fork
@@ -154,6 +154,14 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### Local-Fork Automation Run — 2026-08-18
+
+- **A flaky public-upstream fallback was found and removed:** a fresh current-master run exposed intermittent Base Sepolia resets and timeouts because both API-layer runtime sources contained loopback URLs, forcing the runner onto the public endpoint. The resolver now checks the contracts workspace `.env` for a non-loopback RPC before the public fallback, while explicit API-layer configuration and persisted non-loopback fixtures retain precedence. The focused resolver and runner suites passed `63/63`, including the new fallback regression.
+- **A fresh complete proof passed every stage:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed all `9/9` inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stages. Fixture setup funded founder/seller/buyer/licensee/transferee actors, provisioned buyer USDC balance and allowance at `4000/4000`, confirmed governance readiness, and aged purchase-ready listing token `11` by `86,401` fork seconds. The HTTP contract suite passed `18/18`.
+- **Transaction, receipt, event, and post-state evidence is intact:** marketplace purchase tx `0x6d33c19c9bc3f42d7ba2996f55a40c129cff540f1f40af485179decb458ca319` had receipt status `1`, transferred token `11` to the buyer, closed listing/escrow state, moved buyer USDC balance and allowance from `4000` to `3000`, and persisted decoded purchase/payment/release events. Governance submitted proposal `43` in tx `0x7e7ad9366bb18d5393aef8c4d4fd349a9e860c4d0748dffe85f59c3ac849d1b2`, activated it after the fork block jump, and recorded vote tx `0xae5c5f1e01c31e6cfa0e616a1993fbb1df0f8e0295a14bff031b604162446eff`.
+- **Structured gaps and live safety remain deterministic:** the exhaustive sweep attempted all `232` reviewed reads and `214` event routes, passed `430/446`, and emitted exactly `16` `needs fixture` records with zero runner failures. The aggregate report records `local-fork` mode, `runnerStartedFork: true`, destructive stages defaulting to local fork, and both live-network acknowledgement flags as `false`.
+- **Quality, coverage, and merge decision:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored; the workstream is complete and verified for merge with no implementation blocker.
 
 ### Red-Team Harness Automation Run — 2026-08-18
 
