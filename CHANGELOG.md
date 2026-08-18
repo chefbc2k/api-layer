@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.282] - 2026-08-18
+
+### Verified
+
+- **Red-Team Harness Has No Current-Master Drift:** Fast-forwarded `codex/red-team-harness` to current local `master` and reran `pnpm run test:redteam`; all `103/103` mutation, validation, ABI-edge, replay/conservation, state-ordering, signer-confusion, stale-RPC, diamond-admin, timelock, multisig, and emergency-control tests passed. The corpus remains deterministic at `1,914` invalid mutations across all `521` inputs on the `259` mounted HTTP writes.
+- **Guarded Fork, Workflow, And Indexer Probes Passed:** `pnpm run redteam:local-fork` passed `135/135` across `9` files, including all `5/5` real loopback probes plus emergency, governance/timelock, multisig, duplicate-log, event-decode, and reorg coverage. No destructive live-network path was enabled.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Coverage And Persistent Reporting Stayed Current:** `pnpm run test:coverage` passed at `99.96%` statements, `99.93%` branches, `99.92%` functions, and `99.98%` lines. `pnpm run report:test-gaps` refreshed only report timestamps: `223` items remain `ready`, `223` `needs fixture`, `51` `unsafe on live network`, and `213` `needs indexer proof`, with red-team evidence attributed to `29` ABI items.
+
 ## [0.1.281] - 2026-08-18
 
 ### Changed
