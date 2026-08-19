@@ -146,14 +146,16 @@ async function ensureNativeBalance(
   recipient: string,
   minimum: bigint,
 ) {
+  const targetMinimum = isLoopbackRpcUrl(rpcUrl)
+    ? (minimum > ethers.parseEther("0.02") ? minimum : ethers.parseEther("0.02")) + ethers.parseEther("0.005")
+    : minimum;
   let balance = await provider.getBalance(recipient);
-  if (balance >= minimum) {
+  if (balance >= targetMinimum) {
     return { ok: true, balance } as const;
   }
 
   if (isLoopbackRpcUrl(rpcUrl)) {
-    const targetBalance = (minimum > ethers.parseEther("0.02") ? minimum : ethers.parseEther("0.02")) + ethers.parseEther("0.005");
-    await provider.send("anvil_setBalance", [recipient, ethers.toQuantity(targetBalance)]);
+    await provider.send("anvil_setBalance", [recipient, ethers.toQuantity(targetMinimum)]);
     return { ok: true, balance: await provider.getBalance(recipient) } as const;
   }
 

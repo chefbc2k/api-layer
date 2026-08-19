@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 
+import { JsonRpcProvider } from "ethers";
+
 import {
   closeRuntimeEnvironment,
   loadRuntimeEnvironment,
@@ -37,9 +39,24 @@ async function main(): Promise<void> {
   const stages = buildLocalForkProofPlan();
   const runtime = await loadRuntimeEnvironment();
   const rpcUrl = runtimeRpcUrl(runtime);
+  let checkpointProvider: JsonRpcProvider | null = null;
 
   try {
     const mode = assertRunnerSafety(rpcUrl, options, stages);
+    checkpointProvider = mode === "local-fork"
+      ? new JsonRpcProvider(rpcUrl, runtime.config.chainId)
+      : null;
+    const checkpoint = checkpointProvider
+      ? {
+          create: async () => String(await checkpointProvider!.send("evm_snapshot", [])),
+          restore: async (_stage: unknown, checkpointId: string) => {
+            const restored = await checkpointProvider!.send("evm_revert", [checkpointId]);
+            if (restored !== true) {
+              throw new Error(`fork rejected checkpoint ${checkpointId}`);
+            }
+          },
+        }
+      : undefined;
     const env = {
       ...process.env,
       ...runtime.env,
@@ -55,6 +72,7 @@ async function main(): Promise<void> {
       stages,
       env,
       continueOnGap: options.continueOnGap,
+      ...(checkpoint ? { checkpoint } : {}),
     });
     const reviewed = await loadReviewedSurface();
     const gaps = collectStructuredGaps(stageResults);
@@ -89,6 +107,7 @@ async function main(): Promise<void> {
         liveRunExplicitlyAllowed: options.allowLive,
         liveDestructiveRunExplicitlyAllowed: options.allowLiveDestructive,
         destructiveStagesDefaultToLocalFork: true,
+        destructiveStageCheckpoints: mode === "local-fork",
       },
       inventory: summarizeReviewedSurface(reviewed),
       fixtures: fixtureStage?.artifact ?? null,
@@ -101,6 +120,7 @@ async function main(): Promise<void> {
       process.exitCode = 1;
     }
   } finally {
+    checkpointProvider?.destroy();
     await closeRuntimeEnvironment(runtime);
   }
 }
