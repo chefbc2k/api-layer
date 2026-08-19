@@ -4,6 +4,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { parse } from "dotenv";
 import { JsonRpcProvider } from "ethers";
 
 import {
@@ -149,6 +150,24 @@ async function readFixtureRpcUrl(fixturePath: string): Promise<string | null> {
   }
 }
 
+async function readContractsRpcUrl(): Promise<string | null> {
+  try {
+    const contractsEnvPath = path.join(resolveContractsRoot(), ".env");
+    if (!existsSync(contractsEnvPath)) {
+      return null;
+    }
+    const env = parse(await readFile(contractsEnvPath, "utf8"));
+    return selectFixtureRpcUrl([
+      env.ALCHEMY_RPC_URL,
+      env.BASE_SEPOLIA_RPC_URL,
+      env.RPC_URL,
+      env.CBDP_RPC_URL,
+    ]);
+  } catch {
+    return null;
+  }
+}
+
 function readEnvString(env: NodeJS.ProcessEnv, key: string): string | null {
   const value = env[key];
   if (typeof value !== "string") {
@@ -196,13 +215,17 @@ export async function resolveRuntimeConfig(
     const fixtureRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
       ? await readFixtureRpcUrl(fixturePath)
       : null;
+    const contractsRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
+      ? await readContractsRpcUrl()
+      : null;
     const publicRpcUrl = isLoopbackRpcUrl(config.cbdpRpcUrl)
       ? inferBaseSepoliaPublicRpcUrl(env)
       : null;
-    let fallbackRpcUrl = publicRpcUrl ?? fixtureRpcUrl;
-    if (fixtureRpcUrl && (!isLoopbackRpcUrl(fixtureRpcUrl) || !publicRpcUrl)) {
-      fallbackRpcUrl = fixtureRpcUrl;
-    }
+    const fallbackRpcUrl =
+      (fixtureRpcUrl && !isLoopbackRpcUrl(fixtureRpcUrl) ? fixtureRpcUrl : null)
+      ?? (contractsRpcUrl && !isLoopbackRpcUrl(contractsRpcUrl) ? contractsRpcUrl : null)
+      ?? publicRpcUrl
+      ?? fixtureRpcUrl;
 
     if (!fallbackRpcUrl || fallbackRpcUrl === config.cbdpRpcUrl) {
       throw error;
