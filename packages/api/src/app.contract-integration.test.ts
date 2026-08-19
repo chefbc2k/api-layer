@@ -1666,6 +1666,22 @@ describeLive("HTTP API contract integration", () => {
       expect((eventResponse.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === listTxHash)).toBe(true);
     }
 
+    const listed = await marketplaceFacet.getListing(BigInt(tokenId));
+    const priceUpdateBlock = Number(listed[5]) + 5;
+    if (isLoopbackRpcUrl(activeRpcUrl)) {
+      const currentBlock = await provider.getBlockNumber();
+      if (currentBlock < priceUpdateBlock) {
+        await provider.send("anvil_mine", [ethers.toQuantity(priceUpdateBlock - currentBlock)]);
+      }
+    } else {
+      await waitFor(
+        () => provider.getBlockNumber(),
+        (blockNumber) => blockNumber >= priceUpdateBlock,
+        "marketplace price-update cooldown",
+        { attempts: 90, delayMs: 2_000 },
+      );
+    }
+
     const updatePriceResponse = await apiCall(port, "PATCH", "/v1/marketplace/commands/update-listing-price", {
       apiKey: "licensing-owner-key",
       body: {
@@ -1673,36 +1689,34 @@ describeLive("HTTP API contract integration", () => {
         newPrice: "30000000",
       },
     });
-    if (updatePriceResponse.status === 202) {
-      const updatePriceTxHash = extractTxHash(updatePriceResponse.payload);
-      await expectReceipt(updatePriceTxHash);
+    expect(updatePriceResponse.status).toBe(202);
+    const updatePriceTxHash = extractTxHash(updatePriceResponse.payload);
+    await expectReceipt(updatePriceTxHash);
 
-      await waitFor(
-        () => marketplaceFacet.getListing(BigInt(tokenId)),
-        (value) => (value as any)[2] === 30_000_000n,
-        "contract marketplace listing after price update",
-      );
-      const repricedListingResponse = await apiCall(
-        port,
-        "GET",
-        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
-        { apiKey: "read-key" },
-      );
-      if (repricedListingResponse.status === 200) {
-        expect(repricedListingResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
-      }
+    await waitFor(
+      () => marketplaceFacet.getListing(BigInt(tokenId)),
+      (value) => (value as any)[2] === 30_000_000n,
+      "contract marketplace listing after price update",
+    );
+    const repricedListingResponse = await apiCall(
+      port,
+      "GET",
+      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
+      { apiKey: "read-key" },
+    );
+    expect(repricedListingResponse.status).toBe(200);
+    expect(repricedListingResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
 
-      const updatePriceReceipt = await provider.getTransactionReceipt(updatePriceTxHash);
-      const priceUpdatedEvents = await apiCall(port, "POST", "/v1/marketplace/events/listing-price-updated/query", {
-        apiKey: "read-key",
-        body: {
-          fromBlock: String(updatePriceReceipt!.blockNumber),
-          toBlock: String(updatePriceReceipt!.blockNumber),
-        },
-      });
-      expect(priceUpdatedEvents.status).toBe(200);
-      expect((priceUpdatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === updatePriceTxHash)).toBe(true);
-    }
+    const updatePriceReceipt = await provider.getTransactionReceipt(updatePriceTxHash);
+    const priceUpdatedEvents = await apiCall(port, "POST", "/v1/marketplace/events/listing-price-updated/query", {
+      apiKey: "read-key",
+      body: {
+        fromBlock: String(updatePriceReceipt!.blockNumber),
+        toBlock: String(updatePriceReceipt!.blockNumber),
+      },
+    });
+    expect(priceUpdatedEvents.status).toBe(200);
+    expect((priceUpdatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === updatePriceTxHash)).toBe(true);
 
     const purchaseAttemptResponse = await apiCall(port, "POST", "/v1/marketplace/commands/purchase-asset", {
       apiKey: "founder-key",
@@ -4053,6 +4067,90 @@ describeLive("HTTP API contract integration", () => {
       },
     });
   }, 120_000);
+
+  it("proves usage, lock, approval, and both safe-transfer write paths for a disposable voice asset", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "voice asset receipt expansion", [
+      { address: licensingOwnerAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00002") },
+    ])) {
+      return;
+    }
+
+    const submit = async (
+      apiKey: string,
+      method: string,
+      route: string,
+      body: Record<string, unknown> = {},
+    ) => {
+      const response = await apiCall(port, method, route, { apiKey, body });
+      expect(response.status).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const createResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "licensing-owner-key",
+      body: {
+        ipfsHash: `QmIndexerVoiceLifecycle${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        royaltyRate: "225",
+      },
+    });
+    expect(createResponse.status).toBe(202);
+    const voiceHash = String((createResponse.payload as Record<string, unknown>).result);
+    await expectReceipt(extractTxHash(createResponse.payload));
+    const tokenId = await waitFor(
+      () => voiceAsset.getTokenId(voiceHash),
+      (value) => value > 0n,
+      "voice asset token for receipt expansion",
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+
+    const usageRef = id(`indexer-voice-usage-${voiceHash}-${Date.now()}`);
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/usage-records`,
+      { usageRef },
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[4]).toBe(1n);
+
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/lock`,
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[3]).toBe(true);
+
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/unlock`,
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[3]).toBe(false);
+
+    await submit("licensing-owner-key", "POST", "/v1/voice-assets/commands/approve-voice-asset", {
+      to: transfereeWallet.address,
+      tokenId: tokenId.toString(),
+    });
+    expect(await voiceAsset.getApproved(tokenId)).toBe(transfereeWallet.address);
+
+    await submit(
+      "transferee-key",
+      "POST",
+      `/v1/voice-assets/tokens/${tokenId.toString()}/transfers/safe`,
+      { from: licensingOwnerAddress, to: transfereeWallet.address },
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(transfereeWallet.address);
+
+    await submit(
+      "transferee-key",
+      "POST",
+      `/v1/voice-assets/tokens/${tokenId.toString()}/transfers/safe-with-data`,
+      { from: transfereeWallet.address, to: licensingOwnerAddress, data: "0x1234" },
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+  }, 180_000);
 
   it("proves reversible marketplace, voice, and dataset configuration writes through HTTP", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "reversible configuration writes", [

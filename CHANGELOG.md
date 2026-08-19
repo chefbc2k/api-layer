@@ -10,6 +10,7 @@
 - **Real Workflow Receipts Feed Disposable PostgreSQL:** The local-fork runner includes an `event-indexer-proof` stage that discovers workflow transaction hashes, attributes successful diamond writes through the generated selector registry, ingests their exact blocks with the production indexer, verifies declared events and projections, and checks replay idempotency across `raw_events` and all `22` projection tables.
 - **HTTP Contract Receipts Now Reach The Indexer Gate:** The fixture-backed HTTP contract stage persists every successful receipt-confirmed transaction hash, and the indexer stage consumes that artifact alongside the lifecycle reports instead of discarding those real writes between stages.
 - **Reversible Configuration Writes Expand Receipt Coverage:** The HTTP contract proof now mutates, reads back, and restores marketplace pause state, voice-asset default royalty, default platform fee, registration pause, and the dataset maximum-assets setting, providing six additional distinct write methods and ten additional receipts to the indexer stage.
+- **Marketplace And Voice Lifecycle Receipts Add Seven Writes:** The HTTP proof advances through the marketplace's five-block repricing cooldown and requires the repricing receipt, state readback, and event query. A disposable voice asset now proves usage recording, lock/unlock, approval, and both safe-transfer overloads with receipt and ownership/state assertions.
 - **Disposable PostgreSQL And Resilience Gates Are Repeatable:** `pnpm run test:indexer:postgres` applies all migrations twice and verifies duplicate replay, atomic raw/projection rollback, reorg orphaning, current-row rebuild, delayed RPC handling, partial-range failure, and canonical block replacement against real constraints.
 
 ### Fixed
@@ -21,13 +22,13 @@
 ### Verified
 
 - **Production Call-Tracer Capability Is Persisted:** Added `pnpm run proof:indexer:trace-capability` and [`output/indexer-trace-capability.json`](/Users/chef/Public/api-layer-event-indexer-proof/output/indexer-trace-capability.json). The credential-safe probe selected the runtime's Base Sepolia public fallback, confirmed chain `84532`, found a recent successful transaction, and received an object result from `debug_traceTransaction` with `callTracer`.
-- **Cold Receipt Coverage Increased To `49/260`:** A guarded `10/10`-stage local-fork run passed the `19/19` HTTP contract suite, persisted `82` confirmed HTTP receipts, and indexed `120` total workflow receipts across `49` distinct write methods. The production indexer persisted `188` canonical raw events and `126` projection rows, and replay left every one of the `23` tracked table counts unchanged.
+- **Cumulative Receipt Coverage Increased To `56/260`:** The seven new write paths each decoded their declared generated-registry event and projected into `market_listings` or `voice_assets` with no receipt failures. The latest retry artifact passed the event-indexer stage with `96` receipts across `50` methods, `143` raw events, `94` projection rows, and idempotent replay; combined with the prior `49`-method cold artifact, the distinct real-receipt union is `56` methods.
 - **Indexer, PostgreSQL, And Quality Gates Pass:** `pnpm run test:write-invariants` passes `5/5`, `pnpm run test:indexer:assurance` passes `57/57` active tests, `pnpm run test:indexer:postgres` passes `4/4`, `pnpm run test:local-fork-runner` passes `9/9`, and the ordered TypeScript, lint, and build gates pass. The explicit surface gate remains complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - **Measured Coverage Passes:** `pnpm run test:coverage` passes at `99.70%` statements, `99.55%` branches, `99.54%` functions, and `99.76%` lines.
 
 ### Remaining Issues
 
-- **Event/Indexer Proof Is Not Merge-Ready:** The latest real-receipt run proves `49/260` catalog writes and leaves `211` without deterministic fork receipts. Production call tracing and all requested resilience classes are proven; deterministic fixture and receipt expansion is the sole remaining section blocker.
+- **Event/Indexer Proof Is Not Merge-Ready:** Cumulative evidence proves `56/260` catalog writes and leaves `204` without deterministic fork receipts. The latest clean-fork umbrella run also retained `23` aggregate gaps from provider timeouts/resets, exhausted marketplace buyer gas, governance activation timeout, and unresolved fixture/event reads, although its event-indexer stage passed. No partial merge is permitted.
 
 ## [0.1.284] - 2026-08-19
 
