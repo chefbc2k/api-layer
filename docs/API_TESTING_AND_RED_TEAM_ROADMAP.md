@@ -8,7 +8,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 
 - ABI/client wrapper coverage is complete for `33` facets, `492` functions, and `218` events.
 - HTTP surface generation is complete for `491` generated endpoints across access control, tokenomics, staking, diamond admin, emergency, marketplace, governance, voice assets, multisig, ownership, licensing, datasets, and WhisperBlock.
-- Standard TypeScript coverage currently reports `99.98%` lines, `99.96%` statements, `99.93%` branches, and `99.92%` functions across the measured API/client/indexer/script surface; the residual merged-Istanbul mappings are confined to already-exercised execution-context and Alchemy diagnostic lines.
+- Standard TypeScript coverage currently reports `99.98%` lines, `99.98%` statements, `99.91%` branches, and `100%` functions across the measured API/client/indexer/script surface; the residual merged-Istanbul mappings are confined to already-exercised execution-context and Alchemy diagnostic lines.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
 
@@ -154,6 +154,13 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### Actor Negative-Path Automation Run — 2026-08-19
+
+- **Current-master audit found no actor or signer coverage drift:** fast-forwarded `codex/actor-negative-paths` to local `master` at `269d4fe`. The only source delta since the prior actor merge was the local-fork RPC fallback hardening and its focused test; no ABI, HTTP route, authorization, signer-binding, role, or write-invariant source changed. The regenerated report remains semantically stable at all `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-role mismatch cases.
+- **Focused authorization and repository evidence remains complete:** `pnpm run test:actor-negative-paths` passed `100/100`, including exhaustive write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity behavior. After one non-reproducible emergency-workflow timeout was isolated and passed in `0.5s`, a clean full-suite rerun passed all `1,301` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **Quality, surface, and measured coverage gates passed:** with `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. The build-embedded and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.98%` statements, `99.91%` branches, `100%` functions, and `99.98%` lines.
+- **Regeneration and merge decision:** only the two persisted actor-report timestamps changed; the reviewed API surface's transient timestamp was restored. The workstream remains complete and verified for merge, with no actor/signer blocker or implementation change required on the current mounted write inventory.
 
 ### Local-Fork Automation Run — 2026-08-18
 
@@ -358,7 +365,7 @@ Daily automations should treat these sections as independently mergeable workstr
 | --- | --- | --- |
 | ABI-driven gap report | Complete and verified (2026-08-18) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
 | Write-method invariant metadata | Complete and verified (2026-08-18) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
-| Actor and signer negative paths | Complete and verified (2026-08-18) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
+| Actor and signer negative paths | Complete and verified (2026-08-19) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
 | Event and indexer projection proof | Pending | event decode plus indexer projection tests for each write workflow, including replay/reorg cases |
 | Local-fork destructive automation | Complete and verified (2026-08-09) | deterministic `9/9`-stage cold run, funded/approved/aged fixtures, `18/18` HTTP contract proof, `446/446` reviewed read/event attempts with structured state gaps, bounded Anvil history, strict live flags, `9/9` focused tests, and green TypeScript/lint/build/coverage gates |
@@ -406,7 +413,7 @@ Verification evidence:
 
 ### Actor And Signer Negative-Path Evidence
 
-The actor report, revalidated on 2026-08-18, covers all `259` mounted HTTP write endpoints across `13` domains and lists the intentionally excluded legacy `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` overload separately. The generated matrix contains `1,813` founder/admin/operator/buyer/seller/licensee/collaborator method cases, `777` unknown-key/read-only-key/signer-mismatch API-boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-contract mismatch cases. Protected capability mappings explicitly cover commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutation.
+The actor report, revalidated on 2026-08-19, covers all `259` mounted HTTP write endpoints across `13` domains and lists the intentionally excluded legacy `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` overload separately. The generated matrix contains `1,813` founder/admin/operator/buyer/seller/licensee/collaborator method cases, `777` unknown-key/read-only-key/signer-mismatch API-boundary cases, and `3,171` missing/stale/revoked/expired/ownership/self/protocol-contract mismatch cases. Protected capability mappings explicitly cover commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutation.
 
 The common execution path now rejects unknown and read-only keys before provider work, binds configured or direct-request wallet identity to the actual signer, and always runs contract static-call preflight—including write functions with no ABI outputs—before transaction persistence or submission. Verification and contract-integration fixtures now assign their `read-key` the `read-only` role rather than the write-capable `service` role.
 
@@ -414,11 +421,11 @@ Verification evidence:
 
 - `pnpm run report:actor-negative-paths`: regenerated `output/actor-negative-path-report.json` and `output/actor-negative-path-report.md` from the canonical ABI, HTTP, and invariant inventories.
 - `pnpm run test:actor-negative-paths`: `100/100` focused auth, API-boundary, execution-context, and report tests passed, including the exhaustive `1,813` actor/method preflight matrix.
-- `pnpm test`: `1,300/1,300` active tests passed across `132` files; `23` gated contract-integration and local-fork-only tests remained explicitly skipped.
+- `pnpm test`: a clean rerun passed `1,301/1,301` active tests across `132` files; `23` gated contract-integration and local-fork-only tests remained explicitly skipped.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
-- `pnpm run test:coverage`: repo-wide measured coverage passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines; shared API authorization remains fully covered.
-- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: TypeScript, lint, codegen, and all client/indexer/API production builds passed on 2026-08-18.
-- The 2026-08-18 revalidation regenerated the actor report without semantic drift and confirmed that no actor/signer negative-path blocker remains.
+- `pnpm run test:coverage`: repo-wide measured coverage passed at `99.98%` statements, `99.91%` branches, `100%` functions, and `99.98%` lines; shared API authorization remains fully covered.
+- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: TypeScript, lint, codegen, and all client/indexer/API production builds passed on 2026-08-19.
+- The 2026-08-19 revalidation regenerated the actor report without semantic drift and confirmed that no actor/signer negative-path blocker remains.
 
 ### Red-Team Mutation And Fuzzing Evidence
 
