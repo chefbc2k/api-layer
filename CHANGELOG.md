@@ -2,7 +2,7 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.287] - 2026-08-19
+## [0.1.288] - 2026-08-19
 
 ### Fixed
 
@@ -14,6 +14,18 @@
 - **Fresh Local-Fork Proof Passed All Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started a new loopback Base Sepolia fork and passed all `9/9` stages on their first attempts. The HTTP contract suite passed `18/18`; all five lifecycle artifacts report `proven working`; marketplace persisted `5` settlement evidence records; and governance persisted proposal activation plus voting in `3` evidence records.
 - **Structured Gaps And Safety Stayed Deterministic:** The exhaustive sweep attempted `232` reviewed reads and `214` event routes, passed `430/446`, and emitted exactly `16` `needs fixture` gaps with zero runner failures or generic proof gaps. The report records fork checkpoints enabled, a runner-started local fork, destructive stages defaulting to local only, and both live flags `false`.
 - **All Merge Gates Passed:** The resolver, runner, and marketplace suites passed `79/79`. With `pnpm` selected from `pnpm-lock.yaml`, the ordered TypeScript, lint, and build gates passed, followed by an explicit `pnpm run coverage:check` at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
+
+## [0.1.287] - 2026-08-19
+
+### Added
+
+- **Signed-Request Semantic Red-Team Oracle:** The harness now rejects future-issued or expired envelopes, negative or excessive validity windows, replayed or skipped nonces, malformed 64/65-byte ECDSA signatures, and claimed role IDs not bound to the signer. This complements wire-schema mutation coverage with valid-shape adversarial deadline, timestamp, nonce, signature, and role substitutions.
+
+### Verified
+
+- **Focused And Local-Fork Red-Team Gates Passed:** `pnpm run test:redteam` passed `104/104`, including `1,914` invalid wire mutations across all `521` inputs on the `259` mounted HTTP writes. `pnpm run redteam:local-fork` passed `136/136` across `9` files, including all `5/5` real loopback probes and the emergency, governance/timelock, multisig, duplicate-log, event-decode, and reorg suites.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Coverage And Persistent Reporting Stayed Green:** `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines. `pnpm run report:test-gaps` refreshed only report timestamps without classification drift; the reviewed API surface's transient timestamp was restored.
 
 ## [0.1.286] - 2026-08-19
 
