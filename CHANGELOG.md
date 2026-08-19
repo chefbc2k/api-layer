@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.288] - 2026-08-19
+
+### Fixed
+
+- **Local-Fork Retries Restore Clean State:** Destructive proof stages now create fork checkpoints, revert failed attempts before retrying or continuing, remove stale attempt artifacts, and require proof artifacts to report `proven working`. Retries remain disabled for destructive live-network execution even when both live acknowledgement flags are supplied.
+- **Marketplace Buyers Keep A Fork-Only Gas Reserve:** Loopback purchase proofs now raise the buyer to the deterministic local gas reserve even when fixture provisioning already met the smaller live-network minimum, preventing late-stage intrinsic-gas failures after earlier workflows consume native balance.
+
+### Verified
+
+- **Fresh Local-Fork Proof Passed All Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started a new loopback Base Sepolia fork and passed all `9/9` stages on their first attempts. The HTTP contract suite passed `18/18`; all five lifecycle artifacts report `proven working`; marketplace persisted `5` settlement evidence records; and governance persisted proposal activation plus voting in `3` evidence records.
+- **Structured Gaps And Safety Stayed Deterministic:** The exhaustive sweep attempted `232` reviewed reads and `214` event routes, passed `430/446`, and emitted exactly `16` `needs fixture` gaps with zero runner failures or generic proof gaps. The report records fork checkpoints enabled, a runner-started local fork, destructive stages defaulting to local only, and both live flags `false`.
+- **All Merge Gates Passed:** The resolver, runner, and marketplace suites passed `79/79`. With `pnpm` selected from `pnpm-lock.yaml`, the ordered TypeScript, lint, and build gates passed, followed by an explicit `pnpm run coverage:check` at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.287] - 2026-08-19
 
 ### Added
