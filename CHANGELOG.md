@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.284] - 2026-08-19
+
+### Changed
+
+- **Actor And Signer Evidence Is Current With No Coverage Drift:** Regenerated the persisted actor report against current master. All `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` stale/revoked/expired or ownership-role lifecycle cases. No authorization-sensitive source changed since the prior actor merge.
+
+### Verified
+
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`. After isolating one non-reproducible emergency-workflow timeout, a clean `pnpm test` rerun passed all `1,301` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order without fixes. The build-embedded and explicit `pnpm run coverage:check` gates passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.91%` branches, `100%` functions, and `99.98%` lines. Only the actor-report timestamps were persisted; unrelated reviewed-surface timestamp churn was restored.
+
 ## [0.1.283] - 2026-08-18
 
 ### Fixed
