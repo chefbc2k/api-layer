@@ -13,6 +13,7 @@ import {
   inspectEmergencyAction,
   inspectMultisig,
   inspectRpcSnapshots,
+  inspectSignedRequestEnvelope,
   inspectStateTransition,
   inspectTimelock,
   inspectValueConservation,
@@ -155,6 +156,51 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
     })).toEqual([]);
     expect(inspectStateTransition({ from: "unknown", to: "listed", allowed: allowed as never })[0]?.id)
       .toBe("state-machine-ordering");
+  });
+
+  it("rejects replayed or skipped nonces, unsafe timestamps, malformed signatures, and substituted roles", () => {
+    const validEnvelope = {
+      issuedAt: 1_900_000_000n,
+      deadline: 1_900_000_300n,
+      observedAt: 1_900_000_100n,
+      maximumValidityWindow: 600n,
+      nonce: 7n,
+      expectedNonce: 7n,
+      signature: `0x${"ab".repeat(65)}`,
+      claimedRoleId: `0x${"11".repeat(32)}`,
+      signerRoleIds: [`0x${"11".repeat(32)}`],
+    };
+
+    expect(inspectSignedRequestEnvelope(validEnvelope)).toEqual([]);
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: `0x${"ab".repeat(64)}`,
+    })).toEqual([]);
+
+    const findings = inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      issuedAt: 1_900_000_200n,
+      deadline: 1_900_000_050n,
+      nonce: 6n,
+      signature: "0x1234",
+      claimedRoleId: `0x${"22".repeat(32)}`,
+    });
+    expect(findings.map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "signed-request-future-timestamp",
+      "signed-request-expired-deadline",
+      "signed-request-invalid-validity-window",
+      "signed-request-replayed-nonce",
+      "signed-request-malformed-signature",
+      "signed-request-role-substitution",
+    ]));
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      deadline: validEnvelope.issuedAt + validEnvelope.maximumValidityWindow + 1n,
+      nonce: 8n,
+    }).map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "signed-request-invalid-validity-window",
+      "signed-request-nonce-gap",
+    ]));
   });
 
   it("covers scalar, tuple, array, and canonicalization mutation edge cases", () => {

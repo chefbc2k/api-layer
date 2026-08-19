@@ -273,6 +273,78 @@ export function inspectActorBinding(input: {
   return findings;
 }
 
+export function inspectSignedRequestEnvelope(input: {
+  issuedAt: bigint;
+  deadline: bigint;
+  observedAt: bigint;
+  maximumValidityWindow: bigint;
+  nonce: bigint;
+  expectedNonce: bigint;
+  signature: string;
+  claimedRoleId?: string;
+  signerRoleIds?: string[];
+}): RedTeamFinding[] {
+  const findings: RedTeamFinding[] = [];
+  if (input.issuedAt > input.observedAt) {
+    findings.push({
+      id: "signed-request-future-timestamp",
+      severity: "high",
+      message: "signed request was issued after the verifier's observed timestamp",
+      evidence: { issuedAt: input.issuedAt.toString(), observedAt: input.observedAt.toString() },
+    });
+  }
+  if (input.deadline < input.observedAt) {
+    findings.push({
+      id: "signed-request-expired-deadline",
+      severity: "high",
+      message: "signed request deadline has expired",
+      evidence: { deadline: input.deadline.toString(), observedAt: input.observedAt.toString() },
+    });
+  }
+  if (input.deadline < input.issuedAt || input.deadline - input.issuedAt > input.maximumValidityWindow) {
+    findings.push({
+      id: "signed-request-invalid-validity-window",
+      severity: "high",
+      message: "signed request validity window is negative or exceeds policy",
+      evidence: {
+        issuedAt: input.issuedAt.toString(),
+        deadline: input.deadline.toString(),
+        maximumValidityWindow: input.maximumValidityWindow.toString(),
+      },
+    });
+  }
+  if (input.nonce !== input.expectedNonce) {
+    findings.push({
+      id: input.nonce < input.expectedNonce ? "signed-request-replayed-nonce" : "signed-request-nonce-gap",
+      severity: "critical",
+      message: input.nonce < input.expectedNonce
+        ? "signed request reused a consumed nonce"
+        : "signed request skipped the next expected nonce",
+      evidence: { nonce: input.nonce.toString(), expectedNonce: input.expectedNonce.toString() },
+    });
+  }
+  if (!/^0x(?:[\da-fA-F]{128}|[\da-fA-F]{130})$/u.test(input.signature)) {
+    findings.push({
+      id: "signed-request-malformed-signature",
+      severity: "critical",
+      message: "signed request does not contain a canonical compact or full ECDSA signature",
+      evidence: { signature: input.signature },
+    });
+  }
+  if (input.claimedRoleId) {
+    const signerRoles = new Set((input.signerRoleIds ?? []).map((roleId) => roleId.toLowerCase()));
+    if (!signerRoles.has(input.claimedRoleId.toLowerCase())) {
+      findings.push({
+        id: "signed-request-role-substitution",
+        severity: "critical",
+        message: "signed request claims a role that is not bound to the signer",
+        evidence: { claimedRoleId: input.claimedRoleId, signerRoleIds: input.signerRoleIds ?? [] },
+      });
+    }
+  }
+  return findings;
+}
+
 export function inspectValueConservation(input: {
   before: Record<string, bigint>;
   after: Record<string, bigint>;
