@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.292] - 2026-08-24
+
+### Verified
+
+- **Local-Fork Assurance Has No Current-Master Drift:** Revalidated the deterministic loopback runner, funded actors, approvals, roles, lifecycle fixtures, aged listings, safe reads, fixture-backed writes, proof artifacts, structured gaps, checkpoint isolation, and two-flag live-network guard. The focused resolver, runner, and marketplace suites passed `79/79`.
+- **Fresh Local-Fork Proof Passed All Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started a new loopback Base Sepolia fork and passed all `9/9` stages on their first attempts. The HTTP contract suite passed `18/18`; all five lifecycle artifacts report `proven working`; marketplace persisted `5` pre-state/transaction/receipt/event/post-state records; and governance persisted proposal `43` activation plus voting in `3` records.
+- **Fixtures, Gaps, And Safety Stayed Deterministic:** The runner provisioned funded actors, buyer USDC balance/allowance at `4000/4000`, governance readiness, and listing token `11` aged by `86,401` seconds. The exhaustive sweep passed `430/446` reviewed read/event routes with exactly `16` structured `needs fixture` gaps and zero runner failures. Destructive/admin stages remained local-fork-only, with both live acknowledgements `false`.
+- **All Merge Gates Passed:** The ordered TypeScript, lint, and build sequence passed. Build-time code generation and the explicit `pnpm run coverage:check` reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.291] - 2026-08-24
 
 ### Changed
