@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.289] - 2026-08-24
+
+### Changed
+
+- **ABI Gap Evidence Is Current With No Classification Drift:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from current ABI/API manifests, the reviewed surface, protocol tests, and verify artifacts. The report remains complete at `33` facets, `492` functions, and `218` event occurrences, with `223` ready, `223` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof.
+
+### Verified
+
+- **Focused And Full Tests Passed:** `pnpm run test:gap-report` passed `4/4`; `pnpm test` passed all `1,304` active tests across `132` files with `23` explicitly gated tests skipped; and `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build-time codegen and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Persistent Reporting Stayed Semantically Stable:** Proof attribution remains `382` unit, `284` workflow, `4` local-fork, `60` Base Sepolia, `259` negative-path, `163` economic, `29` red-team, and `5` indexer items. Only the two persisted report timestamps changed; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.288] - 2026-08-19
 
 ### Fixed
