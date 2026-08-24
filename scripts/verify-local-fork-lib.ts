@@ -19,6 +19,7 @@ export type ProofStage = {
   destructive: boolean;
   artifactPath?: string;
   maxAttempts?: number;
+  requiredArtifactSummary?: string;
 };
 
 export type CommandResult = {
@@ -31,9 +32,15 @@ export type StageResult = ProofStage & {
   status: "passed" | "failed";
   exitCode: number;
   attemptCount: number;
+  checkpointRestores: number;
   stdoutTail: string;
   stderrTail: string;
   artifact: unknown | null;
+};
+
+export type StageCheckpoint = {
+  create(stage: ProofStage): Promise<string>;
+  restore(stage: ProofStage, checkpointId: string): Promise<void>;
 };
 
 export type StructuredGap = {
@@ -170,7 +177,9 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       command: "pnpm",
       args: ["tsx", "scripts/verify-layer1-live.ts", "--output", path.join(PROOF_DIR, "layer1-core.json")],
       destructive: true,
+      maxAttempts: 2,
       artifactPath: path.join(PROOF_DIR, "layer1-core.json"),
+      requiredArtifactSummary: "proven working",
     },
     {
       id: "layer1-completion-proof",
@@ -179,6 +188,7 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       args: ["tsx", "scripts/verify-layer1-completion.ts", "--output", path.join(PROOF_DIR, "layer1-completion.json")],
       destructive: false,
       artifactPath: path.join(PROOF_DIR, "layer1-completion.json"),
+      requiredArtifactSummary: "proven working",
     },
     {
       id: "layer1-remaining-proof",
@@ -186,7 +196,9 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       command: "pnpm",
       args: ["tsx", "scripts/verify-layer1-remaining.ts", "--output", path.join(PROOF_DIR, "layer1-remaining.json")],
       destructive: true,
+      maxAttempts: 2,
       artifactPath: path.join(PROOF_DIR, "layer1-remaining.json"),
+      requiredArtifactSummary: "proven working",
     },
     {
       id: "marketplace-purchase-proof",
@@ -199,7 +211,9 @@ export function buildLocalForkProofPlan(): ProofStage[] {
         path.join(PROOF_DIR, "marketplace-purchase.json"),
       ],
       destructive: true,
+      maxAttempts: 2,
       artifactPath: path.join(PROOF_DIR, "marketplace-purchase.json"),
+      requiredArtifactSummary: "proven working",
     },
     {
       id: "governance-proof",
@@ -212,7 +226,9 @@ export function buildLocalForkProofPlan(): ProofStage[] {
         path.join(PROOF_DIR, "governance.json"),
       ],
       destructive: true,
+      maxAttempts: 2,
       artifactPath: path.join(PROOF_DIR, "governance.json"),
+      requiredArtifactSummary: "proven working",
     },
     {
       id: "event-indexer-proof",
@@ -290,6 +306,7 @@ export async function runProofStages(args: {
   env: NodeJS.ProcessEnv;
   continueOnGap: boolean;
   execute?: typeof executeCommand;
+  checkpoint?: StageCheckpoint;
 }): Promise<StageResult[]> {
   const execute = args.execute ?? executeCommand;
   const results: StageResult[] = [];
@@ -303,12 +320,60 @@ export async function runProofStages(args: {
     }
     let commandResult: CommandResult = { exitCode: 1, stdout: "", stderr: "stage did not run" };
     let attemptCount = 0;
-    const maxAttempts = stage.maxAttempts ?? 1;
+    let checkpointRestores = 0;
+    let checkpointFailure = false;
+    const maxAttempts = stage.destructive && !args.checkpoint ? 1 : stage.maxAttempts ?? 1;
     while (attemptCount < maxAttempts) {
       attemptCount += 1;
+      if (stage.artifactPath) {
+        const artifactPath = path.isAbsolute(stage.artifactPath)
+          ? stage.artifactPath
+          : path.resolve(rootDir, stage.artifactPath);
+        await rm(artifactPath, { force: true });
+      }
+      let checkpointId: string | null = null;
+      if (stage.destructive && args.checkpoint) {
+        try {
+          checkpointId = await args.checkpoint.create(stage);
+        } catch (error) {
+          commandResult = {
+            exitCode: 1,
+            stdout: "",
+            stderr: `failed to create local-fork checkpoint: ${error instanceof Error ? error.message : String(error)}`,
+          };
+          checkpointFailure = true;
+          break;
+        }
+      }
       commandResult = await execute(stage, args.env);
+      if (commandResult.exitCode === 0 && stage.requiredArtifactSummary) {
+        const attemptArtifact = await readOptionalJson(stage.artifactPath);
+        const summary = attemptArtifact && typeof attemptArtifact === "object"
+          ? (attemptArtifact as Record<string, unknown>).summary
+          : null;
+        if (summary !== stage.requiredArtifactSummary) {
+          commandResult = {
+            ...commandResult,
+            exitCode: 1,
+            stderr: `${commandResult.stderr}\nproof artifact summary was ${JSON.stringify(summary)}; expected ${JSON.stringify(stage.requiredArtifactSummary)}`.trim(),
+          };
+        }
+      }
       if (commandResult.exitCode === 0) {
         break;
+      }
+      if (checkpointId && args.checkpoint) {
+        try {
+          await args.checkpoint.restore(stage, checkpointId);
+          checkpointRestores += 1;
+        } catch (error) {
+          commandResult = {
+            ...commandResult,
+            stderr: `${commandResult.stderr}\nfailed to restore local-fork checkpoint: ${error instanceof Error ? error.message : String(error)}`.trim(),
+          };
+          checkpointFailure = true;
+          break;
+        }
       }
       if (attemptCount < maxAttempts) {
         console.warn(`retrying ${stage.id} after exit ${commandResult.exitCode} (${attemptCount}/${maxAttempts})`);
@@ -320,11 +385,12 @@ export async function runProofStages(args: {
       status: commandResult.exitCode === 0 ? "passed" : "failed",
       exitCode: commandResult.exitCode,
       attemptCount,
+      checkpointRestores,
       stdoutTail: tail(commandResult.stdout),
       stderrTail: tail(commandResult.stderr),
       artifact,
     });
-    if (commandResult.exitCode !== 0 && !args.continueOnGap) {
+    if (checkpointFailure || (commandResult.exitCode !== 0 && !args.continueOnGap)) {
       break;
     }
   }

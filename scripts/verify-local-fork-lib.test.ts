@@ -113,16 +113,109 @@ describe("local-fork proof planning and reporting", () => {
     expect(results[1].status).toBe("failed");
   });
 
+  it("restores destructive-stage checkpoints before retries and after terminal failures", async () => {
+    const stages: ProofStage[] = [
+      { id: "retry", description: "retry", command: "test", args: [], destructive: true, maxAttempts: 2 },
+      { id: "terminal", description: "terminal", command: "test", args: [], destructive: true },
+      { id: "after", description: "after", command: "test", args: [], destructive: false },
+    ];
+    const attempts = new Map<string, number>();
+    const checkpointCalls: string[] = [];
+    let checkpointIndex = 0;
+    const results = await runProofStages({
+      stages,
+      env: {},
+      continueOnGap: true,
+      checkpoint: {
+        create: async (stage) => {
+          const checkpointId = `${stage.id}-${++checkpointIndex}`;
+          checkpointCalls.push(`create:${checkpointId}`);
+          return checkpointId;
+        },
+        restore: async (stage, checkpointId) => {
+          checkpointCalls.push(`restore:${stage.id}:${checkpointId}`);
+        },
+      },
+      execute: async (stage) => {
+        const attempt = (attempts.get(stage.id) ?? 0) + 1;
+        attempts.set(stage.id, attempt);
+        return {
+          exitCode: stage.id === "retry" && attempt === 2 ? 0 : stage.id === "after" ? 0 : 1,
+          stdout: "",
+          stderr: "failed",
+        };
+      },
+    });
+
+    expect(checkpointCalls).toEqual([
+      "create:retry-1",
+      "restore:retry:retry-1",
+      "create:retry-2",
+      "create:terminal-3",
+      "restore:terminal:terminal-3",
+    ]);
+    expect(results.map((result) => [result.id, result.status, result.attemptCount, result.checkpointRestores])).toEqual([
+      ["retry", "passed", 2, 1],
+      ["terminal", "failed", 1, 1],
+      ["after", "passed", 1, 0],
+    ]);
+  });
+
+  it("retries blocked proof artifacts only when a local-fork checkpoint is available", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "local-fork-artifact-retry-"));
+    tempDirs.push(dir);
+    const artifactPath = path.join(dir, "proof.json");
+    const stage: ProofStage = {
+      id: "proof",
+      description: "proof",
+      command: "test",
+      args: [],
+      destructive: true,
+      artifactPath,
+      maxAttempts: 2,
+      requiredArtifactSummary: "proven working",
+    };
+    let attempts = 0;
+    const execute = async () => {
+      attempts += 1;
+      fs.writeFileSync(artifactPath, JSON.stringify({
+        summary: attempts === 1 ? "blocked by setup/state" : "proven working",
+      }));
+      return { exitCode: 0, stdout: "", stderr: "" };
+    };
+    const checkpointed = await runProofStages({
+      stages: [stage],
+      env: {},
+      continueOnGap: false,
+      execute,
+      checkpoint: {
+        create: async () => `snapshot-${attempts + 1}`,
+        restore: async () => undefined,
+      },
+    });
+    expect(checkpointed[0]).toMatchObject({ status: "passed", attemptCount: 2, checkpointRestores: 1 });
+
+    attempts = 0;
+    const live = await runProofStages({
+      stages: [stage],
+      env: {},
+      continueOnGap: false,
+      execute,
+    });
+    expect(live[0]).toMatchObject({ status: "failed", attemptCount: 1, checkpointRestores: 0 });
+  });
+
   it("normalizes command, artifact, and safe-read gaps", () => {
     const plan = buildLocalForkProofPlan();
     const base = plan[0];
     const gaps = collectStructuredGaps([
-      { ...base, status: "failed", exitCode: 1, attemptCount: 1, stdoutTail: "", stderrTail: "boom", artifact: null },
+      { ...base, status: "failed", exitCode: 1, attemptCount: 1, checkpointRestores: 0, stdoutTail: "", stderrTail: "boom", artifact: null },
       {
         ...plan.find((stage) => stage.id === "probe-safe-reads")!,
         status: "passed",
         exitCode: 0,
         attemptCount: 1,
+        checkpointRestores: 0,
         stdoutTail: "",
         stderrTail: "",
         artifact: { gaps: [{ methodKey: "Facet.read", route: "GET /read", classification: "needs fixture", detail: "missing id" }] },
@@ -132,6 +225,7 @@ describe("local-fork proof planning and reporting", () => {
         status: "passed",
         exitCode: 0,
         attemptCount: 1,
+        checkpointRestores: 0,
         stdoutTail: "",
         stderrTail: "",
         artifact: { summary: "blocked by setup/state" },
