@@ -245,6 +245,28 @@ function acousticFeaturesToObject(value: unknown): Record<string, unknown> {
   };
 }
 
+function voiceClassificationsToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    analysisVersion: normalize(tuple[0]),
+    timestamp: normalize(tuple[1]),
+    processingTimeMs: normalize(tuple[2]),
+    componentsRun: normalize(tuple[3]),
+    categories: normalize(tuple[4]),
+  };
+}
+
+function geographicDataToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    latitude: normalize(tuple[0]),
+    longitude: normalize(tuple[1]),
+    region: normalize(tuple[2]),
+    country: normalize(tuple[3]),
+    locality: normalize(tuple[4]),
+  };
+}
+
 function roleConfigToObject(value: unknown): Record<string, unknown> {
   const tuple = value as ArrayLike<unknown>;
   return {
@@ -4150,6 +4172,89 @@ describeLive("HTTP API contract integration", () => {
       { from: transfereeWallet.address, to: licensingOwnerAddress, data: "0x1234" },
     );
     expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+  }, 180_000);
+
+  it("proves classification and geographic metadata receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "voice metadata receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00003") },
+    ])) {
+      return;
+    }
+
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return response.payload as Record<string, unknown>;
+    };
+    const proofId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const voiceRegistration = await submit("POST", "/v1/voice-assets", {
+      ipfsHash: `QmIndexerMetadata${proofId}`,
+      royaltyRate: "175",
+    });
+    const metadataVoiceHash = String(voiceRegistration.result);
+    expect(metadataVoiceHash).toEqual(expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u));
+
+    const category = `indexer-${proofId}`;
+    const initialClassification = {
+      name: `initial-${proofId}`,
+      score: "925",
+      category,
+      level: "high",
+      metadata: JSON.stringify({ proof: "complete" }),
+    };
+    const latestBlock = await provider.getBlock("latest");
+    const classifications = {
+      analysisVersion: `indexer-proof-${proofId}`,
+      timestamp: String(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000)),
+      processingTimeMs: "37",
+      componentsRun: ["classification-proof"],
+      categories: [category],
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-voice-classifications", {
+      voiceHash: metadataVoiceHash,
+      classifications,
+      categoryData: [{ category, classifications: [initialClassification] }],
+    });
+    const storedClassifications = await voiceMetadata.getVoiceClassifications(metadataVoiceHash);
+    expect(voiceClassificationsToObject(storedClassifications)).toEqual(classifications);
+
+    const replacementClassification = {
+      name: `replacement-${proofId}`,
+      score: "975",
+      category,
+      level: "high",
+      metadata: JSON.stringify({ proof: "category" }),
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-classification-category", {
+      voiceHash: metadataVoiceHash,
+      category,
+      classifications: [replacementClassification],
+    });
+    expect(await voiceMetadata.searchVoicesByClassification(
+      replacementClassification.name,
+      category,
+      replacementClassification.level,
+      900n,
+    )).toContain(metadataVoiceHash);
+
+    const geographic = {
+      latitude: "41881300",
+      longitude: "-87629700",
+      region: "Midwest",
+      country: "US",
+      locality: `Chicago-${proofId.slice(-8)}`,
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-geographic-data", {
+      voiceHash: metadataVoiceHash,
+      geographic,
+    });
+    expect(geographicDataToObject(await voiceMetadata.getGeographicData(metadataVoiceHash))).toEqual(geographic);
   }, 180_000);
 
   it("proves reversible marketplace, voice, and dataset configuration writes through HTTP", async (ctx) => {

@@ -15227,17 +15227,16 @@
     "VoiceAssetFacet.registerVoiceAssetForCaller": {
       "abiSignature": "registerVoiceAssetForCaller(string,uint256,address)",
       "requiredActor": {
-        "kind": "role",
+        "kind": "contract",
         "roles": [
-          "VOICE_ADMIN_ROLE",
-          "VOICE_OPERATOR_ROLE"
+          "DIAMOND_SELF_CALL"
         ],
-        "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+        "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+          "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
         },
         {
           "kind": "argument",
