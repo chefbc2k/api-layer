@@ -4255,6 +4255,29 @@ describeLive("HTTP API contract integration", () => {
       geographic,
     });
     expect(geographicDataToObject(await voiceMetadata.getGeographicData(metadataVoiceHash))).toEqual(geographic);
+
+    const analysisVersion = `indexer-analysis-${proofId}`;
+    const analysisVersionResponse = await apiCall(
+      port,
+      "PATCH",
+      "/v1/voice-assets/commands/set-analysis-version",
+      { body: { version: analysisVersion } },
+    );
+    expect(analysisVersionResponse.status, JSON.stringify(analysisVersionResponse.payload)).toBe(202);
+    const analysisVersionTxHash = extractTxHash(analysisVersionResponse.payload);
+    await expectReceipt(analysisVersionTxHash);
+    const analysisVersionReceipt = await provider.getTransactionReceipt(analysisVersionTxHash);
+    expect(analysisVersionReceipt).not.toBeNull();
+    const analysisVersionEvent = analysisVersionReceipt!.logs
+      .map((log) => {
+        try {
+          return voiceMetadata.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((log) => log?.name === "AnalysisVersionUpdated");
+    expect(analysisVersionEvent?.args[1]).toBe(analysisVersion);
   }, 180_000);
 
   it("proves reversible marketplace, voice, and dataset configuration writes through HTTP", async (ctx) => {

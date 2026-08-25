@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-25T13:01:34.433Z",
+  "generatedAt": "2026-08-25T15:50:26.514Z",
   "totals": {
     "abiWriteMethodCount": 260,
     "writeMethodCount": 259,
     "domainCount": 13,
     "actorMethodCaseCount": 1813,
     "apiBoundaryCaseCount": 777,
-    "roleLifecycleCaseCount": 3171
+    "roleLifecycleCaseCount": 3150
   },
   "actors": [
     "founder",
@@ -13731,64 +13731,59 @@
       "domain": "voice-assets",
       "path": "/v1/voice-assets/registrations/for-caller",
       "requiredActor": {
-        "kind": "role",
+        "kind": "contract",
         "roles": [
-          "VOICE_ADMIN_ROLE",
-          "VOICE_OPERATOR_ROLE"
+          "DIAMOND_SELF_CALL"
         ],
-        "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+        "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
         "read-only-api-key",
         "api-key-signer-mismatch"
       ],
-      "roleLifecycleDenials": [
-        "stale-role",
-        "revoked-role",
-        "expired-validity-window"
-      ],
+      "roleLifecycleDenials": [],
       "actors": [
         {
           "actor": "founder",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         },
         {
           "actor": "admin",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         },
         {
           "actor": "operator",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         },
         {
           "actor": "buyer",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         },
         {
           "actor": "seller",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         },
         {
           "actor": "licensee",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         },
         {
           "actor": "collaborator",
           "contractDenials": [
-            "missing-required-role"
+            "eoa-not-authorized-protocol-contract"
           ]
         }
       ]

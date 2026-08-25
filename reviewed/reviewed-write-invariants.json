@@ -17456,14 +17456,9 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "VoiceMetadataFacet.getGeographicData",
-            "assertion": "VoiceMetadataFacet.getGeographicData reflects the receipt-confirmed VoiceMetadataFacet.setAnalysisVersion transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The reviewed ABI exposes no getter for the current analysis version; the successful receipt and AnalysisVersionUpdated transition event are authoritative."
       },
       "emittedEvents": {
         "mode": "all",

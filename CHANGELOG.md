@@ -11,7 +11,7 @@
 - **HTTP Contract Receipts Now Reach The Indexer Gate:** The fixture-backed HTTP contract stage persists every successful receipt-confirmed transaction hash, and the indexer stage consumes that artifact alongside the lifecycle reports instead of discarding those real writes between stages.
 - **Reversible Configuration Writes Expand Receipt Coverage:** The HTTP contract proof now mutates, reads back, and restores marketplace pause state, voice-asset default royalty, default platform fee, registration pause, and the dataset maximum-assets setting, providing six additional distinct write methods and ten additional receipts to the indexer stage.
 - **Marketplace And Voice Lifecycle Receipts Add Seven Writes:** The HTTP proof advances through the marketplace's five-block repricing cooldown and requires the repricing receipt, state readback, and event query. A disposable voice asset now proves usage recording, lock/unlock, approval, and both safe-transfer overloads with receipt and ownership/state assertions.
-- **Voice Metadata Receipts Add Three Writes:** A disposable fork-only voice asset now proves complete classification replacement, category-specific replacement with indexed search readback, and geographic metadata with canonical struct readback.
+- **Voice Metadata Receipts Add Four Writes:** A disposable fork-only voice asset now proves complete classification replacement, category-specific replacement with indexed search readback, geographic metadata with canonical struct readback, and analysis-version transition emission.
 - **Disposable PostgreSQL And Resilience Gates Are Repeatable:** `pnpm run test:indexer:postgres` applies all migrations twice and verifies duplicate replay, atomic raw/projection rollback, reorg orphaning, current-row rebuild, delayed RPC handling, partial-range failure, and canonical block replacement against real constraints.
 
 ### Fixed
@@ -20,18 +20,21 @@
 - **Indexer Ranges Commit Atomically And Reorgs Resume From The Rewound Cursor:** Raw logs, projections, block-journal rows, and checkpoint advancement now share one transaction, while deep-reorg recovery finds a common canonical ancestor and resumes without skipping replacement blocks.
 - **Eventless Dataset Limit Writes No Longer Claim Fabricated Logs:** Source review confirmed `VoiceDatasetFacet.setMaxAssetsPerDataset` emits no ABI event. Its reviewed invariant now requires the receipt plus canonical readback and forbids a projection; `MarketplaceFacet.unpause` now also reads back `isPaused == false` instead of an unrelated listing.
 - **Self-Call-Only Registration Is Classified Correctly:** `VoiceAssetFacet.registerVoiceAssetForCaller` now declares a diamond self-call actor instead of a voice-admin/operator role after the mounted HTTP route deterministically reverted with `Only facets via diamond can call` and contract-source review found no internal caller.
+- **Analysis-Version Proof No Longer Claims An Unrelated Readback:** `VoiceMetadataFacet.setAnalysisVersion` now records that the deployed ABI exposes no current-version getter and treats its successful receipt plus `AnalysisVersionUpdated` event as authoritative, instead of pointing at geographic metadata.
 
 ### Verified
 
 - **Production Call-Tracer Capability Is Persisted:** Added `pnpm run proof:indexer:trace-capability` and [`output/indexer-trace-capability.json`](/Users/chef/Public/api-layer-event-indexer-proof/output/indexer-trace-capability.json). The credential-safe probe selected the runtime's Base Sepolia public fallback, confirmed chain `84532`, found a recent successful transaction, and received an object result from `debug_traceTransaction` with `callTracer`.
-- **Cumulative Receipt Coverage Increased To `59/260`:** The latest cold artifact passed with `132` receipts across `59` distinct methods, `202` decoded raw events, `137` projection rows, and idempotent replay across all `23` tracked table counts. The three new metadata writes each matched their generated-registry event declaration with zero receipt failures.
+- **Cumulative Receipt Coverage Increased To `60/260`:** The latest cold artifact passed with `133` receipts across `60` distinct methods, `203` decoded raw events, `137` projection rows, and idempotent replay across all `23` tracked table counts. `VoiceMetadataFacet.setAnalysisVersion` matched its generated-registry event declaration with zero receipt failures.
 - **Clean Orchestrator Passed All `10/10` Stages:** Fixture provisioning, the expanded HTTP contract stage, lifecycle workflows, marketplace settlement, governance activation/voting, event-indexer ingestion, and the exhaustive sweep all passed on their first attempt. The final report contains only the established `16` structured fixture/read gaps.
 - **Indexer, PostgreSQL, And Quality Gates Pass:** `pnpm run test:write-invariants` passes `5/5`, `pnpm run test:indexer:assurance` passes `57/57` active tests, `pnpm run test:indexer:postgres` passes `4/4`, `pnpm run test:local-fork-runner` passes `11/11`, and the ordered TypeScript, lint, and build gates pass. The explicit surface gate remains complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
-- **Measured Coverage Passes:** `pnpm run test:coverage` passes at `99.70%` statements, `99.55%` branches, `99.54%` functions, and `99.76%` lines.
+- **Contract-Only Actor Evidence Is Aligned:** The regenerated actor report now records `3,150` stale/revoked/expired role-lifecycle cases after removing the unreachable self-call method from the role-gated count; `pnpm run test:actor-negative-paths` passes `100/100`.
+- **Measured Coverage Passes:** `pnpm run test:coverage` passes at `99.70%` statements, `99.45%` branches, `99.54%` functions, and `99.76%` lines.
 
 ### Remaining Issues
 
-- **Event/Indexer Proof Is Not Merge-Ready:** Cumulative evidence proves `59/260` catalog writes and leaves `201` without deterministic fork receipts. `VoiceAssetFacet.registerVoiceAssetForCaller` also needs a contract/API decision because its public route cannot satisfy the deployed diamond self-call restriction. No partial merge is permitted.
+- **Event/Indexer Proof Is Not Merge-Ready:** Cumulative evidence proves `60/260` catalog writes and leaves `200` without deterministic fork receipts. `VoiceAssetFacet.registerVoiceAssetForCaller` also needs a contract/API decision because its public route cannot satisfy the deployed diamond self-call restriction. No partial merge is permitted.
+
 ## [0.1.296] - 2026-08-25
 
 ### Changed
