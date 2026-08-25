@@ -2,6 +2,14 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.295] - 2026-08-25
+
+### Verified
+
+- **Write-Invariant Metadata Has No Current-Master Drift:** Revalidated required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations for all `260` mounted ABI write methods across `31` facets. Neither the reviewed catalog nor the generated registry changed semantically.
+- **Fail-Closed Metadata Checks Passed:** `pnpm run codegen`, `pnpm run test:write-invariants` (`5/5`), and the explicit `pnpm run coverage:check` proved `260/260` invariant coverage. Missing or stale methods, ABI signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations remain rejected.
+- **Quality And Measured Coverage Stayed Green:** The ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed. Build regeneration also confirmed `492` wrapper functions, `218` events, and `492` HTTP methods; `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines. Transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.294] - 2026-08-25
 
 ### Changed
