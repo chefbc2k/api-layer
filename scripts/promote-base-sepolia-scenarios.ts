@@ -6,11 +6,9 @@ import { fileURLToPath } from "node:url";
 import { JsonRpcProvider, Wallet, getAddress, isAddress, ZeroAddress } from "ethers";
 import { parse } from "dotenv";
 
-import { isLoopbackRpcUrl } from "./alchemy-debug-lib.js";
 import type { DomainClassification } from "./verify-report.js";
 
 const BASE_SEPOLIA_CHAIN_ID = 84_532;
-const ENV_PATH = path.resolve(".env");
 const FIXTURE_PATH = path.resolve(".runtime/base-sepolia-operator-fixtures.json");
 const GOVERNANCE_OUTPUT_PATH = path.resolve("verify-governance-output.json");
 const MARKETPLACE_OUTPUT_PATH = path.resolve("verify-marketplace-purchase-output.json");
@@ -100,6 +98,10 @@ function envEnabled(value: string | undefined): boolean {
   return value === "1" || value?.trim().toLowerCase() === "true";
 }
 
+export function resolvePromotionEnvPath(env: NodeJS.ProcessEnv = process.env): string {
+  return path.resolve(env.API_LAYER_BASE_SEPOLIA_ENV_PATH?.trim() || ".env");
+}
+
 function rpcOrigin(value: string | undefined): string | null {
   if (!value) {
     return null;
@@ -108,6 +110,16 @@ function rpcOrigin(value: string | undefined): string | null {
     return new URL(value).origin;
   } catch {
     return null;
+  }
+}
+
+function isLoopbackRpcUrl(rpcUrl: string): boolean {
+  try {
+    const hostname = new URL(rpcUrl).hostname.toLowerCase();
+    return hostname === "127.0.0.1" || hostname === "localhost";
+  } catch {
+    const normalized = rpcUrl.toLowerCase();
+    return normalized.includes("127.0.0.1") || normalized.includes("localhost");
   }
 }
 
@@ -377,8 +389,9 @@ function baseOutput(env: NodeJS.ProcessEnv, readiness: PromotionReadiness): Prom
 }
 
 async function main(): Promise<void> {
-  const envFilePresent = existsSync(ENV_PATH);
-  const fileEnv = envFilePresent ? parse(readFileSync(ENV_PATH, "utf8")) : {};
+  const envPath = resolvePromotionEnvPath();
+  const envFilePresent = existsSync(envPath);
+  const fileEnv = envFilePresent ? parse(readFileSync(envPath, "utf8")) : {};
   const readiness = assessPromotionReadiness(fileEnv, envFilePresent);
   const output = baseOutput(fileEnv, readiness);
 

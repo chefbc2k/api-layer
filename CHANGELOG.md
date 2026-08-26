@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.301] - 2026-08-26
+
+### Added
+
+- **Base Sepolia Promotion Is Hard-Gated:** Added `scripts/promote-base-sepolia-scenarios.ts` plus `pnpm run verify:promotion:base-sepolia` and its `:preflight` variant. The runner requires explicit `.env` readiness, direct non-loopback execution and diagnostics RPCs, chain and diamond bytecode validation, valid distinct actors, and a fresh ready setup artifact before invoking the existing marketplace or governance proof commands.
+- **Promotion Evidence Is Persisted In One Artifact:** `verify-base-sepolia-promotion-output.json` records readiness, live-target validation, safety policy, setup evidence, per-scenario final classifications, transaction hashes, block numbers, actors, state deltas, and decoded events. Destructive protocol-admin writes are excluded from the runner.
+
+### Verified
+
+- **The Safety Boundary Refused The Canonical Workspace Before Any Live Action:** `pnpm run verify:promotion:base-sepolia:preflight` exited `2` with `finalClassification: "blocked by setup/state"` because explicit live opt-in is absent and both configured RPCs resolve to loopback `http://127.0.0.1:8548`. No provider request, setup helper, proof command, or transaction ran; the artifact contains empty transaction, block, actor, state-delta, and event evidence.
+- **Non-Live Gates Passed:** The focused promotion suite passed `6/6`. The ordered `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed, and both build-time and explicit `pnpm run coverage:check` runs reported `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Blocks Promotion And Merge:** Enable `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` only with direct Base Sepolia execution and diagnostics RPCs, rerun preflight, then permit the existing funding, allowance, aged-listing, and governance-readiness helpers. Do not merge until both safe promoted scenarios and the aggregate artifact classify `proven working`.
+
 ## [0.1.300] - 2026-08-26
 
 ### Changed
