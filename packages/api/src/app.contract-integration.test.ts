@@ -4347,6 +4347,108 @@ describeLive("HTTP API contract integration", () => {
     expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
   }, 120_000);
 
+  it("proves disposable access-control configuration and self-renunciation receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "access-control receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00003") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.00001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (
+      apiKey: string,
+      method: string,
+      route: string,
+      body: Record<string, unknown>,
+    ) => {
+      const response = await apiCall(port, method, route, { apiKey, body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const proofRole = id(`INDEXER_RECEIPT_ROLE_${Date.now()}_${Math.random().toString(16).slice(2)}`);
+    const founderRole = id("FOUNDER_ROLE");
+    const ownerRole = id("OWNER_ROLE");
+    const roleConfig = {
+      memberLimit: "2",
+      validityPeriod: "0",
+      minMemberLimit: "0",
+      quorumBps: "0",
+      absoluteMinQuorum: "0",
+      adminRole: founderRole,
+      restricted: false,
+      revocable: true,
+      requiresApproval: false,
+      recoveryActive: false,
+    };
+
+    const configureTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/configure-role",
+      { role: proofRole, config: roleConfig },
+    );
+    expect(roleConfigToObject(await accessControl.getRoleConfig(proofRole))).toEqual(roleConfig);
+
+    const configureReceipt = await provider.getTransactionReceipt(configureTxHash);
+    expect(configureReceipt).not.toBeNull();
+    expect(configureReceipt!.logs.some((log) => {
+      try {
+        return accessControl.interface.parseLog(log)?.name === "RoleConfigUpdated";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-role-admin",
+      { role: proofRole, adminRole: ownerRole },
+    );
+    expect(await accessControl.getRoleAdmin(proofRole)).toBe(ownerRole);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-role-admin",
+      { role: proofRole, adminRole: founderRole },
+    );
+    expect(await accessControl.getRoleAdmin(proofRole)).toBe(founderRole);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/grant-role",
+      { role: proofRole, account: licenseeWallet.address, expiryTime: "0" },
+    );
+    expect(await accessControl.hasRole(proofRole, licenseeWallet.address)).toBe(true);
+
+    const renounceTxHash = await submit(
+      "licensee-key",
+      "DELETE",
+      "/v1/access-control/commands/renounce-role",
+      { role: proofRole },
+    );
+    expect(await accessControl.hasRole(proofRole, licenseeWallet.address)).toBe(false);
+
+    const renounceReceipt = await provider.getTransactionReceipt(renounceTxHash);
+    expect(renounceReceipt).not.toBeNull();
+    expect(renounceReceipt!.logs.some((log) => {
+      try {
+        return accessControl.interface.parseLog(log)?.name === "RoleRenounced";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+  }, 120_000);
+
   it("fails correctly for validation, signer, and provider errors", async () => {
     const invalidBody = await apiCall(port, "POST", "/v1/voice-assets", {
       body: { ipfsHash: "ipfs://missing-royalty" },
