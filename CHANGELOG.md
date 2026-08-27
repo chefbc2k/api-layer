@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.305] - 2026-08-27
+
+### Added
+
+- **Base Sepolia Promotion Remains Hard-Gated:** Reused the promotion runner on `codex/base-sepolia-promotion-20260827`. It requires explicit `.env` opt-in, direct non-loopback execution and diagnostics RPCs, Base Sepolia chain and diamond bytecode validation, distinct founder/seller/buyer actors, and a fresh ready setup artifact before invoking fixture-backed marketplace or governance proofs. Destructive protocol-admin writes remain excluded.
+
+### Verified
+
+- **Canonical Preflight Failed Closed Before Any Live Action:** `pnpm run verify:promotion:base-sepolia:preflight` exited `2` with `finalClassification: "blocked by setup/state"` because explicit live opt-in is absent and both configured RPC origins are loopback `http://127.0.0.1:8548`. No provider request, setup helper, proof command, or transaction ran; the refreshed artifact contains no transaction, block, actor, state-delta, or decoded-event evidence.
+- **Non-Live Gates Passed:** The focused promotion suite passed `6/6`. The ordered TypeScript, lint, and build sequence passed, and both build-time and explicit `pnpm run coverage:check` runs reported `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Still Blocks Promotion And Merge:** Enable `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` only with direct Base Sepolia execution and diagnostics RPCs, rerun preflight, then permit the existing funding, allowance, aged-listing, and governance-readiness helpers. Do not merge until both safe promoted scenarios and the aggregate artifact classify `proven working`.
+
 ## [0.1.304] - 2026-08-27
 
 ### Changed
