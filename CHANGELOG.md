@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.309] - 2026-08-28
+
+### Added
+
+- **Base Sepolia Promotion Runner Reused On Current Master:** Created `codex/base-sepolia-promotion-20260828` from local `master` `df1fc4f` after fetching `origin/master`, then reused the gated promotion runner and its fixture-backed marketplace/governance scenario manifest. The runner still requires explicit `.env` opt-in, direct non-loopback execution and diagnostics RPCs, Base Sepolia chain and diamond bytecode validation, distinct founder/seller/buyer actors, and a freshly ready direct-live setup artifact. Destructive protocol-admin writes remain excluded.
+
+### Verified
+
+- **Canonical Preflight Failed Closed Before Any Live Action:** `pnpm run verify:promotion:base-sepolia:preflight` exited `2` with `finalClassification: "blocked by setup/state"`. The environment still lacks `API_LAYER_BASE_SEPOLIA_PROMOTION_READY`, and both execution and diagnostics RPC origins remain loopback `http://127.0.0.1:8548`. The runner stopped before provider access, setup helpers, proof commands, or transactions; the refreshed aggregate artifact contains no transaction hashes, block numbers, actors, state deltas, or decoded events.
+- **Non-Live Gates Passed:** The focused promotion suite passed `6/6`. With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order without fixes. Build-time and explicit `pnpm run coverage:check` runs each reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` ABI write invariants. Transient reviewed-surface timestamp churn was restored.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Still Blocks Promotion And Merge:** Configure explicit live opt-in plus direct Base Sepolia execution and diagnostics RPCs, rerun preflight, and only then allow the existing user/test funding, allowance, aged-listing, and governance-readiness helpers. Do not merge until both safe scenarios and the aggregate artifact classify `proven working`.
+
 ## [0.1.308] - 2026-08-28
 
 ### Changed
