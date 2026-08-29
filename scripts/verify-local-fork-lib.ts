@@ -168,6 +168,7 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       command: "pnpm",
       args: ["vitest", "run", "packages/api/src/app.contract-integration.test.ts", "--maxWorkers", "1"],
       destructive: true,
+      artifactPath: path.join(PROOF_DIR, "http-contract-receipts.json"),
       maxAttempts: 2,
     },
     {
@@ -228,6 +229,14 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       maxAttempts: 2,
       artifactPath: path.join(PROOF_DIR, "governance.json"),
       requiredArtifactSummary: "proven working",
+    },
+    {
+      id: "event-indexer-proof",
+      description: "decode real workflow receipts, project them into PostgreSQL, and prove replay idempotency",
+      command: "pnpm",
+      args: ["run", "proof:indexer:local-fork-receipts"],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
     },
     {
       id: "probe-safe-reads",

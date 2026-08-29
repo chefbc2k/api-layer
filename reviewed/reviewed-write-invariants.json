@@ -5996,8 +5996,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MarketplaceFacet.getListing",
-            "assertion": "MarketplaceFacet.getListing reflects the receipt-confirmed MarketplaceFacet.unpause transition for the affected identifiers and actor."
+            "method": "MarketplaceFacet.isPaused",
+            "assertion": "MarketplaceFacet.isPaused returns false after the receipt-confirmed MarketplaceFacet.unpause transition."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -15227,17 +15227,16 @@
     "VoiceAssetFacet.registerVoiceAssetForCaller": {
       "abiSignature": "registerVoiceAssetForCaller(string,uint256,address)",
       "requiredActor": {
-        "kind": "role",
+        "kind": "contract",
         "roles": [
-          "VOICE_ADMIN_ROLE",
-          "VOICE_OPERATOR_ROLE"
+          "DIAMOND_SELF_CALL"
         ],
-        "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+        "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+          "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
         },
         {
           "kind": "argument",
@@ -16430,12 +16429,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
-        "events": [
-          "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
-          "VoiceDatasetFacet.DatasetStatusChanged"
-        ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed implementation exposes no event for setMaxAssetsPerDataset; receipt and getMaxAssetsPerDataset readback are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -16455,15 +16451,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
-          "VoiceDatasetFacet.DatasetStatusChanged"
-        ],
-        "projections": [
-          "voice_datasets:current"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "VoiceDatasetFacet.setMetadata": {
@@ -17465,14 +17456,9 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "VoiceMetadataFacet.getGeographicData",
-            "assertion": "VoiceMetadataFacet.getGeographicData reflects the receipt-confirmed VoiceMetadataFacet.setAnalysisVersion transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The reviewed ABI exposes no getter for the current analysis version; the successful receipt and AnalysisVersionUpdated transition event are authoritative."
       },
       "emittedEvents": {
         "mode": "all",

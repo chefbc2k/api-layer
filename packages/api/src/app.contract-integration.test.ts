@@ -1,4 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
 import { afterAll, beforeAll, describe, expect, it, type TestContext } from "vitest";
@@ -240,6 +242,28 @@ function acousticFeaturesToObject(value: unknown): Record<string, unknown> {
     formants: normalize(tuple[4]),
     harmonicsToNoise: normalize(tuple[5]),
     dynamicRange: normalize(tuple[6]),
+  };
+}
+
+function voiceClassificationsToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    analysisVersion: normalize(tuple[0]),
+    timestamp: normalize(tuple[1]),
+    processingTimeMs: normalize(tuple[2]),
+    componentsRun: normalize(tuple[3]),
+    categories: normalize(tuple[4]),
+  };
+}
+
+function geographicDataToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    latitude: normalize(tuple[0]),
+    longitude: normalize(tuple[1]),
+    region: normalize(tuple[2]),
+    country: normalize(tuple[3]),
+    locality: normalize(tuple[4]),
   };
 }
 
@@ -539,6 +563,7 @@ describeLive("HTTP API contract integration", () => {
   const nativeTransferReserve = ethers.parseEther("0.000001");
   let activeRpcUrl = "";
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
+  const confirmedTransactionHashes = new Set<string>();
 
   async function nativeTransferSpendable(wallet: Wallet) {
     const [balance, feeData] = await Promise.all([
@@ -563,12 +588,14 @@ describeLive("HTTP API contract integration", () => {
         });
         expect(receipt.status).toBe(1);
         expect(receipt.hash ?? receipt.transactionHash).toBe(txHash);
+        confirmedTransactionHashes.add(txHash);
         return txStatus.payload;
       }
 
       const directReceipt = await provider.getTransactionReceipt(txHash);
       if (directReceipt?.status === 1) {
         expect(directReceipt.hash).toBe(txHash);
+        confirmedTransactionHashes.add(txHash);
         return {
           source: "rpc-direct",
           receipt: {
@@ -818,6 +845,17 @@ describeLive("HTTP API contract integration", () => {
   }, 600_000);
 
   afterAll(async () => {
+    const receiptArtifactPath = process.env.API_LAYER_CONTRACT_RECEIPT_ARTIFACT;
+    if (receiptArtifactPath) {
+      const resolvedArtifactPath = path.resolve(receiptArtifactPath);
+      await mkdir(path.dirname(resolvedArtifactPath), { recursive: true });
+      await writeFile(resolvedArtifactPath, `${JSON.stringify({
+        schemaVersion: 1,
+        generatedAt: new Date().toISOString(),
+        status: "proven working",
+        transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
+      }, null, 2)}\n`);
+    }
     server?.close();
     await provider?.destroy();
     if (localForkProcess && localForkProcess.exitCode === null) {
@@ -1650,6 +1688,22 @@ describeLive("HTTP API contract integration", () => {
       expect((eventResponse.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === listTxHash)).toBe(true);
     }
 
+    const listed = await marketplaceFacet.getListing(BigInt(tokenId));
+    const priceUpdateBlock = Number(listed[5]) + 5;
+    if (isLoopbackRpcUrl(activeRpcUrl)) {
+      const currentBlock = await provider.getBlockNumber();
+      if (currentBlock < priceUpdateBlock) {
+        await provider.send("anvil_mine", [ethers.toQuantity(priceUpdateBlock - currentBlock)]);
+      }
+    } else {
+      await waitFor(
+        () => provider.getBlockNumber(),
+        (blockNumber) => blockNumber >= priceUpdateBlock,
+        "marketplace price-update cooldown",
+        { attempts: 90, delayMs: 2_000 },
+      );
+    }
+
     const updatePriceResponse = await apiCall(port, "PATCH", "/v1/marketplace/commands/update-listing-price", {
       apiKey: "licensing-owner-key",
       body: {
@@ -1657,36 +1711,34 @@ describeLive("HTTP API contract integration", () => {
         newPrice: "30000000",
       },
     });
-    if (updatePriceResponse.status === 202) {
-      const updatePriceTxHash = extractTxHash(updatePriceResponse.payload);
-      await expectReceipt(updatePriceTxHash);
+    expect(updatePriceResponse.status).toBe(202);
+    const updatePriceTxHash = extractTxHash(updatePriceResponse.payload);
+    await expectReceipt(updatePriceTxHash);
 
-      await waitFor(
-        () => marketplaceFacet.getListing(BigInt(tokenId)),
-        (value) => (value as any)[2] === 30_000_000n,
-        "contract marketplace listing after price update",
-      );
-      const repricedListingResponse = await apiCall(
-        port,
-        "GET",
-        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
-        { apiKey: "read-key" },
-      );
-      if (repricedListingResponse.status === 200) {
-        expect(repricedListingResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
-      }
+    await waitFor(
+      () => marketplaceFacet.getListing(BigInt(tokenId)),
+      (value) => (value as any)[2] === 30_000_000n,
+      "contract marketplace listing after price update",
+    );
+    const repricedListingResponse = await apiCall(
+      port,
+      "GET",
+      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
+      { apiKey: "read-key" },
+    );
+    expect(repricedListingResponse.status).toBe(200);
+    expect(repricedListingResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
 
-      const updatePriceReceipt = await provider.getTransactionReceipt(updatePriceTxHash);
-      const priceUpdatedEvents = await apiCall(port, "POST", "/v1/marketplace/events/listing-price-updated/query", {
-        apiKey: "read-key",
-        body: {
-          fromBlock: String(updatePriceReceipt!.blockNumber),
-          toBlock: String(updatePriceReceipt!.blockNumber),
-        },
-      });
-      expect(priceUpdatedEvents.status).toBe(200);
-      expect((priceUpdatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === updatePriceTxHash)).toBe(true);
-    }
+    const updatePriceReceipt = await provider.getTransactionReceipt(updatePriceTxHash);
+    const priceUpdatedEvents = await apiCall(port, "POST", "/v1/marketplace/events/listing-price-updated/query", {
+      apiKey: "read-key",
+      body: {
+        fromBlock: String(updatePriceReceipt!.blockNumber),
+        toBlock: String(updatePriceReceipt!.blockNumber),
+      },
+    });
+    expect(priceUpdatedEvents.status).toBe(200);
+    expect((priceUpdatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === updatePriceTxHash)).toBe(true);
 
     const purchaseAttemptResponse = await apiCall(port, "POST", "/v1/marketplace/commands/purchase-asset", {
       apiKey: "founder-key",
@@ -4036,6 +4088,365 @@ describeLive("HTTP API contract integration", () => {
         calldataCount: 1,
       },
     });
+  }, 120_000);
+
+  it("proves usage, lock, approval, and both safe-transfer write paths for a disposable voice asset", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "voice asset receipt expansion", [
+      { address: licensingOwnerAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00002") },
+    ])) {
+      return;
+    }
+
+    const submit = async (
+      apiKey: string,
+      method: string,
+      route: string,
+      body: Record<string, unknown> = {},
+    ) => {
+      const response = await apiCall(port, method, route, { apiKey, body });
+      expect(response.status).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const createResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "licensing-owner-key",
+      body: {
+        ipfsHash: `QmIndexerVoiceLifecycle${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        royaltyRate: "225",
+      },
+    });
+    expect(createResponse.status).toBe(202);
+    const voiceHash = String((createResponse.payload as Record<string, unknown>).result);
+    await expectReceipt(extractTxHash(createResponse.payload));
+    const tokenId = await waitFor(
+      () => voiceAsset.getTokenId(voiceHash),
+      (value) => value > 0n,
+      "voice asset token for receipt expansion",
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+
+    const usageRef = id(`indexer-voice-usage-${voiceHash}-${Date.now()}`);
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/usage-records`,
+      { usageRef },
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[4]).toBe(1n);
+
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/lock`,
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[3]).toBe(true);
+
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/unlock`,
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[3]).toBe(false);
+
+    await submit("licensing-owner-key", "POST", "/v1/voice-assets/commands/approve-voice-asset", {
+      to: transfereeWallet.address,
+      tokenId: tokenId.toString(),
+    });
+    expect(await voiceAsset.getApproved(tokenId)).toBe(transfereeWallet.address);
+
+    await submit(
+      "transferee-key",
+      "POST",
+      `/v1/voice-assets/tokens/${tokenId.toString()}/transfers/safe`,
+      { from: licensingOwnerAddress, to: transfereeWallet.address },
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(transfereeWallet.address);
+
+    await submit(
+      "transferee-key",
+      "POST",
+      `/v1/voice-assets/tokens/${tokenId.toString()}/transfers/safe-with-data`,
+      { from: transfereeWallet.address, to: licensingOwnerAddress, data: "0x1234" },
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+  }, 180_000);
+
+  it("proves classification and geographic metadata receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "voice metadata receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00003") },
+    ])) {
+      return;
+    }
+
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return response.payload as Record<string, unknown>;
+    };
+    const proofId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const voiceRegistration = await submit("POST", "/v1/voice-assets", {
+      ipfsHash: `QmIndexerMetadata${proofId}`,
+      royaltyRate: "175",
+    });
+    const metadataVoiceHash = String(voiceRegistration.result);
+    expect(metadataVoiceHash).toEqual(expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u));
+
+    const category = `indexer-${proofId}`;
+    const initialClassification = {
+      name: `initial-${proofId}`,
+      score: "925",
+      category,
+      level: "high",
+      metadata: JSON.stringify({ proof: "complete" }),
+    };
+    const latestBlock = await provider.getBlock("latest");
+    const classifications = {
+      analysisVersion: `indexer-proof-${proofId}`,
+      timestamp: String(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000)),
+      processingTimeMs: "37",
+      componentsRun: ["classification-proof"],
+      categories: [category],
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-voice-classifications", {
+      voiceHash: metadataVoiceHash,
+      classifications,
+      categoryData: [{ category, classifications: [initialClassification] }],
+    });
+    const storedClassifications = await voiceMetadata.getVoiceClassifications(metadataVoiceHash);
+    expect(voiceClassificationsToObject(storedClassifications)).toEqual(classifications);
+
+    const replacementClassification = {
+      name: `replacement-${proofId}`,
+      score: "975",
+      category,
+      level: "high",
+      metadata: JSON.stringify({ proof: "category" }),
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-classification-category", {
+      voiceHash: metadataVoiceHash,
+      category,
+      classifications: [replacementClassification],
+    });
+    expect(await voiceMetadata.searchVoicesByClassification(
+      replacementClassification.name,
+      category,
+      replacementClassification.level,
+      900n,
+    )).toContain(metadataVoiceHash);
+
+    const geographic = {
+      latitude: "41881300",
+      longitude: "-87629700",
+      region: "Midwest",
+      country: "US",
+      locality: `Chicago-${proofId.slice(-8)}`,
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-geographic-data", {
+      voiceHash: metadataVoiceHash,
+      geographic,
+    });
+    expect(geographicDataToObject(await voiceMetadata.getGeographicData(metadataVoiceHash))).toEqual(geographic);
+
+    const analysisVersion = `indexer-analysis-${proofId}`;
+    const analysisVersionResponse = await apiCall(
+      port,
+      "PATCH",
+      "/v1/voice-assets/commands/set-analysis-version",
+      { body: { version: analysisVersion } },
+    );
+    expect(analysisVersionResponse.status, JSON.stringify(analysisVersionResponse.payload)).toBe(202);
+    const analysisVersionTxHash = extractTxHash(analysisVersionResponse.payload);
+    await expectReceipt(analysisVersionTxHash);
+    const analysisVersionReceipt = await provider.getTransactionReceipt(analysisVersionTxHash);
+    expect(analysisVersionReceipt).not.toBeNull();
+    const analysisVersionEvent = analysisVersionReceipt!.logs
+      .map((log) => {
+        try {
+          return voiceMetadata.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((log) => log?.name === "AnalysisVersionUpdated");
+    expect(analysisVersionEvent?.args[1]).toBe(analysisVersion);
+  }, 180_000);
+
+  it("proves reversible marketplace, voice, and dataset configuration writes through HTTP", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "reversible configuration writes", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (method: string, route: string, body: Record<string, unknown> = {}) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const originalRoyaltyRate = await voiceAsset.getDefaultRoyaltyRate();
+    const targetRoyaltyRate = originalRoyaltyRate === 10_000n ? 9_999n : originalRoyaltyRate + 1n;
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-royalty-rate", {
+      rate: targetRoyaltyRate.toString(),
+    });
+    expect(await voiceAsset.getDefaultRoyaltyRate()).toBe(targetRoyaltyRate);
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-royalty-rate", {
+      rate: originalRoyaltyRate.toString(),
+    });
+    expect(await voiceAsset.getDefaultRoyaltyRate()).toBe(originalRoyaltyRate);
+
+    const originalPlatformFee = await voiceAsset.getDefaultPlatformFee();
+    const targetPlatformFee = originalPlatformFee === 10_000n ? 9_999n : originalPlatformFee + 1n;
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-platform-fee", {
+      fee: targetPlatformFee.toString(),
+    });
+    expect(await voiceAsset.getDefaultPlatformFee()).toBe(targetPlatformFee);
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-platform-fee", {
+      fee: originalPlatformFee.toString(),
+    });
+    expect(await voiceAsset.getDefaultPlatformFee()).toBe(originalPlatformFee);
+
+    const registrationWasPaused = await voiceAsset.isRegistrationPaused();
+    await submit("PATCH", "/v1/voice-assets/commands/set-registration-paused", {
+      paused: !registrationWasPaused,
+    });
+    expect(await voiceAsset.isRegistrationPaused()).toBe(!registrationWasPaused);
+    await submit("PATCH", "/v1/voice-assets/commands/set-registration-paused", {
+      paused: registrationWasPaused,
+    });
+    expect(await voiceAsset.isRegistrationPaused()).toBe(registrationWasPaused);
+
+    const originalMaxAssets = await voiceDataset.getMaxAssetsPerDataset();
+    const targetMaxAssets = originalMaxAssets === 1n ? 2n : originalMaxAssets - 1n;
+    await submit("PATCH", "/v1/datasets/commands/set-max-assets-per-dataset", {
+      maxAssets: targetMaxAssets.toString(),
+    });
+    expect(await voiceDataset.getMaxAssetsPerDataset()).toBe(targetMaxAssets);
+    await submit("PATCH", "/v1/datasets/commands/set-max-assets-per-dataset", {
+      maxAssets: originalMaxAssets.toString(),
+    });
+    expect(await voiceDataset.getMaxAssetsPerDataset()).toBe(originalMaxAssets);
+
+    const marketplaceWasPaused = await marketplaceFacet.isPaused();
+    const firstMarketplaceRoute = marketplaceWasPaused ? "unpause" : "pause";
+    const secondMarketplaceRoute = marketplaceWasPaused ? "pause" : "unpause";
+    await submit("POST", `/v1/marketplace/commands/${firstMarketplaceRoute}`);
+    expect(await marketplaceFacet.isPaused()).toBe(!marketplaceWasPaused);
+    await submit("POST", `/v1/marketplace/commands/${secondMarketplaceRoute}`);
+    expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
+  }, 120_000);
+
+  it("proves disposable access-control configuration and self-renunciation receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "access-control receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00003") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.00001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (
+      apiKey: string,
+      method: string,
+      route: string,
+      body: Record<string, unknown>,
+    ) => {
+      const response = await apiCall(port, method, route, { apiKey, body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const proofRole = id(`INDEXER_RECEIPT_ROLE_${Date.now()}_${Math.random().toString(16).slice(2)}`);
+    const founderRole = id("FOUNDER_ROLE");
+    const ownerRole = id("OWNER_ROLE");
+    const roleConfig = {
+      memberLimit: "2",
+      validityPeriod: "0",
+      minMemberLimit: "0",
+      quorumBps: "0",
+      absoluteMinQuorum: "0",
+      adminRole: founderRole,
+      restricted: false,
+      revocable: true,
+      requiresApproval: false,
+      recoveryActive: false,
+    };
+
+    const configureTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/configure-role",
+      { role: proofRole, config: roleConfig },
+    );
+    expect(roleConfigToObject(await accessControl.getRoleConfig(proofRole))).toEqual(roleConfig);
+
+    const configureReceipt = await provider.getTransactionReceipt(configureTxHash);
+    expect(configureReceipt).not.toBeNull();
+    expect(configureReceipt!.logs.some((log) => {
+      try {
+        return accessControl.interface.parseLog(log)?.name === "RoleConfigUpdated";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-role-admin",
+      { role: proofRole, adminRole: ownerRole },
+    );
+    expect(await accessControl.getRoleAdmin(proofRole)).toBe(ownerRole);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-role-admin",
+      { role: proofRole, adminRole: founderRole },
+    );
+    expect(await accessControl.getRoleAdmin(proofRole)).toBe(founderRole);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/grant-role",
+      { role: proofRole, account: licenseeWallet.address, expiryTime: "0" },
+    );
+    expect(await accessControl.hasRole(proofRole, licenseeWallet.address)).toBe(true);
+
+    const renounceTxHash = await submit(
+      "licensee-key",
+      "DELETE",
+      "/v1/access-control/commands/renounce-role",
+      { role: proofRole },
+    );
+    expect(await accessControl.hasRole(proofRole, licenseeWallet.address)).toBe(false);
+
+    const renounceReceipt = await provider.getTransactionReceipt(renounceTxHash);
+    expect(renounceReceipt).not.toBeNull();
+    expect(renounceReceipt!.logs.some((log) => {
+      try {
+        return accessControl.interface.parseLog(log)?.name === "RoleRenounced";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
   }, 120_000);
 
   it("fails correctly for validation, signer, and provider errors", async () => {

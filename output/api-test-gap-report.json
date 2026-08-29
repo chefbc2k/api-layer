@@ -116,7 +116,9 @@
       "packages/client/src/runtime/method-policy.test.ts",
       "packages/client/src/runtime/provider-router.test.ts",
       "packages/indexer/src/db.test.ts",
+      "packages/indexer/src/event-assurance.test.ts",
       "packages/indexer/src/events.test.ts",
+      "packages/indexer/src/postgres.integration.test.ts",
       "packages/indexer/src/projections/common.test.ts",
       "packages/indexer/src/projections/tables.test.ts",
       "packages/indexer/src/schema.test.ts",
@@ -130,6 +132,8 @@
       "scripts/coverage-fs-patch.test.ts",
       "scripts/custom-coverage-provider.test.ts",
       "scripts/http-registry.test.ts",
+      "scripts/indexer-receipt-proof-lib.test.ts",
+      "scripts/indexer-trace-capability-lib.test.ts",
       "scripts/license-template-helper.test.ts",
       "scripts/manifest.test.ts",
       "scripts/red-team-harness-lib.test.ts",
@@ -164,22 +168,22 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 382,
+      "unit": 386,
       "workflow": 284,
       "localFork": 4,
       "baseSepolia": 60,
-      "negativePath": 259,
+      "negativePath": 261,
       "economic": 163,
-      "redTeam": 29,
-      "indexer": 5
+      "redTeam": 30,
+      "indexer": 17
     },
     "classificationCounts": {
-      "ready": 223,
+      "ready": 235,
       "needs fixture": 223,
       "unsafe on live network": 51,
       "needs contract change": 0,
       "needs API guard": 0,
-      "needs indexer proof": 213
+      "needs indexer proof": 201
     }
   },
   "facets": [
@@ -2761,6 +2765,8 @@
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
@@ -2790,6 +2796,8 @@
             ],
             "redTeamTests": [],
             "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts"
             ],
             "verifyArtifacts": []
@@ -3842,17 +3850,17 @@
         "eventCount": 5,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 3,
+          "ready": 4,
           "needs fixture": 7,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 5
+          "needs indexer proof": 4
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "adversarial",
-          "averageScore": 1.47,
+          "maximumLevel": "indexer",
+          "averageScore": 1.67,
           "maximumScore": 8
         }
       },
@@ -4667,33 +4675,37 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }
@@ -9847,17 +9859,17 @@
         "eventCount": 3,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 3,
+          "ready": 4,
           "needs fixture": 4,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 3
+          "needs indexer proof": 2
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "adversarial",
-          "averageScore": 2.4,
+          "maximumLevel": "indexer",
+          "averageScore": 2.5,
           "maximumScore": 8
         }
       },
@@ -10350,22 +10362,22 @@
             "negativePath": true,
             "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 4,
+            "level": "indexer",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
-              "packages/api/src/workflows/marketplace-listing.integration.test.ts"
+              "packages/api/src/workflows/marketplace-listing.integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
@@ -10379,7 +10391,9 @@
               "packages/api/src/workflows/marketplace-listing.integration.test.ts"
             ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -12421,17 +12435,17 @@
         "eventCount": 7,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 6,
+          "ready": 8,
           "needs fixture": 2,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 7
+          "needs indexer proof": 5
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "adversarial",
-          "averageScore": 3.6,
+          "maximumLevel": "indexer",
+          "averageScore": 3.8,
           "maximumScore": 8
         }
       },
@@ -12895,6 +12909,7 @@
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "scripts/api-surface-lib.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "workflowTests": [
@@ -12904,6 +12919,7 @@
             "negativePathTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "economicTests": [
@@ -13075,23 +13091,23 @@
             "negativePath": true,
             "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 4,
+            "level": "indexer",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
-              "packages/api/src/workflows/marketplace-listing.integration.test.ts"
+              "packages/api/src/workflows/marketplace-listing.integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
@@ -13106,7 +13122,9 @@
               "packages/api/src/workflows/marketplace-listing.integration.test.ts"
             ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -13136,38 +13154,48 @@
             "baseSepolia": true,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
-            "indexer": false
+            "redTeam": true,
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 5,
+            "level": "indexer",
+            "score": 7,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
-          "gaps": [
-            "no event-specific indexer test reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
-              "packages/api/src/workflows/marketplace-listing.integration.test.ts"
+              "packages/api/src/workflows/marketplace-listing.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
+              "packages/indexer/src/worker.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
-              "packages/api/src/workflows/marketplace-listing.integration.test.ts"
+              "packages/api/src/workflows/marketplace-listing.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/create-marketplace-listing.test.ts"
+              "packages/api/src/workflows/create-marketplace-listing.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
+              "packages/indexer/src/worker.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
-              "packages/api/src/workflows/marketplace-listing.integration.test.ts"
+              "packages/api/src/workflows/marketplace-listing.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
-            "redTeamTests": [],
-            "indexerTests": [],
+            "redTeamTests": [
+              "packages/indexer/src/postgres.integration.test.ts",
+              "packages/indexer/src/worker.test.ts"
+            ],
+            "indexerTests": [
+              "packages/indexer/src/postgres.integration.test.ts",
+              "packages/indexer/src/worker.test.ts"
+            ],
             "verifyArtifacts": [
               {
                 "artifact": "verify-live-output.json",
@@ -13811,6 +13839,7 @@
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/client/src/runtime/invoke.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
@@ -13847,6 +13876,7 @@
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
@@ -23770,6 +23800,7 @@
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/client/src/runtime/invoke.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
@@ -23806,6 +23837,7 @@
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
@@ -25966,17 +25998,17 @@
         "eventCount": 4,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 15,
+          "ready": 16,
           "needs fixture": 7,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 3
+          "needs indexer proof": 2
         },
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.56,
+          "averageScore": 2.6,
           "maximumScore": 8
         }
       },
@@ -27186,6 +27218,7 @@
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
               "packages/indexer/src/projections/tables.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
@@ -27218,6 +27251,7 @@
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
@@ -27334,17 +27368,16 @@
             "negativePath": true,
             "economic": true,
             "redTeam": true,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 5,
+            "level": "indexer",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
@@ -27363,6 +27396,7 @@
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
+              "packages/indexer/src/event-assurance.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
@@ -27404,7 +27438,9 @@
             "redTeamTests": [
               "scripts/red-team-harness-lib.test.ts"
             ],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -27564,6 +27600,8 @@
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
@@ -27593,6 +27631,8 @@
             ],
             "redTeamTests": [],
             "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts"
             ],
             "verifyArtifacts": []
@@ -30777,17 +30817,17 @@
         "eventCount": 13,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 24,
+          "ready": 26,
           "needs fixture": 19,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 12
+          "needs indexer proof": 10
         },
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.02,
+          "averageScore": 2.07,
           "maximumScore": 8
         }
       },
@@ -31980,10 +32020,13 @@
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
+              "packages/indexer/src/events.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/coverage-fs-patch.test.ts",
               "scripts/custom-coverage-provider.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/license-template-helper.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/run-test-coverage.test.ts",
@@ -32019,7 +32062,8 @@
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
-              "packages/api/src/workflows/vesting.integration.test.ts"
+              "packages/api/src/workflows/vesting.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -32056,9 +32100,11 @@
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/custom-coverage-provider.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/run-test-coverage.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
@@ -32078,6 +32124,7 @@
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/license-template-helper.test.ts",
               "scripts/red-team-harness-lib.test.ts",
@@ -32085,6 +32132,7 @@
               "scripts/verify-local-fork-lib.test.ts"
             ],
             "redTeamTests": [
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
             "indexerTests": [],
@@ -32439,6 +32487,7 @@
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/http-registry.test.ts"
@@ -32452,6 +32501,7 @@
               "packages/api/src/app.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
+              "packages/indexer/src/worker.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -33401,17 +33451,16 @@
             "negativePath": true,
             "economic": true,
             "redTeam": true,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 5,
+            "level": "indexer",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
@@ -33430,6 +33479,7 @@
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
+              "packages/indexer/src/event-assurance.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
@@ -33471,7 +33521,9 @@
             "redTeamTests": [
               "scripts/red-team-harness-lib.test.ts"
             ],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -33891,6 +33943,8 @@
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
@@ -33920,6 +33974,8 @@
             ],
             "redTeamTests": [],
             "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts"
             ],
             "verifyArtifacts": []
@@ -34108,33 +34164,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }
@@ -35648,6 +35706,8 @@
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
@@ -35677,6 +35737,8 @@
             ],
             "redTeamTests": [],
             "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts"
             ],
             "verifyArtifacts": []
@@ -35692,17 +35754,17 @@
         "eventCount": 12,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 11,
+          "ready": 14,
           "needs fixture": 5,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 12
+          "needs indexer proof": 9
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "adversarial",
-          "averageScore": 2.5,
+          "maximumLevel": "indexer",
+          "averageScore": 2.64,
           "maximumScore": 8
         }
       },
@@ -36760,34 +36822,37 @@
             "negativePath": true,
             "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 4,
+            "level": "indexer",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -36818,34 +36883,37 @@
             "negativePath": true,
             "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 4,
+            "level": "indexer",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -37247,33 +37315,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }
@@ -37287,17 +37357,17 @@
         "eventCount": 2,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 6,
+          "ready": 7,
           "needs fixture": 1,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 2
+          "needs indexer proof": 1
         },
         "proofDepth": {
           "minimumLevel": "adversarial",
-          "maximumLevel": "adversarial",
-          "averageScore": 4.78,
+          "maximumLevel": "indexer",
+          "averageScore": 4.89,
           "maximumScore": 8
         }
       },
@@ -37810,33 +37880,36 @@
             "negativePath": true,
             "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 4,
+            "level": "indexer",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -38751,17 +38824,17 @@
         "eventCount": 4,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 1,
+          "ready": 2,
           "needs fixture": 16,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 4
+          "needs indexer proof": 3
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "unit",
-          "averageScore": 0.05,
+          "maximumLevel": "indexer",
+          "averageScore": 0.19,
           "maximumScore": 8
         }
       },
@@ -39786,33 +39859,37 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }

@@ -2,6 +2,8 @@ export { createUspeaksClient } from "./client.js";
 export { readConfigFromEnv } from "./runtime/config.js";
 export { getMethodMetadata } from "./runtime/method-policy.js";
 export { getAbiMethodDefinition, getAbiEventDefinition, getAllAbiMethodDefinitions, getAllAbiEventDefinitions } from "./runtime/abi-registry.js";
+export { getWriteInvariantDefinition, getAllWriteInvariantDefinitions } from "./runtime/write-invariant-registry.js";
+export type { WriteInvariant, WriteInvariantDefinition } from "./runtime/write-invariant-registry.js";
 export { ProviderRouter } from "./runtime/provider-router.js";
 export { AddressBook } from "./runtime/address-book.js";
 export { LocalCache } from "./runtime/cache.js";
