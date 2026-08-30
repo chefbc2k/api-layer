@@ -210,9 +210,9 @@ describe("generated event-to-indexer assurance", () => {
       }
     }
 
-    expect(expectationCount).toBe(285);
+    expect(expectationCount).toBe(283);
     expect(declaredProjectionCount).toBe(149);
     expect(projectedEventTargetCount).toBe(189);
-    expect(noEventWriteCount).toBe(28);
+    expect(noEventWriteCount).toBe(30);
   });
 });

@@ -7,16 +7,15 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
           "TIMELOCK_ROLE",
           "FOUNDER_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
         },
         {
           "kind": "protocol-state",
@@ -504,21 +503,14 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "AccessControlFacet.getQuorum",
-            "assertion": "AccessControlFacet.getQuorum reflects the receipt-confirmed AccessControlFacet.setDefaultValidityPeriod transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The deployed ABI exposes no getter for the default validity period; the successful receipt is authoritative."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "Source review confirms setDefaultValidityPeriod only updates storage and emits no event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -538,12 +530,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "AccessControlFacet.setMinValidations": {
@@ -551,16 +541,15 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
           "TIMELOCK_ROLE",
           "FOUNDER_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
         },
         {
           "kind": "protocol-state",
@@ -568,21 +557,14 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "AccessControlFacet.getQuorum",
-            "assertion": "AccessControlFacet.getQuorum reflects the receipt-confirmed AccessControlFacet.setMinValidations transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The deployed ABI exposes no getter for the minimum validation count; the successful receipt is authoritative."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "Source review confirms setMinValidations only updates storage and emits no event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -602,12 +584,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "AccessControlFacet.setPaused": {

@@ -4347,13 +4347,13 @@ describeLive("HTTP API contract integration", () => {
     expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
   }, 120_000);
 
-  it("proves disposable access-control configuration and self-renunciation receipts", async (ctx) => {
+  it("proves disposable access-control configuration, eventless globals, and self-renunciation receipts", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
     }
     if (await skipWhenFundingBlocked(ctx, "access-control receipt expansion", [
-      { address: founderAddress, minimumWei: ethers.parseEther("0.00003") },
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00005") },
       { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.00001") },
     ])) {
       return;
@@ -4405,6 +4405,26 @@ describeLive("HTTP API contract integration", () => {
         return false;
       }
     })).toBe(true);
+
+    const defaultValidityTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-default-validity-period",
+      { period: "86400" },
+    );
+    const defaultValidityReceipt = await provider.getTransactionReceipt(defaultValidityTxHash);
+    expect(defaultValidityReceipt).not.toBeNull();
+    expect(defaultValidityReceipt!.logs).toHaveLength(0);
+
+    const minValidationsTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-min-validations",
+      { validations: "1" },
+    );
+    const minValidationsReceipt = await provider.getTransactionReceipt(minValidationsTxHash);
+    expect(minValidationsReceipt).not.toBeNull();
+    expect(minValidationsReceipt!.logs).toHaveLength(0);
 
     await submit(
       "founder-key",
