@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [Event/indexer workstream] - 2026-08-30
+
+### Changed
+
+- **Two Access-Control Globals Are Correctly Eventless:** `AccessControlFacet.setDefaultValidityPeriod` and `AccessControlFacet.setMinValidations` no longer claim an unrelated `SecurityAction` event or projection. Their reviewed invariants now require successful fork-only receipts, explicitly expect zero logs, and record that the deployed ABI has no getter for either global.
+- **Generated Assurance Counts Match The Catalog:** The exhaustive write-to-event gate now expects `283` event declarations and `30` eventless writes across all `260` mounted writes, while retaining `149` projection references and `189` projected event targets.
+
+### Verified
+
+- **Focused Receipts Prove Zero Fabricated Logs:** The isolated AccessControl contract proof passed `1/1`; both new writes returned successful receipts with exactly zero logs. `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:indexer:assurance` passed `57/57` active tests, and `pnpm run test:indexer:postgres` passed `4/4` resilience tests.
+- **Quality And Surface Gates Pass:** `pnpm run test:local-fork-runner` passed `11/11`; TypeScript, lint, and build passed; and the explicit `pnpm run coverage:check` remained green at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Cold End-To-End Proof Remains Blocked:** The first HTTP-stage attempt proved the new receipts but had three unrelated existing failures. On retry, Anvil exited and subsequent requests failed with `ECONNREFUSED 127.0.0.1:8548`, so the production indexer stage never ingested these two exact receipt blocks. End-to-end coverage remains `60/260`; do not merge this partial work until a stable cold run reaches PostgreSQL ingestion and replay.
+
 ## [0.1.316] - 2026-08-30
 
 ### Changed
