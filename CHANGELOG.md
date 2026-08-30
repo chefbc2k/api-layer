@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.318] - 2026-08-30
+
+### Verified
+
+- **Base Sepolia Promotion Still Fails Closed On Current Master:** Reused `codex/base-sepolia-promotion-20260828`, merged local `master` `9147a42`, and reran the gated promotion preflight against the canonical workspace `.env`. It exited `2` with `finalClassification: "blocked by setup/state"`: `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` is disabled and both execution and diagnostics RPC origins remain loopback `http://127.0.0.1:8548`. Network `base-sepolia`, chain ID `84532`, diamond address, actor-key validity/distinctness, and founder/sender checks passed.
+- **No Provider, Setup, Or Transaction Action Ran:** The preflight stopped before RPC access, setup helpers, marketplace purchase, governance proof, or any destructive protocol-admin write. The aggregate artifact refreshed at `2026-08-30T17:18:41.861Z` contains zero transaction hashes, block numbers, actors, state deltas, or decoded events.
+- **Non-Live Verification Passed:** The focused promotion suite passed `6/6`; `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Build-time and explicit `pnpm run coverage:check` runs each reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` ABI write invariants. Transient reviewed-surface timestamp churn was restored.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Blocks Promotion And Merge:** Configure explicit live opt-in plus direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, and only then permit the existing user/test funding, buyer allowance, aged-listing, and governance-readiness helpers. Do not merge until both safe scenarios and the aggregate artifact classify `proven working`.
+
 ## [0.1.317] - 2026-08-30
 
 ### Fixed
