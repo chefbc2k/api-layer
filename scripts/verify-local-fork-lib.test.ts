@@ -5,6 +5,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  acquireLocalForkRunLock,
   assertRunnerSafety,
   buildLocalForkProofPlan,
   collectStructuredGaps,
@@ -59,6 +60,66 @@ describe("local-fork CLI and safety guards", () => {
       { allowLive: true, allowLiveDestructive: false },
       stages.filter((stage) => !stage.destructive),
     )).toBe("live");
+  });
+
+  it("prevents concurrent runners from sharing a loopback fork across worktrees", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "local-fork-lock-"));
+    tempDirs.push(dir);
+    const first = await acquireLocalForkRunLock("http://127.0.0.1:8548", {
+      lockDir: dir,
+      pid: 4242,
+      cwd: "/worktree/one",
+      isProcessAlive: () => true,
+    });
+
+    await expect(acquireLocalForkRunLock("http://127.0.0.1:8548", {
+      lockDir: dir,
+      pid: 4343,
+      cwd: "/worktree/two",
+      isProcessAlive: () => true,
+    })).rejects.toThrow("local-fork runner already active");
+
+    await first.release();
+    const second = await acquireLocalForkRunLock("http://127.0.0.1:8548", {
+      lockDir: dir,
+      pid: 4343,
+      cwd: "/worktree/two",
+      isProcessAlive: () => true,
+    });
+    await second.release();
+  });
+
+  it("reclaims a stale loopback runner lock", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "local-fork-stale-lock-"));
+    tempDirs.push(dir);
+    const stale = await acquireLocalForkRunLock("http://127.0.0.1:8548", {
+      lockDir: dir,
+      pid: 4242,
+      isProcessAlive: () => true,
+    });
+
+    const replacement = await acquireLocalForkRunLock("http://127.0.0.1:8548", {
+      lockDir: dir,
+      pid: 4343,
+      isProcessAlive: (pid) => pid !== 4242,
+    });
+    await stale.release();
+    expect(fs.existsSync(replacement.filePath)).toBe(true);
+    await replacement.release();
+  });
+
+  it("does not steal a newly created lock before its owner metadata is written", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "local-fork-initializing-lock-"));
+    tempDirs.push(dir);
+    const rpcUrl = "http://127.0.0.1:8548";
+    const lock = await acquireLocalForkRunLock(rpcUrl, { lockDir: dir });
+    fs.writeFileSync(lock.filePath, "");
+
+    await expect(acquireLocalForkRunLock(rpcUrl, { lockDir: dir })).rejects.toThrow(
+      "local-fork runner lock is initializing",
+    );
+    fs.rmSync(lock.filePath);
+    await lock.release();
   });
 });
 

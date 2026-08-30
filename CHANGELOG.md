@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.317] - 2026-08-30
+
+### Fixed
+
+- **Concurrent Local-Fork Runs No Longer Share Destructive State:** `verify:local-fork` now acquires a per-RPC process lock in the system temporary directory before starting or validating a loopback fork. Active owners are rejected across worktrees, stale locks are reclaimed, and token-checked cleanup prevents an old owner from deleting a replacement lock. This closes snapshot, nonce, fixture, and governance interference when automations overlap on the same listener.
+
+### Verified
+
+- **Fresh Cold Proof Passed All Nine Stages:** The post-fix `pnpm run verify:local-fork -- --continue-on-gap` run started its own fork and passed every inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stage on its first attempt. Fixture setup funded all five actors, established buyer USDC balance/allowance at `4000/4000`, confirmed governance readiness, and aged listing token `11` by `86,401` seconds. The HTTP contract suite passed `18/18`, all five lifecycle artifacts report `proven working`, marketplace persisted `5` evidence entries, and governance persisted `3`.
+- **Structured Gaps And Safety Stayed Deterministic:** The exhaustive sweep passed `430/446` reviewed read/event routes and emitted exactly `16` `needs fixture` gaps with zero runner failures. The aggregate report confirms loopback mode, a runner-started fork, destructive checkpoints, local-fork-only destructive defaults, and both live-network acknowledgements `false`.
+- **All Focused And Merge Gates Passed:** `pnpm run test:local-fork-runner` passed `14/14`, and the complete resolver/runner/marketplace selection passed `82/82`. The ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` quality gate passed without fixes. Build-time and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.316] - 2026-08-30
 
 ### Changed
