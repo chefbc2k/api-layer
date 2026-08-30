@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.318] - 2026-08-30
+
+### Verified
+
+- **Red-Team Assurance Has No Current-Master Drift:** Revalidated all `259` mounted HTTP writes and their `521` inputs after the local-fork runner isolation merge. `pnpm run test:redteam` passed `104/104`, retaining `1,914` invalid wire mutations plus deadline, timestamp, nonce, signature, role-binding, replay, value-conservation, state-ordering, signer-confusion, stale-RPC, diamond-admin, timelock, multisig, and emergency-control detectors.
+- **Guarded Fork And Workflow Probes Passed:** `pnpm run redteam:local-fork` passed `136/136` across `9` files. All `5/5` real loopback probes rejected malformed or unknown calldata, replayed value transfer, an unprivileged selector-collision cut with a malicious initializer, emergency/timelock bypasses, and stale fork responses. Emergency, governance/timelock, multisig, duplicate-log, event-decode, and reorg suites also passed; no destructive live-network path was enabled.
+- **All Merge Gates Passed:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` quality gate passed in one run without fixes. `pnpm test` passed all `1,307` active tests across `132` files, with only `23` explicitly gated tests skipped. Build-time and explicit `pnpm run coverage:check` runs reported `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
+- **Persistent Reporting Stayed Stable:** `pnpm run report:test-gaps` retained proof classifications at `223` ready, `223` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team attribution on `29` ABI items. Regeneration added the new local-fork retry/isolation test as supporting evidence for `CommunityRewardsFacet.claim`; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.317] - 2026-08-30
 
 ### Fixed

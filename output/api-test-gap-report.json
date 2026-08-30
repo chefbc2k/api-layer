@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-30T11:05:13.488Z",
+  "generatedAt": "2026-08-30T18:05:00.541Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, name, wrapper key, signature, operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -2936,7 +2936,8 @@
               "packages/client/src/runtime/method-policy.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/verify-layer1-helpers.test.ts"
+              "scripts/verify-layer1-helpers.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -2953,7 +2954,8 @@
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-harness-lib.test.ts",
-              "scripts/verify-layer1-helpers.test.ts"
+              "scripts/verify-layer1-helpers.test.ts",
+              "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
