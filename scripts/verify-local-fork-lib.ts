@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
-import { mkdir, readFile, rm } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { mkdir, open, readFile, rm, stat } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 import { fileExists, readJson, rootDir, writeJson } from "./utils.js";
@@ -52,6 +54,18 @@ export type StructuredGap = {
   detail: string;
 };
 
+export type LocalForkRunLock = {
+  filePath: string;
+  release(): Promise<void>;
+};
+
+type LocalForkRunLockOptions = {
+  lockDir?: string;
+  pid?: number;
+  cwd?: string;
+  isProcessAlive?: (pid: number) => boolean;
+};
+
 type ReviewedMethod = {
   rateLimitKind?: "read" | "write";
   classification?: string;
@@ -73,6 +87,77 @@ type SafeReadArtifact = {
 
 const DEFAULT_OUTPUT_PATH = path.join(".runtime", "local-fork-assurance-report.json");
 const PROOF_DIR = path.join(".runtime", "local-fork-proofs");
+
+function defaultProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== "ESRCH";
+  }
+}
+
+export async function acquireLocalForkRunLock(
+  rpcUrl: string,
+  options: LocalForkRunLockOptions = {},
+): Promise<LocalForkRunLock> {
+  const lockDir = options.lockDir ?? os.tmpdir();
+  const pid = options.pid ?? process.pid;
+  const cwd = options.cwd ?? process.cwd();
+  const isProcessAlive = options.isProcessAlive ?? defaultProcessAlive;
+  const rpcKey = createHash("sha256").update(rpcUrl).digest("hex").slice(0, 16);
+  const filePath = path.join(lockDir, `uspeaks-api-layer-local-fork-${rpcKey}.lock`);
+  const ownerToken = randomUUID();
+  const lockContents = JSON.stringify({ rpcUrl, pid, cwd, ownerToken, startedAt: new Date().toISOString() });
+
+  await mkdir(lockDir, { recursive: true });
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const handle = await open(filePath, "wx");
+      try {
+        await handle.writeFile(lockContents, "utf8");
+      } finally {
+        await handle.close();
+      }
+      return {
+        filePath,
+        release: async () => {
+          try {
+            const current = JSON.parse(await readFile(filePath, "utf8")) as { ownerToken?: unknown };
+            if (current.ownerToken === ownerToken) {
+              await rm(filePath, { force: true });
+            }
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+              throw error;
+            }
+          }
+        },
+      };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") {
+        throw error;
+      }
+      let current: { pid?: unknown; cwd?: unknown } | null = null;
+      try {
+        current = JSON.parse(await readFile(filePath, "utf8")) as Exclude<typeof current, null>;
+      } catch {
+        const lockStat = await stat(filePath).catch(() => null);
+        if (lockStat && Date.now() - lockStat.mtimeMs < 30_000) {
+          throw new Error(`local-fork runner lock is initializing for ${rpcUrl}`);
+        }
+      }
+      const activePid = current && typeof current.pid === "number" ? current.pid : null;
+      if (activePid !== null && isProcessAlive(activePid)) {
+        const activeCwd = current && typeof current.cwd === "string" ? ` in ${current.cwd}` : "";
+        throw new Error(`local-fork runner already active for ${rpcUrl} (pid ${activePid}${activeCwd})`);
+      }
+      await rm(filePath, { force: true });
+    }
+  }
+
+  throw new Error(`unable to acquire local-fork runner lock for ${rpcUrl}`);
+}
 
 function isLoopbackRpcUrl(rpcUrl: string): boolean {
   try {
