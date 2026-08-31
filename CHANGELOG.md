@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.321] - 2026-08-31
+
+### Verified
+
+- **Local-Fork Automation Has No Current-Master Drift:** Fetched `origin/master`, confirmed it remains an ancestor of the newer local `master`, and fast-forwarded the reusable `codex/local-fork-automation` branch to local master `43128e4`. Changes since the 2026-08-30 local-fork merge affect only gap-report attribution, persisted assurance reports, and tracking documentation; the orchestrator, fixtures, reviewed API inventory, generated manifests, and live-network safety guards are unchanged.
+- **Fresh Cold Proof Passed All Nine Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed every inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stage. All five actors were funded, buyer USDC balance/allowance reached `4000/4000`, governance was ready, and listing token `11` was relisted and aged by `86,401` seconds. The HTTP contract suite passed `18/18`; all five persisted lifecycle artifacts report `proven working`.
+- **Transaction, Event, State, And Gap Evidence Remains Complete:** Marketplace persisted pre-state, successful transaction/receipt, decoded purchase/payment/release events, and post-state, including buyer balance and allowance changes from `4000/4000` to `3000/3000`. Governance persisted proposal `43` activation and voting. The exhaustive sweep passed `430/446` reviewed read/event probes and emitted exactly `16` `needs fixture` gaps with zero runner failures or generic proof gaps. The aggregate report confirms local-fork mode, a runner-started fork, destructive checkpoints, local-fork-only destructive defaults, and both live acknowledgements `false`.
+- **All Focused, Quality, And Coverage Gates Passed:** The resolver/runner/marketplace suite passed `82/82`. With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.320] - 2026-08-31
 
 ### Changed
