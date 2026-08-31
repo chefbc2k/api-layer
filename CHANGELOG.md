@@ -2,21 +2,52 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [Event/indexer workstream] - 2026-08-30
+## [0.1.320] - 2026-08-31
 
 ### Changed
 
-- **Two Access-Control Globals Are Correctly Eventless:** `AccessControlFacet.setDefaultValidityPeriod` and `AccessControlFacet.setMinValidations` no longer claim an unrelated `SecurityAction` event or projection. Their reviewed invariants now require successful fork-only receipts, explicitly expect zero logs, and record that the deployed ABI has no getter for either global.
-- **Generated Assurance Counts Match The Catalog:** The exhaustive write-to-event gate now expects `283` event declarations and `30` eventless writes across all `260` mounted writes, while retaining `149` projection references and `189` projected event targets.
+- **Actor And Signer Evidence Is Current With No Coverage Drift:** Regenerated the persisted actor report after aligning `codex/actor-negative-paths` with current local `master`. All `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` stale/revoked/expired or ownership-role lifecycle cases. No ABI, mounted HTTP route, authorization, signer-binding, role, or write-invariant source changed since the prior actor report.
 
 ### Verified
 
-- **Focused Receipts Prove Zero Fabricated Logs:** The isolated AccessControl contract proof passed `1/1`; both new writes returned successful receipts with exactly zero logs. `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:indexer:assurance` passed `57/57` active tests, and `pnpm run test:indexer:postgres` passed `4/4` resilience tests.
-- **Quality And Surface Gates Pass:** `pnpm run test:local-fork-runner` passed `11/11`; TypeScript, lint, and build passed; and the explicit `pnpm run coverage:check` remained green at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`, and `pnpm test` passed all `1,308` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order without failures or fixes. The build-embedded and explicit `pnpm run coverage:check` gates passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. The timestamp-stripped actor reports remained identical; only their two persisted timestamps changed, and unrelated reviewed-surface timestamp churn was restored.
 
-### Remaining Issues
+## [0.1.319] - 2026-08-31
 
-- **Cold End-To-End Proof Remains Blocked:** The first HTTP-stage attempt proved the new receipts but had three unrelated existing failures. On retry, Anvil exited and subsequent requests failed with `ECONNREFUSED 127.0.0.1:8548`, so the production indexer stage never ingested these two exact receipt blocks. End-to-end coverage remains `60/260`; do not merge this partial work until a stable cold run reaches PostgreSQL ingestion and replay.
+### Verified
+
+- **Write-Invariant Metadata Has No Current-Master Drift:** Revalidated required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations for all `260` mounted ABI write methods across `31` facets. The reviewed catalog remained byte-for-byte unchanged, and the ignored generated registry remained semantically identical after excluding its runtime timestamp.
+- **Fail-Closed Metadata Checks Passed:** `pnpm run codegen`, `pnpm run test:write-invariants` (`5/5`), and the explicit `pnpm run coverage:check` proved `260/260` invariant coverage. Missing or stale methods, ABI signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations remain rejected.
+- **Quality And Measured Coverage Stayed Green:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time generation confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. Transient reviewed-surface timestamp churn was restored.
+
+## [0.1.318] - 2026-08-31
+
+### Fixed
+
+- **ABI Proof Attribution No Longer Accepts Identifier Substrings:** The gap-report generator now requires identifier boundaries around ABI names, wrapper keys, and operation IDs, preventing unrelated identifiers such as `reclaims`, `transferFromVoiceAsset`, `isOwnerTargetApproved`, `getVoiceHashFromTokenId`, and `setLicenseTemplateId` from inflating proof depth for shorter ABI methods. A regression test covers the boundary behavior.
+
+### Changed
+
+- **Five False-Ready Classifications Became Explicit Fixture Gaps:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` now classify `218` items as ready, `228` as needing fixtures, `51` as unsafe on live networks, and `213` as needing indexer proof. The affected items are `MarketplaceFacet.unpause`, `TokenSupplyFacet.transferFrom`, `VoiceAssetFacet.getApproved`, `VoiceAssetFacet.getVoiceHash`, and `VoiceDatasetFacet.setLicense`; mechanical ABI/RPC/HTTP parity remains unchanged.
+
+### Verified
+
+- **All Reporter And Repository Gates Passed:** `pnpm run test:gap-report` passed `5/5`; `pnpm test` passed `1,308/1,308` active tests; the ordered TypeScript, lint, and build sequence passed; and explicit coverage checks confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines.
+
+## [0.1.317] - 2026-08-30
+
+### Fixed
+
+- **Concurrent Local-Fork Runs No Longer Share Destructive State:** `verify:local-fork` now acquires a per-RPC process lock in the system temporary directory before starting or validating a loopback fork. Active owners are rejected across worktrees, stale locks are reclaimed, and token-checked cleanup prevents an old owner from deleting a replacement lock. This closes snapshot, nonce, fixture, and governance interference when automations overlap on the same listener.
+
+### Verified
+
+- **Fresh Cold Proof Passed All Nine Stages:** The post-fix `pnpm run verify:local-fork -- --continue-on-gap` run started its own fork and passed every inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stage on its first attempt. Fixture setup funded all five actors, established buyer USDC balance/allowance at `4000/4000`, confirmed governance readiness, and aged listing token `11` by `86,401` seconds. The HTTP contract suite passed `18/18`, all five lifecycle artifacts report `proven working`, marketplace persisted `5` evidence entries, and governance persisted `3`.
+- **Structured Gaps And Safety Stayed Deterministic:** The exhaustive sweep passed `430/446` reviewed read/event routes and emitted exactly `16` `needs fixture` gaps with zero runner failures. The aggregate report confirms loopback mode, a runner-started fork, destructive checkpoints, local-fork-only destructive defaults, and both live-network acknowledgements `false`.
+- **All Focused And Merge Gates Passed:** `pnpm run test:local-fork-runner` passed `14/14`, and the complete resolver/runner/marketplace selection passed `82/82`. The ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` quality gate passed without fixes. Build-time and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
 
 ## [0.1.316] - 2026-08-30
 

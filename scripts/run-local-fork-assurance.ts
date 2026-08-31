@@ -3,12 +3,15 @@ import path from "node:path";
 
 import { JsonRpcProvider } from "ethers";
 
+import { loadRepoEnv, readConfigFromEnv } from "../packages/client/src/runtime/config.js";
 import {
   closeRuntimeEnvironment,
+  isLoopbackRpcUrl,
   loadRuntimeEnvironment,
   type RuntimeEnvironment,
 } from "./alchemy-debug-lib.js";
 import {
+  acquireLocalForkRunLock,
   assertRunnerSafety,
   buildLocalForkProofPlan,
   collectStructuredGaps,
@@ -37,11 +40,16 @@ function currentCommit(): string | null {
 async function main(): Promise<void> {
   const options = parseLocalForkCliOptions(process.argv.slice(2));
   const stages = buildLocalForkProofPlan();
-  const runtime = await loadRuntimeEnvironment();
-  const rpcUrl = runtimeRpcUrl(runtime);
+  const configuredRpcUrl = readConfigFromEnv(loadRepoEnv()).cbdpRpcUrl;
+  const runLock = isLoopbackRpcUrl(configuredRpcUrl)
+    ? await acquireLocalForkRunLock(configuredRpcUrl)
+    : null;
+  let runtime: RuntimeEnvironment | null = null;
   let checkpointProvider: JsonRpcProvider | null = null;
 
   try {
+    runtime = await loadRuntimeEnvironment();
+    const rpcUrl = runtimeRpcUrl(runtime);
     const mode = assertRunnerSafety(rpcUrl, options, stages);
     checkpointProvider = mode === "local-fork"
       ? new JsonRpcProvider(rpcUrl, runtime.config.chainId)
@@ -122,7 +130,10 @@ async function main(): Promise<void> {
     }
   } finally {
     checkpointProvider?.destroy();
-    await closeRuntimeEnvironment(runtime);
+    if (runtime) {
+      await closeRuntimeEnvironment(runtime);
+    }
+    await runLock?.release();
   }
 }
 
