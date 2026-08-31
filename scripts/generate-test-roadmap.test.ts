@@ -184,6 +184,25 @@ describe("API test gap report", () => {
     });
   });
 
+  it("does not attribute identifier substrings as proof", () => {
+    const input = baseInput();
+    input.tests = [{
+      path: "scripts/local-fork-lock.test.ts",
+      content: "it('calls forgetThing, resetThing, and replayThingSet while reclaiming a stale lock', () => {})",
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[0].proof.unit).toBe(false);
+    expect(report.facets[0].functions[1].proof).toMatchObject({
+      unit: false,
+      workflow: false,
+      negativePath: false,
+    });
+    expect(report.facets[0].events[0].proof.unit).toBe(false);
+  });
+
   it("loads repository-shaped inputs and writes both persistent artifacts", async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "api-test-gap-report-"));
     temporaryDirectories.push(tempDir);

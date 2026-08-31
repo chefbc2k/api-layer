@@ -251,20 +251,33 @@ function itemTokens(key: string, name: string, wrapperKey: string, signature: st
   return [...new Set([key, name, wrapperKey, signature, endpoint?.operationId, endpoint?.path].filter((value): value is string => Boolean(value)))];
 }
 
+function tokenIndexes(content: string, token: string): number[] {
+  const indexes: number[] = [];
+  const requiresIdentifierBoundary = /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(token);
+  let index = content.indexOf(token);
+  while (index >= 0) {
+    const before = content[index - 1];
+    const after = content[index + token.length];
+    const hasIdentifierBoundary = !requiresIdentifierBoundary
+      || (!before?.match(/[A-Za-z0-9_$]/u) && !after?.match(/[A-Za-z0-9_$]/u));
+    if (hasIdentifierBoundary) indexes.push(index);
+    index = content.indexOf(token, index + token.length);
+  }
+  return indexes;
+}
+
 function matchingTests(tests: TestSource[], tokens: string[]): TestSource[] {
-  return tests.filter((test) => tokens.some((token) => test.content.includes(token)));
+  return tests.filter((test) => tokens.some((token) => tokenIndexes(test.content, token).length > 0));
 }
 
 function hasKeywordNearToken(content: string, tokens: string[], keywords: string[]): boolean {
   const lower = content.toLowerCase();
   for (const token of tokens) {
-    let index = content.indexOf(token);
-    while (index >= 0) {
+    for (const index of tokenIndexes(content, token)) {
       const window = lower.slice(Math.max(0, index - 1_000), Math.min(lower.length, index + token.length + 1_000));
       if (keywords.some((keyword) => window.includes(keyword))) {
         return true;
       }
-      index = content.indexOf(token, index + token.length);
     }
   }
   return false;
@@ -520,7 +533,7 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
     schemaVersion: 1,
     generatedAt: input.generatedAt,
     methodology: {
-      testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, name, wrapper key, signature, operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
+      testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
       liveAttribution: "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
       classificationPolicy: "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
     },
