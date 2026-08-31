@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.318] - 2026-08-31
+
+### Fixed
+
+- **ABI Proof Attribution No Longer Accepts Identifier Substrings:** The gap-report generator now requires identifier boundaries around ABI names, wrapper keys, and operation IDs, preventing unrelated identifiers such as `reclaims`, `transferFromVoiceAsset`, `isOwnerTargetApproved`, `getVoiceHashFromTokenId`, and `setLicenseTemplateId` from inflating proof depth for shorter ABI methods. A regression test covers the boundary behavior.
+
+### Changed
+
+- **Five False-Ready Classifications Became Explicit Fixture Gaps:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` now classify `218` items as ready, `228` as needing fixtures, `51` as unsafe on live networks, and `213` as needing indexer proof. The affected items are `MarketplaceFacet.unpause`, `TokenSupplyFacet.transferFrom`, `VoiceAssetFacet.getApproved`, `VoiceAssetFacet.getVoiceHash`, and `VoiceDatasetFacet.setLicense`; mechanical ABI/RPC/HTTP parity remains unchanged.
+
+### Verified
+
+- **All Reporter And Repository Gates Passed:** `pnpm run test:gap-report` passed `5/5`; `pnpm test` passed `1,308/1,308` active tests; the ordered TypeScript, lint, and build sequence passed; and explicit coverage checks confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines.
+
 ## [0.1.317] - 2026-08-30
 
 ### Fixed
