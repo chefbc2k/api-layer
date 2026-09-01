@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.327] - 2026-09-01
+
+### Verified
+
+- **Base Sepolia Promotion Still Fails Closed On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of the newer local `master` `60975bf`, and merged that baseline into the reusable `codex/base-sepolia-promotion-20260828` branch. No promotion runner, operator setup helper, marketplace/governance proof, readiness gate, or live-safety source changed since the previous check. The canonical preflight exited `2` with `finalClassification: "blocked by setup/state"`: explicit live opt-in remains disabled and both execution and diagnostics RPC origins remain loopback `http://127.0.0.1:8548`; all other static readiness checks passed.
+- **No Provider, Setup, Or Transaction Action Ran:** The preflight stopped before RPC access, native/test-token funding, buyer allowance, aged-listing and governance-readiness helpers, marketplace purchase, governance proof, or any destructive protocol-admin write. The refreshed aggregate artifact at `2026-09-01T17:04:38.187Z` contains zero transaction hashes, block numbers, actors, state deltas, or decoded events.
+- **Non-Live Verification Passed:** The focused promotion suite passed `6/6`; `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Build-time and explicit `pnpm run coverage:check` runs each reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` ABI write invariants. Transient reviewed-surface timestamp churn was restored.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Blocks Promotion And Merge:** Configure explicit live opt-in plus direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, and only then allow the gated safe setup and proof scenarios. Do not merge until both scenarios and the aggregate artifact classify `proven working`.
+
 ## [0.1.326] - 2026-09-01
 
 ### Verified
