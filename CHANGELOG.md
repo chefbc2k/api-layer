@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.326] - 2026-09-01
+
+### Changed
+
+- **Eventless Access-Control Receipts Now Reach The Production Indexer:** A fresh cold loopback run ingested successful receipts for `AccessControlFacet.setDefaultValidityPeriod` and `AccessControlFacet.setMinValidations`. Both receipts correctly contained zero logs, matched their generated-registry `none` event expectations, required no projection table, and completed with no receipt failures.
+- **Real Receipt Coverage Increased To `65/260` Writes:** The event-indexer artifact now contains `140` indexed workflow receipts across `65` distinct write methods, `213` canonical raw events, and `137` projection rows. Replay preserved `raw_events` and every projection-table count exactly, while the remaining `195` methods stay explicitly unproven rather than inferred from synthetic registry coverage.
+
+### Verified
+
+- **Cold Fork And Failure-Mode Gates Passed:** `pnpm run verify:local-fork -- --continue-on-gap` passed all `10/10` stages on their first attempt, including fixtures, HTTP receipts, lifecycle workflows, marketplace settlement, governance activation/voting, event-indexer ingestion/replay, and the `430/446` exhaustive read/event sweep with the established `16` structured fixture gaps. `pnpm run test:indexer:postgres` passed `4/4`, retaining duplicate-log ingestion, atomic projection rollback, reorg replacement/current-row rebuild, delayed RPC, and partial-range failure coverage.
+- **Focused Registry And Runner Suites Passed:** `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:indexer:assurance` passed `57/57` active tests, and `pnpm run test:local-fork-runner` passed `14/14`.
+- **Quality Gates Passed; Merge Remains Blocked:** TypeScript, lint, build, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.68%` statements, `99.43%` branches, `99.46%` functions, and `99.76%` lines. The branch was not merged because `195` write methods still lack complete receipt-to-PostgreSQL proof, including the unreachable diamond-self-call route `VoiceAssetFacet.registerVoiceAssetForCaller`.
+
 ## [0.1.325] - 2026-09-01
 
 ### Changed

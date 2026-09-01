@@ -665,12 +665,26 @@ Daily automations should treat these sections as independently mergeable workstr
 | Write-method invariant metadata | Complete and verified (2026-08-26) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete and verified (2026-08-26) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,150` role-lifecycle cases after the diamond-self-call correction, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
-| Event and indexer projection proof | Blocked — `60/260` writes have complete receipt-to-PostgreSQL proof; 2 more eventless writes have focused receipts on 2026-08-30 | rerun the cold indexer stage on a stable fork so the two focused AccessControl receipts are ingested and replayed, then prove the remaining `198` reachable writes; `VoiceAssetFacet.registerVoiceAssetForCaller` remains an unreachable diamond self-call |
+| Event and indexer projection proof | Blocked — `65/260` writes have complete receipt-to-PostgreSQL proof | prove the remaining `194` reachable writes and resolve the unreachable `VoiceAssetFacet.registerVoiceAssetForCaller` diamond self-call before merge |
 | Local-fork destructive automation | Complete and verified (2026-08-30) | deterministic `9/9`-stage cold run, cross-worktree per-RPC locking, funded/approved/aged fixtures, `18/18` HTTP contract proof, `446/446` reviewed read/event attempts with structured state gaps, bounded Anvil history, strict live flags, `82/82` focused tests, and green TypeScript/lint/build/coverage gates |
 | Base Sepolia promotion | Pending | gated live runner using funded fixtures, non-destructive default behavior, tx/block/evidence artifacts |
 | Red-team mutation and fuzzing | Complete and verified (2026-08-11) | `1,914` invalid wire mutations across `259` mounted writes, deterministic replay/value/state/RPC/signer/admin oracles, `5/5` loopback-fork probes, `135/135` fork/workflow tests, and green TypeScript/lint/build/coverage gates |
 
 Automation merge rule: do not merge a section into `master` unless all section-specific evidence is present and the repo is clean after verification. If a section is blocked by contract state, funding, live-network safety, or upstream behavior, record the blocker here instead of merging partial work.
+
+### Event And Indexer Projection Run — 2026-09-01
+
+Status: **blocked; do not merge this section yet**.
+
+Evidence on `codex/event-indexer-proof-20260829`:
+
+- The branch was reconciled with current local `master`, and generated gap-report conflicts were regenerated from the merged canonical manifests. The cold `pnpm run verify:local-fork -- --continue-on-gap` run then passed all `10/10` inventory, fixture, HTTP, lifecycle, marketplace, governance, event-indexer, and exhaustive-probe stages on their first attempt; the loopback fork remained healthy throughout.
+- The production indexer ingested all `140` persisted workflow receipts across `65` distinct catalog write methods, decoded `213` canonical raw events through the generated client registry, and projected `137` rows into disposable PostgreSQL. Receipt assertions had zero failures. Replaying every proven block left `raw_events` and all `22` projection-table counts unchanged.
+- `AccessControlFacet.setDefaultValidityPeriod` and `AccessControlFacet.setMinValidations` are now included in the real receipt-to-PostgreSQL union. Each successful receipt contained exactly zero logs, matched its generated-registry `none` event expectation, required no projection table, and completed without failure. This closes the focused-receipt-only blocker recorded on 2026-08-30.
+- The same cold run retained `proven working` marketplace settlement and governance artifacts. The exhaustive sweep passed `430/446` reviewed read/event attempts and preserved the established `16` structured `needs fixture` gaps with zero runner failures or generic proof gaps.
+- Failure-mode assurance remains green: `pnpm run test:indexer:postgres` passed `4/4`, covering duplicate ingestion, atomic raw/projection rollback, reorg orphaning plus canonical replacement/current-row rebuild, delayed RPC responses, and partial range failure. `pnpm run test:indexer:assurance` passed `57/57` active tests, `pnpm run test:write-invariants` passed `5/5`, and `pnpm run test:local-fork-runner` passed `14/14`.
+- TypeScript, lint, build, and the explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.68%` statements, `99.43%` branches, `99.46%` functions, and `99.76%` lines.
+- **Remaining blocker:** `195` catalog writes still lack complete real-receipt projection proof. Of those, `194` require deterministic fixtures/workflows; `VoiceAssetFacet.registerVoiceAssetForCaller` remains unreachable because the deployed facet requires a diamond self-call and no deployed path invokes it. No partial merge is permitted.
 
 ### Event And Indexer Projection Run — 2026-08-30
 
