@@ -2,6 +2,55 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.325] - 2026-09-01
+
+### Changed
+
+- **Actor And Signer Evidence Remains Current Without Coverage Drift:** Regenerated the persisted actor report after fast-forwarding `codex/actor-negative-paths` to current local `master` `b8a9de8`. All `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired or ownership-role lifecycle cases. Intervening changes were confined to other assurance reports and tracking documentation; no ABI, mounted route, authorization, execution-context signer binding, role, or write-invariant source changed.
+
+### Verified
+
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`, including exhaustive write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity checks. `pnpm test` passed all `1,308` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, the ordered `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without failures or fixes. Build-time generation and the explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. The actor reports changed only their persisted timestamps, and transient reviewed-surface timestamp churn was restored.
+
+## [0.1.324] - 2026-09-01
+
+### Verified
+
+- **Write-Invariant Metadata Remains Complete On Current Master:** Revalidated required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations for all `260` mounted ABI write methods across `31` facets. The reviewed catalog remained byte-for-byte unchanged, and the timestamp-normalized generated registry remained identical.
+- **Fail-Closed Metadata Gates Passed:** `pnpm run codegen`, `pnpm run test:write-invariants` (`5/5`), and the explicit `pnpm run coverage:check` each passed. Coverage generation proved `260/260` invariant entries while retaining rejection checks for missing and stale methods, ABI signature drift, structurally incomplete sections, stale read/event references, and inconsistent indexer expectations.
+- **Quality And Measured Coverage Stayed Green:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time generation confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. Transient reviewed-surface timestamp churn was restored.
+
+## [0.1.323] - 2026-09-01
+
+### Changed
+
+- **ABI Gap Evidence Is Current With No Semantic Drift:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the mounted ABI/API manifests, reviewed surface, protocol tests, and persisted verify artifacts. The report remains at `33` facets, `492` functions, and `218` event occurrences, with proof attribution at `370` unit, `268` workflow, `4` local-fork, `60` Base Sepolia, `240` negative-path, `147` economic, `20` red-team, and `5` indexer items. Classifications remain `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof.
+
+### Verified
+
+- **All Reporter And Repository Gates Passed:** `pnpm run test:gap-report` passed `5/5`; `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped; and the ordered TypeScript, lint, and build sequence passed without fixes.
+- **Surface And Measured Coverage Stayed Green:** Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines. Only the two persisted report timestamps changed, and transient reviewed-surface timestamp churn was restored.
+
+## [0.1.322] - 2026-08-31
+
+### Verified
+
+- **Red-Team Assurance Has No Current-Master Drift:** Revalidated all `259` mounted HTTP writes and their `521` inputs after the identifier-boundary reporter fix and local-fork runner isolation. `pnpm run test:redteam` passed `104/104`, retaining more than `1,900` invalid wire mutations plus deadline, timestamp, nonce, signature, role-binding, replay, value-conservation, state-ordering, signer-confusion, stale-RPC, diamond-admin, timelock, multisig, and emergency-control detectors.
+- **Guarded Fork And Workflow Probes Passed:** `pnpm run redteam:local-fork` passed `136/136` across `9` files. All `5/5` real loopback probes rejected malformed or unknown calldata, replayed value transfer, an unprivileged selector-collision cut with a malicious initializer, emergency/timelock bypasses, and stale fork responses. Emergency, governance/timelock, multisig, duplicate-log, event-decode, and reorg suites also passed; no destructive live-network path was enabled.
+- **All Merge Gates Passed:** The ordered TypeScript, lint, and build sequence passed without fixes, and `pnpm test` passed `1,308/1,308` active tests. Build-time and explicit `pnpm run coverage:check` gates reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
+- **Persistent Reporting Is Current:** `pnpm run report:test-gaps` refreshed only report timestamps; classifications remain `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof. The stricter identifier-boundary methodology conservatively attributes red-team evidence to `20` ABI items. Transient reviewed-surface timestamp churn was restored.
+
+## [0.1.321] - 2026-08-31
+
+### Verified
+
+- **Local-Fork Automation Has No Current-Master Drift:** Fetched `origin/master`, confirmed it remains an ancestor of the newer local `master`, and fast-forwarded the reusable `codex/local-fork-automation` branch to local master `43128e4`. Changes since the 2026-08-30 local-fork merge affect only gap-report attribution, persisted assurance reports, and tracking documentation; the orchestrator, fixtures, reviewed API inventory, generated manifests, and live-network safety guards are unchanged.
+- **Fresh Cold Proof Passed All Nine Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed every inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stage. All five actors were funded, buyer USDC balance/allowance reached `4000/4000`, governance was ready, and listing token `11` was relisted and aged by `86,401` seconds. The HTTP contract suite passed `18/18`; all five persisted lifecycle artifacts report `proven working`.
+- **Transaction, Event, State, And Gap Evidence Remains Complete:** Marketplace persisted pre-state, successful transaction/receipt, decoded purchase/payment/release events, and post-state, including buyer balance and allowance changes from `4000/4000` to `3000/3000`. Governance persisted proposal `43` activation and voting. The exhaustive sweep passed `430/446` reviewed read/event probes and emitted exactly `16` `needs fixture` gaps with zero runner failures or generic proof gaps. The aggregate report confirms local-fork mode, a runner-started fork, destructive checkpoints, local-fork-only destructive defaults, and both live acknowledgements `false`.
+- **All Focused, Quality, And Coverage Gates Passed:** The resolver/runner/marketplace suite passed `82/82`. With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.320] - 2026-08-31
 
 ### Changed
