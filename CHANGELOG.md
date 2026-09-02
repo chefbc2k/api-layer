@@ -2,6 +2,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.328] - 2026-09-02
+
+### Changed
+
+- **ABI Gap Evidence Remains Current Without Semantic Drift:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the mounted ABI/API manifests, reviewed surface, protocol tests, and persisted verify artifacts. The inventory remains `33` facets, `492` functions, and `218` event occurrences, with proof attribution at `370` unit, `268` workflow, `4` local-fork, `60` Base Sepolia, `240` negative-path, `147` economic, `20` red-team, and `5` indexer items. Classifications remain `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof.
+
+### Verified
+
+- **All Reporter And Repository Gates Passed:** `pnpm run test:gap-report` passed `5/5`; the clean `pnpm test` rerun passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped; and the ordered TypeScript, lint, and build sequence passed without fixes.
+- **Surface And Measured Coverage Stayed Green:** Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines. Only the two persisted report timestamps changed, and transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.327] - 2026-09-01
 
 ### Verified
