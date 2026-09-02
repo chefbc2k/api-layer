@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.331] - 2026-09-02
+
+### Verified
+
+- **Local-Fork Automation Remains Complete On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `0ead487`, and fast-forwarded the isolated reusable `codex/local-fork-automation` branch. Intervening changes were confined to other assurance reports and tracking documentation; no runner, fixture, mounted inventory, generated manifest, or two-flag live-network guard changed. The expanded resolver/runner/marketplace slice passed `82/82`, including all `14/14` runner tests.
+- **Fresh Fork Proof Passed All Nine Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed `9/9` stages on their first attempt. All five actors were funded, buyer USDC balance/allowance reached `4000/4000`, governance was ready, listing token `11` was relisted and aged by `86,401` seconds, and the HTTP contract suite passed `18/18`.
+- **Transaction, Event, State, And Gap Evidence Stayed Deterministic:** The marketplace proof persisted pre-state, successful transaction/receipt, decoded purchase/payment/release events, settlement deltas, and post-state, including buyer balance/allowance movement `4000/4000 -> 3000/3000`. Governance activated and voted proposal `43`. The exhaustive sweep passed `430/446` reviewed read/event probes and emitted exactly `16` `needs fixture` gaps with zero runner or proof gaps; destructive stages used local-fork checkpoints and both live acknowledgements remained `false`.
+- **All Quality And Coverage Gates Passed:** TypeScript, lint, and build passed without fixes. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.330] - 2026-09-02
 
 ### Changed
