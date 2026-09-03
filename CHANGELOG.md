@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.337] - 2026-09-03
+
+### Verified
+
+- **Base Sepolia Promotion Still Fails Closed On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `6c3f253`, and merged that baseline into the isolated reusable `codex/base-sepolia-promotion-20260828` branch. No promotion runner, operator setup helper, marketplace/governance proof, readiness gate, or live-safety source changed since the 2026-09-02 check. The canonical preflight exited `2` with `finalClassification: "blocked by setup/state"`; seven static checks passed, while explicit live opt-in remains disabled and both execution and diagnostics RPC origins remain loopback `http://127.0.0.1:8548`.
+- **No Provider, Setup, Or Transaction Action Ran:** The readiness gate stopped before live-target RPC validation, native/test-token funding, buyer allowance, aged-listing and governance-readiness setup, marketplace purchase, governance proof, or any protocol-admin write. The refreshed aggregate artifact at `2026-09-03T17:03:17.003Z` records `liveTarget.checked: false`, no setup or scenarios, and zero transaction hashes, block numbers, actors, state deltas, or decoded events.
+- **All Non-Live Gates Passed:** The focused promotion suite passed `6/6`. With the project-pinned `pnpm@10.30.0`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed without fixes. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Still Blocks Promotion And Merge:** Configure `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, and only then permit the fixture-backed safe setup and proof scenarios. Do not merge until marketplace and governance plus the aggregate artifact all classify `proven working`.
+
 ## [0.1.336] - 2026-09-03
 
 ### Verified
