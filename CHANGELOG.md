@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.337] - 2026-09-03
+
+### Verified
+
+- **Red-Team Assurance Remains Complete On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `6c3f253`, and fast-forwarded the isolated reusable `codex/red-team-harness-20260831` branch. Changes since the 2026-09-02 red-team merge were confined to ABI-gap, write-invariant, actor-negative-path, and local-fork assurance reports plus tracking documentation; no ABI, mounted route, validation, signer binding, workflow, indexer, or harness source changed. The deterministic corpus remains `1,914` invalid wire mutations across all `521` inputs on the `259` mounted HTTP writes, including deadline, timestamp, nonce, signature, and role-binding probes.
+- **Focused And Guarded Fork Probes Passed:** `pnpm run test:redteam` passed `104/104`; `pnpm run redteam:local-fork` passed `136/136` across `9` files, including all `5/5` real loopback probes. Malformed and unknown calldata, replayed value transfer, an unprivileged selector-collision diamond cut with a malicious initializer, emergency/timelock bypass attempts, stale fork responses, multisig controls, duplicate logs, event decoding, and reorg handling all remained green. No destructive live-network path was enabled.
+- **All Merge Gates Passed:** TypeScript, lint, build/codegen, and all `1,308` active repository tests passed, with `23` explicitly gated tests skipped. Build-time and explicit coverage checks confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
+- **Persistent Reporting Is Current:** The regenerated gap reports changed only their timestamps and remain at `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team evidence conservatively attributed to `20` ABI items. Transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.336] - 2026-09-03
 
 ### Verified
