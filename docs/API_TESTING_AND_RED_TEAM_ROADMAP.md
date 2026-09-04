@@ -155,6 +155,13 @@ Suggested command composition:
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
 
+### ABI Gap Report Automation Run — 2026-09-04
+
+- **Current-master audit found no ABI, API, or proof-evidence drift:** fetched `origin/master`, confirmed it remains an ancestor of the newer local `master` `641abf5`, and created `codex/abi-gap-report-20260904` from that clean baseline in the isolated ABI-gap worktree so the unrelated dirty primary checkout remained untouched. Changes since the 2026-09-03 ABI-gap merge were confined to write-invariant, actor-negative-path, local-fork, and red-team assurance reports plus tracking documentation; no ABI manifest, mounted API inventory, reviewed surface content, protocol-test attribution source, verify artifact, generator, or reporter test changed.
+- **Proof depth and classifications remain semantically stable:** regeneration still inventories `33` facets, `492` functions, and `218` event occurrences (`710` items), with ABI/RPC evidence for all `710` and reviewed HTTP evidence for `709`. Conservative proof attribution remains `370` unit, `268` workflow, `4` local-fork, `60` Base Sepolia, `240` negative-path, `147` economic, `20` red-team, and `5` indexer items. The report continues to classify `218` items as `ready`, `228` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings.
+- **Focused, repository, and measured coverage tests passed:** `pnpm run test:gap-report` passed `5/5`; `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated contract/local-fork tests skipped; and `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines.
+- **Quality, surface, and merge gates passed:** using the project-pinned `pnpm@10.30.0`, the ordered `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time code generation and the explicit `pnpm run coverage:check` both reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Regeneration changed only the two persisted report timestamps; the reviewed API surface's transient timestamp was restored. The workstream remains 100% complete and verified for merge on the current mounted inventory.
+
 ### Red-Team Harness Automation Run — 2026-09-03
 
 - **Current-master audit found no adversarial coverage drift:** fetched `origin/master`, confirmed it remains an ancestor of the newer local `master` `6c3f253`, and fast-forwarded the reusable `codex/red-team-harness-20260831` branch to that baseline in its isolated worktree so the unrelated dirty primary checkout remained untouched. Changes since the 2026-09-02 red-team merge were confined to ABI-gap, write-invariant, actor-negative-path, and local-fork assurance reports plus tracking documentation; no ABI, mounted HTTP route, validation, execution-context signer binding, workflow, indexer, or red-team harness source required a new mutation class.
@@ -745,7 +752,7 @@ Daily automations should treat these sections as independently mergeable workstr
 
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
-| ABI-driven gap report | Complete and verified (2026-08-18) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`4/4` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods) |
+| ABI-driven gap report | Complete and verified (2026-09-04) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`5/5` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods / `260/260` write invariants) |
 | Write-method invariant metadata | Complete and verified (2026-08-26) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete and verified (2026-08-24) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
@@ -758,18 +765,18 @@ Automation merge rule: do not merge a section into `master` unless all section-s
 
 ### ABI-Driven Gap Report Evidence
 
-The 2026-08-18 Phase 1 artifact inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `223` items as `ready`, `223` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Red-team-attributed proof remains at `29` items after the mutation harness, guarded fork probes, and dedicated admin-control oracles were added; no proof-depth or classification drift was detected in this refresh.
+The Phase 1 artifact, revalidated on 2026-09-04, inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `218` items as `ready`, `228` as `needs fixture`, `51` as `unsafe on live network`, and `213` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Conservative proof attribution records `370` unit, `268` workflow, `4` local-fork, `60` Base Sepolia, `240` negative-path, `147` economic, `20` red-team, and `5` indexer items; no proof-depth or classification drift was detected in this refresh.
 
 Verification evidence:
 
-- `pnpm run test:gap-report`: `4/4` focused generator tests passed.
+- `pnpm run test:gap-report`: `5/5` focused generator tests passed.
 - `pnpm run report:test-gaps`: regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the canonical inputs.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
-- `pnpm exec tsc -p tsconfig.json --noEmit`: repository TypeScript validation passed.
+- `npx tsc -p tsconfig.json --noEmit`: repository TypeScript validation passed.
 - `pnpm run lint`: repository lint validation passed.
 - `pnpm run build`: codegen and the client, indexer, and API package builds all passed.
-- `pnpm test`: all `1,300` active tests passed across `132` files; `23` gated contract-integration and local-fork-only red-team tests remained explicitly skipped.
-- `pnpm run test:coverage`: the sharded coverage suite passed with `99.98%` lines, `99.96%` statements, `99.93%` branches, and `99.92%` functions; the only reported gaps are merged-Istanbul mappings on already-exercised `execution-context.ts` and `alchemy-debug-lib.ts` lines.
+- `pnpm test`: all `1,308` active tests passed across `132` files; `23` gated contract-integration and local-fork-only red-team tests remained explicitly skipped.
+- `pnpm run test:coverage`: the sharded coverage suite passed with `99.98%` lines, `99.98%` statements, `99.84%` branches, and `100%` functions; the only reported gaps are merged-Istanbul mappings on already-exercised `execution-context.ts`, `alchemy-debug-lib.ts`, and red-team harness lines.
 
 Build-blocker resolution:
 
