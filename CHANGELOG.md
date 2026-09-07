@@ -2,6 +2,15 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.344] - 2026-09-07
+
+### Verified
+
+- **Local-Fork Automation Remains Complete On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `dd89f4d`, and fast-forwarded the isolated reusable `codex/local-fork-automation` branch. Intervening changes were confined to other assurance reports and tracking documentation; no runner, fixture, mounted inventory, generated manifest, or two-flag live-network guard changed. The resolver/runner/marketplace regression slice passed `82/82`, including all `14/14` runner tests.
+- **Fresh Fork Proof Passed All Nine Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed `9/9` stages on their first attempts. All five actors were funded, buyer USDC balance/allowance reached `4000/4000`, governance was ready, listing token `11` was relisted and aged by `86,401` seconds, and the HTTP contract suite passed `18/18`.
+- **Transaction, Event, State, And Gap Evidence Stayed Deterministic:** Marketplace transaction `0x6d33c19c9bc3f42d7ba2996f55a40c129cff540f1f40af485179decb458ca319` succeeded in block `46515126`, persisted pre/post-state and settlement deltas, decoded one purchase, two payment, and one release event, and moved buyer balance/allowance `4000/4000 -> 3000/3000`. Governance activated and voted proposal `43`; the exhaustive sweep passed `430/446` reviewed read/event probes with exactly `16` structured `needs fixture` gaps and zero runner or generic proof gaps. Both live acknowledgements remained `false`.
+- **All Quality And Coverage Gates Passed:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.343] - 2026-09-07
 
 ### Changed
