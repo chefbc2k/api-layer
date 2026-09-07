@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.345] - 2026-09-07
+
+### Changed
+
+- **Gated Base Sepolia Promotion Runner Restored On A Current-Master Branch:** Created `codex/base-sepolia-promotion-20260907` from clean local `master` `a232b0c` after fetching `origin/master`, then restored the prior unmerged runner, its preflight/full-run package commands, focused tests, aggregate evidence artifact, and explicit env-path support for isolated worktrees. The runner allows only fixture-backed marketplace purchase and governance scenarios, refuses incomplete `.env` readiness, validates direct Base Sepolia chain and diamond bytecode before setup, and excludes destructive protocol-admin writes.
+
+### Verified
+
+- **Base Sepolia Readiness Still Fails Closed:** The canonical preflight exited `2` with `finalClassification: "blocked by setup/state"`. Seven static checks passed, while explicit live opt-in remains disabled and both execution and diagnostics RPC origins are loopback. The gate stopped before provider access, setup helpers, proof scenarios, or transaction submission; the refreshed aggregate artifact records no setup, scenarios, transaction hashes, block numbers, actors, state deltas, or decoded events.
+- **All Non-Live Gates Passed:** The focused promotion suite passed `6/6`. The ordered TypeScript, lint, and build sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Readiness Blocks Proof And Merge:** Configure `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, and only then allow the safe funding, allowance, listing, governance, marketplace, and governance-proof path. Do not merge until both scenarios and the aggregate artifact classify `proven working`.
+
 ## [0.1.344] - 2026-09-07
 
 ### Verified

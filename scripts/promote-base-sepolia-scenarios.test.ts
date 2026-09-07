@@ -1,7 +1,9 @@
 import { Wallet } from "ethers";
 import { describe, expect, it } from "vitest";
 
-import { assessPromotionReadiness, collectPromotionEvidence } from "./promote-base-sepolia-scenarios.js";
+import path from "node:path";
+
+import { assessPromotionReadiness, collectPromotionEvidence, resolvePromotionEnvPath } from "./promote-base-sepolia-scenarios.js";
 
 const founder = Wallet.createRandom();
 const seller = Wallet.createRandom();
@@ -23,6 +25,13 @@ function readyEnv(): NodeJS.ProcessEnv {
 }
 
 describe("Base Sepolia promotion readiness", () => {
+  it("supports an explicit env path for isolated automation worktrees", () => {
+    expect(resolvePromotionEnvPath({ API_LAYER_BASE_SEPOLIA_ENV_PATH: "../api-layer/.env" })).toBe(
+      path.resolve("../api-layer/.env"),
+    );
+    expect(resolvePromotionEnvPath({})).toBe(path.resolve(".env"));
+  });
+
   it("accepts only an explicitly opted-in direct Base Sepolia target with distinct actors", () => {
     expect(assessPromotionReadiness(readyEnv())).toEqual(expect.objectContaining({
       status: "ready",
