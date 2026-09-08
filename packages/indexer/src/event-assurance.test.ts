@@ -157,6 +157,35 @@ describe("generated event-to-indexer assurance", () => {
     expect(client.query).toHaveBeenCalledTimes(expectedQueryCount);
   });
 
+  it.each([
+    "MarketplaceFacet.ListingCancelled",
+    "MarketplaceFacet.ListingPriceUpdated",
+    "MarketplaceFacet.MarketplaceUnpaused",
+  ])("decodes and projects %s into the market_listings Postgres projection", async (eventKey) => {
+    const definition = getAllAbiEventDefinitions()[eventKey];
+    expect(definition, eventKey).toBeDefined();
+    expect(definition.projection.targets).toContainEqual(expect.objectContaining({ table: "market_listings" }));
+
+    const decoded = decodeEvent(buildEventRegistry(), encodeLog(definition, 10_000));
+    expect(decoded, eventKey).not.toBeNull();
+    expect(isAmbiguousEvent(decoded!), eventKey).toBe(false);
+    expect((decoded as DecodedEvent).fullEventKey).toBe(eventKey);
+
+    const client = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    await projectEvent({
+      chainId: 84532,
+      client: client as never,
+      rawEventId: 10_001,
+      txHash: `0x${"ab".repeat(32)}`,
+      blockNumber: 10_001n,
+      blockHash: `0x${"cd".repeat(32)}`,
+      isOrphaned: false,
+      decoded: decoded as DecodedEvent,
+    });
+
+    expect(client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO market_listings"))).toBe(true);
+  });
+
   it("binds every write invariant to decoded, replay-safe indexer evidence", async () => {
     const writes = Object.entries(getAllWriteInvariantDefinitions()).sort(([left], [right]) => left.localeCompare(right));
     const eventDefinitions = getAllAbiEventDefinitions();

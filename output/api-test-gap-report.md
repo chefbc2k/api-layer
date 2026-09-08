@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-08T08:35:20.981Z`
+Generated: `2026-09-08T08:38:29.349Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,12 +13,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 236 |
-| needs fixture | 222 |
+| ready | 242 |
+| needs fixture | 219 |
 | unsafe on live network | 51 |
 | needs contract change | 0 |
 | needs API guard | 0 |
-| needs indexer proof | 201 |
+| needs indexer proof | 198 |
 
 | Proof dimension | Items |
 | --- | ---: |
@@ -26,14 +26,14 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 408 |
+| unit | 409 |
 | workflow | 268 |
 | localFork | 4 |
 | baseSepolia | 60 |
-| negativePath | 251 |
-| economic | 148 |
+| negativePath | 254 |
+| economic | 151 |
 | redTeam | 21 |
-| indexer | 17 |
+| indexer | 20 |
 
 ## Methodology
 
@@ -458,20 +458,20 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `adver
 
 ## MarketplaceFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.67/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `4.33/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `cancelListing` | write | yes | yes | — | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `cancelListing` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `getListing` | read | yes | yes | yes | yes | yes | yes | — | adversarial 6/8 | ready |
 | `isPaused` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `listAsset` | write | yes | yes | — | yes | yes | yes | — | adversarial 5/8 | ready |
 | `pause` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `purchaseAsset` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `unpause` | write | yes | yes | — | — | — | — | — | workflow 2/8 | needs fixture |
-| `updateListingPrice` | write | yes | yes | — | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `unpause` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `updateListingPrice` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 
 ### Events
 
@@ -480,10 +480,10 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `MarketplaceFacet.AssetEscrowed` | yes | — | — | yes | indexer 5/8 | ready |
 | `MarketplaceFacet.AssetListed` | yes | — | yes | yes | indexer 7/8 | ready |
 | `MarketplaceFacet.AssetPurchased` | yes | yes | — | — | adversarial 5/8 | needs indexer proof |
-| `MarketplaceFacet.ListingCancelled` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `MarketplaceFacet.ListingPriceUpdated` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
+| `MarketplaceFacet.ListingCancelled` | yes | — | — | yes | indexer 5/8 | ready |
+| `MarketplaceFacet.ListingPriceUpdated` | yes | — | — | yes | indexer 4/8 | ready |
 | `MarketplaceFacet.MarketplacePaused` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `MarketplaceFacet.MarketplaceUnpaused` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `MarketplaceFacet.MarketplaceUnpaused` | yes | — | — | yes | indexer 3/8 | ready |
 
 ## MultiSigFacet
 

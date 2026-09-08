@@ -161,6 +161,45 @@ describe("createApiServer", () => {
     }
   });
 
+  it.each([
+    {
+      method: "DELETE",
+      path: "/v1/marketplace/commands/cancel-listing",
+      body: { tokenId: "11" },
+      methodKey: "MarketplaceFacet.cancelListing",
+    },
+    {
+      method: "PATCH",
+      path: "/v1/marketplace/commands/update-listing-price",
+      body: { tokenId: "11", newPrice: "30000000" },
+      methodKey: "MarketplaceFacet.updateListingPrice",
+    },
+    {
+      method: "POST",
+      path: "/v1/marketplace/commands/unpause",
+      body: {},
+      methodKey: "MarketplaceFacet.unpause",
+    },
+  ])("rejects a read-only API key for $methodKey before marketplace execution", async ({ method, path, body }) => {
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "read-only-key": { label: "read-only", signerId: "reader", roles: ["read-only"], allowGasless: false },
+    });
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const { status, payload } = await apiCall(port, path, {
+        method,
+        headers: { "x-api-key": "read-only-key" },
+        body: JSON.stringify(body),
+      });
+      expect(status).toBe(403);
+      expect(payload).toEqual({ error: "API key not permitted for write execution" });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
   it("suppresses the startup log when quiet mode is enabled", async () => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "test-key": { label: "test", roles: ["service"], allowGasless: true },

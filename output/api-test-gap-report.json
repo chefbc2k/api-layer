@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-08T08:35:20.981Z",
+  "generatedAt": "2026-09-08T08:38:29.349Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -168,22 +168,22 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 408,
+      "unit": 409,
       "workflow": 268,
       "localFork": 4,
       "baseSepolia": 60,
-      "negativePath": 251,
-      "economic": 148,
+      "negativePath": 254,
+      "economic": 151,
       "redTeam": 21,
-      "indexer": 17
+      "indexer": 20
     },
     "classificationCounts": {
-      "ready": 236,
-      "needs fixture": 222,
+      "ready": 242,
+      "needs fixture": 219,
       "unsafe on live network": 51,
       "needs contract change": 0,
       "needs API guard": 0,
-      "needs indexer proof": 201
+      "needs indexer proof": 198
     }
   },
   "facets": [
@@ -12291,17 +12291,17 @@
         "eventCount": 7,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 7,
-          "needs fixture": 3,
+          "ready": 13,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 5
+          "needs indexer proof": 2
         },
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 3.67,
+          "averageScore": 4.33,
           "maximumScore": 8
         }
       },
@@ -12330,24 +12330,24 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
@@ -12356,9 +12356,12 @@
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts"
             ],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -12776,31 +12779,35 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
+            "negativePath": true,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/manage-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/manage-reward-campaign.test.ts"
             ],
-            "negativePathTests": [],
-            "economicTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/app.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -12830,24 +12837,24 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "packages/api/src/workflows/update-marketplace-listing-price.test.ts"
             ],
@@ -12855,9 +12862,12 @@
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "packages/api/src/workflows/update-marketplace-listing-price.test.ts"
             ],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "packages/api/src/workflows/update-marketplace-listing-price.test.ts"
             ],
@@ -13102,25 +13112,25 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 3,
+            "level": "indexer",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
-              "packages/api/src/workflows/marketplace-listing.integration.test.ts"
+              "packages/api/src/workflows/marketplace-listing.integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
@@ -13129,9 +13139,13 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -13162,23 +13176,23 @@
             "negativePath": false,
             "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 3,
+            "level": "indexer",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
-              "packages/api/src/workflows/update-marketplace-listing-price.test.ts"
+              "packages/api/src/workflows/update-marketplace-listing-price.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
@@ -13188,10 +13202,13 @@
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
-              "packages/api/src/workflows/update-marketplace-listing-price.test.ts"
+              "packages/api/src/workflows/update-marketplace-listing-price.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -13265,33 +13282,37 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [],
+            "economicTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }
@@ -23385,6 +23406,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
@@ -23399,12 +23421,14 @@
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
@@ -25773,6 +25797,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],

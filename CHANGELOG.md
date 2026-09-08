@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.347] - 2026-09-08
+
+### Changed
+
+- **Marketplace Write Gaps Closed:** Added explicit read-only-key rejection coverage for `MarketplaceFacet.cancelListing`, `MarketplaceFacet.updateListingPrice`, and `MarketplaceFacet.unpause`, while retaining their existing workflow, receipt, readback, decoded-event, and local-fork PostgreSQL evidence.
+- **Marketplace Event Projections Are Explicit:** Added generated-registry decode and `market_listings` projection assertions for `MarketplaceFacet.ListingCancelled`, `MarketplaceFacet.ListingPriceUpdated`, and `MarketplaceFacet.MarketplaceUnpaused`. The regenerated gap report advances from `236` to `242` ready items, reduces fixture gaps from `222` to `219`, and reduces indexer gaps from `201` to `198`.
+
+### Verified
+
+- **Receipt-To-PostgreSQL Evidence Passed:** The current loopback artifact remains `proven working` with `148` indexed receipts across `73/260` write methods, `225` raw events, and `137` projection rows. The three selected Marketplace receipts succeeded, decoded their declared events, wrote one `market_listings` row each, and remained byte-for-byte stable after replay.
+- **All Gates Passed; Section Remains Blocked:** Focused API/workflow/indexer tests, `5/5` gap-report tests, `60/60` active indexer assurance tests, `4/4` disposable PostgreSQL tests, TypeScript, lint, build, coverage inventory, all `1,338` active repository tests, and measured coverage passed. The branch was not merged because `187` writes still lack complete real-receipt proof; `VoiceAssetFacet.registerVoiceAssetForCaller` remains unreachable through its required diamond self-call.
+
 ## [0.1.344] - 2026-09-07
 
 ### Changed
