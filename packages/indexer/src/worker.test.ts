@@ -374,6 +374,30 @@ describe("EventIndexer", () => {
     );
   });
 
+  it("keeps an ambiguous event unresolved when transaction tracing fails", async () => {
+    const ambiguous = {
+      eventName: "Transfer",
+      signature: "Transfer(address,address,uint256)",
+      candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
+      candidateArgs: {
+        "TokenSupplyFacet.Transfer": { from: "0x1", to: "0x2", value: 3n },
+        "VoiceAssetFacet.Transfer": { from: "0x1", to: "0x2", tokenId: 3n },
+      },
+    };
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.transaction") {
+        return work({ getTransaction: vi.fn().mockResolvedValue(null) });
+      }
+      if (label === "indexer.transactionTrace") {
+        throw new Error("trace RPC unavailable");
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await expect((indexer as any).resolveAmbiguousLog({ transactionHash: "0xambiguous" }, ambiguous)).resolves.toBe(ambiguous);
+  });
+
   it("uses the originating write selector to resolve and project one ambiguous event candidate", async () => {
     const signature = "registerVoiceAsset(bytes32,string)";
     mocks.getAllWriteInvariantDefinitions.mockReturnValueOnce({
