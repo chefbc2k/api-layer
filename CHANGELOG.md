@@ -14,6 +14,38 @@
 - **Cold Fork And Failure-Mode Gates Passed:** `pnpm run verify:local-fork -- --continue-on-gap` passed all `10/10` stages on their first attempt, including fixtures, HTTP receipts, lifecycle workflows, marketplace settlement, governance activation/voting, event-indexer ingestion/replay, and the `430/446` exhaustive read/event sweep with the established `16` structured fixture gaps. `pnpm run test:indexer:postgres` passed `4/4`, retaining duplicate-log ingestion, atomic projection rollback, reorg replacement/current-row rebuild, delayed RPC, and partial-range failure coverage.
 - **Focused Registry And Runner Suites Passed:** `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:indexer:assurance` passed `57/57` active tests, and `pnpm run test:local-fork-runner` passed `14/14`.
 - **Quality Gates Passed; Merge Remains Blocked:** TypeScript, lint, build, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.68%` statements, `99.43%` branches, `99.46%` functions, and `99.76%` lines. The branch was not merged because `195` write methods still lack complete receipt-to-PostgreSQL proof, including the unreachable diamond-self-call route `VoiceAssetFacet.registerVoiceAssetForCaller`.
+
+## [0.1.346] - 2026-09-08
+
+### Changed
+
+- **Daily Branch Consolidation Preserved Dirty Work:** Saved the two uncommitted event-indexer assurance files from `codex/event-indexer-proof-20260829` on `codex/autosave-20260908-event-indexer-proof` as commit `e4ac1f6` before fetching or moving any production branch.
+- **Historical Write-Invariant Lineage Consolidated:** Merged `codex/write-invariant-metadata-20260829` into production `master` with a no-fast-forward merge. The synthetic and committed merge trees are byte-for-byte identical to the pre-merge `master` tree, so this records previously disconnected history without changing runtime or assurance content.
+- **Conflicting Passenger Tips Remain Isolated:** The attempted autosave/event-indexer merge conflicted in this changelog and was fully aborted. Merge-tree preflight also found conflicts in the remaining unmerged Base Sepolia, economic-invariant, event-indexer, red-team, test-gap, and remote refactor tips; no partial conflict resolution was committed and every source branch remains intact.
+
+### Verified
+
+- **Production Gates Passed:** `pnpm run test:write-invariants` passed `5/5`; `pnpm run report:test-gaps` and `pnpm run test:gap-report` regenerated and validated the `33`-facet, `492`-function, `218`-event report; `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; and `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped.
+- **Indexer Candidate Gates Passed Before Its Blocked Merge:** On the preserved autosave tip, `pnpm run test:indexer:assurance` passed `57` tests with `4` PostgreSQL-gated tests skipped, `pnpm run coverage:check` passed, and `pnpm test` passed `1,332` active tests across `135` files with `32` gated tests skipped. The indexer command is not yet available on `master` because that passenger branch remains conflict-blocked.
+
+## [0.1.345] - 2026-09-07
+
+### Verified
+
+- **Red-Team Assurance Remains Complete On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `a232b0c`, and fast-forwarded the isolated reusable `codex/red-team-harness-20260831` branch. Intervening changes were confined to other assurance reports and tracking documentation; no ABI, mounted route, validation, signer binding, workflow, indexer, or harness source changed. The deterministic corpus remains `1,914` invalid wire mutations across all `521` inputs on the `259` mounted HTTP writes, including deadline, timestamp, nonce, signature, and role-binding probes.
+- **Focused And Guarded Fork Probes Passed:** `pnpm run test:redteam` passed `104/104`; `pnpm run redteam:local-fork` passed `136/136` across `9` files, including all `5/5` loopback probes. Malformed and unknown calldata, replayed value transfer, value conservation, an unprivileged selector-collision diamond cut with a malicious initializer, emergency/timelock bypass attempts, stale fork responses, multisig controls, duplicate logs, event decoding, and reorg handling all remained green. No destructive live-network path was enabled.
+- **All Quality And Coverage Gates Passed:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without failures or fixes. `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
+- **Persistent Reporting Is Current:** The regenerated gap reports changed only their timestamps and remain at `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team evidence conservatively attributed to `20` ABI items. Transient reviewed-surface timestamp churn was restored; the workstream remains 100% complete and verified for merge.
+
+## [0.1.344] - 2026-09-07
+
+### Verified
+
+- **Local-Fork Automation Remains Complete On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `dd89f4d`, and fast-forwarded the isolated reusable `codex/local-fork-automation` branch. Intervening changes were confined to other assurance reports and tracking documentation; no runner, fixture, mounted inventory, generated manifest, or two-flag live-network guard changed. The resolver/runner/marketplace regression slice passed `82/82`, including all `14/14` runner tests.
+- **Fresh Fork Proof Passed All Nine Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started its own loopback Base Sepolia fork and passed `9/9` stages on their first attempts. All five actors were funded, buyer USDC balance/allowance reached `4000/4000`, governance was ready, listing token `11` was relisted and aged by `86,401` seconds, and the HTTP contract suite passed `18/18`.
+- **Transaction, Event, State, And Gap Evidence Stayed Deterministic:** Marketplace transaction `0x6d33c19c9bc3f42d7ba2996f55a40c129cff540f1f40af485179decb458ca319` succeeded in block `46515126`, persisted pre/post-state and settlement deltas, decoded one purchase, two payment, and one release event, and moved buyer balance/allowance `4000/4000 -> 3000/3000`. Governance activated and voted proposal `43`; the exhaustive sweep passed `430/446` reviewed read/event probes with exactly `16` structured `needs fixture` gaps and zero runner or generic proof gaps. Both live acknowledgements remained `false`.
+- **All Quality And Coverage Gates Passed:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.343] - 2026-09-07
 
 ### Changed
