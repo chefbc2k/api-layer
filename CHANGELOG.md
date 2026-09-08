@@ -2,21 +2,58 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.345] - 2026-09-07
+## [0.1.349] - 2026-09-08
 
 ### Changed
 
-- **Gated Base Sepolia Promotion Runner Restored On A Current-Master Branch:** Created `codex/base-sepolia-promotion-20260907` from clean local `master` `a232b0c` after fetching `origin/master`, then restored the prior unmerged runner, its preflight/full-run package commands, focused tests, aggregate evidence artifact, and explicit env-path support for isolated worktrees. The runner allows only fixture-backed marketplace purchase and governance scenarios, refuses incomplete `.env` readiness, validates direct Base Sepolia chain and diamond bytecode before setup, and excludes destructive protocol-admin writes.
+- **Actor And Signer Evidence Remains Current Without Coverage Drift:** Regenerated `output/actor-negative-path-report.json` and `output/actor-negative-path-report.md` after fast-forwarding `codex/actor-negative-paths` to current local `master` `32bdbf5`. Timestamp-normalized JSON and Markdown content remained identical. All `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired or ownership-role lifecycle cases.
 
 ### Verified
 
-- **Base Sepolia Readiness Still Fails Closed:** The canonical preflight exited `2` with `finalClassification: "blocked by setup/state"`. Seven static checks passed, while explicit live opt-in remains disabled and both execution and diagnostics RPC origins are loopback. The gate stopped before provider access, setup helpers, proof scenarios, or transaction submission; the refreshed aggregate artifact records no setup, scenarios, transaction hashes, block numbers, actors, state deltas, or decoded events.
-- **All Non-Live Gates Passed:** The focused promotion suite passed `6/6`. The ordered TypeScript, lint, and build sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`, including exhaustive write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity checks. `pnpm test` passed all `1,308` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, the ordered `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without failures or fixes. Build-time generation and the explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. The actor reports changed only their persisted timestamps, transient reviewed-surface timestamp churn was restored, and the workstream remains complete and merge-ready.
 
-### Remaining Issues
+## [0.1.348] - 2026-09-08
 
-- **Direct Base Sepolia Readiness Blocks Proof And Merge:** Configure `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, and only then allow the safe funding, allowance, listing, governance, marketplace, and governance-proof path. Do not merge until both scenarios and the aggregate artifact classify `proven working`.
+### Verified
 
+- **Write-Invariant Metadata Remains Complete On Current Master:** Revalidated required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations for all `260` mounted ABI write methods across `31` facets. The reviewed catalog and timestamp-normalized generated registry retained their prior hashes.
+- **Fail-Closed Metadata Gates Passed:** `pnpm run codegen`, `pnpm run test:write-invariants` (`5/5`), and the explicit `pnpm run coverage:check` each passed. Coverage generation proved `260/260` invariant entries while retaining rejection checks for missing/stale methods, ABI signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations.
+- **Quality And Measured Coverage Stayed Green:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time generation confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. Transient reviewed-surface timestamp churn was restored, and the workstream remains complete and merge-ready.
+
+## [0.1.347] - 2026-09-08
+
+### Changed
+
+- **ABI Gap Evidence Remains Current Without Semantic Drift:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the mounted ABI/API manifests, reviewed surface, protocol tests, and persisted verify artifacts. Timestamp-normalized JSON and Markdown hashes match the prior reports. The inventory remains `33` facets, `492` functions, and `218` event occurrences, with proof attribution at `370` unit, `268` workflow, `4` local-fork, `60` Base Sepolia, `240` negative-path, `147` economic, `20` red-team, and `5` indexer items. Classifications remain `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof.
+
+### Verified
+
+- **All Reporter And Repository Gates Passed:** `pnpm run test:gap-report` passed `5/5`; `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped; and the ordered TypeScript, lint, and build sequence passed without fixes.
+- **Surface And Measured Coverage Stayed Green:** Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. Only the two persisted report timestamps changed, and transient reviewed-surface timestamp churn was restored; the reporting workstream remains complete and merge-ready.
+
+## [0.1.346] - 2026-09-08
+
+### Changed
+
+- **Daily Branch Consolidation Preserved Dirty Work:** Saved the two uncommitted event-indexer assurance files from `codex/event-indexer-proof-20260829` on `codex/autosave-20260908-event-indexer-proof` as commit `e4ac1f6` before fetching or moving any production branch.
+- **Historical Write-Invariant Lineage Consolidated:** Merged `codex/write-invariant-metadata-20260829` into production `master` with a no-fast-forward merge. The synthetic and committed merge trees are byte-for-byte identical to the pre-merge `master` tree, so this records previously disconnected history without changing runtime or assurance content.
+- **Conflicting Passenger Tips Remain Isolated:** The attempted autosave/event-indexer merge conflicted in this changelog and was fully aborted. Merge-tree preflight also found conflicts in the remaining unmerged Base Sepolia, economic-invariant, event-indexer, red-team, test-gap, and remote refactor tips; no partial conflict resolution was committed and every source branch remains intact.
+
+### Verified
+
+- **Production Gates Passed:** `pnpm run test:write-invariants` passed `5/5`; `pnpm run report:test-gaps` and `pnpm run test:gap-report` regenerated and validated the `33`-facet, `492`-function, `218`-event report; `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; and `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped.
+- **Indexer Candidate Gates Passed Before Its Blocked Merge:** On the preserved autosave tip, `pnpm run test:indexer:assurance` passed `57` tests with `4` PostgreSQL-gated tests skipped, `pnpm run coverage:check` passed, and `pnpm test` passed `1,332` active tests across `135` files with `32` gated tests skipped. The indexer command is not yet available on `master` because that passenger branch remains conflict-blocked.
+
+## [0.1.345] - 2026-09-07
+
+### Verified
+
+- **Red-Team Assurance Remains Complete On Current Master:** Fetched `origin/master`, confirmed it remains an ancestor of local `master` `a232b0c`, and fast-forwarded the isolated reusable `codex/red-team-harness-20260831` branch. Intervening changes were confined to other assurance reports and tracking documentation; no ABI, mounted route, validation, signer binding, workflow, indexer, or harness source changed. The deterministic corpus remains `1,914` invalid wire mutations across all `521` inputs on the `259` mounted HTTP writes, including deadline, timestamp, nonce, signature, and role-binding probes.
+- **Focused And Guarded Fork Probes Passed:** `pnpm run test:redteam` passed `104/104`; `pnpm run redteam:local-fork` passed `136/136` across `9` files, including all `5/5` loopback probes. Malformed and unknown calldata, replayed value transfer, value conservation, an unprivileged selector-collision diamond cut with a malicious initializer, emergency/timelock bypass attempts, stale fork responses, multisig controls, duplicate logs, event decoding, and reorg handling all remained green. No destructive live-network path was enabled.
+- **All Quality And Coverage Gates Passed:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without failures or fixes. `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
+- **Persistent Reporting Is Current:** The regenerated gap reports changed only their timestamps and remain at `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team evidence conservatively attributed to `20` ABI items. Transient reviewed-surface timestamp churn was restored; the workstream remains 100% complete and verified for merge.
 ## [0.1.344] - 2026-09-07
 
 ### Verified
