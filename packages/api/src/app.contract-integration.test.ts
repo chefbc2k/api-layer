@@ -21,6 +21,7 @@ import {
   VoiceLicenseFacet,
   VoiceLicenseTemplateFacet,
   VoiceMetadataFacet,
+  VotingPowerFacet,
   WhisperBlockFacet,
 } from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
@@ -559,6 +560,7 @@ describeLive("HTTP API contract integration", () => {
   let tokenSupplyFacet: Contract;
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
+  let votingPowerFacet: VotingPowerFacet;
   let primaryVoiceHash = "";
   const nativeTransferReserve = ethers.parseEther("0.000001");
   let activeRpcUrl = "";
@@ -838,6 +840,7 @@ describeLive("HTTP API contract integration", () => {
     tokenSupplyFacet = new Contract(diamondAddress, facetRegistry.TokenSupplyFacet.abi, provider);
     burnThresholdFacet = new Contract(diamondAddress, facetRegistry.BurnThresholdFacet.abi, provider);
     timewaveGiftFacet = new Contract(diamondAddress, facetRegistry.TimewaveGiftFacet.abi, provider);
+    votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
 
     server = createApiServer({ port: 0 }).listen();
     const address = server.address();
@@ -4345,6 +4348,75 @@ describeLive("HTTP API contract integration", () => {
     expect(await marketplaceFacet.isPaused()).toBe(!marketplaceWasPaused);
     await submit("POST", `/v1/marketplace/commands/${secondMarketplaceRoute}`);
     expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
+  }, 120_000);
+
+  it("proves voting-power setup, lock, and checkpoint receipts through HTTP", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "voting-power receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, "PATCH", route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      const eventNames = receipt!.logs.flatMap((log) => {
+        try {
+          return [votingPowerFacet.interface.parseLog(log)?.name].filter((name): name is string => Boolean(name));
+        } catch {
+          return [];
+        }
+      });
+      return { txHash, eventNames };
+    };
+
+    const setupAccount = outsiderWallet.address;
+    const fundedAccount = founderAddress;
+
+    const initial = await submit("/v1/staking/commands/setup-initial-voting-power", {
+      account: setupAccount,
+      votingPower: "777",
+    });
+    expect(initial.eventNames).toContain("VotingPowerUpdated");
+    expect(await votingPowerFacet.getVotingPower(setupAccount)).toBe(777n);
+
+    const maxLock = await submit("/v1/staking/commands/set-max-lock-duration", {
+      maxDuration: "7200",
+    });
+    expect(maxLock.eventNames).toContain("MaxLockDurationUpdated");
+
+    const locked = await submit("/v1/staking/commands/update-lock-duration", {
+      account: fundedAccount,
+      duration: "3600",
+    });
+    expect(locked.eventNames).toEqual(expect.arrayContaining(["LockDurationUpdated", "VotingPowerUpdated"]));
+    expect(await votingPowerFacet.getLockDuration(fundedAccount)).toBe(3600n);
+
+    const unlocked = await submit("/v1/staking/commands/set-zero-lock-duration", {
+      account: fundedAccount,
+    });
+    expect(unlocked.eventNames).toEqual(expect.arrayContaining(["LockDurationUpdated", "VotingPowerUpdated"]));
+    expect(await votingPowerFacet.getLockDuration(fundedAccount)).toBe(0n);
+
+    const refreshed = await submit("/v1/staking/commands/update-voting-power", {
+      account: fundedAccount,
+    });
+    expect(refreshed.eventNames).toContain("VotingPowerUpdated");
+    expect(await votingPowerFacet.getVotingPower(fundedAccount)).toBeGreaterThan(0n);
+
+    const batch = await submit("/v1/staking/commands/update-voting-power-batch", {
+      accounts: [fundedAccount],
+    });
+    expect(batch.eventNames.filter((name) => name === "VotingPowerUpdated")).toHaveLength(1);
+    expect(await votingPowerFacet.getVotingPower(fundedAccount)).toBeGreaterThan(0n);
   }, 120_000);
 
   it("proves disposable access-control configuration, eventless globals, and self-renunciation receipts", async (ctx) => {
