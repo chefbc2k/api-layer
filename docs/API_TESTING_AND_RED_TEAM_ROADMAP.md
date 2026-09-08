@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-08
+
+- Production remains `master`; `origin` reports `master` as its HEAD branch even though the local `origin/HEAD` symbolic ref is stale.
+- The only dirty worktree was preserved before branch movement: `packages/api/src/app.contract-integration.test.ts` and `reviewed/reviewed-api-surface.json` are committed on `codex/autosave-20260908-event-indexer-proof` at `e4ac1f6`.
+- `codex/write-invariant-metadata-20260829` is consolidated through no-fast-forward merge `cf6c507`. Its merge result is tree-identical to the prior production tip.
+- The autosave/event-indexer tip is verified but blocked by a `CHANGELOG.md` conflict. The remaining unmerged Base Sepolia, economic-invariant, older event-indexer, red-team, test-gap, and remote refactor tips also fail clean merge preflight against production; they remain isolated with no partial resolutions.
+- Production verification is green: write-invariant tests `5/5`, gap-report tests `5/5`, full tests `1,308` passed with `23` gated skips, wrapper/event/HTTP coverage `492/218/492`, and write-invariant coverage `260/260`. The preserved event-indexer candidate separately passed `57` focused indexer tests and `1,332` full-suite tests before its merge was aborted.
+
 ## Current State
 
 This repo has strong mechanical and behavioral coverage for the API layer that sits on top of the USpeaks smart contracts.

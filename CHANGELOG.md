@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.346] - 2026-09-08
+
+### Changed
+
+- **Daily Branch Consolidation Preserved Dirty Work:** Saved the two uncommitted event-indexer assurance files from `codex/event-indexer-proof-20260829` on `codex/autosave-20260908-event-indexer-proof` as commit `e4ac1f6` before fetching or moving any production branch.
+- **Historical Write-Invariant Lineage Consolidated:** Merged `codex/write-invariant-metadata-20260829` into production `master` with a no-fast-forward merge. The synthetic and committed merge trees are byte-for-byte identical to the pre-merge `master` tree, so this records previously disconnected history without changing runtime or assurance content.
+- **Conflicting Passenger Tips Remain Isolated:** The attempted autosave/event-indexer merge conflicted in this changelog and was fully aborted. Merge-tree preflight also found conflicts in the remaining unmerged Base Sepolia, economic-invariant, event-indexer, red-team, test-gap, and remote refactor tips; no partial conflict resolution was committed and every source branch remains intact.
+
+### Verified
+
+- **Production Gates Passed:** `pnpm run test:write-invariants` passed `5/5`; `pnpm run report:test-gaps` and `pnpm run test:gap-report` regenerated and validated the `33`-facet, `492`-function, `218`-event report; `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; and `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped.
+- **Indexer Candidate Gates Passed Before Its Blocked Merge:** On the preserved autosave tip, `pnpm run test:indexer:assurance` passed `57` tests with `4` PostgreSQL-gated tests skipped, `pnpm run coverage:check` passed, and `pnpm test` passed `1,332` active tests across `135` files with `32` gated tests skipped. The indexer command is not yet available on `master` because that passenger branch remains conflict-blocked.
+
 ## [0.1.345] - 2026-09-07
 
 ### Verified
