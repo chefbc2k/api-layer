@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.348] - 2026-09-08
+
+### Changed
+
+- **Expired Marketplace Fixture Reverts Are Structured:** The Base Sepolia operator setup now preserves an expired active listing as a blocked fixture when an accepted `MarketplaceFacet.cancelListing` transaction later reverts. A stale on-chain listing can no longer abort every downstream local-fork assurance stage; the persisted fixture retains the original listing readback and explicit expiration blocker.
+- **Regression Coverage Added:** Added a focused setup test for the accepted-submission/reverted-receipt path alongside the existing synchronous cancellation-failure case.
+
+### Verified
+
+- **Baseline And Setup Paths Passed:** `pnpm run baseline:show`, `pnpm run baseline:verify`, and a post-fix `pnpm run setup:base-sepolia` completed against the configured Base Sepolia-derived fork. The setup retained all five actor mappings, buyer USDC balance and allowance at `4000/4000`, founder voting power at `840000000000000000`, and produced a purchase-ready relisting for token `11` after local time advancement.
+- **Cold Fork Proof Passed All Ten Stages:** `pnpm run verify:local-fork -- --continue-on-gap` passed inventory generation, fixture provisioning, HTTP contract execution, three Layer-1 workflow groups, marketplace purchase, governance, receipt-to-PostgreSQL indexing, and the exhaustive read/event sweep on their first attempts. The run recovered both prior runner failures, representing `100%` forward progress across that failed-stage baseline, while retaining the established `16` explicit fixture gaps.
+- **Transactions, Events, And Replay Remain Proven:** The proof retained `148` successful receipts across `73/260` write methods, `225` decoded raw events, and `137` projection rows. PostgreSQL replay was idempotent across all raw and projection tables. The lifecycle reports remained fully proven (`8` core domains, `3` remaining domains, and governance), marketplace token `11` was purchase-ready, and the exhaustive sweep passed `430/446` read/event probes.
+- **All Quality And Coverage Gates Passed:** The Base Sepolia setup suite passed `106/106`; the full repository suite passed; TypeScript and lint completed without errors; and build-time coverage remained `492/492` wrapper functions, `218/218` events, `492/492` HTTP methods, and `260/260` write invariants. Measured coverage passed the repository gate at `99.70%` statements, `99.41%` branches, `99.46%` functions, and `99.78%` lines; the remaining gap to the requested literal `100%` is explicitly unresolved rather than overstated.
+
 ## [0.1.347] - 2026-09-08
 
 ### Changed

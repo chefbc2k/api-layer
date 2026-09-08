@@ -948,7 +948,12 @@ export async function prepareAgedListingFixture(args: {
       body: { tokenId: preferredCandidate.tokenId },
     });
     if (cancel.status === 202) {
-      await waitReceipt(args.port, extractTxHash(cancel.payload));
+      try {
+        await waitReceipt(args.port, extractTxHash(cancel.payload));
+      } catch {
+        Object.assign(agedFixture, createPreferredMarketplaceFixture(preferredCandidate, args.latestTimestamp));
+        return agedFixture;
+      }
       await retryRead(
         () => readMarketplaceListing({
           marketplace: args.marketplace,
