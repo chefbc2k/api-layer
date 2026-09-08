@@ -2121,9 +2121,43 @@ describeLive("HTTP API contract integration", () => {
         "tokenomics consumed allowance",
       );
 
+      const standardApproveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/approve", {
+        body: { spender: outsiderWallet.address, amount: delegatedAmount.toString() },
+      });
+      expect(standardApproveResponse.status).toBe(202);
+      const standardApproveTxHash = extractTxHash(standardApproveResponse.payload);
+      await expectReceipt(standardApproveTxHash);
+      await waitFor(
+        () => tokenSupplyFacet.allowance(founderAddress, outsiderWallet.address),
+        (value) => value === delegatedAmount,
+        "tokenomics standard approval allowance update",
+      );
+
+      const standardTransferFromResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer-from", {
+        apiKey: "outsider-key",
+        body: {
+          from: founderAddress,
+          to: transfereeWallet.address,
+          amount: delegatedAmount.toString(),
+        },
+      });
+      expect(standardTransferFromResponse.status).toBe(202);
+      const standardTransferFromTxHash = extractTxHash(standardTransferFromResponse.payload);
+      await expectReceipt(standardTransferFromTxHash);
+      await waitFor(
+        () => tokenSupplyFacet.balanceOf(transfereeWallet.address),
+        (value) => value === originalTransfereeBalance + (delegatedAmount * 2n),
+        "tokenomics standard transferFrom recipient balance",
+      );
+      await waitFor(
+        () => tokenSupplyFacet.allowance(founderAddress, outsiderWallet.address),
+        (value) => value === 0n,
+        "tokenomics consumed standard allowance",
+      );
+
       const transferBackFromTransfereeResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
         apiKey: "transferee-key",
-        body: { to: founderAddress, amount: delegatedAmount.toString() },
+        body: { to: founderAddress, amount: (delegatedAmount * 2n).toString() },
       });
       expect(transferBackFromTransfereeResponse.status).toBe(202);
       await expectReceipt(extractTxHash(transferBackFromTransfereeResponse.payload));

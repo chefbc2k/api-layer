@@ -31,6 +31,14 @@ const artifactPaths = [
   "governance.json",
 ].map((name) => path.join(proofDir, name));
 const outputPath = path.join(proofDir, "event-indexer.json");
+const artifactProducers: Record<string, string> = {
+  "http-contract-receipts.json": "packages/api/src/app.contract-integration.test.ts",
+  "layer1-core.json": "scripts/verify-layer1-live.ts",
+  "layer1-completion.json": "scripts/verify-layer1-completion.ts",
+  "layer1-remaining.json": "scripts/verify-layer1-remaining.ts",
+  "marketplace-purchase.json": "scripts/verify-marketplace-purchase-live.ts",
+  "governance.json": "scripts/verify-governance-workflows.ts",
+};
 
 type ReceiptProof = {
   txHash: string;
@@ -39,6 +47,19 @@ type ReceiptProof = {
   receipt: TransactionReceipt;
   methodKey: string;
   definition: ReturnType<typeof getAllWriteInvariantDefinitions>[string];
+  sourceArtifacts: string[];
+  sourceScripts: string[];
+};
+
+type RawEventEvidenceRow = IndexedEventRow & {
+  id: string;
+  log_index: number;
+  decoded_args: Record<string, unknown>;
+};
+
+type ProjectionEvidenceRow = {
+  row_id: string;
+  source_raw_event_id: string;
 };
 
 async function availablePort(): Promise<number> {
@@ -65,13 +86,16 @@ async function commandPath(command: string): Promise<string> {
   }
 }
 
-async function loadArtifactHashes(): Promise<Set<string>> {
-  const hashes = new Set<string>();
+async function loadArtifactHashes(): Promise<Map<string, string[]>> {
+  const hashes = new Map<string, string[]>();
   for (const artifactPath of artifactPaths) {
     if (!(await fileExists(artifactPath))) {
       continue;
     }
-    collectTransactionHashes(JSON.parse(await readFile(artifactPath, "utf8")), hashes);
+    const source = path.relative(rootDir, artifactPath);
+    for (const hash of collectTransactionHashes(JSON.parse(await readFile(artifactPath, "utf8")))) {
+      hashes.set(hash, [...new Set([...(hashes.get(hash) ?? []), source])].sort());
+    }
   }
   if (hashes.size === 0) {
     throw new Error(`no workflow transaction hashes found under ${proofDir}`);
@@ -82,7 +106,7 @@ async function loadArtifactHashes(): Promise<Set<string>> {
 async function loadReceiptProofs(provider: JsonRpcProvider, diamondAddress: string): Promise<ReceiptProof[]> {
   const selectors = buildWriteSelectorMap();
   const proofs: ReceiptProof[] = [];
-  for (const txHash of await loadArtifactHashes()) {
+  for (const [txHash, sourceArtifacts] of await loadArtifactHashes()) {
     const [transaction, receipt] = await Promise.all([
       provider.getTransaction(txHash),
       provider.getTransactionReceipt(txHash),
@@ -108,6 +132,10 @@ async function loadReceiptProofs(provider: JsonRpcProvider, diamondAddress: stri
       receipt,
       methodKey: write.methodKey,
       definition: write.definition,
+      sourceArtifacts,
+      sourceScripts: [...new Set(sourceArtifacts
+        .map((source) => artifactProducers[path.basename(source)])
+        .filter((producer): producer is string => Boolean(producer)))].sort(),
     });
   }
   if (proofs.length === 0) {
@@ -140,27 +168,41 @@ async function tableCounts(pool: Pool): Promise<Record<string, number>> {
   return counts;
 }
 
-async function projectedTablesFor(pool: Pool, proof: ReceiptProof): Promise<string[]> {
-  const projected: string[] = [];
+async function postgresEvidenceFor(pool: Pool, proof: ReceiptProof) {
+  const raw = await pool.query<RawEventEvidenceRow>(
+    `SELECT id::text, log_index, facet_name, event_name, event_signature, decoded_args
+     FROM raw_events
+     WHERE tx_hash = $1 AND canonical_status = 'canonical' AND is_orphaned = FALSE
+     ORDER BY log_index`,
+    [proof.txHash],
+  );
+  const projections: Array<{ table: string; rowCount: number; rows: ProjectionEvidenceRow[] }> = [];
   for (const table of projectionTableNames(proof.definition)) {
-    const result = await pool.query<{ present: boolean }>(
-      `SELECT EXISTS (
-        SELECT 1
-        FROM ${table} projection
+    const result = await pool.query<ProjectionEvidenceRow>(
+      `SELECT projection.id::text AS row_id, projection.source_raw_event_id::text
+       FROM ${table} projection
         JOIN raw_events raw ON raw.id = projection.source_raw_event_id
         WHERE raw.tx_hash = $1
           AND raw.canonical_status = 'canonical'
           AND raw.is_orphaned = FALSE
           AND projection.canonical_status = 'canonical'
           AND projection.is_orphaned = FALSE
-      ) AS present`,
+       ORDER BY projection.id`,
       [proof.txHash],
     );
-    if (result.rows[0].present) {
-      projected.push(table);
-    }
+    projections.push({ table, rowCount: result.rows.length, rows: result.rows });
   }
-  return projected;
+  const block = await pool.query<{ block_number: string; block_hash: string }>(
+    `SELECT block_number::text, block_hash
+     FROM indexer_blocks
+     WHERE block_number = $1 AND canonical_status = 'canonical' AND is_orphaned = FALSE`,
+    [proof.blockNumber],
+  );
+  return {
+    rawEvents: { table: "raw_events", rowCount: raw.rows.length, rows: raw.rows },
+    projections,
+    blockJournal: { table: "indexer_blocks", rowCount: block.rows.length, rows: block.rows },
+  };
 }
 
 async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: ReceiptProof[]): Promise<void> {
@@ -179,20 +221,37 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
     for (const [blockNumber, blockProofs] of [...byBlock.entries()].sort(([left], [right]) => left - right)) {
       await indexer.ingestRange(BigInt(blockNumber), BigInt(blockNumber), head);
       for (const proof of blockProofs) {
-        const raw = await pool.query<IndexedEventRow>(
-          `SELECT facet_name, event_name, event_signature
-           FROM raw_events
-           WHERE tx_hash = $1 AND canonical_status = 'canonical' AND is_orphaned = FALSE
-           ORDER BY log_index`,
-          [proof.txHash],
-        );
-        results.push(evaluateReceiptExpectation({
+        const postgres = await postgresEvidenceFor(pool, proof);
+        const expectation = evaluateReceiptExpectation({
           txHash: proof.txHash,
           methodKey: proof.methodKey,
           definition: proof.definition,
-          indexedRows: raw.rows,
-          projectedTables: await projectedTablesFor(pool, proof),
-        }));
+          indexedRows: postgres.rawEvents.rows,
+          projectedTables: postgres.projections.filter((entry) => entry.rowCount > 0).map((entry) => entry.table),
+        });
+        results.push({
+          ...expectation,
+          blockNumber: proof.blockNumber,
+          receiptStatus: Number(proof.receipt.status),
+          receiptLogCount: proof.receipt.logs.length,
+          transactionSelector: proof.transaction.data.slice(0, 10).toLowerCase(),
+          affectedFacet: proof.methodKey.split(".", 1)[0],
+          methodSignature: proof.definition.signature,
+          decodedEvents: postgres.rawEvents.rows.map((row) => ({
+            rawEventId: row.id,
+            logIndex: row.log_index,
+            facetName: row.facet_name,
+            eventName: row.event_name,
+            eventSignature: row.event_signature,
+            decodedArgs: row.decoded_args,
+          })),
+          postgres,
+          source: {
+            workflowArtifacts: proof.sourceArtifacts,
+            producers: proof.sourceScripts,
+            ingestionScript: "scripts/run-local-fork-indexer-proof.ts",
+          },
+        });
       }
     }
 
@@ -209,6 +268,15 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
     if (JSON.stringify(afterReplay) !== JSON.stringify(beforeReplay)) {
       throw new Error(`indexer replay changed persisted row counts: ${JSON.stringify({ beforeReplay, afterReplay })}`);
     }
+    const receiptReplay = new Map<string, Awaited<ReturnType<typeof postgresEvidenceFor>>>();
+    for (const proof of proofs) {
+      const after = await postgresEvidenceFor(pool, proof);
+      const before = results.find((result) => result.txHash === proof.txHash)!.postgres;
+      if (JSON.stringify(after) !== JSON.stringify(before)) {
+        throw new Error(`indexer replay changed receipt evidence for ${proof.methodKey} ${proof.txHash}`);
+      }
+      receiptReplay.set(proof.txHash, after);
+    }
 
     const allMethods = Object.keys(getAllWriteInvariantDefinitions());
     const provenMethodKeys = [...new Set(results.map((result) => result.methodKey))].sort((left, right) => left.localeCompare(right));
@@ -221,7 +289,7 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
       callTracer = { status: "unsupported", detail: error instanceof Error ? error.message : String(error) };
     }
     const report = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       generatedAt: new Date().toISOString(),
       status: "proven working",
       network: {
@@ -247,7 +315,14 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
       },
       provenMethodKeys,
       remainingMethodKeys: allMethods.filter((methodKey) => !provenMethodKeys.includes(methodKey)),
-      receipts: results,
+      receipts: results.map((result) => ({
+        ...result,
+        replay: {
+          status: "idempotent",
+          before: result.postgres,
+          after: receiptReplay.get(result.txHash),
+        },
+      })),
     };
     await writeJson(outputPath, report);
     process.stdout.write(`${JSON.stringify({ status: report.status, output: outputPath, totals: report.totals }, null, 2)}\n`);

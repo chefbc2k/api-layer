@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-07T11:03:19.057Z`
+Generated: `2026-09-08T08:16:33.929Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,8 +13,8 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 235 |
-| needs fixture | 223 |
+| ready | 236 |
+| needs fixture | 222 |
 | unsafe on live network | 51 |
 | needs contract change | 0 |
 | needs API guard | 0 |
@@ -26,12 +26,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 398 |
+| unit | 408 |
 | workflow | 268 |
 | localFork | 4 |
 | baseSepolia | 60 |
 | negativePath | 251 |
-| economic | 147 |
+| economic | 148 |
 | redTeam | 21 |
 | indexer | 17 |
 
@@ -819,7 +819,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## TokenSupplyFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.24/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.32/8`.
 
 ### Functions
 
@@ -845,7 +845,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `tokenTransferFrom` | write | yes | — | — | — | — | yes | — | adversarial 2/8 | needs fixture |
 | `totalSupply` | read | yes | — | — | yes | — | yes | — | adversarial 3/8 | ready |
 | `transfer` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
-| `transferFrom` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `transferFrom` | write | yes | — | — | — | — | yes | — | adversarial 2/8 | needs fixture |
 
 ### Events
 
@@ -1147,7 +1147,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## VotingPowerFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `0.19/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `0.62/8`.
 
 ### Functions
 
@@ -1157,26 +1157,26 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `calculateBaseRoleMultiplier` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getDelegatedVotingPower` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getLatestCheckpoint` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `getLockDuration` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `getLockDuration` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getLockTimestamp` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getPastVotes` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getVotes` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getVotingPower` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getVotingPowerWithDelegations` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setMaxLockDuration` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `setMaxLockDuration` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
 | `setRoleMultiplier` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setZeroLockDuration` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setupInitialVotingPower` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateLockDuration` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateVotingPower` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateVotingPowerBatch` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `setZeroLockDuration` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `setupInitialVotingPower` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `updateLockDuration` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `updateVotingPower` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `updateVotingPowerBatch` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `VotingPowerFacet.LockDurationUpdated` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `VotingPowerFacet.MaxLockDurationUpdated` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `VotingPowerFacet.LockDurationUpdated` | yes | — | — | — | unit 1/8 | needs indexer proof |
+| `VotingPowerFacet.MaxLockDurationUpdated` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `VotingPowerFacet.RoleMultiplierUpdated` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `VotingPowerFacet.VotingPowerUpdated` | yes | — | — | yes | indexer 3/8 | ready |
 
