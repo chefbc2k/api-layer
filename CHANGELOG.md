@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.351] - 2026-09-09
+
+### Changed
+
+- **Actor And Signer Evidence Remains Current Without Coverage Drift:** Fetched `origin/master`, fast-forwarded the isolated reusable `codex/actor-negative-paths` branch to synchronized production baseline `1e2e703`, and regenerated `output/actor-negative-path-report.json` and `output/actor-negative-path-report.md`. Timestamp-normalized JSON and Markdown hashes remained identical. All `259` mounted HTTP writes across `13` domains still produce `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only/signer-mismatch boundary cases, and `3,171` missing/stale/revoked/expired or ownership-role lifecycle cases.
+
+### Verified
+
+- **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`, including exhaustive write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity checks. `pnpm test` passed all `1,308` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time generation and the explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. The actor reports changed only their persisted timestamps, transient reviewed-surface timestamp churn was restored, and the workstream remains 100% complete and verified for merge.
+
 ## [0.1.350] - 2026-09-08
 
 ### Verified
