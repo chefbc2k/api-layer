@@ -10,6 +10,7 @@ import { createApiServer, type ApiServer } from "./app.js";
 import { loadRepoEnv } from "../../client/src/runtime/config.js";
 import {
   AccessControlFacet,
+  DelegationFacet,
   EmergencyFacet,
   GovernorFacet,
   MarketplaceFacet,
@@ -556,7 +557,7 @@ describeLive("HTTP API contract integration", () => {
   let emergencyWithdrawalFacet: Contract;
   let multisigFacet: Contract;
   let stakingFacet: Contract;
-  let delegationFacet: Contract;
+  let delegationFacet: DelegationFacet;
   let tokenSupplyFacet: Contract;
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
@@ -764,6 +765,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "delegation-proof-key": {
+        label: "delegation-proof",
+        signerId: "outsider",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "read-key": {
         label: "reader",
         roles: ["read-only"],
@@ -842,7 +849,7 @@ describeLive("HTTP API contract integration", () => {
     emergencyWithdrawalFacet = new Contract(diamondAddress, facetRegistry.EmergencyWithdrawalFacet.abi, provider);
     multisigFacet = new Contract(diamondAddress, facetRegistry.MultiSigFacet.abi, provider);
     stakingFacet = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
-    delegationFacet = new Contract(diamondAddress, facetRegistry.DelegationFacet.abi, provider);
+    delegationFacet = new Contract(diamondAddress, facetRegistry.DelegationFacet.abi, provider) as unknown as DelegationFacet;
     tokenSupplyFacet = new Contract(diamondAddress, facetRegistry.TokenSupplyFacet.abi, provider);
     burnThresholdFacet = new Contract(diamondAddress, facetRegistry.BurnThresholdFacet.abi, provider);
     timewaveGiftFacet = new Contract(diamondAddress, facetRegistry.TimewaveGiftFacet.abi, provider);
@@ -4523,6 +4530,7 @@ describeLive("HTTP API contract integration", () => {
     }
     if (await skipWhenFundingBlocked(ctx, "voting-power receipt expansion", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000003") },
     ])) {
       return;
     }
@@ -4583,6 +4591,27 @@ describeLive("HTTP API contract integration", () => {
     });
     expect(batch.eventNames.filter((name) => name === "VotingPowerUpdated")).toHaveLength(1);
     expect(await votingPowerFacet.getVotingPower(fundedAccount)).toBeGreaterThan(0n);
+
+    const delegateVotesBefore = await delegationFacet.getCurrentVotes(transfereeWallet.address);
+    const delegateResponse = await apiCall(port, "POST", "/v1/staking/commands/delegate", {
+      apiKey: "delegation-proof-key",
+      body: { delegatee: transfereeWallet.address },
+    });
+    expect(delegateResponse.status, JSON.stringify(delegateResponse.payload)).toBe(202);
+    const delegateTxHash = extractTxHash(delegateResponse.payload);
+    await expectReceipt(delegateTxHash);
+    const delegateReceipt = await provider.getTransactionReceipt(delegateTxHash);
+    expect(delegateReceipt).not.toBeNull();
+    const delegationEventNames = delegateReceipt!.logs.flatMap((log) => {
+      try {
+        return [delegationFacet.interface.parseLog(log)?.name].filter((name): name is string => Boolean(name));
+      } catch {
+        return [];
+      }
+    });
+    expect(delegationEventNames).toEqual(expect.arrayContaining(["DelegateChanged", "VotingPowerUpdated"]));
+    expect(await delegationFacet.delegates(outsiderWallet.address)).toBe(transfereeWallet.address);
+    expect(await delegationFacet.getCurrentVotes(transfereeWallet.address)).toBeGreaterThan(delegateVotesBefore);
   }, 120_000);
 
   it("proves disposable access-control configuration, eventless globals, and self-renunciation receipts", async (ctx) => {

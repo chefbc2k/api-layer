@@ -25,7 +25,25 @@ export type ReceiptExpectationResult = {
   failures: string[];
 };
 
+export type ReceiptProofArtifactEligibility = {
+  eligible: boolean;
+  reason: string | null;
+};
+
 const TX_HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/u;
+
+export function receiptProofArtifactEligibility(value: unknown): ReceiptProofArtifactEligibility {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { eligible: false, reason: "artifact root is not an object" };
+  }
+  const artifact = value as Record<string, unknown>;
+  for (const field of ["status", "summary"] as const) {
+    if (field in artifact && artifact[field] !== "proven working") {
+      return { eligible: false, reason: `${field} is ${JSON.stringify(artifact[field])}` };
+    }
+  }
+  return { eligible: true, reason: null };
+}
 
 export function collectTransactionHashes(value: unknown, hashes = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {

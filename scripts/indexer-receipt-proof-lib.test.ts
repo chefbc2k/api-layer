@@ -5,6 +5,7 @@ import {
   collectTransactionHashes,
   evaluateReceiptExpectation,
   projectionTableNames,
+  receiptProofArtifactEligibility,
 } from "./indexer-receipt-proof-lib.js";
 
 describe("local-fork receipt-to-indexer proof", () => {
@@ -16,6 +17,17 @@ describe("local-fork receipt-to-indexer proof", () => {
       transactionHashes: [second, "not-a-hash"],
     })])
       .toEqual([first, second]);
+  });
+
+  it("rejects failed workflow artifacts before collecting reverted fork receipts", () => {
+    expect(receiptProofArtifactEligibility({ status: "proven working", transactionHashes: [] }))
+      .toEqual({ eligible: true, reason: null });
+    expect(receiptProofArtifactEligibility({ summary: "proven working", reports: {} }))
+      .toEqual({ eligible: true, reason: null });
+    expect(receiptProofArtifactEligibility({ summary: "deeper issues remain", reports: {} }))
+      .toEqual({ eligible: false, reason: 'summary is "deeper issues remain"' });
+    expect(receiptProofArtifactEligibility({ status: "failed", transactionHashes: [] }))
+      .toEqual({ eligible: false, reason: 'status is "failed"' });
   });
 
   it("attributes every generated write selector without collisions", () => {

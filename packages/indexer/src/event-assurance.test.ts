@@ -158,13 +158,14 @@ describe("generated event-to-indexer assurance", () => {
   });
 
   it.each([
-    "MarketplaceFacet.ListingCancelled",
-    "MarketplaceFacet.ListingPriceUpdated",
-    "MarketplaceFacet.MarketplaceUnpaused",
-  ])("decodes and projects %s into the market_listings Postgres projection", async (eventKey) => {
+    ["DelegationFacet.DelegateChanged(address,address,address)", "governance_delegations"],
+    ["MarketplaceFacet.ListingCancelled", "market_listings"],
+    ["MarketplaceFacet.ListingPriceUpdated", "market_listings"],
+    ["MarketplaceFacet.MarketplaceUnpaused", "market_listings"],
+  ])("decodes and projects %s into the %s Postgres projection", async (eventKey, table) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
-    expect(definition.projection.targets).toContainEqual(expect.objectContaining({ table: "market_listings" }));
+    expect(definition.projection.targets).toContainEqual(expect.objectContaining({ table }));
 
     const decoded = decodeEvent(buildEventRegistry(), encodeLog(definition, 10_000));
     expect(decoded, eventKey).not.toBeNull();
@@ -183,7 +184,7 @@ describe("generated event-to-indexer assurance", () => {
       decoded: decoded as DecodedEvent,
     });
 
-    expect(client.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO market_listings"))).toBe(true);
+    expect(client.query.mock.calls.some(([sql]) => String(sql).includes(`INSERT INTO ${table}`))).toBe(true);
   });
 
   it("binds every write invariant to decoded, replay-safe indexer evidence", async () => {
@@ -239,9 +240,9 @@ describe("generated event-to-indexer assurance", () => {
       }
     }
 
-    expect(expectationCount).toBe(283);
+    expect(expectationCount).toBe(282);
     expect(declaredProjectionCount).toBe(149);
-    expect(projectedEventTargetCount).toBe(189);
+    expect(projectedEventTargetCount).toBe(188);
     expect(noEventWriteCount).toBe(30);
   });
 });

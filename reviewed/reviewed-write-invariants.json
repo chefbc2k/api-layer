@@ -1490,7 +1490,7 @@
         "mode": "all",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
@@ -1515,7 +1515,7 @@
         "mode": "required",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "projections": [
           "governance_delegations:current"
@@ -1566,7 +1566,7 @@
         "mode": "all",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
@@ -1591,7 +1591,7 @@
         "mode": "required",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "projections": [
           "governance_delegations:current"

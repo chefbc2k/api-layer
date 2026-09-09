@@ -16,6 +16,7 @@ import {
   collectTransactionHashes,
   evaluateReceiptExpectation,
   projectionTableNames,
+  receiptProofArtifactEligibility,
   type IndexedEventRow,
 } from "./indexer-receipt-proof-lib.js";
 import { fileExists, rootDir, writeJson } from "./utils.js";
@@ -31,6 +32,7 @@ const artifactPaths = [
   "governance.json",
 ].map((name) => path.join(proofDir, name));
 const outputPath = path.join(proofDir, "event-indexer.json");
+const persistentOutputPath = path.join(rootDir, "verify-local-fork-indexer-output.json");
 const artifactProducers: Record<string, string> = {
   "http-contract-receipts.json": "packages/api/src/app.contract-integration.test.ts",
   "layer1-core.json": "scripts/verify-layer1-live.ts",
@@ -62,6 +64,19 @@ type ProjectionEvidenceRow = {
   source_raw_event_id: string;
 };
 
+type ArtifactHashCollection = {
+  hashes: Map<string, string[]>;
+  includedArtifacts: string[];
+  skippedArtifacts: Array<{ path: string; reason: string }>;
+};
+
+type HttpEndpointRegistry = {
+  methods: Record<string, {
+    httpMethod: string;
+    path: string;
+  }>;
+};
+
 async function availablePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const server = createServer();
@@ -86,27 +101,40 @@ async function commandPath(command: string): Promise<string> {
   }
 }
 
-async function loadArtifactHashes(): Promise<Map<string, string[]>> {
+async function loadArtifactHashes(): Promise<ArtifactHashCollection> {
   const hashes = new Map<string, string[]>();
+  const includedArtifacts: string[] = [];
+  const skippedArtifacts: Array<{ path: string; reason: string }> = [];
   for (const artifactPath of artifactPaths) {
     if (!(await fileExists(artifactPath))) {
       continue;
     }
     const source = path.relative(rootDir, artifactPath);
-    for (const hash of collectTransactionHashes(JSON.parse(await readFile(artifactPath, "utf8")))) {
+    const artifact = JSON.parse(await readFile(artifactPath, "utf8")) as unknown;
+    const eligibility = receiptProofArtifactEligibility(artifact);
+    if (!eligibility.eligible) {
+      skippedArtifacts.push({ path: source, reason: eligibility.reason ?? "artifact is not eligible" });
+      continue;
+    }
+    includedArtifacts.push(source);
+    for (const hash of collectTransactionHashes(artifact)) {
       hashes.set(hash, [...new Set([...(hashes.get(hash) ?? []), source])].sort());
     }
   }
   if (hashes.size === 0) {
     throw new Error(`no workflow transaction hashes found under ${proofDir}`);
   }
-  return hashes;
+  return { hashes, includedArtifacts, skippedArtifacts };
 }
 
-async function loadReceiptProofs(provider: JsonRpcProvider, diamondAddress: string): Promise<ReceiptProof[]> {
+async function loadReceiptProofs(
+  provider: JsonRpcProvider,
+  diamondAddress: string,
+  artifactHashes: Map<string, string[]>,
+): Promise<ReceiptProof[]> {
   const selectors = buildWriteSelectorMap();
   const proofs: ReceiptProof[] = [];
-  for (const [txHash, sourceArtifacts] of await loadArtifactHashes()) {
+  for (const [txHash, sourceArtifacts] of artifactHashes) {
     const [transaction, receipt] = await Promise.all([
       provider.getTransaction(txHash),
       provider.getTransactionReceipt(txHash),
@@ -205,7 +233,12 @@ async function postgresEvidenceFor(pool: Pool, proof: ReceiptProof) {
   };
 }
 
-async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: ReceiptProof[]): Promise<void> {
+async function runProof(
+  databaseUrl: string,
+  provider: JsonRpcProvider,
+  proofs: ReceiptProof[],
+  artifacts: ArtifactHashCollection,
+): Promise<void> {
   process.env.SUPABASE_DB_URL = databaseUrl;
   process.env.API_LAYER_FINALITY_CONFIRMATIONS = "0";
   process.env.API_LAYER_INDEXER_START_BLOCK = "0";
@@ -280,6 +313,9 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
 
     const allMethods = Object.keys(getAllWriteInvariantDefinitions());
     const provenMethodKeys = [...new Set(results.map((result) => result.methodKey))].sort((left, right) => left.localeCompare(right));
+    const httpRegistry = JSON.parse(
+      await readFile(path.join(rootDir, "generated", "manifests", "http-endpoint-registry.json"), "utf8"),
+    ) as HttpEndpointRegistry;
     const traceProbeTxHash = proofs.at(-1)!.txHash;
     let callTracer: { status: "supported" | "unsupported"; detail?: string };
     try {
@@ -298,7 +334,9 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
         callTracer,
       },
       totals: {
-        artifactTransactionHashes: (await loadArtifactHashes()).size,
+        artifactTransactionHashes: artifacts.hashes.size,
+        includedArtifacts: artifacts.includedArtifacts.length,
+        skippedArtifacts: artifacts.skippedArtifacts.length,
         indexedReceipts: results.length,
         provenWriteMethods: provenMethodKeys.length,
         catalogWriteMethods: allMethods.length,
@@ -313,6 +351,10 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
         before: beforeReplay,
         after: afterReplay,
       },
+      artifacts: {
+        included: artifacts.includedArtifacts,
+        skipped: artifacts.skippedArtifacts,
+      },
       provenMethodKeys,
       remainingMethodKeys: allMethods.filter((methodKey) => !provenMethodKeys.includes(methodKey)),
       receipts: results.map((result) => ({
@@ -324,8 +366,80 @@ async function runProof(databaseUrl: string, provider: JsonRpcProvider, proofs: 
         },
       })),
     };
-    await writeJson(outputPath, report);
-    process.stdout.write(`${JSON.stringify({ status: report.status, output: outputPath, totals: report.totals }, null, 2)}\n`);
+    const reports = Object.fromEntries(provenMethodKeys.map((methodKey) => {
+      const endpoint = httpRegistry.methods[methodKey];
+      if (!endpoint) {
+        throw new Error(`missing HTTP endpoint registry entry for proven write ${methodKey}`);
+      }
+      const methodResults = results.filter((result) => result.methodKey === methodKey);
+      return [methodKey, {
+        routes: [`${endpoint.httpMethod} ${endpoint.path}`],
+        actors: ["local-fork-fixture"],
+        executionResult: "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        evidence: methodResults.map((result) => ({
+          localFork: true,
+          methodKey: result.methodKey,
+          affectedFacet: result.affectedFacet,
+          methodSignature: result.methodSignature,
+          txHash: result.txHash,
+          blockNumber: result.blockNumber,
+          receipt: {
+            status: result.receiptStatus,
+            logCount: result.receiptLogCount,
+          },
+          decodedEvents: result.decodedEvents.map((event) => ({
+            rawEventId: event.rawEventId,
+            logIndex: event.logIndex,
+            eventKey: `${event.facetName}.${event.eventSignature}`,
+          })),
+          postgres: {
+            rawEvents: {
+              table: result.postgres.rawEvents.table,
+              rowCount: result.postgres.rawEvents.rowCount,
+              rowIds: result.postgres.rawEvents.rows.map((row) => row.id),
+            },
+            projections: result.postgres.projections.map((projection) => ({
+              table: projection.table,
+              rowCount: projection.rowCount,
+              rowIds: projection.rows.map((row) => row.row_id),
+              sourceRawEventIds: projection.rows.map((row) => row.source_raw_event_id),
+            })),
+            blockJournal: result.postgres.blockJournal,
+          },
+          replay: {
+            status: "idempotent",
+            unchanged: JSON.stringify(receiptReplay.get(result.txHash)) === JSON.stringify(result.postgres),
+          },
+          source: {
+            workflowArtifacts: result.sourceArtifacts,
+            producers: result.sourceArtifacts
+              .map((artifactPath) => artifactProducers[path.basename(artifactPath)])
+              .filter((producer): producer is string => Boolean(producer)),
+            ingestionScript: "scripts/run-local-fork-indexer-proof.ts",
+          },
+        })),
+        finalClassification: "proven working",
+        classification: "proven working",
+        result: "proven working",
+      }];
+    }));
+    const persistentReport = {
+      schemaVersion: 1,
+      generatedAt: report.generatedAt,
+      summary: "proven working",
+      totals: report.totals,
+      reports,
+    };
+    await Promise.all([
+      writeJson(outputPath, report),
+      writeJson(persistentOutputPath, persistentReport),
+    ]);
+    process.stdout.write(`${JSON.stringify({
+      status: report.status,
+      output: outputPath,
+      persistentOutput: persistentOutputPath,
+      totals: report.totals,
+    }, null, 2)}\n`);
   } finally {
     await Promise.all([indexer.close(), pool.end()]);
   }
@@ -338,7 +452,8 @@ async function main(): Promise<void> {
     throw new Error("RPC_URL/CBDP_RPC_URL and DIAMOND_ADDRESS are required for the local-fork indexer receipt proof");
   }
   const provider = new JsonRpcProvider(rpcUrl);
-  const proofs = await loadReceiptProofs(provider, diamondAddress);
+  const artifacts = await loadArtifactHashes();
+  const proofs = await loadReceiptProofs(provider, diamondAddress, artifacts.hashes);
   const [initdb, pgCtl, psql] = await Promise.all([
     commandPath("initdb"),
     commandPath("pg_ctl"),
@@ -355,7 +470,7 @@ async function main(): Promise<void> {
     await run(pgCtl, ["-D", data, "-o", `-p ${port} -h 127.0.0.1`, "-l", log, "start"]);
     started = true;
     await applyMigrations(psql, port);
-    await runProof(`postgresql://postgres@127.0.0.1:${port}/postgres`, provider, proofs);
+    await runProof(`postgresql://postgres@127.0.0.1:${port}/postgres`, provider, proofs, artifacts);
   } finally {
     await provider.destroy();
     if (started) {
