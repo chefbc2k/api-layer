@@ -758,6 +758,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "payment-proof-key": {
+        label: "payment-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "read-key": {
         label: "reader",
         roles: ["read-only"],
@@ -4383,6 +4389,132 @@ describeLive("HTTP API contract integration", () => {
     await submit("POST", `/v1/marketplace/commands/${secondMarketplaceRoute}`);
     expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
   }, 120_000);
+
+  it("proves reversible payment configuration receipts through HTTP", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "payment configuration receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0002") },
+    ])) {
+      return;
+    }
+
+    const feeManagerRole = id("FEE_MANAGER_ROLE");
+    const governanceRole = id("GOVERNANCE_ROLE");
+    const emergencyAdminRole = id("EMERGENCY_ADMIN_ROLE");
+    expect(await accessControl.hasRole(feeManagerRole, founderAddress)).toBe(true);
+    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    expect(await accessControl.hasRole(emergencyAdminRole, founderAddress)).toBe(true);
+
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { apiKey: "payment-proof-key", body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const originalPaymentPaused = await paymentFacet.paymentPaused();
+    await submit("PATCH", "/v1/marketplace/commands/set-payment-paused", {
+      paused: !originalPaymentPaused,
+    });
+    expect(await paymentFacet.paymentPaused()).toBe(!originalPaymentPaused);
+    await submit("PATCH", "/v1/marketplace/commands/set-payment-paused", {
+      paused: originalPaymentPaused,
+    });
+    expect(await paymentFacet.paymentPaused()).toBe(originalPaymentPaused);
+
+    const originalBuybackStatus = await paymentFacet.getBuybackStatus();
+    const originalBuybackPaused = Boolean(originalBuybackStatus[9]);
+    await submit("POST", "/v1/marketplace/commands/pause-buybacks", {
+      paused: !originalBuybackPaused,
+    });
+    expect(Boolean((await paymentFacet.getBuybackStatus())[9])).toBe(!originalBuybackPaused);
+    await submit("POST", "/v1/marketplace/commands/pause-buybacks", {
+      paused: originalBuybackPaused,
+    });
+    expect(Boolean((await paymentFacet.getBuybackStatus())[9])).toBe(originalBuybackPaused);
+
+    const originalTreasury = await paymentFacet.getTreasuryAddress();
+    await submit("PATCH", "/v1/marketplace/commands/update-treasury-address", {
+      newTreasury: outsiderWallet.address,
+    });
+    expect(await paymentFacet.getTreasuryAddress()).toBe(outsiderWallet.address);
+    await submit("PATCH", "/v1/marketplace/commands/update-treasury-address", {
+      newTreasury: originalTreasury,
+    });
+    expect(await paymentFacet.getTreasuryAddress()).toBe(originalTreasury);
+
+    const originalDevFund = await paymentFacet.getDevFundAddress();
+    await submit("PATCH", "/v1/marketplace/commands/update-dev-fund-address", {
+      newDevFund: licenseeWallet.address,
+    });
+    expect(await paymentFacet.getDevFundAddress()).toBe(licenseeWallet.address);
+    await submit("PATCH", "/v1/marketplace/commands/update-dev-fund-address", {
+      newDevFund: originalDevFund,
+    });
+    expect(await paymentFacet.getDevFundAddress()).toBe(originalDevFund);
+
+    const originalUnionTreasury = await paymentFacet.getUnionTreasuryAddress();
+    await submit("PATCH", "/v1/marketplace/commands/update-union-treasury-address", {
+      newUnionTreasury: transfereeWallet.address,
+    });
+    expect(await paymentFacet.getUnionTreasuryAddress()).toBe(transfereeWallet.address);
+    await submit("PATCH", "/v1/marketplace/commands/update-union-treasury-address", {
+      newUnionTreasury: originalUnionTreasury,
+    });
+    expect(await paymentFacet.getUnionTreasuryAddress()).toBe(originalUnionTreasury);
+
+    const originalFeeConfig = await paymentFacet.getFeeConfiguration();
+    const temporaryFeeConfig = {
+      platformFee: "200",
+      referralFee: "0",
+      unionShare: "100",
+      devFund: "50",
+      timewaveGift: "50",
+      milestonePool: "0",
+    };
+    await submit("PATCH", "/v1/marketplace/commands/update-fee-configuration", temporaryFeeConfig);
+    expect(feeConfigToObject(await paymentFacet.getFeeConfiguration())).toEqual({
+      platformFee: "200",
+      unionShare: "100",
+      devFund: "50",
+      timewaveGift: "50",
+      referralFee: "0",
+      milestonePool: "0",
+    });
+    await submit("PATCH", "/v1/marketplace/commands/update-fee-configuration", {
+      platformFee: originalFeeConfig[0].toString(),
+      referralFee: originalFeeConfig[4].toString(),
+      unionShare: originalFeeConfig[1].toString(),
+      devFund: originalFeeConfig[2].toString(),
+      timewaveGift: originalFeeConfig[3].toString(),
+      milestonePool: originalFeeConfig[5].toString(),
+    });
+    expect(feeConfigToObject(await paymentFacet.getFeeConfiguration())).toEqual(feeConfigToObject(originalFeeConfig));
+
+    const originalWithdrawalLimit = await paymentFacet.getTreasuryWithdrawalLimit();
+    await submit("PATCH", "/v1/marketplace/commands/set-treasury-withdrawal-limit", {
+      limit: "1234567",
+      window: "7200",
+      cooldown: "300",
+    });
+    const temporaryWithdrawalLimit = await paymentFacet.getTreasuryWithdrawalLimit();
+    expect(temporaryWithdrawalLimit[0]).toBe(1_234_567n);
+    expect(temporaryWithdrawalLimit[1]).toBe(7_200n);
+    expect(temporaryWithdrawalLimit[2]).toBe(300n);
+    await submit("PATCH", "/v1/marketplace/commands/set-treasury-withdrawal-limit", {
+      limit: originalWithdrawalLimit[0].toString(),
+      window: originalWithdrawalLimit[1].toString(),
+      cooldown: originalWithdrawalLimit[2].toString(),
+    });
+    const restoredWithdrawalLimit = await paymentFacet.getTreasuryWithdrawalLimit();
+    expect(restoredWithdrawalLimit[0]).toBe(originalWithdrawalLimit[0]);
+    expect(restoredWithdrawalLimit[1]).toBe(originalWithdrawalLimit[1]);
+    expect(restoredWithdrawalLimit[2]).toBe(originalWithdrawalLimit[2]);
+  }, 180_000);
 
   it("proves voting-power setup, lock, and checkpoint receipts through HTTP", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {

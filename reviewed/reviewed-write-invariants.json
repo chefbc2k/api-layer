@@ -8024,24 +8024,22 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.pauseBuybacks."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.pauseBuybacks."
         }
       ],
       "postStateReadbacks": {
         "mode": "required",
         "checks": [
           {
-            "method": "PaymentFacet.paymentPaused",
-            "assertion": "PaymentFacet.paymentPaused reflects the receipt-confirmed PaymentFacet.pauseBuybacks transition for the affected identifiers and actor."
+            "method": "PaymentFacet.getBuybackStatus",
+            "assertion": "PaymentFacet.getBuybackStatus reflects the receipt-confirmed PaymentFacet.pauseBuybacks transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -8054,20 +8052,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "burn",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8615,16 +8602,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "EMERGENCY_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold EMERGENCY_ADMIN_ROLE for PaymentFacet.setPaymentPaused."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold EMERGENCY_ADMIN_ROLE for PaymentFacet.setPaymentPaused."
         },
         {
           "kind": "funding",
@@ -8649,20 +8634,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "transfer",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8765,16 +8739,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setTreasuryWithdrawalLimit."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setTreasuryWithdrawalLimit."
         },
         {
           "kind": "argument",
@@ -8807,20 +8779,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "unlock",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8923,16 +8884,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateDevFundAddress."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateDevFundAddress."
         },
         {
           "kind": "argument",
@@ -8965,20 +8924,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "transfer",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -9008,16 +8956,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateFeeConfiguration."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateFeeConfiguration."
         },
         {
           "kind": "protocol-state",
@@ -9079,16 +9025,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateTreasuryAddress."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateTreasuryAddress."
         },
         {
           "kind": "argument",
@@ -9110,12 +9054,11 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
+        "mode": "all",
         "events": [
-          "PaymentFacet.TreasuryAddressUpdated",
-          "PaymentFacet.UnionTreasuryAddressUpdated"
+          "PaymentFacet.TreasuryAddressUpdated"
         ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "rationale": "The successful path must emit the canonical treasury-address transition event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -9137,8 +9080,7 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "PaymentFacet.TreasuryAddressUpdated",
-          "PaymentFacet.UnionTreasuryAddressUpdated"
+          "PaymentFacet.TreasuryAddressUpdated"
         ],
         "projections": [
           "payment_flows:ledger"
@@ -9151,16 +9093,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.updateUnionTreasuryAddress."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.updateUnionTreasuryAddress."
         },
         {
           "kind": "argument",
