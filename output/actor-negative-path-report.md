@@ -7,7 +7,7 @@ Generated: 2026-09-09T13:02:41.208Z
 - HTTP write domains: 13
 - Actor/method cases: 1813
 - API boundary cases: 777
-- Stale/revoked/expired role cases: 3171
+- Stale/revoked/expired role cases: 3150
 
 Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
 

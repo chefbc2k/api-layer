@@ -47,6 +47,29 @@
 
 ### Changed
 
+- **Marketplace Write Gaps Closed:** Added explicit read-only-key rejection coverage for `MarketplaceFacet.cancelListing`, `MarketplaceFacet.updateListingPrice`, and `MarketplaceFacet.unpause`, while retaining their existing workflow, receipt, readback, decoded-event, and local-fork PostgreSQL evidence.
+- **Marketplace Event Projections Are Explicit:** Added generated-registry decode and `market_listings` projection assertions for `MarketplaceFacet.ListingCancelled`, `MarketplaceFacet.ListingPriceUpdated`, and `MarketplaceFacet.MarketplaceUnpaused`. The regenerated gap report advances from `236` to `242` ready items, reduces fixture gaps from `222` to `219`, and reduces indexer gaps from `201` to `198`.
+
+### Verified
+
+- **Receipt-To-PostgreSQL Evidence Passed:** The current loopback artifact remains `proven working` with `148` indexed receipts across `73/260` write methods, `225` raw events, and `137` projection rows. The three selected Marketplace receipts succeeded, decoded their declared events, wrote one `market_listings` row each, and remained byte-for-byte stable after replay.
+- **All Gates Passed; Section Remains Blocked:** Focused API/workflow/indexer tests, `5/5` gap-report tests, `60/60` active indexer assurance tests, `4/4` disposable PostgreSQL tests, TypeScript, lint, build, coverage inventory, all `1,338` active repository tests, and measured coverage passed. The branch was not merged because `187` writes still lack complete real-receipt proof; `VoiceAssetFacet.registerVoiceAssetForCaller` remains unreachable through its required diamond self-call.
+
+## [0.1.344] - 2026-09-07
+
+### Changed
+
+- **Eventless Access-Control Receipts Now Reach The Production Indexer:** A fresh cold loopback run ingested successful receipts for `AccessControlFacet.setDefaultValidityPeriod` and `AccessControlFacet.setMinValidations`. Both receipts correctly contained zero logs, matched their generated-registry `none` event expectations, required no projection table, and completed with no receipt failures.
+- **Real Receipt Coverage Increased To `65/260` Writes:** The event-indexer artifact now contains `140` indexed workflow receipts across `65` distinct write methods, `213` canonical raw events, and `137` projection rows. Replay preserved `raw_events` and every projection-table count exactly, while the remaining `195` methods stay explicitly unproven rather than inferred from synthetic registry coverage.
+
+### Verified
+
+- **Cold Fork And Failure-Mode Gates Passed:** `pnpm run verify:local-fork -- --continue-on-gap` passed all `10/10` stages on their first attempt, including fixtures, HTTP receipts, lifecycle workflows, marketplace settlement, governance activation/voting, event-indexer ingestion/replay, and the `430/446` exhaustive read/event sweep with the established `16` structured fixture gaps. `pnpm run test:indexer:postgres` passed `4/4`, retaining duplicate-log ingestion, atomic projection rollback, reorg replacement/current-row rebuild, delayed RPC, and partial-range failure coverage.
+- **Focused Registry And Runner Suites Passed:** `pnpm run test:write-invariants` passed `5/5`, `pnpm run test:indexer:assurance` passed `57/57` active tests, and `pnpm run test:local-fork-runner` passed `14/14`.
+- **Quality Gates Passed; Merge Remains Blocked:** TypeScript, lint, build, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.68%` statements, `99.43%` branches, `99.46%` functions, and `99.76%` lines. The branch was not merged because `195` write methods still lack complete receipt-to-PostgreSQL proof, including the unreachable diamond-self-call route `VoiceAssetFacet.registerVoiceAssetForCaller`.
+
+### Changed
+
 - **ABI Gap Evidence Remains Current Without Semantic Drift:** Regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the mounted ABI/API manifests, reviewed surface, protocol tests, and persisted verify artifacts. Timestamp-normalized JSON and Markdown hashes match the prior reports. The inventory remains `33` facets, `492` functions, and `218` event occurrences, with proof attribution at `370` unit, `268` workflow, `4` local-fork, `60` Base Sepolia, `240` negative-path, `147` economic, `20` red-team, and `5` indexer items. Classifications remain `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof.
 
 ### Verified
@@ -115,7 +138,6 @@
 
 - **All Reporter And Repository Gates Passed:** `pnpm run test:gap-report` passed `5/5`; `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped; and the ordered TypeScript, lint, and build sequence passed without fixes.
 - **Surface And Measured Coverage Stayed Green:** Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines. Only the two persisted report timestamps changed, and transient reviewed-surface timestamp churn was restored.
-
 ## [0.1.340] - 2026-09-04
 
 ### Changed
@@ -262,7 +284,6 @@
 - **Fresh Cold Proof Passed All Nine Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started an isolated loopback Base Sepolia fork and passed every inventory, fixture, HTTP, lifecycle, marketplace, governance, and exhaustive-read stage. The HTTP contract suite passed `18/18`; all five actors were funded, buyer USDC balance/allowance reached `4000/4000`, governance was ready, and listing token `11` was relisted and aged by `86,401` seconds.
 - **Persisted Transaction, Event, State, And Gap Evidence Stayed Deterministic:** Marketplace recorded pre-state, transaction, successful receipt, decoded purchase/payment/release events, settlement deltas, and post-state, including buyer balance and allowance changes from `4000/4000` to `3000/3000`. Governance recorded proposal `43` activation and voting. The exhaustive sweep passed `430/446` reviewed read/event probes and emitted exactly `16` `needs fixture` gaps with zero runner failures; both live-network acknowledgements remained `false`.
 - **All Focused, Quality, And Coverage Gates Passed:** The focused RPC-helper, runner, and marketplace suites passed `32/32`. The ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.98%` statements, `99.84%` branches, `100%` functions, and `99.98%` lines; transient reviewed-surface timestamp churn was restored.
-
 ## [0.1.325] - 2026-09-01
 
 ### Changed
@@ -441,6 +462,38 @@
 - **All Merge Gates Passed:** The ordered TypeScript, lint, and build sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` gates reported `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
 - **Persistent Reporting Stayed Stable:** `pnpm run report:test-gaps` refreshed only report timestamps; proof classifications remain `223` ready, `223` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team attribution on `29` ABI items. Transient reviewed-surface timestamp churn was restored.
 
+## [Event/indexer workstream] - 2026-08-28
+
+### Added
+
+- **Generated Event-To-Indexer Assurance Covers Every Write Declaration:** The indexer assurance suite synthesizes all `214` generated event-registry entries and binds all `260` write invariants to `285` declared event expectations, `149` projection references, and `28` intentionally eventless writes.
+- **Real Workflow Receipts Feed Disposable PostgreSQL:** The local-fork runner includes an `event-indexer-proof` stage that discovers workflow transaction hashes, attributes successful diamond writes through the generated selector registry, ingests their exact blocks with the production indexer, verifies declared events and projections, and checks replay idempotency across `raw_events` and all `22` projection tables.
+- **HTTP Contract Receipts Now Reach The Indexer Gate:** The fixture-backed HTTP contract stage persists every successful receipt-confirmed transaction hash, and the indexer stage consumes that artifact alongside the lifecycle reports instead of discarding those real writes between stages.
+- **Reversible Configuration Writes Expand Receipt Coverage:** The HTTP contract proof now mutates, reads back, and restores marketplace pause state, voice-asset default royalty, default platform fee, registration pause, and the dataset maximum-assets setting, providing six additional distinct write methods and ten additional receipts to the indexer stage.
+- **Marketplace And Voice Lifecycle Receipts Add Seven Writes:** The HTTP proof advances through the marketplace's five-block repricing cooldown and requires the repricing receipt, state readback, and event query. A disposable voice asset now proves usage recording, lock/unlock, approval, and both safe-transfer overloads with receipt and ownership/state assertions.
+- **Voice Metadata Receipts Add Four Writes:** A disposable fork-only voice asset now proves complete classification replacement, category-specific replacement with indexed search readback, geographic metadata with canonical struct readback, and analysis-version transition emission.
+- **Disposable PostgreSQL And Resilience Gates Are Repeatable:** `pnpm run test:indexer:postgres` applies all migrations twice and verifies duplicate replay, atomic raw/projection rollback, reorg orphaning, current-row rebuild, delayed RPC handling, partial-range failure, and canonical block replacement against real constraints.
+
+### Fixed
+
+- **Ambiguous Diamond Events Fail Closed:** Identical event topics are resolved only when the outer write selector or an optional nested call trace identifies exactly one generated invariant candidate; otherwise all candidates remain raw evidence and unsafe projection is skipped.
+- **Indexer Ranges Commit Atomically And Reorgs Resume From The Rewound Cursor:** Raw logs, projections, block-journal rows, and checkpoint advancement now share one transaction, while deep-reorg recovery finds a common canonical ancestor and resumes without skipping replacement blocks.
+- **Eventless Dataset Limit Writes No Longer Claim Fabricated Logs:** Source review confirmed `VoiceDatasetFacet.setMaxAssetsPerDataset` emits no ABI event. Its reviewed invariant now requires the receipt plus canonical readback and forbids a projection; `MarketplaceFacet.unpause` now also reads back `isPaused == false` instead of an unrelated listing.
+- **Self-Call-Only Registration Is Classified Correctly:** `VoiceAssetFacet.registerVoiceAssetForCaller` now declares a diamond self-call actor instead of a voice-admin/operator role after the mounted HTTP route deterministically reverted with `Only facets via diamond can call` and contract-source review found no internal caller.
+- **Analysis-Version Proof No Longer Claims An Unrelated Readback:** `VoiceMetadataFacet.setAnalysisVersion` now records that the deployed ABI exposes no current-version getter and treats its successful receipt plus `AnalysisVersionUpdated` event as authoritative, instead of pointing at geographic metadata.
+
+### Verified
+
+- **Production Call-Tracer Capability Is Persisted:** Added `pnpm run proof:indexer:trace-capability` and [`output/indexer-trace-capability.json`](/Users/chef/Public/api-layer-event-indexer-proof/output/indexer-trace-capability.json). The credential-safe probe selected the runtime's Base Sepolia public fallback, confirmed chain `84532`, found a recent successful transaction, and received an object result from `debug_traceTransaction` with `callTracer`.
+- **Cumulative Receipt Coverage Increased To `60/260`:** The latest cold artifact passed with `133` receipts across `60` distinct methods, `203` decoded raw events, `137` projection rows, and idempotent replay across all `23` tracked table counts. `VoiceMetadataFacet.setAnalysisVersion` matched its generated-registry event declaration with zero receipt failures.
+- **Clean Orchestrator Passed All `10/10` Stages:** Fixture provisioning, the expanded HTTP contract stage, lifecycle workflows, marketplace settlement, governance activation/voting, event-indexer ingestion, and the exhaustive sweep all passed on their first attempt. The final report contains only the established `16` structured fixture/read gaps.
+- **Indexer, PostgreSQL, And Quality Gates Pass:** `pnpm run test:write-invariants` passes `5/5`, `pnpm run test:indexer:assurance` passes `57/57` active tests, `pnpm run test:indexer:postgres` passes `4/4`, `pnpm run test:local-fork-runner` passes `11/11`, and the ordered TypeScript, lint, and build gates pass. The explicit surface gate remains complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Contract-Only Actor Evidence Is Aligned:** The regenerated actor report now records `3,150` stale/revoked/expired role-lifecycle cases after removing the unreachable self-call method from the role-gated count; `pnpm run test:actor-negative-paths` passes `100/100`.
+- **Measured Coverage Passes:** `pnpm run test:coverage` passes at `99.70%` statements, `99.45%` branches, `99.54%` functions, and `99.76%` lines.
+
+### Remaining Issues
+
+- **Event/Indexer Proof Is Not Merge-Ready:** Cumulative evidence proves `60/260` catalog writes and leaves `200` without deterministic fork receipts. `VoiceAssetFacet.registerVoiceAssetForCaller` also needs a contract/API decision because its public route cannot satisfy the deployed diamond self-call restriction. No partial merge is permitted.
 ## [0.1.308] - 2026-08-28
 
 ### Changed
@@ -522,7 +575,6 @@
 - **Guarded Fork And Workflow Probes Passed:** `pnpm run redteam:local-fork` passed `136/136` across `9` files. All `5/5` real loopback probes rejected malformed or unknown calldata, replayed value transfer, an unprivileged selector-collision cut with a malicious initializer, emergency/timelock bypasses, and stale fork responses. Emergency, governance/timelock, multisig, duplicate-log, event-decode, and reorg suites also passed; no destructive live-network path was enabled.
 - **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed in one run. Build-time and explicit `pnpm run coverage:check` gates reported `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
 - **Persistent Reporting Stayed Stable:** `pnpm run report:test-gaps` refreshed only report timestamps; proof classifications remain `223` ready, `223` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team attribution on `29` ABI items. Transient reviewed-surface timestamp churn was restored.
-
 ## [0.1.300] - 2026-08-26
 
 ### Changed
@@ -613,7 +665,6 @@
 - **Fresh Local-Fork Proof Passed All Stages:** `pnpm run verify:local-fork -- --continue-on-gap` started a new loopback Base Sepolia fork and passed all `9/9` stages on their first attempts. The HTTP contract suite passed `18/18`; all five lifecycle artifacts report `proven working`; marketplace persisted `5` pre-state/transaction/receipt/event/post-state records; and governance persisted proposal `43` activation plus voting in `3` records.
 - **Fixtures, Gaps, And Safety Stayed Deterministic:** The runner provisioned funded actors, buyer USDC balance/allowance at `4000/4000`, governance readiness, and listing token `11` aged by `86,401` seconds. The exhaustive sweep passed `430/446` reviewed read/event routes with exactly `16` structured `needs fixture` gaps and zero runner failures. Destructive/admin stages remained local-fork-only, with both live acknowledgements `false`.
 - **All Merge Gates Passed:** The ordered TypeScript, lint, and build sequence passed. Build-time code generation and the explicit `pnpm run coverage:check` reported `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
-
 ## [0.1.291] - 2026-08-24
 
 ### Changed
@@ -749,7 +800,6 @@
 - **Focused And Full Authorization Suites Passed:** `pnpm run test:actor-negative-paths` passed `100/100`; `pnpm test` passed all `1,300` active tests across `132` files, with only `23` explicitly gated contract/local-fork tests skipped.
 - **All Merge Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in strict order without fixes. The build-embedded and explicit `pnpm run coverage:check` gates passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - **Measured Coverage Stayed Green:** `pnpm run test:coverage` passed at `99.98%` statements, `99.95%` branches, `100%` functions, and `99.98%` lines. Only the actor-report timestamps were persisted; unrelated reviewed-surface timestamp churn was restored.
-
 ## [0.1.279] - 2026-08-18
 
 ### Verified

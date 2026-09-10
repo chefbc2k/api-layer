@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-08T08:16:33.359Z",
+  "status": "proven working",
+  "rpc": {
+    "endpoint": "https://sepolia.base.org",
+    "source": "base-sepolia-public-fallback",
+    "chainId": 84532
+  },
+  "capability": {
+    "method": "debug_traceTransaction",
+    "tracer": "callTracer",
+    "traceKind": "object"
+  },
+  "evidence": {
+    "txHash": "0x1d6581a9266ce6185ea87563edb9679a6ce5a44bb75693f0e8af7ed7c79f6fed",
+    "blockNumber": 46543552
+  }
+}

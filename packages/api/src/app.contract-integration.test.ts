@@ -1,4 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
 import { afterAll, beforeAll, describe, expect, it, type TestContext } from "vitest";
@@ -8,6 +10,7 @@ import { createApiServer, type ApiServer } from "./app.js";
 import { loadRepoEnv } from "../../client/src/runtime/config.js";
 import {
   AccessControlFacet,
+  DelegationFacet,
   EmergencyFacet,
   GovernorFacet,
   MarketplaceFacet,
@@ -19,6 +22,7 @@ import {
   VoiceLicenseFacet,
   VoiceLicenseTemplateFacet,
   VoiceMetadataFacet,
+  VotingPowerFacet,
   WhisperBlockFacet,
 } from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
@@ -240,6 +244,28 @@ function acousticFeaturesToObject(value: unknown): Record<string, unknown> {
     formants: normalize(tuple[4]),
     harmonicsToNoise: normalize(tuple[5]),
     dynamicRange: normalize(tuple[6]),
+  };
+}
+
+function voiceClassificationsToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    analysisVersion: normalize(tuple[0]),
+    timestamp: normalize(tuple[1]),
+    processingTimeMs: normalize(tuple[2]),
+    componentsRun: normalize(tuple[3]),
+    categories: normalize(tuple[4]),
+  };
+}
+
+function geographicDataToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    latitude: normalize(tuple[0]),
+    longitude: normalize(tuple[1]),
+    region: normalize(tuple[2]),
+    country: normalize(tuple[3]),
+    locality: normalize(tuple[4]),
   };
 }
 
@@ -531,14 +557,16 @@ describeLive("HTTP API contract integration", () => {
   let emergencyWithdrawalFacet: Contract;
   let multisigFacet: Contract;
   let stakingFacet: Contract;
-  let delegationFacet: Contract;
+  let delegationFacet: DelegationFacet;
   let tokenSupplyFacet: Contract;
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
+  let votingPowerFacet: VotingPowerFacet;
   let primaryVoiceHash = "";
   const nativeTransferReserve = ethers.parseEther("0.000001");
   let activeRpcUrl = "";
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
+  const confirmedTransactionHashes = new Set<string>();
 
   async function nativeTransferSpendable(wallet: Wallet) {
     const [balance, feeData] = await Promise.all([
@@ -563,12 +591,14 @@ describeLive("HTTP API contract integration", () => {
         });
         expect(receipt.status).toBe(1);
         expect(receipt.hash ?? receipt.transactionHash).toBe(txHash);
+        confirmedTransactionHashes.add(txHash);
         return txStatus.payload;
       }
 
       const directReceipt = await provider.getTransactionReceipt(txHash);
       if (directReceipt?.status === 1) {
         expect(directReceipt.hash).toBe(txHash);
+        confirmedTransactionHashes.add(txHash);
         return {
           source: "rpc-direct",
           receipt: {
@@ -729,6 +759,18 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "payment-proof-key": {
+        label: "payment-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "delegation-proof-key": {
+        label: "delegation-proof",
+        signerId: "outsider",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "read-key": {
         label: "reader",
         roles: ["read-only"],
@@ -807,10 +849,11 @@ describeLive("HTTP API contract integration", () => {
     emergencyWithdrawalFacet = new Contract(diamondAddress, facetRegistry.EmergencyWithdrawalFacet.abi, provider);
     multisigFacet = new Contract(diamondAddress, facetRegistry.MultiSigFacet.abi, provider);
     stakingFacet = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
-    delegationFacet = new Contract(diamondAddress, facetRegistry.DelegationFacet.abi, provider);
+    delegationFacet = new Contract(diamondAddress, facetRegistry.DelegationFacet.abi, provider) as unknown as DelegationFacet;
     tokenSupplyFacet = new Contract(diamondAddress, facetRegistry.TokenSupplyFacet.abi, provider);
     burnThresholdFacet = new Contract(diamondAddress, facetRegistry.BurnThresholdFacet.abi, provider);
     timewaveGiftFacet = new Contract(diamondAddress, facetRegistry.TimewaveGiftFacet.abi, provider);
+    votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
 
     server = createApiServer({ port: 0 }).listen();
     const address = server.address();
@@ -818,6 +861,17 @@ describeLive("HTTP API contract integration", () => {
   }, 600_000);
 
   afterAll(async () => {
+    const receiptArtifactPath = process.env.API_LAYER_CONTRACT_RECEIPT_ARTIFACT;
+    if (receiptArtifactPath) {
+      const resolvedArtifactPath = path.resolve(receiptArtifactPath);
+      await mkdir(path.dirname(resolvedArtifactPath), { recursive: true });
+      await writeFile(resolvedArtifactPath, `${JSON.stringify({
+        schemaVersion: 1,
+        generatedAt: new Date().toISOString(),
+        status: "proven working",
+        transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
+      }, null, 2)}\n`);
+    }
     server?.close();
     await provider?.destroy();
     if (localForkProcess && localForkProcess.exitCode === null) {
@@ -1650,6 +1704,22 @@ describeLive("HTTP API contract integration", () => {
       expect((eventResponse.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === listTxHash)).toBe(true);
     }
 
+    const listed = await marketplaceFacet.getListing(BigInt(tokenId));
+    const priceUpdateBlock = Number(listed[5]) + 5;
+    if (isLoopbackRpcUrl(activeRpcUrl)) {
+      const currentBlock = await provider.getBlockNumber();
+      if (currentBlock < priceUpdateBlock) {
+        await provider.send("anvil_mine", [ethers.toQuantity(priceUpdateBlock - currentBlock)]);
+      }
+    } else {
+      await waitFor(
+        () => provider.getBlockNumber(),
+        (blockNumber) => blockNumber >= priceUpdateBlock,
+        "marketplace price-update cooldown",
+        { attempts: 90, delayMs: 2_000 },
+      );
+    }
+
     const updatePriceResponse = await apiCall(port, "PATCH", "/v1/marketplace/commands/update-listing-price", {
       apiKey: "licensing-owner-key",
       body: {
@@ -1657,36 +1727,34 @@ describeLive("HTTP API contract integration", () => {
         newPrice: "30000000",
       },
     });
-    if (updatePriceResponse.status === 202) {
-      const updatePriceTxHash = extractTxHash(updatePriceResponse.payload);
-      await expectReceipt(updatePriceTxHash);
+    expect(updatePriceResponse.status).toBe(202);
+    const updatePriceTxHash = extractTxHash(updatePriceResponse.payload);
+    await expectReceipt(updatePriceTxHash);
 
-      await waitFor(
-        () => marketplaceFacet.getListing(BigInt(tokenId)),
-        (value) => (value as any)[2] === 30_000_000n,
-        "contract marketplace listing after price update",
-      );
-      const repricedListingResponse = await apiCall(
-        port,
-        "GET",
-        `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
-        { apiKey: "read-key" },
-      );
-      if (repricedListingResponse.status === 200) {
-        expect(repricedListingResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
-      }
+    await waitFor(
+      () => marketplaceFacet.getListing(BigInt(tokenId)),
+      (value) => (value as any)[2] === 30_000_000n,
+      "contract marketplace listing after price update",
+    );
+    const repricedListingResponse = await apiCall(
+      port,
+      "GET",
+      `/v1/marketplace/queries/get-listing?tokenId=${encodeURIComponent(tokenId)}`,
+      { apiKey: "read-key" },
+    );
+    expect(repricedListingResponse.status).toBe(200);
+    expect(repricedListingResponse.payload).toEqual(listingToObject(await marketplaceFacet.getListing(BigInt(tokenId))));
 
-      const updatePriceReceipt = await provider.getTransactionReceipt(updatePriceTxHash);
-      const priceUpdatedEvents = await apiCall(port, "POST", "/v1/marketplace/events/listing-price-updated/query", {
-        apiKey: "read-key",
-        body: {
-          fromBlock: String(updatePriceReceipt!.blockNumber),
-          toBlock: String(updatePriceReceipt!.blockNumber),
-        },
-      });
-      expect(priceUpdatedEvents.status).toBe(200);
-      expect((priceUpdatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === updatePriceTxHash)).toBe(true);
-    }
+    const updatePriceReceipt = await provider.getTransactionReceipt(updatePriceTxHash);
+    const priceUpdatedEvents = await apiCall(port, "POST", "/v1/marketplace/events/listing-price-updated/query", {
+      apiKey: "read-key",
+      body: {
+        fromBlock: String(updatePriceReceipt!.blockNumber),
+        toBlock: String(updatePriceReceipt!.blockNumber),
+      },
+    });
+    expect(priceUpdatedEvents.status).toBe(200);
+    expect((priceUpdatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === updatePriceTxHash)).toBe(true);
 
     const purchaseAttemptResponse = await apiCall(port, "POST", "/v1/marketplace/commands/purchase-asset", {
       apiKey: "founder-key",
@@ -2066,9 +2134,43 @@ describeLive("HTTP API contract integration", () => {
         "tokenomics consumed allowance",
       );
 
+      const standardApproveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/approve", {
+        body: { spender: outsiderWallet.address, amount: delegatedAmount.toString() },
+      });
+      expect(standardApproveResponse.status).toBe(202);
+      const standardApproveTxHash = extractTxHash(standardApproveResponse.payload);
+      await expectReceipt(standardApproveTxHash);
+      await waitFor(
+        () => tokenSupplyFacet.allowance(founderAddress, outsiderWallet.address),
+        (value) => value === delegatedAmount,
+        "tokenomics standard approval allowance update",
+      );
+
+      const standardTransferFromResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer-from", {
+        apiKey: "outsider-key",
+        body: {
+          from: founderAddress,
+          to: transfereeWallet.address,
+          amount: delegatedAmount.toString(),
+        },
+      });
+      expect(standardTransferFromResponse.status).toBe(202);
+      const standardTransferFromTxHash = extractTxHash(standardTransferFromResponse.payload);
+      await expectReceipt(standardTransferFromTxHash);
+      await waitFor(
+        () => tokenSupplyFacet.balanceOf(transfereeWallet.address),
+        (value) => value === originalTransfereeBalance + (delegatedAmount * 2n),
+        "tokenomics standard transferFrom recipient balance",
+      );
+      await waitFor(
+        () => tokenSupplyFacet.allowance(founderAddress, outsiderWallet.address),
+        (value) => value === 0n,
+        "tokenomics consumed standard allowance",
+      );
+
       const transferBackFromTransfereeResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
         apiKey: "transferee-key",
-        body: { to: founderAddress, amount: delegatedAmount.toString() },
+        body: { to: founderAddress, amount: (delegatedAmount * 2n).toString() },
       });
       expect(transferBackFromTransfereeResponse.status).toBe(202);
       await expectReceipt(extractTxHash(transferBackFromTransfereeResponse.payload));
@@ -4037,6 +4139,746 @@ describeLive("HTTP API contract integration", () => {
       },
     });
   }, 120_000);
+
+  it("proves usage, lock, approval, and both safe-transfer write paths for a disposable voice asset", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "voice asset receipt expansion", [
+      { address: licensingOwnerAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00002") },
+    ])) {
+      return;
+    }
+
+    const submit = async (
+      apiKey: string,
+      method: string,
+      route: string,
+      body: Record<string, unknown> = {},
+    ) => {
+      const response = await apiCall(port, method, route, { apiKey, body });
+      expect(response.status).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const createResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "licensing-owner-key",
+      body: {
+        ipfsHash: `QmIndexerVoiceLifecycle${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        royaltyRate: "225",
+      },
+    });
+    expect(createResponse.status).toBe(202);
+    const voiceHash = String((createResponse.payload as Record<string, unknown>).result);
+    await expectReceipt(extractTxHash(createResponse.payload));
+    const tokenId = await waitFor(
+      () => voiceAsset.getTokenId(voiceHash),
+      (value) => value > 0n,
+      "voice asset token for receipt expansion",
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+
+    const usageRef = id(`indexer-voice-usage-${voiceHash}-${Date.now()}`);
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/usage-records`,
+      { usageRef },
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[4]).toBe(1n);
+
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/lock`,
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[3]).toBe(true);
+
+    await submit(
+      "licensing-owner-key",
+      "POST",
+      `/v1/voice-assets/${encodeURIComponent(voiceHash)}/unlock`,
+    );
+    expect((await voiceAsset.getVoiceAsset(voiceHash))[3]).toBe(false);
+
+    await submit("licensing-owner-key", "POST", "/v1/voice-assets/commands/approve-voice-asset", {
+      to: transfereeWallet.address,
+      tokenId: tokenId.toString(),
+    });
+    expect(await voiceAsset.getApproved(tokenId)).toBe(transfereeWallet.address);
+
+    await submit(
+      "transferee-key",
+      "POST",
+      `/v1/voice-assets/tokens/${tokenId.toString()}/transfers/safe`,
+      { from: licensingOwnerAddress, to: transfereeWallet.address },
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(transfereeWallet.address);
+
+    await submit(
+      "transferee-key",
+      "POST",
+      `/v1/voice-assets/tokens/${tokenId.toString()}/transfers/safe-with-data`,
+      { from: transfereeWallet.address, to: licensingOwnerAddress, data: "0x1234" },
+    );
+    expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+  }, 180_000);
+
+  it("proves classification and geographic metadata receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "voice metadata receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00003") },
+    ])) {
+      return;
+    }
+
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return response.payload as Record<string, unknown>;
+    };
+    const proofId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const voiceRegistration = await submit("POST", "/v1/voice-assets", {
+      ipfsHash: `QmIndexerMetadata${proofId}`,
+      royaltyRate: "175",
+    });
+    const metadataVoiceHash = String(voiceRegistration.result);
+    expect(metadataVoiceHash).toEqual(expect.stringMatching(/^0x[a-fA-F0-9]{64}$/u));
+
+    const category = `indexer-${proofId}`;
+    const initialClassification = {
+      name: `initial-${proofId}`,
+      score: "925",
+      category,
+      level: "high",
+      metadata: JSON.stringify({ proof: "complete" }),
+    };
+    const latestBlock = await provider.getBlock("latest");
+    const classifications = {
+      analysisVersion: `indexer-proof-${proofId}`,
+      timestamp: String(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000)),
+      processingTimeMs: "37",
+      componentsRun: ["classification-proof"],
+      categories: [category],
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-voice-classifications", {
+      voiceHash: metadataVoiceHash,
+      classifications,
+      categoryData: [{ category, classifications: [initialClassification] }],
+    });
+    const storedClassifications = await voiceMetadata.getVoiceClassifications(metadataVoiceHash);
+    expect(voiceClassificationsToObject(storedClassifications)).toEqual(classifications);
+
+    const replacementClassification = {
+      name: `replacement-${proofId}`,
+      score: "975",
+      category,
+      level: "high",
+      metadata: JSON.stringify({ proof: "category" }),
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-classification-category", {
+      voiceHash: metadataVoiceHash,
+      category,
+      classifications: [replacementClassification],
+    });
+    expect(await voiceMetadata.searchVoicesByClassification(
+      replacementClassification.name,
+      category,
+      replacementClassification.level,
+      900n,
+    )).toContain(metadataVoiceHash);
+
+    const geographic = {
+      latitude: "41881300",
+      longitude: "-87629700",
+      region: "Midwest",
+      country: "US",
+      locality: `Chicago-${proofId.slice(-8)}`,
+    };
+    await submit("PATCH", "/v1/voice-assets/commands/update-geographic-data", {
+      voiceHash: metadataVoiceHash,
+      geographic,
+    });
+    expect(geographicDataToObject(await voiceMetadata.getGeographicData(metadataVoiceHash))).toEqual(geographic);
+
+    const analysisVersion = `indexer-analysis-${proofId}`;
+    const analysisVersionResponse = await apiCall(
+      port,
+      "PATCH",
+      "/v1/voice-assets/commands/set-analysis-version",
+      { body: { version: analysisVersion } },
+    );
+    expect(analysisVersionResponse.status, JSON.stringify(analysisVersionResponse.payload)).toBe(202);
+    const analysisVersionTxHash = extractTxHash(analysisVersionResponse.payload);
+    await expectReceipt(analysisVersionTxHash);
+    const analysisVersionReceipt = await provider.getTransactionReceipt(analysisVersionTxHash);
+    expect(analysisVersionReceipt).not.toBeNull();
+    const analysisVersionEvent = analysisVersionReceipt!.logs
+      .map((log) => {
+        try {
+          return voiceMetadata.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((log) => log?.name === "AnalysisVersionUpdated");
+    expect(analysisVersionEvent?.args[1]).toBe(analysisVersion);
+  }, 180_000);
+
+  it("proves reversible marketplace, voice, and dataset configuration writes through HTTP", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "reversible configuration writes", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (method: string, route: string, body: Record<string, unknown> = {}) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const originalRoyaltyRate = await voiceAsset.getDefaultRoyaltyRate();
+    const targetRoyaltyRate = originalRoyaltyRate === 10_000n ? 9_999n : originalRoyaltyRate + 1n;
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-royalty-rate", {
+      rate: targetRoyaltyRate.toString(),
+    });
+    expect(await voiceAsset.getDefaultRoyaltyRate()).toBe(targetRoyaltyRate);
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-royalty-rate", {
+      rate: originalRoyaltyRate.toString(),
+    });
+    expect(await voiceAsset.getDefaultRoyaltyRate()).toBe(originalRoyaltyRate);
+
+    const originalPlatformFee = await voiceAsset.getDefaultPlatformFee();
+    const targetPlatformFee = originalPlatformFee === 10_000n ? 9_999n : originalPlatformFee + 1n;
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-platform-fee", {
+      fee: targetPlatformFee.toString(),
+    });
+    expect(await voiceAsset.getDefaultPlatformFee()).toBe(targetPlatformFee);
+    await submit("PATCH", "/v1/voice-assets/commands/set-default-platform-fee", {
+      fee: originalPlatformFee.toString(),
+    });
+    expect(await voiceAsset.getDefaultPlatformFee()).toBe(originalPlatformFee);
+
+    const registrationWasPaused = await voiceAsset.isRegistrationPaused();
+    await submit("PATCH", "/v1/voice-assets/commands/set-registration-paused", {
+      paused: !registrationWasPaused,
+    });
+    expect(await voiceAsset.isRegistrationPaused()).toBe(!registrationWasPaused);
+    await submit("PATCH", "/v1/voice-assets/commands/set-registration-paused", {
+      paused: registrationWasPaused,
+    });
+    expect(await voiceAsset.isRegistrationPaused()).toBe(registrationWasPaused);
+
+    const originalMaxAssets = await voiceDataset.getMaxAssetsPerDataset();
+    const targetMaxAssets = originalMaxAssets === 1n ? 2n : originalMaxAssets - 1n;
+    await submit("PATCH", "/v1/datasets/commands/set-max-assets-per-dataset", {
+      maxAssets: targetMaxAssets.toString(),
+    });
+    expect(await voiceDataset.getMaxAssetsPerDataset()).toBe(targetMaxAssets);
+    await submit("PATCH", "/v1/datasets/commands/set-max-assets-per-dataset", {
+      maxAssets: originalMaxAssets.toString(),
+    });
+    expect(await voiceDataset.getMaxAssetsPerDataset()).toBe(originalMaxAssets);
+
+    const marketplaceWasPaused = await marketplaceFacet.isPaused();
+    const firstMarketplaceRoute = marketplaceWasPaused ? "unpause" : "pause";
+    const secondMarketplaceRoute = marketplaceWasPaused ? "pause" : "unpause";
+    await submit("POST", `/v1/marketplace/commands/${firstMarketplaceRoute}`);
+    expect(await marketplaceFacet.isPaused()).toBe(!marketplaceWasPaused);
+    await submit("POST", `/v1/marketplace/commands/${secondMarketplaceRoute}`);
+    expect(await marketplaceFacet.isPaused()).toBe(marketplaceWasPaused);
+  }, 120_000);
+
+  it("proves reversible payment configuration receipts through HTTP", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "payment configuration receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0002") },
+    ])) {
+      return;
+    }
+
+    const feeManagerRole = id("FEE_MANAGER_ROLE");
+    const governanceRole = id("GOVERNANCE_ROLE");
+    const emergencyAdminRole = id("EMERGENCY_ADMIN_ROLE");
+    expect(await accessControl.hasRole(feeManagerRole, founderAddress)).toBe(true);
+    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    expect(await accessControl.hasRole(emergencyAdminRole, founderAddress)).toBe(true);
+
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { apiKey: "payment-proof-key", body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const originalPaymentPaused = await paymentFacet.paymentPaused();
+    await submit("PATCH", "/v1/marketplace/commands/set-payment-paused", {
+      paused: !originalPaymentPaused,
+    });
+    expect(await paymentFacet.paymentPaused()).toBe(!originalPaymentPaused);
+    await submit("PATCH", "/v1/marketplace/commands/set-payment-paused", {
+      paused: originalPaymentPaused,
+    });
+    expect(await paymentFacet.paymentPaused()).toBe(originalPaymentPaused);
+
+    const originalBuybackStatus = await paymentFacet.getBuybackStatus();
+    const originalBuybackPaused = Boolean(originalBuybackStatus[9]);
+    await submit("POST", "/v1/marketplace/commands/pause-buybacks", {
+      paused: !originalBuybackPaused,
+    });
+    expect(Boolean((await paymentFacet.getBuybackStatus())[9])).toBe(!originalBuybackPaused);
+    await submit("POST", "/v1/marketplace/commands/pause-buybacks", {
+      paused: originalBuybackPaused,
+    });
+    expect(Boolean((await paymentFacet.getBuybackStatus())[9])).toBe(originalBuybackPaused);
+
+    const originalTreasury = await paymentFacet.getTreasuryAddress();
+    await submit("PATCH", "/v1/marketplace/commands/update-treasury-address", {
+      newTreasury: outsiderWallet.address,
+    });
+    expect(await paymentFacet.getTreasuryAddress()).toBe(outsiderWallet.address);
+    await submit("PATCH", "/v1/marketplace/commands/update-treasury-address", {
+      newTreasury: originalTreasury,
+    });
+    expect(await paymentFacet.getTreasuryAddress()).toBe(originalTreasury);
+
+    const originalDevFund = await paymentFacet.getDevFundAddress();
+    await submit("PATCH", "/v1/marketplace/commands/update-dev-fund-address", {
+      newDevFund: licenseeWallet.address,
+    });
+    expect(await paymentFacet.getDevFundAddress()).toBe(licenseeWallet.address);
+    await submit("PATCH", "/v1/marketplace/commands/update-dev-fund-address", {
+      newDevFund: originalDevFund,
+    });
+    expect(await paymentFacet.getDevFundAddress()).toBe(originalDevFund);
+
+    const originalUnionTreasury = await paymentFacet.getUnionTreasuryAddress();
+    await submit("PATCH", "/v1/marketplace/commands/update-union-treasury-address", {
+      newUnionTreasury: transfereeWallet.address,
+    });
+    expect(await paymentFacet.getUnionTreasuryAddress()).toBe(transfereeWallet.address);
+    await submit("PATCH", "/v1/marketplace/commands/update-union-treasury-address", {
+      newUnionTreasury: originalUnionTreasury,
+    });
+    expect(await paymentFacet.getUnionTreasuryAddress()).toBe(originalUnionTreasury);
+
+    const originalFeeConfig = await paymentFacet.getFeeConfiguration();
+    const temporaryFeeConfig = {
+      platformFee: "200",
+      referralFee: "0",
+      unionShare: "100",
+      devFund: "50",
+      timewaveGift: "50",
+      milestonePool: "0",
+    };
+    await submit("PATCH", "/v1/marketplace/commands/update-fee-configuration", temporaryFeeConfig);
+    expect(feeConfigToObject(await paymentFacet.getFeeConfiguration())).toEqual({
+      platformFee: "200",
+      unionShare: "100",
+      devFund: "50",
+      timewaveGift: "50",
+      referralFee: "0",
+      milestonePool: "0",
+    });
+    await submit("PATCH", "/v1/marketplace/commands/update-fee-configuration", {
+      platformFee: originalFeeConfig[0].toString(),
+      referralFee: originalFeeConfig[4].toString(),
+      unionShare: originalFeeConfig[1].toString(),
+      devFund: originalFeeConfig[2].toString(),
+      timewaveGift: originalFeeConfig[3].toString(),
+      milestonePool: originalFeeConfig[5].toString(),
+    });
+    expect(feeConfigToObject(await paymentFacet.getFeeConfiguration())).toEqual(feeConfigToObject(originalFeeConfig));
+
+    const originalWithdrawalLimit = await paymentFacet.getTreasuryWithdrawalLimit();
+    await submit("PATCH", "/v1/marketplace/commands/set-treasury-withdrawal-limit", {
+      limit: "1234567",
+      window: "7200",
+      cooldown: "300",
+    });
+    const temporaryWithdrawalLimit = await paymentFacet.getTreasuryWithdrawalLimit();
+    expect(temporaryWithdrawalLimit[0]).toBe(1_234_567n);
+    expect(temporaryWithdrawalLimit[1]).toBe(7_200n);
+    expect(temporaryWithdrawalLimit[2]).toBe(300n);
+    await submit("PATCH", "/v1/marketplace/commands/set-treasury-withdrawal-limit", {
+      limit: originalWithdrawalLimit[0].toString(),
+      window: originalWithdrawalLimit[1].toString(),
+      cooldown: originalWithdrawalLimit[2].toString(),
+    });
+    const restoredWithdrawalLimit = await paymentFacet.getTreasuryWithdrawalLimit();
+    expect(restoredWithdrawalLimit[0]).toBe(originalWithdrawalLimit[0]);
+    expect(restoredWithdrawalLimit[1]).toBe(originalWithdrawalLimit[1]);
+    expect(restoredWithdrawalLimit[2]).toBe(originalWithdrawalLimit[2]);
+  }, 180_000);
+
+  it("proves voting-power setup, lock, and checkpoint receipts through HTTP", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "voting-power receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000003") },
+    ])) {
+      return;
+    }
+
+    const submit = async (route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, "PATCH", route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      const eventNames = receipt!.logs.flatMap((log) => {
+        try {
+          return [votingPowerFacet.interface.parseLog(log)?.name].filter((name): name is string => Boolean(name));
+        } catch {
+          return [];
+        }
+      });
+      return { txHash, eventNames };
+    };
+
+    const setupAccount = outsiderWallet.address;
+    const fundedAccount = founderAddress;
+
+    const initial = await submit("/v1/staking/commands/setup-initial-voting-power", {
+      account: setupAccount,
+      votingPower: "777",
+    });
+    expect(initial.eventNames).toContain("VotingPowerUpdated");
+    expect(await votingPowerFacet.getVotingPower(setupAccount)).toBe(777n);
+
+    const maxLock = await submit("/v1/staking/commands/set-max-lock-duration", {
+      maxDuration: "7200",
+    });
+    expect(maxLock.eventNames).toContain("MaxLockDurationUpdated");
+
+    const locked = await submit("/v1/staking/commands/update-lock-duration", {
+      account: fundedAccount,
+      duration: "3600",
+    });
+    expect(locked.eventNames).toEqual(expect.arrayContaining(["LockDurationUpdated", "VotingPowerUpdated"]));
+    expect(await votingPowerFacet.getLockDuration(fundedAccount)).toBe(3600n);
+
+    const unlocked = await submit("/v1/staking/commands/set-zero-lock-duration", {
+      account: fundedAccount,
+    });
+    expect(unlocked.eventNames).toEqual(expect.arrayContaining(["LockDurationUpdated", "VotingPowerUpdated"]));
+    expect(await votingPowerFacet.getLockDuration(fundedAccount)).toBe(0n);
+
+    const refreshed = await submit("/v1/staking/commands/update-voting-power", {
+      account: fundedAccount,
+    });
+    expect(refreshed.eventNames).toContain("VotingPowerUpdated");
+    expect(await votingPowerFacet.getVotingPower(fundedAccount)).toBeGreaterThan(0n);
+
+    const batch = await submit("/v1/staking/commands/update-voting-power-batch", {
+      accounts: [fundedAccount],
+    });
+    expect(batch.eventNames.filter((name) => name === "VotingPowerUpdated")).toHaveLength(1);
+    expect(await votingPowerFacet.getVotingPower(fundedAccount)).toBeGreaterThan(0n);
+
+    const delegateVotesBefore = await delegationFacet.getCurrentVotes(transfereeWallet.address);
+    const delegateResponse = await apiCall(port, "POST", "/v1/staking/commands/delegate", {
+      apiKey: "delegation-proof-key",
+      body: { delegatee: transfereeWallet.address },
+    });
+    expect(delegateResponse.status, JSON.stringify(delegateResponse.payload)).toBe(202);
+    const delegateTxHash = extractTxHash(delegateResponse.payload);
+    await expectReceipt(delegateTxHash);
+    const delegateReceipt = await provider.getTransactionReceipt(delegateTxHash);
+    expect(delegateReceipt).not.toBeNull();
+    const delegationEventNames = delegateReceipt!.logs.flatMap((log) => {
+      try {
+        return [delegationFacet.interface.parseLog(log)?.name].filter((name): name is string => Boolean(name));
+      } catch {
+        return [];
+      }
+    });
+    expect(delegationEventNames).toEqual(expect.arrayContaining(["DelegateChanged", "VotingPowerUpdated"]));
+    expect(await delegationFacet.delegates(outsiderWallet.address)).toBe(transfereeWallet.address);
+    expect(await delegationFacet.getCurrentVotes(transfereeWallet.address)).toBeGreaterThan(delegateVotesBefore);
+  }, 120_000);
+
+  it("proves disposable access-control configuration, eventless globals, and self-renunciation receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "access-control receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00005") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.00001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (
+      apiKey: string,
+      method: string,
+      route: string,
+      body: Record<string, unknown>,
+    ) => {
+      const response = await apiCall(port, method, route, { apiKey, body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const proofRole = id(`INDEXER_RECEIPT_ROLE_${Date.now()}_${Math.random().toString(16).slice(2)}`);
+    const founderRole = id("FOUNDER_ROLE");
+    const ownerRole = id("OWNER_ROLE");
+    const roleConfig = {
+      memberLimit: "2",
+      validityPeriod: "0",
+      minMemberLimit: "0",
+      quorumBps: "0",
+      absoluteMinQuorum: "0",
+      adminRole: founderRole,
+      restricted: false,
+      revocable: true,
+      requiresApproval: false,
+      recoveryActive: false,
+    };
+
+    const configureTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/configure-role",
+      { role: proofRole, config: roleConfig },
+    );
+    expect(roleConfigToObject(await accessControl.getRoleConfig(proofRole))).toEqual(roleConfig);
+
+    const configureReceipt = await provider.getTransactionReceipt(configureTxHash);
+    expect(configureReceipt).not.toBeNull();
+    expect(configureReceipt!.logs.some((log) => {
+      try {
+        return accessControl.interface.parseLog(log)?.name === "RoleConfigUpdated";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+
+    const defaultValidityTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-default-validity-period",
+      { period: "86400" },
+    );
+    const defaultValidityReceipt = await provider.getTransactionReceipt(defaultValidityTxHash);
+    expect(defaultValidityReceipt).not.toBeNull();
+    expect(defaultValidityReceipt!.logs).toHaveLength(0);
+
+    const minValidationsTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-min-validations",
+      { validations: "1" },
+    );
+    const minValidationsReceipt = await provider.getTransactionReceipt(minValidationsTxHash);
+    expect(minValidationsReceipt).not.toBeNull();
+    expect(minValidationsReceipt!.logs).toHaveLength(0);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-role-admin",
+      { role: proofRole, adminRole: ownerRole },
+    );
+    expect(await accessControl.getRoleAdmin(proofRole)).toBe(ownerRole);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/set-role-admin",
+      { role: proofRole, adminRole: founderRole },
+    );
+    expect(await accessControl.getRoleAdmin(proofRole)).toBe(founderRole);
+
+    await submit(
+      "founder-key",
+      "POST",
+      "/v1/access-control/admin/grant-role",
+      { role: proofRole, account: licenseeWallet.address, expiryTime: "0" },
+    );
+    expect(await accessControl.hasRole(proofRole, licenseeWallet.address)).toBe(true);
+
+    const renounceTxHash = await submit(
+      "licensee-key",
+      "DELETE",
+      "/v1/access-control/commands/renounce-role",
+      { role: proofRole },
+    );
+    expect(await accessControl.hasRole(proofRole, licenseeWallet.address)).toBe(false);
+
+    const renounceReceipt = await provider.getTransactionReceipt(renounceTxHash);
+    expect(renounceReceipt).not.toBeNull();
+    expect(renounceReceipt!.logs.some((log) => {
+      try {
+        return accessControl.interface.parseLog(log)?.name === "RoleRenounced";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+  }, 120_000);
+
+  it("proves the emergency incident, containment, scheduled-resume, and immediate-resume receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "emergency receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00008") },
+    ])) {
+      return;
+    }
+
+    expect(await emergencyFacet.getEmergencyState()).toBe(0n);
+    const latestBlock = await provider.getBlock("latest");
+    expect(latestBlock).not.toBeNull();
+    const emergencyTimeout = await emergencyFacet.getEmergencyTimeout();
+    const resumeAfter = BigInt(latestBlock!.timestamp) + 120n;
+    const pausedUntil = BigInt(latestBlock!.timestamp) + emergencyTimeout + 3_600n;
+    const assetId = BigInt(Date.now() % 1_000_000_000) + 1_000_000_000n;
+
+    const workflowResponse = await apiCall(port, "POST", "/v1/workflows/trigger-emergency", {
+      body: {
+        emergency: {
+          useEmergencyStop: false,
+          state: "PAUSED",
+          reason: "local-fork indexer containment proof",
+        },
+        incident: {
+          report: {
+            incidentType: "SYSTEM_FAILURE",
+            description: "local-fork indexer incident proof",
+          },
+          responseActions: ["PAUSE_TRADING"],
+        },
+        freezeAssets: {
+          assetIds: [assetId.toString()],
+          reason: "local-fork indexer asset-freeze proof",
+        },
+        pauseControl: {
+          extendPausedUntil: pausedUntil.toString(),
+          scheduleResumeAfter: resumeAfter.toString(),
+        },
+      },
+    });
+    expect(workflowResponse.status, JSON.stringify(workflowResponse.payload)).toBe(202);
+    const workflow = workflowResponse.payload as Record<string, unknown>;
+    const incident = workflow.incident as Record<string, unknown>;
+    const report = incident.report as Record<string, unknown>;
+    const emergency = workflow.emergency as Record<string, unknown>;
+    const transition = emergency.transition as Record<string, unknown>;
+    const response = workflow.response as Record<string, unknown>;
+    const assetFreeze = workflow.assetFreeze as Record<string, unknown>;
+    const pauseControl = workflow.pauseControl as Record<string, unknown>;
+    const extendPause = pauseControl.extendPause as Record<string, unknown>;
+    const scheduleResume = pauseControl.scheduleResume as Record<string, unknown>;
+
+    const expectedWorkflowEvents = [
+      [report.txHash, "IncidentReported"],
+      [transition.txHash, "EmergencyStateChanged"],
+      [response.txHash, "ResponseExecuted"],
+      [assetFreeze.txHash, "AssetsFrozen"],
+      [extendPause.txHash, "PauseExtended"],
+      [scheduleResume.txHash, "EmergencyResumeScheduled"],
+    ] as const;
+    for (const [candidate, eventName] of expectedWorkflowEvents) {
+      const txHash = String(candidate);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      expect(receipt!.logs.some((log) => {
+        try {
+          return emergencyFacet.interface.parseLog(log)?.name === eventName;
+        } catch {
+          return false;
+        }
+      })).toBe(true);
+    }
+    expect(await emergencyFacet.getEmergencyState()).toBe(1n);
+    expect(await emergencyFacet.isAssetFrozen(assetId)).toBe(true);
+    expect(emergencyIncidentToObject(await emergencyFacet.getIncident(String(report.incidentId)))).toMatchObject({
+      id: String(report.incidentId),
+      resolved: false,
+    });
+
+    const afterWorkflowBlock = await provider.getBlock("latest");
+    expect(afterWorkflowBlock).not.toBeNull();
+    const secondsToResume = resumeAfter >= BigInt(afterWorkflowBlock!.timestamp)
+      ? resumeAfter - BigInt(afterWorkflowBlock!.timestamp) + 1n
+      : 1n;
+    await provider.send("evm_increaseTime", [Number(secondsToResume)]);
+    await provider.send("evm_mine", []);
+
+    const submit = async (route: string, body: Record<string, unknown> = {}) => {
+      const result = await apiCall(port, "POST", route, { body });
+      expect(result.status, JSON.stringify(result.payload)).toBe(202);
+      const txHash = extractTxHash(result.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const scheduledResumeTxHash = await submit("/v1/emergency/admin/execute-scheduled-resume");
+    const scheduledResumeReceipt = await provider.getTransactionReceipt(scheduledResumeTxHash);
+    expect(scheduledResumeReceipt).not.toBeNull();
+    expect(scheduledResumeReceipt!.logs.flatMap((log) => {
+      try {
+        return [emergencyFacet.interface.parseLog(log)?.name];
+      } catch {
+        return [];
+      }
+    })).toEqual(expect.arrayContaining(["EmergencyStateChanged", "EmergencyResumeExecuted"]));
+    expect(await emergencyFacet.getEmergencyState()).toBe(0n);
+
+    const unfreezeTxHash = await submit("/v1/emergency/admin/unfreeze-assets", {
+      assetIds: [assetId.toString()],
+    });
+    const unfreezeReceipt = await provider.getTransactionReceipt(unfreezeTxHash);
+    expect(unfreezeReceipt).not.toBeNull();
+    expect(unfreezeReceipt!.logs).toHaveLength(0);
+    expect(await emergencyFacet.isAssetFrozen(assetId)).toBe(false);
+
+    const stopTxHash = await submit("/v1/emergency/admin/emergency-stop");
+    const stopReceipt = await provider.getTransactionReceipt(stopTxHash);
+    expect(stopReceipt).not.toBeNull();
+    expect(stopReceipt!.logs.some((log) => {
+      try {
+        return emergencyFacet.interface.parseLog(log)?.name === "EmergencyStateChanged";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    expect(await emergencyFacet.getEmergencyState()).toBe(1n);
+
+    const immediateResumeTxHash = await submit("/v1/emergency/admin/emergency-resume");
+    const immediateResumeReceipt = await provider.getTransactionReceipt(immediateResumeTxHash);
+    expect(immediateResumeReceipt).not.toBeNull();
+    expect(immediateResumeReceipt!.logs.some((log) => {
+      try {
+        return emergencyFacet.interface.parseLog(log)?.name === "EmergencyStateChanged";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    expect(await emergencyFacet.getEmergencyState()).toBe(0n);
+  }, 180_000);
 
   it("fails correctly for validation, signer, and provider errors", async () => {
     const invalidBody = await apiCall(port, "POST", "/v1/voice-assets", {
