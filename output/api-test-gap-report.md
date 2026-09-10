@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-09T15:08:30.341Z`
+Generated: `2026-09-10T07:17:38.314Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -26,11 +26,11 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 416 |
+| unit | 417 |
 | workflow | 268 |
 | localFork | 85 |
 | baseSepolia | 60 |
-| negativePath | 254 |
+| negativePath | 253 |
 | economic | 160 |
 | redTeam | 21 |
 | indexer | 22 |
@@ -43,7 +43,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 ## AccessControlFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.07/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.05/8`.
 
 ### Functions
 
@@ -91,7 +91,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `AccessControlFacet.RoleAdminChanged` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `AccessControlFacet.RoleConfigUpdated` | yes | — | — | — | adversarial 2/8 | needs indexer proof |
 | `AccessControlFacet.RoleGranted` | yes | — | — | — | unit 1/8 | needs indexer proof |
-| `AccessControlFacet.RoleRenounced` | yes | — | — | — | adversarial 2/8 | needs indexer proof |
+| `AccessControlFacet.RoleRenounced` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `AccessControlFacet.RoleRevoked` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `AccessControlFacet.SecurityAction` | — | — | — | — | inventory 0/8 | needs indexer proof |
 
@@ -266,7 +266,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## EmergencyFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2.7/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2.73/8`.
 
 ### Functions
 
@@ -294,7 +294,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `setResumeDelay` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `startRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `triggerEmergency` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `unfreezeAssets` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
+| `unfreezeAssets` | write | yes | — | — | — | — | — | — | unit 1/8 | unsafe on live network |
 
 ### Events
 

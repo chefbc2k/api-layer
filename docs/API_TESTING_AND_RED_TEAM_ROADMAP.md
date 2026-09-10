@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-10
+
+- Production remains `master`; `origin` reports `master` as its HEAD branch. The initial inventory covered all `17` linked worktrees and found only the primary event/indexer checkout dirty.
+- Before any branch movement, the four dirty files were saved on `codex/autosave-20260910-event-indexer-proof` as commit `ce029f1`: `packages/api/src/app.contract-integration.test.ts`, `packages/indexer/src/event-assurance.test.ts`, `reviewed/reviewed-api-surface.json`, and `reviewed/reviewed-write-invariants.json`.
+- The autosave candidate passed TypeScript, lint, build, coverage generation, and all `1,342` active tests, then landed on production through no-fast-forward merge `4b8ab80`. Its history also consolidates the prior event/indexer autosave and September 9 passenger lineage.
+- Production verification is green: `1,342` active tests passed with `34` gated skips; gap-report tests passed `5/5`; indexer assurance passed `63` active tests; disposable PostgreSQL assurance passed `4/4`; wrapper/event/HTTP coverage remains `492/218/492`; write-invariant coverage remains `260/260`; and measured coverage is `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines.
+- Regenerated gap evidence now classifies `245` items ready, `223` needing fixtures, `46` unsafe on live networks, and `196` needing indexer proof. A fresh Base Sepolia trace proved `debug_traceTransaction` with `callTracer`; the local-fork receipt proof was not runnable because `.runtime/local-fork-proofs` inputs were absent.
+- Ten distinct maximal tips remain conflict-blocked: the unresolved September 9 autosave; four divergent Base Sepolia promotion heads; economic invariants; historical red-team and test-gap heads; the remote layered-domain refactor; and the remote Vitest Dependabot head. No partial merge or conflict resolution was committed.
+
 ## Daily Branch Consolidation — 2026-09-08
 
 - Production remains `master`; `origin` reports `master` as its HEAD branch even though the local `origin/HEAD` symbolic ref is stale.
@@ -16,7 +25,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 
 - ABI/client wrapper coverage is complete for `33` facets, `492` functions, and `218` events.
 - HTTP surface generation is complete for `491` generated endpoints across access control, tokenomics, staking, diamond admin, emergency, marketplace, governance, voice assets, multisig, ownership, licensing, datasets, and WhisperBlock.
-- Standard TypeScript coverage currently reports `99.98%` lines, `99.96%` statements, `99.82%` branches, and `99.92%` functions across the measured API/client/indexer/script surface; the residual merged-Istanbul mappings are confined to already-exercised execution-context, red-team harness, and Alchemy diagnostic lines.
+- Standard TypeScript coverage currently reports `99.76%` lines, `99.70%` statements, `99.41%` branches, and `99.54%` functions across the measured API/client/indexer/script surface; the remaining uncovered lines are concentrated in indexer worker failure paths and indexer proof helpers plus isolated execution-context, setup, red-team, and Alchemy diagnostic branches.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
 

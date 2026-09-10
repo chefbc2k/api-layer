@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-09T15:08:30.341Z",
+  "generatedAt": "2026-09-10T07:17:38.314Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -169,11 +169,11 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 416,
+      "unit": 417,
       "workflow": 268,
       "localFork": 85,
       "baseSepolia": 60,
-      "negativePath": 254,
+      "negativePath": 253,
       "economic": 160,
       "redTeam": 21,
       "indexer": 22
@@ -206,7 +206,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 1.07,
+          "averageScore": 1.05,
           "maximumScore": 8
         }
       },
@@ -2210,14 +2210,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": true,
+            "negativePath": false,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 2,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs indexer proof",
@@ -2230,9 +2230,7 @@
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -7028,7 +7026,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 2.7,
+          "averageScore": 2.73,
           "maximumScore": 8
         }
       },
@@ -7183,6 +7181,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7190,6 +7189,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7241,6 +7241,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7248,6 +7249,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7461,6 +7463,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "workflowTests": [
@@ -7515,12 +7518,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "economicTests": [],
@@ -7569,12 +7574,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "economicTests": [],
@@ -7635,6 +7642,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/inspect-emergency-posture.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
@@ -7710,6 +7718,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/inspect-emergency-posture.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
@@ -8310,7 +8319,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -8320,19 +8329,20 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "unsafe on live network",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -8384,6 +8394,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
@@ -8439,6 +8450,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "workflowTests": [
@@ -8492,6 +8504,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
@@ -8558,6 +8571,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
@@ -8665,6 +8679,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
@@ -8881,6 +8896,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [

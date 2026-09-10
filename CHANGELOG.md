@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.352] - 2026-09-10
+
+### Changed
+
+- **Daily Consolidation Preserved And Landed Event/Indexer Work:** Saved the dirty `codex/event-indexer-proof-20260909` checkout as `codex/autosave-20260910-event-indexer-proof` commit `ce029f1`, preserving changes to the API contract suite, indexer assurance suite, reviewed API surface, and write-invariant catalog. After the candidate passed its merge gates, merged it into production `master` with no-fast-forward merge `4b8ab80`.
+- **Assurance Reports And Live Trace Evidence Are Current:** Regenerated the API gap reports at `33` facets, `492` functions, and `218` events. Proof attribution is now `417` unit, `268` workflow, `85` local-fork, `60` Base Sepolia, `253` negative-path, `160` economic, `21` red-team, and `22` indexer items; classifications are `245` ready, `223` needing fixtures, `46` unsafe on live networks, and `196` needing indexer proof. Base Sepolia `debug_traceTransaction` with `callTracer` was freshly proven working against block `46628198`.
+- **Conflicting Passenger Tips Remain Isolated:** Clean merge preflight still blocks the unresolved September 9 autosave, four divergent Base Sepolia promotion heads, economic invariants, the historical red-team and test-gap heads, the remote layered-domain refactor, and the remote Vitest Dependabot head. No conflict resolution was started and all source refs remain intact.
+
+### Verified
+
+- **Candidate And Production Quality Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, both the candidate and merged production tree passed `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Repository And Indexer Proofs Passed:** Candidate and post-merge `pnpm test` runs each passed `1,342` active tests across `135` files with `34` gated tests skipped. Gap-report tests passed `5/5`, indexer assurance passed `63` active tests, disposable PostgreSQL assurance passed `4/4`, and measured coverage passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. The local-fork receipt proof was not run because its `.runtime/local-fork-proofs` inputs were absent.
+
 ## [0.1.351] - 2026-09-09
 
 ### Changed
