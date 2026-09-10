@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.354] - 2026-09-10
+
+### Changed
+
+- **Actor Reports Now Match Source-Reviewed Authorization:** Regenerated the persisted JSON and Markdown actor matrices from local production baseline `c351157`. Exact founder/timelock, governance, emergency-admin, and fee-manager boundaries now replace stale generic role sets for two access-control and seven payment writes, while `VoiceAssetFacet.registerVoiceAssetForCaller` is correctly reported as diamond-self-call-only with every EOA/HTTP actor denied.
+- **Sensitive Role Boundaries Are Regression-Locked:** Added an explicit report test for all nine refined access-control/payment mappings, their stale/revoked/expired lifecycle denials, and the internal caller-registration route's protocol-contract denial. Coverage remains all `259` mounted HTTP writes across `13` domains, with `1,813` actor/method cases, `777` API-boundary cases, and `3,150` lifecycle/ownership/self/protocol-contract mismatch cases.
+
+### Verified
+
+- **Focused Actor And Workflow Suites Passed:** `pnpm run test:actor-negative-paths` passed `104/104`, including exhaustive founder/admin/operator/buyer/seller/licensee/collaborator preflight plus unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity checks. The affected emergency, governance, recovery, withdrawal, and payment workflow slice passed `143/143`; `pnpm test` passed all `1,343` active tests across `135` files with `34` intentionally gated tests skipped.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, TypeScript, lint, and build passed. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. Transient reviewed-surface timestamp churn was restored; the actor workstream is 100% complete and verified for merge.
+
 ## [0.1.353] - 2026-09-10
 
 ### Verified
