@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-09T15:08:30.341Z`
+Generated: `2026-09-10T08:33:37.994Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,9 +13,9 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 245 |
-| needs fixture | 223 |
-| unsafe on live network | 46 |
+| ready | 254 |
+| needs fixture | 224 |
+| unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
 | needs indexer proof | 196 |
@@ -26,11 +26,11 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 416 |
+| unit | 417 |
 | workflow | 268 |
-| localFork | 85 |
+| localFork | 95 |
 | baseSepolia | 60 |
-| negativePath | 254 |
+| negativePath | 253 |
 | economic | 160 |
 | redTeam | 21 |
 | indexer | 22 |
@@ -43,7 +43,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 ## AccessControlFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.07/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.05/8`.
 
 ### Functions
 
@@ -91,7 +91,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `AccessControlFacet.RoleAdminChanged` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `AccessControlFacet.RoleConfigUpdated` | yes | — | — | — | adversarial 2/8 | needs indexer proof |
 | `AccessControlFacet.RoleGranted` | yes | — | — | — | unit 1/8 | needs indexer proof |
-| `AccessControlFacet.RoleRenounced` | yes | — | — | — | adversarial 2/8 | needs indexer proof |
+| `AccessControlFacet.RoleRenounced` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `AccessControlFacet.RoleRevoked` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `AccessControlFacet.SecurityAction` | — | — | — | — | inventory 0/8 | needs indexer proof |
 
@@ -266,7 +266,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## EmergencyFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2.7/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `3.03/8`.
 
 ### Functions
 
@@ -274,27 +274,27 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `approveRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `completeRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `emergencyResume` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
-| `emergencyStop` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
+| `emergencyResume` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
+| `emergencyStop` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `executeRecoveryAction` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `executeRecoveryStep` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `executeResponse` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `executeScheduledResume` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `extendPausedUntil` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `freezeAssets` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `executeResponse` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `executeScheduledResume` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `extendPausedUntil` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `freezeAssets` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `getEmergencyState` | read | yes | yes | — | yes | yes | yes | yes | adversarial 6/8 | ready |
 | `getEmergencyTimeout` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getIncident` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `getRecoveryPlan` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `isAssetFrozen` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
 | `isEmergencyStopped` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `reportIncident` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `scheduleEmergencyResume` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `reportIncident` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `scheduleEmergencyResume` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `setEmergencyTimeout` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `setResumeDelay` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `startRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `triggerEmergency` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `unfreezeAssets` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
+| `triggerEmergency` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `unfreezeAssets` | write | yes | — | yes | — | — | — | — | live 2/8 | needs fixture |
 
 ### Events
 

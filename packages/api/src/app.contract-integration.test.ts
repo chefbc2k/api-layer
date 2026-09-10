@@ -765,6 +765,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "emergency-proof-key": {
+        label: "emergency-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "delegation-proof-key": {
         label: "delegation-proof",
         signerId: "outsider",
@@ -4756,6 +4762,7 @@ describeLive("HTTP API contract integration", () => {
     const assetId = BigInt(Date.now() % 1_000_000_000) + 1_000_000_000n;
 
     const workflowResponse = await apiCall(port, "POST", "/v1/workflows/trigger-emergency", {
+      apiKey: "emergency-proof-key",
       body: {
         emergency: {
           useEmergencyStop: false,
@@ -4828,7 +4835,7 @@ describeLive("HTTP API contract integration", () => {
     await provider.send("evm_mine", []);
 
     const submit = async (route: string, body: Record<string, unknown> = {}) => {
-      const result = await apiCall(port, "POST", route, { body });
+      const result = await apiCall(port, "POST", route, { apiKey: "emergency-proof-key", body });
       expect(result.status, JSON.stringify(result.payload)).toBe(202);
       const txHash = extractTxHash(result.payload);
       await expectReceipt(txHash);

@@ -410,13 +410,7 @@ async function runProof(
             status: "idempotent",
             unchanged: JSON.stringify(receiptReplay.get(result.txHash)) === JSON.stringify(result.postgres),
           },
-          source: {
-            workflowArtifacts: result.sourceArtifacts,
-            producers: result.sourceArtifacts
-              .map((artifactPath) => artifactProducers[path.basename(artifactPath)])
-              .filter((producer): producer is string => Boolean(producer)),
-            ingestionScript: "scripts/run-local-fork-indexer-proof.ts",
-          },
+          source: result.source,
         })),
         finalClassification: "proven working",
         classification: "proven working",

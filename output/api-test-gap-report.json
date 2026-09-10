@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-09T15:08:30.341Z",
+  "generatedAt": "2026-09-10T08:33:37.994Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -169,19 +169,19 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 416,
+      "unit": 417,
       "workflow": 268,
-      "localFork": 85,
+      "localFork": 95,
       "baseSepolia": 60,
-      "negativePath": 254,
+      "negativePath": 253,
       "economic": 160,
       "redTeam": 21,
       "indexer": 22
     },
     "classificationCounts": {
-      "ready": 245,
-      "needs fixture": 223,
-      "unsafe on live network": 46,
+      "ready": 254,
+      "needs fixture": 224,
+      "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
       "needs indexer proof": 196
@@ -206,7 +206,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 1.07,
+          "averageScore": 1.05,
           "maximumScore": 8
         }
       },
@@ -2210,14 +2210,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": true,
+            "negativePath": false,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 2,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs indexer proof",
@@ -2230,9 +2230,7 @@
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -7018,9 +7016,9 @@
         "eventCount": 10,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 6,
-          "needs fixture": 0,
-          "unsafe on live network": 17,
+          "ready": 15,
+          "needs fixture": 1,
+          "unsafe on live network": 7,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 10
@@ -7028,7 +7026,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 2.7,
+          "averageScore": 3.03,
           "maximumScore": 8
         }
       },
@@ -7165,7 +7163,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -7174,15 +7172,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7190,6 +7187,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7198,7 +7196,14 @@
               "scripts/red-team-local-fork.test.ts"
             ],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.emergencyResume",
+                "route": "POST /v1/emergency/admin/emergency-resume",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -7223,7 +7228,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -7232,15 +7237,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7248,6 +7252,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -7256,7 +7261,14 @@
               "scripts/red-team-local-fork.test.ts"
             ],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.emergencyStop",
+                "route": "POST /v1/emergency/admin/emergency-stop",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -7386,7 +7398,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -7395,13 +7407,11 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/multisig-protocol-change.integration.test.ts",
@@ -7418,7 +7428,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.executeResponse",
+                "route": "POST /v1/emergency/admin/execute-response",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -7443,7 +7460,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -7452,15 +7469,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "workflowTests": [
@@ -7472,7 +7488,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.executeScheduledResume",
+                "route": "POST /v1/emergency/admin/execute-scheduled-resume",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -7497,7 +7520,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -7506,27 +7529,34 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.extendPausedUntil",
+                "route": "POST /v1/emergency/admin/extend-paused-until",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -7551,7 +7581,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -7560,27 +7590,34 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.freezeAssets",
+                "route": "POST /v1/emergency/admin/freeze-assets",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -7635,6 +7672,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/inspect-emergency-posture.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
@@ -7710,6 +7748,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/inspect-emergency-posture.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
@@ -7991,7 +8030,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -8000,13 +8039,11 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/trigger-emergency.test.ts"
@@ -8020,7 +8057,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.reportIncident",
+                "route": "POST /v1/emergency/admin/report-incident",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -8045,7 +8089,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -8054,13 +8098,11 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/recover-from-emergency.test.ts",
@@ -8077,7 +8119,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.scheduleEmergencyResume",
+                "route": "POST /v1/emergency/admin/schedule-emergency-resume",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -8258,7 +8307,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
@@ -8267,13 +8316,11 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/trigger-emergency.test.ts"
@@ -8287,7 +8334,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.triggerEmergency",
+                "route": "POST /v1/emergency/admin/trigger-emergency",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -8310,9 +8364,9 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
@@ -8320,25 +8374,32 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "live",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
+          "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
-            "no negative-path proof reference",
-            "no successful verify-artifact route evidence"
+            "no negative-path proof reference"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "EmergencyFacet.unfreezeAssets",
+                "route": "POST /v1/emergency/admin/unfreeze-assets",
+                "network": "local-fork"
+              }
+            ]
           }
         }
       ],
@@ -8384,6 +8445,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
@@ -8439,6 +8501,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "workflowTests": [
@@ -8492,6 +8555,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
@@ -8558,6 +8622,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
@@ -8665,6 +8730,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
@@ -8881,6 +8947,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
             "workflowTests": [
