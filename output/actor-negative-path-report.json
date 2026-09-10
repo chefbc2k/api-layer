@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-09T13:02:41.208Z",
+  "generatedAt": "2026-09-10T13:02:43.697Z",
   "totals": {
     "abiWriteMethodCount": 260,
     "writeMethodCount": 259,
@@ -279,11 +279,10 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
           "TIMELOCK_ROLE",
           "FOUNDER_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -815,11 +814,10 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
           "TIMELOCK_ROLE",
           "FOUNDER_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -7760,11 +7758,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.pauseBuybacks."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -8236,11 +8232,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "EMERGENCY_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold EMERGENCY_ADMIN_ROLE for PaymentFacet.setPaymentPaused."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -8372,11 +8366,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setTreasuryWithdrawalLimit."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -8508,11 +8500,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateDevFundAddress."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -8576,11 +8566,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateFeeConfiguration."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -8644,11 +8632,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateTreasuryAddress."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
@@ -8712,11 +8698,9 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.updateUnionTreasuryAddress."
       },
       "apiBoundaryDenials": [
         "unknown-api-key",
