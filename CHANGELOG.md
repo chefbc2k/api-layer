@@ -2,6 +2,14 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.353] - 2026-09-10
+
+### Verified
+
+- **Write-Invariant Metadata Remains Complete On Current Master:** Fetched `origin/master`, fast-forwarded the isolated reusable `codex/write-invariant-metadata` worktree to synchronized production baseline `8fa39c4`, and revalidated all `260` mounted ABI write methods across `31` facets. Every method retains structured required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. The current reviewed catalog hash is `650e193da3c336a466ce82b403d86ed065c10d5300c9868b2ab69191efd51308`.
+- **Production Metadata Corrections Passed Fail-Closed Validation:** The ABI, generator, and validator tests did not drift since the prior invariant run. Event/indexer assurance merged into production refined source- and receipt-backed role, readback, event, balance, self-call, and projection expectations without changing the `260`-method inventory. `pnpm run codegen` and `pnpm run test:write-invariants` (`5/5`) reject missing or stale methods, signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. Transient reviewed-surface timestamp churn was restored; the workstream remains 100% complete and verified for merge.
+
 ## [0.1.352] - 2026-09-10
 
 ### Changed
