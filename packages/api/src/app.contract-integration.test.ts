@@ -4736,6 +4736,150 @@ describeLive("HTTP API contract integration", () => {
     })).toBe(true);
   }, 120_000);
 
+  it("proves the emergency incident, containment, scheduled-resume, and immediate-resume receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "emergency receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00008") },
+    ])) {
+      return;
+    }
+
+    expect(await emergencyFacet.getEmergencyState()).toBe(0n);
+    const latestBlock = await provider.getBlock("latest");
+    expect(latestBlock).not.toBeNull();
+    const emergencyTimeout = await emergencyFacet.getEmergencyTimeout();
+    const resumeAfter = BigInt(latestBlock!.timestamp) + 120n;
+    const pausedUntil = BigInt(latestBlock!.timestamp) + emergencyTimeout + 3_600n;
+    const assetId = BigInt(Date.now() % 1_000_000_000) + 1_000_000_000n;
+
+    const workflowResponse = await apiCall(port, "POST", "/v1/workflows/trigger-emergency", {
+      body: {
+        emergency: {
+          useEmergencyStop: false,
+          state: "PAUSED",
+          reason: "local-fork indexer containment proof",
+        },
+        incident: {
+          report: {
+            incidentType: "SYSTEM_FAILURE",
+            description: "local-fork indexer incident proof",
+          },
+          responseActions: ["PAUSE_TRADING"],
+        },
+        freezeAssets: {
+          assetIds: [assetId.toString()],
+          reason: "local-fork indexer asset-freeze proof",
+        },
+        pauseControl: {
+          extendPausedUntil: pausedUntil.toString(),
+          scheduleResumeAfter: resumeAfter.toString(),
+        },
+      },
+    });
+    expect(workflowResponse.status, JSON.stringify(workflowResponse.payload)).toBe(202);
+    const workflow = workflowResponse.payload as Record<string, unknown>;
+    const incident = workflow.incident as Record<string, unknown>;
+    const report = incident.report as Record<string, unknown>;
+    const emergency = workflow.emergency as Record<string, unknown>;
+    const transition = emergency.transition as Record<string, unknown>;
+    const response = workflow.response as Record<string, unknown>;
+    const assetFreeze = workflow.assetFreeze as Record<string, unknown>;
+    const pauseControl = workflow.pauseControl as Record<string, unknown>;
+    const extendPause = pauseControl.extendPause as Record<string, unknown>;
+    const scheduleResume = pauseControl.scheduleResume as Record<string, unknown>;
+
+    const expectedWorkflowEvents = [
+      [report.txHash, "IncidentReported"],
+      [transition.txHash, "EmergencyStateChanged"],
+      [response.txHash, "ResponseExecuted"],
+      [assetFreeze.txHash, "AssetsFrozen"],
+      [extendPause.txHash, "PauseExtended"],
+      [scheduleResume.txHash, "EmergencyResumeScheduled"],
+    ] as const;
+    for (const [candidate, eventName] of expectedWorkflowEvents) {
+      const txHash = String(candidate);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      expect(receipt!.logs.some((log) => {
+        try {
+          return emergencyFacet.interface.parseLog(log)?.name === eventName;
+        } catch {
+          return false;
+        }
+      })).toBe(true);
+    }
+    expect(await emergencyFacet.getEmergencyState()).toBe(1n);
+    expect(await emergencyFacet.isAssetFrozen(assetId)).toBe(true);
+    expect(emergencyIncidentToObject(await emergencyFacet.getIncident(String(report.incidentId)))).toMatchObject({
+      id: String(report.incidentId),
+      resolved: false,
+    });
+
+    const afterWorkflowBlock = await provider.getBlock("latest");
+    expect(afterWorkflowBlock).not.toBeNull();
+    const secondsToResume = resumeAfter >= BigInt(afterWorkflowBlock!.timestamp)
+      ? resumeAfter - BigInt(afterWorkflowBlock!.timestamp) + 1n
+      : 1n;
+    await provider.send("evm_increaseTime", [Number(secondsToResume)]);
+    await provider.send("evm_mine", []);
+
+    const submit = async (route: string, body: Record<string, unknown> = {}) => {
+      const result = await apiCall(port, "POST", route, { body });
+      expect(result.status, JSON.stringify(result.payload)).toBe(202);
+      const txHash = extractTxHash(result.payload);
+      await expectReceipt(txHash);
+      return txHash;
+    };
+
+    const scheduledResumeTxHash = await submit("/v1/emergency/admin/execute-scheduled-resume");
+    const scheduledResumeReceipt = await provider.getTransactionReceipt(scheduledResumeTxHash);
+    expect(scheduledResumeReceipt).not.toBeNull();
+    expect(scheduledResumeReceipt!.logs.flatMap((log) => {
+      try {
+        return [emergencyFacet.interface.parseLog(log)?.name];
+      } catch {
+        return [];
+      }
+    })).toEqual(expect.arrayContaining(["EmergencyStateChanged", "EmergencyResumeExecuted"]));
+    expect(await emergencyFacet.getEmergencyState()).toBe(0n);
+
+    const unfreezeTxHash = await submit("/v1/emergency/admin/unfreeze-assets", {
+      assetIds: [assetId.toString()],
+    });
+    const unfreezeReceipt = await provider.getTransactionReceipt(unfreezeTxHash);
+    expect(unfreezeReceipt).not.toBeNull();
+    expect(unfreezeReceipt!.logs).toHaveLength(0);
+    expect(await emergencyFacet.isAssetFrozen(assetId)).toBe(false);
+
+    const stopTxHash = await submit("/v1/emergency/admin/emergency-stop");
+    const stopReceipt = await provider.getTransactionReceipt(stopTxHash);
+    expect(stopReceipt).not.toBeNull();
+    expect(stopReceipt!.logs.some((log) => {
+      try {
+        return emergencyFacet.interface.parseLog(log)?.name === "EmergencyStateChanged";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    expect(await emergencyFacet.getEmergencyState()).toBe(1n);
+
+    const immediateResumeTxHash = await submit("/v1/emergency/admin/emergency-resume");
+    const immediateResumeReceipt = await provider.getTransactionReceipt(immediateResumeTxHash);
+    expect(immediateResumeReceipt).not.toBeNull();
+    expect(immediateResumeReceipt!.logs.some((log) => {
+      try {
+        return emergencyFacet.interface.parseLog(log)?.name === "EmergencyStateChanged";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    expect(await emergencyFacet.getEmergencyState()).toBe(0n);
+  }, 180_000);
+
   it("fails correctly for validation, signer, and provider errors", async () => {
     const invalidBody = await apiCall(port, "POST", "/v1/voice-assets", {
       body: { ipfsHash: "ipfs://missing-royalty" },

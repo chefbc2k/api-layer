@@ -2707,12 +2707,11 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
+        "mode": "all",
         "events": [
-          "EmergencyFacet.EmergencyResumeExecuted",
-          "EmergencyFacet.EmergencyResumeScheduled"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "rationale": "The immediate resume path emits the canonical emergency-state transition event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -2732,8 +2731,7 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "EmergencyFacet.EmergencyResumeExecuted",
-          "EmergencyFacet.EmergencyResumeScheduled"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
         "projections": [
           "emergency_incidents:ledger"
