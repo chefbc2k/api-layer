@@ -188,7 +188,7 @@ describe("API test gap report", () => {
     const input = baseInput();
     input.tests = [{
       path: "scripts/local-fork-lock.test.ts",
-      content: "it('calls forgetThing, resetThing, and replayThingSet while reclaiming a stale lock', () => {})",
+      content: "it('calls forgetThing, resetThing, and replayThingSet with PaymentFacetHelper and treasuryPriceFixture', () => {})",
     }];
     input.verifyArtifacts = [];
 
@@ -199,8 +199,42 @@ describe("API test gap report", () => {
       unit: false,
       workflow: false,
       negativePath: false,
+      economic: false,
     });
     expect(report.facets[0].events[0].proof.unit).toBe(false);
+  });
+
+  it("does not treat role-oriented payment language as economic proof", () => {
+    const input = baseInput();
+    input.tests = [{
+      path: "scripts/actor-negative-paths-lib.test.ts",
+      content: "it('locks payment and treasury price role boundaries for setThing', () => expect('missing-required-role').toBeTruthy())",
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[1].proof).toMatchObject({
+      unit: true,
+      economic: false,
+    });
+  });
+
+  it("does not count a matching operation identifier as its own proof keyword", () => {
+    const input = baseInput();
+    input.httpRegistry.methods["TestFacet.setThing"].operationId = "settlement";
+    input.tests = [{
+      path: "packages/api/src/settlement.test.ts",
+      content: "it('calls settlement', () => {})",
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[1].proof).toMatchObject({
+      unit: true,
+      economic: false,
+    });
   });
 
   it("loads repository-shaped inputs and writes both persistent artifacts", async () => {

@@ -2,13 +2,25 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.356] - 2026-09-15
+## [0.1.357] - 2026-09-15
 
 ### Verified
 
 - **Write-Invariant Metadata Remains Complete On Current Production:** Fast-forwarded the isolated reusable `codex/write-invariant-metadata` worktree to `origin/master` `6e06efa` and revalidated all `260` mounted ABI write methods across `31` facets. Every entry retains structured actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-safety, and indexer metadata; the reviewed catalog and generated registry hashes are `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0` and `717b70d3034cf7d9d1c69d68b9fdbda2c5d41d265258996063e40814d312397d`.
 - **Community Rewards Projection Metadata Passed Fail-Closed Validation:** The five production-promoted `CommunityRewardsFacet` projection expectations remain consistent with their declared events and `reward_campaigns` or `reward_claims` targets. `pnpm run codegen` and `pnpm run test:write-invariants` (`5/5`) passed, including checks for missing/stale methods, signature and ABI-reference drift, incomplete or invalid sections, and inconsistent indexer expectations.
 - **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, TypeScript, lint, the full build, and explicit `pnpm run coverage:check` passed. Surface coverage remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `97.70%` statements, `97.12%` branches, `98.52%` functions, and `97.74%` lines. Transient reviewed-surface timestamp churn was restored, and the workstream remains 100% complete and verified for merge.
+
+## [0.1.356] - 2026-09-15
+
+### Changed
+
+- **ABI Gap Report Economic Evidence Is Conservative:** The report no longer treats generic `payment`, `treasury`, or `price` language as proof of an economic invariant, and it removes each method's own operation identifier before looking for nearby evidence keywords. Two regressions lock role-oriented payment text and a `settlement` operation-ID collision. Regeneration removes `75` false economic flags while preserving explicit balance, allowance, settlement, revenue, delta, and conservation evidence.
+- **Persistent Proof Inventory Is Current:** Refreshed `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from current ABI/API manifests, reviewed surface, tests, and verify artifacts. The inventory remains `33` facets, `492` functions, and `218` event occurrences; proof attribution is `419` unit, `269` workflow, `99` local-fork, `60` Base Sepolia, `262` negative-path, `103` economic, `23` red-team, and `36` indexer items. Classifications remain `269` ready, `223` needs fixture, `36` unsafe on live network, and `182` needs indexer proof.
+
+### Verified
+
+- **Focused And Repository Suites Passed:** `pnpm run test:gap-report` passed `7/7`; the generated Community Rewards indexer/write-invariant slice passed `32/32`; and `pnpm test` passed `1,367` active tests across `136` files with `36` intentionally gated skips.
+- **Quality And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `97.70%` statements, `97.12%` branches, `98.52%` functions, and `97.74%` lines.
 
 ## [0.1.355] - 2026-09-15
 
