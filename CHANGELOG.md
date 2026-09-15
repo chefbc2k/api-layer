@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.359] - 2026-09-15
+
+### Changed
+
+- **Reward Claims Now Resist Replay Under Stale Reads:** Added `scripts/red-team-reward-campaign.test.ts`, a stateful adversarial test that successfully claims a funded allocation once, replays the request while a stale claimable read reports the original value, and proves campaign funds, campaign totals, claimer funds, and claimed state cannot move twice. A paused-campaign probe separately proves claims cannot bypass lifecycle ordering or mutate value state.
+- **Red-Team Commands Include The New Reward Probe:** Both `pnpm run test:redteam` and the guarded `pnpm run redteam:local-fork` command now include the reward-campaign adversarial suite. Regenerated persistent gap reports increase red-team attribution from `23` to `28` ABI items and economic attribution from `103` to `104`, while classifications remain `269` ready, `223` needing fixtures, `36` unsafe on live networks, and `182` needing indexer proof.
+
+### Verified
+
+- **Focused, Fork, Workflow, And Repository Suites Passed:** The focused harness passed `106/106`; the loopback-only fork suite passed `149/149` across `10` files with all `5/5` deployed-contract probes active; the reward workflow and affected indexer slice passed `51/51`; the generated invariant/indexer slice passed `32/32`; and the full suite passed `1,369` active tests across `137` files with `36` intentionally gated skips. No destructive live-network execution was enabled.
+- **All Quality And Coverage Gates Passed:** TypeScript, lint, build/codegen, and explicit `pnpm run coverage:check` passed with `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.68%` statements, `97.10%` branches, `98.45%` functions, and `97.74%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.358] - 2026-09-15
 
 ### Changed
