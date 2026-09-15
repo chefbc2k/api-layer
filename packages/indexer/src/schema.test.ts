@@ -23,6 +23,7 @@ describe("db hardening migration", () => {
     const initial = readFileSync(path.resolve(process.cwd(), "db", "migrations", "0001_initial.sql"), "utf8");
     const hardening = readFileSync(path.resolve(process.cwd(), "db", "migrations", "0002_hardening.sql"), "utf8");
     const blockJournal = readFileSync(path.resolve(process.cwd(), "db", "migrations", "0003_indexer_block_journal.sql"), "utf8");
+    const rewardCampaigns = readFileSync(path.resolve(process.cwd(), "db", "migrations", "0004_reward_campaign_projections.sql"), "utf8");
 
     expect(initial).not.toContain("create policy if not exists");
     expect(hardening).not.toContain("create policy if not exists");
@@ -33,5 +34,8 @@ describe("db hardening migration", () => {
     expect(blockJournal).toContain("drop policy if exists indexer_blocks_service_all on indexer_blocks");
     expect(blockJournal).not.toContain("create policy if not exists");
     expect(hardening).toContain("drop policy if exists raw_events_service_all on raw_events");
+    expect(rewardCampaigns).toContain("select ensure_reward_projection_table('reward_campaigns')");
+    expect(rewardCampaigns).toContain("select ensure_reward_projection_table('reward_claims')");
+    expect(rewardCampaigns).not.toContain("create policy if not exists");
   });
 });

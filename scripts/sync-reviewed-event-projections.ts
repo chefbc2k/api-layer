@@ -28,13 +28,51 @@ type ReviewedEventProjectionFile = {
 
 const reviewedEventProjectionPath = path.resolve("reviewed", "reviewed-event-projections.json");
 
+const managedProjectionDefaults: Record<string, ReviewedEventProjectionFile["events"][string]> = {
+  "CommunityRewardsFacet.CampaignCapConfig": {
+    domain: "tokenomics",
+    projectionMode: "current",
+    targets: [{ table: "reward_campaigns", mode: "current" }],
+  },
+  "CommunityRewardsFacet.CampaignCreated": {
+    domain: "tokenomics",
+    projectionMode: "current",
+    targets: [{ table: "reward_campaigns", mode: "current" }],
+  },
+  "CommunityRewardsFacet.CampaignMerkleRootUpdated": {
+    domain: "tokenomics",
+    projectionMode: "current",
+    targets: [{ table: "reward_campaigns", mode: "current" }],
+  },
+  "CommunityRewardsFacet.CampaignPaused": {
+    domain: "tokenomics",
+    projectionMode: "current",
+    targets: [{ table: "reward_campaigns", mode: "current" }],
+  },
+  "CommunityRewardsFacet.CampaignUnpaused": {
+    domain: "tokenomics",
+    projectionMode: "current",
+    targets: [{ table: "reward_campaigns", mode: "current" }],
+  },
+  "CommunityRewardsFacet.CampaignVestingConfig": {
+    domain: "tokenomics",
+    projectionMode: "current",
+    targets: [{ table: "reward_campaigns", mode: "current" }],
+  },
+  "CommunityRewardsFacet.Claimed": {
+    domain: "tokenomics",
+    projectionMode: "ledger",
+    targets: [{ table: "reward_claims", mode: "ledger" }],
+  },
+};
+
 async function main(): Promise<void> {
   const manifest = await readJson<Manifest>(path.join("generated", "manifests", "contract-manifest.json"));
   const existing = await readJson<ReviewedEventProjectionFile>(reviewedEventProjectionPath);
 
   const next: ReviewedEventProjectionFile = {
     version: 1,
-    events: { ...existing.events },
+    events: { ...existing.events, ...managedProjectionDefaults },
   };
 
   let added = 0;

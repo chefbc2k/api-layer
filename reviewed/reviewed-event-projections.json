@@ -93,38 +93,73 @@
     },
     "CommunityRewardsFacet.CampaignCapConfig": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     },
     "CommunityRewardsFacet.CampaignCreated": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     },
     "CommunityRewardsFacet.CampaignMerkleRootUpdated": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     },
     "CommunityRewardsFacet.CampaignPaused": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     },
     "CommunityRewardsFacet.CampaignUnpaused": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     },
     "CommunityRewardsFacet.CampaignVestingConfig": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     },
     "CommunityRewardsFacet.Claimed": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "reward_claims",
+          "mode": "ledger"
+        }
+      ]
     },
     "DelegationFacet.DelegateChanged(address,address,address)": {
       "domain": "governance",

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewedAt": "2026-08-03",
+  "reviewedAt": "2026-09-15",
   "methods": {
     "AccessControlFacet.configureRole": {
       "abiSignature": "configureRole(bytes32,(uint256,uint256,uint256,uint256,uint256,bytes32,bool,bool,bool,bool))",
@@ -1185,12 +1185,14 @@
         "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
           "CommunityRewardsFacet.Claimed"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "reward_claims:ledger"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
     "CommunityRewardsFacet.createCampaign": {
@@ -1263,14 +1265,16 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
           "CommunityRewardsFacet.CampaignCreated",
           "CommunityRewardsFacet.CampaignVestingConfig",
           "CommunityRewardsFacet.CampaignCapConfig"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "reward_campaigns:current"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
     "CommunityRewardsFacet.pauseCampaign": {
@@ -1324,12 +1328,14 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
           "CommunityRewardsFacet.CampaignPaused"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "reward_campaigns:current"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
     "CommunityRewardsFacet.setMerkleRoot": {
@@ -1388,12 +1394,14 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
           "CommunityRewardsFacet.CampaignMerkleRootUpdated"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "reward_campaigns:current"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
     "CommunityRewardsFacet.unpauseCampaign": {
@@ -1447,12 +1455,14 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
           "CommunityRewardsFacet.CampaignUnpaused"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "reward_campaigns:current"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
     "DelegationFacet.delegate": {

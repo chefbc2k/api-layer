@@ -50,6 +50,10 @@ function entityIdFor(table: ProjectionTable, decoded: DecodedEvent, fallback: st
       return firstDefined(args, ["account", "user", "staker"], fallback);
     case "staking_rewards":
       return `${firstDefined(args, ["account", "user", "staker"], fallback)}:${fallback}`;
+    case "reward_campaigns":
+      return firstDefined(args, ["campaignId"], fallback);
+    case "reward_claims":
+      return `${firstDefined(args, ["campaignId"], fallback)}:${firstDefined(args, ["account"], fallback)}:${fallback}`;
     case "governance_proposals":
       return firstDefined(args, ["proposalId"], fallback);
     case "governance_votes":

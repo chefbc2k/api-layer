@@ -4921,8 +4921,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     }
   },
   {
@@ -4960,8 +4965,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     }
   },
   {
@@ -4999,8 +5009,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     }
   },
   {
@@ -5032,8 +5047,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     }
   },
   {
@@ -5065,8 +5085,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     }
   },
   {
@@ -5104,8 +5129,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "current",
+      "targets": [
+        {
+          "table": "reward_campaigns",
+          "mode": "current"
+        }
+      ]
     }
   },
   {
@@ -5143,8 +5173,13 @@ export const tokenomicsEventDefinitions: HttpEventDefinition[] = [
     ],
     "projection": {
       "domain": "tokenomics",
-      "projectionMode": "rawOnly",
-      "targets": []
+      "projectionMode": "ledger",
+      "targets": [
+        {
+          "table": "reward_claims",
+          "mode": "ledger"
+        }
+      ]
     }
   },
   {

@@ -10,6 +10,7 @@ import { createApiServer, type ApiServer } from "./app.js";
 import { loadRepoEnv } from "../../client/src/runtime/config.js";
 import {
   AccessControlFacet,
+  CommunityRewardsFacet,
   DelegationFacet,
   EmergencyFacet,
   GovernorFacet,
@@ -390,6 +391,20 @@ function feeConfigToObject(value: unknown): Record<string, unknown> {
   };
 }
 
+function rewardCampaignToObject(value: unknown): Record<string, unknown> {
+  const tuple = value as ArrayLike<unknown>;
+  return {
+    merkleRoot: normalize(tuple[0]),
+    startTime: normalize(tuple[1]),
+    cliffSeconds: normalize(tuple[2]),
+    durationSeconds: normalize(tuple[3]),
+    tgeUnlockBps: normalize(tuple[4]),
+    maxTotalClaimable: normalize(tuple[5]),
+    totalClaimed: normalize(tuple[6]),
+    paused: normalize(tuple[7]),
+  };
+}
+
 function proposalTypeConfigToObject(value: unknown): Record<string, unknown> {
   const tuple = value as ArrayLike<unknown>;
   return {
@@ -562,6 +577,7 @@ describeLive("HTTP API contract integration", () => {
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
   let votingPowerFacet: VotingPowerFacet;
+  let communityRewardsFacet: CommunityRewardsFacet;
   let primaryVoiceHash = "";
   const nativeTransferReserve = ethers.parseEther("0.000001");
   let activeRpcUrl = "";
@@ -777,6 +793,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "reward-proof-key": {
+        label: "reward-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "read-key": {
         label: "reader",
         roles: ["read-only"],
@@ -860,6 +882,7 @@ describeLive("HTTP API contract integration", () => {
     burnThresholdFacet = new Contract(diamondAddress, facetRegistry.BurnThresholdFacet.abi, provider);
     timewaveGiftFacet = new Contract(diamondAddress, facetRegistry.TimewaveGiftFacet.abi, provider);
     votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
+    communityRewardsFacet = new Contract(diamondAddress, facetRegistry.CommunityRewardsFacet.abi, provider) as unknown as CommunityRewardsFacet;
 
     server = createApiServer({ port: 0 }).listen();
     const address = server.address();
@@ -2350,6 +2373,98 @@ describeLive("HTTP API contract integration", () => {
         { attempts: 120 },
       )).toBe(originalMinDuration);
     }
+  }, 300_000);
+
+  it("proves the reward campaign create, root update, pause, and unpause workflows on a local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "reward campaign lifecycle proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+    ])) return;
+
+    const campaignCountBefore = await communityRewardsFacet.campaignCount();
+    const latestBlock = await provider.getBlock("latest");
+    const initialRoot = ethers.keccak256(ethers.toUtf8Bytes(`reward-campaign-initial-${latestBlock!.number}`));
+    const updatedRoot = ethers.keccak256(ethers.toUtf8Bytes(`reward-campaign-updated-${latestBlock!.number}`));
+    const createResponse = await apiCall(port, "POST", "/v1/workflows/create-reward-campaign", {
+      apiKey: "reward-proof-key",
+      body: {
+        merkleRoot: initialRoot,
+        startTime: String(latestBlock!.timestamp),
+        cliffSeconds: "0",
+        durationSeconds: "86400",
+        tgeUnlockBps: "1000",
+        maxTotalClaimable: "1000000",
+      },
+    });
+    expect(createResponse.status).toBe(202);
+    const createPayload = createResponse.payload as {
+      campaign: { txHash: string; campaignId: string; eventCount: number };
+      counts: { before: string; after: string };
+    };
+    expect(createPayload.counts.before).toBe(campaignCountBefore.toString());
+    expect(BigInt(createPayload.counts.after)).toBe(campaignCountBefore + 1n);
+    expect(createPayload.campaign.eventCount).toBeGreaterThan(0);
+    await expectReceipt(createPayload.campaign.txHash);
+    const campaignId = createPayload.campaign.campaignId;
+
+    const createdCampaign = rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId));
+    expect(createdCampaign).toMatchObject({
+      merkleRoot: initialRoot,
+      cliffSeconds: "0",
+      durationSeconds: "86400",
+      tgeUnlockBps: "1000",
+      maxTotalClaimable: "1000000",
+      totalClaimed: "0",
+      paused: false,
+    });
+
+    const pauseResponse = await apiCall(port, "POST", "/v1/workflows/manage-reward-campaign", {
+      apiKey: "reward-proof-key",
+      body: { campaignId, newMerkleRoot: updatedRoot, paused: true },
+    });
+    expect(pauseResponse.status).toBe(202);
+    const pausePayload = pauseResponse.payload as {
+      merkleRootUpdate: { txHash: string; eventCount: number; source: string };
+      pauseState: { txHash: string; eventCount: number; source: string };
+    };
+    expect(pausePayload.merkleRootUpdate).toMatchObject({ eventCount: expect.any(Number), source: "updated" });
+    expect(pausePayload.pauseState).toMatchObject({ eventCount: expect.any(Number), source: "paused" });
+    expect(pausePayload.merkleRootUpdate.eventCount).toBeGreaterThan(0);
+    expect(pausePayload.pauseState.eventCount).toBeGreaterThan(0);
+    await expectReceipt(pausePayload.merkleRootUpdate.txHash);
+    await expectReceipt(pausePayload.pauseState.txHash);
+    expect(rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId))).toMatchObject({
+      merkleRoot: updatedRoot,
+      paused: true,
+    });
+
+    const unpauseResponse = await apiCall(port, "POST", "/v1/workflows/manage-reward-campaign", {
+      apiKey: "reward-proof-key",
+      body: { campaignId, paused: false },
+    });
+    expect(unpauseResponse.status).toBe(202);
+    const unpausePayload = unpauseResponse.payload as {
+      pauseState: { txHash: string; eventCount: number; source: string };
+    };
+    expect(unpausePayload.pauseState).toMatchObject({ eventCount: expect.any(Number), source: "unpaused" });
+    expect(unpausePayload.pauseState.eventCount).toBeGreaterThan(0);
+    await expectReceipt(unpausePayload.pauseState.txHash);
+    expect(rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId))).toMatchObject({
+      merkleRoot: updatedRoot,
+      paused: false,
+    });
+
+    const apiCampaignRead = await apiCall(
+      port,
+      "GET",
+      `/v1/tokenomics/queries/get-campaign?campaignId=${encodeURIComponent(campaignId)}`,
+      { apiKey: "read-key" },
+    );
+    expect(apiCampaignRead.status).toBe(200);
+    expect(apiCampaignRead.payload).toEqual(rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId)));
   }, 300_000);
 
   it("mutates whisperblock state through HTTP and matches live whisperblock contract state", async (ctx) => {

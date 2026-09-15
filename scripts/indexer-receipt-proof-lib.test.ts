@@ -37,9 +37,16 @@ describe("local-fork receipt-to-indexer proof", () => {
   });
 
   it("normalizes projection declarations to table names", () => {
-    const purchase = [...buildWriteSelectorMap().values()]
+    const writes = [...buildWriteSelectorMap().values()];
+    const purchase = writes
       .find(({ methodKey }) => methodKey === "MarketplaceFacet.purchaseAsset")!;
     expect(projectionTableNames(purchase.definition)).toEqual(["market_sales"]);
+    const createCampaign = writes
+      .find(({ methodKey }) => methodKey === "CommunityRewardsFacet.createCampaign")!;
+    expect(projectionTableNames(createCampaign.definition)).toEqual(["reward_campaigns"]);
+    const claim = writes
+      .find(({ methodKey }) => methodKey === "CommunityRewardsFacet.claim")!;
+    expect(projectionTableNames(claim.definition)).toEqual(["reward_claims"]);
   });
 
   it("accepts all-event and one-of evidence and reports missing projections", () => {
