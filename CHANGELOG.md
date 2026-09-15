@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.350] - 2026-09-08
+
+### Changed
+
+- **Base Sepolia Promotion Runner Rebased On Current Production Evidence:** Merged local `master` `a378eb6` into the reusable isolated `codex/base-sepolia-promotion-20260907` branch, preserving the gated safe-scenario runner and all newer assurance reports. Refreshed `verify-base-sepolia-promotion-output.json` through the canonical explicit-env preflight; destructive protocol-admin writes remain excluded.
+
+### Verified
+
+- **Readiness Still Fails Closed:** The fresh preflight exited `2` with `finalClassification: "blocked by setup/state"`. Seven static checks passed, but explicit live opt-in is unset and both execution and diagnostics RPC origins are loopback. The gate stopped before provider access, fixture setup, funding, approvals, listings, governance preparation, proof scenarios, or transaction submission; the artifact contains no transaction, block, actor, state-delta, or decoded-event evidence.
+- **All Non-Live Gates Passed:** The focused promotion suite passed `6/6`; TypeScript, lint, and the full build passed. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Configuration Blocks Proof And Merge:** Set `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and configure direct non-loopback Base Sepolia execution and diagnostics RPCs. Do not merge until the safe fixture-backed marketplace and governance scenarios, plus the aggregate artifact, all classify `proven working`.
 ## [0.1.354] - 2026-09-10
 
 ### Changed
@@ -131,7 +145,6 @@
 - **Focused And Guarded Fork Probes Passed:** `pnpm run test:redteam` passed `104/104`; `pnpm run redteam:local-fork` passed `136/136` across `9` files, including all `5/5` loopback probes. Malformed and unknown calldata, replayed value transfer, value conservation, an unprivileged selector-collision diamond cut with a malicious initializer, emergency/timelock bypass attempts, stale fork responses, multisig controls, duplicate logs, event decoding, and reorg handling all remained green. No destructive live-network path was enabled.
 - **All Quality And Coverage Gates Passed:** With the project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without failures or fixes. `pnpm test` passed all `1,308` active tests across `132` files with `23` explicitly gated tests skipped. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `99.96%` statements, `99.82%` branches, `99.92%` functions, and `99.98%` lines.
 - **Persistent Reporting Is Current:** The regenerated gap reports changed only their timestamps and remain at `218` ready, `228` needing fixtures, `51` unsafe on live networks, and `213` needing indexer proof, with red-team evidence conservatively attributed to `20` ABI items. Transient reviewed-surface timestamp churn was restored; the workstream remains 100% complete and verified for merge.
-
 ## [0.1.344] - 2026-09-07
 
 ### Verified
