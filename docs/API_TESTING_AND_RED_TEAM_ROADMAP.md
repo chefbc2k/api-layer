@@ -43,7 +43,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 
 - ABI/client wrapper coverage is complete for `33` facets, `492` functions, and `218` events.
 - HTTP surface generation is complete for `491` generated endpoints across access control, tokenomics, staking, diamond admin, emergency, marketplace, governance, voice assets, multisig, ownership, licensing, datasets, and WhisperBlock.
-- Standard TypeScript coverage currently reports `97.74%` lines, `97.68%` statements, `97.10%` branches, and `98.45%` functions across the measured API/client/indexer/script surface; the remaining uncovered lines are concentrated in the explicitly live-gated Base Sepolia promotion runner, indexer worker failure paths, indexer proof helpers, and isolated execution-context, setup, red-team, and Alchemy diagnostic branches.
+- Standard TypeScript coverage currently reports `97.74%` lines, `97.70%` statements, `97.12%` branches, and `98.52%` functions across the measured API/client/indexer/script surface; the remaining uncovered lines are concentrated in the explicitly live-gated Base Sepolia promotion runner, indexer worker failure paths, indexer proof helpers, and isolated execution-context, setup, red-team, and Alchemy diagnostic branches.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
 - A gated Base Sepolia promotion runner now wraps the existing operator setup, marketplace purchase, and governance proof commands. Its first preflight correctly refused to reuse the configured loopback fork as live evidence, so no Base Sepolia transaction was submitted by this automation run.
@@ -202,6 +202,14 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### ABI Gap Report Automation Run — 2026-09-15
+
+- **Current-production evidence is regenerated on the isolated ABI branch:** fetched `origin/master`, confirmed local and remote `master` are synchronized at `6e06efa`, and merged that baseline into `codex/autosave-20260915-abi-gap-report` while leaving the unrelated primary checkout untouched. The reports consume the current ABI, RPC, and HTTP manifests; reviewed API surface; protocol tests; and persisted verification artifacts.
+- **Economic proof attribution now fails closed on evidence language:** generic `payment`, `treasury`, and `price` naming no longer counts as economic proof by itself, and a method's own operation identifier is blanked from its evidence window before keyword matching. Two focused regressions cover role-oriented payment text and the `settlement` operation-ID collision. This removes `75` false economic flags from role, codec, event-decode, and price-only tests while preserving explicit balance, allowance, settlement, revenue, delta, and conservation assertions.
+- **Proof depth is current for the complete inventory:** the regenerated artifacts contain `33` facets, `492` functions, and `218` event occurrences (`710` items), with ABI/RPC evidence for all `710` and reviewed HTTP evidence for `709`. Proof attribution is `419` unit, `269` workflow, `99` local-fork, `60` Base Sepolia, `262` negative-path, `103` economic, `23` red-team, and `36` indexer items. Classifications remain `269` ready, `223` needs fixture, `36` unsafe on live network, and `182` needs indexer proof, with zero contract-change or API-guard findings.
+- **All section and repository gates pass:** `pnpm run test:gap-report` passed `7/7`; canonical code generation refreshed the merged Community Rewards registry and its affected indexer/write-invariant slice passed `32/32`; `pnpm test` then passed `1,367` active tests across `136` files with `36` gated skips. Using `pnpm` from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `97.70%` statements, `97.12%` branches, `98.52%` functions, and `97.74%` lines.
+- **Merge decision:** the ABI gap-report workstream is 100% complete and verified on current production evidence. The two report artifacts, generator correction, focused regressions, roadmap, and changelog are approved for merge into `master`.
 
 ### Base Sepolia Promotion Automation Run — 2026-09-08
 
@@ -912,7 +920,7 @@ Daily automations should treat these sections as independently mergeable workstr
 
 | Section | Status | Required Evidence Before Merge |
 | --- | --- | --- |
-| ABI-driven gap report | Complete and verified (2026-09-04) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`5/5` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods / `260/260` write invariants) |
+| ABI-driven gap report | Complete and verified (2026-09-15) | `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, `scripts/generate-test-roadmap.test.ts` (`7/7` passing), and green `pnpm run coverage:check` (`492` functions / `218` events / `492` HTTP methods / `260/260` write invariants) |
 | Write-method invariant metadata | Complete and verified (2026-09-08) | `260/260` ABI writes in `reviewed/reviewed-write-invariants.json`, stale/missing/signature/reference gates, `scripts/write-invariants-lib.test.ts` (`5/5` passing), green TypeScript/lint/build gates, and green `pnpm run coverage:check` |
 | Actor and signer negative paths | Complete and verified (2026-08-24) | `259/259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` API-boundary cases, `3,171` role-lifecycle cases, `100/100` focused tests, and green full/coverage gates |
 | Economic invariant expansion | Pending | balance/state delta assertions for escrow, rewards, vesting, staking, burns, withdrawals, and treasury flows |
@@ -1021,18 +1029,18 @@ Blockers and next steps:
 
 ### ABI-Driven Gap Report Evidence
 
-The Phase 1 artifact, revalidated on 2026-09-09, inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `245` items as `ready`, `223` as `needs fixture`, `46` as `unsafe on live network`, and `196` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Conservative proof attribution records `416` unit, `268` workflow, `85` local-fork, `60` Base Sepolia, `254` negative-path, `160` economic, `21` red-team, and `22` indexer items.
+The Phase 1 artifact, revalidated on 2026-09-15, inventories all `33` facets, `492` functions, and `218` ABI event occurrences (`710` total items). Mechanical parity is present for all `710` ABI/RPC items; `709` items have reviewed HTTP entries because the legacy overloaded `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` variant remains intentionally excluded. The report currently classifies `269` items as `ready`, `223` as `needs fixture`, `36` as `unsafe on live network`, and `182` as `needs indexer proof`, with zero `needs contract change` or `needs API guard` findings. Conservative proof attribution records `419` unit, `269` workflow, `99` local-fork, `60` Base Sepolia, `262` negative-path, `103` economic, `23` red-team, and `36` indexer items.
 
 Verification evidence:
 
-- `pnpm run test:gap-report`: `5/5` focused generator tests passed.
+- `pnpm run test:gap-report`: `7/7` focused generator tests passed, including fail-closed economic evidence attribution.
 - `pnpm run report:test-gaps`: regenerated `output/api-test-gap-report.json` and `output/api-test-gap-report.md` from the canonical inputs.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
 - `npx tsc -p tsconfig.json --noEmit`: repository TypeScript validation passed.
 - `pnpm run lint`: repository lint validation passed.
 - `pnpm run build`: codegen and the client, indexer, and API package builds all passed.
-- `pnpm test`: all `1,308` active tests passed across `132` files; `23` gated contract-integration and local-fork-only red-team tests remained explicitly skipped.
-- `pnpm run test:coverage`: the sharded coverage suite passed with `99.98%` lines, `99.98%` statements, `99.84%` branches, and `100%` functions; the only reported gaps are merged-Istanbul mappings on already-exercised `execution-context.ts`, `alchemy-debug-lib.ts`, and red-team harness lines.
+- `pnpm test`: all `1,367` active tests passed across `136` files; `36` gated contract-integration, PostgreSQL, and local-fork-only red-team tests remained explicitly skipped.
+- `pnpm run test:coverage`: the sharded coverage suite passed with `97.74%` lines, `97.70%` statements, `97.12%` branches, and `98.52%` functions; remaining gaps are concentrated in explicitly gated live-network and indexer failure paths.
 
 Build-blocker resolution:
 

@@ -206,7 +206,7 @@ const negativeKeywords = [
   "reject", "revert", "unauthorized", "forbidden", "invalid", "mismatch", "failure", "fails", "error",
 ];
 const economicKeywords = [
-  "balance", "allowance", "settlement", "revenue", "payment", "treasury", "delta", "conservation", "price",
+  "balance", "allowance", "settlement", "revenue", "delta", "conservation",
 ];
 const redTeamKeywords = ["red-team", "red team", "fuzz", "mutation", "adversarial", "confused deputy", "replay"];
 
@@ -274,8 +274,12 @@ function hasKeywordNearToken(content: string, tokens: string[], keywords: string
   const lower = content.toLowerCase();
   for (const token of tokens) {
     for (const index of tokenIndexes(content, token)) {
-      const window = lower.slice(Math.max(0, index - 1_000), Math.min(lower.length, index + token.length + 1_000));
-      if (keywords.some((keyword) => window.includes(keyword))) {
+      const windowStart = Math.max(0, index - 1_000);
+      const windowEnd = Math.min(lower.length, index + token.length + 1_000);
+      const window = lower.slice(windowStart, windowEnd);
+      const tokenOffset = index - windowStart;
+      const evidenceWindow = `${window.slice(0, tokenOffset)}${" ".repeat(token.length)}${window.slice(tokenOffset + token.length)}`;
+      if (keywords.some((keyword) => evidenceWindow.includes(keyword))) {
         return true;
       }
     }
