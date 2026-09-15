@@ -2,6 +2,39 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.354] - 2026-09-10
+
+### Changed
+
+- **Actor Reports Now Match Source-Reviewed Authorization:** Regenerated the persisted JSON and Markdown actor matrices from local production baseline `c351157`. Exact founder/timelock, governance, emergency-admin, and fee-manager boundaries now replace stale generic role sets for two access-control and seven payment writes, while `VoiceAssetFacet.registerVoiceAssetForCaller` is correctly reported as diamond-self-call-only with every EOA/HTTP actor denied.
+- **Sensitive Role Boundaries Are Regression-Locked:** Added an explicit report test for all nine refined access-control/payment mappings, their stale/revoked/expired lifecycle denials, and the internal caller-registration route's protocol-contract denial. Coverage remains all `259` mounted HTTP writes across `13` domains, with `1,813` actor/method cases, `777` API-boundary cases, and `3,150` lifecycle/ownership/self/protocol-contract mismatch cases.
+
+### Verified
+
+- **Focused Actor And Workflow Suites Passed:** `pnpm run test:actor-negative-paths` passed `104/104`, including exhaustive founder/admin/operator/buyer/seller/licensee/collaborator preflight plus unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity checks. The affected emergency, governance, recovery, withdrawal, and payment workflow slice passed `143/143`; `pnpm test` passed all `1,343` active tests across `135` files with `34` intentionally gated tests skipped.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, TypeScript, lint, and build passed. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. Transient reviewed-surface timestamp churn was restored; the actor workstream is 100% complete and verified for merge.
+
+## [0.1.353] - 2026-09-10
+
+### Verified
+
+- **Write-Invariant Metadata Remains Complete On Current Master:** Fetched `origin/master`, fast-forwarded the isolated reusable `codex/write-invariant-metadata` worktree to synchronized production baseline `8fa39c4`, and revalidated all `260` mounted ABI write methods across `31` facets. Every method retains structured required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. The current reviewed catalog hash is `650e193da3c336a466ce82b403d86ed065c10d5300c9868b2ab69191efd51308`.
+- **Production Metadata Corrections Passed Fail-Closed Validation:** The ABI, generator, and validator tests did not drift since the prior invariant run. Event/indexer assurance merged into production refined source- and receipt-backed role, readback, event, balance, self-call, and projection expectations without changing the `260`-method inventory. `pnpm run codegen` and `pnpm run test:write-invariants` (`5/5`) reject missing or stale methods, signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. Transient reviewed-surface timestamp churn was restored; the workstream remains 100% complete and verified for merge.
+
+## [0.1.352] - 2026-09-10
+
+### Changed
+
+- **Daily Consolidation Preserved And Landed Event/Indexer Work:** Saved the dirty `codex/event-indexer-proof-20260909` checkout as `codex/autosave-20260910-event-indexer-proof` commit `ce029f1`, preserving changes to the API contract suite, indexer assurance suite, reviewed API surface, and write-invariant catalog. After the candidate passed its merge gates, merged it into production `master` with no-fast-forward merge `4b8ab80`.
+- **Assurance Reports And Live Trace Evidence Are Current:** Regenerated the API gap reports at `33` facets, `492` functions, and `218` events. Proof attribution is now `417` unit, `268` workflow, `85` local-fork, `60` Base Sepolia, `253` negative-path, `160` economic, `21` red-team, and `22` indexer items; classifications are `245` ready, `223` needing fixtures, `46` unsafe on live networks, and `196` needing indexer proof. Base Sepolia `debug_traceTransaction` with `callTracer` was freshly proven working against block `46628198`.
+- **Conflicting Passenger Tips Remain Isolated:** Clean merge preflight still blocks the unresolved September 9 autosave, four divergent Base Sepolia promotion heads, economic invariants, the historical red-team and test-gap heads, the remote layered-domain refactor, and the remote Vitest Dependabot head. No conflict resolution was started and all source refs remain intact.
+
+### Verified
+
+- **Candidate And Production Quality Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, both the candidate and merged production tree passed `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Repository And Indexer Proofs Passed:** Candidate and post-merge `pnpm test` runs each passed `1,342` active tests across `135` files with `34` gated tests skipped. Gap-report tests passed `5/5`, indexer assurance passed `63` active tests, disposable PostgreSQL assurance passed `4/4`, and measured coverage passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. The local-fork receipt proof was not run because its `.runtime/local-fork-proofs` inputs were absent.
+
 ## [0.1.351] - 2026-09-09
 
 ### Changed

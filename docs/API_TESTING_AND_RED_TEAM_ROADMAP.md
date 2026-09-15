@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-10
+
+- Production remains `master`; `origin` reports `master` as its HEAD branch. The initial inventory covered all `17` linked worktrees and found only the primary event/indexer checkout dirty.
+- Before any branch movement, the four dirty files were saved on `codex/autosave-20260910-event-indexer-proof` as commit `ce029f1`: `packages/api/src/app.contract-integration.test.ts`, `packages/indexer/src/event-assurance.test.ts`, `reviewed/reviewed-api-surface.json`, and `reviewed/reviewed-write-invariants.json`.
+- The autosave candidate passed TypeScript, lint, build, coverage generation, and all `1,342` active tests, then landed on production through no-fast-forward merge `4b8ab80`. Its history also consolidates the prior event/indexer autosave and September 9 passenger lineage.
+- Production verification is green: `1,342` active tests passed with `34` gated skips; gap-report tests passed `5/5`; indexer assurance passed `63` active tests; disposable PostgreSQL assurance passed `4/4`; wrapper/event/HTTP coverage remains `492/218/492`; write-invariant coverage remains `260/260`; and measured coverage is `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines.
+- Regenerated gap evidence now classifies `245` items ready, `223` needing fixtures, `46` unsafe on live networks, and `196` needing indexer proof. A fresh Base Sepolia trace proved `debug_traceTransaction` with `callTracer`; the local-fork receipt proof was not runnable because `.runtime/local-fork-proofs` inputs were absent.
+- Ten distinct maximal tips remain conflict-blocked: the unresolved September 9 autosave; four divergent Base Sepolia promotion heads; economic invariants; historical red-team and test-gap heads; the remote layered-domain refactor; and the remote Vitest Dependabot head. No partial merge or conflict resolution was committed.
+
 ## Daily Branch Consolidation — 2026-09-08
 
 - Production remains `master`; `origin` reports `master` as its HEAD branch even though the local `origin/HEAD` symbolic ref is stale.
@@ -16,7 +25,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 
 - ABI/client wrapper coverage is complete for `33` facets, `492` functions, and `218` events.
 - HTTP surface generation is complete for `491` generated endpoints across access control, tokenomics, staking, diamond admin, emergency, marketplace, governance, voice assets, multisig, ownership, licensing, datasets, and WhisperBlock.
-- Standard TypeScript coverage currently reports `99.98%` lines, `99.96%` statements, `99.82%` branches, and `99.92%` functions across the measured API/client/indexer/script surface; the residual merged-Istanbul mappings are confined to already-exercised execution-context, red-team harness, and Alchemy diagnostic lines.
+- Standard TypeScript coverage currently reports `99.76%` lines, `99.70%` statements, `99.41%` branches, and `99.54%` functions across the measured API/client/indexer/script surface; the remaining uncovered lines are concentrated in indexer worker failure paths and indexer proof helpers plus isolated execution-context, setup, red-team, and Alchemy diagnostic branches.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
 
@@ -162,6 +171,19 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### Actor Negative-Path Automation Run — 2026-09-10
+
+- **Current-production actor evidence now reflects source-reviewed role boundaries:** fetched `origin/master`, confirmed it is an ancestor of the newer local production baseline `c351157`, and fast-forwarded the reusable `codex/actor-negative-paths` branch in its isolated worktree while leaving the dirty primary event/indexer checkout untouched. Regeneration corrected stale actor-report metadata for two access-control writes, seven payment-control writes, and `VoiceAssetFacet.registerVoiceAssetForCaller`: founder/timelock, governance, emergency-admin, and fee-manager roles are now exact, while the caller-registration route is explicitly diamond-self-call-only and denies every EOA/HTTP actor.
+- **Actor, API-boundary, and lifecycle matrices remain complete:** the persisted report covers all `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only-key/signer-mismatch cases, and `3,150` missing/stale/revoked/expired/ownership/self/protocol-contract mismatch cases. The reduction from `3,171` removes invalid EOA role-lifecycle attribution from the diamond-self-call-only route; protected capability mappings continue proving unauthorized actors cannot commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, or mutate ownership-controlled state.
+- **Exact-role and affected workflow tests passed:** added a regression that locks the nine refined access-control/payment role mappings, their stale/revoked/expired denials, and the diamond-self-call EOA denial. `pnpm run test:actor-negative-paths` passed `104/104`, including exhaustive write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity behavior. The affected emergency, governance, recovery, withdrawal, and payment workflow slice passed `143/143`; `pnpm test` passed all `1,343` active tests across `135` files with `34` intentionally gated tests skipped.
+- **Quality, surface, measured coverage, and merge gates passed:** using project-pinned `pnpm@10.30.0`, the ordered TypeScript, lint, and build sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. Transient reviewed-surface timestamp churn was restored; the workstream is 100% complete and verified for merge.
+
+### Write-Invariant Metadata Automation Run — 2026-09-10
+
+- **Current production metadata is complete:** fetched `origin/master` and fast-forwarded the reusable `codex/write-invariant-metadata` branch to synchronized production baseline `8fa39c4` in its isolated worktree, leaving the unrelated dirty event/indexer checkout untouched. The mounted inventory remains `260` ABI write methods across `31` facets, and every entry includes required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. The reviewed catalog hash is `650e193da3c336a466ce82b403d86ed065c10d5300c9868b2ab69191efd51308`.
+- **Merged event/indexer corrections are valid and fail closed:** no ABI, generator, or validator-test source changed since the prior invariant run. Production event/indexer work intentionally refined source- and receipt-backed role, readback, event, balance, diamond-self-call, and projection expectations without changing inventory coverage. `pnpm run codegen` and `pnpm run test:write-invariants` (`5/5`) passed, including rejection of missing/stale methods, ABI signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations.
+- **Quality, surface, measured coverage, and merge gates passed:** using project-pinned `pnpm@10.30.0`, the ordered `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` sequence passed without fixes. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `99.70%` statements, `99.41%` branches, `99.54%` functions, and `99.76%` lines. The reviewed API surface's transient timestamp was restored; the workstream is 100% complete and verified for merge.
 
 ### Actor Negative-Path Automation Run — 2026-09-09
 
