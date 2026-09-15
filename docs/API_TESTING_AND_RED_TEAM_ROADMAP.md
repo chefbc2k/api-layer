@@ -2,6 +2,12 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Write-Invariant Metadata Automation Run — 2026-09-15
+
+- **Current-production metadata is complete:** fetched `origin/master` and fast-forwarded the reusable isolated `codex/write-invariant-metadata` worktree to production baseline `6e06efa`. The mounted inventory remains `260` ABI write methods across `31` facets, and every entry retains required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. The reviewed catalog SHA-256 is `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the generated registry SHA-256 is `717b70d3034cf7d9d1c69d68b9fdbda2c5d41d265258996063e40814d312397d`.
+- **New projection expectations remain fail-closed:** production promoted `CommunityRewardsFacet.claim`, `createCampaign`, `pauseCampaign`, `setMerkleRoot`, and `unpauseCampaign` from raw-event-only handling to required `reward_claims` or `reward_campaigns` projections. `pnpm run codegen` and `pnpm run test:write-invariants` (`5/5`) passed, retaining rejection coverage for missing or stale methods, ABI signature drift, incomplete or invalid sections, stale read/event references, and inconsistent indexer expectations.
+- **All merge gates passed:** with project-pinned `pnpm@10.30.0`, TypeScript, lint, and the full build passed without fixes. Build-time and explicit `pnpm run coverage:check` runs each confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `97.70%` statements, `97.12%` branches, `98.52%` functions, and `97.74%` lines. Transient reviewed-surface timestamp churn was restored; this workstream remains 100% complete and verified for merge.
+
 ## API Assurance Gap Completion — 2026-09-15
 
 - The Community Rewards write/indexer batch completes local-fork receipt, decoded-event, readback, PostgreSQL projection, and idempotent-replay proof for `createCampaign`, `setMerkleRoot`, `pauseCampaign`, and `unpauseCampaign`. The proof artifact records successful receipts at `0xd523ffcb1794a55ddedf20ae31c425df1cfd6bc833d5cb77834a9f03a6c459e6`, `0x492101c92927c96e8276e13a60fe0618592f7e3b73379c83d5edc2826d9e0b49`, `0x52964c4d04b79b108f90e556812bbb6a8d32168714bbb501d6b21bf8be312eba`, and `0x854dfef3654093a42cd5899b723c14d2c93e497bdf519f7fe22d61df75b652bc`.

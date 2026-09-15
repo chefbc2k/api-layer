@@ -2,6 +2,14 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.356] - 2026-09-15
+
+### Verified
+
+- **Write-Invariant Metadata Remains Complete On Current Production:** Fast-forwarded the isolated reusable `codex/write-invariant-metadata` worktree to `origin/master` `6e06efa` and revalidated all `260` mounted ABI write methods across `31` facets. Every entry retains structured actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-safety, and indexer metadata; the reviewed catalog and generated registry hashes are `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0` and `717b70d3034cf7d9d1c69d68b9fdbda2c5d41d265258996063e40814d312397d`.
+- **Community Rewards Projection Metadata Passed Fail-Closed Validation:** The five production-promoted `CommunityRewardsFacet` projection expectations remain consistent with their declared events and `reward_campaigns` or `reward_claims` targets. `pnpm run codegen` and `pnpm run test:write-invariants` (`5/5`) passed, including checks for missing/stale methods, signature and ABI-reference drift, incomplete or invalid sections, and inconsistent indexer expectations.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, TypeScript, lint, the full build, and explicit `pnpm run coverage:check` passed. Surface coverage remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm run test:coverage` passed at `97.70%` statements, `97.12%` branches, `98.52%` functions, and `97.74%` lines. Transient reviewed-surface timestamp churn was restored, and the workstream remains 100% complete and verified for merge.
+
 ## [0.1.355] - 2026-09-15
 
 ### Changed
