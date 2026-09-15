@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.359] - 2026-09-15
+
+### Changed
+
+- **Base Sepolia Promotion Refusal Evidence Is Current:** Created isolated branch `codex/base-sepolia-promotion-20260915` from clean local production `master` `77abedb` and refreshed `verify-base-sepolia-promotion-output.json` through the canonical explicit-env preflight. The safety manifest still excludes diamond upgrades, ownership changes, pause/recovery actions, treasury withdrawals, and other destructive protocol-admin writes.
+
+### Verified
+
+- **Readiness Still Fails Closed:** The preflight exited `2` with `finalClassification: "blocked by setup/state"`. Seven static checks passed, but explicit live opt-in is disabled and both execution and diagnostics RPC origins are loopback. The gate stopped before provider access, fixture setup, funding, approvals, listings, governance preparation, proof scenarios, or transaction submission; the artifact contains no transaction, block, actor, state-delta, or decoded-event evidence.
+- **Non-Live Gates Passed:** The focused promotion suite passed `6/6`. After generating the isolated worktree's gitignored manifests, explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
+
+### Remaining Issues
+
+- **Direct Base Sepolia Configuration Blocks Proof And Merge:** Set `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and configure direct non-loopback Base Sepolia execution and diagnostics RPCs. Do not merge until the safe fixture-backed marketplace and governance scenarios, plus the aggregate artifact, all classify `proven working`.
+
 ## [0.1.358] - 2026-09-15
 
 ### Changed
