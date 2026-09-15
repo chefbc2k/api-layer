@@ -159,6 +159,13 @@ describe("generated event-to-indexer assurance", () => {
 
   it.each([
     ["DelegationFacet.DelegateChanged(address,address,address)", "governance_delegations"],
+    ["EmergencyFacet.AssetsFrozen", "emergency_incidents"],
+    ["EmergencyFacet.EmergencyResumeExecuted", "emergency_incidents"],
+    ["EmergencyFacet.EmergencyResumeScheduled", "emergency_incidents"],
+    ["EmergencyFacet.EmergencyStateChanged", "emergency_incidents"],
+    ["EmergencyFacet.IncidentReported", "emergency_incidents"],
+    ["EmergencyFacet.PauseExtended", "emergency_incidents"],
+    ["EmergencyFacet.ResponseExecuted", "emergency_incidents"],
     ["MarketplaceFacet.ListingCancelled", "market_listings"],
     ["MarketplaceFacet.ListingPriceUpdated", "market_listings"],
     ["MarketplaceFacet.MarketplaceUnpaused", "market_listings"],

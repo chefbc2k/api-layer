@@ -765,6 +765,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "emergency-proof-key": {
+        label: "emergency-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "delegation-proof-key": {
         label: "delegation-proof",
         signerId: "outsider",
@@ -4756,6 +4762,7 @@ describeLive("HTTP API contract integration", () => {
     const assetId = BigInt(Date.now() % 1_000_000_000) + 1_000_000_000n;
 
     const workflowResponse = await apiCall(port, "POST", "/v1/workflows/trigger-emergency", {
+      apiKey: "emergency-proof-key",
       body: {
         emergency: {
           useEmergencyStop: false,
@@ -4828,7 +4835,7 @@ describeLive("HTTP API contract integration", () => {
     await provider.send("evm_mine", []);
 
     const submit = async (route: string, body: Record<string, unknown> = {}) => {
-      const result = await apiCall(port, "POST", route, { body });
+      const result = await apiCall(port, "POST", route, { apiKey: "emergency-proof-key", body });
       expect(result.status, JSON.stringify(result.payload)).toBe(202);
       const txHash = extractTxHash(result.payload);
       await expectReceipt(txHash);
@@ -4847,9 +4854,18 @@ describeLive("HTTP API contract integration", () => {
     })).toEqual(expect.arrayContaining(["EmergencyStateChanged", "EmergencyResumeExecuted"]));
     expect(await emergencyFacet.getEmergencyState()).toBe(0n);
 
-    const unfreezeTxHash = await submit("/v1/emergency/admin/unfreeze-assets", {
-      assetIds: [assetId.toString()],
+    const unfreezeWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/recover-from-emergency", {
+      apiKey: "emergency-proof-key",
+      body: {
+        incidentId: String(report.incidentId),
+        unfreezeAssets: { assetIds: [assetId.toString()] },
+      },
     });
+    expect(unfreezeWorkflowResponse.status, JSON.stringify(unfreezeWorkflowResponse.payload)).toBe(202);
+    const unfreezeWorkflow = unfreezeWorkflowResponse.payload as Record<string, unknown>;
+    const assetUnfreeze = unfreezeWorkflow.assetUnfreeze as Record<string, unknown>;
+    const unfreezeTxHash = String(assetUnfreeze.txHash);
+    await expectReceipt(unfreezeTxHash);
     const unfreezeReceipt = await provider.getTransactionReceipt(unfreezeTxHash);
     expect(unfreezeReceipt).not.toBeNull();
     expect(unfreezeReceipt!.logs).toHaveLength(0);
