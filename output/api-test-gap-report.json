@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T00:47:38.697Z",
+  "generatedAt": "2026-09-15T01:13:19.420Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -173,8 +173,8 @@
       "workflow": 269,
       "localFork": 95,
       "baseSepolia": 60,
-      "negativePath": 254,
-      "economic": 167,
+      "negativePath": 262,
+      "economic": 172,
       "redTeam": 21,
       "indexer": 29
     },
@@ -206,7 +206,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 1.05,
+          "averageScore": 1.1,
           "maximumScore": 8
         }
       },
@@ -236,13 +236,13 @@
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
@@ -251,13 +251,17 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -1385,13 +1389,13 @@
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
@@ -1400,13 +1404,17 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -4752,7 +4760,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 0.86,
+          "averageScore": 0.93,
           "maximumScore": 8
         }
       },
@@ -4782,26 +4790,30 @@
             "localFork": false,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
           "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -15801,7 +15813,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 1.41,
+          "averageScore": 1.53,
           "maximumScore": 8
         }
       },
@@ -17042,29 +17054,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -17501,29 +17516,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -17612,29 +17630,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -17723,29 +17744,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -17783,29 +17807,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -17843,29 +17870,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -17903,29 +17933,32 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -19061,7 +19094,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.42,
+          "averageScore": 2.5,
           "maximumScore": 8
         }
       },
@@ -19140,14 +19173,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
+            "negativePath": true,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "adversarial",
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -19156,11 +19189,16 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
+            "economicTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30611,7 +30649,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.15,
+          "averageScore": 2.16,
           "maximumScore": 8
         }
       },
@@ -32273,6 +32311,7 @@
               "packages/api/src/workflows/register-voice-asset.integration.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
               "packages/indexer/src/worker.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/http-registry.test.ts"
@@ -32287,11 +32326,13 @@
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
               "packages/indexer/src/worker.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
             "redTeamTests": [
@@ -32363,13 +32404,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -32380,6 +32421,7 @@
             "tests": [
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
             "workflowTests": [
@@ -32388,9 +32430,12 @@
             ],
             "negativePathTests": [
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
