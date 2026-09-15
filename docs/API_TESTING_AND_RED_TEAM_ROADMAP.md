@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API Assurance Gap Completion — 2026-09-15
+
+- The Community Rewards write/indexer batch completes local-fork receipt, decoded-event, readback, PostgreSQL projection, and idempotent-replay proof for `createCampaign`, `setMerkleRoot`, `pauseCampaign`, and `unpauseCampaign`. The proof artifact records successful receipts at `0xd523ffcb1794a55ddedf20ae31c425df1cfd6bc833d5cb77834a9f03a6c459e6`, `0x492101c92927c96e8276e13a60fe0618592f7e3b73379c83d5edc2826d9e0b49`, `0x52964c4d04b79b108f90e556812bbb6a8d32168714bbb501d6b21bf8be312eba`, and `0x854dfef3654093a42cd5899b723c14d2c93e497bdf519f7fe22d61df75b652bc`.
+- All seven `CommunityRewardsFacet` events now decode and project into `reward_campaigns` or `reward_claims`. The receipt-backed lifecycle inserted raw-event rows `55` through `60`, reward-campaign projection rows `1` through `6`, and four block-journal rows; replay left every row count unchanged. The disposable PostgreSQL suite separately proves campaign lifecycle persistence and replay idempotency.
+- Regenerated report evidence advances seven event items from `needs indexer proof` to `ready`: aggregate counts changed from `262` ready / `223` needs fixture / `36` unsafe on live network / `189` needs indexer proof to `269` / `223` / `36` / `182`. Indexer attribution increased from `29` to `36`, local-fork attribution from `95` to `99`, unit attribution from `417` to `419`, economic attribution from `172` to `178`, and red-team attribution from `21` to `23`.
+- Verification is green: gap-report tests passed `5/5`; indexer assurance passed `77` active tests with the five PostgreSQL cases gated there; disposable PostgreSQL passed `5/5`; the full suite passed `1,365` active tests with `36` gated skips; lint and the complete build/codegen gate passed; inventory remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- Remaining `CommunityRewardsFacet` gaps are intentionally unpromoted. `vestedAmount` still has no directly attributable unit, workflow, negative-path, or live-fixture evidence and remains `needs fixture`. `claim` has unit, workflow, negative-path, and economic tests but no successful verify-artifact route, receipt/readback, or PostgreSQL row; it is therefore not claimed complete under the stricter write-method completion standard even though the inventory reporter classifies it `ready`.
+
 ## Daily Branch Consolidation — 2026-09-15
 
 - Production remains `master`; `origin/HEAD` resolves to `origin/master`. The initial inventory covered all `17` linked worktrees and found six dirty checkouts, including one pre-existing unresolved merge.
