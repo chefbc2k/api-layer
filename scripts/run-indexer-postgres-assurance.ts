@@ -59,6 +59,7 @@ async function main(): Promise<void> {
         "-f", "db/migrations/0001_initial.sql",
         "-f", "db/migrations/0002_hardening.sql",
         "-f", "db/migrations/0003_indexer_block_journal.sql",
+        "-f", "db/migrations/0004_reward_campaign_projections.sql",
       ]);
     }
 

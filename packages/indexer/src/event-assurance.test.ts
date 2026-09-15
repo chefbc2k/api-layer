@@ -159,9 +159,23 @@ describe("generated event-to-indexer assurance", () => {
 
   it.each([
     ["DelegationFacet.DelegateChanged(address,address,address)", "governance_delegations"],
+    ["EmergencyFacet.AssetsFrozen", "emergency_incidents"],
+    ["EmergencyFacet.EmergencyResumeExecuted", "emergency_incidents"],
+    ["EmergencyFacet.EmergencyResumeScheduled", "emergency_incidents"],
+    ["EmergencyFacet.EmergencyStateChanged", "emergency_incidents"],
+    ["EmergencyFacet.IncidentReported", "emergency_incidents"],
+    ["EmergencyFacet.PauseExtended", "emergency_incidents"],
+    ["EmergencyFacet.ResponseExecuted", "emergency_incidents"],
     ["MarketplaceFacet.ListingCancelled", "market_listings"],
     ["MarketplaceFacet.ListingPriceUpdated", "market_listings"],
     ["MarketplaceFacet.MarketplaceUnpaused", "market_listings"],
+    ["CommunityRewardsFacet.CampaignCapConfig", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignCreated", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignMerkleRootUpdated", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignPaused", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignUnpaused", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignVestingConfig", "reward_campaigns"],
+    ["CommunityRewardsFacet.Claimed", "reward_claims"],
   ])("decodes and projects %s into the %s Postgres projection", async (eventKey, table) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
@@ -241,8 +255,8 @@ describe("generated event-to-indexer assurance", () => {
     }
 
     expect(expectationCount).toBe(281);
-    expect(declaredProjectionCount).toBe(149);
-    expect(projectedEventTargetCount).toBe(187);
+    expect(declaredProjectionCount).toBe(154);
+    expect(projectedEventTargetCount).toBe(194);
     expect(noEventWriteCount).toBe(30);
   });
 });

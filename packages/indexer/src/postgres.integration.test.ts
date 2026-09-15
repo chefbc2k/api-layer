@@ -61,7 +61,7 @@ async function projectListing(rawEventId: number, txHash: string, blockNumber: b
 
 describe.skipIf(!configuredConnectionString)("PostgreSQL indexer assurance", () => {
   beforeAll(async () => {
-    await db.query("TRUNCATE market_listings, raw_events, indexer_blocks RESTART IDENTITY CASCADE");
+    await db.query("TRUNCATE market_listings, reward_campaigns, reward_claims, raw_events, indexer_blocks RESTART IDENTITY CASCADE");
   });
 
   afterAll(async () => {
@@ -78,6 +78,76 @@ describe.skipIf(!configuredConnectionString)("PostgreSQL indexer assurance", () 
       `SELECT count(*)::text AS count, count(*) FILTER (WHERE is_current)::text AS current_count FROM market_listings`,
     );
     expect(rows.rows[0]).toEqual({ count: "1", current_count: "1" });
+  });
+
+  it("persists reward campaign lifecycle rows and replays the current projection idempotently", async () => {
+    const insertRewardRawEvent = async (txHash: string, logIndex: number, blockNumber: bigint, eventName: string) => {
+      const result = await db.query<{ id: number }>(
+        `INSERT INTO raw_events (
+          chain_id, tx_hash, log_index, block_number, block_hash, contract_address,
+          facet_name, event_name, event_signature, decoded_args
+        ) VALUES (84532, $1, $2, $3, $4, '0xdiamond', 'CommunityRewardsFacet', $5, $6, '{}'::jsonb)
+        RETURNING id`,
+        [txHash, logIndex, blockNumber.toString(), `0xblock-${blockNumber}`, eventName, `${eventName}(uint256)`],
+      );
+      return result.rows[0].id;
+    };
+    const projectRewardEvent = async (args: {
+      rawEventId: number;
+      txHash: string;
+      blockNumber: bigint;
+      eventName: "CampaignCreated" | "CampaignPaused";
+      decodedArgs: Record<string, unknown>;
+    }) => {
+      await db.withTransaction(async (client) => {
+        await projectEvent({
+          chainId: 84532,
+          client,
+          rawEventId: args.rawEventId,
+          txHash: args.txHash,
+          blockNumber: args.blockNumber,
+          blockHash: `0xblock-${args.blockNumber}`,
+          isOrphaned: false,
+          decoded: {
+            facetName: "CommunityRewardsFacet",
+            eventName: args.eventName,
+            wrapperKey: args.eventName,
+            fullEventKey: `CommunityRewardsFacet.${args.eventName}`,
+            signature: args.eventName === "CampaignCreated"
+              ? "CampaignCreated(uint256,bytes32,uint256)"
+              : "CampaignPaused(uint256,address)",
+            args: args.decodedArgs,
+          },
+        });
+      });
+    };
+
+    const createdRawEventId = await insertRewardRawEvent("0xreward-create", 0, 30n, "CampaignCreated");
+    await projectRewardEvent({
+      rawEventId: createdRawEventId,
+      txHash: "0xreward-create",
+      blockNumber: 30n,
+      eventName: "CampaignCreated",
+      decodedArgs: { campaignId: 7n, merkleRoot: `0x${"11".repeat(32)}`, startTime: 100n },
+    });
+    const pausedRawEventId = await insertRewardRawEvent("0xreward-pause", 0, 31n, "CampaignPaused");
+    const pausedProjection = {
+      rawEventId: pausedRawEventId,
+      txHash: "0xreward-pause",
+      blockNumber: 31n,
+      eventName: "CampaignPaused" as const,
+      decodedArgs: { campaignId: 7n, by: "0x00000000000000000000000000000000000000aa" },
+    };
+    await projectRewardEvent(pausedProjection);
+    await projectRewardEvent(pausedProjection);
+
+    const rows = await db.query<{ entity_id: string; event_name: string; is_current: boolean }>(
+      "SELECT entity_id, event_name, is_current FROM reward_campaigns ORDER BY last_updated_block",
+    );
+    expect(rows.rows).toEqual([
+      { entity_id: "7", event_name: "CampaignCreated", is_current: false },
+      { entity_id: "7", event_name: "CampaignPaused", is_current: true },
+    ]);
   });
 
   it("rolls raw ingestion and projection back together after a partial-range failure", async () => {

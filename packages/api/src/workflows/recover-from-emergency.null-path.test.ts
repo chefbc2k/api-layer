@@ -129,6 +129,7 @@ describe("recover-from-emergency null-path coverage", () => {
       completed: false,
       resumedToNormal: true,
       executedStepCount: 0,
+      unfrozenAssetCount: 0,
       resumeMode: null,
     });
   });

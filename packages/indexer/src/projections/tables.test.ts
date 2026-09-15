@@ -16,6 +16,8 @@ describe("projectionTables", () => {
       "payment_withdrawals",
       "staking_positions",
       "staking_rewards",
+      "reward_campaigns",
+      "reward_claims",
       "governance_proposals",
       "governance_votes",
       "governance_delegations",

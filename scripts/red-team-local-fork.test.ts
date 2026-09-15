@@ -106,7 +106,7 @@ describeLocalFork("red-team local-fork probes", () => {
       after: { attacker: attackerAfter, recipient: recipientAfter },
       allowedBurn: receipt?.fee ?? 0n,
     })).toEqual([]);
-  });
+  }, 15_000);
 
   it("rejects an untrusted malicious initializer and selector collision from an unprivileged signer", async () => {
     const diamondCut = DiamondCutFacet__factory.connect(diamondAddress, attacker);

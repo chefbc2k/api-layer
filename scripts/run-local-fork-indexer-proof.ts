@@ -182,6 +182,7 @@ async function applyMigrations(psql: string, port: number): Promise<void> {
     "-f", "db/migrations/0001_initial.sql",
     "-f", "db/migrations/0002_hardening.sql",
     "-f", "db/migrations/0003_indexer_block_journal.sql",
+    "-f", "db/migrations/0004_reward_campaign_projections.sql",
   ], { cwd: rootDir });
 }
 
@@ -410,13 +411,7 @@ async function runProof(
             status: "idempotent",
             unchanged: JSON.stringify(receiptReplay.get(result.txHash)) === JSON.stringify(result.postgres),
           },
-          source: {
-            workflowArtifacts: result.sourceArtifacts,
-            producers: result.sourceArtifacts
-              .map((artifactPath) => artifactProducers[path.basename(artifactPath)])
-              .filter((producer): producer is string => Boolean(producer)),
-            ingestionScript: "scripts/run-local-fork-indexer-proof.ts",
-          },
+          source: result.source,
         })),
         finalClassification: "proven working",
         classification: "proven working",
