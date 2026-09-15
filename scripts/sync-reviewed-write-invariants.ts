@@ -422,12 +422,26 @@ export function deriveWriteInvariant(key: string, method: AbiMethod, registry: A
 
 async function main(): Promise<void> {
   const registry = await readJson<AbiRegistry>(path.join(generatedManifestDir, "abi-method-registry.json"));
-  const methods = Object.fromEntries(
-    Object.entries(registry.methods)
-      .filter(([, method]) => method.category === "write")
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([key, method]) => [key, deriveWriteInvariant(key, method, registry)]),
-  );
+  const projectionOnly = process.argv.includes("--indexer-projections-only");
+  const existing = projectionOnly ? await readJson<ReviewedWriteInvariantFile>(reviewedPath) : null;
+  const projectionOnlyMethodKeys = new Set([
+    "CommunityRewardsFacet.claim",
+    "CommunityRewardsFacet.createCampaign",
+    "CommunityRewardsFacet.pauseCampaign",
+    "CommunityRewardsFacet.setMerkleRoot",
+    "CommunityRewardsFacet.unpauseCampaign",
+  ]);
+  const methods = Object.fromEntries(Object.entries(registry.methods)
+    .filter(([, method]) => method.category === "write")
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([key, method]) => {
+      const derived = deriveWriteInvariant(key, method, registry);
+      const current = existing?.methods[key];
+      if (!projectionOnly || !current || !projectionOnlyMethodKeys.has(key)) {
+        return [key, current ?? derived];
+      }
+      return [key, { ...current, indexerExpectations: derived.indexerExpectations }];
+    }));
   const output: ReviewedWriteInvariantFile = { version: 1, reviewedAt: new Date().toISOString().slice(0, 10), methods };
   await writeJson(reviewedPath, output);
   console.log(`synced reviewed write invariant metadata for ${Object.keys(methods).length} ABI write methods`);

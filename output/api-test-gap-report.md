@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-15T07:15:22.078Z`
+Generated: `2026-09-15T08:31:43.521Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,12 +13,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 262 |
+| ready | 269 |
 | needs fixture | 223 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
-| needs indexer proof | 189 |
+| needs indexer proof | 182 |
 
 | Proof dimension | Items |
 | --- | ---: |
@@ -26,14 +26,14 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 417 |
+| unit | 419 |
 | workflow | 269 |
-| localFork | 95 |
+| localFork | 99 |
 | baseSepolia | 60 |
 | negativePath | 262 |
-| economic | 172 |
-| redTeam | 21 |
-| indexer | 29 |
+| economic | 178 |
+| redTeam | 23 |
+| indexer | 36 |
 
 ## Methodology
 
@@ -120,7 +120,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## CommunityRewardsFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2.82/8`.
+Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `4.06/8`.
 
 ### Functions
 
@@ -130,24 +130,24 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `claim` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `claimableAmount` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `claimed` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `createCampaign` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `createCampaign` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `getCampaign` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `pauseCampaign` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `setMerkleRoot` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `unpauseCampaign` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `pauseCampaign` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `setMerkleRoot` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `unpauseCampaign` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `vestedAmount` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `CommunityRewardsFacet.CampaignCapConfig` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `CommunityRewardsFacet.CampaignCreated` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `CommunityRewardsFacet.CampaignMerkleRootUpdated` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `CommunityRewardsFacet.CampaignPaused` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `CommunityRewardsFacet.CampaignUnpaused` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `CommunityRewardsFacet.CampaignVestingConfig` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `CommunityRewardsFacet.Claimed` | yes | — | — | — | adversarial 4/8 | needs indexer proof |
+| `CommunityRewardsFacet.CampaignCapConfig` | yes | — | — | yes | indexer 3/8 | ready |
+| `CommunityRewardsFacet.CampaignCreated` | yes | — | — | yes | indexer 6/8 | ready |
+| `CommunityRewardsFacet.CampaignMerkleRootUpdated` | yes | — | — | yes | indexer 5/8 | ready |
+| `CommunityRewardsFacet.CampaignPaused` | yes | — | — | yes | indexer 6/8 | ready |
+| `CommunityRewardsFacet.CampaignUnpaused` | yes | — | — | yes | indexer 5/8 | ready |
+| `CommunityRewardsFacet.CampaignVestingConfig` | yes | — | — | yes | indexer 3/8 | ready |
+| `CommunityRewardsFacet.Claimed` | yes | — | — | yes | indexer 5/8 | ready |
 
 ## DelegationFacet
 

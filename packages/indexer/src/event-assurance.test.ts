@@ -169,6 +169,13 @@ describe("generated event-to-indexer assurance", () => {
     ["MarketplaceFacet.ListingCancelled", "market_listings"],
     ["MarketplaceFacet.ListingPriceUpdated", "market_listings"],
     ["MarketplaceFacet.MarketplaceUnpaused", "market_listings"],
+    ["CommunityRewardsFacet.CampaignCapConfig", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignCreated", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignMerkleRootUpdated", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignPaused", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignUnpaused", "reward_campaigns"],
+    ["CommunityRewardsFacet.CampaignVestingConfig", "reward_campaigns"],
+    ["CommunityRewardsFacet.Claimed", "reward_claims"],
   ])("decodes and projects %s into the %s Postgres projection", async (eventKey, table) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
@@ -248,8 +255,8 @@ describe("generated event-to-indexer assurance", () => {
     }
 
     expect(expectationCount).toBe(281);
-    expect(declaredProjectionCount).toBe(149);
-    expect(projectedEventTargetCount).toBe(187);
+    expect(declaredProjectionCount).toBe(154);
+    expect(projectedEventTargetCount).toBe(194);
     expect(noEventWriteCount).toBe(30);
   });
 });
