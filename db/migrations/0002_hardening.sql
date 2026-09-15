@@ -73,7 +73,8 @@ end $$;
 
 drop policy if exists raw_events_public_select on raw_events;
 
-create policy if not exists raw_events_service_all on raw_events
+drop policy if exists raw_events_service_all on raw_events;
+create policy raw_events_service_all on raw_events
   for all using (coalesce((auth.jwt() ->> 'role') = 'service_role', false))
   with check (coalesce((auth.jwt() ->> 'role') = 'service_role', false));
 

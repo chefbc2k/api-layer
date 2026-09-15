@@ -51,12 +51,43 @@ describe("actor negative-path coverage", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
     const roleGated = report.methods.filter((method) => method.requiredActor.kind === "role");
 
-    expect(roleGated).toHaveLength(151);
-    expect(report.totals.roleLifecycleCaseCount).toBe(3_171);
+    expect(roleGated).toHaveLength(150);
+    expect(report.totals.roleLifecycleCaseCount).toBe(3_150);
     for (const method of roleGated) {
       expect(method.roleLifecycleDenials).toEqual(["stale-role", "revoked-role", "expired-validity-window"]);
       expect(method.actors.every((actor) => actor.contractDenials.includes("missing-required-role"))).toBe(true);
     }
+  });
+
+  it("locks source-reviewed access-control and payment role boundaries", () => {
+    const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
+    const expectedRoles = {
+      "AccessControlFacet.configureRole": ["TIMELOCK_ROLE", "FOUNDER_ROLE"],
+      "AccessControlFacet.setMinValidations": ["TIMELOCK_ROLE", "FOUNDER_ROLE"],
+      "PaymentFacet.pauseBuybacks": ["GOVERNANCE_ROLE"],
+      "PaymentFacet.setPaymentPaused": ["EMERGENCY_ADMIN_ROLE"],
+      "PaymentFacet.setTreasuryWithdrawalLimit": ["FEE_MANAGER_ROLE"],
+      "PaymentFacet.updateDevFundAddress": ["FEE_MANAGER_ROLE"],
+      "PaymentFacet.updateFeeConfiguration": ["FEE_MANAGER_ROLE"],
+      "PaymentFacet.updateTreasuryAddress": ["FEE_MANAGER_ROLE"],
+      "PaymentFacet.updateUnionTreasuryAddress": ["GOVERNANCE_ROLE"],
+    } as const;
+
+    for (const [methodKey, roles] of Object.entries(expectedRoles)) {
+      const method = report.methods.find(({ method }) => method === methodKey);
+      expect(method?.requiredActor).toMatchObject({ kind: "role", roles });
+      expect(method?.roleLifecycleDenials).toEqual(["stale-role", "revoked-role", "expired-validity-window"]);
+      expect(method?.actors.every((actor) => actor.contractDenials.includes("missing-required-role"))).toBe(true);
+    }
+
+    const diamondSelfCall = report.methods.find(
+      ({ method }) => method === "VoiceAssetFacet.registerVoiceAssetForCaller",
+    );
+    expect(diamondSelfCall?.requiredActor).toMatchObject({ kind: "contract", roles: ["DIAMOND_SELF_CALL"] });
+    expect(diamondSelfCall?.roleLifecycleDenials).toEqual([]);
+    expect(diamondSelfCall?.actors.every((actor) =>
+      actor.contractDenials.includes("eoa-not-authorized-protocol-contract"),
+    )).toBe(true);
   });
 
   it("maps ownership, self, contract-only, and permissionless writes to their correct negative condition", () => {

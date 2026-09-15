@@ -72,6 +72,7 @@ begin
     )',
     table_name
   );
+  execute format('drop trigger if exists %I_set_updated_at on %I', table_name, table_name);
   execute format('create trigger %I_set_updated_at before update on %I for each row execute function set_updated_at()', table_name, table_name);
 end;
 $$;
@@ -126,16 +127,19 @@ alter table multisig_operations enable row level security;
 alter table upgrade_requests enable row level security;
 alter table ownership_transfers enable row level security;
 
-create policy if not exists raw_events_public_select on raw_events
+drop policy if exists raw_events_public_select on raw_events;
+create policy raw_events_public_select on raw_events
   for select using (canonical_status = 'canonical' and is_orphaned = false);
 
-create policy if not exists tx_requests_owner_select on tx_requests
+drop policy if exists tx_requests_owner_select on tx_requests;
+create policy tx_requests_owner_select on tx_requests
   for select using (
     auth.uid() is not null
     and requester_id = auth.uid()
   );
 
-create policy if not exists tx_requests_service_all on tx_requests
+drop policy if exists tx_requests_service_all on tx_requests;
+create policy tx_requests_service_all on tx_requests
   for all using (coalesce((auth.jwt() ->> 'role') = 'service_role', false))
   with check (coalesce((auth.jwt() ->> 'role') = 'service_role', false));
 
@@ -168,13 +172,15 @@ begin
     'ownership_transfers'
   ]
   loop
+    execute format('drop policy if exists %I on %I', projection_table || '_public_select', projection_table);
     execute format(
-      'create policy %I_public_select on %I for select using (is_orphaned = false)',
+      'create policy %I on %I for select using (is_orphaned = false)',
       projection_table || '_public_select',
       projection_table
     );
+    execute format('drop policy if exists %I on %I', projection_table || '_service_all', projection_table);
     execute format(
-      'create policy %I_service_all on %I for all using (coalesce((auth.jwt() ->> ''role'') = ''service_role'', false)) with check (coalesce((auth.jwt() ->> ''role'') = ''service_role'', false))',
+      'create policy %I on %I for all using (coalesce((auth.jwt() ->> ''role'') = ''service_role'', false)) with check (coalesce((auth.jwt() ->> ''role'') = ''service_role'', false))',
       projection_table || '_service_all',
       projection_table
     );
