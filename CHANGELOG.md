@@ -2,6 +2,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.356] - 2026-09-15
+
+### Changed
+
+- **Base Sepolia Fixture Readiness Was Refreshed Through Real API Workflows:** Re-ran `pnpm run setup:base-sepolia` against the repository baseline. The generated fixture report records all five signer-backed actors, buyer USDC balance and allowance of `4000`, governance proposer access with `840000000000000000` current votes, and a purchase-ready token `11` marketplace listing submitted through the API as transaction `0x45949f58cbe21171ba004ab14312d9d3415cba134999110b2dc394b98c282115` at block `46845769`. The listing readback preserved seller ownership, price `1000`, active status, and the local-fork clock advanced `86401` seconds beyond the trading lock.
+
+### Verified
+
+- **Baseline And Contract Surface Gates Stayed Green:** `pnpm run baseline:show` and `pnpm run baseline:verify` resolved the validated Base Sepolia deployment at diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669` on chain `84532`, using the configured Alchemy fallback because loopback port `8548` was initially unavailable. `pnpm run coverage:check` confirmed all `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` ABI write invariants.
+- **Measured Test Suite Passed With A Known Coverage Partial:** `pnpm run test:coverage` passed every active coverage shard, but aggregate measured coverage is `97.68%` statements, `97.10%` branches, `98.45%` functions, and `97.74%` lines. The remaining deficit is concentrated in the opt-in live Base Sepolia promotion runner plus smaller indexer/script branches, so the strict `100%` standard-coverage objective remains partial and is not classified as proven working.
+
+### Remaining Issues
+
+- **Standard Coverage Still Requires Closure:** Add deterministic coverage for the guarded promotion runner and remaining indexer/script branches before claiming the global `100%` statement, branch, function, and line target. Live-only transaction paths must remain fail-closed unless explicitly enabled.
+
 ## [0.1.355] - 2026-09-15
 
 ### Changed

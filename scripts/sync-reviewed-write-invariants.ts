@@ -6,6 +6,25 @@ import { generatedManifestDir, readJson, writeJson } from "./utils.js";
 
 const reviewedPath = path.resolve("reviewed", "reviewed-write-invariants.json");
 
+export const projectionOnlyMethodKeys = new Set([
+  "CommunityRewardsFacet.claim",
+  "CommunityRewardsFacet.createCampaign",
+  "CommunityRewardsFacet.pauseCampaign",
+  "CommunityRewardsFacet.setMerkleRoot",
+  "CommunityRewardsFacet.unpauseCampaign",
+]);
+
+export function mergeProjectionOnlyInvariant(
+  key: string,
+  current: WriteInvariant | undefined,
+  derived: WriteInvariant,
+): WriteInvariant {
+  if (!current || !projectionOnlyMethodKeys.has(key)) {
+    return current ?? derived;
+  }
+  return { ...current, indexerExpectations: derived.indexerExpectations };
+}
+
 const roleByFacet: Record<string, string[]> = {
   AccessControlFacet: ["ADMIN_ROLE_FOR_TARGET_ROLE", "TIMELOCK_ROLE", "FOUNDER_ROLE"],
   BurnThresholdFacet: ["GOVERNANCE_ROLE", "BURNER_ROLE"],
@@ -424,23 +443,13 @@ async function main(): Promise<void> {
   const registry = await readJson<AbiRegistry>(path.join(generatedManifestDir, "abi-method-registry.json"));
   const projectionOnly = process.argv.includes("--indexer-projections-only");
   const existing = projectionOnly ? await readJson<ReviewedWriteInvariantFile>(reviewedPath) : null;
-  const projectionOnlyMethodKeys = new Set([
-    "CommunityRewardsFacet.claim",
-    "CommunityRewardsFacet.createCampaign",
-    "CommunityRewardsFacet.pauseCampaign",
-    "CommunityRewardsFacet.setMerkleRoot",
-    "CommunityRewardsFacet.unpauseCampaign",
-  ]);
   const methods = Object.fromEntries(Object.entries(registry.methods)
     .filter(([, method]) => method.category === "write")
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, method]) => {
       const derived = deriveWriteInvariant(key, method, registry);
       const current = existing?.methods[key];
-      if (!projectionOnly || !current || !projectionOnlyMethodKeys.has(key)) {
-        return [key, current ?? derived];
-      }
-      return [key, { ...current, indexerExpectations: derived.indexerExpectations }];
+      return [key, projectionOnly ? mergeProjectionOnlyInvariant(key, current, derived) : derived];
     }));
   const output: ReviewedWriteInvariantFile = { version: 1, reviewedAt: new Date().toISOString().slice(0, 10), methods };
   await writeJson(reviewedPath, output);
