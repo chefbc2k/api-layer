@@ -2,6 +2,16 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-15
+
+- Production remains `master`; `origin/HEAD` resolves to `origin/master`. The initial inventory covered all `17` linked worktrees and found six dirty checkouts, including one pre-existing unresolved merge.
+- Before any fetch or branch movement, tracked edits were saved on `codex/autosave-20260915-api-test-gap-reports` (`c3fb443`), `codex/autosave-20260915-abi-gap-report` (`7c51c68`), `codex/autosave-20260915-actor-negative-reports` (`64ba4f9`), `codex/autosave-20260915-local-fork-review` (`abdcf6a`), and `codex/autosave-20260915-red-team-harness` (`6f8b4f9`). The unresolved API-assurance tree was captured exactly on `codex/autosave-20260915-api-assurance-conflict-state` (`dbab70e`); after aborting that stale merge, its retained reviewed-surface edit was saved on `codex/autosave-20260915-api-assurance-post-abort` (`9b7b725`).
+- Five clean passengers landed through no-fast-forward merges: API assurance/event-indexer work at `87bae71`, actor negative-path reports at `a85608f`, red-team local-fork hardening at `978250c`, the gated Base Sepolia promotion runner at `7ac1f62`, and the retained reviewed-surface refresh at `4da200b`.
+- Production verification is green: the final full suite passed `1,358` active tests across `136` files with `34` gated skips; gap-report tests passed `5/5`; actor tests passed `104/104`; indexer assurance passed `70` active tests; disposable PostgreSQL passed `4/4`; and the guarded red-team local-fork suite passed `147/147`. Coverage inventory remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- Regenerated evidence classifies `262` items ready, `223` needing fixtures, `36` unsafe on live networks, and `189` needing indexer proof. Proof attribution is `417` unit, `269` workflow, `95` local-fork, `60` Base Sepolia, `262` negative-path, `172` economic, `21` red-team, and `29` indexer items. Actor coverage remains `1,813` actor/method cases, `777` API-boundary cases, and `3,150` role-lifecycle cases across all `259` mounted writes.
+- Measured coverage passed at `97.68%` statements, `97.10%` branches, `98.45%` functions, and `97.74%` lines. The reduction from the prior baseline is concentrated in the newly merged Base Sepolia promotion runner, whose network transaction paths remain deliberately gated behind explicit live opt-in.
+- Ten maximal tips remain conflict-blocked: the ABI-report and local-fork autosaves, the broader conflicted API-assurance snapshot, three divergent historical Base Sepolia promotion heads, economic invariants, the historical red-team head, the remote layered-domain refactor, and the remote Vitest Dependabot head. No partial resolution was committed and every source ref remains intact.
+
 ## Daily Branch Consolidation — 2026-09-10
 
 - Production remains `master`; `origin` reports `master` as its HEAD branch. The initial inventory covered all `17` linked worktrees and found only the primary event/indexer checkout dirty.
@@ -25,7 +35,7 @@ This repo has strong mechanical and behavioral coverage for the API layer that s
 
 - ABI/client wrapper coverage is complete for `33` facets, `492` functions, and `218` events.
 - HTTP surface generation is complete for `491` generated endpoints across access control, tokenomics, staking, diamond admin, emergency, marketplace, governance, voice assets, multisig, ownership, licensing, datasets, and WhisperBlock.
-- Standard TypeScript coverage currently reports `99.76%` lines, `99.70%` statements, `99.41%` branches, and `99.54%` functions across the measured API/client/indexer/script surface; the remaining uncovered lines are concentrated in indexer worker failure paths and indexer proof helpers plus isolated execution-context, setup, red-team, and Alchemy diagnostic branches.
+- Standard TypeScript coverage currently reports `97.74%` lines, `97.68%` statements, `97.10%` branches, and `98.45%` functions across the measured API/client/indexer/script surface; the remaining uncovered lines are concentrated in the explicitly live-gated Base Sepolia promotion runner, indexer worker failure paths, indexer proof helpers, and isolated execution-context, setup, red-team, and Alchemy diagnostic branches.
 - Existing Base Sepolia/local-fork proof artifacts classify the tracked live proof domains as `proven working`, with no current `blocked by setup/state`, `semantically clarified but not fully proven`, or `deeper issue remains` statuses.
 - Existing live proof scripts cover governance submission/voting, marketplace purchase settlement, remaining mounted workflow routes, and focused/completion proof slices.
 - A gated Base Sepolia promotion runner now wraps the existing operator setup, marketplace purchase, and governance proof commands. Its first preflight correctly refused to reuse the configured loopback fork as live evidence, so no Base Sepolia transaction was submitted by this automation run.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T00:58:22.582Z",
+  "generatedAt": "2026-09-15T07:15:22.078Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -136,6 +136,7 @@
       "scripts/indexer-trace-capability-lib.test.ts",
       "scripts/license-template-helper.test.ts",
       "scripts/manifest.test.ts",
+      "scripts/promote-base-sepolia-scenarios.test.ts",
       "scripts/red-team-harness-lib.test.ts",
       "scripts/red-team-local-fork.test.ts",
       "scripts/run-test-coverage.test.ts",
@@ -150,6 +151,7 @@
       "scripts/vitest-config.test.ts"
     ],
     "verifyArtifacts": [
+      "verify-base-sepolia-promotion-output.json",
       "verify-completion-output.json",
       "verify-focused-output.json",
       "verify-governance-output.json",
@@ -13268,7 +13270,8 @@
           "evidence": {
             "tests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "scripts/promote-base-sepolia-scenarios.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -13280,7 +13283,8 @@
             ],
             "economicTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "scripts/promote-base-sepolia-scenarios.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -20288,6 +20292,7 @@
               "packages/indexer/src/projections/common.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/promote-base-sepolia-scenarios.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/verify-governance-workflows.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
@@ -20386,6 +20391,7 @@
               "packages/api/src/workflows/vesting-helpers.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/promote-base-sepolia-scenarios.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],

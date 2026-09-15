@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.355] - 2026-09-15
+
+### Changed
+
+- **Daily Consolidation Preserved Every Dirty Worktree:** Captured seven dated autosaves before branch movement, including an exact commit of the pre-existing conflicted API-assurance checkout. The stale merge was then aborted and its retained pre-merge edit was committed separately; no user content was discarded and every linked worktree returned to a clean index.
+- **Five Passenger Tips Landed On Production:** No-fast-forward merged the current API assurance/event-indexer lineage, actor negative-path report refresh, red-team local-fork timeout hardening, gated Base Sepolia promotion runner, and retained reviewed-surface refresh into `master` as `87bae71`, `a85608f`, `978250c`, `7ac1f62`, and `4da200b`.
+- **Assurance Evidence Is Current:** Regenerated the API gap and actor reports. The inventory remains `33` facets, `492` functions, and `218` events; classifications are now `262` ready, `223` needing fixtures, `36` unsafe on live networks, and `189` needing indexer proof. Actor coverage remains all `259` mounted HTTP writes with `1,813` actor/method, `777` API-boundary, and `3,150` role-lifecycle cases.
+- **Conflicting Passenger Tips Remain Isolated:** Clean merge-tree preflight still blocks the ABI-report and local-fork autosaves, the broader conflicted API-assurance snapshot, three historical Base Sepolia promotion heads, economic invariants, the historical red-team head, the remote layered-domain refactor, and the remote Vitest Dependabot head. No partial conflict resolution was committed.
+
+### Verified
+
+- **Focused And Production Gates Passed:** Gap-report tests passed `5/5`; actor authorization tests passed `104/104`; indexer assurance passed `70` active tests with `4` PostgreSQL-gated skips; disposable PostgreSQL assurance passed `4/4`; the guarded red-team local-fork suite passed `147/147`; and the Base Sepolia promotion unit suite passed `6/6`. Repeated post-merge full runs passed, ending at `1,358` active tests across `136` files with `34` gated tests skipped.
+- **Coverage Inventories Remain Complete:** Repeated `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.68%` statements, `97.10%` branches, `98.45%` functions, and `97.74%` lines; the expected reduction is concentrated in the newly merged live-network promotion runner, whose transaction paths stay gated behind explicit opt-in.
+
 ## [0.1.350] - 2026-09-08
 
 ### Changed

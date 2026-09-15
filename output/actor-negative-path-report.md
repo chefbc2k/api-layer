@@ -1,6 +1,6 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-09-15T01:02:58.761Z
+Generated: 2026-09-15T07:15:24.697Z
 
 - ABI write methods: 260
 - Mounted HTTP write endpoints: 259
