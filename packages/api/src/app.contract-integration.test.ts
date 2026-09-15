@@ -4854,9 +4854,18 @@ describeLive("HTTP API contract integration", () => {
     })).toEqual(expect.arrayContaining(["EmergencyStateChanged", "EmergencyResumeExecuted"]));
     expect(await emergencyFacet.getEmergencyState()).toBe(0n);
 
-    const unfreezeTxHash = await submit("/v1/emergency/admin/unfreeze-assets", {
-      assetIds: [assetId.toString()],
+    const unfreezeWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/recover-from-emergency", {
+      apiKey: "emergency-proof-key",
+      body: {
+        incidentId: String(report.incidentId),
+        unfreezeAssets: { assetIds: [assetId.toString()] },
+      },
     });
+    expect(unfreezeWorkflowResponse.status, JSON.stringify(unfreezeWorkflowResponse.payload)).toBe(202);
+    const unfreezeWorkflow = unfreezeWorkflowResponse.payload as Record<string, unknown>;
+    const assetUnfreeze = unfreezeWorkflow.assetUnfreeze as Record<string, unknown>;
+    const unfreezeTxHash = String(assetUnfreeze.txHash);
+    await expectReceipt(unfreezeTxHash);
     const unfreezeReceipt = await provider.getTransactionReceipt(unfreezeTxHash);
     expect(unfreezeReceipt).not.toBeNull();
     expect(unfreezeReceipt!.logs).toHaveLength(0);

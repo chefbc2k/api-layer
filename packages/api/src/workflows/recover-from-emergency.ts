@@ -43,9 +43,13 @@ export const recoverFromEmergencyWorkflowSchema = z.object({
   complete: z.object({
     actor: actorOverrideSchema.optional(),
   }).optional(),
+  unfreezeAssets: z.object({
+    actor: actorOverrideSchema.optional(),
+    assetIds: z.array(digitsSchema).min(1),
+  }).optional(),
   resume: resumeSchema.optional(),
 }).superRefine((value, ctx) => {
-  if (!value.start && !value.approve && !value.execute && !value.complete && !value.resume) {
+  if (!value.start && !value.approve && !value.execute && !value.complete && !value.unfreezeAssets && !value.resume) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: [],
@@ -283,6 +287,52 @@ export async function runRecoverFromEmergencyWorkflow(
     };
   }
 
+  let assetUnfreeze: {
+    submission: unknown,
+    txHash: string | null,
+    assets: Array<{ assetId: string, frozen: boolean }>,
+  } | null = null;
+  if (body.unfreezeAssets) {
+    const actor = resolveActorOverride(
+      context,
+      auth,
+      walletAddress,
+      body.unfreezeAssets.actor,
+      "recover-from-emergency",
+      "unfreeze-assets",
+    );
+    const write = await emergency.unfreezeAssets({
+      auth: actor.auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress: actor.walletAddress,
+      wireParams: [body.unfreezeAssets.assetIds],
+    }).catch((error: unknown) => {
+      throw normalizeEmergencyExecutionError(error, "recover-from-emergency", "unfreeze-assets");
+    });
+    const txHash = await waitForWorkflowWriteReceipt(context, write.body, "recoverFromEmergency.unfreezeAssets");
+    const readback = await waitForWorkflowReadback(
+      async () => ({
+        statusCode: 200,
+        body: await Promise.all(body.unfreezeAssets!.assetIds.map(async (assetId) => ({
+          assetId,
+          frozen: (await emergency.isAssetFrozen({
+            auth: actor.auth,
+            api: { executionSource: "live", gaslessMode: "none" },
+            walletAddress: actor.walletAddress,
+            wireParams: [assetId],
+          })).body === true,
+        }))),
+      }),
+      (response) => Array.isArray(response.body) && response.body.every((asset) => asset.frozen === false),
+      "recoverFromEmergency.unfreezeAssetsRead",
+    );
+    assetUnfreeze = {
+      submission: write.body,
+      txHash,
+      assets: readback.body as Array<{ assetId: string, frozen: boolean }>,
+    };
+  }
+
   let resume: {
     mode: z.infer<typeof resumeSchema>["mode"],
     submission: unknown,
@@ -403,6 +453,7 @@ export async function runRecoverFromEmergencyWorkflow(
       before: before.incident,
       after: after.incident,
     },
+    assetUnfreeze,
     summary: {
       incidentId: body.incidentId,
       recoveryPhaseBefore: before.recovery?.phase ?? null,
@@ -410,6 +461,7 @@ export async function runRecoverFromEmergencyWorkflow(
       completed: completion?.incident.resolved ?? false,
       resumedToNormal: after.posture.currentState === "0",
       executedStepCount: executedSteps.length,
+      unfrozenAssetCount: assetUnfreeze?.assets.length ?? 0,
       resumeMode: resume?.mode ?? null,
     },
   };

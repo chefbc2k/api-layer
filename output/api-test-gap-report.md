@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-10T08:33:37.994Z`
+Generated: `2026-09-10T08:53:55.797Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,12 +13,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 254 |
-| needs fixture | 224 |
+| ready | 262 |
+| needs fixture | 223 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
-| needs indexer proof | 196 |
+| needs indexer proof | 189 |
 
 | Proof dimension | Items |
 | --- | ---: |
@@ -27,13 +27,13 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
 | unit | 417 |
-| workflow | 268 |
+| workflow | 269 |
 | localFork | 95 |
 | baseSepolia | 60 |
-| negativePath | 253 |
-| economic | 160 |
+| negativePath | 254 |
+| economic | 167 |
 | redTeam | 21 |
-| indexer | 22 |
+| indexer | 29 |
 
 ## Methodology
 
@@ -266,7 +266,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## EmergencyFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `3.03/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.52/8`.
 
 ### Functions
 
@@ -294,22 +294,22 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `setResumeDelay` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `startRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `triggerEmergency` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
-| `unfreezeAssets` | write | yes | — | yes | — | — | — | — | live 2/8 | needs fixture |
+| `unfreezeAssets` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `EmergencyFacet.AssetsFrozen` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `EmergencyFacet.EmergencyResumeExecuted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `EmergencyFacet.EmergencyResumeScheduled` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `EmergencyFacet.EmergencyStateChanged` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `EmergencyFacet.IncidentReported` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `EmergencyFacet.PauseExtended` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
+| `EmergencyFacet.AssetsFrozen` | yes | — | — | yes | indexer 5/8 | ready |
+| `EmergencyFacet.EmergencyResumeExecuted` | yes | — | — | yes | indexer 4/8 | ready |
+| `EmergencyFacet.EmergencyResumeScheduled` | yes | — | — | yes | indexer 5/8 | ready |
+| `EmergencyFacet.EmergencyStateChanged` | yes | — | — | yes | indexer 5/8 | ready |
+| `EmergencyFacet.IncidentReported` | yes | — | — | yes | indexer 5/8 | ready |
+| `EmergencyFacet.PauseExtended` | yes | — | — | yes | indexer 5/8 | ready |
 | `EmergencyFacet.RecoveryCompleted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 | `EmergencyFacet.RecoveryStarted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 | `EmergencyFacet.RecoveryStepExecuted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `EmergencyFacet.ResponseExecuted` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
+| `EmergencyFacet.ResponseExecuted` | yes | — | — | yes | indexer 5/8 | ready |
 
 ## EmergencyWithdrawalFacet
 

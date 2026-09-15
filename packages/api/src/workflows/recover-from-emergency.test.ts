@@ -151,6 +151,7 @@ describe("recover-from-emergency", () => {
       completed: true,
       resumedToNormal: true,
       executedStepCount: 1,
+      unfrozenAssetCount: 0,
       resumeMode: "immediate",
     });
     expect(result.recovery.start?.eventCount).toBe(1);
@@ -226,6 +227,86 @@ describe("recover-from-emergency", () => {
 
     expect(result.recovery.resume?.mode).toBe("schedule");
     expect(result.summary.resumeMode).toBe("schedule");
+  });
+
+  it("unfreezes incident assets and verifies the workflow readback", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xunfreeze");
+    const unfreezeAssets = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xunfreeze" } });
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn().mockResolvedValue({
+        statusCode: 200,
+        body: {
+          id: "9",
+          incidentType: "0",
+          description: "incident",
+          reporter: "0x00000000000000000000000000000000000000aa",
+          timestamp: "10",
+          resolved: false,
+          actions: [],
+          approvers: [],
+          resolutionTime: "0",
+        },
+      }),
+      getRecoveryPlan: vi.fn().mockResolvedValue({ statusCode: 200, body: [[], false, "0", "0", "0", []] }),
+      unfreezeAssets,
+      isAssetFrozen: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+    });
+
+    const result = await runRecoverFromEmergencyWorkflow(
+      {
+        apiKeys: {},
+        providerRouter: {
+          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: () => Promise<unknown>; }) => Promise<unknown>) => work({
+            getTransactionReceipt: vi.fn(async () => ({ blockNumber: 100 })),
+          })),
+        },
+      } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        incidentId: "9",
+        unfreezeAssets: { assetIds: ["1", "2"] },
+      },
+    );
+
+    expect(unfreezeAssets).toHaveBeenCalledWith(expect.objectContaining({ wireParams: [["1", "2"]] }));
+    expect(result.assetUnfreeze).toEqual({
+      submission: { txHash: "0xunfreeze" },
+      txHash: "0xunfreeze",
+      assets: [
+        { assetId: "1", frozen: false },
+        { assetId: "2", frozen: false },
+      ],
+    });
+    expect(result.summary.unfrozenAssetCount).toBe(2);
+  });
+
+  it("rejects unfreezeAssets when the contract reports an invalid frozen-asset state", async () => {
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      getEmergencyState: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      isEmergencyStopped: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getEmergencyTimeout: vi.fn().mockResolvedValue({ statusCode: 200, body: "3600" }),
+      getIncident: vi.fn().mockResolvedValue({ statusCode: 404, body: null }),
+      getRecoveryPlan: vi.fn().mockResolvedValue({ statusCode: 404, body: null }),
+      unfreezeAssets: vi.fn().mockRejectedValue(new Error("SecurityErrors.AssetNotFrozen(1)")),
+    });
+
+    await expect(runRecoverFromEmergencyWorkflow(
+      { apiKeys: {}, providerRouter: {} } as never,
+      { apiKey: "admin", label: "admin", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        incidentId: "9",
+        unfreezeAssets: { assetIds: ["1"] },
+      },
+    )).rejects.toEqual(expect.objectContaining({
+      statusCode: 409,
+      message: expect.stringContaining("blocked by setup/state"),
+    }));
   });
 
   it("normalizes recovery step state conflicts", async () => {
