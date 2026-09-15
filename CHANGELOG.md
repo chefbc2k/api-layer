@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.358] - 2026-09-15
+
+### Changed
+
+- **Actor And Signer Evidence Is Current On Latest Local Production:** Created `codex/actor-negative-paths-20260915` from local `master` `8c410bc`, which is six commits ahead of `origin/master` and includes the previously merged actor refresh. Regenerated `output/actor-negative-path-report.json` and `output/actor-negative-path-report.md`; after removing generation timestamps, their hashes remain unchanged at `41eba3f6b4436b0ee7aacc5292fa722da2428d73dd073ae764dfc898b9800da3` and `f18c544ad54bcc6d24d86c7b36ff3250d20361a9725325d3bfb400949a028d37`.
+- **Complete Role And Signer Matrices Remain Stable:** All `259` mounted HTTP writes across `13` domains retain `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, and `3,150` missing/stale/revoked/expired/ownership/self/protocol-contract mismatch cases. No ABI, mounted route, required-actor metadata, shared authorization, or execution-context signer-binding source changed since the prior actor merge.
+
+### Verified
+
+- **Focused Actor, API, And Workflow Suites Passed:** `pnpm run test:actor-negative-paths` passed `104/104`, including write-endpoint preflight and fail-closed unknown-key, read-only-key, API-key/signer, direct-request wallet, stale-role, revoked-role, and expired-validity behavior. The emergency, governance, recovery, withdrawal, and payment workflow slice passed `160/160`; `pnpm test` passed `1,367` active tests across `136` files with `36` intentionally gated skips.
+- **All Quality And Coverage Gates Passed:** With project-pinned `pnpm@10.30.0`, TypeScript, lint, the full build, and explicit `pnpm run coverage:check` passed. Surface coverage remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `97.70%` statements, `97.12%` branches, `98.52%` functions, and `97.74%` lines. Transient reviewed-surface timestamp churn was restored; the actor workstream is 100% complete and verified for merge.
+
 ## [0.1.357] - 2026-09-15
 
 ### Verified
