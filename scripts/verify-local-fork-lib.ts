@@ -464,6 +464,12 @@ export async function runProofStages(args: {
         console.warn(`retrying ${stage.id} after exit ${commandResult.exitCode} (${attemptCount}/${maxAttempts})`);
       }
     }
+    if (commandResult.exitCode !== 0 && stage.artifactPath) {
+      const artifactPath = path.isAbsolute(stage.artifactPath)
+        ? stage.artifactPath
+        : path.resolve(rootDir, stage.artifactPath);
+      await rm(artifactPath, { force: true });
+    }
     const artifact = await readOptionalJson(stage.artifactPath);
     results.push({
       ...stage,

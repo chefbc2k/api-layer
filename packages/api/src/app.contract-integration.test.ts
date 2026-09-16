@@ -799,6 +799,36 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "access-receipt-a-key": {
+        label: "access-receipt-a",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "access-receipt-b-key": {
+        label: "access-receipt-b",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "access-receipt-c-key": {
+        label: "access-receipt-c",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "whisper-workflow-voice-key": {
+        label: "whisper-workflow-voice",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "whisper-workflow-key": {
+        label: "whisper-workflow",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "read-key": {
         label: "reader",
         roles: ["read-only"],
@@ -3985,6 +4015,7 @@ describeLive("HTTP API contract integration", () => {
     ])) return;
     await ensureNativeBalance(founderAddress, ethers.parseEther("0.00001"));
     const voiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "whisper-workflow-voice-key",
       body: {
         ipfsHash: `QmWhisperWorkflow${Date.now()}`,
         royaltyRate: "125",
@@ -4008,6 +4039,7 @@ describeLive("HTTP API contract integration", () => {
 
     const workflowResponse = await waitForStableApiResponse(
       () => apiCall(port, "POST", "/v1/workflows/register-whisper-block", {
+        apiKey: "whisper-workflow-key",
         body: {
           voiceHash,
           structuredFingerprintData: fingerprintData,
@@ -4868,7 +4900,7 @@ describeLive("HTTP API contract integration", () => {
     };
 
     const configureTxHash = await submit(
-      "founder-key",
+      "access-receipt-a-key",
       "POST",
       "/v1/access-control/admin/configure-role",
       { role: proofRole, config: roleConfig },
@@ -4886,7 +4918,7 @@ describeLive("HTTP API contract integration", () => {
     })).toBe(true);
 
     const defaultValidityTxHash = await submit(
-      "founder-key",
+      "access-receipt-a-key",
       "POST",
       "/v1/access-control/admin/set-default-validity-period",
       { period: "86400" },
@@ -4896,7 +4928,7 @@ describeLive("HTTP API contract integration", () => {
     expect(defaultValidityReceipt!.logs).toHaveLength(0);
 
     const minValidationsTxHash = await submit(
-      "founder-key",
+      "access-receipt-b-key",
       "POST",
       "/v1/access-control/admin/set-min-validations",
       { validations: "1" },
@@ -4906,7 +4938,7 @@ describeLive("HTTP API contract integration", () => {
     expect(minValidationsReceipt!.logs).toHaveLength(0);
 
     await submit(
-      "founder-key",
+      "access-receipt-b-key",
       "POST",
       "/v1/access-control/admin/set-role-admin",
       { role: proofRole, adminRole: ownerRole },
@@ -4914,7 +4946,7 @@ describeLive("HTTP API contract integration", () => {
     expect(await accessControl.getRoleAdmin(proofRole)).toBe(ownerRole);
 
     await submit(
-      "founder-key",
+      "access-receipt-c-key",
       "POST",
       "/v1/access-control/admin/set-role-admin",
       { role: proofRole, adminRole: founderRole },
@@ -4922,7 +4954,7 @@ describeLive("HTTP API contract integration", () => {
     expect(await accessControl.getRoleAdmin(proofRole)).toBe(founderRole);
 
     await submit(
-      "founder-key",
+      "access-receipt-c-key",
       "POST",
       "/v1/access-control/admin/grant-role",
       { role: proofRole, account: licenseeWallet.address, expiryTime: "0" },

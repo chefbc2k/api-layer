@@ -264,6 +264,8 @@ describe("local-fork proof planning and reporting", () => {
       execute,
     });
     expect(live[0]).toMatchObject({ status: "failed", attemptCount: 1, checkpointRestores: 0 });
+    expect(live[0].artifact).toBeNull();
+    expect(fs.existsSync(artifactPath)).toBe(false);
   });
 
   it("normalizes command, artifact, and safe-read gaps", () => {
