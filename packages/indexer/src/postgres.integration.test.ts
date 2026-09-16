@@ -150,6 +150,59 @@ describe.skipIf(!configuredConnectionString)("PostgreSQL indexer assurance", () 
     ]);
   });
 
+  it("persists a reward claim ledger row once across duplicate projection replay", async () => {
+    const raw = await db.query<{ id: number }>(
+      `INSERT INTO raw_events (
+        chain_id, tx_hash, log_index, block_number, block_hash, contract_address,
+        facet_name, event_name, event_signature, decoded_args
+      ) VALUES (
+        84532, '0xreward-claim', 0, 32, '0xblock-32', '0xdiamond',
+        'CommunityRewardsFacet', 'Claimed', 'Claimed(uint256,address,uint256)', '{}'::jsonb
+      ) RETURNING id`,
+    );
+    const projection = {
+      chainId: 84532,
+      rawEventId: raw.rows[0].id,
+      txHash: "0xreward-claim",
+      blockNumber: 32n,
+      blockHash: "0xblock-32",
+      isOrphaned: false,
+      decoded: {
+        facetName: "CommunityRewardsFacet",
+        eventName: "Claimed",
+        wrapperKey: "Claimed",
+        fullEventKey: "CommunityRewardsFacet.Claimed",
+        signature: "Claimed(uint256,address,uint256)",
+        args: {
+          campaignId: 7n,
+          account: "0x00000000000000000000000000000000000000bb",
+          amount: 1_000n,
+        },
+      },
+    } as const;
+
+    await db.withTransaction((client) => projectEvent({ ...projection, client }));
+    await db.withTransaction((client) => projectEvent({ ...projection, client }));
+
+    const rows = await db.query<{
+      entity_id: string;
+      actor_address: string;
+      amount: string;
+      event_name: string;
+      is_current: boolean;
+    }>(
+      `SELECT entity_id, actor_address, amount, event_name, is_current
+       FROM reward_claims WHERE tx_hash = '0xreward-claim'`,
+    );
+    expect(rows.rows).toEqual([{
+      entity_id: `7:0x00000000000000000000000000000000000000bb:0xreward-claim:${raw.rows[0].id}`,
+      actor_address: "0x00000000000000000000000000000000000000bb",
+      amount: "1000",
+      event_name: "Claimed",
+      is_current: false,
+    }]);
+  });
+
   it("rolls raw ingestion and projection back together after a partial-range failure", async () => {
     const rawCountBefore = await db.query<{ count: string }>("SELECT count(*)::text AS count FROM raw_events");
     const projectionCountBefore = await db.query<{ count: string }>("SELECT count(*)::text AS count FROM market_listings");
