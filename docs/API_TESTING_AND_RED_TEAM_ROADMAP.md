@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Production Indexer Write Coverage — 2026-09-16
+
+- The regenerated receipt baseline started at `95/260` proven write methods. This batch completes `CommunityRewardsFacet.claim`, raising durable receipt-to-PostgreSQL coverage to `96/260` and leaving `164` methods.
+- Local-fork transaction `0xfaaa496271fb22ea068ec37a589031df075cd6ada6d53ad4e6351f0cbe77fe43` succeeded at block `46889664`. The generated-client registry decoded its `Transfer` and `CommunityRewardsFacet.Claimed(uint256,address,uint256)` logs; the indexer persisted raw-event rows `62` and `63`, `reward_claims` row `1`, and the matching `indexer_blocks` journal row. Receipt replay left all evidence unchanged.
+- Durable evidence is recorded in `verify-local-fork-indexer-output.json`; its source chain is `.runtime/local-fork-proofs/http-contract-receipts.json`, produced by `packages/api/src/app.contract-integration.test.ts` and ingested by `scripts/run-local-fork-indexer-proof.ts`.
+- The fork runner now isolates the late whisper and access-control batches with dedicated founder-backed API identities and deletes any receipt artifact from a failed or checkpoint-restored stage. This prevents rolled-back transaction hashes from being misclassified as eligible indexer proof.
+- Verification passed: the full local-fork assurance runner, including all `26/26` HTTP contract tests and the receipt-to-PostgreSQL stage; `77` active indexer assurance tests; `6/6` disposable PostgreSQL tests; the `14/14` local-fork runner tests; and `pnpm run coverage:check` for `492` functions, `218` events, and `260/260` write invariants. The runner still reports `16` structured safe-read fixture gaps, which do not block this write proof.
+- Next batch: build a disposable local-fork staking lifecycle beginning with the already-ready `StakingFacet.stake`, then extend through `requestUnstake`, `executeUnstake`, and `claimRewards` as their time and reward-pool fixtures become deterministic.
+
 ## Daily Branch Consolidation — 2026-09-16
 
 - Production remains `master`; `origin/HEAD` resolves to `origin/master`. The initial inventory covered all `20` linked worktrees and found only the primary checkout dirty.

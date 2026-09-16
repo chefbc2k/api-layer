@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T18:07:17.357Z",
+  "generatedAt": "2026-09-16T08:42:28.939Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -57,6 +57,7 @@
       "packages/api/src/workflows/legacy-migration-recovery.integration.test.ts",
       "packages/api/src/workflows/legacy-migration-recovery.test.ts",
       "packages/api/src/workflows/license-template.test.ts",
+      "packages/api/src/workflows/manage-access-control.test.ts",
       "packages/api/src/workflows/manage-license-template-lifecycle.test.ts",
       "packages/api/src/workflows/manage-reward-campaign.test.ts",
       "packages/api/src/workflows/marketplace-listing-helpers.test.ts",
@@ -172,22 +173,22 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 419,
-      "workflow": 269,
-      "localFork": 99,
+      "unit": 421,
+      "workflow": 279,
+      "localFork": 100,
       "baseSepolia": 60,
-      "negativePath": 262,
+      "negativePath": 263,
       "economic": 104,
-      "redTeam": 28,
-      "indexer": 36
+      "redTeam": 29,
+      "indexer": 42
     },
     "classificationCounts": {
-      "ready": 269,
-      "needs fixture": 223,
+      "ready": 281,
+      "needs fixture": 217,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
-      "needs indexer proof": 182
+      "needs indexer proof": 176
     }
   },
   "facets": [
@@ -199,17 +200,17 @@
         "eventCount": 15,
         "classification": "needs indexer proof",
         "classificationCounts": {
-          "ready": 9,
-          "needs fixture": 11,
+          "ready": 21,
+          "needs fixture": 5,
           "unsafe on live network": 5,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 15
+          "needs indexer proof": 9
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "adversarial",
-          "averageScore": 1.05,
+          "maximumLevel": "indexer",
+          "averageScore": 1.48,
           "maximumScore": 8
         }
       },
@@ -235,7 +236,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
@@ -245,21 +246,23 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
@@ -597,7 +600,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -607,7 +610,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -617,11 +620,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/client/src/runtime/method-policy.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -650,7 +657,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -660,7 +667,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -669,11 +676,15 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -986,6 +997,7 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/api/src/workflows/onboard-rights-holder.test.ts",
               "packages/api/src/workflows/onboard-voice-asset.integration.test.ts",
               "packages/api/src/workflows/onboard-voice-asset.test.ts",
@@ -1000,6 +1012,7 @@
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/api/src/workflows/onboard-rights-holder.test.ts",
               "packages/api/src/workflows/onboard-voice-asset.integration.test.ts",
               "packages/api/src/workflows/onboard-voice-asset.test.ts",
@@ -1013,6 +1026,7 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/api/src/workflows/onboard-rights-holder.test.ts",
               "packages/api/src/workflows/onboard-voice-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
@@ -1154,7 +1168,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
@@ -1164,20 +1178,22 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -1213,30 +1229,32 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
@@ -1324,7 +1342,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
@@ -1334,20 +1352,22 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -1383,7 +1403,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
@@ -1393,21 +1413,23 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -1545,7 +1567,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
@@ -1555,20 +1577,22 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -2055,33 +2079,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -2112,21 +2138,21 @@
             "negativePath": true,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 2,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
@@ -2134,7 +2160,9 @@
             ],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -2165,27 +2193,29 @@
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -2216,27 +2246,29 @@
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -2267,27 +2299,29 @@
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -2311,33 +2345,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }
@@ -2868,7 +2904,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 4.06,
+          "averageScore": 4.18,
           "maximumScore": 8
         }
       },
@@ -2898,13 +2934,13 @@
             "localFork": false,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -2922,7 +2958,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/create-reward-campaign.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -2963,7 +3001,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
@@ -2972,20 +3010,20 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/operator-incentive-grant-flow.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts",
@@ -2996,7 +3034,8 @@
               "packages/api/src/workflows/operator-incentive-grant-flow.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -3004,18 +3043,29 @@
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "CommunityRewardsFacet.claim",
+                "route": "POST /v1/tokenomics/commands/claim",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -3122,6 +3172,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
@@ -3140,10 +3191,12 @@
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [],
@@ -3273,10 +3326,12 @@
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [],
@@ -3620,8 +3675,7 @@
               "packages/indexer/src/postgres.integration.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/create-reward-campaign.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts"
+              "packages/api/src/workflows/create-reward-campaign.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -3749,7 +3803,6 @@
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/manage-reward-campaign.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
@@ -3917,29 +3970,37 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [
-              "packages/indexer/src/event-assurance.test.ts"
+              "packages/indexer/src/event-assurance.test.ts",
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
             "verifyArtifacts": []
           }
@@ -4830,7 +4891,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "adversarial",
-          "averageScore": 0.86,
+          "averageScore": 0.93,
           "maximumScore": 8
         }
       },
@@ -4856,7 +4917,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": true,
             "negativePath": true,
@@ -4866,7 +4927,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -4874,11 +4935,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
@@ -12520,7 +12585,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 4.27,
+          "averageScore": 4.2,
           "maximumScore": 8
         }
       },
@@ -12887,15 +12952,14 @@
             ],
             "negativePathTests": [
               "packages/api/src/workflows/stake-and-delegate.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "redTeamTests": [
+              "packages/indexer/src/postgres.integration.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "indexerTests": [],
@@ -13005,13 +13069,13 @@
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -13028,9 +13092,7 @@
             "negativePathTests": [
               "packages/api/src/app.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -20343,6 +20405,7 @@
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
@@ -25920,7 +25983,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.52,
+          "averageScore": 2.56,
           "maximumScore": 8
         }
       },
@@ -26771,12 +26834,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -26797,7 +26860,9 @@
               "packages/api/src/app.contract-integration.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -31867,6 +31932,7 @@
               "scripts/run-test-coverage.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
             "indexerTests": [],
@@ -39636,7 +39702,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "adversarial",
-          "averageScore": 2.76,
+          "averageScore": 2.81,
           "maximumScore": 8
         }
       },
@@ -39712,7 +39778,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -39722,7 +39788,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -39731,11 +39797,15 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
