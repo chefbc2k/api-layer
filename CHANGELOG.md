@@ -2,6 +2,29 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.360] - 2026-09-16
+
+### Changed
+
+- **Reward Claim Assurance Reaches HTTP And PostgreSQL Boundaries:** Extended the guarded local-fork contract test to fund a reward campaign, claim through the HTTP workflow, verify receipt/event and balance deltas, and reject a replay without moving state twice. Added a PostgreSQL projection test proving duplicate `Claimed` projection replay creates exactly one reward-claim ledger row.
+- **Daily Consolidation Preserved The Active Checkout:** Saved the three-file dirty assurance checkout on `codex/autosave-20260916-api-assurance-next` at `d44e709`, then no-fast-forward merged it into `master` as `5b9e8b3`. All other inspected passenger tips remain isolated because clean merge-tree preflight found conflicts; no partial resolution was attempted.
+
+### Verified
+
+- **Production Gates Passed:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm test` passed `1,369` active tests across `137` files with `37` gated skips, and disposable PostgreSQL assurance passed `6/6` including the new reward-claim replay case. The focused live/PostgreSQL collection found all `32` cases but skipped them before merge because their explicit runtime gates were unavailable.
+
+## [0.1.359] - 2026-09-15
+
+### Changed
+
+- **Reward Claims Now Resist Replay Under Stale Reads:** Added `scripts/red-team-reward-campaign.test.ts`, a stateful adversarial test that successfully claims a funded allocation once, replays the request while a stale claimable read reports the original value, and proves campaign funds, campaign totals, claimer funds, and claimed state cannot move twice. A paused-campaign probe separately proves claims cannot bypass lifecycle ordering or mutate value state.
+- **Red-Team Commands Include The New Reward Probe:** Both `pnpm run test:redteam` and the guarded `pnpm run redteam:local-fork` command now include the reward-campaign adversarial suite. Regenerated persistent gap reports increase red-team attribution from `23` to `28` ABI items and economic attribution from `103` to `104`, while classifications remain `269` ready, `223` needing fixtures, `36` unsafe on live networks, and `182` needing indexer proof.
+
+### Verified
+
+- **Focused, Fork, Workflow, And Repository Suites Passed:** The focused harness passed `106/106`; the loopback-only fork suite passed `149/149` across `10` files with all `5/5` deployed-contract probes active; the reward workflow and affected indexer slice passed `51/51`; the generated invariant/indexer slice passed `32/32`; and the full suite passed `1,369` active tests across `137` files with `36` intentionally gated skips. No destructive live-network execution was enabled.
+- **All Quality And Coverage Gates Passed:** TypeScript, lint, build/codegen, and explicit `pnpm run coverage:check` passed with `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.68%` statements, `97.10%` branches, `98.45%` functions, and `97.74%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.358] - 2026-09-15
 
 ### Changed

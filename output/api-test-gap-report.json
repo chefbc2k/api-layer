@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T11:10:04.010Z",
+  "generatedAt": "2026-09-15T18:07:17.357Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -139,6 +139,7 @@
       "scripts/promote-base-sepolia-scenarios.test.ts",
       "scripts/red-team-harness-lib.test.ts",
       "scripts/red-team-local-fork.test.ts",
+      "scripts/red-team-reward-campaign.test.ts",
       "scripts/run-test-coverage.test.ts",
       "scripts/show-validated-baseline.test.ts",
       "scripts/transient-rpc-retry.test.ts",
@@ -176,8 +177,8 @@
       "localFork": 99,
       "baseSepolia": 60,
       "negativePath": 262,
-      "economic": 103,
-      "redTeam": 23,
+      "economic": 104,
+      "redTeam": 28,
       "indexer": 36
     },
     "classificationCounts": {
@@ -2867,7 +2868,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 3.71,
+          "averageScore": 4.06,
           "maximumScore": 8
         }
       },
@@ -2966,12 +2967,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -2987,6 +2988,7 @@
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/indexer-receipt-proof-lib.test.ts",
+              "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
             "workflowTests": [
@@ -3002,12 +3004,16 @@
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -3038,12 +3044,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -3053,7 +3059,8 @@
           "evidence": {
             "tests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -3061,12 +3068,16 @@
             ],
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -3097,12 +3108,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -3114,7 +3125,8 @@
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -3124,12 +3136,16 @@
             ],
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -3222,12 +3238,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -3240,7 +3256,8 @@
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/create-reward-campaign.test.ts",
               "packages/api/src/workflows/manage-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -3252,12 +3269,16 @@
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/create-reward-campaign.test.ts",
               "packages/api/src/workflows/manage-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -3697,13 +3718,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -3716,7 +3737,8 @@
               "packages/api/src/workflows/manage-reward-campaign.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts"
+              "packages/indexer/src/postgres.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -3727,11 +3749,15 @@
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/manage-reward-campaign.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts"
+              "packages/indexer/src/postgres.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "redTeamTests": [
-              "packages/indexer/src/postgres.integration.test.ts"
+              "packages/indexer/src/postgres.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts",
@@ -3877,12 +3903,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -3893,7 +3919,8 @@
             "tests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
-              "packages/indexer/src/event-assurance.test.ts"
+              "packages/indexer/src/event-assurance.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -3901,12 +3928,16 @@
             ],
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
             ],
@@ -20213,6 +20244,7 @@
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/promote-base-sepolia-scenarios.test.ts",
               "scripts/red-team-harness-lib.test.ts",
+              "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-governance-workflows.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
               "scripts/verify-local-fork-lib.test.ts",
@@ -20291,6 +20323,7 @@
               "packages/client/src/runtime/provider-router.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/red-team-harness-lib.test.ts",
+              "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-governance-workflows.test.ts",
               "scripts/verify-layer1-helpers.test.ts",
               "scripts/verify-local-fork-lib.test.ts",
@@ -20306,10 +20339,12 @@
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/promote-base-sepolia-scenarios.test.ts",
               "scripts/red-team-harness-lib.test.ts",
+              "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "redTeamTests": [
-              "scripts/red-team-harness-lib.test.ts"
+              "scripts/red-team-harness-lib.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": []

@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-15T11:10:04.010Z`
+Generated: `2026-09-15T18:07:17.357Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -31,8 +31,8 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | localFork | 99 |
 | baseSepolia | 60 |
 | negativePath | 262 |
-| economic | 103 |
-| redTeam | 23 |
+| economic | 104 |
+| redTeam | 28 |
 | indexer | 36 |
 
 ## Methodology
@@ -120,18 +120,18 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## CommunityRewardsFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `3.71/8`.
+Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `4.06/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `campaignCount` | read | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
-| `claim` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `claimableAmount` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `claimed` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `claim` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
+| `claimableAmount` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
+| `claimed` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `createCampaign` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
-| `getCampaign` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `getCampaign` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `pauseCampaign` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `setMerkleRoot` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `unpauseCampaign` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
@@ -144,10 +144,10 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 | `CommunityRewardsFacet.CampaignCapConfig` | yes | — | — | yes | indexer 2/8 | ready |
 | `CommunityRewardsFacet.CampaignCreated` | yes | — | — | yes | indexer 5/8 | ready |
 | `CommunityRewardsFacet.CampaignMerkleRootUpdated` | yes | — | — | yes | indexer 4/8 | ready |
-| `CommunityRewardsFacet.CampaignPaused` | yes | — | — | yes | indexer 5/8 | ready |
+| `CommunityRewardsFacet.CampaignPaused` | yes | — | — | yes | indexer 6/8 | ready |
 | `CommunityRewardsFacet.CampaignUnpaused` | yes | — | — | yes | indexer 4/8 | ready |
 | `CommunityRewardsFacet.CampaignVestingConfig` | yes | — | — | yes | indexer 2/8 | ready |
-| `CommunityRewardsFacet.Claimed` | yes | — | — | yes | indexer 5/8 | ready |
+| `CommunityRewardsFacet.Claimed` | yes | — | — | yes | indexer 6/8 | ready |
 
 ## DelegationFacet
 

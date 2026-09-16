@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-16
+
+- Production remains `master`; `origin/HEAD` resolves to `origin/master`. The initial inventory covered all `20` linked worktrees and found only the primary checkout dirty.
+- Before fetch or branch movement, the three modified assurance files were committed on `codex/autosave-20260916-api-assurance-next` at `d44e709`: `packages/api/src/app.contract-integration.test.ts`, `packages/indexer/src/postgres.integration.test.ts`, and `reviewed/reviewed-api-surface.json`.
+- The autosave adds a funded reward claim through the HTTP/local-fork contract path, validates receipt/event and token/campaign deltas, rejects replay without a second state movement, and proves duplicate PostgreSQL projection replay leaves one `reward_claims` row. It landed through no-fast-forward merge `5b9e8b3`.
+- Production verification is green: `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm test` passed `1,369` active tests across `137` files with `37` gated skips; disposable PostgreSQL assurance passed `6/6`. The pre-merge focused command collected `32` contract/PostgreSQL cases, all intentionally skipped because live RPC and PostgreSQL gates were not enabled in that checkout.
+- Clean merge-tree preflight still blocks the unresolved September 9 and September 15 API-assurance autosaves, the reviewed-surface autosave, historical and current Base Sepolia promotion heads, economic invariants, the historical red-team head, the remote layered-domain refactor, the remote Vitest Dependabot head, and the new test-gap and reward-metadata branches. Each source ref remains intact; no conflict resolution or partial merge was committed.
+
 ## Write-Invariant Metadata Automation Run — 2026-09-15
 
 - **Current-production metadata is complete:** fetched `origin/master` and fast-forwarded the reusable isolated `codex/write-invariant-metadata` worktree to production baseline `6e06efa`. The mounted inventory remains `260` ABI write methods across `31` facets, and every entry retains required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. The reviewed catalog SHA-256 is `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the generated registry SHA-256 is `717b70d3034cf7d9d1c69d68b9fdbda2c5d41d265258996063e40814d312397d`.
@@ -208,6 +216,13 @@ Suggested command composition:
 ## Automation Tracking
 
 Daily automations should treat these sections as independently mergeable workstreams. A workstream can be merged into `master` only after implementation is complete, relevant tests/proof commands pass, generated artifacts are updated, and this master file records the evidence.
+
+### Red-Team Harness Automation Run — 2026-09-15
+
+- **Community Rewards now has direct replay and state-ordering abuse coverage:** fast-forwarded the clean isolated red-team worktree to local production `master` `77abedb` after fetching `origin/master`, leaving the dirty primary event/indexer checkout untouched. Added a stateful adversarial suite for `claim-reward-campaign` that executes a funded claim, replays it while a stale claimable read still reports the original allocation, and proves the campaign balance, campaign total, claimer balance, and per-account claimed amount cannot move twice. A separate paused-campaign probe proves the claim is rejected before any modeled value or claim state changes.
+- **The focused and guarded harnesses pass:** `pnpm run test:redteam` passed `106/106`, retaining deterministic valid values and `1,914` invalid mutations across every input on all `259` mounted HTTP writes plus signed-envelope, nonce, deadline, timestamp, signature, role, signer-binding, replay, conservation, state-ordering, RPC, diamond, timelock, multisig, and emergency-control oracles. `pnpm run redteam:local-fork` passed `149/149` across `10` files, including all `5/5` loopback-only deployed-contract probes; no destructive live-network path was enabled.
+- **Reward workflow and persistent evidence are current:** the claim/reward-campaign and affected worker/event slice passed `51/51`. Regenerated gap artifacts retain `33` facets, `492` functions, `218` events, and unchanged classifications of `269` ready, `223` needing fixtures, `36` unsafe on live networks, and `182` needing indexer proof. Direct adversarial attribution rises from `23` to `28` items and economic attribution from `103` to `104`; all other proof counts remain stable.
+- **All merge gates passed:** canonical code generation refreshed stale worktree-local generated registries, after which the affected invariant/indexer slice passed `32/32` and `pnpm test` passed `1,369` active tests across `137` files with `36` gated skips. TypeScript, lint, build, and build-time plus explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.68%` statements, `97.10%` branches, `98.45%` functions, and `97.74%` lines; transient reviewed-surface timestamp churn was restored. The red-team slice is 100% complete and approved for merge into `master`.
 
 ### Actor Negative-Path Automation Run — 2026-09-15
 
