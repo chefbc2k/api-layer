@@ -2,6 +2,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.360] - 2026-09-16
+
+### Changed
+
+- **Reward Claim Assurance Reaches HTTP And PostgreSQL Boundaries:** Extended the guarded local-fork contract test to fund a reward campaign, claim through the HTTP workflow, verify receipt/event and balance deltas, and reject a replay without moving state twice. Added a PostgreSQL projection test proving duplicate `Claimed` projection replay creates exactly one reward-claim ledger row.
+- **Daily Consolidation Preserved The Active Checkout:** Saved the three-file dirty assurance checkout on `codex/autosave-20260916-api-assurance-next` at `d44e709`, then no-fast-forward merged it into `master` as `5b9e8b3`. All other inspected passenger tips remain isolated because clean merge-tree preflight found conflicts; no partial resolution was attempted.
+
+### Verified
+
+- **Production Gates Passed:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm test` passed `1,369` active tests across `137` files with `37` gated skips, and disposable PostgreSQL assurance passed `6/6` including the new reward-claim replay case. The focused live/PostgreSQL collection found all `32` cases but skipped them before merge because their explicit runtime gates were unavailable.
+
 ## [0.1.359] - 2026-09-15
 
 ### Changed

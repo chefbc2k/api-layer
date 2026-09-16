@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-16
+
+- Production remains `master`; `origin/HEAD` resolves to `origin/master`. The initial inventory covered all `20` linked worktrees and found only the primary checkout dirty.
+- Before fetch or branch movement, the three modified assurance files were committed on `codex/autosave-20260916-api-assurance-next` at `d44e709`: `packages/api/src/app.contract-integration.test.ts`, `packages/indexer/src/postgres.integration.test.ts`, and `reviewed/reviewed-api-surface.json`.
+- The autosave adds a funded reward claim through the HTTP/local-fork contract path, validates receipt/event and token/campaign deltas, rejects replay without a second state movement, and proves duplicate PostgreSQL projection replay leaves one `reward_claims` row. It landed through no-fast-forward merge `5b9e8b3`.
+- Production verification is green: `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm test` passed `1,369` active tests across `137` files with `37` gated skips; disposable PostgreSQL assurance passed `6/6`. The pre-merge focused command collected `32` contract/PostgreSQL cases, all intentionally skipped because live RPC and PostgreSQL gates were not enabled in that checkout.
+- Clean merge-tree preflight still blocks the unresolved September 9 and September 15 API-assurance autosaves, the reviewed-surface autosave, historical and current Base Sepolia promotion heads, economic invariants, the historical red-team head, the remote layered-domain refactor, the remote Vitest Dependabot head, and the new test-gap and reward-metadata branches. Each source ref remains intact; no conflict resolution or partial merge was committed.
+
 ## Write-Invariant Metadata Automation Run — 2026-09-15
 
 - **Current-production metadata is complete:** fetched `origin/master` and fast-forwarded the reusable isolated `codex/write-invariant-metadata` worktree to production baseline `6e06efa`. The mounted inventory remains `260` ABI write methods across `31` facets, and every entry retains required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. The reviewed catalog SHA-256 is `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the generated registry SHA-256 is `717b70d3034cf7d9d1c69d68b9fdbda2c5d41d265258996063e40814d312397d`.
