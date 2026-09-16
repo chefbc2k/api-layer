@@ -48,7 +48,20 @@ const capabilityTargets = {
   pause: { methods: ["AccessControlFacet.setPaused", "MarketplaceFacet.pause", "StakingFacet.setStakingPaused"], workflows: ["/v1/workflows/trigger-emergency"] },
   recover: { methods: ["EmergencyFacet.startRecovery", "EmergencyFacet.completeRecovery"], workflows: ["/v1/workflows/recover-from-emergency"] },
   withdraw: { methods: ["EmergencyWithdrawalFacet.executeWithdrawal", "PaymentFacet.withdrawPayments", "VoiceLicenseFacet.withdrawLicenseRevenue"], workflows: ["/v1/workflows/emergency-withdrawal-sequence", "/v1/workflows/withdraw-marketplace-payments"] },
-  "ownership-controlled-state": { methods: ["RightsFacet.grantRight", "VoiceDatasetFacet.setMetadata", "OwnershipFacet.proposeOwnershipTransfer"], workflows: ["/v1/workflows/onboard-rights-holder"] },
+  "ownership-controlled-state": {
+    methods: [
+      "AccessControlFacet.configureRole",
+      "AccessControlFacet.setDefaultValidityPeriod",
+      "AccessControlFacet.setMinValidations",
+      "AccessControlFacet.setRoleAdmin",
+      "AccessControlFacet.revokeRole",
+      "AccessControlFacet.renounceRole",
+      "RightsFacet.grantRight",
+      "VoiceDatasetFacet.setMetadata",
+      "OwnershipFacet.proposeOwnershipTransfer",
+    ],
+    workflows: ["/v1/workflows/onboard-rights-holder", "/v1/workflows/manage-access-control"],
+  },
 } as const;
 
 function contractDenialsFor(kind: WriteInvariant["requiredActor"]["kind"]): string[] {

@@ -248,4 +248,85 @@ describe("runManageAccessControlWorkflow", () => {
       summary: { role, defaultValidityPeriodUpdated: true },
     });
   });
+
+  it("rejects an unknown API key before constructing access-control primitives", async () => {
+    const router = createWorkflowRouter({ apiKeys: { "founder-key": auth } } as never);
+    const handler = router.stack.find((entry) => entry.route?.path === "/v1/workflows/manage-access-control")?.route?.stack?.[0]?.handle;
+    const request = {
+      body: { role, defaultValidityPeriod: "86400" },
+      header(name: string) {
+        return name.toLowerCase() === "x-api-key" ? "unknown-key" : undefined;
+      },
+    };
+    const response = {
+      statusCode: 200,
+      payload: undefined as unknown,
+      status(code: number) {
+        this.statusCode = code;
+        return this;
+      },
+      json(payload: unknown) {
+        this.payload = payload;
+        return this;
+      },
+    };
+
+    await handler(request, response);
+
+    expect(response).toMatchObject({
+      statusCode: 401,
+      payload: { error: "invalid x-api-key" },
+    });
+    expect(mocks.createAccessControlPrimitiveService).not.toHaveBeenCalled();
+    expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["read-only API key", "API key not permitted for write execution", 403],
+    ["API-key/signer mismatch", "API key not permitted: signerId reader does not match x-wallet-address", 403],
+    ["stale role", "stale role membership", 500],
+    ["revoked role", "revoked role membership", 500],
+    ["expired validity window", "expired role validity window", 500],
+  ])("preserves %s denials without waiting for a write receipt", async (_label, denial, statusCode) => {
+    const deniedAuth = {
+      apiKey: "reader-key",
+      label: "reader",
+      signerId: "reader",
+      roles: ["read-only"],
+      allowGasless: false,
+    };
+    const setDefaultValidityPeriod = vi.fn().mockRejectedValue(new Error(denial));
+    mocks.createAccessControlPrimitiveService.mockReturnValue({ setDefaultValidityPeriod });
+    const router = createWorkflowRouter({ apiKeys: { "reader-key": deniedAuth } } as never);
+    const handler = router.stack.find((entry) => entry.route?.path === "/v1/workflows/manage-access-control")?.route?.stack?.[0]?.handle;
+    const request = {
+      body: { role, defaultValidityPeriod: "86400" },
+      header(name: string) {
+        if (name.toLowerCase() === "x-api-key") return "reader-key";
+        if (name.toLowerCase() === "x-wallet-address") return account;
+        return undefined;
+      },
+    };
+    const response = {
+      statusCode: 200,
+      payload: undefined as unknown,
+      status(code: number) {
+        this.statusCode = code;
+        return this;
+      },
+      json(payload: unknown) {
+        this.payload = payload;
+        return this;
+      },
+    };
+
+    await handler(request, response);
+
+    expect(response).toMatchObject({ statusCode, payload: { error: denial } });
+    expect(setDefaultValidityPeriod).toHaveBeenCalledWith(expect.objectContaining({
+      auth: deniedAuth,
+      walletAddress: account,
+    }));
+    expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
+  });
 });

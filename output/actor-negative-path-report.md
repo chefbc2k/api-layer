@@ -1,6 +1,6 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-09-15T13:03:18.694Z
+Generated: 2026-09-16T13:03:58.513Z
 
 - ABI write methods: 260
 - Mounted HTTP write endpoints: 259
@@ -42,4 +42,4 @@ Every mounted write endpoint is covered for founder, admin, operator, buyer, sel
 | pause | AccessControlFacet.setPaused<br>MarketplaceFacet.pause<br>StakingFacet.setStakingPaused | /v1/workflows/trigger-emergency |
 | recover | EmergencyFacet.startRecovery<br>EmergencyFacet.completeRecovery | /v1/workflows/recover-from-emergency |
 | withdraw | EmergencyWithdrawalFacet.executeWithdrawal<br>PaymentFacet.withdrawPayments<br>VoiceLicenseFacet.withdrawLicenseRevenue | /v1/workflows/emergency-withdrawal-sequence<br>/v1/workflows/withdraw-marketplace-payments |
-| ownership-controlled-state | RightsFacet.grantRight<br>VoiceDatasetFacet.setMetadata<br>OwnershipFacet.proposeOwnershipTransfer | /v1/workflows/onboard-rights-holder |
+| ownership-controlled-state | AccessControlFacet.configureRole<br>AccessControlFacet.setDefaultValidityPeriod<br>AccessControlFacet.setMinValidations<br>AccessControlFacet.setRoleAdmin<br>AccessControlFacet.revokeRole<br>AccessControlFacet.renounceRole<br>RightsFacet.grantRight<br>VoiceDatasetFacet.setMetadata<br>OwnershipFacet.proposeOwnershipTransfer | /v1/workflows/onboard-rights-holder<br>/v1/workflows/manage-access-control |

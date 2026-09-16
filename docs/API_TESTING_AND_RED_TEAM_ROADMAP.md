@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-09-16
+
+- **Current production exposed one new workflow-level boundary to lock:** fetched `origin/master`, confirmed local and remote production were synchronized at `dcebac9`, and created `codex/actor-negative-paths-20260916` from that clean baseline. The ABI write inventory, required-actor metadata, shared authorization, and execution-context signer binding are unchanged; the only authorization-relevant delta since the prior actor run is `/v1/workflows/manage-access-control`.
+- **Access-control workflow denials now fail closed in their own regression suite:** route-level tests reject unknown API keys before primitive construction, preserve read-only-key and API-key/signer-mismatch denials as `403` responses, and preserve stale-role, revoked-role, and expired-validity preflight failures without waiting for a receipt. The canonical `pnpm run test:actor-negative-paths` command now includes this workflow suite, preventing future actor runs from overlooking it.
+- **Persistent actor evidence explicitly covers the new control-plane route:** regenerated `output/actor-negative-path-report.json` and `output/actor-negative-path-report.md`. The protected ownership/control-plane capability now names `configureRole`, `setDefaultValidityPeriod`, `setMinValidations`, `setRoleAdmin`, `revokeRole`, and `renounceRole` plus `/v1/workflows/manage-access-control`. Inventory totals remain complete at `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, and `3,150` missing/stale/revoked/expired/ownership/self/protocol-contract mismatch cases.
+- **All section and repository gates passed:** `pnpm run test:actor-negative-paths` passed `116/116`; `pnpm test` passed `1,387` active tests across `138` files with `37` intentionally gated skips. TypeScript, lint, the full build/codegen gate, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `97.61%` statements, `97.02%` branches, `98.47%` functions, and `97.67%` lines; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this actor negative-path slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Production Indexer Write Coverage — 2026-09-16
 
 - The regenerated receipt baseline started at `95/260` proven write methods. This batch completes `CommunityRewardsFacet.claim`, raising durable receipt-to-PostgreSQL coverage to `96/260` and leaving `164` methods.
