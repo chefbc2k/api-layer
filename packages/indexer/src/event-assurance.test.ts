@@ -201,6 +201,38 @@ describe("generated event-to-indexer assurance", () => {
     expect(client.query.mock.calls.some(([sql]) => String(sql).includes(`INSERT INTO ${table}`))).toBe(true);
   });
 
+  it.each([
+    "AccessControlFacet.RoleAdminChanged",
+    "AccessControlFacet.RoleConfigUpdated",
+    "AccessControlFacet.RoleGranted",
+    "AccessControlFacet.RoleRenounced",
+    "AccessControlFacet.RoleRevoked",
+    "AccessControlFacet.SecurityAction",
+  ])("decodes %s and preserves its reviewed raw-event-only indexer policy", async (eventKey) => {
+    const definition = getAllAbiEventDefinitions()[eventKey];
+    expect(definition, eventKey).toBeDefined();
+    expect(definition.projection).toMatchObject({ domain: "rawOnly", projectionMode: "rawOnly", targets: [] });
+
+    const decoded = decodeEvent(buildEventRegistry(), encodeLog(definition, 20_000));
+    expect(decoded, eventKey).not.toBeNull();
+    expect(isAmbiguousEvent(decoded!), eventKey).toBe(false);
+    expect((decoded as DecodedEvent).fullEventKey).toBe(eventKey);
+
+    const client = { query: vi.fn().mockResolvedValue({ rows: [] }) };
+    await projectEvent({
+      chainId: 84532,
+      client: client as never,
+      rawEventId: 20_001,
+      txHash: `0x${"ef".repeat(32)}`,
+      blockNumber: 20_001n,
+      blockHash: `0x${"12".repeat(32)}`,
+      isOrphaned: false,
+      decoded: decoded as DecodedEvent,
+    });
+
+    expect(client.query).not.toHaveBeenCalled();
+  });
+
   it("binds every write invariant to decoded, replay-safe indexer evidence", async () => {
     const writes = Object.entries(getAllWriteInvariantDefinitions()).sort(([left], [right]) => left.localeCompare(right));
     const eventDefinitions = getAllAbiEventDefinitions();

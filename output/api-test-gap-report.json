@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-16T08:42:28.939Z",
+  "generatedAt": "2026-09-16T08:47:32.753Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -31824,6 +31824,7 @@
               "packages/api/src/workflows/governance.integration.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.integration.test.ts",
               "packages/api/src/workflows/license-template.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/api/src/workflows/manage-license-template-lifecycle.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -31863,6 +31864,7 @@
               "packages/api/src/workflows/governance.integration.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.integration.test.ts",
               "packages/api/src/workflows/license-template.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/api/src/workflows/manage-license-template-lifecycle.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -31899,6 +31901,7 @@
               "packages/api/src/workflows/governance-timelock-consequence-flow.integration.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.integration.test.ts",
               "packages/api/src/workflows/license-template.test.ts",
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "packages/api/src/workflows/manage-license-template-lifecycle.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",

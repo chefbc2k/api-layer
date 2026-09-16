@@ -28,6 +28,7 @@ import { governanceAdminFlowWorkflowSchema, runGovernanceAdminFlowWorkflow } fro
 import { governanceExecutionFlowWorkflowSchema, runGovernanceExecutionFlowWorkflow } from "./governance-execution-flow.js";
 import { governanceTimelockConsequenceFlowWorkflowSchema, runGovernanceTimelockConsequenceFlowWorkflow } from "./governance-timelock-consequence-flow.js";
 import { manageRewardCampaignSchema, runManageRewardCampaignWorkflow } from "./manage-reward-campaign.js";
+import { manageAccessControlSchema, runManageAccessControlWorkflow } from "./manage-access-control.js";
 import { manageLicenseTemplateLifecycleWorkflowSchema, runManageLicenseTemplateLifecycleWorkflow } from "./manage-license-template-lifecycle.js";
 import { legacyMigrationRecoveryWorkflowSchema, runLegacyMigrationRecoveryWorkflow } from "./legacy-migration-recovery.js";
 import {
@@ -110,6 +111,7 @@ export function createWorkflowRouter(context: ApiExecutionContext): Router {
   router.post("/v1/workflows/update-vesting-admin-policy", createWorkflowHandler(context, updateVestingAdminPolicySchema, (auth, walletAddress, body) => runUpdateVestingAdminPolicyWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-reward-campaign", createWorkflowHandler(context, createRewardCampaignSchema, (auth, walletAddress, body) => runCreateRewardCampaignWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/manage-reward-campaign", createWorkflowHandler(context, manageRewardCampaignSchema, (auth, walletAddress, body) => runManageRewardCampaignWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/manage-access-control", createWorkflowHandler(context, manageAccessControlSchema, (auth, walletAddress, body) => runManageAccessControlWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/claim-reward-campaign", createWorkflowHandler(context, claimRewardCampaignSchema, (auth, walletAddress, body) => runClaimRewardCampaignWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/propose-multisig-protocol-change", createWorkflowHandler(context, proposeMultisigProtocolChangeWorkflowSchema, (auth, walletAddress, body) => runProposeMultisigProtocolChangeWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/approve-multisig-protocol-change", createWorkflowHandler(context, approveMultisigProtocolChangeWorkflowSchema, (auth, walletAddress, body) => runApproveMultisigProtocolChangeWorkflow(context, auth, walletAddress, body)));
