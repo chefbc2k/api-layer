@@ -125,6 +125,17 @@ describe("actor negative-path coverage", () => {
     expect(Object.values(report.capabilities).every((target) =>
       target.methods.length > 0 && target.workflows.length > 0 && target.deniedActors.length === ACTOR_ROLES.length,
     )).toBe(true);
+    expect(report.capabilities["ownership-controlled-state"]).toMatchObject({
+      methods: expect.arrayContaining([
+        "AccessControlFacet.configureRole",
+        "AccessControlFacet.setDefaultValidityPeriod",
+        "AccessControlFacet.setMinValidations",
+        "AccessControlFacet.setRoleAdmin",
+        "AccessControlFacet.revokeRole",
+        "AccessControlFacet.renounceRole",
+      ]),
+      workflows: expect.arrayContaining(["/v1/workflows/manage-access-control"]),
+    });
   });
 
   it("fails closed for missing HTTP coverage, missing invariants, stale invariants, and stale capability targets", () => {

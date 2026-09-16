@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T13:03:18.694Z",
+  "generatedAt": "2026-09-16T13:03:58.513Z",
   "totals": {
     "abiWriteMethodCount": 260,
     "writeMethodCount": 259,
@@ -248,12 +248,19 @@
     },
     "ownership-controlled-state": {
       "methods": [
+        "AccessControlFacet.configureRole",
+        "AccessControlFacet.setDefaultValidityPeriod",
+        "AccessControlFacet.setMinValidations",
+        "AccessControlFacet.setRoleAdmin",
+        "AccessControlFacet.revokeRole",
+        "AccessControlFacet.renounceRole",
         "RightsFacet.grantRight",
         "VoiceDatasetFacet.setMetadata",
         "OwnershipFacet.proposeOwnershipTransfer"
       ],
       "workflows": [
-        "/v1/workflows/onboard-rights-holder"
+        "/v1/workflows/onboard-rights-holder",
+        "/v1/workflows/manage-access-control"
       ],
       "deniedActors": [
         "founder",

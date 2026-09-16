@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.361] - 2026-09-16
+
+### Changed
+
+- **Manage-Access-Control Now Has Direct Actor Boundary Proof:** Added route-level regressions for unknown keys, read-only keys, API-key/signer mismatch, stale roles, revoked roles, and expired validity windows. Every denial is preserved without waiting for a transaction receipt, and the unknown-key case stops before access-control primitive construction.
+- **Actor Reporting Tracks The New Control-Plane Workflow:** Expanded the ownership/control-plane capability evidence to cover all six writes used by `/v1/workflows/manage-access-control`, regenerated the JSON and Markdown artifacts, and added the workflow test file to the canonical `test:actor-negative-paths` command. Inventory remains complete at `259` mounted writes, `1,813` actor/method cases, `777` API-boundary cases, and `3,150` role-lifecycle cases.
+
+### Verified
+
+- **Actor And Repository Suites Passed:** `pnpm run test:actor-negative-paths` passed `116/116`; the full repository suite passed `1,387` active tests across `138` files with `37` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.61%` statements, `97.02%` branches, `98.47%` functions, and `97.67%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.360] - 2026-09-16
 
 ### Changed
