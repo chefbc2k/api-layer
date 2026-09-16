@@ -2375,28 +2375,47 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 300_000);
 
-  it("proves the reward campaign create, root update, pause, and unpause workflows on a local fork", async (ctx) => {
+  it("proves the reward campaign lifecycle and a funded participant claim on a local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
     }
-    if (await skipWhenFundingBlocked(ctx, "reward campaign lifecycle proof", [
+    if (await skipWhenFundingBlocked(ctx, "reward campaign lifecycle and claim proof", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000004") },
     ])) return;
 
     const campaignCountBefore = await communityRewardsFacet.campaignCount();
     const latestBlock = await provider.getBlock("latest");
+    const totalAllocation = 1_000n;
+    const claimerBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address);
+    const diamondBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(diamondAddress);
     const initialRoot = ethers.keccak256(ethers.toUtf8Bytes(`reward-campaign-initial-${latestBlock!.number}`));
-    const updatedRoot = ethers.keccak256(ethers.toUtf8Bytes(`reward-campaign-updated-${latestBlock!.number}`));
+    const updatedRoot = ethers.solidityPackedKeccak256(
+      ["address", "uint256"],
+      [outsiderWallet.address, totalAllocation],
+    );
+
+    const fundingResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+      body: { to: diamondAddress, amount: totalAllocation.toString() },
+    });
+    expect(fundingResponse.status).toBe(202);
+    await expectReceipt(extractTxHash(fundingResponse.payload));
+    expect(await waitFor(
+      () => tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+      (value) => value === diamondBalanceBefore + totalAllocation,
+      "reward campaign token funding",
+    )).toBe(diamondBalanceBefore + totalAllocation);
+
     const createResponse = await apiCall(port, "POST", "/v1/workflows/create-reward-campaign", {
       apiKey: "reward-proof-key",
       body: {
         merkleRoot: initialRoot,
         startTime: String(latestBlock!.timestamp),
         cliffSeconds: "0",
-        durationSeconds: "86400",
-        tgeUnlockBps: "1000",
-        maxTotalClaimable: "1000000",
+        durationSeconds: "0",
+        tgeUnlockBps: "10000",
+        maxTotalClaimable: totalAllocation.toString(),
       },
     });
     expect(createResponse.status).toBe(202);
@@ -2414,9 +2433,9 @@ describeLive("HTTP API contract integration", () => {
     expect(createdCampaign).toMatchObject({
       merkleRoot: initialRoot,
       cliffSeconds: "0",
-      durationSeconds: "86400",
-      tgeUnlockBps: "1000",
-      maxTotalClaimable: "1000000",
+      durationSeconds: "0",
+      tgeUnlockBps: "10000",
+      maxTotalClaimable: totalAllocation.toString(),
       totalClaimed: "0",
       paused: false,
     });
@@ -2456,6 +2475,78 @@ describeLive("HTTP API contract integration", () => {
       merkleRoot: updatedRoot,
       paused: false,
     });
+
+    const claimResponse = await apiCall(port, "POST", "/v1/workflows/claim-reward-campaign", {
+      apiKey: "outsider-key",
+      body: {
+        campaignId,
+        totalAllocation: totalAllocation.toString(),
+        proof: [],
+      },
+    });
+    expect(claimResponse.status).toBe(202);
+    const claimPayload = claimResponse.payload as {
+      campaign: { before: { totalClaimed: string }; after: { totalClaimed: string } };
+      claimable: { before: string; after: string };
+      claimed: { before: string; after: string; claimedNow: string };
+      claim: { txHash: string; eventCount: number };
+      summary: { campaignId: string; claimer: string; totalAllocation: string };
+    };
+    expect(claimPayload).toMatchObject({
+      campaign: { before: { totalClaimed: "0" }, after: { totalClaimed: totalAllocation.toString() } },
+      claimable: { before: totalAllocation.toString(), after: "0" },
+      claimed: { before: "0", after: totalAllocation.toString(), claimedNow: totalAllocation.toString() },
+      claim: { eventCount: 1 },
+      summary: {
+        campaignId,
+        claimer: outsiderWallet.address,
+        totalAllocation: totalAllocation.toString(),
+      },
+    });
+    await expectReceipt(claimPayload.claim.txHash);
+    expect(await communityRewardsFacet.claimed(campaignId, outsiderWallet.address)).toBe(totalAllocation);
+    expect(await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address)).toBe(claimerBalanceBefore + totalAllocation);
+    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(diamondBalanceBefore);
+
+    const claimReceipt = await provider.getTransactionReceipt(claimPayload.claim.txHash);
+    const claimedEvents = await apiCall(port, "POST", "/v1/tokenomics/events/claimed/query", {
+      apiKey: "read-key",
+      body: {
+        fromBlock: String(claimReceipt!.blockNumber),
+        toBlock: String(claimReceipt!.blockNumber),
+      },
+    });
+    expect(claimedEvents.status).toBe(200);
+    expect(claimedEvents.payload).toEqual(expect.arrayContaining([
+      expect.objectContaining({ transactionHash: claimPayload.claim.txHash }),
+    ]));
+    const decodedClaim = claimReceipt!.logs
+      .map((log) => {
+        try {
+          return communityRewardsFacet.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((event) => event?.name === "Claimed");
+    expect(decodedClaim).not.toBeNull();
+    expect(decodedClaim!.args.campaignId).toBe(BigInt(campaignId));
+    expect(decodedClaim!.args.account).toBe(outsiderWallet.address);
+    expect(decodedClaim!.args.amount).toBe(totalAllocation);
+
+    const replayResponse = await apiCall(port, "POST", "/v1/workflows/claim-reward-campaign", {
+      apiKey: "outsider-key",
+      body: {
+        campaignId,
+        totalAllocation: totalAllocation.toString(),
+        proof: [],
+      },
+    });
+    expect(replayResponse.status).toBe(409);
+    expect(JSON.stringify(replayResponse.payload)).toMatch(/zero claimable amount/u);
+    expect(await communityRewardsFacet.claimed(campaignId, outsiderWallet.address)).toBe(totalAllocation);
+    expect(await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address)).toBe(claimerBalanceBefore + totalAllocation);
+    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(diamondBalanceBefore);
 
     const apiCampaignRead = await apiCall(
       port,
