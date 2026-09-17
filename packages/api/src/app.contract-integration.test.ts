@@ -5134,6 +5134,111 @@ describeLive("HTTP API contract integration", () => {
     expect(await emergencyFacet.getEmergencyState()).toBe(0n);
   }, 180_000);
 
+  it("proves the stake, unstake request, and executed unstake receipt lifecycle", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "staking receipt lifecycle", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) {
+      return;
+    }
+
+    const stakeAmount = 1n;
+    const stakeBefore = await stakingFacet.getStakeInfo(founderAddress);
+    const stakerBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const custodyBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(diamondAddress);
+
+    const approveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+      apiKey: "founder-key",
+      body: { spender: diamondAddress, amount: stakeAmount.toString() },
+    });
+    expect(approveResponse.status, JSON.stringify(approveResponse.payload)).toBe(202);
+    await expectReceipt(extractTxHash(approveResponse.payload));
+
+    const submit = async (route: string, body: Record<string, unknown> = {}) => {
+      const response = await apiCall(port, "POST", route, { apiKey: "founder-key", body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      return { txHash, receipt: receipt! };
+    };
+    const expectDecodedEvent = async (
+      route: string,
+      txHash: string,
+      blockNumber: number,
+    ) => {
+      const response = await apiCall(port, "POST", route, {
+        apiKey: "read-key",
+        body: { fromBlock: String(blockNumber), toBlock: String(blockNumber) },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(200);
+      expect(Array.isArray(response.payload)).toBe(true);
+      expect((response.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === txHash)).toBe(true);
+    };
+
+    const stake = await submit("/v1/staking/commands/stake", { amount: stakeAmount.toString() });
+    expect(stake.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "Staked";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent("/v1/staking/events/staked/query", stake.txHash, stake.receipt.blockNumber);
+
+    const stakeAfter = await stakingFacet.getStakeInfo(founderAddress);
+    expect(stakeAfter.amount).toBe(stakeBefore.amount + stakeAmount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(stakerBalanceBefore - stakeAmount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(custodyBalanceBefore + stakeAmount);
+
+    const request = await submit("/v1/staking/commands/request-unstake", { amount: stakeAmount.toString() });
+    expect(request.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "UnstakeRequested";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent(
+      "/v1/staking/events/unstake-requested/query",
+      request.txHash,
+      request.receipt.blockNumber,
+    );
+
+    const pendingRequest = await stakingFacet.getUnstakeRequest(founderAddress);
+    expect(pendingRequest.amount).toBe(stakeAmount);
+    expect(pendingRequest.pending).toBe(true);
+    const latestBlock = await provider.getBlock("latest");
+    expect(latestBlock).not.toBeNull();
+    const secondsToUnlock = pendingRequest.unlockTimestamp >= BigInt(latestBlock!.timestamp)
+      ? pendingRequest.unlockTimestamp - BigInt(latestBlock!.timestamp) + 1n
+      : 1n;
+    await provider.send("evm_increaseTime", [Number(secondsToUnlock)]);
+    await provider.send("evm_mine", []);
+
+    const unstake = await submit("/v1/staking/commands/execute-unstake");
+    expect(unstake.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "Unstaked";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent("/v1/staking/events/unstaked/query", unstake.txHash, unstake.receipt.blockNumber);
+
+    const stakeRestored = await stakingFacet.getStakeInfo(founderAddress);
+    const clearedRequest = await stakingFacet.getUnstakeRequest(founderAddress);
+    expect(stakeRestored.amount).toBe(stakeBefore.amount);
+    expect(clearedRequest.amount).toBe(0n);
+    expect(clearedRequest.pending).toBe(false);
+    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(stakerBalanceBefore);
+    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(custodyBalanceBefore);
+  }, 180_000);
+
   it("fails correctly for validation, signer, and provider errors", async () => {
     const invalidBody = await apiCall(port, "POST", "/v1/voice-assets", {
       body: { ipfsHash: "ipfs://missing-royalty" },
