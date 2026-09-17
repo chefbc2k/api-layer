@@ -2,6 +2,21 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-09-17
+
+- Production remains `master`; `origin/HEAD` resolves to `origin/master`. The initial inventory covered all `20` linked worktrees and found only the primary checkout dirty.
+- Before fetch or branch movement, the four modified files were committed on `codex/autosave-20260917-api-assurance-event-indexer-proof` at `1b8be3a`: `packages/api/src/app.contract-integration.test.ts`, `packages/indexer/src/event-assurance.test.ts`, `reviewed/reviewed-api-surface.json`, and `verify-local-fork-indexer-output.json`.
+- The autosave adds a local-fork staking lifecycle across `stake`, `requestUnstake`, and `executeUnstake`, checks receipt events and token/staking readbacks, and proves all three events project into `staking_positions` without replay duplication. It landed through no-fast-forward merge `4b81649`.
+- Production verification is green: `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; `pnpm test` passed `1,390` active tests across `138` files with `38` gated skips; indexer assurance passed `86` active tests with `6` PostgreSQL-gated skips; and gap-report tests passed `7/7`.
+- Clean merge-tree preflight blocks the remaining `17` distinct unmerged tips: three historical autosaves; eight Base Sepolia promotion heads; economic invariants; the historical red-team head; test-gap coverage and reward-metadata branches; the remote layered-domain refactor; and the remote Vitest Dependabot update. Every source ref remains intact and no partial resolution was committed.
+
+## Production Indexer Write Coverage — 2026-09-17
+
+- The preserved receipt artifact advances durable receipt-to-PostgreSQL coverage from `96/260` to `99/260` write methods, leaving `161`: `StakingFacet.stake` at transaction `0x41465a26ed79d99df942a7ab38c1fe9d8929670c6d6566db68f6065231634132`, `requestUnstake` at `0x8c4602d1cf096aac6b7d682f8b2669657ecf1f52db4137f29e4632d30530e8e5`, and `executeUnstake` at `0x4f0c3aac206011c1043fef6ab60c2ca1e777300c0fe0262e0578d11da95612c8`.
+- The generated registry decodes `Staked`, `UnstakeRequested`, and `Unstaked`; the indexer persists each into `staking_positions`, records the matching block journal, and leaves raw and projection rows unchanged on replay. The aggregate artifact remains `proven working` across `183` indexed receipts, `268` raw events, and `176` projection rows.
+- Regenerated gap evidence now classifies `285` items ready, `216` needing fixtures, `36` unsafe on live networks, and `173` needing indexer proof. Proof attribution is `426` unit, `279` workflow, `103` local-fork, `60` Base Sepolia, `266` negative-path, `112` economic, `29` red-team, and `45` indexer items.
+- Verification passed through the focused candidate suite, full repository suite, indexer assurance, gap-report regression, and coverage inventory. The receipt-to-PostgreSQL command was not rerun because the clean production worktree does not contain its ephemeral `.runtime/local-fork-proofs/http-contract-receipts.json` input; the committed credential-safe proof artifact is retained.
+
 ## Actor Negative-Path Automation Run — 2026-09-16
 
 - **Current production exposed one new workflow-level boundary to lock:** fetched `origin/master`, confirmed local and remote production were synchronized at `dcebac9`, and created `codex/actor-negative-paths-20260916` from that clean baseline. The ABI write inventory, required-actor metadata, shared authorization, and execution-context signer binding are unchanged; the only authorization-relevant delta since the prior actor run is `/v1/workflows/manage-access-control`.

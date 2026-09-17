@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.362] - 2026-09-17
+
+### Changed
+
+- **Staking Receipt And Indexer Proof Is Preserved On Production:** Daily consolidation saved the four-file dirty assurance checkout on `codex/autosave-20260917-api-assurance-event-indexer-proof` at `1b8be3a`, then no-fast-forward merged it into `master` as `4b81649`. The proof covers `stake`, `requestUnstake`, and `executeUnstake` receipts, decoded events, balance/readback transitions, `staking_positions` projection, and idempotent replay.
+- **Persistent Gap Evidence Reflects The Staking Lifecycle:** Regenerated the API gap reports. Ready items increase from `281` to `285`, fixture gaps decrease from `217` to `216`, and indexer-proof gaps decrease from `176` to `173`. Proof attribution is now `426` unit, `103` local-fork, `266` negative-path, `112` economic, and `45` indexer items.
+- **Conflict-Blocked Passenger Tips Remain Isolated:** Clean merge-tree preflight blocks the remaining `17` distinct unmerged tips, including historical autosaves, Base Sepolia promotion lines, economic invariants, red-team and report branches, the remote layered-domain refactor, and the remote Vitest Dependabot update. No partial conflict resolution was committed.
+
+### Verified
+
+- **Candidate And Production Tests Passed:** The focused candidate run passed `30` active staking/indexer tests with `27` live-gated contract tests skipped. `pnpm test` passed `1,390` active tests across `138` files with `38` gated skips; `pnpm run test:indexer:assurance` passed `86` active tests with `6` PostgreSQL-gated skips; and `pnpm run test:gap-report` passed `7/7`.
+- **Coverage Inventories Remain Complete:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. The receipt-to-PostgreSQL proof could not be replayed because this clean production worktree has no `.runtime/local-fork-proofs/http-contract-receipts.json`; the preserved artifact remains `proven working` at `99/260` write methods, `183` indexed receipts, `268` raw events, and `176` projection rows.
+
 ## [0.1.361] - 2026-09-16
 
 ### Changed
