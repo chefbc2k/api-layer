@@ -176,6 +176,9 @@ describe("generated event-to-indexer assurance", () => {
     ["CommunityRewardsFacet.CampaignUnpaused", "reward_campaigns"],
     ["CommunityRewardsFacet.CampaignVestingConfig", "reward_campaigns"],
     ["CommunityRewardsFacet.Claimed", "reward_claims"],
+    ["StakingFacet.Staked", "staking_positions"],
+    ["StakingFacet.Unstaked", "staking_positions"],
+    ["StakingFacet.UnstakeRequested", "staking_positions"],
   ])("decodes and projects %s into the %s Postgres projection", async (eventKey, table) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
