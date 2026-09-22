@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.363] - 2026-09-22
+
+### Changed
+
+- **Every Mounted Write Now Has Executable API-Boundary Denial Coverage:** Expanded the actor assurance suite so all `259` mounted writes reject unknown API keys at the real HTTP route, read-only identities before decoding/provider access, and API-key/signer wallet mismatches before contract preview, transaction persistence, or submission. The founder/admin/operator/buyer/seller/licensee/collaborator matrix continues to exercise `1,813` mutation-free contract authorization preflights.
+- **Dataset Ownership Mutations Are Explicitly Tracked:** Added `appendAssets`, `burnDataset`, `removeAsset`, `setDatasetStatus`, `setLicense`, `setMetadata`, and `setRoyalty` to the ownership-controlled capability inventory and regenerated the persistent JSON/Markdown actor reports. Totals remain complete at `260` ABI writes, `259` HTTP writes, `777` API-boundary cases, and `3,150` role-lifecycle cases.
+
+### Verified
+
+- **Actor And Repository Suites Passed:** `pnpm run test:actor-negative-paths` passed `116/116`; `pnpm test` passed `1,411` active tests across `141` files with `39` explicitly gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. `pnpm run test:coverage` passed at `97.61%` statements, `97.02%` branches, `98.47%` functions, and `97.67%` lines.
+
 ## [0.1.362] - 2026-09-17
 
 ### Changed

@@ -133,6 +133,13 @@ describe("actor negative-path coverage", () => {
         "AccessControlFacet.setRoleAdmin",
         "AccessControlFacet.revokeRole",
         "AccessControlFacet.renounceRole",
+        "VoiceDatasetFacet.appendAssets",
+        "VoiceDatasetFacet.burnDataset",
+        "VoiceDatasetFacet.removeAsset",
+        "VoiceDatasetFacet.setDatasetStatus",
+        "VoiceDatasetFacet.setLicense",
+        "VoiceDatasetFacet.setMetadata",
+        "VoiceDatasetFacet.setRoyalty",
       ]),
       workflows: expect.arrayContaining(["/v1/workflows/manage-access-control"]),
     });

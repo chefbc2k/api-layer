@@ -752,20 +752,28 @@ describe("__testOnly helpers", () => {
 describe("executeHttpMethodDefinition", () => {
   it("rejects read-only API keys before decoding or touching a provider for writes", async () => {
     const context = buildContext();
+    const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
+    const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown>> }).methods;
+    const writeDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write" && Boolean(surfaceMethods[key]))
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
 
-    await expect(executeHttpMethodDefinition(
-      context as never,
-      buildWriteDefinition() as never,
-      buildRequest({
-        auth: {
-          apiKey: "read-only-key",
-          label: "read-only",
-          signerId: "reader",
-          allowGasless: false,
-          roles: ["read-only"],
-        },
-      }) as never,
-    )).rejects.toThrow("API key not permitted for write execution");
+    expect(writeDefinitions).toHaveLength(259);
+    for (const definition of writeDefinitions) {
+      await expect(executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: {
+            apiKey: "read-only-key",
+            label: "read-only",
+            signerId: "reader",
+            allowGasless: false,
+            roles: ["read-only"],
+          },
+        }) as never,
+      ), definition.key).rejects.toThrow("API key not permitted for write execution");
+    }
 
     expect(mocked.decodeParamsFromWire).not.toHaveBeenCalled();
     expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
@@ -773,20 +781,30 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 
-  it("rejects direct-write API-key/signer confusion before transaction persistence or submission", async () => {
+  it("rejects direct-write API-key/signer confusion across every mounted write before persistence or submission", async () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
-    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.decodeParamsFromWire.mockReturnValue([]);
+    const context = buildContext();
+    const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
+    const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown>> }).methods;
+    const writeDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write" && Boolean(surfaceMethods[key]))
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
 
-    await expect(executeHttpMethodDefinition(
-      buildContext() as never,
-      buildWriteDefinition() as never,
-      buildRequest({
-        walletAddress: "0x00000000000000000000000000000000000000bb",
-        wireParams: ["0x0000000000000000000000000000000000000001", true],
-      }) as never,
-    )).rejects.toThrow("API key not permitted: signerId founder does not match x-wallet-address");
+    expect(writeDefinitions).toHaveLength(259);
+    for (const definition of writeDefinitions) {
+      await expect(executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          walletAddress: "0x00000000000000000000000000000000000000bb",
+          wireParams: [],
+        }) as never,
+      ), definition.key).rejects.toThrow("API key not permitted: signerId founder does not match x-wallet-address");
+    }
 
     expect(mocked.contractStaticCall).not.toHaveBeenCalled();
+    expect(context.txStore.insert).not.toHaveBeenCalled();
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 

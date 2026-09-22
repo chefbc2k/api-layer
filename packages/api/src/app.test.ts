@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import methodPolicyJson from "../../../reviewed/reviewed-method-policy.json";
+import apiSurfaceJson from "../../../reviewed/reviewed-api-surface.json";
 import { createApiServer } from "./app.js";
 
 const originalEnv = { ...process.env };
@@ -115,24 +117,32 @@ describe("createApiServer", () => {
     }
   });
 
-  it("rejects unknown API keys on write endpoints before execution", async () => {
+  it("rejects unknown API keys across every mounted write endpoint before execution", async () => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "founder-key": { label: "founder", signerId: "founder", roles: ["founder"], allowGasless: false },
     });
+    const methods = (methodPolicyJson as { methods: Record<string, { category: string }> }).methods;
+    const surface = (apiSurfaceJson as {
+      methods: Record<string, { httpMethod: string; path: string }>;
+    }).methods;
+    const writeEndpoints = Object.entries(methods)
+      .filter(([key, method]) => method.category === "write" && Boolean(surface[key]))
+      .map(([key]) => ({ key, ...surface[key]! }));
 
     const { server, port } = await startServer({ port: 0, quiet: true });
 
     try {
-      const { status, payload } = await apiCall(port, "/v1/tokenomics/commands/approve", {
-        method: "POST",
-        headers: { "x-api-key": "unknown-key" },
-        body: JSON.stringify({
-          spender: "0x0000000000000000000000000000000000000001",
-          amount: "5",
-        }),
-      });
-      expect(status).toBe(401);
-      expect(payload).toEqual({ error: "invalid x-api-key" });
+      expect(writeEndpoints).toHaveLength(259);
+      for (const endpoint of writeEndpoints) {
+        const path = endpoint.path.replace(/:[^/]+/gu, "invalid-before-auth");
+        const { status, payload } = await apiCall(port, path, {
+          method: endpoint.httpMethod,
+          headers: { "x-api-key": "unknown-key" },
+          body: JSON.stringify({}),
+        });
+        expect(status, endpoint.key).toBe(401);
+        expect(payload, endpoint.key).toEqual({ error: "invalid x-api-key" });
+      }
     } finally {
       await closeServer(server);
     }
