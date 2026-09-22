@@ -2,6 +2,16 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-09-22
+
+- Started `codex/red-team-harness-20260922` from clean local `master` `fd9a2dd`, which contains the latest consolidated assurance work and is seven commits ahead of the fetched `origin/master`. The separate dirty event/indexer checkout was left untouched.
+- Audited the newly promoted `/v1/workflows/manage-access-control` workflow and found that mixed requests checked renounce wallet binding and current role membership only after earlier `configureRole`, global-policy, and role-admin transactions. A confused-deputy renounce, replayed revoke, or mutated role ID could therefore change policy before the workflow rejected the membership action.
+- Moved all membership preflight checks ahead of the first write. The workflow now binds renounce to the request wallet and verifies that the exact requested role is currently held before any policy mutation. Added `scripts/red-team-access-control-workflow.test.ts`, whose stateful cases prove a successful revoke cannot be replayed with a mutated configuration, missing/different deputy wallets cannot trigger preceding writes, and a swapped role ID cannot precede a global-policy mutation.
+- Added the access-control suite to both canonical red-team commands and regenerated the persistent gap reports. Classification remains `311` ready, `208` needing fixtures, `36` unsafe on live networks, and `155` needing indexer proof; conservative red-team attribution rises from `40` to `46` items and negative-path attribution from `277` to `278`.
+- Verification passed: the affected workflow/red-team slice (`16/16`), `pnpm run test:redteam` (`110/110`), guarded `pnpm run redteam:local-fork` (`153/153` across `11` files, including all `5/5` deployed-contract probes), and the full repository suite (`1,415` active tests across `139` passing files with `39` gated skips). No destructive live-network path was enabled.
+- With `pnpm` selected from `pnpm-lock.yaml`, the ordered TypeScript, lint, and full build/codegen gate passed without failures. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `97.63%` statements, `97.04%` branches, `98.47%` functions, and `97.69%` lines.
+- **Merge decision:** this red-team slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Actor Negative-Path Automation Run — 2026-09-22
 
 - Started `codex/actor-negative-paths-20260922` from clean local `master` `b54f7af`, which contains the latest consolidated assurance work and is five commits ahead of `origin/master`. The prior actor slice was already merged; the only authorization-relevant production delta was the new local-fork denial proof for Voice Dataset owner mutations.

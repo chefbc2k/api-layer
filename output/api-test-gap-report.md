@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-22T09:11:30.373Z`
+Generated: `2026-09-22T18:12:32.990Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -30,9 +30,9 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | workflow | 279 |
 | localFork | 109 |
 | baseSepolia | 60 |
-| negativePath | 277 |
+| negativePath | 278 |
 | economic | 124 |
-| redTeam | 40 |
+| redTeam | 46 |
 | indexer | 63 |
 
 ## Methodology
@@ -43,13 +43,13 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 ## AccessControlFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.48/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.63/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `configureRole` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `configureRole` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `debugRoleIndexState` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `emergencyForceAdd` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `executeFounderSunset` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
@@ -57,19 +57,19 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `getQuorum` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `getRequiredSigners` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getRoleAdmin` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `getRoleConfig` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `getRoleConfig` | read | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `getRoleMember` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getRoleMembers` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getUserRoles` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `grantRole` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `hasAllParticipantRoles` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `hasRole` | read | yes | yes | — | yes | yes | yes | — | adversarial 5/8 | ready |
+| `hasRole` | read | yes | yes | — | yes | yes | yes | yes | adversarial 6/8 | ready |
 | `isFounderSunsetActive` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `isRoleActive` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `renounceRole` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
-| `revokeRole` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
+| `renounceRole` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
+| `revokeRole` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 | `scheduleFounderSunset` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
-| `setDefaultValidityPeriod` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `setDefaultValidityPeriod` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `setMinValidations` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `setPaused` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `setRecoveryActive` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
@@ -1013,14 +1013,14 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## VoiceDatasetFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.92/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.96/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `appendAssets` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
-| `burnDataset` | write | yes | — | yes | yes | — | — | — | live 3/8 | needs fixture |
+| `burnDataset` | write | yes | — | yes | yes | yes | — | — | adversarial 4/8 | needs fixture |
 | `containsAsset` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
 | `createDataset` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
 | `getDataset` | read | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |

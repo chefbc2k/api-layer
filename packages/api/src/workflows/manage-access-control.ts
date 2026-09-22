@@ -53,6 +53,12 @@ export const manageAccessControlSchema = z.object({
 });
 
 type PrimitiveService = ReturnType<typeof createAccessControlPrimitiveService>;
+type WorkflowRequestFactory = (wireParams: unknown[]) => {
+  auth: AuthContext;
+  api: { executionSource: "auto"; gaslessMode: "none" };
+  walletAddress: string | undefined;
+  wireParams: unknown[];
+};
 
 export async function runManageAccessControlWorkflow(
   context: ApiExecutionContext,
@@ -67,6 +73,10 @@ export async function runManageAccessControlWorkflow(
     walletAddress,
     wireParams,
   });
+
+  if (body.membership) {
+    await preflightMembershipAction(access, request, walletAddress, body.role, body.membership);
+  }
 
   const config = body.config
     ? await submitAndRead(
@@ -109,7 +119,7 @@ export async function runManageAccessControlWorkflow(
   }
 
   const membership = body.membership
-    ? await runMembershipAction(context, access, request, walletAddress, body.role, body.membership)
+    ? await runMembershipAction(context, access, request, body.role, body.membership)
     : null;
 
   return {
@@ -129,15 +139,9 @@ export async function runManageAccessControlWorkflow(
   };
 }
 
-async function runMembershipAction(
-  context: ApiExecutionContext,
+async function preflightMembershipAction(
   access: PrimitiveService,
-  request: (wireParams: unknown[]) => {
-    auth: AuthContext;
-    api: { executionSource: "auto"; gaslessMode: "none" };
-    walletAddress: string | undefined;
-    wireParams: unknown[];
-  },
+  request: WorkflowRequestFactory,
   walletAddress: string | undefined,
   role: string,
   membership: z.infer<typeof membershipActionSchema>,
@@ -152,7 +156,15 @@ async function runMembershipAction(
   if (before.body !== true) {
     throw new HttpError(409, `manage-access-control cannot ${membership.action}: account does not hold role`);
   }
+}
 
+async function runMembershipAction(
+  context: ApiExecutionContext,
+  access: PrimitiveService,
+  request: WorkflowRequestFactory,
+  role: string,
+  membership: z.infer<typeof membershipActionSchema>,
+) {
   const write = membership.action === "revoke"
     ? await submitOnly(
       context,

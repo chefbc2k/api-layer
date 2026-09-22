@@ -102,6 +102,7 @@ describe("runManageAccessControlWorkflow", () => {
     });
 
     expect(sequence).toEqual([
+      "hasRole:before",
       "configureRole",
       "receipt:manageAccessControl.configureRole",
       "getRoleConfig",
@@ -112,7 +113,6 @@ describe("runManageAccessControlWorkflow", () => {
       "setRoleAdmin",
       "receipt:manageAccessControl.setRoleAdmin",
       "getRoleAdmin",
-      "hasRole:before",
       "revokeRole",
       "receipt:manageAccessControl.revokeRole",
       "hasRole:after",
