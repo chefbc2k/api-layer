@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-16T08:47:32.753Z`
+Generated: `2026-09-17T08:31:56.378Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,12 +13,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 281 |
-| needs fixture | 217 |
+| ready | 291 |
+| needs fixture | 214 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
-| needs indexer proof | 176 |
+| needs indexer proof | 169 |
 
 | Proof dimension | Items |
 | --- | ---: |
@@ -26,14 +26,14 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 421 |
+| unit | 434 |
 | workflow | 279 |
-| localFork | 100 |
+| localFork | 103 |
 | baseSepolia | 60 |
-| negativePath | 263 |
-| economic | 104 |
+| negativePath | 265 |
+| economic | 120 |
 | redTeam | 29 |
-| indexer | 42 |
+| indexer | 49 |
 
 ## Methodology
 
@@ -266,7 +266,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## EmergencyFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.3/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.33/8`.
 
 ### Functions
 
@@ -303,7 +303,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `EmergencyFacet.AssetsFrozen` | yes | — | — | yes | indexer 4/8 | ready |
 | `EmergencyFacet.EmergencyResumeExecuted` | yes | — | — | yes | indexer 3/8 | ready |
 | `EmergencyFacet.EmergencyResumeScheduled` | yes | — | — | yes | indexer 4/8 | ready |
-| `EmergencyFacet.EmergencyStateChanged` | yes | — | — | yes | indexer 4/8 | ready |
+| `EmergencyFacet.EmergencyStateChanged` | yes | — | — | yes | indexer 5/8 | ready |
 | `EmergencyFacet.IncidentReported` | yes | — | — | yes | indexer 4/8 | ready |
 | `EmergencyFacet.PauseExtended` | yes | — | — | yes | indexer 4/8 | ready |
 | `EmergencyFacet.RecoveryCompleted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
@@ -701,50 +701,50 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## StakingFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `0.39/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.58/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `advanceEpoch` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `claimRewards` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
-| `executeUnstake` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `fundRewardPool` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `advanceEpoch` | write | yes | — | — | — | — | yes | — | adversarial 2/8 | needs fixture |
+| `claimRewards` | write | yes | — | — | — | — | yes | — | adversarial 2/8 | needs fixture |
+| `executeUnstake` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `fundRewardPool` | write | yes | — | — | — | — | yes | — | adversarial 2/8 | needs fixture |
 | `getDegradedModeConfig` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getEffectiveApy` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `getPendingRewards` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `getPendingRewards` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `getRewardBreakdown` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getStakeAgeMultiplier` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getStakeInfo` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `getStakingStats` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `getStakingStats` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `getTier` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getTierConfig` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `getUnstakeRequest` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `getUnstakeRequest` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
 | `initStaking` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `initStakingWithToken` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `isDegradedModeActive` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `queueTierConfigUpdate` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `requestUnstake` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `requestUnstake` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
 | `setDegradedModeConfig` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `setEchoScoreBoost` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `setStakingPaused` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `stake` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `stake` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `StakingFacet.EpochAdvanced` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.RewardPoolFunded` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.RewardsClaimed` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.RewardsClaimedDetailed` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.Staked` | yes | — | — | — | adversarial 4/8 | needs indexer proof |
+| `StakingFacet.EpochAdvanced` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.RewardPoolFunded` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.RewardsClaimed` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.RewardsClaimedDetailed` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.Staked` | yes | — | — | yes | indexer 5/8 | ready |
 | `StakingFacet.StakingInitialized` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `StakingFacet.StakingPaused` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `StakingFacet.TierConfigUpdated` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.UnstakeRequested` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.Unstaked` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `StakingFacet.UnstakeRequested` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.Unstaked` | yes | — | — | yes | indexer 4/8 | ready |
 
 ## TimelockFacet
 
@@ -944,7 +944,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## VoiceAssetFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.95/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.96/8`.
 
 ### Functions
 
@@ -955,7 +955,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `customizeRoyaltyRate` | write | yes | — | yes | — | — | — | — | live 2/8 | needs fixture |
 | `getApproved` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getDefaultPlatformFee` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `getDefaultRoyaltyRate` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
+| `getDefaultRoyaltyRate` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
 | `getMaxRoyaltyRate` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `getRoyaltyHistory` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getTokenId` | read | yes | yes | — | yes | yes | yes | yes | adversarial 6/8 | ready |

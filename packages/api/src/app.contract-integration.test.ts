@@ -799,6 +799,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "staking-proof-key": {
+        label: "staking-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "access-receipt-a-key": {
         label: "access-receipt-a",
         signerId: "founder",
@@ -5134,7 +5140,7 @@ describeLive("HTTP API contract integration", () => {
     expect(await emergencyFacet.getEmergencyState()).toBe(0n);
   }, 180_000);
 
-  it("proves the stake, unstake request, and executed unstake receipt lifecycle", async (ctx) => {
+  it("proves the funded staking reward, claim, and unstake receipt lifecycle", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
@@ -5145,20 +5151,18 @@ describeLive("HTTP API contract integration", () => {
       return;
     }
 
-    const stakeAmount = 1n;
+    const epochDurationSeconds = 7n * 24n * 60n * 60n;
+    const tokenUnit = 10n ** 10n;
+    const rewardFundingAmount = 52n * epochDurationSeconds * tokenUnit;
+    const stakeAmount = tokenUnit;
+    const stakingApiKey = "staking-proof-key";
     const stakeBefore = await stakingFacet.getStakeInfo(founderAddress);
+    const stakingStatsBefore = await stakingFacet.getStakingStats();
     const stakerBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
     const custodyBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(diamondAddress);
 
-    const approveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
-      apiKey: "founder-key",
-      body: { spender: diamondAddress, amount: stakeAmount.toString() },
-    });
-    expect(approveResponse.status, JSON.stringify(approveResponse.payload)).toBe(202);
-    await expectReceipt(extractTxHash(approveResponse.payload));
-
     const submit = async (route: string, body: Record<string, unknown> = {}) => {
-      const response = await apiCall(port, "POST", route, { apiKey: "founder-key", body });
+      const response = await apiCall(port, "POST", route, { apiKey: stakingApiKey, body });
       expect(response.status, JSON.stringify(response.payload)).toBe(202);
       const txHash = extractTxHash(response.payload);
       await expectReceipt(txHash);
@@ -5180,6 +5184,40 @@ describeLive("HTTP API contract integration", () => {
       expect((response.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === txHash)).toBe(true);
     };
 
+    const approve = async (amount: bigint) => {
+      const response = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+        apiKey: stakingApiKey,
+        body: { spender: diamondAddress, amount: amount.toString() },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      await expectReceipt(extractTxHash(response.payload));
+    };
+
+    await approve(rewardFundingAmount);
+    const funding = await submit("/v1/staking/commands/fund-reward-pool", {
+      amount: rewardFundingAmount.toString(),
+    });
+    expect(funding.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "RewardPoolFunded";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent(
+      "/v1/staking/events/reward-pool-funded/query",
+      funding.txHash,
+      funding.receipt.blockNumber,
+    );
+    const stakingStatsAfterFunding = await stakingFacet.getStakingStats();
+    expect(stakingStatsAfterFunding.rewardPoolBalance).toBe(
+      stakingStatsBefore.rewardPoolBalance + rewardFundingAmount,
+    );
+    const stakerBalanceAfterFunding = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    expect(stakerBalanceAfterFunding).toBe(stakerBalanceBefore - rewardFundingAmount);
+
+    await approve(stakeAmount);
+
     const stake = await submit("/v1/staking/commands/stake", { amount: stakeAmount.toString() });
     expect(stake.receipt.logs.some((log) => {
       try {
@@ -5192,8 +5230,52 @@ describeLive("HTTP API contract integration", () => {
 
     const stakeAfter = await stakingFacet.getStakeInfo(founderAddress);
     expect(stakeAfter.amount).toBe(stakeBefore.amount + stakeAmount);
-    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(stakerBalanceBefore - stakeAmount);
-    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(custodyBalanceBefore + stakeAmount);
+    const stakerBalanceAfterStake = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    expect(stakerBalanceAfterStake).toBeGreaterThanOrEqual(stakerBalanceAfterFunding - stakeAmount);
+    const stakeAccruedReward = stakerBalanceAfterStake - (stakerBalanceAfterFunding - stakeAmount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(
+      custodyBalanceBefore + rewardFundingAmount + stakeAmount - stakeAccruedReward,
+    );
+
+    await provider.send("evm_increaseTime", [Number(epochDurationSeconds + 1n)]);
+    await provider.send("evm_mine", []);
+
+    const epoch = await submit("/v1/staking/commands/advance-epoch");
+    expect(epoch.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "EpochAdvanced";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent("/v1/staking/events/epoch-advanced/query", epoch.txHash, epoch.receipt.blockNumber);
+
+    expect(await stakingFacet.getPendingRewards(founderAddress)).toBeGreaterThan(0n);
+    const stakerBalanceBeforeClaim = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const claim = await submit("/v1/staking/commands/claim-rewards");
+    const claimEventNames = claim.receipt.logs.flatMap((log) => {
+      try {
+        return [stakingFacet.interface.parseLog(log)?.name];
+      } catch {
+        return [];
+      }
+    });
+    expect(claimEventNames).toContain("RewardsClaimed");
+    expect(claimEventNames).toContain("RewardsClaimedDetailed");
+    await expectDecodedEvent(
+      "/v1/staking/events/rewards-claimed/query",
+      claim.txHash,
+      claim.receipt.blockNumber,
+    );
+    await expectDecodedEvent(
+      "/v1/staking/events/rewards-claimed-detailed/query",
+      claim.txHash,
+      claim.receipt.blockNumber,
+    );
+    const stakerBalanceAfterClaim = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const claimedAmount = stakerBalanceAfterClaim - stakerBalanceBeforeClaim;
+    expect(claimedAmount).toBeGreaterThan(0n);
+    expect(await stakingFacet.getPendingRewards(founderAddress)).toBe(0n);
 
     const request = await submit("/v1/staking/commands/request-unstake", { amount: stakeAmount.toString() });
     expect(request.receipt.logs.some((log) => {
@@ -5220,6 +5302,7 @@ describeLive("HTTP API contract integration", () => {
     await provider.send("evm_increaseTime", [Number(secondsToUnlock)]);
     await provider.send("evm_mine", []);
 
+    const stakerBalanceBeforeExecute = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
     const unstake = await submit("/v1/staking/commands/execute-unstake");
     expect(unstake.receipt.logs.some((log) => {
       try {
@@ -5235,8 +5318,10 @@ describeLive("HTTP API contract integration", () => {
     expect(stakeRestored.amount).toBe(stakeBefore.amount);
     expect(clearedRequest.amount).toBe(0n);
     expect(clearedRequest.pending).toBe(false);
-    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(stakerBalanceBefore);
-    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(custodyBalanceBefore);
+    const stakerBalanceFinal = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const custodyBalanceFinal = await tokenSupplyFacet.tokenBalanceOf(diamondAddress);
+    expect(stakerBalanceFinal).toBeGreaterThanOrEqual(stakerBalanceBeforeExecute + stakeAmount);
+    expect(stakerBalanceFinal + custodyBalanceFinal).toBe(stakerBalanceBefore + custodyBalanceBefore);
   }, 180_000);
 
   it("fails correctly for validation, signer, and provider errors", async () => {
