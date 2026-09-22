@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-17T07:05:52.548Z`
+Generated: `2026-09-22T08:58:10.485Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,12 +13,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 285 |
-| needs fixture | 216 |
+| ready | 311 |
+| needs fixture | 208 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
-| needs indexer proof | 173 |
+| needs indexer proof | 155 |
 
 | Proof dimension | Items |
 | --- | ---: |
@@ -26,14 +26,14 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 426 |
+| unit | 438 |
 | workflow | 279 |
-| localFork | 103 |
+| localFork | 109 |
 | baseSepolia | 60 |
-| negativePath | 266 |
-| economic | 112 |
-| redTeam | 29 |
-| indexer | 45 |
+| negativePath | 277 |
+| economic | 124 |
+| redTeam | 40 |
+| indexer | 63 |
 
 ## Methodology
 
@@ -266,7 +266,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## EmergencyFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.36/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.33/8`.
 
 ### Functions
 
@@ -274,7 +274,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `approveRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `completeRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `emergencyResume` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
+| `emergencyResume` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `emergencyStop` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `executeRecoveryAction` | write | — | — | — | — | — | — | — | inventory 0/8 | unsafe on live network |
 | `executeRecoveryStep` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
@@ -487,7 +487,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## MultiSigFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.71/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.79/8`.
 
 ### Functions
 
@@ -519,7 +519,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `MultiSigFacet.BatchCompleted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 | `MultiSigFacet.MultiSigOperationCancelled` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `MultiSigFacet.OperationApproved` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `MultiSigFacet.OperationExecuted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
+| `MultiSigFacet.OperationExecuted` | yes | — | — | yes | indexer 4/8 | ready |
 | `MultiSigFacet.OperationProposed` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 | `MultiSigFacet.OperationStatusChanged` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 
@@ -626,7 +626,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## ProposalFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.35/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.31/8`.
 
 ### Functions
 
@@ -648,7 +648,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `proposalSnapshot` | read | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `proposalVotes` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `propose(string,string,address[],uint256[],bytes[],uint8)` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `propose(address[],uint256[],bytes[],string,uint8)` | write | yes | yes | yes | yes | yes | yes | — | adversarial 6/8 | ready |
+| `propose(address[],uint256[],bytes[],string,uint8)` | write | yes | yes | yes | yes | yes | — | — | adversarial 5/8 | ready |
 | `queue` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `setProposalTypeConfig` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `state` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
@@ -701,23 +701,23 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## StakingFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `0.97/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.7/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `advanceEpoch` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `claimRewards` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `advanceEpoch` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `claimRewards` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
 | `executeUnstake` | write | yes | — | yes | — | yes | yes | — | adversarial 4/8 | needs fixture |
-| `fundRewardPool` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `fundRewardPool` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
 | `getDegradedModeConfig` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getEffectiveApy` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `getPendingRewards` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `getPendingRewards` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `getRewardBreakdown` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getStakeAgeMultiplier` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getStakeInfo` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
-| `getStakingStats` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `getStakingStats` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `getTier` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getTierConfig` | read | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getUnstakeRequest` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
@@ -735,10 +735,10 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `StakingFacet.EpochAdvanced` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.RewardPoolFunded` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.RewardsClaimed` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `StakingFacet.RewardsClaimedDetailed` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `StakingFacet.EpochAdvanced` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.RewardPoolFunded` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.RewardsClaimed` | yes | — | — | yes | indexer 3/8 | ready |
+| `StakingFacet.RewardsClaimedDetailed` | yes | — | — | yes | indexer 3/8 | ready |
 | `StakingFacet.Staked` | yes | — | — | yes | indexer 5/8 | ready |
 | `StakingFacet.StakingInitialized` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `StakingFacet.StakingPaused` | — | — | — | — | inventory 0/8 | needs indexer proof |
@@ -748,7 +748,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## TimelockFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `2/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.86/8`.
 
 ### Functions
 
@@ -756,30 +756,30 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `EXECUTOR_ROLE` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `PROPOSER_ROLE` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
-| `cancel` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `execute` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
+| `cancel` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `execute` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 | `getMinDelay` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getTimestamp` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `isOperationExecuted` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `isOperationExecuted` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `isOperationPending` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOperationReady` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `schedule` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `schedule` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 | `updateMinDelay` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `TimelockFacet.CallExecuted` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `TimelockFacet.CallExecuted` | yes | — | — | yes | indexer 3/8 | ready |
 | `TimelockFacet.MinDelayUpdated(uint256,uint256)` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `TimelockFacet.MinDelayUpdated(uint256,uint256)#2` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `TimelockFacet.OperationExecuted(bytes32,uint256,uint256)` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `TimelockFacet.OperationExecuted(bytes32)` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `TimelockFacet.OperationRemoved` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `TimelockFacet.OperationScheduled` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `TimelockFacet.OperationStored` | yes | — | — | — | adversarial 3/8 | needs indexer proof |
-| `TimelockFacet.TimelockOperationCanceled` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `TimelockFacet.OperationExecuted(bytes32,uint256,uint256)` | yes | — | — | yes | indexer 3/8 | ready |
+| `TimelockFacet.OperationExecuted(bytes32)` | yes | — | — | yes | indexer 5/8 | ready |
+| `TimelockFacet.OperationRemoved` | yes | — | — | yes | indexer 2/8 | ready |
+| `TimelockFacet.OperationScheduled` | yes | — | — | yes | indexer 4/8 | ready |
+| `TimelockFacet.OperationStored` | yes | — | — | yes | indexer 4/8 | ready |
+| `TimelockFacet.TimelockOperationCanceled` | yes | — | — | yes | indexer 2/8 | ready |
 
 ## TimewaveGiftFacet
 
@@ -1013,13 +1013,13 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## VoiceDatasetFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.8/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.92/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `appendAssets` | write | yes | yes | yes | yes | — | — | — | live 4/8 | needs fixture |
+| `appendAssets` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
 | `burnDataset` | write | yes | — | yes | yes | — | — | — | live 3/8 | needs fixture |
 | `containsAsset` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
 | `createDataset` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
@@ -1027,27 +1027,27 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `getDatasetsByCreator` | read | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `getMaxAssetsPerDataset` | read | yes | — | — | — | — | — | yes | adversarial 2/8 | ready |
 | `getTotalDatasets` | read | yes | — | — | — | — | — | yes | adversarial 2/8 | ready |
-| `removeAsset` | write | yes | yes | yes | yes | — | — | — | live 4/8 | needs fixture |
-| `royaltyInfo` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
-| `setDatasetStatus` | write | yes | yes | yes | yes | — | — | — | live 4/8 | needs fixture |
-| `setLicense` | write | yes | yes | yes | yes | — | — | — | live 4/8 | needs fixture |
+| `removeAsset` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `royaltyInfo` | read | yes | — | — | yes | yes | — | yes | adversarial 4/8 | ready |
+| `setDatasetStatus` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `setLicense` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
 | `setMaxAssetsPerDataset` | write | yes | — | yes | — | yes | — | — | adversarial 3/8 | needs fixture |
-| `setMetadata` | write | yes | yes | yes | yes | — | — | — | live 4/8 | needs fixture |
-| `setRoyalty` | write | yes | yes | yes | yes | — | — | — | live 4/8 | needs fixture |
+| `setMetadata` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `setRoyalty` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `VoiceDatasetFacet.AssetRemoved` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `VoiceDatasetFacet.AssetsAppended` | yes | — | — | — | workflow 2/8 | needs indexer proof |
+| `VoiceDatasetFacet.AssetRemoved` | yes | — | — | yes | indexer 3/8 | ready |
+| `VoiceDatasetFacet.AssetsAppended` | yes | — | — | yes | indexer 3/8 | ready |
 | `VoiceDatasetFacet.DatasetBurned` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `VoiceDatasetFacet.DatasetCreated` | yes | — | — | — | unit 1/8 | needs indexer proof |
 | `VoiceDatasetFacet.DatasetRoyaltyPayeeSet` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `VoiceDatasetFacet.DatasetStatusChanged` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `VoiceDatasetFacet.LicenseChanged` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `VoiceDatasetFacet.MetadataChanged` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `VoiceDatasetFacet.RoyaltySet` | yes | — | — | — | workflow 2/8 | needs indexer proof |
+| `VoiceDatasetFacet.DatasetStatusChanged` | yes | — | — | yes | indexer 5/8 | ready |
+| `VoiceDatasetFacet.LicenseChanged` | yes | — | — | yes | indexer 5/8 | ready |
+| `VoiceDatasetFacet.MetadataChanged` | yes | — | — | yes | indexer 5/8 | ready |
+| `VoiceDatasetFacet.RoyaltySet` | yes | — | — | yes | indexer 5/8 | ready |
 | `VoiceDatasetFacet.Transfer` | yes | — | — | yes | indexer 3/8 | ready |
 
 ## VoiceLicenseFacet
