@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.363] - 2026-09-22
+
+### Changed
+
+- **Base Sepolia Promotion Decision Coverage Expanded:** Exported the promotion report classifier, scenario gate, and initial-output builder for direct verification, then added focused tests for every recognized proof classification, malformed reports, governance readiness and timing blocks, marketplace listing/funding/allowance gates, safe ready/blocked output construction, and malformed actor identity.
+- **Verified Coverage Gap Reduced By More Than One Fifth:** The merged uncovered-unit baseline moved from `434` gaps (`136` statements, `150` branches, `21` functions, `127` lines) to `345` (`114`, `109`, `17`, `105`), closing `89/434` or `20.5%` while preserving all API, wrapper, event, and write-invariant surface guarantees.
+
+### Verified
+
+- **Baseline And Surface Gates Passed:** `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run coverage:check` passed against Base Sepolia fallback state at diamond `0xa14088AcbF0639EF1C3655768a3001E6B8DC9669`; coverage remains `492/492` HTTP methods, `492` wrapper functions, `218` events, and `260/260` write invariants.
+- **Focused And Repository Coverage Passed:** The promotion suite passed `10/10`; TypeScript and lint passed; `pnpm run test:coverage` completed green at `98.00%` statements, `97.83%` branches, `98.76%` functions, and `98.07%` lines.
+
+### Remaining Issues
+
+- **Strict Standard Coverage Is Still Open:** The hard `100%` statement, branch, function, and line mandate is not yet met. The largest remaining concentration is the side-effecting live promotion runner, followed by guarded indexer receipt/trace failure paths and a small number of API/indexer branches. Existing lifecycle artifacts remain fully classified with zero setup partials and zero deeper unknowns.
+
 ## [0.1.362] - 2026-09-17
 
 ### Changed

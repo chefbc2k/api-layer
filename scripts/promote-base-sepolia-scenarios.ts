@@ -319,7 +319,7 @@ export function collectPromotionEvidence(values: unknown[]): PromotionEvidence {
   };
 }
 
-function reportClassification(report: unknown): DomainClassification {
+export function reportClassification(report: unknown): DomainClassification {
   if (!report || typeof report !== "object") {
     return "deeper issue remains";
   }
@@ -335,7 +335,7 @@ function reportClassification(report: unknown): DomainClassification {
   return "deeper issue remains";
 }
 
-function scenarioGate(fixture: SetupFixture, id: ScenarioResult["id"]): { ready: boolean; reason: string } {
+export function scenarioGate(fixture: SetupFixture, id: ScenarioResult["id"]): { ready: boolean; reason: string } {
   if (id === "governance") {
     return fixture.governance?.status === "ready"
       ? { ready: true, reason: "governance proposer role and voting power are ready" }
@@ -353,7 +353,7 @@ function scenarioGate(fixture: SetupFixture, id: ScenarioResult["id"]): { ready:
     : { ready: false, reason: listing?.reason ?? "marketplace fixture, buyer funds, or allowance is incomplete" };
 }
 
-function baseOutput(env: NodeJS.ProcessEnv, readiness: PromotionReadiness): PromotionOutput {
+export function baseOutput(env: NodeJS.ProcessEnv, readiness: PromotionReadiness): PromotionOutput {
   const diamondAddress = env.DIAMOND_ADDRESS ?? env.API_LAYER_DIAMOND_ADDRESS;
   return {
     generatedAt: new Date().toISOString(),

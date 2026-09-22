@@ -3,7 +3,14 @@ import { describe, expect, it } from "vitest";
 
 import path from "node:path";
 
-import { assessPromotionReadiness, collectPromotionEvidence, resolvePromotionEnvPath } from "./promote-base-sepolia-scenarios.js";
+import {
+  assessPromotionReadiness,
+  baseOutput,
+  collectPromotionEvidence,
+  reportClassification,
+  resolvePromotionEnvPath,
+  scenarioGate,
+} from "./promote-base-sepolia-scenarios.js";
 
 const founder = Wallet.createRandom();
 const seller = Wallet.createRandom();
@@ -69,6 +76,20 @@ describe("Base Sepolia promotion readiness", () => {
     expect(result.status).toBe("blocked");
     expect(result.blockers.length).toBeGreaterThanOrEqual(6);
   });
+
+  it("rejects malformed actor keys and sender addresses", () => {
+    const env = readyEnv();
+    env.PRIVATE_KEY = "not-a-private-key";
+    env.SENDER = "not-an-address";
+
+    const result = assessPromotionReadiness(env);
+    expect(result.status).toBe("blocked");
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining("required-actors"),
+      expect.stringContaining("distinct-actors"),
+      expect.stringContaining("founder-sender"),
+    ]));
+  });
 });
 
 describe("Base Sepolia promotion evidence", () => {
@@ -104,5 +125,60 @@ describe("Base Sepolia promotion evidence", () => {
       "buyer",
       buyer.address,
     ]);
+  });
+
+  it("classifies only recognized proof summaries", () => {
+    expect(reportClassification({ summary: "proven working" })).toBe("proven working");
+    expect(reportClassification({ summary: "blocked by setup/state" })).toBe("blocked by setup/state");
+    expect(reportClassification({ summary: "semantically clarified but not fully proven" })).toBe(
+      "semantically clarified but not fully proven",
+    );
+    expect(reportClassification({ summary: "deeper issue remains" })).toBe("deeper issue remains");
+    expect(reportClassification({ summary: "unknown" })).toBe("deeper issue remains");
+    expect(reportClassification(null)).toBe("deeper issue remains");
+  });
+
+  it("gates governance and marketplace execution on fixture readiness", () => {
+    expect(scenarioGate({ governance: { status: "ready" } }, "governance")).toEqual({
+      ready: true,
+      reason: "governance proposer role and voting power are ready",
+    });
+    expect(scenarioGate({ governance: { reason: "voting delay" } }, "governance")).toEqual({
+      ready: false,
+      reason: "voting delay",
+    });
+    expect(scenarioGate({}, "governance").reason).toContain("incomplete");
+
+    const fixture = {
+      marketplace: {
+        agedListingFixture: {
+          status: "ready",
+          purchaseReadiness: "purchase-ready",
+          listing: { readback: { payload: { price: "1000" } } },
+        },
+        usdcFunding: { buyerBalance: "1000", buyerAllowance: "1000" },
+      },
+    };
+    expect(scenarioGate(fixture, "marketplace-purchase").ready).toBe(true);
+    fixture.marketplace.usdcFunding.buyerAllowance = "not-a-number";
+    expect(scenarioGate(fixture, "marketplace-purchase")).toEqual({
+      ready: false,
+      reason: "marketplace fixture, buyer funds, or allowance is incomplete",
+    });
+  });
+
+  it("builds safe initial output for ready and blocked promotion targets", () => {
+    const ready = assessPromotionReadiness(readyEnv());
+    expect(baseOutput(readyEnv(), ready)).toEqual(expect.objectContaining({
+      target: expect.objectContaining({ network: "base-sepolia", chainId: 84532 }),
+      finalClassification: "semantically clarified but not fully proven",
+      safety: expect.objectContaining({ destructiveProtocolAdminWrites: "disabled" }),
+    }));
+
+    const blockedEnv = { NETWORK: "base-sepolia", CHAIN_ID: "invalid", DIAMOND_ADDRESS: "invalid" };
+    expect(baseOutput(blockedEnv, assessPromotionReadiness(blockedEnv, false))).toEqual(expect.objectContaining({
+      target: expect.objectContaining({ chainId: null, rpcOrigin: null, diamondAddress: null }),
+      finalClassification: "blocked by setup/state",
+    }));
   });
 });
