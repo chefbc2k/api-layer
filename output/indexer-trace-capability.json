@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T08:18:56.408Z",
+  "generatedAt": "2026-09-22T08:26:42.938Z",
   "status": "proven working",
   "rpc": {
     "endpoint": "https://sepolia.base.org",
@@ -13,7 +13,7 @@
     "traceKind": "object"
   },
   "evidence": {
-    "txHash": "0x4740c39a04c149eed2584a240a07f60baba7e030360e835eef403f3c70c8218d",
-    "blockNumber": 46846024
+    "txHash": "0x62eb0ce8d643e5679b357d0f2ccdcdd45f1c1c6261643c49c2c6d127a7251314",
+    "blockNumber": 47148657
   }
 }

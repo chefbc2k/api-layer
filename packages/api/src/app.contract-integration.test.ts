@@ -799,6 +799,24 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "staking-proof-key": {
+        label: "staking-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "ownership-guard-key": {
+        label: "ownership-guard",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "onboard-proof-key": {
+        label: "onboard-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "access-receipt-a-key": {
         label: "access-receipt-a",
         signerId: "founder",
@@ -1563,6 +1581,57 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(datasetAfterUpdates.payload).toEqual(datasetToObject(await voiceDataset.getDataset(BigInt(datasetId))));
 
+    const datasetBeforeUnauthorizedMutations = datasetToObject(await voiceDataset.getDataset(BigInt(datasetId)));
+    const unauthorizedDatasetMutationCases: ReadonlyArray<{
+      method: string;
+      route: string;
+      body: Record<string, unknown>;
+    }> = [
+      {
+        method: "POST",
+        route: "/v1/datasets/commands/append-assets",
+        body: { datasetId, assetIds: [asset1.tokenId] },
+      },
+      {
+        method: "DELETE",
+        route: "/v1/datasets/commands/remove-asset",
+        body: { datasetId, assetId: asset1.tokenId },
+      },
+      {
+        method: "PATCH",
+        route: "/v1/datasets/commands/set-license",
+        body: { datasetId, licenseTemplateId: template2Id },
+      },
+      {
+        method: "PATCH",
+        route: "/v1/datasets/commands/set-metadata",
+        body: { datasetId, metadataURI: "ipfs://unauthorized-metadata" },
+      },
+      {
+        method: "PATCH",
+        route: "/v1/datasets/commands/set-royalty",
+        body: { datasetId, royaltyBps: "999" },
+      },
+      {
+        method: "PATCH",
+        route: "/v1/datasets/commands/set-dataset-status",
+        body: { datasetId, active: true },
+      },
+    ];
+    for (const mutation of unauthorizedDatasetMutationCases) {
+      const rejected = await apiCall(port, mutation.method, mutation.route, {
+        apiKey: "delegation-proof-key",
+        body: mutation.body,
+      });
+      expect(rejected.status, `${mutation.route}: ${JSON.stringify(rejected.payload)}`).toBe(400);
+      expect(JSON.stringify(rejected.payload)).toMatch(
+        /InvalidDatasetCreator|NotDatasetOwner|revert|execution reverted|unauthorized/i,
+      );
+    }
+    expect(datasetToObject(await voiceDataset.getDataset(BigInt(datasetId)))).toEqual(
+      datasetBeforeUnauthorizedMutations,
+    );
+
     const royaltyInfoResponse = await apiCall(
       port,
       "GET",
@@ -2054,6 +2123,101 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(thresholdReadyResponse.status).toBe(202);
   }, 300_000);
+
+  it("proves timelock schedule, cancel, and execute receipts on a local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "timelock receipt lifecycle", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+    ])) return;
+
+    for (const role of [await timelockFacet.PROPOSER_ROLE(), await timelockFacet.EXECUTOR_ROLE()]) {
+      if (await accessControl.hasRole(role, founderAddress)) {
+        continue;
+      }
+      const grantResponse = await apiCall(port, "POST", "/v1/access-control/commands/grant-role", {
+        body: { role, account: founderAddress, expiryTime: "0" },
+      });
+      expect(grantResponse.status, JSON.stringify(grantResponse.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grantResponse.payload));
+      expect(await accessControl.hasRole(role, founderAddress)).toBe(true);
+    }
+
+    const minDelay = await timelockFacet.getMinDelay();
+    const readCalldata = timelockFacet.interface.encodeFunctionData("getMinDelay");
+    const baseProposalId = BigInt(await provider.getBlockNumber()) * 1_000_000n + BigInt(Date.now() % 1_000_000);
+    const buildOperation = (proposalId: bigint, label: string) => ({
+      proposalId: proposalId.toString(),
+      targets: [diamondAddress],
+      values: ["0"],
+      calldatas: [readCalldata],
+      predecessor: ZERO_BYTES32,
+      salt: id(`indexer-timelock-${label}-${Date.now()}`),
+      delay: minDelay.toString(),
+    });
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      return { txHash, receipt: receipt! };
+    };
+    const parsedTimelockEvents = (receipt: NonNullable<Awaited<ReturnType<typeof provider.getTransactionReceipt>>>) =>
+      receipt.logs.flatMap((log) => {
+        try {
+          const parsed = timelockFacet.interface.parseLog(log);
+          return parsed ? [{ name: parsed.name, signature: parsed.signature, args: parsed.args }] : [];
+        } catch {
+          return [];
+        }
+      });
+
+    const canceledOperation = buildOperation(baseProposalId, "cancel");
+    const scheduledForCancel = await submit("POST", "/v1/governance/commands/schedule", canceledOperation);
+    const cancelScheduleEvents = parsedTimelockEvents(scheduledForCancel.receipt);
+    expect(cancelScheduleEvents.map((event) => event.name)).toEqual(expect.arrayContaining([
+      "OperationScheduled",
+      "OperationStored",
+    ]));
+    const canceledOperationId = String(cancelScheduleEvents.find((event) => event.name === "OperationScheduled")?.args.id);
+    expect(canceledOperationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect((await timelockFacet.getOperation(canceledOperationId)).canceled).toBe(false);
+
+    const canceled = await submit("DELETE", "/v1/governance/commands/cancel", canceledOperation);
+    expect(parsedTimelockEvents(canceled.receipt).map((event) => event.name)).toEqual(expect.arrayContaining([
+      "TimelockOperationCanceled",
+      "OperationRemoved",
+    ]));
+    expect((await timelockFacet.getOperation(canceledOperationId)).canceled).toBe(true);
+
+    const executedOperation = buildOperation(baseProposalId + 1n, "execute");
+    const scheduledForExecution = await submit("POST", "/v1/governance/commands/schedule", executedOperation);
+    const executionScheduleEvents = parsedTimelockEvents(scheduledForExecution.receipt);
+    const executedOperationId = String(executionScheduleEvents.find((event) => event.name === "OperationScheduled")?.args.id);
+    expect(executedOperationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect(await timelockFacet.isOperationPending(executedOperationId)).toBe(true);
+
+    const storedExecution = await timelockFacet.getOperation(executedOperationId);
+    const latestExecutionBlock = await provider.getBlock("latest");
+    const secondsUntilReady = storedExecution.timestamp - BigInt(latestExecutionBlock!.timestamp) + 1n;
+    expect(secondsUntilReady).toBeGreaterThan(0n);
+    await provider.send("evm_increaseTime", [Number(secondsUntilReady)]);
+    await provider.send("evm_mine", []);
+    expect(await timelockFacet.isOperationReady(executedOperationId)).toBe(true);
+
+    const executed = await submit("POST", "/v1/governance/commands/execute", executedOperation);
+    const executionEvents = parsedTimelockEvents(executed.receipt);
+    expect(executionEvents.map((event) => event.signature)).toEqual(expect.arrayContaining([
+      "OperationExecuted(bytes32,uint256,uint256)",
+      "OperationExecuted(bytes32)",
+      "CallExecuted(address,uint256,bytes,bool)",
+    ]));
+    expect(await timelockFacet.isOperationExecuted(executedOperationId)).toBe(true);
+  }, 180_000);
 
   it("proves tokenomics reads and reversible admin/token flows through HTTP on Base Sepolia", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "tokenomics reversible admin and token flows", [
@@ -3878,6 +4042,7 @@ describeLive("HTTP API contract integration", () => {
     await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.000003"));
 
     const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "ownership-guard-key",
       body: {
         ipfsHash: `QmCommercializationOwnership${Date.now()}`,
         royaltyRate: "100",
@@ -3893,6 +4058,7 @@ describeLive("HTTP API contract integration", () => {
     ));
 
     const transferResponse = await apiCall(port, "POST", `/v1/voice-assets/tokens/${encodeURIComponent(tokenId)}/transfers`, {
+      apiKey: "ownership-guard-key",
       body: {
         from: founderAddress,
         to: transfereeWallet.address,
@@ -3908,6 +4074,7 @@ describeLive("HTTP API contract integration", () => {
     )).toBe(transfereeWallet.address);
 
     const rejectedWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/create-dataset-and-list-for-sale", {
+      apiKey: "ownership-guard-key",
       body: {
         title: `Ownership Guard ${Date.now()}`,
         assetIds: [tokenId],
@@ -3936,6 +4103,7 @@ describeLive("HTTP API contract integration", () => {
     const role = id("MARKETPLACE_PURCHASER_ROLE");
     const rightsHolder = outsiderWallet.address;
     const voiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "onboard-proof-key",
       body: {
         ipfsHash: `QmOnboardWorkflow${Date.now()}`,
         royaltyRate: "125",
@@ -3946,6 +4114,7 @@ describeLive("HTTP API contract integration", () => {
     await expectReceipt(extractTxHash(voiceResponse.payload));
 
     const onboardResponse = await apiCall(port, "POST", "/v1/workflows/onboard-rights-holder", {
+      apiKey: "onboard-proof-key",
       body: {
         role,
         account: rightsHolder,
@@ -3994,11 +4163,13 @@ describeLive("HTTP API contract integration", () => {
       port,
       "DELETE",
       `/v1/voice-assets/${voiceHash}/authorization-grants/${encodeURIComponent(rightsHolder)}`,
+      { apiKey: "onboard-proof-key" },
     );
     expect(revokeAuthorizationResponse.status).toBe(202);
     await expectReceipt(extractTxHash(revokeAuthorizationResponse.payload));
 
     const revokeRoleResponse = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+      apiKey: "onboard-proof-key",
       body: {
         role,
         account: rightsHolder,
@@ -5134,7 +5305,7 @@ describeLive("HTTP API contract integration", () => {
     expect(await emergencyFacet.getEmergencyState()).toBe(0n);
   }, 180_000);
 
-  it("proves the stake, unstake request, and executed unstake receipt lifecycle", async (ctx) => {
+  it("proves the funded staking reward, claim, and unstake receipt lifecycle", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
@@ -5145,20 +5316,18 @@ describeLive("HTTP API contract integration", () => {
       return;
     }
 
-    const stakeAmount = 1n;
+    const epochDurationSeconds = 7n * 24n * 60n * 60n;
+    const tokenUnit = 10n ** 10n;
+    const rewardFundingAmount = 52n * epochDurationSeconds * tokenUnit;
+    const stakeAmount = tokenUnit;
+    const stakingApiKey = "staking-proof-key";
     const stakeBefore = await stakingFacet.getStakeInfo(founderAddress);
+    const stakingStatsBefore = await stakingFacet.getStakingStats();
     const stakerBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
     const custodyBalanceBefore = await tokenSupplyFacet.tokenBalanceOf(diamondAddress);
 
-    const approveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
-      apiKey: "founder-key",
-      body: { spender: diamondAddress, amount: stakeAmount.toString() },
-    });
-    expect(approveResponse.status, JSON.stringify(approveResponse.payload)).toBe(202);
-    await expectReceipt(extractTxHash(approveResponse.payload));
-
     const submit = async (route: string, body: Record<string, unknown> = {}) => {
-      const response = await apiCall(port, "POST", route, { apiKey: "founder-key", body });
+      const response = await apiCall(port, "POST", route, { apiKey: stakingApiKey, body });
       expect(response.status, JSON.stringify(response.payload)).toBe(202);
       const txHash = extractTxHash(response.payload);
       await expectReceipt(txHash);
@@ -5180,6 +5349,40 @@ describeLive("HTTP API contract integration", () => {
       expect((response.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === txHash)).toBe(true);
     };
 
+    const approve = async (amount: bigint) => {
+      const response = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+        apiKey: stakingApiKey,
+        body: { spender: diamondAddress, amount: amount.toString() },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      await expectReceipt(extractTxHash(response.payload));
+    };
+
+    await approve(rewardFundingAmount);
+    const funding = await submit("/v1/staking/commands/fund-reward-pool", {
+      amount: rewardFundingAmount.toString(),
+    });
+    expect(funding.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "RewardPoolFunded";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent(
+      "/v1/staking/events/reward-pool-funded/query",
+      funding.txHash,
+      funding.receipt.blockNumber,
+    );
+    const stakingStatsAfterFunding = await stakingFacet.getStakingStats();
+    expect(stakingStatsAfterFunding.rewardPoolBalance).toBe(
+      stakingStatsBefore.rewardPoolBalance + rewardFundingAmount,
+    );
+    const stakerBalanceAfterFunding = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    expect(stakerBalanceAfterFunding).toBe(stakerBalanceBefore - rewardFundingAmount);
+
+    await approve(stakeAmount);
+
     const stake = await submit("/v1/staking/commands/stake", { amount: stakeAmount.toString() });
     expect(stake.receipt.logs.some((log) => {
       try {
@@ -5192,8 +5395,52 @@ describeLive("HTTP API contract integration", () => {
 
     const stakeAfter = await stakingFacet.getStakeInfo(founderAddress);
     expect(stakeAfter.amount).toBe(stakeBefore.amount + stakeAmount);
-    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(stakerBalanceBefore - stakeAmount);
-    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(custodyBalanceBefore + stakeAmount);
+    const stakerBalanceAfterStake = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    expect(stakerBalanceAfterStake).toBeGreaterThanOrEqual(stakerBalanceAfterFunding - stakeAmount);
+    const stakeAccruedReward = stakerBalanceAfterStake - (stakerBalanceAfterFunding - stakeAmount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(
+      custodyBalanceBefore + rewardFundingAmount + stakeAmount - stakeAccruedReward,
+    );
+
+    await provider.send("evm_increaseTime", [Number(epochDurationSeconds + 1n)]);
+    await provider.send("evm_mine", []);
+
+    const epoch = await submit("/v1/staking/commands/advance-epoch");
+    expect(epoch.receipt.logs.some((log) => {
+      try {
+        return stakingFacet.interface.parseLog(log)?.name === "EpochAdvanced";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    await expectDecodedEvent("/v1/staking/events/epoch-advanced/query", epoch.txHash, epoch.receipt.blockNumber);
+
+    expect(await stakingFacet.getPendingRewards(founderAddress)).toBeGreaterThan(0n);
+    const stakerBalanceBeforeClaim = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const claim = await submit("/v1/staking/commands/claim-rewards");
+    const claimEventNames = claim.receipt.logs.flatMap((log) => {
+      try {
+        return [stakingFacet.interface.parseLog(log)?.name];
+      } catch {
+        return [];
+      }
+    });
+    expect(claimEventNames).toContain("RewardsClaimed");
+    expect(claimEventNames).toContain("RewardsClaimedDetailed");
+    await expectDecodedEvent(
+      "/v1/staking/events/rewards-claimed/query",
+      claim.txHash,
+      claim.receipt.blockNumber,
+    );
+    await expectDecodedEvent(
+      "/v1/staking/events/rewards-claimed-detailed/query",
+      claim.txHash,
+      claim.receipt.blockNumber,
+    );
+    const stakerBalanceAfterClaim = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const claimedAmount = stakerBalanceAfterClaim - stakerBalanceBeforeClaim;
+    expect(claimedAmount).toBeGreaterThan(0n);
+    expect(await stakingFacet.getPendingRewards(founderAddress)).toBe(0n);
 
     const request = await submit("/v1/staking/commands/request-unstake", { amount: stakeAmount.toString() });
     expect(request.receipt.logs.some((log) => {
@@ -5220,6 +5467,7 @@ describeLive("HTTP API contract integration", () => {
     await provider.send("evm_increaseTime", [Number(secondsToUnlock)]);
     await provider.send("evm_mine", []);
 
+    const stakerBalanceBeforeExecute = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
     const unstake = await submit("/v1/staking/commands/execute-unstake");
     expect(unstake.receipt.logs.some((log) => {
       try {
@@ -5235,8 +5483,17 @@ describeLive("HTTP API contract integration", () => {
     expect(stakeRestored.amount).toBe(stakeBefore.amount);
     expect(clearedRequest.amount).toBe(0n);
     expect(clearedRequest.pending).toBe(false);
-    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(stakerBalanceBefore);
-    expect(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)).toBe(custodyBalanceBefore);
+    const stakerBalanceFinal = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const custodyBalanceFinal = await tokenSupplyFacet.tokenBalanceOf(diamondAddress);
+    expect(stakerBalanceFinal).toBeGreaterThanOrEqual(stakerBalanceBeforeExecute + stakeAmount);
+    expect(stakerBalanceFinal + custodyBalanceFinal).toBe(stakerBalanceBefore + custodyBalanceBefore);
+
+    const rejectedExecuteUnstake = await apiCall(port, "POST", "/v1/staking/commands/execute-unstake", {
+      apiKey: stakingApiKey,
+      body: {},
+    });
+    expect(rejectedExecuteUnstake.status, JSON.stringify(rejectedExecuteUnstake.payload)).toBe(500);
+    expect(JSON.stringify(rejectedExecuteUnstake.payload)).toMatch(/NoUnstakeRequest|revert|execution reverted/i);
   }, 180_000);
 
   it("fails correctly for validation, signer, and provider errors", async () => {
