@@ -1,6 +1,6 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-09-16T13:03:58.513Z
+Generated: 2026-09-22T13:06:05.236Z
 
 - ABI write methods: 260
 - Mounted HTTP write endpoints: 259
@@ -42,4 +42,4 @@ Every mounted write endpoint is covered for founder, admin, operator, buyer, sel
 | pause | AccessControlFacet.setPaused<br>MarketplaceFacet.pause<br>StakingFacet.setStakingPaused | /v1/workflows/trigger-emergency |
 | recover | EmergencyFacet.startRecovery<br>EmergencyFacet.completeRecovery | /v1/workflows/recover-from-emergency |
 | withdraw | EmergencyWithdrawalFacet.executeWithdrawal<br>PaymentFacet.withdrawPayments<br>VoiceLicenseFacet.withdrawLicenseRevenue | /v1/workflows/emergency-withdrawal-sequence<br>/v1/workflows/withdraw-marketplace-payments |
-| ownership-controlled-state | AccessControlFacet.configureRole<br>AccessControlFacet.setDefaultValidityPeriod<br>AccessControlFacet.setMinValidations<br>AccessControlFacet.setRoleAdmin<br>AccessControlFacet.revokeRole<br>AccessControlFacet.renounceRole<br>RightsFacet.grantRight<br>VoiceDatasetFacet.setMetadata<br>OwnershipFacet.proposeOwnershipTransfer | /v1/workflows/onboard-rights-holder<br>/v1/workflows/manage-access-control |
+| ownership-controlled-state | AccessControlFacet.configureRole<br>AccessControlFacet.setDefaultValidityPeriod<br>AccessControlFacet.setMinValidations<br>AccessControlFacet.setRoleAdmin<br>AccessControlFacet.revokeRole<br>AccessControlFacet.renounceRole<br>RightsFacet.grantRight<br>VoiceDatasetFacet.appendAssets<br>VoiceDatasetFacet.burnDataset<br>VoiceDatasetFacet.removeAsset<br>VoiceDatasetFacet.setDatasetStatus<br>VoiceDatasetFacet.setLicense<br>VoiceDatasetFacet.setMetadata<br>VoiceDatasetFacet.setRoyalty<br>OwnershipFacet.proposeOwnershipTransfer | /v1/workflows/onboard-rights-holder<br>/v1/workflows/manage-access-control |

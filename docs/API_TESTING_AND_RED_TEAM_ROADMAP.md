@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-09-22
+
+- Started `codex/actor-negative-paths-20260922` from clean local `master` `b54f7af`, which contains the latest consolidated assurance work and is five commits ahead of `origin/master`. The prior actor slice was already merged; the only authorization-relevant production delta was the new local-fork denial proof for Voice Dataset owner mutations.
+- Expanded the canonical actor suite from representative boundary samples to exhaustive mounted-write checks. All `259` HTTP writes now reject an unknown API key at the real route before request validation, reject a read-only API identity before parameter decoding or provider access, and reject an API-key/signer wallet mismatch before contract preview, transaction persistence, or submission. The existing founder/admin/operator/buyer/seller/licensee/collaborator matrix still performs `1,813` contract-authorization preflights and proves every rejection remains mutation-free.
+- The protected ownership-state capability now explicitly tracks `VoiceDatasetFacet.appendAssets`, `burnDataset`, `removeAsset`, `setDatasetStatus`, `setLicense`, `setMetadata`, and `setRoyalty`. This extends the durable inventory through dataset destruction and aligns the other six setter/member mutations with local-fork proof that a non-owner cannot change the complete dataset object.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Inventory remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` actor/method cases, `777` boundary cases, and `3,150` stale/revoked/expired role-lifecycle cases.
+- Verification passed: `pnpm run test:actor-negative-paths` (`116/116`), TypeScript, lint, full build/codegen, explicit `pnpm run coverage:check`, the repository suite (`1,411` active tests across `141` files with `39` gated skips), and measured coverage at `97.61%` statements, `97.02%` branches, `98.47%` functions, and `97.67%` lines. Coverage inventory remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** this actor negative-path slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## API Assurance Gap Completion — 2026-09-22
 
 - The regenerated starting report classified `299` items ready, `214` as needing fixtures, `36` as unsafe on live networks, and `161` as needing indexer proof. The prioritized batch closed the remaining negative-path gap for `VoiceDatasetFacet.appendAssets`, `removeAsset`, `setDatasetStatus`, `setLicense`, `setMetadata`, and `setRoyalty`, and added explicit event-to-PostgreSQL assurance for `AssetsAppended`, `AssetRemoved`, `DatasetStatusChanged`, `LicenseChanged`, `MetadataChanged`, and `RoyaltySet`.
