@@ -805,6 +805,18 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "ownership-guard-key": {
+        label: "ownership-guard",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "onboard-proof-key": {
+        label: "onboard-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "access-receipt-a-key": {
         label: "access-receipt-a",
         signerId: "founder",
@@ -2060,6 +2072,101 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(thresholdReadyResponse.status).toBe(202);
   }, 300_000);
+
+  it("proves timelock schedule, cancel, and execute receipts on a local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "timelock receipt lifecycle", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+    ])) return;
+
+    for (const role of [await timelockFacet.PROPOSER_ROLE(), await timelockFacet.EXECUTOR_ROLE()]) {
+      if (await accessControl.hasRole(role, founderAddress)) {
+        continue;
+      }
+      const grantResponse = await apiCall(port, "POST", "/v1/access-control/commands/grant-role", {
+        body: { role, account: founderAddress, expiryTime: "0" },
+      });
+      expect(grantResponse.status, JSON.stringify(grantResponse.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grantResponse.payload));
+      expect(await accessControl.hasRole(role, founderAddress)).toBe(true);
+    }
+
+    const minDelay = await timelockFacet.getMinDelay();
+    const readCalldata = timelockFacet.interface.encodeFunctionData("getMinDelay");
+    const baseProposalId = BigInt(await provider.getBlockNumber()) * 1_000_000n + BigInt(Date.now() % 1_000_000);
+    const buildOperation = (proposalId: bigint, label: string) => ({
+      proposalId: proposalId.toString(),
+      targets: [diamondAddress],
+      values: ["0"],
+      calldatas: [readCalldata],
+      predecessor: ZERO_BYTES32,
+      salt: id(`indexer-timelock-${label}-${Date.now()}`),
+      delay: minDelay.toString(),
+    });
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      return { txHash, receipt: receipt! };
+    };
+    const parsedTimelockEvents = (receipt: NonNullable<Awaited<ReturnType<typeof provider.getTransactionReceipt>>>) =>
+      receipt.logs.flatMap((log) => {
+        try {
+          const parsed = timelockFacet.interface.parseLog(log);
+          return parsed ? [{ name: parsed.name, signature: parsed.signature, args: parsed.args }] : [];
+        } catch {
+          return [];
+        }
+      });
+
+    const canceledOperation = buildOperation(baseProposalId, "cancel");
+    const scheduledForCancel = await submit("POST", "/v1/governance/commands/schedule", canceledOperation);
+    const cancelScheduleEvents = parsedTimelockEvents(scheduledForCancel.receipt);
+    expect(cancelScheduleEvents.map((event) => event.name)).toEqual(expect.arrayContaining([
+      "OperationScheduled",
+      "OperationStored",
+    ]));
+    const canceledOperationId = String(cancelScheduleEvents.find((event) => event.name === "OperationScheduled")?.args.id);
+    expect(canceledOperationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect((await timelockFacet.getOperation(canceledOperationId)).canceled).toBe(false);
+
+    const canceled = await submit("DELETE", "/v1/governance/commands/cancel", canceledOperation);
+    expect(parsedTimelockEvents(canceled.receipt).map((event) => event.name)).toEqual(expect.arrayContaining([
+      "TimelockOperationCanceled",
+      "OperationRemoved",
+    ]));
+    expect((await timelockFacet.getOperation(canceledOperationId)).canceled).toBe(true);
+
+    const executedOperation = buildOperation(baseProposalId + 1n, "execute");
+    const scheduledForExecution = await submit("POST", "/v1/governance/commands/schedule", executedOperation);
+    const executionScheduleEvents = parsedTimelockEvents(scheduledForExecution.receipt);
+    const executedOperationId = String(executionScheduleEvents.find((event) => event.name === "OperationScheduled")?.args.id);
+    expect(executedOperationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect(await timelockFacet.isOperationPending(executedOperationId)).toBe(true);
+
+    const storedExecution = await timelockFacet.getOperation(executedOperationId);
+    const latestExecutionBlock = await provider.getBlock("latest");
+    const secondsUntilReady = storedExecution.timestamp - BigInt(latestExecutionBlock!.timestamp) + 1n;
+    expect(secondsUntilReady).toBeGreaterThan(0n);
+    await provider.send("evm_increaseTime", [Number(secondsUntilReady)]);
+    await provider.send("evm_mine", []);
+    expect(await timelockFacet.isOperationReady(executedOperationId)).toBe(true);
+
+    const executed = await submit("POST", "/v1/governance/commands/execute", executedOperation);
+    const executionEvents = parsedTimelockEvents(executed.receipt);
+    expect(executionEvents.map((event) => event.signature)).toEqual(expect.arrayContaining([
+      "OperationExecuted(bytes32,uint256,uint256)",
+      "OperationExecuted(bytes32)",
+      "CallExecuted(address,uint256,bytes,bool)",
+    ]));
+    expect(await timelockFacet.isOperationExecuted(executedOperationId)).toBe(true);
+  }, 180_000);
 
   it("proves tokenomics reads and reversible admin/token flows through HTTP on Base Sepolia", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "tokenomics reversible admin and token flows", [
@@ -3884,6 +3991,7 @@ describeLive("HTTP API contract integration", () => {
     await ensureNativeBalance(transfereeWallet.address, ethers.parseEther("0.000003"));
 
     const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "ownership-guard-key",
       body: {
         ipfsHash: `QmCommercializationOwnership${Date.now()}`,
         royaltyRate: "100",
@@ -3899,6 +4007,7 @@ describeLive("HTTP API contract integration", () => {
     ));
 
     const transferResponse = await apiCall(port, "POST", `/v1/voice-assets/tokens/${encodeURIComponent(tokenId)}/transfers`, {
+      apiKey: "ownership-guard-key",
       body: {
         from: founderAddress,
         to: transfereeWallet.address,
@@ -3914,6 +4023,7 @@ describeLive("HTTP API contract integration", () => {
     )).toBe(transfereeWallet.address);
 
     const rejectedWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/create-dataset-and-list-for-sale", {
+      apiKey: "ownership-guard-key",
       body: {
         title: `Ownership Guard ${Date.now()}`,
         assetIds: [tokenId],
@@ -3942,6 +4052,7 @@ describeLive("HTTP API contract integration", () => {
     const role = id("MARKETPLACE_PURCHASER_ROLE");
     const rightsHolder = outsiderWallet.address;
     const voiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      apiKey: "onboard-proof-key",
       body: {
         ipfsHash: `QmOnboardWorkflow${Date.now()}`,
         royaltyRate: "125",
@@ -3952,6 +4063,7 @@ describeLive("HTTP API contract integration", () => {
     await expectReceipt(extractTxHash(voiceResponse.payload));
 
     const onboardResponse = await apiCall(port, "POST", "/v1/workflows/onboard-rights-holder", {
+      apiKey: "onboard-proof-key",
       body: {
         role,
         account: rightsHolder,
@@ -4000,11 +4112,13 @@ describeLive("HTTP API contract integration", () => {
       port,
       "DELETE",
       `/v1/voice-assets/${voiceHash}/authorization-grants/${encodeURIComponent(rightsHolder)}`,
+      { apiKey: "onboard-proof-key" },
     );
     expect(revokeAuthorizationResponse.status).toBe(202);
     await expectReceipt(extractTxHash(revokeAuthorizationResponse.payload));
 
     const revokeRoleResponse = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+      apiKey: "onboard-proof-key",
       body: {
         role,
         account: rightsHolder,

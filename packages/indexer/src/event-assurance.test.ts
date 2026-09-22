@@ -185,6 +185,13 @@ describe("generated event-to-indexer assurance", () => {
     ["StakingFacet.Staked", "staking_positions"],
     ["StakingFacet.Unstaked", "staking_positions"],
     ["StakingFacet.UnstakeRequested", "staking_positions"],
+    ["TimelockFacet.CallExecuted", "timelock_operations"],
+    ["TimelockFacet.OperationExecuted(bytes32,uint256,uint256)", "timelock_operations"],
+    ["TimelockFacet.OperationExecuted(bytes32)", "timelock_operations"],
+    ["TimelockFacet.OperationRemoved", "timelock_operations"],
+    ["TimelockFacet.OperationScheduled", "timelock_operations"],
+    ["TimelockFacet.OperationStored", "timelock_operations"],
+    ["TimelockFacet.TimelockOperationCanceled", "timelock_operations"],
   ])("decodes and projects %s into the %s Postgres projection", async (eventKey, table) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
