@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.364] - 2026-09-22
+
+### Changed
+
+- **Access-Control Batches Preflight Membership Before Mutation:** Moved renounce wallet binding and exact-role membership checks ahead of every `manage-access-control` transaction. Confused-deputy renounces, replayed revokes, and mutated role IDs can no longer change role configuration, global policy, or role-admin state before being rejected.
+- **Stateful Access-Control Attacks Join Both Red-Team Gates:** Added replay, signer/wallet confusion, and role-ID mutation cases in `scripts/red-team-access-control-workflow.test.ts`; both canonical red-team commands now run the suite. Regenerated gap evidence raises red-team attribution from `40` to `46` and negative-path attribution from `277` to `278`, with classifications unchanged at `311` ready, `208` needing fixtures, `36` unsafe-live, and `155` needing indexer proof.
+
+### Verified
+
+- **Focused, Fork, And Repository Suites Passed:** The affected workflow/red-team slice passed `16/16`, the deterministic harness passed `110/110`, the guarded local-fork harness passed `153/153` across `11` files with all `5/5` deployed-contract probes active, and the full suite passed `1,415` active tests across `139` files with `39` gated skips. No destructive live-network execution was enabled.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.63%` statements, `97.04%` branches, `98.47%` functions, and `97.69%` lines; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.363] - 2026-09-22
 
 ### Changed

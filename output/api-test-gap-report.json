@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-22T09:11:30.373Z",
+  "generatedAt": "2026-09-22T18:12:32.990Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -138,6 +138,7 @@
       "scripts/license-template-helper.test.ts",
       "scripts/manifest.test.ts",
       "scripts/promote-base-sepolia-scenarios.test.ts",
+      "scripts/red-team-access-control-workflow.test.ts",
       "scripts/red-team-harness-lib.test.ts",
       "scripts/red-team-local-fork.test.ts",
       "scripts/red-team-reward-campaign.test.ts",
@@ -177,9 +178,9 @@
       "workflow": 279,
       "localFork": 109,
       "baseSepolia": 60,
-      "negativePath": 277,
+      "negativePath": 278,
       "economic": 124,
-      "redTeam": 40,
+      "redTeam": 46,
       "indexer": 63
     },
     "classificationCounts": {
@@ -210,7 +211,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 1.48,
+          "averageScore": 1.63,
           "maximumScore": 8
         }
       },
@@ -241,12 +242,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -255,7 +256,8 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/manage-access-control.test.ts"
@@ -263,10 +265,13 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-access-control-workflow.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -662,12 +667,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -677,17 +682,21 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/manage-access-control.test.ts"
+              "packages/api/src/workflows/manage-access-control.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/manage-access-control.test.ts"
+              "packages/api/src/workflows/manage-access-control.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-access-control-workflow.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -982,12 +991,12 @@
             "baseSepolia": true,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1007,7 +1016,8 @@
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
-              "scripts/base-sepolia-operator-setup.test.ts"
+              "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
@@ -1031,13 +1041,16 @@
               "packages/api/src/workflows/onboard-voice-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
-              "scripts/base-sepolia-operator-setup.main.test.ts"
+              "scripts/base-sepolia-operator-setup.main.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-access-control-workflow.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -1173,12 +1186,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1187,7 +1200,8 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/manage-access-control.test.ts"
@@ -1195,10 +1209,13 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-access-control-workflow.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -1236,12 +1253,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1250,19 +1267,23 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-access-control-workflow.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -1351,12 +1372,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1365,7 +1386,8 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/manage-access-control.test.ts"
@@ -1373,10 +1395,13 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
-              "scripts/actor-negative-paths-lib.test.ts"
+              "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-access-control-workflow.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -20319,6 +20344,7 @@
               "scripts/actor-negative-paths-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/promote-base-sepolia-scenarios.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-governance-workflows.test.ts",
@@ -20398,6 +20424,7 @@
               "packages/api/src/workflows/vesting-helpers.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-governance-workflows.test.ts",
@@ -20420,6 +20447,7 @@
             ],
             "redTeamTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "scripts/red-team-access-control-workflow.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
@@ -34137,7 +34165,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 3.92,
+          "averageScore": 3.96,
           "maximumScore": 8
         }
       },
@@ -34182,14 +34210,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -34236,27 +34266,29 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 3,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -34683,14 +34715,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -34812,14 +34846,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -34882,14 +34918,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -35012,14 +35050,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -35082,14 +35122,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
