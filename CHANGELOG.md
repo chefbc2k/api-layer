@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.365] - 2026-09-27
+
+### Changed
+
+- **Diamond-Cut Red-Team Checks Reject Structurally Unsafe Upgrades:** Extended the upgrade oracle to flag unsupported cut actions, empty selector sets, zero-address Add/Replace targets, nonzero Remove targets, malformed selectors, and Replace/Remove operations against unmounted selectors. Selector and initializer trust comparisons are now case-insensitive, and nonempty initializer calldata must contain complete hex bytes with at least a four-byte selector.
+- **Persistent Gap Evidence Tracks The New Upgrade Regression:** Added direct tests for each new finding, valid mixed-case inputs, and malformed initializer calldata. Regenerated reports retain `311` ready, `208` fixture-gap, `36` fork-only, and `155` indexer-gap classifications while adding the harness as negative-path evidence for `DiamondCutFacet.diamondCut`.
+
+### Verified
+
+- **Focused, Fork, And Repository Suites Passed:** `pnpm run test:redteam` passed `111/111`; the guarded loopback-fork gate passed `154/154` across `11` files with all `5/5` deployed-contract probes active; and `pnpm test` passed `1,416` active tests across `139` files with `39` gated skips. The fork gate included emergency, governance/timelock, multisig, and indexer consistency workflows, and no destructive live-network path was enabled.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.64%` statements, `97.05%` branches, `98.47%` functions, and `97.69%` lines.
+
 ## [0.1.364] - 2026-09-22
 
 ### Changed
