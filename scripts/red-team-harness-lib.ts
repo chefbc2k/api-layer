@@ -428,9 +428,53 @@ export function inspectDiamondCut(input: {
   const findings: RedTeamFinding[] = [];
   const seen = new Set<string>();
   const zeroAddress = "0x0000000000000000000000000000000000000000";
+  const mountedSelectors = new Set([...input.mountedSelectors].map((selector) => selector.toLowerCase()));
+  const trustedInitContracts = new Set([...input.trustedInitContracts].map((address) => address.toLowerCase()));
   for (const cut of input.facetCuts) {
+    const facetAddress = cut.facetAddress.toLowerCase();
+    if (![0, 1, 2].includes(cut.action)) {
+      findings.push({
+        id: "diamond-invalid-cut-action",
+        severity: "critical",
+        message: "diamond cut contains an unsupported facet action",
+        evidence: { action: cut.action, facetAddress: cut.facetAddress },
+      });
+    }
+    if (cut.functionSelectors.length === 0) {
+      findings.push({
+        id: "diamond-empty-selector-set",
+        severity: "high",
+        message: "diamond cut contains a facet action with no selectors",
+        evidence: { action: cut.action, facetAddress: cut.facetAddress },
+      });
+    }
+    if ((cut.action === 0 || cut.action === 1) && facetAddress === zeroAddress) {
+      findings.push({
+        id: "diamond-zero-facet-target",
+        severity: "critical",
+        message: "diamond Add or Replace cut targets the zero address",
+        evidence: { action: cut.action, facetAddress: cut.facetAddress },
+      });
+    }
+    if (cut.action === 2 && facetAddress !== zeroAddress) {
+      findings.push({
+        id: "diamond-remove-nonzero-facet",
+        severity: "critical",
+        message: "diamond Remove cut targets a nonzero facet address",
+        evidence: { facetAddress: cut.facetAddress },
+      });
+    }
     for (const rawSelector of cut.functionSelectors) {
       const selector = rawSelector.toLowerCase();
+      if (!/^0x[\da-f]{8}$/u.test(selector)) {
+        findings.push({
+          id: "diamond-malformed-selector",
+          severity: "critical",
+          message: "diamond cut contains a selector that is not exactly four bytes",
+          evidence: { selector: rawSelector, action: cut.action },
+        });
+        continue;
+      }
       if (seen.has(selector)) {
         findings.push({
           id: "diamond-selector-duplicate",
@@ -440,7 +484,7 @@ export function inspectDiamondCut(input: {
         });
       }
       seen.add(selector);
-      if (cut.action === 0 && input.mountedSelectors.has(selector)) {
+      if (cut.action === 0 && mountedSelectors.has(selector)) {
         findings.push({
           id: "diamond-selector-collision",
           severity: "critical",
@@ -448,12 +492,20 @@ export function inspectDiamondCut(input: {
           evidence: { selector, facetAddress: cut.facetAddress },
         });
       }
-      if (cut.action === 1 && !input.mountedSelectors.has(selector)) {
+      if (cut.action === 1 && !mountedSelectors.has(selector)) {
         findings.push({
           id: "diamond-replace-missing-selector",
           severity: "high",
           message: "diamond Replace cut targets an unmounted selector",
           evidence: { selector, facetAddress: cut.facetAddress },
+        });
+      }
+      if (cut.action === 2 && !mountedSelectors.has(selector)) {
+        findings.push({
+          id: "diamond-remove-missing-selector",
+          severity: "high",
+          message: "diamond Remove cut targets an unmounted selector",
+          evidence: { selector },
         });
       }
     }
@@ -467,7 +519,7 @@ export function inspectDiamondCut(input: {
       evidence: { initContract: input.initContract, initCalldata: input.initCalldata },
     });
   }
-  if (normalizedInit !== zeroAddress && !input.trustedInitContracts.has(normalizedInit)) {
+  if (normalizedInit !== zeroAddress && !trustedInitContracts.has(normalizedInit)) {
     findings.push({
       id: "diamond-untrusted-init",
       severity: "critical",
@@ -475,7 +527,7 @@ export function inspectDiamondCut(input: {
       evidence: { initContract: input.initContract },
     });
   }
-  if (normalizedInit !== zeroAddress && input.initCalldata.length < 10) {
+  if (normalizedInit !== zeroAddress && !/^0x(?:[\da-fA-F]{2}){4,}$/u.test(input.initCalldata)) {
     findings.push({
       id: "diamond-malformed-init-calldata",
       severity: "high",

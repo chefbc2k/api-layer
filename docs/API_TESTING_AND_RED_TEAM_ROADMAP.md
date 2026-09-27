@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-09-27
+
+- Reused the dedicated red-team worktree at current local `master` `a7bbc43`, which contains fetched `origin/master` `c8afad7`, and created `codex/red-team-harness-20260927`. The two preserved pending edits in that worktree formed a coherent diamond-cut hardening slice; the unrelated Base Sepolia checkout remained untouched.
+- Expanded the diamond upgrade oracle beyond selector collision and initializer trust. It now rejects unsupported cut actions, empty selector sets, Add/Replace cuts targeting the zero address, Remove cuts targeting a nonzero facet, malformed four-byte selectors, and Replace/Remove operations against unmounted selectors. Mounted selectors and trusted initializer addresses are normalized case-insensitively, and initializer calldata must contain complete hex bytes with at least a function selector.
+- Added regression coverage for every new structural finding plus mixed-case valid selectors/addresses and non-hex initializer calldata. The regenerated gap report adds the harness as direct negative-path evidence for `DiamondCutFacet.diamondCut`; aggregate classifications remain `311` ready, `208` needing fixtures, `36` unsafe on live networks, and `155` needing indexer proof, with `278` negative-path and `46` red-team items.
+- Verification passed: `pnpm run test:redteam` (`111/111`), guarded `pnpm run redteam:local-fork` (`154/154` across `11` files, including all `5/5` deployed-contract probes and the relevant emergency, governance/timelock, multisig, and indexer workflows), and `pnpm test` (`1,416` active tests across `139` passing files with `39` gated skips). No destructive live-network path was enabled.
+- TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.64%` statements, `97.05%` branches, `98.47%` functions, and `97.69%` lines; the red-team harness library measured `100%` statements/functions/lines and `98.56%` branches.
+- **Merge decision:** this structural diamond-cut adversarial slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Red-Team Harness Automation Run — 2026-09-22
 
 - Started `codex/red-team-harness-20260922` from clean local `master` `fd9a2dd`, which contains the latest consolidated assurance work and is seven commits ahead of the fetched `origin/master`. The separate dirty event/indexer checkout was left untouched.

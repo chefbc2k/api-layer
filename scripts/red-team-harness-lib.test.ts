@@ -327,6 +327,61 @@ describe("red-team RPC and protocol-admin oracles", () => {
     })).toEqual([]);
   });
 
+  it("rejects structurally unsafe add, replace, remove, and selector mutations", () => {
+    const findings = inspectDiamondCut({
+      facetCuts: [
+        {
+          facetAddress: "0x0000000000000000000000000000000000000000",
+          action: 0,
+          functionSelectors: ["0x1234"],
+        },
+        {
+          facetAddress: "0x00000000000000000000000000000000000000aa",
+          action: 2,
+          functionSelectors: ["0x87654321"],
+        },
+        {
+          facetAddress: "0x0000000000000000000000000000000000000000",
+          action: 3,
+          functionSelectors: [],
+        },
+      ],
+      mountedSelectors: new Set(["0x12345678"]),
+      trustedInitContracts: new Set(),
+      initContract: "0x0000000000000000000000000000000000000000",
+      initCalldata: "0x",
+    });
+
+    expect(findings.map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "diamond-zero-facet-target",
+      "diamond-malformed-selector",
+      "diamond-remove-nonzero-facet",
+      "diamond-remove-missing-selector",
+      "diamond-invalid-cut-action",
+      "diamond-empty-selector-set",
+    ]));
+
+    expect(inspectDiamondCut({
+      facetCuts: [{
+        facetAddress: "0x00000000000000000000000000000000000000aa",
+        action: 1,
+        functionSelectors: ["0xABCDEF12"],
+      }],
+      mountedSelectors: new Set(["0xabcdef12"]),
+      trustedInitContracts: new Set(["0x00000000000000000000000000000000000000CC"]),
+      initContract: "0x00000000000000000000000000000000000000cc",
+      initCalldata: "0x12345678",
+    })).toEqual([]);
+
+    expect(inspectDiamondCut({
+      facetCuts: [],
+      mountedSelectors: new Set(),
+      trustedInitContracts: new Set(["0x00000000000000000000000000000000000000cc"]),
+      initContract: "0x00000000000000000000000000000000000000cc",
+      initCalldata: "0x1234567z",
+    }).map((finding) => finding.id)).toEqual(["diamond-malformed-init-calldata"]);
+  });
+
   it("detects timelock substitution/early execution and multisig threshold mistakes", () => {
     expect(inspectTimelock({
       scheduledAt: 100n,
