@@ -113,6 +113,30 @@ describe("red-team access-control workflow ordering", () => {
     expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
   });
 
+  it("blocks a stale renounce before changing role policy", async () => {
+    const service = {
+      configureRole: vi.fn(),
+      getRoleConfig: vi.fn(),
+      hasRole: vi.fn().mockResolvedValue({ body: false }),
+      renounceRole: vi.fn(),
+    };
+    mocks.createAccessControlPrimitiveService.mockReturnValue(service);
+
+    await expect(runManageAccessControlWorkflow({} as never, auth, ACCOUNT, {
+      role: ROLE,
+      config: baseConfig,
+      membership: { action: "renounce", account: ACCOUNT },
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("account does not hold role"),
+    });
+
+    expect(service.hasRole).toHaveBeenCalledWith(expect.objectContaining({ wireParams: [ROLE, ACCOUNT] }));
+    expect(service.configureRole).not.toHaveBeenCalled();
+    expect(service.renounceRole).not.toHaveBeenCalled();
+    expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
+  });
+
   it("binds membership preflight to the exact mutated role ID before changing global policy", async () => {
     const setDefaultValidityPeriod = vi.fn();
     const hasRole = vi.fn(async (request: { wireParams: unknown[] }) => ({
