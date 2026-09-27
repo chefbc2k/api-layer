@@ -2146,13 +2146,29 @@ describeLive("HTTP API contract integration", () => {
     }
 
     const minDelay = await timelockFacet.getMinDelay();
+    const votingConfig = await governorFacet.getVotingConfig();
+    const governanceStorageBase = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.governance.storage")));
+    const trustedTargetsSlot = governanceStorageBase + 13n;
+    const targetGasLimitsSlot = governanceStorageBase + 14n;
+    const defaultGasLimitSlot = governanceStorageBase + 15n;
+    const governanceMappingSlot = (key: string, slot: bigint) => ethers.keccak256(
+      ethers.solidityPacked(["bytes32", "bytes32"], [ethers.zeroPadValue(key, 32), ethers.toBeHex(slot, 32)]),
+    );
+    const diamondTrustedSlot = governanceMappingSlot(diamondAddress, trustedTargetsSlot);
+    const diamondGasLimitSlot = governanceMappingSlot(diamondAddress, targetGasLimitsSlot);
+    const originalDiamondTrusted = BigInt(await provider.getStorage(diamondAddress, diamondTrustedSlot)) !== 0n;
+    const originalDiamondGasLimit = BigInt(await provider.getStorage(diamondAddress, diamondGasLimitSlot));
+    const originalDefaultGasLimit = BigInt(
+      await provider.getStorage(diamondAddress, ethers.toBeHex(defaultGasLimitSlot, 32)),
+    );
+    expect(originalDefaultGasLimit).toBeGreaterThan(0n);
     const readCalldata = timelockFacet.interface.encodeFunctionData("getMinDelay");
     const baseProposalId = BigInt(await provider.getBlockNumber()) * 1_000_000n + BigInt(Date.now() % 1_000_000);
-    const buildOperation = (proposalId: bigint, label: string) => ({
+    const buildOperation = (proposalId: bigint, label: string, calldatas = [readCalldata]) => ({
       proposalId: proposalId.toString(),
-      targets: [diamondAddress],
-      values: ["0"],
-      calldatas: [readCalldata],
+      targets: calldatas.map(() => diamondAddress),
+      values: calldatas.map(() => "0"),
+      calldatas,
       predecessor: ZERO_BYTES32,
       salt: id(`indexer-timelock-${label}-${Date.now()}`),
       delay: minDelay.toString(),
@@ -2194,7 +2210,20 @@ describeLive("HTTP API contract integration", () => {
     ]));
     expect((await timelockFacet.getOperation(canceledOperationId)).canceled).toBe(true);
 
-    const executedOperation = buildOperation(baseProposalId + 1n, "execute");
+    const governanceCalldatas = [
+      governorFacet.interface.encodeFunctionData("setDefaultGasLimit", [originalDefaultGasLimit]),
+      governorFacet.interface.encodeFunctionData("setTrustedTarget", [
+        diamondAddress,
+        originalDiamondTrusted,
+        originalDiamondGasLimit,
+      ]),
+      governorFacet.interface.encodeFunctionData("updateProposalThreshold", [votingConfig.proposalThreshold]),
+      governorFacet.interface.encodeFunctionData("updateQuorumNumerator", [votingConfig.quorumNumerator]),
+      governorFacet.interface.encodeFunctionData("updateVotingDelay", [votingConfig.votingDelay]),
+      governorFacet.interface.encodeFunctionData("updateVotingPeriod", [votingConfig.votingPeriod]),
+      timelockFacet.interface.encodeFunctionData("updateMinDelay", [minDelay]),
+    ];
+    const executedOperation = buildOperation(baseProposalId + 1n, "execute", governanceCalldatas);
     const scheduledForExecution = await submit("POST", "/v1/governance/commands/schedule", executedOperation);
     const executionScheduleEvents = parsedTimelockEvents(scheduledForExecution.receipt);
     const executedOperationId = String(executionScheduleEvents.find((event) => event.name === "OperationScheduled")?.args.id);
@@ -2215,8 +2244,29 @@ describeLive("HTTP API contract integration", () => {
       "OperationExecuted(bytes32,uint256,uint256)",
       "OperationExecuted(bytes32)",
       "CallExecuted(address,uint256,bytes,bool)",
+      "MinDelayUpdated(uint256,uint256)",
+    ]));
+    const governorEventNames = executed.receipt.logs.flatMap((log) => {
+      try {
+        const parsed = governorFacet.interface.parseLog(log);
+        return parsed ? [parsed.name] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(governorEventNames).toEqual(expect.arrayContaining([
+      "TargetGasLimitUpdated",
+      "TrustedTargetUpdated",
     ]));
     expect(await timelockFacet.isOperationExecuted(executedOperationId)).toBe(true);
+    expect(await timelockFacet.getMinDelay()).toBe(minDelay);
+    expect(normalize((await governorFacet.getVotingConfig() as any).toObject())).toEqual(
+      normalize((votingConfig as any).toObject()),
+    );
+    expect(BigInt(await provider.getStorage(diamondAddress, diamondTrustedSlot)) !== 0n).toBe(originalDiamondTrusted);
+    expect(BigInt(await provider.getStorage(diamondAddress, diamondGasLimitSlot))).toBe(originalDiamondGasLimit);
+    expect(BigInt(await provider.getStorage(diamondAddress, ethers.toBeHex(defaultGasLimitSlot, 32))))
+      .toBe(originalDefaultGasLimit);
   }, 180_000);
 
   it("proves tokenomics reads and reversible admin/token flows through HTTP on Base Sepolia", async (ctx) => {

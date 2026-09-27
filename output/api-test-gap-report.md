@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-09-22T09:11:30.373Z`
+Generated: `2026-09-27T03:00:52.790Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -26,12 +26,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 438 |
+| unit | 448 |
 | workflow | 279 |
 | localFork | 109 |
 | baseSepolia | 60 |
-| negativePath | 277 |
-| economic | 124 |
+| negativePath | 280 |
+| economic | 119 |
 | redTeam | 40 |
 | indexer | 63 |
 
@@ -367,7 +367,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## GovernorFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `0.7/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `unit` to `adversarial` with an average score of `1.5/8`.
 
 ### Functions
 
@@ -375,19 +375,19 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `getRoleMultiplier` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `getVotingConfig` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
-| `setDefaultGasLimit` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setTrustedTarget` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateProposalThreshold` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateQuorumNumerator` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `setDefaultGasLimit` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `setTrustedTarget` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `updateProposalThreshold` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
+| `updateQuorumNumerator` | write | yes | — | — | — | — | — | — | unit 1/8 | needs fixture |
 | `updateVotingDelay` | write | yes | — | — | — | yes | — | — | adversarial 2/8 | needs fixture |
-| `updateVotingPeriod` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `updateVotingPeriod` | write | yes | — | — | — | yes | — | — | adversarial 2/8 | needs fixture |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `GovernorFacet.TargetGasLimitUpdated` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `GovernorFacet.TrustedTargetUpdated` | — | — | — | — | inventory 0/8 | needs indexer proof |
+| `GovernorFacet.TargetGasLimitUpdated` | yes | — | — | — | unit 1/8 | needs indexer proof |
+| `GovernorFacet.TrustedTargetUpdated` | yes | — | — | — | unit 1/8 | needs indexer proof |
 
 ## LegacyExecutionFacet
 
@@ -487,7 +487,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## MultiSigFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.79/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `1.75/8`.
 
 ### Functions
 
@@ -519,7 +519,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `MultiSigFacet.BatchCompleted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 | `MultiSigFacet.MultiSigOperationCancelled` | — | — | — | — | inventory 0/8 | needs indexer proof |
 | `MultiSigFacet.OperationApproved` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `MultiSigFacet.OperationExecuted` | yes | — | — | yes | indexer 4/8 | ready |
+| `MultiSigFacet.OperationExecuted` | yes | — | — | yes | indexer 3/8 | ready |
 | `MultiSigFacet.OperationProposed` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 | `MultiSigFacet.OperationStatusChanged` | yes | — | — | — | workflow 2/8 | needs indexer proof |
 
@@ -748,7 +748,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## TimelockFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `2.86/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `unit` to `indexer` with an average score of `2.86/8`.
 
 ### Functions
 
@@ -761,21 +761,21 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 | `getMinDelay` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getTimestamp` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `isOperationExecuted` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `isOperationExecuted` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOperationPending` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOperationReady` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `schedule` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
-| `updateMinDelay` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `updateMinDelay` | write | yes | — | — | — | yes | — | — | adversarial 2/8 | needs fixture |
 
 ### Events
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `TimelockFacet.CallExecuted` | yes | — | — | yes | indexer 3/8 | ready |
-| `TimelockFacet.MinDelayUpdated(uint256,uint256)` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `TimelockFacet.MinDelayUpdated(uint256,uint256)#2` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `TimelockFacet.OperationExecuted(bytes32,uint256,uint256)` | yes | — | — | yes | indexer 3/8 | ready |
-| `TimelockFacet.OperationExecuted(bytes32)` | yes | — | — | yes | indexer 5/8 | ready |
+| `TimelockFacet.CallExecuted` | yes | — | — | yes | indexer 2/8 | ready |
+| `TimelockFacet.MinDelayUpdated(uint256,uint256)` | yes | — | — | — | unit 1/8 | needs indexer proof |
+| `TimelockFacet.MinDelayUpdated(uint256,uint256)#2` | yes | — | — | — | unit 1/8 | needs indexer proof |
+| `TimelockFacet.OperationExecuted(bytes32,uint256,uint256)` | yes | — | — | yes | indexer 2/8 | ready |
+| `TimelockFacet.OperationExecuted(bytes32)` | yes | — | — | yes | indexer 4/8 | ready |
 | `TimelockFacet.OperationRemoved` | yes | — | — | yes | indexer 2/8 | ready |
 | `TimelockFacet.OperationScheduled` | yes | — | — | yes | indexer 4/8 | ready |
 | `TimelockFacet.OperationStored` | yes | — | — | yes | indexer 4/8 | ready |
@@ -1013,14 +1013,14 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## VoiceDatasetFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.92/8`.
+Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `indexer` with an average score of `3.96/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `appendAssets` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
-| `burnDataset` | write | yes | — | yes | yes | — | — | — | live 3/8 | needs fixture |
+| `burnDataset` | write | yes | — | yes | yes | yes | — | — | adversarial 4/8 | needs fixture |
 | `containsAsset` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
 | `createDataset` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
 | `getDataset` | read | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |

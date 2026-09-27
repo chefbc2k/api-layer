@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-22T09:11:30.373Z",
+  "generatedAt": "2026-09-27T03:00:52.790Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -173,12 +173,12 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 438,
+      "unit": 448,
       "workflow": 279,
       "localFork": 109,
       "baseSepolia": 60,
-      "negativePath": 277,
-      "economic": 124,
+      "negativePath": 280,
+      "economic": 119,
       "redTeam": 40,
       "indexer": 63
     },
@@ -10685,9 +10685,9 @@
           "needs indexer proof": 2
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "unit",
           "maximumLevel": "adversarial",
-          "averageScore": 0.7,
+          "averageScore": 1.5,
           "maximumScore": 8
         }
       },
@@ -10822,7 +10822,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -10832,19 +10832,20 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -10873,7 +10874,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -10883,19 +10884,20 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -10924,7 +10926,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -10934,19 +10936,20 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -10975,7 +10978,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -10985,19 +10988,20 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -11047,11 +11051,13 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -11079,31 +11085,34 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts"
+            ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/indexer-receipt-proof-lib.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -11132,7 +11141,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -11142,18 +11151,19 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs indexer proof",
           "gaps": [
-            "no directly attributable test reference",
             "no successful verify-artifact route evidence",
             "no event-specific indexer test reference"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -11182,7 +11192,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -11192,18 +11202,19 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs indexer proof",
           "gaps": [
-            "no directly attributable test reference",
             "no successful verify-artifact route evidence",
             "no event-specific indexer test reference"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -13621,7 +13632,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 1.79,
+          "averageScore": 1.75,
           "maximumScore": 8
         }
       },
@@ -13942,6 +13953,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
             ],
@@ -13965,6 +13977,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/indexer/src/worker.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
             ],
@@ -14810,13 +14823,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 4,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -14833,9 +14846,7 @@
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
             ],
             "negativePathTests": [],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
@@ -23697,7 +23708,7 @@
           "needs indexer proof": 2
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "unit",
           "maximumLevel": "indexer",
           "averageScore": 2.86,
           "maximumScore": 8
@@ -23929,6 +23940,7 @@
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
             ],
@@ -23952,6 +23964,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/indexer/src/worker.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-local-fork.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
             ],
@@ -24169,13 +24182,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -24195,9 +24208,7 @@
             "negativePathTests": [
               "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -24420,31 +24431,34 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts"
+            ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/indexer-receipt-proof-lib.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -24478,13 +24492,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -24498,9 +24512,7 @@
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
@@ -24528,7 +24540,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -24538,18 +24550,19 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs indexer proof",
           "gaps": [
-            "no directly attributable test reference",
             "no successful verify-artifact route evidence",
             "no event-specific indexer test reference"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -24578,7 +24591,7 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
@@ -24588,18 +24601,19 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs indexer proof",
           "gaps": [
-            "no directly attributable test reference",
             "no successful verify-artifact route evidence",
             "no event-specific indexer test reference"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
@@ -24633,13 +24647,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -24653,9 +24667,7 @@
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
@@ -24688,13 +24700,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 5,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -24715,9 +24727,7 @@
             "negativePathTests": [
               "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
@@ -34137,7 +34147,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 3.92,
+          "averageScore": 3.96,
           "maximumScore": 8
         }
       },
@@ -34182,14 +34192,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -34236,27 +34248,29 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 3,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "scripts/actor-negative-paths-lib.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -34683,14 +34697,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -34812,14 +34828,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -34882,14 +34900,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -35012,14 +35032,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
@@ -35082,14 +35104,16 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/catalog-listing-operations.integration.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [

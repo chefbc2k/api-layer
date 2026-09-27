@@ -8,6 +8,20 @@ import {
 type WriteDefinition = ReturnType<typeof getAllWriteInvariantDefinitions>[string];
 type EventDefinitions = ReturnType<typeof getAllAbiEventDefinitions>;
 
+export type CallTraceNode = {
+  to?: string;
+  input?: string;
+  error?: unknown;
+  calls?: CallTraceNode[];
+};
+
+export type TracedWriteInvocation = {
+  methodKey: string;
+  definition: WriteDefinition;
+  selector: string;
+  callPath: number[];
+};
+
 export type IndexedEventRow = {
   facet_name: string | null;
   event_name: string;
@@ -86,6 +100,40 @@ export function buildWriteSelectorMap(
     selectors.set(selector, { methodKey, definition });
   }
   return selectors;
+}
+
+export function collectWriteInvocationsFromCallTrace(
+  trace: CallTraceNode,
+  diamondAddress: string,
+  selectors = buildWriteSelectorMap(),
+): TracedWriteInvocation[] {
+  const diamond = diamondAddress.toLowerCase();
+  const invocations = new Map<string, TracedWriteInvocation>();
+
+  const visit = (node: CallTraceNode, callPath: number[]) => {
+    if (node.error !== undefined && node.error !== null) {
+      return;
+    }
+    const selector = typeof node.input === "string" && node.input.length >= 10
+      ? node.input.slice(0, 10).toLowerCase()
+      : null;
+    const write = selector && node.to?.toLowerCase() === diamond
+      ? selectors.get(selector)
+      : undefined;
+    if (write && !invocations.has(write.methodKey)) {
+      invocations.set(write.methodKey, {
+        ...write,
+        selector,
+        callPath,
+      });
+    }
+    for (const [index, child] of (node.calls ?? []).entries()) {
+      visit(child, [...callPath, index]);
+    }
+  };
+
+  visit(trace, []);
+  return [...invocations.values()];
 }
 
 export function projectionTableNames(definition: WriteDefinition): string[] {

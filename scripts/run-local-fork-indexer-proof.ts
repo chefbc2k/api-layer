@@ -13,6 +13,7 @@ import { EventIndexer } from "../packages/indexer/src/worker.js";
 import { projectionTables } from "../packages/indexer/src/projections/tables.js";
 import {
   buildWriteSelectorMap,
+  collectWriteInvocationsFromCallTrace,
   collectTransactionHashes,
   evaluateReceiptExpectation,
   projectionTableNames,
@@ -51,6 +52,10 @@ type ReceiptProof = {
   definition: ReturnType<typeof getAllWriteInvariantDefinitions>[string];
   sourceArtifacts: string[];
   sourceScripts: string[];
+  invocation: {
+    kind: "transaction" | "internal-diamond-call";
+    callPath: number[];
+  };
 };
 
 type RawEventEvidenceRow = IndexedEventRow & {
@@ -153,23 +158,46 @@ async function loadReceiptProofs(
     if (!write) {
       throw new Error(`diamond transaction ${txHash} has unregistered write selector ${selector}`);
     }
-    proofs.push({
-      txHash,
-      blockNumber: receipt.blockNumber,
-      transaction,
-      receipt,
-      methodKey: write.methodKey,
-      definition: write.definition,
-      sourceArtifacts,
-      sourceScripts: [...new Set(sourceArtifacts
-        .map((source) => artifactProducers[path.basename(source)])
-        .filter((producer): producer is string => Boolean(producer)))].sort(),
-    });
+    const sourceScripts = [...new Set(sourceArtifacts
+      .map((source) => artifactProducers[path.basename(source)])
+      .filter((producer): producer is string => Boolean(producer)))].sort();
+    const invocations = new Map<string, {
+      methodKey: string;
+      definition: ReceiptProof["definition"];
+      callPath: number[];
+    }>([[write.methodKey, { ...write, callPath: [] }]]);
+    try {
+      const trace = await provider.send("debug_traceTransaction", [txHash, { tracer: "callTracer" }]);
+      for (const invocation of collectWriteInvocationsFromCallTrace(trace, diamondAddress, selectors)) {
+        invocations.set(invocation.methodKey, invocation);
+      }
+    } catch {
+      // A direct transaction remains provable when the active RPC does not expose call tracing.
+    }
+    for (const invocation of invocations.values()) {
+      proofs.push({
+        txHash,
+        blockNumber: receipt.blockNumber,
+        transaction,
+        receipt,
+        methodKey: invocation.methodKey,
+        definition: invocation.definition,
+        sourceArtifacts,
+        sourceScripts,
+        invocation: {
+          kind: invocation.callPath.length === 0 ? "transaction" : "internal-diamond-call",
+          callPath: invocation.callPath,
+        },
+      });
+    }
   }
   if (proofs.length === 0) {
     throw new Error("workflow artifacts contained no successful writes to the configured diamond");
   }
-  return proofs.sort((left, right) => left.blockNumber - right.blockNumber || left.txHash.localeCompare(right.txHash));
+  return proofs.sort((left, right) =>
+    left.blockNumber - right.blockNumber
+    || left.txHash.localeCompare(right.txHash)
+    || left.methodKey.localeCompare(right.methodKey));
 }
 
 async function applyMigrations(psql: string, port: number): Promise<void> {
@@ -271,6 +299,7 @@ async function runProof(
           transactionSelector: proof.transaction.data.slice(0, 10).toLowerCase(),
           affectedFacet: proof.methodKey.split(".", 1)[0],
           methodSignature: proof.definition.signature,
+          invocation: proof.invocation,
           decodedEvents: postgres.rawEvents.rows.map((row) => ({
             rawEventId: row.id,
             logIndex: row.log_index,
@@ -338,7 +367,8 @@ async function runProof(
         artifactTransactionHashes: artifacts.hashes.size,
         includedArtifacts: artifacts.includedArtifacts.length,
         skippedArtifacts: artifacts.skippedArtifacts.length,
-        indexedReceipts: results.length,
+        indexedReceipts: new Set(results.map((result) => result.txHash)).size,
+        provenWriteInvocations: results.length,
         provenWriteMethods: provenMethodKeys.length,
         catalogWriteMethods: allMethods.length,
         remainingWriteMethods: allMethods.length - provenMethodKeys.length,
@@ -382,6 +412,7 @@ async function runProof(
           methodKey: result.methodKey,
           affectedFacet: result.affectedFacet,
           methodSignature: result.methodSignature,
+          invocation: result.invocation,
           txHash: result.txHash,
           blockNumber: result.blockNumber,
           receipt: {
