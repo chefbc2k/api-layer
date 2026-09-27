@@ -102,6 +102,13 @@ export function resolvePromotionEnvPath(env: NodeJS.ProcessEnv = process.env): s
   return path.resolve(env.API_LAYER_BASE_SEPOLIA_ENV_PATH?.trim() || ".env");
 }
 
+export function resolvePromotionEnv(
+  fileEnv: NodeJS.ProcessEnv,
+  runtimeEnv: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  return { ...fileEnv, ...runtimeEnv };
+}
+
 function rpcOrigin(value: string | undefined): string | null {
   if (!value) {
     return null;
@@ -392,8 +399,9 @@ async function main(): Promise<void> {
   const envPath = resolvePromotionEnvPath();
   const envFilePresent = existsSync(envPath);
   const fileEnv = envFilePresent ? parse(readFileSync(envPath, "utf8")) : {};
-  const readiness = assessPromotionReadiness(fileEnv, envFilePresent);
-  const output = baseOutput(fileEnv, readiness);
+  const env = resolvePromotionEnv(fileEnv);
+  const readiness = assessPromotionReadiness(env, envFilePresent);
+  const output = baseOutput(env, readiness);
 
   if (readiness.status !== "ready") {
     writeOutput(output);
@@ -402,8 +410,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  const rpcUrl = fileEnv.RPC_URL ?? fileEnv.CBDP_RPC_URL!;
-  const diamondAddress = fileEnv.DIAMOND_ADDRESS ?? fileEnv.API_LAYER_DIAMOND_ADDRESS!;
+  const rpcUrl = env.RPC_URL ?? env.CBDP_RPC_URL!;
+  const diamondAddress = env.DIAMOND_ADDRESS ?? env.API_LAYER_DIAMOND_ADDRESS!;
   const provider = new JsonRpcProvider(rpcUrl, BASE_SEPOLIA_CHAIN_ID, { staticNetwork: true });
   try {
     const [network, code] = await Promise.all([provider.getNetwork(), provider.getCode(diamondAddress)]);
@@ -445,7 +453,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const childEnv = { ...process.env, ...fileEnv };
+  const childEnv = env;
   const fixtureMtimeBefore = existsSync(FIXTURE_PATH) ? statSync(FIXTURE_PATH).mtimeMs : 0;
   const setupExit = await runCommand("pnpm", ["run", "setup:base-sepolia"], childEnv);
   const fixtureWasRefreshed = existsSync(FIXTURE_PATH) && statSync(FIXTURE_PATH).mtimeMs > fixtureMtimeBefore;

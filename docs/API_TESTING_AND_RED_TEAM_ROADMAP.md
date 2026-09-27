@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-09-27
+
+- Resumed `codex/base-sepolia-promotion-20260927` at `2686111`; its baseline descends from local production `master` `a7bbc43`, which contains the fetched `origin/master` `c8afad7`. The existing workstream edits now merge explicit runtime configuration over `.env` defaults so deliberate one-shot live settings are honored consistently by readiness, target inspection, setup helpers, and proof commands. A focused regression locks that precedence.
+- The canonical guarded preflight against `/Users/chef/Public/api-layer/.env` exited `2` at `2026-09-27T17:02:01.363Z` with `finalClassification: "blocked by setup/state"`. Seven checks passed, including network `base-sepolia`, chain `84532`, the deployed-diamond address, three valid distinct actor keys, and founder/sender binding. The blockers remain missing `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true`, loopback execution RPC, and loopback diagnostics RPC.
+- The runner stopped before provider access, setup helpers, fixture mutation, funding, allowances, listings, governance preparation, proof scenarios, or transaction submission. The refreshed aggregate artifact contains no transaction hashes, block numbers, actors, state deltas, or decoded events, and destructive protocol-admin writes remained disabled.
+- Verification passed: the focused promotion suite (`7/7`) and explicit `pnpm run coverage:check` at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** blocked by live-network readiness; no partial work was merged into `master`. Next run must provide explicit opt-in plus direct non-loopback Base Sepolia execution and diagnostics RPCs, then require the setup fixture, marketplace proof, governance proof, and aggregate artifact to classify `proven working` before merge.
+
 ## Red-Team Harness Automation Run — 2026-09-22
 
 - Started `codex/red-team-harness-20260922` from clean local `master` `fd9a2dd`, which contains the latest consolidated assurance work and is seven commits ahead of the fetched `origin/master`. The separate dirty event/indexer checkout was left untouched.

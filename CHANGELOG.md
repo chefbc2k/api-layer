@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.365] - 2026-09-27
+
+### Changed
+
+- **Base Sepolia Promotion Configuration Has Explicit Precedence:** The gated promotion runner now lets deliberate runtime settings override `.env` defaults and uses the same resolved environment for readiness checks, live-target inspection, fixture setup, and proof commands. A focused regression prevents a stale loopback `.env` value from silently replacing an explicitly supplied direct-live setting.
+- **Fresh Refusal Evidence Records Current Blockers:** Refreshed `verify-base-sepolia-promotion-output.json` through the canonical guarded preflight. It remains `blocked by setup/state` because live opt-in is absent and both execution and diagnostics RPCs are loopback; no provider request, helper, scenario, or transaction ran, and destructive protocol-admin writes remained disabled.
+
+### Verified
+
+- **Promotion And Coverage Gates Passed:** The focused promotion suite passed `7/7`. Explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge Remains Blocked:** No partial promotion work was merged. A future run must supply explicit opt-in and direct non-loopback Base Sepolia RPCs, then prove ready setup, marketplace, governance, and aggregate artifacts before merge.
+
 ## [0.1.364] - 2026-09-22
 
 ### Changed

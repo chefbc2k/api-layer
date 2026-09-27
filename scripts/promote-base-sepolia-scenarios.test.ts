@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 
 import path from "node:path";
 
-import { assessPromotionReadiness, collectPromotionEvidence, resolvePromotionEnvPath } from "./promote-base-sepolia-scenarios.js";
+import {
+  assessPromotionReadiness,
+  collectPromotionEvidence,
+  resolvePromotionEnv,
+  resolvePromotionEnvPath,
+} from "./promote-base-sepolia-scenarios.js";
 
 const founder = Wallet.createRandom();
 const seller = Wallet.createRandom();
@@ -30,6 +35,17 @@ describe("Base Sepolia promotion readiness", () => {
       path.resolve("../api-layer/.env"),
     );
     expect(resolvePromotionEnvPath({})).toBe(path.resolve(".env"));
+  });
+
+  it("lets explicit runtime configuration override file defaults", () => {
+    expect(resolvePromotionEnv(
+      { RPC_URL: "http://127.0.0.1:8548", NETWORK: "base-sepolia" },
+      { RPC_URL: "https://sepolia.base.org", API_LAYER_BASE_SEPOLIA_PROMOTION_READY: "true" },
+    )).toEqual({
+      RPC_URL: "https://sepolia.base.org",
+      NETWORK: "base-sepolia",
+      API_LAYER_BASE_SEPOLIA_PROMOTION_READY: "true",
+    });
   });
 
   it("accepts only an explicitly opted-in direct Base Sepolia target with distinct actors", () => {
