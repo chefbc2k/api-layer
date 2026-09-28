@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-27T18:02:07.269Z",
+  "generatedAt": "2026-09-28T18:06:49.756Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -180,7 +180,7 @@
       "baseSepolia": 60,
       "negativePath": 278,
       "economic": 124,
-      "redTeam": 46,
+      "redTeam": 53,
       "indexer": 63
     },
     "classificationCounts": {
@@ -211,7 +211,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 1.63,
+          "averageScore": 1.68,
           "maximumScore": 8
         }
       },
@@ -270,6 +270,7 @@
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/red-team-access-control-workflow.test.ts"
             ],
             "indexerTests": [],
@@ -1049,6 +1050,7 @@
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/red-team-access-control-workflow.test.ts"
             ],
             "indexerTests": [],
@@ -1214,6 +1216,7 @@
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/red-team-access-control-workflow.test.ts"
             ],
             "indexerTests": [],
@@ -1282,6 +1285,7 @@
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/red-team-access-control-workflow.test.ts"
             ],
             "indexerTests": [],
@@ -1400,6 +1404,7 @@
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/red-team-access-control-workflow.test.ts"
             ],
             "indexerTests": [],
@@ -1439,12 +1444,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1464,7 +1469,9 @@
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -1604,12 +1611,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1629,7 +1636,9 @@
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -2431,7 +2440,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 1.33,
+          "averageScore": 1.44,
           "maximumScore": 8
         }
       },
@@ -2884,12 +2893,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -2902,14 +2911,18 @@
               "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
-              "scripts/api-surface-lib.test.ts"
+              "scripts/api-surface-lib.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/indexer/src/worker.test.ts"
+              "packages/indexer/src/worker.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-harness-lib.test.ts"
+            ],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts",
               "packages/indexer/src/events.test.ts",
@@ -26174,7 +26187,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.56,
+          "averageScore": 2.6,
           "maximumScore": 8
         }
       },
@@ -27625,12 +27638,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -27644,16 +27657,20 @@
               "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
-              "scripts/api-surface-lib.test.ts"
+              "scripts/api-surface-lib.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/indexer/src/worker.test.ts"
+              "packages/indexer/src/worker.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-harness-lib.test.ts"
+            ],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts",
               "packages/indexer/src/events.test.ts",
@@ -30847,7 +30864,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 1.96,
+          "averageScore": 1.98,
           "maximumScore": 8
         }
       },
@@ -33899,12 +33916,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -33917,14 +33934,18 @@
               "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
-              "scripts/api-surface-lib.test.ts"
+              "scripts/api-surface-lib.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/indexer/src/worker.test.ts"
+              "packages/indexer/src/worker.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-harness-lib.test.ts"
+            ],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts",
               "packages/indexer/src/events.test.ts",
@@ -34166,7 +34187,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 3.96,
+          "averageScore": 4,
           "maximumScore": 8
         }
       },
@@ -35687,12 +35708,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -35705,14 +35726,18 @@
               "packages/indexer/src/events.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/alchemy-debug-lib.test.ts",
-              "scripts/api-surface-lib.test.ts"
+              "scripts/api-surface-lib.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [
-              "packages/indexer/src/worker.test.ts"
+              "packages/indexer/src/worker.test.ts",
+              "scripts/red-team-harness-lib.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "scripts/red-team-harness-lib.test.ts"
+            ],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts",
               "packages/indexer/src/events.test.ts",
@@ -39958,7 +39983,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "adversarial",
-          "averageScore": 2.81,
+          "averageScore": 2.86,
           "maximumScore": 8
         }
       },
@@ -40039,12 +40064,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -40064,7 +40089,9 @@
               "packages/api/src/workflows/manage-access-control.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/manage-access-control.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }

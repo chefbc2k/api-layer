@@ -412,6 +412,145 @@ export function inspectRpcSnapshots(input: {
   return findings;
 }
 
+export type TransactionReceiptObservation = {
+  transactionHash: string;
+  blockNumber: number;
+  blockHash: string;
+  status: number;
+  eventKeys: string[];
+};
+
+export type IndexedTransactionObservation = {
+  transactionHash: string;
+  blockNumber: number;
+  blockHash: string;
+  canonical: boolean;
+  eventKeys: string[];
+};
+
+export function inspectTransactionObservation(input: {
+  expectedTransactionHash: string;
+  receipt: TransactionReceiptObservation | null;
+  canonicalBlockHash: string | null;
+  observedHead: number;
+  requiredConfirmations: number;
+  expectedEventKeys: string[];
+  indexed?: IndexedTransactionObservation | null;
+}): RedTeamFinding[] {
+  const findings: RedTeamFinding[] = [];
+  const expectedTransactionHash = input.expectedTransactionHash.toLowerCase();
+  if (!input.receipt) {
+    findings.push({
+      id: "transaction-receipt-missing",
+      severity: "critical",
+      message: "a previously submitted transaction has no observable receipt",
+      evidence: { expectedTransactionHash: input.expectedTransactionHash },
+    });
+    return findings;
+  }
+
+  const receipt = input.receipt;
+  if (receipt.transactionHash.toLowerCase() !== expectedTransactionHash) {
+    findings.push({
+      id: "transaction-hash-substitution",
+      severity: "critical",
+      message: "the observed receipt belongs to a different transaction",
+      evidence: {
+        expectedTransactionHash: input.expectedTransactionHash,
+        observedTransactionHash: receipt.transactionHash,
+      },
+    });
+  }
+  if (receipt.status !== 1) {
+    findings.push({
+      id: "transaction-reverted",
+      severity: "critical",
+      message: "the observed transaction receipt reports a failed execution",
+      evidence: { transactionHash: receipt.transactionHash, status: receipt.status },
+    });
+  }
+  if (!input.canonicalBlockHash) {
+    findings.push({
+      id: "transaction-block-unavailable",
+      severity: "high",
+      message: "the receipt block is no longer available from the canonical provider",
+      evidence: { blockNumber: receipt.blockNumber, receiptBlockHash: receipt.blockHash },
+    });
+  } else if (input.canonicalBlockHash.toLowerCase() !== receipt.blockHash.toLowerCase()) {
+    findings.push({
+      id: "transaction-reorg-detected",
+      severity: "critical",
+      message: "the receipt block hash no longer matches the canonical block",
+      evidence: {
+        blockNumber: receipt.blockNumber,
+        receiptBlockHash: receipt.blockHash,
+        canonicalBlockHash: input.canonicalBlockHash,
+      },
+    });
+  }
+
+  const confirmations = Math.max(0, input.observedHead - receipt.blockNumber + 1);
+  if (confirmations < input.requiredConfirmations) {
+    findings.push({
+      id: "transaction-insufficient-confirmations",
+      severity: "high",
+      message: "the transaction has not reached the required confirmation depth",
+      evidence: {
+        blockNumber: receipt.blockNumber,
+        observedHead: input.observedHead,
+        confirmations,
+        requiredConfirmations: input.requiredConfirmations,
+      },
+    });
+  }
+
+  const receiptEvents = new Set(receipt.eventKeys.map((eventKey) => eventKey.toLowerCase()));
+  const missingReceiptEvents = input.expectedEventKeys.filter((eventKey) => !receiptEvents.has(eventKey.toLowerCase()));
+  if (missingReceiptEvents.length > 0) {
+    findings.push({
+      id: "transaction-event-mismatch",
+      severity: "high",
+      message: "the successful receipt is missing expected protocol events",
+      evidence: { expectedEventKeys: input.expectedEventKeys, observedEventKeys: receipt.eventKeys, missingReceiptEvents },
+    });
+  }
+
+  if (input.indexed === null) {
+    findings.push({
+      id: "indexer-transaction-missing",
+      severity: "high",
+      message: "the confirmed transaction is absent from indexed evidence",
+      evidence: { transactionHash: receipt.transactionHash },
+    });
+  } else if (input.indexed) {
+    const indexed = input.indexed;
+    if (
+      indexed.transactionHash.toLowerCase() !== receipt.transactionHash.toLowerCase()
+      || indexed.blockNumber !== receipt.blockNumber
+      || indexed.blockHash.toLowerCase() !== receipt.blockHash.toLowerCase()
+      || !indexed.canonical
+    ) {
+      findings.push({
+        id: "indexer-canonical-mismatch",
+        severity: "critical",
+        message: "indexed transaction identity or canonical block evidence disagrees with the receipt",
+        evidence: { receipt, indexed },
+      });
+    }
+    const indexedEvents = new Set(indexed.eventKeys.map((eventKey) => eventKey.toLowerCase()));
+    const missingIndexedEvents = input.expectedEventKeys.filter((eventKey) => !indexedEvents.has(eventKey.toLowerCase()));
+    if (missingIndexedEvents.length > 0) {
+      findings.push({
+        id: "indexer-event-mismatch",
+        severity: "high",
+        message: "indexed evidence is missing events present in the transaction contract",
+        evidence: { expectedEventKeys: input.expectedEventKeys, indexedEventKeys: indexed.eventKeys, missingIndexedEvents },
+      });
+    }
+  }
+  return findings;
+}
+
 export type FacetCutProbe = {
   facetAddress: string;
   action: number;
