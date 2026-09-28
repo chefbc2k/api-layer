@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-09-28
+
+- Reused the clean `codex/actor-negative-paths-20260926` worktree, fetched `origin`, and fast-forwarded it to synchronized local/remote production `master` `a320676`. The unrelated dirty consolidation checkout remained untouched.
+- Audited the authorization-relevant production delta around `/v1/workflows/manage-access-control`. Added three lifecycle regressions proving stale, revoked, and expired target membership is rejected during the exact-role preflight before a mixed request can configure the role, change default validity, change minimum validations, replace the admin role, revoke membership, or wait for any write receipt.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Inventory remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor/method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, and `3,150` stale/revoked/expired role-lifecycle cases.
+- Verification passed: `pnpm run test:actor-negative-paths` (`119/119`), `pnpm test` (`1,419` active tests across `139` passing files with `39` gated skips), and measured coverage at `97.66%` statements, `97.07%` branches, `98.54%` functions, and `97.69%` lines.
+- With project-pinned `pnpm@10.30.0`, the ordered TypeScript, lint, and full build/codegen gate passed. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this actor negative-path slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Red-Team Harness Automation Run — 2026-09-27
 
 - Reused the dedicated red-team worktree at current local `master` `a7bbc43`, which contains fetched `origin/master` `c8afad7`, and created `codex/red-team-harness-20260927`. The two preserved pending edits in that worktree formed a coherent diamond-cut hardening slice; the unrelated Base Sepolia checkout remained untouched.
