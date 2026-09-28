@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.366] - 2026-09-28
+
+### Changed
+
+- **Access-Control Lifecycle Denials Are Mutation-Free Across Mixed Batches:** Added actor-suite regressions for stale, revoked, and expired target membership. Each case proves the exact-role membership preflight rejects before `configureRole`, default-validity, minimum-validation, role-admin, or revoke writes and before receipt polling.
+- **Persistent Actor Evidence Is Current On Production:** Regenerated the actor JSON and Markdown reports from synchronized `master`. Coverage remains all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor/method cases, `777` API-boundary cases, and `3,150` role-lifecycle cases.
+
+### Verified
+
+- **Actor And Repository Suites Passed:** `pnpm run test:actor-negative-paths` passed `119/119`; `pnpm test` passed `1,419` active tests across `139` files with `39` explicitly gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.66%` statements, `97.07%` branches, `98.54%` functions, and `97.69%` lines.
+
 ## [0.1.365] - 2026-09-27
 
 ### Changed

@@ -201,6 +201,42 @@ describe("runManageAccessControlWorkflow", () => {
     expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
   });
 
+  it.each([
+    "stale role membership",
+    "revoked role membership",
+    "expired role validity window",
+  ])("rejects a %s before any requested policy mutation", async () => {
+    const service = {
+      configureRole: vi.fn(),
+      setDefaultValidityPeriod: vi.fn(),
+      setMinValidations: vi.fn(),
+      setRoleAdmin: vi.fn(),
+      hasRole: vi.fn().mockResolvedValue({ body: false }),
+      revokeRole: vi.fn(),
+    };
+    mocks.createAccessControlPrimitiveService.mockReturnValue(service);
+
+    await expect(runManageAccessControlWorkflow({} as never, auth, undefined, {
+      role,
+      config,
+      defaultValidityPeriod: "86400",
+      minValidations: "1",
+      adminRole: ownerRole,
+      membership: { action: "revoke", account, reason: "role lifecycle denial" },
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: expect.stringContaining("account does not hold role"),
+    });
+
+    expect(service.hasRole).toHaveBeenCalledWith(expect.objectContaining({ wireParams: [role, account] }));
+    expect(service.configureRole).not.toHaveBeenCalled();
+    expect(service.setDefaultValidityPeriod).not.toHaveBeenCalled();
+    expect(service.setMinValidations).not.toHaveBeenCalled();
+    expect(service.setRoleAdmin).not.toHaveBeenCalled();
+    expect(service.revokeRole).not.toHaveBeenCalled();
+    expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
+  });
+
   it("rejects empty or malformed access-control requests before any write", () => {
     expect(() => manageAccessControlSchema.parse({ role })).toThrow(/at least one policy or membership change/u);
     expect(() => manageAccessControlSchema.parse({
