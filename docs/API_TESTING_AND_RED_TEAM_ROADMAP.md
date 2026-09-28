@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-09-28
+
+- Started `codex/red-team-harness-20260928` from clean local `master` `01b5df3`, which contains fetched `origin/master` `a320676`. The unrelated dirty consolidation checkout remained untouched.
+- Added a transaction-observation oracle for RPC/finality deception. It rejects missing or substituted receipts, reverted executions, noncanonical or unavailable receipt blocks, inadequate confirmation depth, missing required events, absent indexed transactions, and indexer transaction/block/event evidence that disagrees with the canonical receipt.
+- Added deterministic mutation regressions plus a real loopback-fork reorg probe. The fork test confirms a receipt, rewinds the fork, mines a different same-nonce transaction at the same height, and proves the stale receipt is rejected when its block hash no longer matches the replacement block. No destructive live-network path was enabled.
+- Regenerated `output/api-test-gap-report.json` and `.md`. Classifications remain `311` ready, `208` needing fixtures, `36` unsafe on live networks, and `155` needing indexer proof. Current-master actor lifecycle evidence plus the receipt/indexer adversarial checks raise conservative red-team attribution from `46` to `53` items; negative-path attribution remains `278`.
+- Verification passed: `pnpm run test:redteam` (`115/115`), guarded `pnpm run redteam:local-fork` (`159/159` across `11` files with all `6/6` deployed-fork probes active), and `pnpm test` (`1,423` active tests across `139` passing files with `40` gated skips). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.66%` statements, `97.07%` branches, `98.47%` functions, and `97.71%` lines; the red-team harness library measured `100%` statements/functions/lines and `98.72%` branches.
+- **Merge decision:** this receipt-finality and indexer-consistency adversarial slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Actor Negative-Path Automation Run — 2026-09-28
 
 - Reused the clean `codex/actor-negative-paths-20260926` worktree, fetched `origin`, and fast-forwarded it to synchronized local/remote production `master` `a320676`. The unrelated dirty consolidation checkout remained untouched.

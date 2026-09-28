@@ -16,6 +16,7 @@ import {
   inspectSignedRequestEnvelope,
   inspectStateTransition,
   inspectTimelock,
+  inspectTransactionObservation,
   inspectValueConservation,
   replayFingerprint,
   redTeamHarnessInternals,
@@ -279,6 +280,114 @@ describe("red-team RPC and protocol-admin oracles", () => {
       primary: { blockNumber: 100, blockHash: "0xaaa", valueHash: "0x111" },
       secondary: { blockNumber: 99, blockHash: "0xbbb", valueHash: "0x222" },
       maxBlockLag: 2,
+    })).toEqual([]);
+  });
+
+  it("detects replaced, reverted, under-confirmed, and reorged transaction receipts", () => {
+    const findings = inspectTransactionObservation({
+      expectedTransactionHash: "0xaaa",
+      receipt: {
+        transactionHash: "0xbbb",
+        blockNumber: 101,
+        blockHash: "0xold",
+        status: 0,
+        eventKeys: ["Transfer(address,address,uint256)"],
+      },
+      canonicalBlockHash: "0xnew",
+      observedHead: 101,
+      requiredConfirmations: 3,
+      expectedEventKeys: ["Purchased(uint256,address)", "Transfer(address,address,uint256)"],
+    });
+
+    expect(findings.map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "transaction-hash-substitution",
+      "transaction-reverted",
+      "transaction-reorg-detected",
+      "transaction-insufficient-confirmations",
+      "transaction-event-mismatch",
+    ]));
+  });
+
+  it("detects missing receipts and unavailable canonical blocks", () => {
+    expect(inspectTransactionObservation({
+      expectedTransactionHash: "0xaaa",
+      receipt: null,
+      canonicalBlockHash: null,
+      observedHead: 103,
+      requiredConfirmations: 2,
+      expectedEventKeys: [],
+    }).map((finding) => finding.id)).toEqual(["transaction-receipt-missing"]);
+
+    expect(inspectTransactionObservation({
+      expectedTransactionHash: "0xaaa",
+      receipt: {
+        transactionHash: "0xaaa",
+        blockNumber: 102,
+        blockHash: "0xold",
+        status: 1,
+        eventKeys: [],
+      },
+      canonicalBlockHash: null,
+      observedHead: 103,
+      requiredConfirmations: 2,
+      expectedEventKeys: [],
+    }).map((finding) => finding.id)).toEqual(["transaction-block-unavailable"]);
+  });
+
+  it("detects missing or contradictory indexer evidence for confirmed transactions", () => {
+    const base = {
+      expectedTransactionHash: "0xaaa",
+      receipt: {
+        transactionHash: "0xaaa",
+        blockNumber: 100,
+        blockHash: "0xcanonical",
+        status: 1,
+        eventKeys: ["Purchased(uint256,address)"],
+      },
+      canonicalBlockHash: "0xcanonical",
+      observedHead: 102,
+      requiredConfirmations: 3,
+      expectedEventKeys: ["Purchased(uint256,address)"],
+    };
+
+    expect(inspectTransactionObservation({ ...base, indexed: null }).map((finding) => finding.id))
+      .toEqual(["indexer-transaction-missing"]);
+    expect(inspectTransactionObservation({
+      ...base,
+      indexed: {
+        transactionHash: "0xbbb",
+        blockNumber: 99,
+        blockHash: "0xorphaned",
+        canonical: false,
+        eventKeys: [],
+      },
+    }).map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "indexer-canonical-mismatch",
+      "indexer-event-mismatch",
+    ]));
+  });
+
+  it("accepts canonical confirmed receipts and matching indexed events case-insensitively", () => {
+    expect(inspectTransactionObservation({
+      expectedTransactionHash: "0xAAA",
+      receipt: {
+        transactionHash: "0xaaa",
+        blockNumber: 100,
+        blockHash: "0xABC",
+        status: 1,
+        eventKeys: ["Purchased(uint256,address)"],
+      },
+      canonicalBlockHash: "0xabc",
+      observedHead: 101,
+      requiredConfirmations: 2,
+      expectedEventKeys: ["purchased(uint256,address)"],
+      indexed: {
+        transactionHash: "0xAAA",
+        blockNumber: 100,
+        blockHash: "0xabc",
+        canonical: true,
+        eventKeys: ["PURCHASED(UINT256,ADDRESS)"],
+      },
     })).toEqual([]);
   });
 

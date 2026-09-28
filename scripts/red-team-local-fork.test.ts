@@ -13,7 +13,11 @@ import {
   startLocalForkIfNeeded,
   type ForkRuntime,
 } from "./alchemy-debug-lib.js";
-import { inspectRpcSnapshots, inspectValueConservation } from "./red-team-harness-lib.js";
+import {
+  inspectRpcSnapshots,
+  inspectTransactionObservation,
+  inspectValueConservation,
+} from "./red-team-harness-lib.js";
 
 const runLocalFork = process.env.API_LAYER_RUN_RED_TEAM_LOCAL_FORK === "1";
 const describeLocalFork = runLocalFork ? describe : describe.skip;
@@ -166,4 +170,54 @@ describeLocalFork("red-team local-fork probes", () => {
 
     expect(findings.map((finding) => finding.id)).toContain("stale-rpc-head");
   });
+
+  it("detects a stale receipt orphaned by a real local-fork replacement", async () => {
+    const reorgSnapshot = await provider.send("evm_snapshot", []) as string;
+    const transaction = await attacker.sendTransaction({ to: attacker.address, value: 0n });
+    const receipt = await transaction.wait();
+    expect(receipt).not.toBeNull();
+    const receiptBlock = await provider.getBlock(receipt!.blockNumber);
+    expect(receiptBlock?.hash).toBe(receipt!.blockHash);
+
+    expect(inspectTransactionObservation({
+      expectedTransactionHash: transaction.hash,
+      receipt: {
+        transactionHash: receipt!.hash,
+        blockNumber: receipt!.blockNumber,
+        blockHash: receipt!.blockHash,
+        status: receipt!.status ?? 0,
+        eventKeys: [],
+      },
+      canonicalBlockHash: receiptBlock?.hash ?? null,
+      observedHead: Number(BigInt(await provider.send("eth_blockNumber", []) as string)),
+      requiredConfirmations: 1,
+      expectedEventKeys: [],
+    })).toEqual([]);
+
+    expect(await provider.send("evm_revert", [reorgSnapshot])).toBe(true);
+    const replacement = await attacker.sendTransaction({
+      to: Wallet.createRandom().address,
+      value: 0n,
+      nonce: transaction.nonce,
+    });
+    const replacementReceipt = await replacement.wait();
+    expect(replacementReceipt?.blockNumber).toBe(receipt!.blockNumber);
+    expect(replacementReceipt?.blockHash).not.toBe(receipt!.blockHash);
+
+    const findings = inspectTransactionObservation({
+      expectedTransactionHash: transaction.hash,
+      receipt: {
+        transactionHash: receipt!.hash,
+        blockNumber: receipt!.blockNumber,
+        blockHash: receipt!.blockHash,
+        status: receipt!.status ?? 0,
+        eventKeys: [],
+      },
+      canonicalBlockHash: replacementReceipt?.blockHash ?? null,
+      observedHead: Number(BigInt(await provider.send("eth_blockNumber", []) as string)),
+      requiredConfirmations: 1,
+      expectedEventKeys: [],
+    });
+    expect(findings.map((finding) => finding.id)).toEqual(["transaction-reorg-detected"]);
+  }, 15_000);
 });

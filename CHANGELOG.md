@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.367] - 2026-09-28
+
+### Changed
+
+- **Receipt Finality And Indexer Evidence Are Adversarially Cross-Checked:** Added a transaction-observation oracle that flags missing or substituted receipts, reverted executions, unavailable or reorged blocks, inadequate confirmation depth, missing expected events, absent indexed transactions, and indexer evidence that disagrees with the canonical receipt.
+- **A Real Fork Replacement Proves Stale Receipts Fail Closed:** Added a loopback-fork probe that confirms a transaction, rewinds the fork, mines a different same-nonce replacement at the same height, and rejects the stale receipt after its block hash diverges from the canonical block. Regenerated gap evidence keeps classifications at `311` ready, `208` fixture-gap, `36` fork-only, and `155` indexer-gap items while red-team attribution advances from `46` to `53`.
+
+### Verified
+
+- **Focused, Fork, And Repository Suites Passed:** `pnpm run test:redteam` passed `115/115`; the guarded loopback-fork gate passed `159/159` across `11` files with all `6/6` deployed-fork probes active; and `pnpm test` passed `1,423` active tests across `139` files with `40` explicitly gated skips. No destructive live-network path was enabled.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.66%` statements, `97.07%` branches, `98.47%` functions, and `97.71%` lines; the red-team harness library remains at `100%` statements/functions/lines and `98.72%` branches.
+
 ## [0.1.366] - 2026-09-28
 
 ### Changed
