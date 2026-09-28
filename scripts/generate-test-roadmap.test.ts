@@ -260,6 +260,7 @@ describe("API test gap report", () => {
     await writeFile(path.join(tempDir, "packages/sample/nested/example.test.ts"), "getThing ThingSet");
     await Promise.all([
       writeFile(path.join(tempDir, "scripts/generate-test-roadmap.test.ts"), "getThing ThingSet"),
+      writeFile(path.join(tempDir, "scripts/gap-builder-plan.test.ts"), "setThing ThingSet"),
       writeFile(path.join(tempDir, "scripts/write-invariants-lib.test.ts"), "getThing ThingSet"),
     ]);
 

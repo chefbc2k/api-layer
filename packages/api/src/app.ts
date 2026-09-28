@@ -23,10 +23,49 @@ function resolveListeningPort(server: ReturnType<express.Express["listen"]>, con
   return configuredPort;
 }
 
+function parseAllowedOrigins(raw: string | undefined): string[] {
+  return (raw ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+}
+
+function applyCors(request: Request, response: Response): void {
+  const allowedOrigins = parseAllowedOrigins(process.env.API_LAYER_ALLOWED_ORIGINS);
+  const requestOrigin = request.header("origin");
+  const allowAnyOrigin = allowedOrigins.includes("*");
+  const allowedOrigin = allowAnyOrigin
+    ? "*"
+    : requestOrigin && allowedOrigins.includes(requestOrigin)
+      ? requestOrigin
+      : null;
+
+  if (allowedOrigin) {
+    response.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    if (allowedOrigin !== "*") {
+      response.setHeader("Vary", "Origin");
+    }
+  }
+  response.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
+  response.setHeader(
+    "Access-Control-Allow-Headers",
+    "content-type,x-api-key,x-wallet-address,x-gasless-mode,x-execution-source",
+  );
+  response.setHeader("Access-Control-Max-Age", "600");
+}
+
 export function createApiServer(options: ApiServerOptions = {}): ApiServer {
   const apiExecutionContext = createApiExecutionContext();
   const app = express();
   app.set("apiExecutionContext", apiExecutionContext);
+  app.use((request, response, next) => {
+    applyCors(request, response);
+    if (request.method === "OPTIONS") {
+      response.status(204).end();
+      return;
+    }
+    next();
+  });
   app.use(express.json({ limit: "1mb" }));
 
   app.get("/v1/system/health", (_request: Request, response: Response) => {

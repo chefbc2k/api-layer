@@ -92,6 +92,54 @@ describe("createApiServer", () => {
     }
   });
 
+  it("answers browser preflight requests for configured application origins", async () => {
+    process.env.API_LAYER_ALLOWED_ORIGINS = "https://office.uspeaks.local,https://community.uspeaks.local";
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "test-key": { label: "test", roles: ["service"], allowGasless: true },
+    });
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/v1/system/health`, {
+        method: "OPTIONS",
+        signal: AbortSignal.timeout(2_500),
+        headers: {
+          origin: "https://office.uspeaks.local",
+          "access-control-request-method": "GET",
+          "access-control-request-headers": "content-type,x-api-key,x-wallet-address",
+        },
+      });
+      expect(response.status).toBe(204);
+      expect(response.headers.get("access-control-allow-origin")).toBe("https://office.uspeaks.local");
+      expect(response.headers.get("access-control-allow-methods")).toContain("POST");
+      expect(response.headers.get("access-control-allow-headers")).toContain("x-wallet-address");
+      expect(response.headers.get("vary")).toBe("Origin");
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("does not grant cross-origin access to unconfigured origins", async () => {
+    process.env.API_LAYER_ALLOWED_ORIGINS = "https://office.uspeaks.local";
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "test-key": { label: "test", roles: ["service"], allowGasless: true },
+    });
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/v1/system/health`, {
+        signal: AbortSignal.timeout(2_500),
+        headers: { origin: "https://unknown.example" },
+      });
+      expect(response.status).toBe(200);
+      expect(response.headers.get("access-control-allow-origin")).toBeNull();
+    } finally {
+      await closeServer(server);
+    }
+  });
+
   it("rejects unsupported gasless modes on explicit endpoints", async () => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "test-key": { label: "test", roles: ["service"], allowGasless: true },

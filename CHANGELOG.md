@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.366] - 2026-09-27
+
+### Changed
+
+- **Office 2.0 Launch Gaps Now Have An Implementation Automation Contract:** Added `docs/LAUNCH_IMPLEMENTATION_GAPS.md` to track non-ABI blockers for browser connectivity, per-client provisioning, checkout, KYC/KYB, content review, marketplace/governance proof, rate limits, and observability. The contract requires future automation runs to select multi-item batches, make source/test changes, run named verification, and refuse documentation-only success.
+- **Gap Builder Runs Must Target Batches Instead Of Single Slices:** Added `pnpm run gap-builder:plan`, which reads the structured API gap report, prioritizes non-ready items, groups them by facet, writes JSON/Markdown work orders, and fails when a run selects fewer than the configured minimum batch size. Added focused tests for prioritization, batch enforcement, rendered implementation instructions, and persistent artifacts.
+- **Automation Tests Cannot Masquerade As Protocol Proof:** Marked the gap-builder planner test as inventory-only for gap-report attribution, preventing planner fixture strings from reducing real implementation gaps.
+- **Browser Apps Can Preflight The API:** Added environment-driven CORS/preflight handling through `API_LAYER_ALLOWED_ORIGINS`, including support for app headers used by API key, wallet, gasless, and execution-source requests. Added route-level tests proving configured origins are allowed and unknown origins do not receive cross-origin access.
+
+### Verified
+
+- **Launch Automation And API Gates Passed:** `pnpm run report:test-gaps`, `pnpm run gap-builder:plan`, `pnpm run test:gap-report`, `pnpm run test:gap-builder`, the focused API app suite, `pnpm --filter @uspeaks/api build`, `pnpm run coverage:check`, and `pnpm run test:actor-negative-paths` all passed. The refreshed gap report remains honest at `311` ready, `208` needing fixtures, `36` unsafe on live network, and `155` needing indexer proof; the first builder plan selects `40` non-ready items from `399` total non-ready items.
+
 ## [0.1.365] - 2026-09-27
 
 ### Changed
