@@ -1,0 +1,796 @@
+{
+  "generatedAt": "2026-10-02T02:43:37.145Z",
+  "sourceGeneratedAt": "2026-10-02T02:43:30.219Z",
+  "totals": {
+    "nonReady": 332,
+    "selected": 40,
+    "byClassification": {
+      "ready": 378,
+      "needs fixture": 197,
+      "unsafe on live network": 36,
+      "needs contract change": 0,
+      "needs API guard": 0,
+      "needs indexer proof": 99
+    }
+  },
+  "batches": [
+    {
+      "facetName": "AccessControlFacet",
+      "objective": "Reduce AccessControlFacet launch blockers across 5 gap items.",
+      "items": [
+        {
+          "id": "AccessControlFacet.emergencyForceAdd",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/emergency-force-add"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.executeFounderSunset",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/execute-founder-sunset"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.scheduleFounderSunset",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/schedule-founder-sunset"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.setPaused",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/set-paused"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.setRecoveryActive",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/set-recovery-active"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "DiamondCutFacet",
+      "objective": "Reduce DiamondCutFacet launch blockers across 4 gap items.",
+      "items": [
+        {
+          "id": "DiamondCutFacet.diamondCut",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/diamond-cut"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DiamondCutFacet.setTrustedInitCodehash",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-trusted-init-codehash"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DiamondCutFacet.setTrustedInitContract",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-trusted-init-contract"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DiamondCutFacet.setTrustedInitSelector",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-trusted-init-selector"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "EmergencyFacet",
+      "objective": "Reduce EmergencyFacet launch blockers across 7 gap items.",
+      "items": [
+        {
+          "id": "EmergencyFacet.approveRecovery",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/approve-recovery"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.completeRecovery",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/complete-recovery"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.executeRecoveryAction",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/execute-recovery-action"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.executeRecoveryStep",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/execute-recovery-step"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.setEmergencyTimeout",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/set-emergency-timeout"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.setResumeDelay",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/set-resume-delay"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.startRecovery",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/start-recovery"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "EmergencyWithdrawalFacet",
+      "objective": "Reduce EmergencyWithdrawalFacet launch blockers across 5 gap items.",
+      "items": [
+        {
+          "id": "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/approve-emergency-withdrawal"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.executeWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/execute-withdrawal"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/request-emergency-withdrawal"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.setRecipientWhitelist",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/set-recipient-whitelist"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/update-withdrawal-config"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "MultiSigFacet",
+      "objective": "Reduce MultiSigFacet launch blockers across 9 gap items.",
+      "items": [
+        {
+          "id": "MultiSigFacet.addOperationType",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/add-operation-type"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.addOperator",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/add-operator"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.approveOperation",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/approve-operation"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.execute",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/execute"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.executeOperation",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/execute-operation"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.muSetPaused",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/mu-set-paused"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.proposeOperation",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/propose-operation"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.setOperationConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/set-operation-config"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.submitTransaction",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/submit-transaction"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "ProposalFacet",
+      "objective": "Reduce ProposalFacet launch blockers across 1 gap item.",
+      "items": [
+        {
+          "id": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": null,
+          "gaps": [
+            "legacy overloaded proposal variant is intentionally excluded from the HTTP surface",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "UpgradeControllerFacet",
+      "objective": "Reduce UpgradeControllerFacet launch blockers across 9 gap items.",
+      "items": [
+        {
+          "id": "UpgradeControllerFacet.approveUpgrade",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/approve-upgrade"
+          },
+          "gaps": [
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.executeUpgrade",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/execute-upgrade"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.freezeUpgradeControl",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/freeze-upgrade-control"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.proposeDiamondCut",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/propose-diamond-cut"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.setUpgradeControlEnforced",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-upgrade-control-enforced"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.initUpgradeController",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/diamond-admin"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeApproved",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-approved/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeControlEnforcementSet",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-control-enforcement-set/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeControlFrozen",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-control-frozen/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    }
+  ]
+}

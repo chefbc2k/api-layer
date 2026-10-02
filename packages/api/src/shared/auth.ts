@@ -47,9 +47,50 @@ const writeCapableRoles = new Set([
   "collaborator",
 ]);
 
+const adminCapableRoles = new Set([
+  "service",
+  "founder",
+  "admin",
+  "operator",
+]);
+
+function normalizedRoles(auth: AuthContext): string[] {
+  return auth.roles.map((role) => role.trim().toLowerCase());
+}
+
 export function assertWriteAuthorized(auth: AuthContext): void {
-  const roles = auth.roles.map((role) => role.trim().toLowerCase());
-  if (!roles.some((role) => writeCapableRoles.has(role))) {
+  if (!normalizedRoles(auth).some((role) => writeCapableRoles.has(role))) {
     throw new Error("API key not permitted for write execution");
   }
+}
+
+export function assertAdminAuthorized(auth: AuthContext): void {
+  if (!normalizedRoles(auth).some((role) => adminCapableRoles.has(role))) {
+    throw new Error("API key not permitted for admin execution");
+  }
+}
+
+function isLoopbackRpcUrl(rpcUrl: string): boolean {
+  try {
+    const hostname = new URL(rpcUrl).hostname.toLowerCase();
+    const isIpv4Loopback = /^127(?:\.\d{1,3}){3}$/u.test(hostname);
+    return hostname === "localhost"
+      || hostname === "::1"
+      || hostname === "[::1]"
+      || isIpv4Loopback;
+  } catch {
+    return false;
+  }
+}
+
+export function assertAdminNetworkAuthorized(
+  rpcUrl: string,
+  allowLiveAdminWrites = false,
+): void {
+  if (isLoopbackRpcUrl(rpcUrl) || allowLiveAdminWrites) {
+    return;
+  }
+  throw new Error(
+    "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in",
+  );
 }

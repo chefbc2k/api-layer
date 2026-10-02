@@ -2,6 +2,63 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.369] - 2026-09-28
+
+### Changed
+
+- **Fourteen MultiSig And Proposal Gaps Become Ready:** Added event-specific production decode, projection, conflict-safe replay, and current-row assurance for five MultiSig and five Proposal events. Added ABI-native fixtures for `proposalExists` and `proposalVotes`, plus mounted-route preflight, unauthorized, and stale-state rejection coverage for `cancelProposal` and `setProposalTypeConfig`.
+- **Current Projections Use Stable Semantic Identities:** Replaced raw-event fallback identities for proposal-type configuration, emergency-withdrawal configuration, recipient-whitelist, and immediate-withdrawal events with collision-safe semantic keys. A distinct-transaction regression now proves later events supersede the same logical row while retaining separate source event IDs.
+- **Live Admin Opt-In Follows Runtime Configuration:** Added `allowLiveAdminWrites` to the parsed API configuration so repository `.env` values and process overrides follow the same precedence as RPC settings. The pre-decode admin gate now consumes the parsed boolean and remains disabled by default; all thirty selected mounted admin routes retain grouped role and non-loopback denial coverage.
+- **Persistent Non-Ready Gaps Fall By Fourteen:** Regenerated the API gap report and 40-item planner artifacts. Ready items increase from `364` to `378`, fixture gaps fall from `201` to `197`, indexer-proof gaps fall from `109` to `99`, and total non-ready items decrease from `346` to `332`. All `36` live-only items remain conservatively blocked without genuine successful exact-route verification artifacts.
+
+### Verified
+
+- **Required Gap And Batch Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `6/6`, `pnpm run test:actor-negative-paths` passed `149/149`, and `pnpm run test:indexer:assurance` passed `169` active tests with `6` PostgreSQL-gated skips.
+- **Focused And Static Gates Passed:** Proposal-read and runtime-config fixtures passed `16/16`; `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run coverage:check` passed. Coverage checks confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.368] - 2026-09-28
+
+### Changed
+
+- **Admin Writes Now Fail Closed Off Loopback:** Added a pre-decode network boundary for every generated admin write. Trusted service, founder, admin, and operator identities may use loopback RPCs by default, while a non-loopback CBDP write provider now requires the explicit `API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true` opt-in before ABI decoding, provider access, persistence, or submission. The gate stays pinned to CBDP because write requests never fail over to the diagnostics provider.
+- **All Thirty Selected Admin Routes Have Direct Safety Evidence:** Extended the mounted control-plane matrix through the nine selected MultiSig admin routes and added live-RPC denial coverage. The grouped proof now exercises read-only denial, four actor-role denials, and authorized-founder live-network denial for every selected route; the five previously uncovered MultiSig admin methods now have unit, workflow, and negative-path attribution even though exact-route fork or Base Sepolia artifacts are still required for readiness.
+- **Eight Event Projections And Two Multisig Deletes Become Ready:** Added event-specific decode, production projection, conflict-safe replay, and current-row semantics for seven EmergencyWithdrawal events plus `MultiSigFacet.ActionExecuted`. Added mounted-route preflight rejection fixtures for `cancelOperation` and `removeOperator`, proving unauthorized requests stop before provider access or mutation.
+- **Persistent Non-Ready Gaps Fall By Ten:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `354` to `364`, fixture gaps fall from `203` to `201`, indexer-proof gaps fall from `117` to `109`, and total non-ready items decrease from `356` to `346`; all `36` live-only items remain conservatively blocked on successful exact-route verification artifacts.
+
+### Verified
+
+- **Required Gap And Safety Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `6/6`, the focused multisig command suite passed `2/2`, `pnpm run test:actor-negative-paths` passed `144/144`, and `pnpm run test:indexer:assurance` passed `155` active tests with `6` PostgreSQL-gated skips.
+- **Type And Coverage Gates Passed:** The focused execution-context/provider-router regression passed `88/88`, `pnpm exec tsc -p tsconfig.json --noEmit` passed, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.367] - 2026-09-28
+
+### Changed
+
+- **Nineteen Control-Plane Events Gain Replay-Safe Indexer Proof:** Added explicit assurance for the selected AccessControl, DiamondCut, emergency-recovery, and emergency-withdrawal events. The raw-only cases now prove deterministic decode/replay without projection writes, while materialized cases execute the production projector twice and verify conflict-safe inserts plus current-row invalidation where applicable.
+- **Admin-Classified Writes Now Enforce A Dedicated API Boundary:** Added normalized admin authorization for trusted `service`, `founder`, `admin`, and `operator` identities. All `50` generated admin writes reject buyer, seller, licensee, and collaborator API roles before ABI decoding, provider access, transaction persistence, or submission, while preserving the existing trusted service automation path.
+- **The Entire Selected Forty-Item Batch Has Direct Implementation Evidence:** Expanded the route-level control-plane matrix from `16` to all `21` selected admin writes, including the five EmergencyWithdrawal routes. The matrix contributes `84` actor-role denials and `21` read-only denials; `updateWithdrawalConfig` now has direct unit, workflow, and negative-path attribution.
+- **Persistent Non-Ready Gaps Fall By Nineteen:** Regenerated the API gap report and next 40-item plan. Ready items increase from `335` to `354`, indexer-proof gaps fall from `136` to `117`, and non-ready items decrease from `375` to `356`. The `36` admin items remain conservatively `unsafe on live network` until successful exact-route local-fork or Base Sepolia artifacts exist.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The admin authorization/control-plane slice passed `99/99`, the AccessControl read fixture passed `5/5`, `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `6/6`, `pnpm run test:indexer:assurance` passed `147` active tests with `6` PostgreSQL-gated skips, and `pnpm run test:actor-negative-paths` passed `128/128`.
+- **Quality And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
+## [0.1.366] - 2026-09-28
+
+### Changed
+
+- **The Gap Builder Is Restored As An Executable 40-Item Planning Loop:** Added the missing `gap-builder:plan` implementation, deterministic JSON/Markdown artifacts, minimum-batch enforcement with the required fewer-than-ten remainder exception, and facet-grouped selection that will not create one-item slices at a batch cutoff. The gap reporter now excludes the planner's own inventory tests so planning assertions cannot masquerade as protocol evidence.
+- **Gap Attribution Rejects Cross-Route Kebab Fragments:** Identifier matching no longer treats `approve` in `approve-recovery`, `execute` in `execute-recovery-step`, or similar compound route fragments as proof for unrelated ABI methods. A focused regression locks the boundary rule, removing one false economic attribution without changing classifications.
+- **Payment Event Projections Close Nineteen Indexer Gaps:** Added explicit decode, projection, and deterministic replay assurance for all `19` previously unproven `PaymentFacet` events, including both reviewed targets for `USDCPaymentWithdrawn` and `WithdrawalLimitUpdated`. Each case executes the production projector twice, proves the expected PostgreSQL table insertion, and locks the `(source_raw_event_id, entity_id)` upsert contract with identical replay parameters.
+- **Access-Control Reads And Control-Plane Denials Gain Direct Proof:** Added five generated-service fixtures for `debugRoleIndexState`, `getOwnerOperationalRoles`, `getRequiredSigners`, `isFounderSunsetActive`, and `isRoleActive`, including realistic ABI input validation and output serialization for tuple, array, integer, and boolean state. A route-level integration matrix now proves read-only identities fail closed across `16` selected AccessControl, diamond-admin, and emergency writes before provider execution.
+- **Persistent Gap Counts Fall By Twenty-Four:** Regenerated all four gap artifacts. Ready items increase from `311` to `335`, fixture gaps fall from `208` to `203`, and indexer-proof gaps fall from `155` to `136`; the non-ready total decreases from `399` to `375`. The `36` live-only admin items remain conservatively unsafe until real local-fork or Base Sepolia route evidence exists.
+
+### Verified
+
+- **Focused And Batch Suites Passed:** The affected AccessControl, control-plane, and indexer slice passed `78/78`; `pnpm run test:gap-report` passed `8/8`; `pnpm run test:gap-builder` passed `6/6`; `pnpm run test:actor-negative-paths` passed `116/116`; and `pnpm run test:indexer:assurance` passed `128` active tests with `6` integration-gated skips.
+- **Quality And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+
 ## [0.1.365] - 2026-09-27
 
 ### Changed
