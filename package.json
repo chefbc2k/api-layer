@@ -25,6 +25,7 @@
     "report:test-gaps": "tsx scripts/generate-test-roadmap.ts",
     "test:gap-report": "vitest run scripts/generate-test-roadmap.test.ts --maxWorkers 1",
     "gap-builder:plan": "tsx scripts/gap-builder-plan.ts --max-items 40 --min-batch-items 10 --fail-on-empty",
+    "gap-builder:plan:forty-percent": "tsx scripts/gap-builder-plan.ts --target-percent 40 --min-batch-items 10 --fail-on-empty",
     "test:gap-builder": "vitest run scripts/gap-builder-plan.test.ts --maxWorkers 1",
     "test:write-invariants": "vitest run scripts/write-invariants-lib.test.ts --maxWorkers 1",
     "report:actor-negative-paths": "tsx scripts/generate-actor-negative-path-report.ts",

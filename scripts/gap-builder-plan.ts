@@ -39,6 +39,7 @@ type GapReport = {
 export type GapBuilderPlanOptions = {
   maxItems: number;
   minBatchItems: number;
+  targetPercent?: number | null;
   focus?: string | null;
 };
 
@@ -84,7 +85,7 @@ function compareGapItems(left: GapItem, right: GapItem): number {
   );
 }
 
-function selectGroupedItems(items: GapItem[], maxItems: number): GapItem[] {
+function selectGroupedItems(items: GapItem[], maxItems: number, allowSmallOverage = false): GapItem[] {
   const byFacet = new Map<string, GapItem[]>();
   for (const item of items) {
     byFacet.set(item.facetName, [...(byFacet.get(item.facetName) ?? []), item]);
@@ -104,6 +105,8 @@ function selectGroupedItems(items: GapItem[], maxItems: number): GapItem[] {
     // the final slot. A plan may contain fewer than maxItems in that edge case.
     if (remaining >= 2) {
       selected.push(...facetItems.slice(0, remaining));
+    } else if (allowSmallOverage && facetItems.length >= 2) {
+      selected.push(...facetItems.slice(0, 2));
     }
   }
   return selected;
@@ -158,7 +161,10 @@ export function buildGapBuilderPlan(report: GapReport, options: GapBuilderPlanOp
     .filter((item) => item.classification !== "ready")
     .filter((item) => !focus || item.id.toLowerCase().includes(focus) || item.facetName.toLowerCase().includes(focus))
     .sort(compareGapItems);
-  const selected = selectGroupedItems(allItems, options.maxItems);
+  const targetCount = options.targetPercent
+    ? Math.ceil(allItems.length * (options.targetPercent / 100))
+    : options.maxItems;
+  const selected = selectGroupedItems(allItems, targetCount, Boolean(options.targetPercent));
   if (
     selected.length > 0
     && selected.length < options.minBatchItems
@@ -240,6 +246,18 @@ function numberArg(args: string[], name: string, fallback: number): number {
   return value;
 }
 
+function percentArg(args: string[], name: string): number | null {
+  const index = args.indexOf(name);
+  if (index === -1) {
+    return null;
+  }
+  const value = Number(args[index + 1]);
+  if (!Number.isFinite(value) || value <= 0 || value > 100) {
+    throw new Error(`${name} must be a number greater than 0 and at most 100`);
+  }
+  return value;
+}
+
 function stringArg(args: string[], name: string): string | null {
   const index = args.indexOf(name);
   return index === -1 ? null : args[index + 1] ?? null;
@@ -251,6 +269,7 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
   const plan = buildGapBuilderPlan(await readJson<GapReport>(reportPath), {
     maxItems: numberArg(args, "--max-items", 40),
     minBatchItems: numberArg(args, "--min-batch-items", 10),
+    targetPercent: percentArg(args, "--target-percent"),
     focus: stringArg(args, "--focus"),
   });
   await ensureDir(outputDir);
