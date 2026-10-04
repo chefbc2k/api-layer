@@ -2,6 +2,16 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.371] - 2026-10-04
+
+### Changed
+
+- **Gap Builder Clean-Report Path Covered:** Added a focused regression test proving `--fail-on-empty` accepts a genuinely clean report while still writing an empty plan.
+
+### Verified
+
+- **Focused Gap Builder Suite Passed:** `pnpm run test:gap-builder` passed all plan-generation and CLI failure-path tests.
+
 ## [0.1.370] - 2026-10-01
 
 ### Changed

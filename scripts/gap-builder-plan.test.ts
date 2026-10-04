@@ -150,4 +150,22 @@ describe("gap-builder plan", () => {
       "--fail-on-empty",
     ])).rejects.toThrow("gap-builder found non-ready items but selected none");
   });
+
+  it("allows an empty plan when the report has no actionable gaps", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "gap-builder-plan-"));
+    temporaryDirectories.push(tempDir);
+    const reportPath = path.join(tempDir, "report.json");
+    const cleanReport = report();
+    cleanReport.facets = [];
+    await writeFile(reportPath, JSON.stringify(cleanReport), "utf8");
+
+    await expect(main([
+      "--report", reportPath,
+      "--output-dir", tempDir,
+      "--fail-on-empty",
+    ])).resolves.toBeUndefined();
+
+    const plan = JSON.parse(await readFile(path.join(tempDir, "gap-builder-plan.json"), "utf8"));
+    expect(plan.totals).toMatchObject({ nonReady: 0, selected: 0 });
+  });
 });
