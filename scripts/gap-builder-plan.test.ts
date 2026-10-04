@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -125,5 +125,29 @@ describe("gap-builder plan", () => {
       totals: { selected: 4 },
     });
     expect(markdown).toContain("Selected this run: `4`");
+  });
+
+  it("rejects invalid numeric CLI arguments", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "gap-builder-plan-"));
+    temporaryDirectories.push(tempDir);
+    const reportPath = path.join(tempDir, "report.json");
+    await writeFile(reportPath, JSON.stringify(report()), "utf8");
+
+    await expect(main(["--report", reportPath, "--max-items", "-1"]))
+      .rejects.toThrow("--max-items must be a non-negative integer");
+  });
+
+  it("fails loudly when a zero-sized plan leaves actionable gaps", async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), "gap-builder-plan-"));
+    temporaryDirectories.push(tempDir);
+    const reportPath = path.join(tempDir, "report.json");
+    await writeFile(reportPath, JSON.stringify(report()), "utf8");
+
+    await expect(main([
+      "--report", reportPath,
+      "--output-dir", tempDir,
+      "--max-items", "0",
+      "--fail-on-empty",
+    ])).rejects.toThrow("gap-builder found non-ready items but selected none");
   });
 });

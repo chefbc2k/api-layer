@@ -2,6 +2,16 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.370] - 2026-10-01
+
+### Changed
+
+- **Gap Builder CLI Failure Paths Gain Direct Coverage:** Added focused tests proving negative numeric arguments are rejected and `--fail-on-empty` fails when a zero-item plan would leave actionable gaps unselected.
+
+### Verified
+
+- **Focused Gap Builder Suite Passed:** `pnpm run test:gap-builder` passed all CLI planning and failure-path tests.
+
 ## [0.1.369] - 2026-09-28
 
 ### Changed
