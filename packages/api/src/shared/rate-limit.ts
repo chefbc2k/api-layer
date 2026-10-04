@@ -15,22 +15,31 @@ type LocalEntry = {
 };
 
 export class RateLimiter {
-  private readonly redisLimiter: Ratelimit | null;
+  private readonly redisLimiters: Record<RateLimitKind, Ratelimit> | null;
   private readonly local = new Map<string, LocalEntry>();
 
   constructor() {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
     if (url && token) {
-      this.redisLimiter = new Ratelimit({
-        redis: new Redis({ url, token }),
-        limiter: Ratelimit.slidingWindow(DEFAULT_LIMITS.read, "1 m"),
-        analytics: false,
-        prefix: "uspeaks-api",
-      });
+      const redis = new Redis({ url, token });
+      this.redisLimiters = {
+        read: this.createRedisLimiter(redis, "read"),
+        write: this.createRedisLimiter(redis, "write"),
+        gasless: this.createRedisLimiter(redis, "gasless"),
+      };
       return;
     }
-    this.redisLimiter = null;
+    this.redisLimiters = null;
+  }
+
+  private createRedisLimiter(redis: Redis, kind: RateLimitKind): Ratelimit {
+    return new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(this.limitFor(kind), "1 m"),
+      analytics: false,
+      prefix: `uspeaks-api:${kind}`,
+    });
   }
 
   private limitFor(kind: RateLimitKind): number {
@@ -39,8 +48,8 @@ export class RateLimiter {
 
   async enforce(kind: RateLimitKind, identifier: string): Promise<void> {
     const limit = this.limitFor(kind);
-    if (this.redisLimiter) {
-      const result = await this.redisLimiter.limit(`${kind}:${identifier}`);
+    if (this.redisLimiters) {
+      const result = await this.redisLimiters[kind].limit(identifier);
       if (!result.success || result.remaining < 0) {
         throw new Error(`rate limit exceeded for ${kind}`);
       }
