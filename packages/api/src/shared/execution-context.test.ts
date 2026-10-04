@@ -31,6 +31,8 @@ const mocked = vi.hoisted(() => {
   const traceTransactionWithAlchemy = vi.fn().mockResolvedValue({ status: "ok" });
   const loadApiKeys = vi.fn().mockReturnValue({ founderKey: { apiKey: "founder-key" } });
   const assertWriteAuthorized = vi.fn();
+  const assertAdminAuthorized = vi.fn();
+  const assertAdminNetworkAuthorized = vi.fn();
   return {
     invokeRead,
     queryEvent,
@@ -51,6 +53,8 @@ const mocked = vi.hoisted(() => {
     traceTransactionWithAlchemy,
     loadApiKeys,
     assertWriteAuthorized,
+    assertAdminAuthorized,
+    assertAdminNetworkAuthorized,
   };
 });
 
@@ -82,6 +86,8 @@ vi.mock("./alchemy-diagnostics.js", () => ({
 vi.mock("./auth.js", () => ({
   loadApiKeys: mocked.loadApiKeys,
   assertWriteAuthorized: mocked.assertWriteAuthorized,
+  assertAdminAuthorized: mocked.assertAdminAuthorized,
+  assertAdminNetworkAuthorized: mocked.assertAdminNetworkAuthorized,
 }));
 
 vi.mock("ethers", async () => {
@@ -150,6 +156,7 @@ import {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocked.assertAdminNetworkAuthorized.mockReset();
   delete process.env.API_LAYER_GASLESS_ALLOWLIST;
   delete process.env.API_LAYER_GASLESS_SPEND_CAPS_JSON;
   delete process.env.API_LAYER_SIGNER_MAP_JSON;
@@ -180,6 +187,12 @@ beforeEach(() => {
     const writeRoles = new Set(["service", "founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"]);
     if (!auth.roles?.some((role) => writeRoles.has(role.toLowerCase()))) {
       throw new Error("API key not permitted for write execution");
+    }
+  });
+  mocked.assertAdminAuthorized.mockImplementation((auth: { roles?: string[] }) => {
+    const adminRoles = new Set(["service", "founder", "admin", "operator"]);
+    if (!auth.roles?.some((role) => adminRoles.has(role.trim().toLowerCase()))) {
+      throw new Error("API key not permitted for admin execution");
     }
   });
 });
@@ -264,6 +277,7 @@ function buildContext(overrides: Record<string, unknown> = {}) {
       alchemyDiagnosticsEnabled: false,
       alchemySimulationEnabled: false,
       alchemySimulationEnforced: false,
+      allowLiveAdminWrites: false,
       alchemyEndpointDetected: false,
       alchemyRpcUrl: "https://alchemy.example",
       alchemySimulationBlock: "latest",
@@ -781,6 +795,129 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 
+  it("rejects actor-scoped write roles across every admin route before decoding or provider access", async () => {
+    const context = buildContext();
+    const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
+    const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown> & { classification?: string }> }).methods;
+    const adminDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write" && surfaceMethods[key]?.classification === "admin")
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
+    const actorRoles = ["buyer", "seller", "licensee", "collaborator"];
+
+    expect(adminDefinitions).toHaveLength(50);
+    for (const role of actorRoles) {
+      for (const definition of adminDefinitions) {
+        await expect(executeHttpMethodDefinition(
+          context as never,
+          definition as never,
+          buildRequest({
+            auth: {
+              apiKey: `${role}-key`,
+              label: role,
+              signerId: role,
+              allowGasless: false,
+              roles: [role],
+            },
+          }) as never,
+        ), `${role}: ${definition.key}`).rejects.toThrow("API key not permitted for admin execution");
+      }
+    }
+
+    expect(mocked.assertAdminAuthorized).toHaveBeenCalledTimes(adminDefinitions.length * actorRoles.length);
+    expect(mocked.assertAdminNetworkAuthorized).not.toHaveBeenCalled();
+    expect(mocked.decodeParamsFromWire).not.toHaveBeenCalled();
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects every admin route on a non-loopback RPC before decoding or provider access", async () => {
+    const context = buildContext();
+    context.config.cbdpRpcUrl = "https://sepolia.base.org";
+    context.config.alchemyRpcUrl = "http://127.0.0.1:8545";
+    const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
+    const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown> & { classification?: string }> }).methods;
+    const adminDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write" && surfaceMethods[key]?.classification === "admin")
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
+
+    mocked.assertAdminNetworkAuthorized.mockImplementation(() => {
+      throw new Error("API key not permitted for live admin execution");
+    });
+
+    expect(adminDefinitions).toHaveLength(50);
+    for (const definition of adminDefinitions) {
+      await expect(executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: {
+            apiKey: "founder-key",
+            label: "founder",
+            signerId: "founder",
+            allowGasless: false,
+            roles: ["founder"],
+          },
+        }) as never,
+      ), definition.key).rejects.toThrow("API key not permitted for live admin execution");
+    }
+
+    expect(mocked.assertAdminNetworkAuthorized).toHaveBeenCalledTimes(adminDefinitions.length);
+    expect(mocked.assertAdminNetworkAuthorized).toHaveBeenCalledWith("https://sepolia.base.org", false);
+    expect(mocked.decodeParamsFromWire).not.toHaveBeenCalled();
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("gates admin writes against cbdp while allowing a remote diagnostics provider", async () => {
+    const context = buildContext();
+    context.config.cbdpRpcUrl = "http://127.0.0.1:8545";
+    context.config.alchemyRpcUrl = "https://alchemy.example/base-sepolia";
+    const decodeSentinel = new Error("admin request reached wire decoding");
+    mocked.decodeParamsFromWire.mockImplementationOnce(() => {
+      throw decodeSentinel;
+    });
+
+    await expect(executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition({ classification: "admin" }) as never,
+      buildRequest({
+        auth: {
+          apiKey: "founder-key",
+          label: "founder",
+          signerId: "founder",
+          allowGasless: false,
+          roles: ["founder"],
+        },
+      }) as never,
+    )).rejects.toBe(decodeSentinel);
+
+    expect(mocked.assertAdminNetworkAuthorized).toHaveBeenCalledOnce();
+    expect(mocked.assertAdminNetworkAuthorized).toHaveBeenCalledWith("http://127.0.0.1:8545", false);
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+  });
+
+  it("passes the parsed live-admin opt-in to the network gate", async () => {
+    const context = buildContext();
+    context.config.cbdpRpcUrl = "https://sepolia.base.org";
+    context.config.allowLiveAdminWrites = true;
+    const decodeSentinel = new Error("opted-in admin request reached wire decoding");
+    mocked.decodeParamsFromWire.mockImplementationOnce(() => {
+      throw decodeSentinel;
+    });
+
+    await expect(executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition({ classification: "admin" }) as never,
+      buildRequest() as never,
+    )).rejects.toBe(decodeSentinel);
+
+    expect(mocked.assertAdminNetworkAuthorized).toHaveBeenCalledOnce();
+    expect(mocked.assertAdminNetworkAuthorized).toHaveBeenCalledWith("https://sepolia.base.org", true);
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+  });
+
   it("rejects direct-write API-key/signer confusion across every mounted write before persistence or submission", async () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.decodeParamsFromWire.mockReturnValue([]);
@@ -797,6 +934,13 @@ describe("executeHttpMethodDefinition", () => {
         context as never,
         definition as never,
         buildRequest({
+          auth: {
+            apiKey: "founder-key",
+            label: "founder",
+            signerId: "founder",
+            allowGasless: false,
+            roles: ["founder"],
+          },
           walletAddress: "0x00000000000000000000000000000000000000bb",
           wireParams: [],
         }) as never,
@@ -832,7 +976,7 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 
-  it("preflights every founder/admin/operator/buyer/seller/licensee/collaborator write-endpoint case before mutation", async () => {
+  it("enforces admin role boundaries and contract-preflights every authorized actor case before mutation", async () => {
     const actorRoles = ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"];
     const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
     const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown>> }).methods;
@@ -849,8 +993,10 @@ describe("executeHttpMethodDefinition", () => {
 
     expect(writeDefinitions).toHaveLength(259);
     let rejectionCount = 0;
+    let adminRoleRejectionCount = 0;
     for (const role of actorRoles) {
       for (const definition of writeDefinitions) {
+        const adminRoleRejected = definition.classification === "admin" && !["founder", "admin", "operator"].includes(role);
         try {
           await executeHttpMethodDefinition(
             context as never,
@@ -868,14 +1014,20 @@ describe("executeHttpMethodDefinition", () => {
             }) as never,
           );
         } catch (error) {
-          expect(error).toMatchObject({ message: "contract authorization preflight rejected actor" });
+          expect(error).toMatchObject({
+            message: adminRoleRejected
+              ? "API key not permitted for admin execution"
+              : "contract authorization preflight rejected actor",
+          });
           rejectionCount += 1;
+          if (adminRoleRejected) adminRoleRejectionCount += 1;
         }
       }
     }
 
     expect(rejectionCount).toBe(1_813);
-    expect(mocked.contractStaticCall).toHaveBeenCalledTimes(1_813);
+    expect(adminRoleRejectionCount).toBe(200);
+    expect(mocked.contractStaticCall).toHaveBeenCalledTimes(1_613);
     expect(context.txStore.insert).not.toHaveBeenCalled();
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });

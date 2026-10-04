@@ -259,7 +259,7 @@ function tokenIndexes(content: string, token: string): number[] {
     const before = content[index - 1];
     const after = content[index + token.length];
     const hasIdentifierBoundary = !requiresIdentifierBoundary
-      || (!before?.match(/[A-Za-z0-9_$]/u) && !after?.match(/[A-Za-z0-9_$]/u));
+      || (!before?.match(/[A-Za-z0-9_$-]/u) && !after?.match(/[A-Za-z0-9_$-]/u));
     if (hasIdentifierBoundary) indexes.push(index);
     index = content.indexOf(token, index + token.length);
   }
@@ -537,7 +537,7 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
     schemaVersion: 1,
     generatedAt: input.generatedAt,
     methodology: {
-      testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
+      testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
       liveAttribution: "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
       classificationPolicy: "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
     },
@@ -624,7 +624,7 @@ export function renderGapReportMarkdown(report: GapReport): string {
 export async function loadGapReportInput(baseDir: string, generatedAt = new Date().toISOString()): Promise<BuildGapReportInput> {
   const resolveInput = (filePath: string) => path.join(baseDir, filePath);
   const testRoots = ["packages", "scripts", "scenario-adapter"];
-  const inventoryOnlyTests = new Set(["generate-test-roadmap.test.ts", "write-invariants-lib.test.ts"]);
+  const inventoryOnlyTests = new Set(["generate-test-roadmap.test.ts", "gap-builder-plan.test.ts", "write-invariants-lib.test.ts"]);
   const testPaths = (await Promise.all(testRoots.map(async (testRoot) => {
     try {
       return await findFiles(
