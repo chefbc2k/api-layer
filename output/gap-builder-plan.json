@@ -1,0 +1,2780 @@
+{
+  "generatedAt": "2026-10-04T16:01:53.158Z",
+  "sourceGeneratedAt": "2026-10-04T15:43:53.730Z",
+  "totals": {
+    "nonReady": 332,
+    "selected": 133,
+    "byClassification": {
+      "ready": 378,
+      "needs fixture": 197,
+      "unsafe on live network": 36,
+      "needs contract change": 0,
+      "needs API guard": 0,
+      "needs indexer proof": 99
+    }
+  },
+  "batches": [
+    {
+      "facetName": "AccessControlFacet",
+      "objective": "Reduce AccessControlFacet launch blockers across 5 gap items.",
+      "items": [
+        {
+          "id": "AccessControlFacet.emergencyForceAdd",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/emergency-force-add"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.executeFounderSunset",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/execute-founder-sunset"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.scheduleFounderSunset",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/schedule-founder-sunset"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.setPaused",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/set-paused"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "AccessControlFacet.setRecoveryActive",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/access-control/admin/set-recovery-active"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "DiamondCutFacet",
+      "objective": "Reduce DiamondCutFacet launch blockers across 4 gap items.",
+      "items": [
+        {
+          "id": "DiamondCutFacet.diamondCut",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/diamond-cut"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DiamondCutFacet.setTrustedInitCodehash",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-trusted-init-codehash"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DiamondCutFacet.setTrustedInitContract",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-trusted-init-contract"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DiamondCutFacet.setTrustedInitSelector",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-trusted-init-selector"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "EmergencyFacet",
+      "objective": "Reduce EmergencyFacet launch blockers across 7 gap items.",
+      "items": [
+        {
+          "id": "EmergencyFacet.approveRecovery",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/approve-recovery"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.completeRecovery",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/complete-recovery"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.executeRecoveryAction",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/execute-recovery-action"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.executeRecoveryStep",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/execute-recovery-step"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.setEmergencyTimeout",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/set-emergency-timeout"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.setResumeDelay",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/set-resume-delay"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyFacet.startRecovery",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/start-recovery"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "EmergencyWithdrawalFacet",
+      "objective": "Reduce EmergencyWithdrawalFacet launch blockers across 5 gap items.",
+      "items": [
+        {
+          "id": "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/approve-emergency-withdrawal"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.executeWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/execute-withdrawal"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/request-emergency-withdrawal"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.setRecipientWhitelist",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/set-recipient-whitelist"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/emergency/admin/update-withdrawal-config"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "MultiSigFacet",
+      "objective": "Reduce MultiSigFacet launch blockers across 9 gap items.",
+      "items": [
+        {
+          "id": "MultiSigFacet.addOperationType",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/add-operation-type"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.addOperator",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/add-operator"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.approveOperation",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/approve-operation"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.execute",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/execute"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.executeOperation",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/execute-operation"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.muSetPaused",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/mu-set-paused"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.proposeOperation",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/propose-operation"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.setOperationConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/set-operation-config"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "MultiSigFacet.submitTransaction",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/multisig/admin/submit-transaction"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "ProposalFacet",
+      "objective": "Reduce ProposalFacet launch blockers across 1 gap item.",
+      "items": [
+        {
+          "id": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": null,
+          "gaps": [
+            "legacy overloaded proposal variant is intentionally excluded from the HTTP surface",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "UpgradeControllerFacet",
+      "objective": "Reduce UpgradeControllerFacet launch blockers across 12 gap items.",
+      "items": [
+        {
+          "id": "UpgradeControllerFacet.approveUpgrade",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/approve-upgrade"
+          },
+          "gaps": [
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.executeUpgrade",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/execute-upgrade"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.freezeUpgradeControl",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/freeze-upgrade-control"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.proposeDiamondCut",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/propose-diamond-cut"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.setUpgradeControlEnforced",
+          "kind": "function",
+          "category": "write",
+          "classification": "unsafe on live network",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/admin/set-upgrade-control-enforced"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.initUpgradeController",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/diamond-admin"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeApproved",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-approved/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeControlEnforcementSet",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-control-enforcement-set/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeControlFrozen",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-control-frozen/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeControllerInitialized",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-controller-initialized/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeExecuted",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-executed/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "UpgradeControllerFacet.UpgradeProposed",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/diamond-admin/events/upgrade-proposed/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "BurnThresholdFacet",
+      "objective": "Reduce BurnThresholdFacet launch blockers across 6 gap items.",
+      "items": [
+        {
+          "id": "BurnThresholdFacet.thresholdBurnExcess",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/commands/threshold-burn-excess"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "BurnThresholdFacet.thresholdBurnTokens",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/commands/threshold-burn-tokens"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "BurnThresholdFacet.thresholdBurnTokensFrom",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/commands/threshold-burn-tokens-from"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "BurnThresholdFacet.thresholdSetBurnLimit",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/commands/threshold-set-burn-limit"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "BurnThresholdFacet.BurnThresholdUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/events/burn-threshold-updated/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "BurnThresholdFacet.ThresholdBurn",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/events/threshold-burn/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "CommunityRewardsFacet",
+      "objective": "Reduce CommunityRewardsFacet launch blockers across 1 gap item.",
+      "items": [
+        {
+          "id": "CommunityRewardsFacet.vestedAmount",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/tokenomics/queries/vested-amount"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check"
+      ]
+    },
+    {
+      "facetName": "DelegationFacet",
+      "objective": "Reduce DelegationFacet launch blockers across 9 gap items.",
+      "items": [
+        {
+          "id": "DelegationFacet.DELEGATION_TYPEHASH",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/delegation-typehash"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DelegationFacet.DOMAIN_TYPEHASH",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/domain-typehash"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DelegationFacet.getPriorVotes",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/staking/queries/get-prior-votes"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DelegationFacet.getTotalVotingPower",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/staking/queries/get-total-voting-power"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DelegationFacet.delegateBySig",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/commands/delegate-by-sig"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "DelegationFacet.updateDelegatedVotingPower",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/update-delegated-voting-power"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "DelegationFacet.updateDelegatedVotingPowerBatch",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/update-delegated-voting-power-batch"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/delegate-votes-changed/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)#2",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/delegate-votes-changed/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "EchoScoreFacetV3",
+      "objective": "Reduce EchoScoreFacetV3 launch blockers across 24 gap items.",
+      "items": [
+        {
+          "id": "EchoScoreFacetV3.getEchoScoreOracleV3",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/get-echo-score-oracle-v3"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.getOracleFutureDriftConfig",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/get-oracle-future-drift-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.getOracleQuorumSigners",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/get-oracle-quorum-signers"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.getOracleStalenessConfig",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/get-oracle-staleness-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.getReputation",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/staking/queries/get-reputation"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.getReputationHistory",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/staking/queries/get-reputation-history"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.isEchoScorePausedV3",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/is-echo-score-paused-v3"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.isOracleHealthy",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/queries/is-oracle-healthy"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.batchUpdateScores",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/commands/batch-update-scores"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.pauseEchoScoreV3",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/commands/pause-echo-score-v3"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.setEchoScoreOracleV3",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/set-echo-score-oracle-v3"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.setOracleFutureDriftConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/set-oracle-future-drift-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.setOracleQuorumSigners",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/set-oracle-quorum-signers"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.setOracleStalenessConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/set-oracle-staleness-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.unpauseEchoScoreV3",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/commands/unpause-echo-score-v3"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.updateScore",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/update-score"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.OracleFutureDriftConfigUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/oracle-future-drift-config-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.OracleQuorumConfigUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/oracle-quorum-config-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.OracleStalenessConfigUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/oracle-staleness-config-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.OracleUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/oracle-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.Paused",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/paused/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.ReputationUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/reputation-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.ScoresUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/scores-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "EchoScoreFacetV3.Unpaused",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/events/unpaused/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "EscrowFacet",
+      "objective": "Reduce EscrowFacet launch blockers across 6 gap items.",
+      "items": [
+        {
+          "id": "EscrowFacet.escrowAsset",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/escrow-asset"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EscrowFacet.onERC721Received",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/on-erc721-received"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EscrowFacet.releaseAsset",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/release-asset"
+          },
+          "gaps": [
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EscrowFacet.updateAssetState",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/marketplace/commands/update-asset-state"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "EscrowFacet.AssetReleased",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/events/asset-released/query"
+          },
+          "gaps": [
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage."
+          ]
+        },
+        {
+          "id": "EscrowFacet.AssetStateUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/events/asset-state-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "GovernorFacet",
+      "objective": "Reduce GovernorFacet launch blockers across 8 gap items.",
+      "items": [
+        {
+          "id": "GovernorFacet.setDefaultGasLimit",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/governance/commands/set-default-gas-limit"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "GovernorFacet.setTrustedTarget",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/governance/commands/set-trusted-target"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "GovernorFacet.updateProposalThreshold",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/governance/commands/update-proposal-threshold"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "GovernorFacet.updateQuorumNumerator",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/governance/commands/update-quorum-numerator"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "GovernorFacet.updateVotingDelay",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/governance/commands/update-voting-delay"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test."
+          ]
+        },
+        {
+          "id": "GovernorFacet.updateVotingPeriod",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/governance/commands/update-voting-period"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "GovernorFacet.TargetGasLimitUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/governance/events/target-gas-limit-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "GovernorFacet.TrustedTargetUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/governance/events/trusted-target-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "LegacyFacet",
+      "objective": "Reduce LegacyFacet launch blockers across 6 gap items.",
+      "items": [
+        {
+          "id": "LegacyFacet.setMaxBeneficiaries",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/voice-assets/commands/set-max-beneficiaries"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "LegacyFacet.setMinTimelockPeriod",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/voice-assets/commands/set-min-timelock-period"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "LegacyFacet.updateBeneficiary",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/voice-assets/commands/update-beneficiary"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "LegacyFacet.BeneficiaryUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/events/beneficiary-updated/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "LegacyFacet.InheritanceConditionsUpdated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/events/inheritance-conditions-updated/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "LegacyFacet.LegacyPlanCreated",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/events/legacy-plan-created/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "LegacyViewFacet",
+      "objective": "Reduce LegacyViewFacet launch blockers across 1 gap item.",
+      "items": [
+        {
+          "id": "LegacyViewFacet.validateBeneficiaries",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/queries/validate-beneficiaries"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check"
+      ]
+    },
+    {
+      "facetName": "OwnershipFacet",
+      "objective": "Reduce OwnershipFacet launch blockers across 11 gap items.",
+      "items": [
+        {
+          "id": "OwnershipFacet.acceptOwnership",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/commands/accept-ownership"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.cancelOwnershipTransfer",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "DELETE",
+            "path": "/v1/ownership/commands/cancel-ownership-transfer"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.proposeOwnershipTransfer",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/commands/propose-ownership-transfer"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.setApprovedOwnerTarget",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/ownership/commands/set-approved-owner-target"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.setOwnershipPolicyEnforced",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/ownership/commands/set-ownership-policy-enforced"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.transferOwnership",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/commands/transfer-ownership"
+          },
+          "gaps": [
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.OwnershipPolicyEnforcementSet",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/events/ownership-policy-enforcement-set/query"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.OwnershipTargetApprovalSet",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/events/ownership-target-approval-set/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.OwnershipTransferCancelled",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/events/ownership-transfer-cancelled/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.OwnershipTransferProposed",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/events/ownership-transfer-proposed/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "OwnershipFacet.OwnershipTransferred",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/ownership/events/ownership-transferred/query"
+          },
+          "gaps": [
+            "no successful verify-artifact route evidence",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:indexer:assurance",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "PaymentFacet",
+      "objective": "Reduce PaymentFacet launch blockers across 18 gap items.",
+      "items": [
+        {
+          "id": "PaymentFacet.getMevProtectionConfig",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/queries/get-mev-protection-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "PaymentFacet.getPendingTimewaveGift",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/marketplace/queries/get-pending-timewave-gift"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "PaymentFacet.approveMultisigWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/approve-multisig-withdrawal"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.commitDistribution",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/commit-distribution"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.commitWithdraw",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/commit-withdraw"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.distributePayment",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/distribute-payment"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.distributePaymentFrom",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/distribute-payment-from"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.distributePaymentFromWithDeadline",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/distribute-payment-from-with-deadline"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.distributePaymentWithDeadline",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/distribute-payment-with-deadline"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.executeMultisigWithdrawal",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/execute-multisig-withdrawal"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.executeQuarterlyBuyback",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/execute-quarterly-buyback"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.pauseBuybacks",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/pause-buybacks"
+          },
+          "gaps": [
+            "no workflow proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test."
+          ]
+        },
+        {
+          "id": "PaymentFacet.revealDistribution",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/reveal-distribution"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.revealDistributionStruct",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/reveal-distribution-struct"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.revealWithdraw",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/reveal-withdraw"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.setBuybackConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/marketplace/commands/set-buyback-config"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.setBuybackConfigStruct",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/marketplace/commands/set-buyback-config-struct"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.setMevProtectionConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/marketplace/commands/set-mev-protection-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    }
+  ]
+}

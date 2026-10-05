@@ -204,6 +204,35 @@ describe("API test gap report", () => {
     expect(report.facets[0].events[0].proof.unit).toBe(false);
   });
 
+  it("does not attribute identifiers embedded in another route's kebab-case operation", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions = [{
+      name: "approve",
+      wrapperKey: "approve",
+      signature: "approve()",
+      mutability: "view",
+      category: "read",
+    }];
+    input.manifest.facets[0].events = [];
+    input.manifest.totals = { facetCount: 1, functionCount: 1, eventCount: 0 };
+    const methods = {
+      "TestFacet.approve": endpoint("POST", "/v1/token/approve", "approve"),
+    };
+    input.httpRegistry = { methods, events: {} };
+    input.rpcRegistry = { methods, events: {} };
+    input.reviewedApiSurface = { methods, events: {} };
+    input.tests = [{
+      path: "packages/api/src/foreign-route.test.ts",
+      content: "POST /v1/emergency/approve-recovery rejects unauthorized callers",
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[0].proof.unit).toBe(false);
+    expect(report.facets[0].functions[0].classification).toBe("needs fixture");
+  });
+
   it("does not treat role-oriented payment language as economic proof", () => {
     const input = baseInput();
     input.tests = [{
@@ -260,6 +289,7 @@ describe("API test gap report", () => {
     await writeFile(path.join(tempDir, "packages/sample/nested/example.test.ts"), "getThing ThingSet");
     await Promise.all([
       writeFile(path.join(tempDir, "scripts/generate-test-roadmap.test.ts"), "getThing ThingSet"),
+      writeFile(path.join(tempDir, "scripts/gap-builder-plan.test.ts"), "setThing ThingSet"),
       writeFile(path.join(tempDir, "scripts/write-invariants-lib.test.ts"), "getThing ThingSet"),
     ]);
 

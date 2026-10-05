@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { assertWriteAuthorized, authenticate, loadApiKeys } from "./auth.js";
+import {
+  assertAdminAuthorized,
+  assertAdminNetworkAuthorized,
+  assertWriteAuthorized,
+  authenticate,
+  loadApiKeys,
+} from "./auth.js";
 
 describe("auth", () => {
   it("returns an empty api key map when the environment is unset", () => {
@@ -107,5 +113,50 @@ describe("auth", () => {
       allowGasless: false,
       roles: ["  "],
     })).toThrow("API key not permitted for write execution");
+  });
+
+  it.each(["service", "founder", "admin", "operator"])("allows the %s API role to reach admin contract preflight", (role) => {
+    expect(() => assertAdminAuthorized({
+      apiKey: `${role}-key`,
+      label: role,
+      allowGasless: false,
+      roles: [`  ${role.toUpperCase()}  `],
+    })).not.toThrow();
+  });
+
+  it.each(["buyer", "seller", "licensee", "collaborator", "read-only"])(
+    "rejects the non-admin %s API role from admin execution",
+    (role) => {
+      expect(() => assertAdminAuthorized({
+        apiKey: `${role}-key`,
+        label: role,
+        allowGasless: false,
+        roles: [role],
+      })).toThrow("API key not permitted for admin execution");
+    },
+  );
+
+  it.each([
+    "http://127.0.0.1:8545",
+    "http://127.99.4.2:8545",
+    "http://localhost:8545",
+    "http://[::1]:8545",
+  ])("allows admin execution against the loopback RPC %s", (rpcUrl) => {
+    expect(() => assertAdminNetworkAuthorized(rpcUrl)).not.toThrow();
+  });
+
+  it.each([
+    "https://sepolia.base.org",
+    "https://mainnet.base.org",
+    "https://127.0.0.1.example.com",
+    "not-a-valid-rpc-url",
+  ])("rejects admin execution against %s without explicit live opt-in", (rpcUrl) => {
+    expect(() => assertAdminNetworkAuthorized(rpcUrl, false)).toThrow(
+      "API key not permitted for live admin execution",
+    );
+  });
+
+  it("accepts the parsed live admin opt-in", () => {
+    expect(() => assertAdminNetworkAuthorized("https://sepolia.base.org", true)).not.toThrow();
   });
 });

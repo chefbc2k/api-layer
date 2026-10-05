@@ -25,8 +25,35 @@ function firstDefined(args: Record<string, unknown>, keys: string[], fallback: s
   return fallback;
 }
 
+function requiredSemanticValue(decoded: DecodedEvent, key: string): string {
+  const value = decoded.args[key];
+  if (value === undefined || value === null) {
+    throw new Error(`missing ${key} for ${decoded.fullEventKey} projection identity`);
+  }
+  return (typeof value === "bigint" ? value.toString() : String(value)).toLowerCase();
+}
+
+function semanticEntityId(decoded: DecodedEvent): string | null {
+  switch (decoded.fullEventKey) {
+    case "ProposalFacet.ProposalTypeConfigSet":
+      return `proposal-type-config:${requiredSemanticValue(decoded, "proposalType")}`;
+    case "EmergencyWithdrawalFacet.RecipientWhitelisted":
+      return `recipient-whitelist:${requiredSemanticValue(decoded, "recipient")}`;
+    case "EmergencyWithdrawalFacet.WithdrawalConfigUpdated":
+      return "withdrawal-config:global";
+    case "EmergencyWithdrawalFacet.EmergencyWithdrawal":
+      return `instant-withdrawal:${requiredSemanticValue(decoded, "owner")}:${requiredSemanticValue(decoded, "recipient")}`;
+    default:
+      return null;
+  }
+}
+
 function entityIdFor(table: ProjectionTable, decoded: DecodedEvent, fallback: string): string {
   const args = decoded.args as Record<string, unknown>;
+  const semanticId = semanticEntityId(decoded);
+  if (semanticId !== null) {
+    return semanticId;
+  }
   switch (table) {
     case "voice_assets":
       return firstDefined(args, ["assetId", "tokenId", "voiceHash"], fallback);

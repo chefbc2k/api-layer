@@ -165,10 +165,54 @@ describe("generated event-to-indexer assurance", () => {
     ["EmergencyFacet.EmergencyStateChanged", "emergency_incidents"],
     ["EmergencyFacet.IncidentReported", "emergency_incidents"],
     ["EmergencyFacet.PauseExtended", "emergency_incidents"],
+    ["EmergencyFacet.RecoveryCompleted", "emergency_incidents"],
+    ["EmergencyFacet.RecoveryStarted", "emergency_incidents"],
+    ["EmergencyFacet.RecoveryStepExecuted", "emergency_incidents"],
     ["EmergencyFacet.ResponseExecuted", "emergency_incidents"],
+    ["EmergencyWithdrawalFacet.EmergencyEthWithdrawalApproved", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.EmergencyEthWithdrawalExecuted", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.EmergencyEthWithdrawalRequested", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.EmergencyWithdrawal", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.EmergencyWithdrawalApproved", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.EmergencyWithdrawalExecuted", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.EmergencyWithdrawalRequested", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.RecipientWhitelisted", "emergency_withdrawals"],
+    ["EmergencyWithdrawalFacet.WithdrawalConfigUpdated", "emergency_withdrawals"],
     ["MarketplaceFacet.ListingCancelled", "market_listings"],
     ["MarketplaceFacet.ListingPriceUpdated", "market_listings"],
     ["MarketplaceFacet.MarketplaceUnpaused", "market_listings"],
+    ["MultiSigFacet.ActionExecuted", "multisig_operations"],
+    ["MultiSigFacet.BatchCompleted", "multisig_operations"],
+    ["MultiSigFacet.MultiSigOperationCancelled", "multisig_operations"],
+    ["MultiSigFacet.OperationApproved", "multisig_operations"],
+    ["MultiSigFacet.OperationProposed", "multisig_operations"],
+    ["MultiSigFacet.OperationStatusChanged", "multisig_operations"],
+    ["PaymentFacet.BuybackAccumulatorUpdated", "payment_flows"],
+    ["PaymentFacet.BuybackConfigUpdated", "payment_flows"],
+    ["PaymentFacet.BuybackExecuted", "payment_flows"],
+    ["PaymentFacet.BuybackPaused", "payment_flows"],
+    ["PaymentFacet.ClaimCommitted", "payment_flows"],
+    ["PaymentFacet.ClaimRevealed", "payment_flows"],
+    ["PaymentFacet.DatasetRoyaltyAccrued", "payment_flows"],
+    ["PaymentFacet.DevFundAddressUpdated", "payment_flows"],
+    ["PaymentFacet.FeeConfigurationUpdated", "payment_flows"],
+    ["PaymentFacet.FlashbotsSuggested", "payment_flows"],
+    ["PaymentFacet.MetadataAccessed", "payment_flows"],
+    ["PaymentFacet.PauseStateChanged", "payment_flows"],
+    ["PaymentFacet.PaymentDistributed", "payment_flows"],
+    ["PaymentFacet.TimewaveGiftCreated", "payment_flows"],
+    ["PaymentFacet.TreasuryAddressUpdated", "payment_flows"],
+    ["PaymentFacet.UnionTreasuryAddressUpdated", "payment_flows"],
+    ["PaymentFacet.USDCPaymentWithdrawn", "payment_withdrawals"],
+    ["PaymentFacet.USDCPaymentWithdrawn", "payment_flows"],
+    ["PaymentFacet.UsdcTokenUpdated", "payment_flows"],
+    ["PaymentFacet.WithdrawalLimitUpdated", "payment_withdrawals"],
+    ["PaymentFacet.WithdrawalLimitUpdated", "payment_flows"],
+    ["ProposalFacet.ProposalCanceled", "governance_proposals"],
+    ["ProposalFacet.ProposalCreated", "governance_proposals"],
+    ["ProposalFacet.ProposalExecuted", "governance_proposals"],
+    ["ProposalFacet.ProposalQueued", "governance_proposals"],
+    ["ProposalFacet.ProposalTypeConfigSet", "governance_proposals"],
     ["CommunityRewardsFacet.CampaignCapConfig", "reward_campaigns"],
     ["CommunityRewardsFacet.CampaignCreated", "reward_campaigns"],
     ["CommunityRewardsFacet.CampaignMerkleRootUpdated", "reward_campaigns"],
@@ -200,18 +244,23 @@ describe("generated event-to-indexer assurance", () => {
     ["VoiceDatasetFacet.LicenseChanged", "voice_datasets"],
     ["VoiceDatasetFacet.MetadataChanged", "voice_datasets"],
     ["VoiceDatasetFacet.RoyaltySet", "voice_datasets"],
-  ])("decodes and projects %s into the %s Postgres projection", async (eventKey, table) => {
+  ])("decodes and idempotently reprojects %s into the %s Postgres projection", async (eventKey, table) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
     expect(definition.projection.targets).toContainEqual(expect.objectContaining({ table }));
+    const target = definition.projection.targets.find((candidate) => candidate.table === table);
 
-    const decoded = decodeEvent(buildEventRegistry(), encodeLog(definition, 10_000));
+    const registry = buildEventRegistry();
+    const encoded = encodeLog(definition, 10_000);
+    const decoded = decodeEvent(registry, encoded);
+    const replayed = decodeEvent(registry, encoded);
     expect(decoded, eventKey).not.toBeNull();
     expect(isAmbiguousEvent(decoded!), eventKey).toBe(false);
     expect((decoded as DecodedEvent).fullEventKey).toBe(eventKey);
+    expect(replayed, eventKey).toEqual(decoded);
 
     const client = { query: vi.fn().mockResolvedValue({ rows: [] }) };
-    await projectEvent({
+    const projection = {
       chainId: 84532,
       client: client as never,
       rawEventId: 10_001,
@@ -220,30 +269,62 @@ describe("generated event-to-indexer assurance", () => {
       blockHash: `0x${"cd".repeat(32)}`,
       isOrphaned: false,
       decoded: decoded as DecodedEvent,
-    });
+    };
+    await projectEvent(projection);
+    await projectEvent({ ...projection, decoded: replayed as DecodedEvent });
 
-    expect(client.query.mock.calls.some(([sql]) => String(sql).includes(`INSERT INTO ${table}`))).toBe(true);
+    const insertCalls = client.query.mock.calls.filter(([sql]) => String(sql).includes(`INSERT INTO ${table}`));
+    expect(insertCalls, `${eventKey} -> ${table}`).toHaveLength(2);
+    expect(String(insertCalls[0][0])).toContain("ON CONFLICT (source_raw_event_id, entity_id)");
+    expect(insertCalls[1][1]).toEqual(insertCalls[0][1]);
+
+    const currentUpdateCalls = client.query.mock.calls.filter(
+      ([sql]) => String(sql).includes(`UPDATE ${table}`) && String(sql).includes("SET is_current = FALSE"),
+    );
+    expect(currentUpdateCalls, `${eventKey} -> ${table}`).toHaveLength(target?.mode === "current" ? 2 : 0);
+    if (target?.mode === "current") {
+      expect(currentUpdateCalls[0][1]).toEqual([insertCalls[0][1][0]]);
+      expect(currentUpdateCalls[1][1]).toEqual(currentUpdateCalls[0][1]);
+    }
   });
 
   it.each([
+    "AccessControlFacet.AccessAttempt",
+    "AccessControlFacet.DAOMemberRoleGranted",
+    "AccessControlFacet.FounderSunsetExecuted",
+    "AccessControlFacet.FounderSunsetScheduled",
+    "AccessControlFacet.GovernanceParticipantRoleGranted",
+    "AccessControlFacet.MarketplacePurchaserRoleGranted",
+    "AccessControlFacet.MarketplaceSellerRoleGranted",
+    "AccessControlFacet.ParticipantRoleRevoked",
+    "AccessControlFacet.ResearchParticipantRoleGranted",
     "AccessControlFacet.RoleAdminChanged",
     "AccessControlFacet.RoleConfigUpdated",
     "AccessControlFacet.RoleGranted",
     "AccessControlFacet.RoleRenounced",
     "AccessControlFacet.RoleRevoked",
     "AccessControlFacet.SecurityAction",
-  ])("decodes %s and preserves its reviewed raw-event-only indexer policy", async (eventKey) => {
+    "DiamondCutFacet.DiamondCut",
+    "DiamondCutFacet.DiamondCutEvent",
+    "DiamondCutFacet.TrustedInitCodehashSet",
+    "DiamondCutFacet.TrustedInitContractSet",
+    "DiamondCutFacet.TrustedInitSelectorSet",
+  ])("deterministically replays %s under its reviewed raw-event-only indexer policy", async (eventKey) => {
     const definition = getAllAbiEventDefinitions()[eventKey];
     expect(definition, eventKey).toBeDefined();
     expect(definition.projection).toMatchObject({ domain: "rawOnly", projectionMode: "rawOnly", targets: [] });
 
-    const decoded = decodeEvent(buildEventRegistry(), encodeLog(definition, 20_000));
+    const registry = buildEventRegistry();
+    const encoded = encodeLog(definition, 20_000);
+    const decoded = decodeEvent(registry, encoded);
+    const replayed = decodeEvent(registry, encoded);
     expect(decoded, eventKey).not.toBeNull();
     expect(isAmbiguousEvent(decoded!), eventKey).toBe(false);
     expect((decoded as DecodedEvent).fullEventKey).toBe(eventKey);
+    expect(replayed).toEqual(decoded);
 
     const client = { query: vi.fn().mockResolvedValue({ rows: [] }) };
-    await projectEvent({
+    const projection = {
       chainId: 84532,
       client: client as never,
       rawEventId: 20_001,
@@ -252,7 +333,9 @@ describe("generated event-to-indexer assurance", () => {
       blockHash: `0x${"12".repeat(32)}`,
       isOrphaned: false,
       decoded: decoded as DecodedEvent,
-    });
+    };
+    await projectEvent(projection);
+    await projectEvent({ ...projection, decoded: replayed as DecodedEvent });
 
     expect(client.query).not.toHaveBeenCalled();
   });

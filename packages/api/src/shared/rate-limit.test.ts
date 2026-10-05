@@ -77,10 +77,14 @@ describe("RateLimiter", () => {
 
     const limiter = new RateLimiter();
     const limit = vi.fn().mockResolvedValue({ success: true, remaining: 3 });
-    (limiter as unknown as { redisLimiter: { limit: typeof limit } }).redisLimiter = { limit };
+    (limiter as unknown as { redisLimiters: Record<string, { limit: typeof limit }> }).redisLimiters = {
+      read: { limit },
+      write: { limit },
+      gasless: { limit },
+    };
 
     await expect(limiter.enforce("write", "founder")).resolves.toBeUndefined();
-    expect(limit).toHaveBeenCalledWith("write:founder");
+    expect(limit).toHaveBeenCalledWith("founder");
   });
 
   it("rejects redis responses that report exhaustion", async () => {
@@ -89,7 +93,11 @@ describe("RateLimiter", () => {
 
     const limiter = new RateLimiter();
     const limit = vi.fn().mockResolvedValue({ success: false, remaining: 0 });
-    (limiter as unknown as { redisLimiter: { limit: typeof limit } }).redisLimiter = { limit };
+    (limiter as unknown as { redisLimiters: Record<string, { limit: typeof limit }> }).redisLimiters = {
+      read: { limit },
+      write: { limit },
+      gasless: { limit },
+    };
 
     await expect(limiter.enforce("write", "founder")).rejects.toThrow("rate limit exceeded for write");
   });
@@ -111,12 +119,26 @@ describe("RateLimiter", () => {
       url: "https://redis.example",
       token: "secret",
     });
-    expect(slidingWindow).toHaveBeenCalledWith(120, "1 m");
-    expect(ratelimitConstructor).toHaveBeenCalledWith({
+    expect(slidingWindow).toHaveBeenNthCalledWith(1, 120, "1 m");
+    expect(slidingWindow).toHaveBeenNthCalledWith(2, 30, "1 m");
+    expect(slidingWindow).toHaveBeenNthCalledWith(3, 10, "1 m");
+    expect(ratelimitConstructor).toHaveBeenNthCalledWith(1, {
       redis: { url: "https://redis.example", token: "secret" },
       limiter: "window-config",
       analytics: false,
-      prefix: "uspeaks-api",
+      prefix: "uspeaks-api:read",
+    });
+    expect(ratelimitConstructor).toHaveBeenNthCalledWith(2, {
+      redis: { url: "https://redis.example", token: "secret" },
+      limiter: "window-config",
+      analytics: false,
+      prefix: "uspeaks-api:write",
+    });
+    expect(ratelimitConstructor).toHaveBeenNthCalledWith(3, {
+      redis: { url: "https://redis.example", token: "secret" },
+      limiter: "window-config",
+      analytics: false,
+      prefix: "uspeaks-api:gasless",
     });
   });
 
@@ -139,7 +161,11 @@ describe("RateLimiter", () => {
 
     const limiter = new RateLimiter();
     const limit = vi.fn().mockResolvedValue({ success: true, remaining: -1 });
-    (limiter as unknown as { redisLimiter: { limit: typeof limit } }).redisLimiter = { limit };
+    (limiter as unknown as { redisLimiters: Record<string, { limit: typeof limit }> }).redisLimiters = {
+      read: { limit },
+      write: { limit },
+      gasless: { limit },
+    };
 
     await expect(limiter.enforce("gasless", "founder")).rejects.toThrow("rate limit exceeded for gasless");
   });

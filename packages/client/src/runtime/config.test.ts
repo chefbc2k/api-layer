@@ -96,6 +96,7 @@ describe("runtime config", () => {
       API_LAYER_PROVIDER_ERROR_WINDOW_MS: "2500",
       API_LAYER_PROVIDER_ERROR_THRESHOLD: "2",
       API_LAYER_ENABLE_GASLESS: "true",
+      API_LAYER_ALLOW_LIVE_ADMIN_WRITES: "true",
       API_LAYER_FINALITY_CONFIRMATIONS: "7",
       API_LAYER_ENABLE_ALCHEMY_DIAGNOSTICS: "false",
       API_LAYER_ENABLE_ALCHEMY_SIMULATION: "true",
@@ -111,6 +112,7 @@ describe("runtime config", () => {
     expect(config.providerErrorWindowMs).toBe(2500);
     expect(config.providerErrorThreshold).toBe(2);
     expect(config.enableGasless).toBe(true);
+    expect(config.allowLiveAdminWrites).toBe(true);
     expect(config.finalityConfirmations).toBe(7);
     expect(config.alchemyDiagnosticsEnabled).toBe(false);
     expect(config.alchemySimulationEnabled).toBe(true);
@@ -125,6 +127,7 @@ describe("runtime config", () => {
       CBDP_RPC_URL: "https://cbdp.example.com/base-sepolia",
       DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
       API_LAYER_ENABLE_GASLESS: true as never,
+      API_LAYER_ALLOW_LIVE_ADMIN_WRITES: true as never,
       API_LAYER_ENABLE_ALCHEMY_DIAGNOSTICS: false as never,
       API_LAYER_ENABLE_ALCHEMY_SIMULATION: true as never,
       API_LAYER_ENFORCE_ALCHEMY_SIMULATION: false as never,
@@ -132,6 +135,7 @@ describe("runtime config", () => {
     } as NodeJS.ProcessEnv);
 
     expect(config.enableGasless).toBe(true);
+    expect(config.allowLiveAdminWrites).toBe(true);
     expect(config.alchemyDiagnosticsEnabled).toBe(false);
     expect(config.alchemySimulationEnabled).toBe(true);
     expect(config.alchemySimulationEnforced).toBe(false);
@@ -145,6 +149,7 @@ describe("runtime config", () => {
       ALCHEMY_API_KEY: "test-key",
       DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
       API_LAYER_ENABLE_GASLESS: "0",
+      API_LAYER_ALLOW_LIVE_ADMIN_WRITES: " 0 ",
       API_LAYER_ENABLE_ALCHEMY_DIAGNOSTICS: "",
       API_LAYER_ENABLE_ALCHEMY_SIMULATION: "   ",
       API_LAYER_ENFORCE_ALCHEMY_SIMULATION: " 0 ",
@@ -152,6 +157,7 @@ describe("runtime config", () => {
 
     expect(config.alchemyEndpointDetected).toBe(true);
     expect(config.enableGasless).toBe(false);
+    expect(config.allowLiveAdminWrites).toBe(false);
     expect(config.alchemyDiagnosticsEnabled).toBe(false);
     expect(config.alchemySimulationEnabled).toBe(false);
     expect(config.alchemySimulationEnforced).toBe(false);
@@ -163,6 +169,31 @@ describe("runtime config", () => {
       DIAMOND_ADDRESS: "0x0000000000000000000000000000000000000001",
       API_LAYER_ENABLE_GASLESS: "sometimes",
     })).toThrow(/boolean/u);
+  });
+
+  it("loads the live-admin opt-in from repo env and applies process overrides", async () => {
+    const existsSync = vi.fn(() => true);
+    const readFileSync = vi.fn(() => [
+      "RPC_URL=https://repo-rpc.example.com",
+      "DIAMOND_ADDRESS=0x0000000000000000000000000000000000000002",
+      "API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true",
+    ].join("\n"));
+    const originalEnv = { ...process.env };
+
+    delete process.env.API_LAYER_ALLOW_LIVE_ADMIN_WRITES;
+
+    try {
+      const configModule = await importConfigWithFs({ existsSync, readFileSync });
+
+      expect(configModule.readConfigFromEnv(configModule.loadRepoEnv()).allowLiveAdminWrites).toBe(true);
+
+      process.env.API_LAYER_ALLOW_LIVE_ADMIN_WRITES = "false";
+      expect(configModule.readConfigFromEnv(configModule.loadRepoEnv()).allowLiveAdminWrites).toBe(false);
+      expect(existsSync).toHaveBeenCalledTimes(1);
+      expect(readFileSync).toHaveBeenCalledTimes(1);
+    } finally {
+      process.env = originalEnv;
+    }
   });
 
   it("loads repo env files once and lets process env override cached file values", async () => {

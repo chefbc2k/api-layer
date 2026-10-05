@@ -53,6 +53,7 @@ const configSchema = z.object({
   providerErrorWindowMs: z.coerce.number().default(60_000),
   providerErrorThreshold: z.coerce.number().default(5),
   enableGasless: envBoolean.default(false),
+  allowLiveAdminWrites: envBoolean.default(false),
   finalityConfirmations: z.coerce.number().default(20),
   alchemyApiKey: z.string().min(1).optional(),
   alchemyDiagnosticsEnabled: envBoolean.default(false),
@@ -109,6 +110,7 @@ export function readRuntimeConfigSources(env: NodeJS.ProcessEnv = loadRepoEnv())
       DIAMOND_ADDRESS: resolveSource(env, "DIAMOND_ADDRESS"),
       PRIVATE_KEY: resolveSource(env, "PRIVATE_KEY"),
       ORACLE_WALLET_PRIVATE_KEY: resolveSource(env, "ORACLE_WALLET_PRIVATE_KEY"),
+      API_LAYER_ALLOW_LIVE_ADMIN_WRITES: resolveSource(env, "API_LAYER_ALLOW_LIVE_ADMIN_WRITES"),
     },
   };
 }
@@ -134,6 +136,7 @@ export function readConfigFromEnv(env: NodeJS.ProcessEnv = loadRepoEnv()): ApiLa
     providerErrorWindowMs: resolveValue(env, "API_LAYER_PROVIDER_ERROR_WINDOW_MS"),
     providerErrorThreshold: resolveValue(env, "API_LAYER_PROVIDER_ERROR_THRESHOLD"),
     enableGasless: resolveValue(env, "API_LAYER_ENABLE_GASLESS") ?? false,
+    allowLiveAdminWrites: resolveValue(env, "API_LAYER_ALLOW_LIVE_ADMIN_WRITES") ?? false,
     finalityConfirmations: resolveValue(env, "API_LAYER_FINALITY_CONFIRMATIONS") ?? 20,
     alchemyApiKey,
     alchemyDiagnosticsEnabled: resolveValue(env, "API_LAYER_ENABLE_ALCHEMY_DIAGNOSTICS") ?? alchemyDiagnosticsDefault,
