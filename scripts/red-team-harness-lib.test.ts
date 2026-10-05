@@ -91,6 +91,9 @@ describe("red-team malformed payload mutation corpus", () => {
 });
 
 describe("red-team replay, value, ordering, and signer oracles", () => {
+  const scalar = (value: bigint) => value.toString(16).padStart(64, "0");
+  const fullSignature = (r: bigint, s: bigint, recoveryId: number) =>
+    `0x${scalar(r)}${scalar(s)}${recoveryId.toString(16).padStart(2, "0")}`;
   const baseReplay = {
     chainId: 84532,
     contract: "0x00000000000000000000000000000000000000aa",
@@ -167,7 +170,7 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
       maximumValidityWindow: 600n,
       nonce: 7n,
       expectedNonce: 7n,
-      signature: `0x${"ab".repeat(65)}`,
+      signature: fullSignature(1n, 2n, 27),
       claimedRoleId: `0x${"11".repeat(32)}`,
       signerRoleIds: [`0x${"11".repeat(32)}`],
     };
@@ -175,7 +178,7 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
     expect(inspectSignedRequestEnvelope(validEnvelope)).toEqual([]);
     expect(inspectSignedRequestEnvelope({
       ...validEnvelope,
-      signature: `0x${"ab".repeat(64)}`,
+      signature: `0x${scalar(1n)}${scalar((1n << 255n) | 2n)}`,
     })).toEqual([]);
 
     const findings = inspectSignedRequestEnvelope({
@@ -201,6 +204,57 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
     }).map((finding) => finding.id)).toEqual(expect.arrayContaining([
       "signed-request-invalid-validity-window",
       "signed-request-nonce-gap",
+    ]));
+  });
+
+  it("rejects invalid or malleable ECDSA scalars, recovery ids, role ids, and signed-domain values", () => {
+    const validEnvelope = {
+      issuedAt: 1_900_000_000n,
+      deadline: 1_900_000_300n,
+      observedAt: 1_900_000_100n,
+      maximumValidityWindow: 600n,
+      nonce: 7n,
+      expectedNonce: 7n,
+      signature: fullSignature(1n, 2n, 27),
+      claimedRoleId: `0x${"11".repeat(32)}`,
+      signerRoleIds: [`0x${"11".repeat(32)}`],
+    };
+    const curveOrder = BigInt("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
+    const halfOrder = curveOrder >> 1n;
+
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: fullSignature(0n, 2n, 27),
+    }).map((finding) => finding.id)).toEqual(["signed-request-invalid-signature-r"]);
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: fullSignature(curveOrder, curveOrder, 2),
+    }).map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "signed-request-invalid-signature-r",
+      "signed-request-invalid-signature-s",
+      "signed-request-invalid-recovery-id",
+    ]));
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: fullSignature(1n, halfOrder + 1n, 28),
+    }).map((finding) => finding.id)).toEqual(["signed-request-malleable-signature"]);
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: `0x${scalar(1n)}${scalar(halfOrder + 1n)}`,
+    }).map((finding) => finding.id)).toEqual(["signed-request-malleable-signature"]);
+
+    const domainFindings = inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      issuedAt: -1n,
+      nonce: -1n,
+      expectedNonce: -1n,
+      claimedRoleId: "0x1234",
+      signerRoleIds: ["0x1234"],
+    }).map((finding) => finding.id);
+    expect(domainFindings).toEqual(expect.arrayContaining([
+      "signed-request-negative-domain-value",
+      "signed-request-invalid-validity-window",
+      "signed-request-malformed-role-id",
     ]));
   });
 
