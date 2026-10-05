@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-04T15:43:53.730Z`
+Generated: `2026-10-05T11:48:42.708Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,12 +13,12 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 378 |
+| ready | 384 |
 | needs fixture | 197 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
-| needs indexer proof | 99 |
+| needs indexer proof | 93 |
 
 | Proof dimension | Items |
 | --- | ---: |
@@ -26,14 +26,14 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 504 |
+| unit | 507 |
 | workflow | 300 |
 | localFork | 109 |
 | baseSepolia | 60 |
 | negativePath | 299 |
 | economic | 123 |
 | redTeam | 78 |
-| indexer | 119 |
+| indexer | 125 |
 
 ## Methodology
 
@@ -858,7 +858,7 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 ## UpgradeControllerFacet
 
-Facet classification: **needs indexer proof**. Proof depth spans `inventory` to `adversarial` with an average score of `1.5/8`.
+Facet classification: **unsafe on live network**. Proof depth spans `inventory` to `indexer` with an average score of `1.95/8`.
 
 ### Functions
 
@@ -883,12 +883,12 @@ Facet classification: **needs indexer proof**. Proof depth spans `inventory` to 
 
 | Event | Unit | Fork | Sepolia | Indexer | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- |
-| `UpgradeControllerFacet.UpgradeApproved` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `UpgradeControllerFacet.UpgradeControlEnforcementSet` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `UpgradeControllerFacet.UpgradeControlFrozen` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `UpgradeControllerFacet.UpgradeControllerInitialized` | — | — | — | — | inventory 0/8 | needs indexer proof |
-| `UpgradeControllerFacet.UpgradeExecuted` | yes | — | — | — | workflow 2/8 | needs indexer proof |
-| `UpgradeControllerFacet.UpgradeProposed` | yes | — | — | — | workflow 2/8 | needs indexer proof |
+| `UpgradeControllerFacet.UpgradeApproved` | yes | — | — | yes | indexer 3/8 | ready |
+| `UpgradeControllerFacet.UpgradeControlEnforcementSet` | yes | — | — | yes | indexer 2/8 | ready |
+| `UpgradeControllerFacet.UpgradeControlFrozen` | yes | — | — | yes | indexer 2/8 | ready |
+| `UpgradeControllerFacet.UpgradeControllerInitialized` | yes | — | — | yes | indexer 2/8 | ready |
+| `UpgradeControllerFacet.UpgradeExecuted` | yes | — | — | yes | indexer 3/8 | ready |
+| `UpgradeControllerFacet.UpgradeProposed` | yes | — | — | yes | indexer 3/8 | ready |
 
 ## VestingFacet
 

@@ -103,6 +103,12 @@ describe("gap-builder plan", () => {
     ]);
   });
 
+  it("uses the percentage target instead of the fixed item limit", () => {
+    const plan = buildGapBuilderPlan(report(), { maxItems: 1, minBatchItems: 1, targetPercent: 100 });
+
+    expect(plan.totals).toMatchObject({ nonReady: 6, selected: 6 });
+  });
+
   it("does not create a one-item facet slice at the batch cutoff", () => {
     const plan = buildGapBuilderPlan(report(), { maxItems: 3, minBatchItems: 1 });
 
@@ -168,13 +174,13 @@ describe("gap-builder plan", () => {
       .rejects.toThrow("--max-items must be a non-negative integer");
   });
 
-  it("rejects invalid percentage CLI arguments", async () => {
+  it.each(["0", "-1", "not-a-number", "101"])("rejects invalid percentage CLI argument %s", async (value) => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "gap-builder-plan-"));
     temporaryDirectories.push(tempDir);
     const reportPath = path.join(tempDir, "report.json");
     await writeFile(reportPath, JSON.stringify(report()), "utf8");
 
-    await expect(main(["--report", reportPath, "--target-percent", "101"]))
+    await expect(main(["--report", reportPath, "--target-percent", value]))
       .rejects.toThrow("--target-percent must be a number greater than 0 and at most 100");
   });
 
