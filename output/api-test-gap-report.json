@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-04T15:43:53.730Z",
+  "generatedAt": "2026-10-05T11:48:42.708Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -180,22 +180,22 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 504,
+      "unit": 507,
       "workflow": 300,
       "localFork": 109,
       "baseSepolia": 60,
       "negativePath": 299,
       "economic": 123,
       "redTeam": 78,
-      "indexer": 119
+      "indexer": 125
     },
     "classificationCounts": {
-      "ready": 378,
+      "ready": 384,
       "needs fixture": 197,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
-      "needs indexer proof": 99
+      "needs indexer proof": 93
     }
   },
   "facets": [
@@ -27885,19 +27885,19 @@
       "summary": {
         "functionCount": 14,
         "eventCount": 6,
-        "classification": "needs indexer proof",
+        "classification": "unsafe on live network",
         "classificationCounts": {
-          "ready": 8,
+          "ready": 14,
           "needs fixture": 1,
           "unsafe on live network": 5,
           "needs contract change": 0,
           "needs API guard": 0,
-          "needs indexer proof": 6
+          "needs indexer proof": 0
         },
         "proofDepth": {
           "minimumLevel": "inventory",
-          "maximumLevel": "adversarial",
-          "averageScore": 1.5,
+          "maximumLevel": "indexer",
+          "averageScore": 1.95,
           "maximumScore": 8
         }
       },
@@ -28675,22 +28675,22 @@
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/multisig-protocol-change.test.ts"
+              "packages/api/src/workflows/multisig-protocol-change.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
@@ -28698,7 +28698,9 @@
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -28722,33 +28724,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -28772,33 +28776,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -28822,33 +28828,35 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "indexer",
+            "score": 2,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -28879,21 +28887,21 @@
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/multisig-protocol-change.test.ts"
+              "packages/api/src/workflows/multisig-protocol-change.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
@@ -28901,7 +28909,9 @@
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         },
@@ -28932,22 +28942,22 @@
             "negativePath": false,
             "economic": false,
             "redTeam": false,
-            "indexer": false
+            "indexer": true
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "indexer",
+            "score": 3,
             "maximumScore": 8
           },
-          "classification": "needs indexer proof",
+          "classification": "ready",
           "gaps": [
-            "no successful verify-artifact route evidence",
-            "no event-specific indexer test reference"
+            "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/multisig-protocol-change.test.ts"
+              "packages/api/src/workflows/multisig-protocol-change.test.ts",
+              "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
@@ -28955,7 +28965,9 @@
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
-            "indexerTests": [],
+            "indexerTests": [
+              "packages/indexer/src/event-assurance.test.ts"
+            ],
             "verifyArtifacts": []
           }
         }
