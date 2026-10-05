@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## ABI-Driven Gap Report Automation Run — 2026-10-05
+
+- Started `codex/abi-gap-report-20261005` from synchronized local/remote production `master` `91e5156`. The unrelated dirty primary checkout and the stale 2026-10-04 ABI autosave, whose only unmerged changes were report timestamps, remained untouched.
+- Rebuilt the generated ABI/API inventories and regenerated `output/api-test-gap-report.json` and `.md`. After removing `generatedAt`, both artifacts are semantically identical to the 2026-10-04 production report: `33` facets, `492` functions, `218` event occurrences, and `710` total items; classifications remain `378` ready, `197` needing fixtures, `36` unsafe on live networks, and `99` needing indexer proof.
+- The report still records proof depth per facet, function, and event from the ABI, RPC and HTTP manifests, reviewed API surface, repository tests, and verification artifacts. All `158` referenced evidence paths exist, every item has a valid proof-depth score and classification, and every facet summary reconciles with its item inventory. Proof attribution remains `504` unit, `300` workflow, `109` local-fork, `60` Base Sepolia, `299` negative-path, `123` economic, `78` red-team, and `119` indexer items.
+- Verification passed: `pnpm run test:gap-report` (`8/8`), `pnpm run test:gap-builder` (`12/12`), and `pnpm test` (`1,539` active tests across `146` passing files with `40` gated skips). Measured coverage passed at `97.65%` statements, `96.88%` branches, `98.51%` functions, and `97.68%` lines.
+- With project-pinned `pnpm@10.30.0`, the ordered TypeScript, lint, and full build/codegen gate passed. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** the ABI-driven gap report workstream is 100% complete and verified for merge into `master`; the `332` non-ready items are visible protocol-assurance backlog classifications, not report-generator blockers.
+
 ## Red-Team Harness Automation Run — 2026-09-28
 
 - Started `codex/red-team-harness-20260928` from clean local `master` `01b5df3`, which contains fetched `origin/master` `a320676`. The unrelated dirty consolidation checkout remained untouched.
