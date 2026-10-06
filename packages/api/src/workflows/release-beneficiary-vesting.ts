@@ -16,6 +16,7 @@ import {
   normalizeReleaseVestingExecutionError,
 } from "./vesting-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
+import { assertExactAmountDelta } from "./economic-invariants.js";
 
 export const releaseBeneficiaryVestingSchema = z.object({
   beneficiary: z.string().regex(/^0x[a-fA-F0-9]{40}$/u),
@@ -77,12 +78,23 @@ export async function runReleaseBeneficiaryVestingWorkflow(
       const releasableAfter = readBigInt(state.releasable.body);
       const releasedEnough = releasedNowValue === null
         ? releasedAfter > releasedBefore
-        : releasedAfter >= releasedBefore + releasedNowValue;
+        : releasedAfter === releasedBefore + releasedNowValue;
       return releasedEnough && releasableAfter <= releasableBefore;
     },
     "releaseBeneficiaryVesting.readback",
   );
   const afterState = after.body as Awaited<ReturnType<typeof readVestingState>>;
+  const releasedAfter = getReleasedAmount(afterState.schedule.body);
+  const effectiveReleaseAmount = releasedNowValue ?? (releasedAfter - releasedBefore);
+  if (effectiveReleaseAmount <= 0n) {
+    throw new Error("releaseBeneficiaryVesting economic invariant failed: release amount must be positive");
+  }
+  assertExactAmountDelta(
+    "releaseBeneficiaryVesting.released",
+    releasedBefore,
+    releasedAfter,
+    effectiveReleaseAmount,
+  );
 
   return {
     release: {

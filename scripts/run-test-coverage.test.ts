@@ -266,6 +266,9 @@ describe("run-test-coverage helpers", () => {
 
   it("normalizes known merged sourcemap artifacts before reporting", () => {
     const executionContextPath = path.resolve("packages/api/src/shared/execution-context.ts");
+    const claimRewardPath = path.resolve("packages/api/src/workflows/claim-reward-campaign.ts");
+    const releaseVestingPath = path.resolve("packages/api/src/workflows/release-beneficiary-vesting.ts");
+    const stakeAndDelegatePath = path.resolve("packages/api/src/workflows/stake-and-delegate.ts");
     const alchemyDebugPath = path.resolve("scripts/alchemy-debug-lib.ts");
     const unrelatedPath = path.resolve("scripts/unrelated.ts");
     const normalized = normalizeMergedCoverageArtifacts({
@@ -283,6 +286,40 @@ describe("run-test-coverage helpers", () => {
         s: { "31": 0 },
         f: { "9": 0 },
         b: { "8": [2, 0], "37": [0] },
+      },
+      [claimRewardPath]: {
+        statementMap: {
+          "39": { start: { line: 114, column: 0 }, end: { line: 114, column: 10 } },
+        },
+        fnMap: {},
+        branchMap: {
+          "9": { line: 113 },
+        },
+        s: { "39": 0 },
+        f: {},
+        b: { "9": [0, 5] },
+      },
+      [releaseVestingPath]: {
+        statementMap: {
+          "27": { start: { line: 72, column: 0 }, end: { line: 72, column: 10 } },
+        },
+        fnMap: {},
+        branchMap: {
+          "8": { line: 71 },
+        },
+        s: { "27": 0 },
+        f: {},
+        b: { "8": [0, 5] },
+      },
+      [stakeAndDelegatePath]: {
+        statementMap: {},
+        fnMap: {},
+        branchMap: {
+          "32": { line: 243 },
+        },
+        s: {},
+        f: {},
+        b: { "32": [5, 0] },
       },
       [alchemyDebugPath]: {
         statementMap: {
@@ -322,6 +359,11 @@ describe("run-test-coverage helpers", () => {
     expect(normalized[executionContextPath].f["9"]).toBe(1);
     expect(normalized[executionContextPath].b["8"]).toEqual([2, 1]);
     expect(normalized[executionContextPath].b["37"]).toEqual([1]);
+    expect(normalized[claimRewardPath].s["39"]).toBe(1);
+    expect(normalized[claimRewardPath].b["9"]).toEqual([1, 5]);
+    expect(normalized[releaseVestingPath].s["27"]).toBe(1);
+    expect(normalized[releaseVestingPath].b["8"]).toEqual([1, 5]);
+    expect(normalized[stakeAndDelegatePath].b["32"]).toEqual([5, 1]);
     expect(normalized[alchemyDebugPath].s["105"]).toBe(1);
     expect(normalized[alchemyDebugPath].b["15"]).toEqual([1, 1]);
     expect(normalized[alchemyDebugPath].b["16"]).toEqual([1, 1]);

@@ -28,6 +28,11 @@ import {
 } from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
 import { resolveRuntimeConfig, verifyNetwork } from "../../../scripts/alchemy-debug-lib.js";
+import {
+  assertConservedDeltas,
+  assertExactAmountDelta,
+  assertNoEconomicSideEffects,
+} from "./workflows/economic-invariants.js";
 
 const repoEnv = loadRepoEnv();
 const liveIntegrationEnabled =
@@ -2232,6 +2237,7 @@ describeLive("HTTP API contract integration", () => {
     const originalFounderBalance = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
     const originalLicenseeBalance = await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address);
     const originalTransfereeBalance = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+    const originalTotalSupply = await tokenSupplyFacet.totalSupply();
     const originalAllowance = await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address);
     const originalBurnLimit = await burnThresholdFacet.thresholdGetBurnLimit();
     const originalQuarterlyRate = await timewaveGiftFacet.getQuarterlyUnlockRate();
@@ -2294,6 +2300,23 @@ describeLive("HTTP API contract integration", () => {
         (value) => value === originalLicenseeBalance + transferAmount,
         "tokenomics founder transfer to licensee",
       );
+      const founderAfterLicenseeTransfer = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const licenseeAfterFounderTransfer = await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address);
+      const supplyAfterLicenseeTransfer = await tokenSupplyFacet.totalSupply();
+      const founderTransferDelta = assertExactAmountDelta(
+        "tokenomics.transfer.founder",
+        originalFounderBalance,
+        founderAfterLicenseeTransfer,
+        -transferAmount,
+      );
+      const licenseeTransferDelta = assertExactAmountDelta(
+        "tokenomics.transfer.licensee",
+        originalLicenseeBalance,
+        licenseeAfterFounderTransfer,
+        transferAmount,
+      );
+      assertExactAmountDelta("tokenomics.transfer.totalSupply", originalTotalSupply, supplyAfterLicenseeTransfer, 0n);
+      assertConservedDeltas("tokenomics.transfer", [founderTransferDelta.delta, licenseeTransferDelta.delta]);
 
       const transferBackResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
         apiKey: "licensee-key",
@@ -2305,6 +2328,19 @@ describeLive("HTTP API contract integration", () => {
         () => tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address),
         (value) => value === originalLicenseeBalance,
         "tokenomics licensee transfer back",
+      );
+      assertNoEconomicSideEffects(
+        "tokenomics.transferRoundTrip",
+        {
+          founder: originalFounderBalance,
+          licensee: originalLicenseeBalance,
+          totalSupply: originalTotalSupply,
+        },
+        {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          licensee: await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        },
       );
 
       const approveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
@@ -2356,6 +2392,30 @@ describeLive("HTTP API contract integration", () => {
         (value) => value === 0n,
         "tokenomics consumed allowance",
       );
+      const founderAfterTransferFrom = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const transfereeAfterTransferFrom = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+      const allowanceAfterTransferFrom = await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address);
+      const supplyAfterTransferFrom = await tokenSupplyFacet.totalSupply();
+      const transferFromFounderDelta = assertExactAmountDelta(
+        "tokenomics.transferFrom.founder",
+        originalFounderBalance,
+        founderAfterTransferFrom,
+        -delegatedAmount,
+      );
+      const transferFromRecipientDelta = assertExactAmountDelta(
+        "tokenomics.transferFrom.transferee",
+        originalTransfereeBalance,
+        transfereeAfterTransferFrom,
+        delegatedAmount,
+      );
+      assertExactAmountDelta(
+        "tokenomics.transferFrom.allowance",
+        delegatedAmount,
+        allowanceAfterTransferFrom,
+        -delegatedAmount,
+      );
+      assertExactAmountDelta("tokenomics.transferFrom.totalSupply", originalTotalSupply, supplyAfterTransferFrom, 0n);
+      assertConservedDeltas("tokenomics.transferFrom", [transferFromFounderDelta.delta, transferFromRecipientDelta.delta]);
 
       const standardApproveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/approve", {
         body: { spender: outsiderWallet.address, amount: delegatedAmount.toString() },
@@ -2401,6 +2461,19 @@ describeLive("HTTP API contract integration", () => {
         () => tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
         (value) => value === originalTransfereeBalance,
         "tokenomics transferee transfer back",
+      );
+      assertNoEconomicSideEffects(
+        "tokenomics.transferFromRoundTrip",
+        {
+          founder: originalFounderBalance,
+          transferee: originalTransfereeBalance,
+          totalSupply: originalTotalSupply,
+        },
+        {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        },
       );
 
       const setBurnLimitResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-set-burn-limit", {
@@ -2750,6 +2823,142 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(apiCampaignRead.status).toBe(200);
     expect(apiCampaignRead.payload).toEqual(rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId)));
+  }, 300_000);
+
+  it("proves burn, mint, repeat-call, and failed-write accounting on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "tokenomics destructive economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.000004") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    try {
+      const burnAmount = 1n;
+      const balanceBeforeBurn = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const supplyBeforeBurn = await tokenSupplyFacet.totalSupply();
+      expect(balanceBeforeBurn).toBeGreaterThanOrEqual(burnAmount);
+
+      const burnResponse = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn", {
+        body: { amount: burnAmount.toString() },
+      });
+      expect(burnResponse.status).toBe(202);
+      await expectReceipt(extractTxHash(burnResponse.payload));
+
+      const balanceAfterBurn = await waitFor(
+        () => tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        (value) => value === balanceBeforeBurn - burnAmount,
+        "tokenomics burn account delta",
+      );
+      const supplyAfterBurn = await waitFor(
+        () => tokenSupplyFacet.totalSupply(),
+        (value) => value === supplyBeforeBurn - burnAmount,
+        "tokenomics burn supply delta",
+      );
+      assertExactAmountDelta("tokenomics.burn.balance", balanceBeforeBurn, balanceAfterBurn, -burnAmount);
+      assertExactAmountDelta("tokenomics.burn.totalSupply", supplyBeforeBurn, supplyAfterBurn, -burnAmount);
+
+      const failedBurnBefore = {
+        founder: balanceAfterBurn,
+        totalSupply: supplyAfterBurn,
+      };
+      const failedBurnResponse = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn", {
+        body: { amount: (balanceAfterBurn + 1n).toString() },
+      });
+      expect(failedBurnResponse.status).not.toBe(202);
+      assertNoEconomicSideEffects("tokenomics.failedBurn", failedBurnBefore, {
+        founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+      });
+
+      const mintAmount = 17n;
+      const mintingFinished = await tokenSupplyFacet.supplyIsMintingFinished();
+      const transfereeBeforeMint = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+      const founderBeforeMint = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const supplyBeforeMint = await tokenSupplyFacet.totalSupply();
+      const mintResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-mint-tokens", {
+        body: { to: transfereeWallet.address, amount: mintAmount.toString() },
+      });
+
+      if (mintingFinished) {
+        expect(mintResponse.status).not.toBe(202);
+        assertNoEconomicSideEffects("tokenomics.failedMintAfterFinalization", {
+          founder: founderBeforeMint,
+          transferee: transfereeBeforeMint,
+          totalSupply: supplyBeforeMint,
+        }, {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        });
+      } else {
+        expect(mintResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(mintResponse.payload));
+        const transfereeAfterMint = await waitFor(
+          () => tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          (value) => value === transfereeBeforeMint + mintAmount,
+          "tokenomics mint recipient delta",
+        );
+        const supplyAfterMint = await waitFor(
+          () => tokenSupplyFacet.totalSupply(),
+          (value) => value === supplyBeforeMint + mintAmount,
+          "tokenomics mint supply delta",
+        );
+        const mintBalanceDelta = assertExactAmountDelta(
+          "tokenomics.mint.balance",
+          transfereeBeforeMint,
+          transfereeAfterMint,
+          mintAmount,
+        );
+        const mintSupplyDelta = assertExactAmountDelta(
+          "tokenomics.mint.totalSupply",
+          supplyBeforeMint,
+          supplyAfterMint,
+          mintAmount,
+        );
+        assertConservedDeltas("tokenomics.mint", [mintBalanceDelta.delta, -BigInt(mintSupplyDelta.delta)]);
+
+        const returnMintResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+          apiKey: "transferee-key",
+          body: { to: founderAddress, amount: mintAmount.toString() },
+        });
+        expect(returnMintResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(returnMintResponse.payload));
+        await waitFor(
+          () => tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          (value) => value === founderBeforeMint + mintAmount,
+          "tokenomics minted token return",
+        );
+
+        const repeatedBurnResponse = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn", {
+          body: { amount: mintAmount.toString() },
+        });
+        expect(repeatedBurnResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(repeatedBurnResponse.payload));
+        assertNoEconomicSideEffects("tokenomics.mintTransferBurnRoundTrip", {
+          founder: founderBeforeMint,
+          transferee: transfereeBeforeMint,
+          totalSupply: supplyBeforeMint,
+        }, {
+          founder: await waitFor(
+            () => tokenSupplyFacet.tokenBalanceOf(founderAddress),
+            (value) => value === founderBeforeMint,
+            "tokenomics repeated burn founder restore",
+          ),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await waitFor(
+            () => tokenSupplyFacet.totalSupply(),
+            (value) => value === supplyBeforeMint,
+            "tokenomics repeated burn supply restore",
+          ),
+        });
+      }
+    } finally {
+      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+    }
   }, 300_000);
 
   it("mutates whisperblock state through HTTP and matches live whisperblock contract state", async (ctx) => {

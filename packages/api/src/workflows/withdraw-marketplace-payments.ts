@@ -13,6 +13,7 @@ import {
 } from "./reward-campaign-helpers.js";
 import { readMarketplacePaymentConfig, readPendingPaymentsSnapshot } from "./marketplace-payment-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
+import { assertExactAmountDelta } from "./economic-invariants.js";
 
 export const withdrawMarketplacePaymentsSchema = z.object({
   deadline: z.string().regex(/^\d+$/u).optional(),
@@ -62,6 +63,12 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
     () => readPendingPaymentsSnapshot(marketplace, auth, walletAddress, { payee }).then((snapshot) => ({ statusCode: 200, body: snapshot })),
     (result) => result.statusCode === 200 && readBigInt((result.body as { payee?: unknown }).payee) === 0n,
     "withdrawMarketplacePayments.pendingAfter",
+  );
+  assertExactAmountDelta(
+    "withdrawMarketplacePayments.pending",
+    readBigInt(pendingBeforePayee),
+    readBigInt((pendingAfter.body as { payee?: unknown }).payee),
+    -readBigInt(pendingBeforePayee),
   );
 
   let withdrawalEvents: Awaited<ReturnType<typeof waitForWorkflowEventQuery>> = [];

@@ -14,6 +14,7 @@ import {
   waitForWorkflowReadback,
 } from "./reward-campaign-helpers.js";
 import { HttpError } from "../shared/errors.js";
+import { assertConservedDeltas, assertExactAmountDelta } from "./economic-invariants.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
 export const claimRewardCampaignSchema = z.object({
@@ -91,7 +92,7 @@ export async function runClaimRewardCampaignWorkflow(
         return false;
       }
       const nextClaimed = readBigInt(result.body);
-      return claimedNowValue === null ? nextClaimed > claimedBeforeValue : nextClaimed >= claimedBeforeValue + claimedNowValue;
+      return claimedNowValue === null ? nextClaimed > claimedBeforeValue : nextClaimed === claimedBeforeValue + claimedNowValue;
     },
     "claimRewardCampaign.claimedAfter",
   );
@@ -119,10 +120,38 @@ export async function runClaimRewardCampaignWorkflow(
         return false;
       }
       const totalClaimed = readBigInt(asRecord(result.body)?.totalClaimed);
-      return claimedNowValue === null ? totalClaimed > campaignBeforeTotalClaimed : totalClaimed >= campaignBeforeTotalClaimed + claimedNowValue;
+      return claimedNowValue === null ? totalClaimed > campaignBeforeTotalClaimed : totalClaimed === campaignBeforeTotalClaimed + claimedNowValue;
     },
     "claimRewardCampaign.campaignAfter",
   );
+
+  const claimedAfterValue = readBigInt(claimedAfter.body);
+  const effectiveClaimAmount = claimedNowValue ?? (claimedAfterValue - claimedBeforeValue);
+  if (effectiveClaimAmount <= 0n) {
+    throw new Error("claimRewardCampaign economic invariant failed: claim amount must be positive");
+  }
+  const claimedDelta = assertExactAmountDelta(
+    "claimRewardCampaign.claimed",
+    claimedBeforeValue,
+    claimedAfterValue,
+    effectiveClaimAmount,
+  );
+  assertExactAmountDelta(
+    "claimRewardCampaign.claimable",
+    readBigInt(claimableBefore.body),
+    readBigInt(claimableAfter.body),
+    -effectiveClaimAmount,
+  );
+  assertExactAmountDelta(
+    "claimRewardCampaign.campaignTotalClaimed",
+    campaignBeforeTotalClaimed,
+    readBigInt(asRecord(campaignAfter.body)?.totalClaimed),
+    effectiveClaimAmount,
+  );
+  assertConservedDeltas("claimRewardCampaign.claimAccounting", [
+    claimedDelta.delta,
+    -effectiveClaimAmount,
+  ]);
 
   return {
     campaign: {

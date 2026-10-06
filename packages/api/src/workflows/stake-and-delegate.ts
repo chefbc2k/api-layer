@@ -7,6 +7,7 @@ import type { RouteResult } from "../shared/route-types.js";
 import { createStakingPrimitiveService } from "../modules/staking/primitives/generated/index.js";
 import { createTokenomicsPrimitiveService } from "../modules/tokenomics/primitives/generated/index.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
+import { assertExactAmountDelta } from "./economic-invariants.js";
 
 export const stakeAndDelegateSchema = z.object({
   amount: z.string().regex(/^\d+$/u),
@@ -81,9 +82,15 @@ export async function runStakeAndDelegateWorkflow(
     }),
     (result) => {
       const amount = readBigInt(asRecord(result.body)?.amount);
-      return result.statusCode === 200 && amount >= stakeBeforeAmount + requiredAmount;
+      return result.statusCode === 200 && amount === stakeBeforeAmount + requiredAmount;
     },
     "stakeAndDelegate.stakeInfoAfter",
+  );
+  assertExactAmountDelta(
+    "stakeAndDelegate.stakedAmount",
+    stakeBeforeAmount,
+    readBigInt(asRecord(stakeInfoAfter.body)?.amount),
+    requiredAmount,
   );
   const stakedEvents = stakeReceipt
     ? await waitForWorkflowEventQuery(
