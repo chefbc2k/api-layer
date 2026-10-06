@@ -2068,6 +2068,282 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 300_000);
 
+  it("proves payment-split liabilities and treasury sweeps conserve token custody on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "payment split and treasury movement economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: marketplaceBuyerWallet.address, minimumWei: ethers.parseEther("0.00001") },
+      { address: licensingOwnerAddress, minimumWei: ethers.parseEther("0.000006") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      const feeManagerRole = id("FEE_MANAGER_ROLE");
+      if (!(await accessControl.hasRole(feeManagerRole, founderAddress))) {
+        const roleReceipt = await (
+          await accessControl.connect(founderWallet).grantRole(feeManagerRole, founderAddress, ethers.MaxUint256)
+        ).wait();
+        expect(roleReceipt?.status).toBe(1);
+      }
+
+      const configuredPayees = {
+        seller: founderAddress,
+        treasury: licensingOwnerAddress,
+        unionTreasury: licenseeWallet.address,
+        devFund: transfereeWallet.address,
+      };
+      const addressUpdates = [
+        ["PATCH", "/v1/marketplace/commands/update-treasury-address", { newTreasury: configuredPayees.treasury }],
+        ["PATCH", "/v1/marketplace/commands/update-union-treasury-address", { newUnionTreasury: configuredPayees.unionTreasury }],
+        ["PATCH", "/v1/marketplace/commands/update-dev-fund-address", { newDevFund: configuredPayees.devFund }],
+      ] as const;
+      for (const [method, path, body] of addressUpdates) {
+        const response = await apiCall(port, method, path, { body });
+        expect(response.status, JSON.stringify(response.payload)).toBe(202);
+        await expectReceipt(extractTxHash(response.payload));
+      }
+      expect(await paymentFacet.getTreasuryAddress()).toBe(configuredPayees.treasury);
+      expect(await paymentFacet.getUnionTreasuryAddress()).toBe(configuredPayees.unionTreasury);
+      expect(await paymentFacet.getDevFundAddress()).toBe(configuredPayees.devFund);
+
+      const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+        body: {
+          ipfsHash: `QmPaymentSplitEconomics${Date.now()}`,
+          royaltyRate: "100",
+        },
+      });
+      expect(createVoiceResponse.status, JSON.stringify(createVoiceResponse.payload)).toBe(202);
+      const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(createVoiceResponse.payload));
+      const tokenId = BigInt(await waitFor(
+        () => voiceAsset.getTokenId(voiceHash),
+        (value) => BigInt(value as bigint) > 0n,
+        "payment split fixture token",
+      ));
+      await provider.send("evm_increaseTime", [86_401]);
+      await provider.send("evm_mine", []);
+
+      const paymentTokenAddress = await paymentFacet.getUsdcToken();
+      const paymentToken = new Contract(paymentTokenAddress, [
+        "function balanceOf(address account) view returns (uint256)",
+        "function allowance(address owner,address spender) view returns (uint256)",
+        "function approve(address spender,uint256 amount) returns (bool)",
+      ], provider);
+      const distributionAmount = 101n;
+      expect(BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address))).toBeGreaterThanOrEqual(distributionAmount);
+
+      const readPending = async () => ({
+        seller: BigInt(await paymentFacet.getPendingPayments(configuredPayees.seller)),
+        treasury: BigInt(await paymentFacet.getPendingPayments(configuredPayees.treasury)),
+        unionTreasury: BigInt(await paymentFacet.getPendingPayments(configuredPayees.unionTreasury)),
+        devFund: BigInt(await paymentFacet.getPendingPayments(configuredPayees.devFund)),
+      });
+      const readPayeeBalances = async () => ({
+        seller: BigInt(await paymentToken.balanceOf(configuredPayees.seller)),
+        treasury: BigInt(await paymentToken.balanceOf(configuredPayees.treasury)),
+        unionTreasury: BigInt(await paymentToken.balanceOf(configuredPayees.unionTreasury)),
+        devFund: BigInt(await paymentToken.balanceOf(configuredPayees.devFund)),
+      });
+      const readDistributionEconomics = async () => {
+        const [pending, payeeBalances, revenue, assetRevenue, stakingStats, buybackStatus, timewaveGift] = await Promise.all([
+          readPending(),
+          readPayeeBalances(),
+          paymentFacet.getRevenueMetrics(),
+          paymentFacet.getAssetRevenue(tokenId),
+          stakingFacet.getStakingStats(),
+          paymentFacet.getBuybackStatus(),
+          paymentFacet.getPendingTimewaveGift(configuredPayees.seller),
+        ]);
+        return {
+          buyer: BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address)),
+          custody: BigInt(await paymentToken.balanceOf(diamondAddress)),
+          allowance: BigInt(await paymentToken.allowance(marketplaceBuyerWallet.address, diamondAddress)),
+          pending,
+          payeeBalances,
+          totalVolume: BigInt(revenue.totalVolume),
+          totalFees: BigInt(revenue.totalFees),
+          totalRoyalties: BigInt(revenue.totalRoyalties),
+          assetVolume: BigInt(assetRevenue.totalVolume),
+          assetFees: BigInt(assetRevenue.totalFees),
+          assetRoyalties: BigInt(assetRevenue.totalRoyalties),
+          rewardPoolBalance: BigInt(stakingStats.rewardPoolBalance),
+          buybackAccumulator: BigInt(buybackStatus.accumulator),
+          timewaveGift: BigInt(timewaveGift),
+        };
+      };
+
+      const buyerNonce = await provider.getTransactionCount(marketplaceBuyerWallet.address, "pending");
+      const approvalReceipt = await (await paymentToken.connect(marketplaceBuyerWallet).approve(
+        diamondAddress,
+        distributionAmount,
+        { nonce: buyerNonce },
+      )).wait();
+      expect(approvalReceipt?.status).toBe(1);
+      const before = await readDistributionEconomics();
+
+      const latestBlock = await provider.getBlock("latest");
+      const expiredDistribution = await paymentFacet.connect(marketplaceBuyerWallet).distributePaymentWithDeadline(
+        tokenId,
+        distributionAmount,
+        configuredPayees.seller,
+        ethers.ZeroAddress,
+        false,
+        BigInt((latestBlock?.timestamp ?? 1) - 1),
+        { gasLimit: 1_000_000n, nonce: buyerNonce + 1 },
+      );
+      await expect(expiredDistribution.wait()).rejects.toThrow();
+      expect((await provider.getTransactionReceipt(expiredDistribution.hash))?.status).toBe(0);
+      const afterExpiredDistribution = await readDistributionEconomics();
+      const {
+        pending: pendingBeforeExpired,
+        payeeBalances: balancesBeforeExpired,
+        ...scalarBeforeExpired
+      } = before;
+      const {
+        pending: pendingAfterExpired,
+        payeeBalances: balancesAfterExpired,
+        ...scalarAfterExpired
+      } = afterExpiredDistribution;
+      assertNoEconomicSideEffects(
+        "paymentSplit.expiredDistribution",
+        scalarBeforeExpired,
+        scalarAfterExpired,
+      );
+      assertNoEconomicSideEffects("paymentSplit.expiredDistribution.pending", pendingBeforeExpired, pendingAfterExpired);
+      assertNoEconomicSideEffects("paymentSplit.expiredDistribution.balances", balancesBeforeExpired, balancesAfterExpired);
+
+      const distributionReceipt = await (await paymentFacet.connect(marketplaceBuyerWallet).distributePayment(
+        tokenId,
+        distributionAmount,
+        configuredPayees.seller,
+        ethers.ZeroAddress,
+        false,
+        { nonce: buyerNonce + 2 },
+      )).wait();
+      expect(distributionReceipt?.status).toBe(1);
+      const afterDistribution = await readDistributionEconomics();
+
+      const feeConfig = await paymentFacet.getFeeConfiguration();
+      const platformFee = (distributionAmount * BigInt(feeConfig.platformFee)) / 10_000n;
+      const unionShare = (distributionAmount * BigInt(feeConfig.unionShare)) / 10_000n;
+      const devFund = (distributionAmount * BigInt(feeConfig.devFund)) / 10_000n;
+      const timewaveGift = (distributionAmount * BigInt(feeConfig.timewaveGift)) / 10_000n;
+      const totalFees = platformFee + unionShare + devFund + timewaveGift;
+      const sellerProceeds = distributionAmount - totalFees;
+      const rewardPoolDelta = afterDistribution.rewardPoolBalance - before.rewardPoolBalance;
+      const buybackDelta = afterDistribution.buybackAccumulator - before.buybackAccumulator;
+      const treasuryProceeds = platformFee - rewardPoolDelta - buybackDelta;
+
+      expect(rewardPoolDelta).toBeGreaterThanOrEqual(0n);
+      expect(buybackDelta).toBeGreaterThanOrEqual(0n);
+      expect(treasuryProceeds).toBeGreaterThanOrEqual(0n);
+      assertExactAmountDelta("paymentSplit.buyer", before.buyer, afterDistribution.buyer, -distributionAmount);
+      assertExactAmountDelta("paymentSplit.custody", before.custody, afterDistribution.custody, distributionAmount);
+      assertExactAmountDelta("paymentSplit.allowance", before.allowance, afterDistribution.allowance, -distributionAmount);
+      assertExactAmountDelta("paymentSplit.seller", before.pending.seller, afterDistribution.pending.seller, sellerProceeds);
+      assertExactAmountDelta("paymentSplit.treasury", before.pending.treasury, afterDistribution.pending.treasury, treasuryProceeds);
+      assertExactAmountDelta("paymentSplit.unionTreasury", before.pending.unionTreasury, afterDistribution.pending.unionTreasury, unionShare);
+      assertExactAmountDelta("paymentSplit.devFund", before.pending.devFund, afterDistribution.pending.devFund, devFund);
+      assertExactAmountDelta("paymentSplit.timewaveGift", before.timewaveGift, afterDistribution.timewaveGift, timewaveGift);
+      assertExactAmountDelta("paymentSplit.totalVolume", before.totalVolume, afterDistribution.totalVolume, distributionAmount);
+      assertExactAmountDelta("paymentSplit.totalFees", before.totalFees, afterDistribution.totalFees, totalFees);
+      assertExactAmountDelta("paymentSplit.totalRoyalties", before.totalRoyalties, afterDistribution.totalRoyalties, sellerProceeds);
+      assertExactAmountDelta("paymentSplit.assetVolume", before.assetVolume, afterDistribution.assetVolume, distributionAmount);
+      assertExactAmountDelta("paymentSplit.assetFees", before.assetFees, afterDistribution.assetFees, totalFees);
+      assertExactAmountDelta("paymentSplit.assetRoyalties", before.assetRoyalties, afterDistribution.assetRoyalties, sellerProceeds);
+      assertConservedDeltas("paymentSplit.liabilities", [
+        sellerProceeds,
+        treasuryProceeds,
+        unionShare,
+        devFund,
+        rewardPoolDelta,
+        buybackDelta,
+        timewaveGift,
+        -distributionAmount,
+      ]);
+
+      const pendingBeforeSweeps = afterDistribution.pending;
+      const balancesBeforeSweeps = afterDistribution.payeeBalances;
+      const custodyBeforeSweeps = afterDistribution.custody;
+      const sweepResponse = await apiCall(port, "POST", "/v1/workflows/treasury-revenue-operations", {
+        body: {
+          payouts: {
+            sweeps: [
+              { label: "seller", actor: { apiKey: "founder-key", walletAddress: configuredPayees.seller } },
+              { label: "treasury", actor: { apiKey: "licensing-owner-key", walletAddress: configuredPayees.treasury } },
+              { label: "union-treasury", actor: { apiKey: "licensee-key", walletAddress: configuredPayees.unionTreasury } },
+              { label: "dev-fund", actor: { apiKey: "transferee-key", walletAddress: configuredPayees.devFund } },
+            ],
+          },
+        },
+      });
+      expect(sweepResponse.status, JSON.stringify(sweepResponse.payload)).toBe(202);
+      expect(sweepResponse.payload).toMatchObject({
+        summary: {
+          sweepCount: 4,
+          completedSweepCount: 3,
+          blockedSteps: ["payouts.treasury"],
+        },
+      });
+      const pendingAfterSweeps = await readPending();
+      const balancesAfterSweeps = await readPayeeBalances();
+      const custodyAfterSweeps = BigInt(await paymentToken.balanceOf(diamondAddress));
+      for (const label of ["seller", "treasury", "unionTreasury", "devFund"] as const) {
+        const releasedAmount = label === "treasury" ? 0n : pendingBeforeSweeps[label];
+        assertExactAmountDelta(`treasurySweep.${label}.pending`, pendingBeforeSweeps[label], pendingAfterSweeps[label], -releasedAmount);
+        assertExactAmountDelta(`treasurySweep.${label}.balance`, balancesBeforeSweeps[label], balancesAfterSweeps[label], releasedAmount);
+      }
+      const sweptAmount = pendingBeforeSweeps.seller + pendingBeforeSweeps.unionTreasury + pendingBeforeSweeps.devFund;
+      assertExactAmountDelta("treasurySweep.custody", custodyBeforeSweeps, custodyAfterSweeps, -sweptAmount);
+      assertConservedDeltas("treasurySweep.conservation", [
+        custodyAfterSweeps - custodyBeforeSweeps,
+        ...Object.values(balancesAfterSweeps).map((value, index) => value - Object.values(balancesBeforeSweeps)[index]!),
+      ]);
+
+      const repeatSweep = await apiCall(port, "POST", "/v1/workflows/treasury-revenue-operations", {
+        body: {
+          payouts: {
+            sweeps: [
+              { label: "seller", actor: { apiKey: "founder-key", walletAddress: configuredPayees.seller } },
+              { label: "treasury", actor: { apiKey: "licensing-owner-key", walletAddress: configuredPayees.treasury } },
+              { label: "union-treasury", actor: { apiKey: "licensee-key", walletAddress: configuredPayees.unionTreasury } },
+              { label: "dev-fund", actor: { apiKey: "transferee-key", walletAddress: configuredPayees.devFund } },
+            ],
+          },
+        },
+      });
+      expect(repeatSweep.status).toBe(202);
+      expect(repeatSweep.payload).toMatchObject({
+        summary: {
+          sweepCount: 4,
+          completedSweepCount: 0,
+          blockedSteps: ["payouts.seller", "payouts.treasury", "payouts.union-treasury", "payouts.dev-fund"],
+        },
+      });
+      assertExactAmountDelta(
+        "treasurySweep.repeat.custody",
+        custodyAfterSweeps,
+        BigInt(await paymentToken.balanceOf(diamondAddress)),
+        0n,
+      );
+      assertNoEconomicSideEffects("treasurySweep.repeat.pending", pendingAfterSweeps, await readPending());
+      assertNoEconomicSideEffects("treasurySweep.repeat.balances", balancesAfterSweeps, await readPayeeBalances());
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
+  }, 300_000);
+
   it("exposes governance baseline reads through HTTP and preserves live proposal-threshold failures", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "governance proposal-threshold proof", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },

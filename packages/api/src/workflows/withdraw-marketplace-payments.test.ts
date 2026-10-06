@@ -1,6 +1,8 @@
 import { Interface } from "ethers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { HttpError } from "../shared/errors.js";
+
 const mocks = vi.hoisted(() => ({
   createMarketplacePrimitiveService: vi.fn(),
   waitForWorkflowWriteReceipt: vi.fn(),
@@ -208,6 +210,39 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
       "0x00000000000000000000000000000000000000aa",
       {},
     )).rejects.toThrow("withdraw rejected");
+    expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(2);
+  });
+
+  it("classifies treasury multisig withdrawals as blocked after proving no side effects", async () => {
+    const diagnostics = { cause: "execution reverted: MultisigRequired(uint256,uint256)" };
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockRejectedValue({ message: "withdraw failed", diagnostics }),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+
+    const result = runWithdrawMarketplacePaymentsWorkflow(
+      economicContext([100n, 5n, 100n, 5n]) as never,
+      auth as never,
+      "0x00000000000000000000000000000000000000dd",
+      {},
+    );
+
+    await expect(result).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "withdraw-marketplace-payments requires the treasury multisig withdrawal path",
+      diagnostics,
+    });
     expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(2);
   });
 

@@ -94,7 +94,7 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
       pendingBeforeAmount,
       economicsBefore,
     );
-    throw error;
+    throw normalizeWithdrawalExecutionError(error);
   }
   const withdrawalReceipt = withdrawalTxHash ? await readWorkflowReceipt(context, withdrawalTxHash, "withdrawMarketplacePayments.withdrawal") : null;
   const pendingAfter = await waitForWorkflowReadback(
@@ -264,4 +264,40 @@ function readPendingPaymentAmount(value: unknown, label: string): bigint {
     throw new Error(`${label} is missing`);
   }
   return readEconomicAmount(value as bigint | number | string, label);
+}
+
+function normalizeWithdrawalExecutionError(error: unknown): unknown {
+  const text = collectErrorText(error).toLowerCase();
+  if (text.includes("multisigrequired") || text.includes("0x7d7f8c19")) {
+    return new HttpError(
+      409,
+      "withdraw-marketplace-payments requires the treasury multisig withdrawal path",
+      extractDiagnostics(error),
+    );
+  }
+  return error;
+}
+
+function collectErrorText(error: unknown): string {
+  const parts = new Set<string>();
+  const visit = (value: unknown) => {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+      parts.add(String(value));
+      return;
+    }
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    for (const nested of Object.values(value as Record<string, unknown>)) {
+      visit(nested);
+    }
+  };
+  visit(error);
+  return [...parts].join(" ");
+}
+
+function extractDiagnostics(error: unknown): unknown {
+  return error && typeof error === "object" && "diagnostics" in error
+    ? (error as { diagnostics?: unknown }).diagnostics
+    : undefined;
 }
