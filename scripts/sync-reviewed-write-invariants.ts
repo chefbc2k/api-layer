@@ -1,7 +1,14 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import type { AbiEvent, AbiMethod, AbiRegistry, ReviewedWriteInvariantFile, WriteInvariant } from "./write-invariants-lib.js";
+import {
+  WRITE_INVARIANT_SCHEMA_VERSION,
+  type AbiEvent,
+  type AbiMethod,
+  type AbiRegistry,
+  type ReviewedWriteInvariantFile,
+  type WriteInvariant,
+} from "./write-invariants-lib.js";
 import { generatedManifestDir, readJson, writeJson } from "./utils.js";
 
 const reviewedPath = path.resolve("reviewed", "reviewed-write-invariants.json");
@@ -420,31 +427,56 @@ export function deriveWriteInvariant(key: string, method: AbiMethod, registry: A
   };
 }
 
-async function main(): Promise<void> {
-  const registry = await readJson<AbiRegistry>(path.join(generatedManifestDir, "abi-method-registry.json"));
-  const projectionOnly = process.argv.includes("--indexer-projections-only");
-  const existing = projectionOnly ? await readJson<ReviewedWriteInvariantFile>(reviewedPath) : null;
-  const projectionOnlyMethodKeys = new Set([
-    "CommunityRewardsFacet.claim",
-    "CommunityRewardsFacet.createCampaign",
-    "CommunityRewardsFacet.pauseCampaign",
-    "CommunityRewardsFacet.setMerkleRoot",
-    "CommunityRewardsFacet.unpauseCampaign",
-  ]);
+const projectionOnlyMethodKeys = new Set([
+  "CommunityRewardsFacet.claim",
+  "CommunityRewardsFacet.createCampaign",
+  "CommunityRewardsFacet.pauseCampaign",
+  "CommunityRewardsFacet.setMerkleRoot",
+  "CommunityRewardsFacet.unpauseCampaign",
+]);
+
+export function syncReviewedWriteInvariants(
+  registry: AbiRegistry,
+  existing: ReviewedWriteInvariantFile,
+  options: {
+    projectionOnly?: boolean;
+    regenerateAll?: boolean;
+    reviewedAt?: string;
+  } = {},
+): ReviewedWriteInvariantFile {
   const methods = Object.fromEntries(Object.entries(registry.methods)
     .filter(([, method]) => method.category === "write")
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, method]) => {
+      const current = existing.methods[key];
       const derived = deriveWriteInvariant(key, method, registry);
-      const current = existing?.methods[key];
-      if (!projectionOnly || !current || !projectionOnlyMethodKeys.has(key)) {
-        return [key, current ?? derived];
+      if (options.regenerateAll || !current) return [key, derived];
+      if (options.projectionOnly && projectionOnlyMethodKeys.has(key)) {
+        return [key, { ...current, indexerExpectations: derived.indexerExpectations }];
       }
-      return [key, { ...current, indexerExpectations: derived.indexerExpectations }];
+      return [key, current];
     }));
-  const output: ReviewedWriteInvariantFile = { version: 1, reviewedAt: new Date().toISOString().slice(0, 10), methods };
+  const changed = JSON.stringify(methods) !== JSON.stringify(existing.methods);
+  return {
+    version: WRITE_INVARIANT_SCHEMA_VERSION,
+    reviewedAt: changed ? (options.reviewedAt ?? new Date().toISOString().slice(0, 10)) : existing.reviewedAt,
+    methods,
+  };
+}
+
+async function main(): Promise<void> {
+  const [registry, existing] = await Promise.all([
+    readJson<AbiRegistry>(path.join(generatedManifestDir, "abi-method-registry.json")),
+    readJson<ReviewedWriteInvariantFile>(reviewedPath),
+  ]);
+  const projectionOnly = process.argv.includes("--indexer-projections-only");
+  const regenerateAll = process.argv.includes("--regenerate-all");
+  if (projectionOnly && regenerateAll) {
+    throw new Error("--indexer-projections-only and --regenerate-all are mutually exclusive");
+  }
+  const output = syncReviewedWriteInvariants(registry, existing, { projectionOnly, regenerateAll });
   await writeJson(reviewedPath, output);
-  console.log(`synced reviewed write invariant metadata for ${Object.keys(methods).length} ABI write methods`);
+  console.log(`synced reviewed write invariant metadata for ${Object.keys(output.methods).length} ABI write methods`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
