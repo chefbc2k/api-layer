@@ -2963,7 +2963,7 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 300_000);
 
-  it("proves staking custody conservation and failed-stake state preservation on an isolated fork", async (ctx) => {
+  it("proves staking and reward-pool custody conservation on an isolated fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
@@ -2973,14 +2973,19 @@ describeLive("HTTP API contract integration", () => {
     ])) return;
 
     const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
     try {
-      const amount = 1n;
+      const initialStakerBalance = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const amount = initialStakerBalance / 4n;
+      const rewardFunding = initialStakerBalance / 4n;
+      expect(amount).toBeGreaterThan(0n);
+      expect(rewardFunding).toBeGreaterThan(0n);
       const allowanceBeforeApproval = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
       if (allowanceBeforeApproval < amount) {
         const approvalResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
           body: { spender: diamondAddress, amount: amount.toString() },
         });
-        expect(approvalResponse.status).toBe(202);
+        expect(approvalResponse.status, JSON.stringify(approvalResponse.payload)).toBe(202);
         await expectReceipt(extractTxHash(approvalResponse.payload));
       }
 
@@ -2998,7 +3003,7 @@ describeLive("HTTP API contract integration", () => {
       const stakeResponse = await apiCall(port, "POST", "/v1/staking/commands/stake", {
         body: { amount: amount.toString() },
       });
-      expect(stakeResponse.status).toBe(202);
+      expect(stakeResponse.status, JSON.stringify(stakeResponse.payload)).toBe(202);
       await expectReceipt(extractTxHash(stakeResponse.payload));
 
       const statsAfter = await stakingFacet.getStakingStats();
@@ -3028,7 +3033,213 @@ describeLive("HTTP API contract integration", () => {
       assertExactAmountDelta("staking.custody.totalSupply", economicsBefore.totalSupply, economicsAfter.totalSupply, 0n);
       assertExactAmountDelta("staking.custody.totalStaked", economicsBefore.totalStaked, economicsAfter.totalStaked, amount);
 
-      const failedStakeBefore = { ...economicsAfter };
+      const rewardAllowanceBeforeApproval = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
+      if (rewardAllowanceBeforeApproval < rewardFunding) {
+        const approvalResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+          body: { spender: diamondAddress, amount: rewardFunding.toString() },
+        });
+        expect(approvalResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(approvalResponse.payload));
+      }
+
+      const statsBeforeFunding = await stakingFacet.getStakingStats();
+      const fundingBefore = {
+        funder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsBeforeFunding.totalStaked),
+        rewardPoolBalance: BigInt(statsBeforeFunding.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsBeforeFunding.totalRewardsDistributed),
+      };
+      const fundResponse = await apiCall(port, "POST", "/v1/staking/commands/fund-reward-pool", {
+        body: { amount: rewardFunding.toString() },
+      });
+      expect(fundResponse.status).toBe(202);
+      await expectReceipt(extractTxHash(fundResponse.payload));
+
+      const statsAfterFunding = await stakingFacet.getStakingStats();
+      const fundingAfter = {
+        funder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterFunding.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterFunding.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterFunding.totalRewardsDistributed),
+      };
+      const funderDelta = assertExactAmountDelta(
+        "staking.rewardPoolFunding.funder",
+        fundingBefore.funder,
+        fundingAfter.funder,
+        -rewardFunding,
+      );
+      const fundedCustodyDelta = assertExactAmountDelta(
+        "staking.rewardPoolFunding.custody",
+        fundingBefore.custody,
+        fundingAfter.custody,
+        rewardFunding,
+      );
+      assertConservedDeltas("staking.rewardPoolFunding.conservation", [funderDelta.delta, fundedCustodyDelta.delta]);
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.allowance",
+        fundingBefore.allowance,
+        fundingAfter.allowance,
+        -rewardFunding,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.totalSupply",
+        fundingBefore.totalSupply,
+        fundingAfter.totalSupply,
+        0n,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.totalStaked",
+        fundingBefore.totalStaked,
+        fundingAfter.totalStaked,
+        0n,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.rewardPoolBalance",
+        fundingBefore.rewardPoolBalance,
+        fundingAfter.rewardPoolBalance,
+        rewardFunding,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.totalRewardsDistributed",
+        fundingBefore.totalRewardsDistributed,
+        fundingAfter.totalRewardsDistributed,
+        0n,
+      );
+
+      const failedFundingBefore = { ...fundingAfter };
+      const failedFundingResponse = await apiCall(port, "POST", "/v1/staking/commands/fund-reward-pool", {
+        body: { amount: (fundingAfter.funder + 1n).toString() },
+      });
+      expect(failedFundingResponse.status).not.toBe(202);
+      const statsAfterFailedFunding = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("staking.failedRewardPoolFunding", failedFundingBefore, {
+        funder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterFailedFunding.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterFailedFunding.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterFailedFunding.totalRewardsDistributed),
+      });
+
+      await provider.send("evm_increaseTime", [365 * 24 * 60 * 60]);
+      await provider.send("evm_mine", []);
+      const rewardBreakdownBeforeClaim = await stakingFacet.getRewardBreakdown(founderAddress);
+      const rawPendingBefore = BigInt(rewardBreakdownBeforeClaim.rawPending);
+      const claimableBefore = BigInt(rewardBreakdownBeforeClaim.claimable);
+      const forfeitedBefore = BigInt(rewardBreakdownBeforeClaim.forfeited);
+      expect(claimableBefore).toBeGreaterThan(0n);
+      expect(rawPendingBefore).toBe(claimableBefore + forfeitedBefore);
+
+      const statsBeforeClaim = await stakingFacet.getStakingStats();
+      const claimBefore = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsBeforeClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsBeforeClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsBeforeClaim.totalRewardsDistributed),
+      };
+      const claimResponse = await apiCall(port, "POST", "/v1/staking/commands/claim-rewards", { body: {} });
+      expect(claimResponse.status).toBe(202);
+      const claimTxHash = extractTxHash(claimResponse.payload);
+      await expectReceipt(claimTxHash);
+      const claimReceipt = await provider.getTransactionReceipt(claimTxHash);
+      const detailedClaimEvent = claimReceipt?.logs
+        .map((log) => {
+          try {
+            return stakingFacet.interface.parseLog({ topics: [...log.topics], data: log.data });
+          } catch {
+            return null;
+          }
+        })
+        .find((event) => event?.name === "RewardsClaimedDetailed");
+      expect(detailedClaimEvent).toBeTruthy();
+      if (!detailedClaimEvent) {
+        throw new Error("staking reward claim did not emit RewardsClaimedDetailed");
+      }
+      const actualRawPending = BigInt(detailedClaimEvent.args.rawPending);
+      const actualClaimable = BigInt(detailedClaimEvent.args.claimable);
+      const actualForfeited = BigInt(detailedClaimEvent.args.forfeited);
+      expect(actualRawPending).toBe(actualClaimable + actualForfeited);
+      expect(actualForfeited).toBeGreaterThan(0n);
+      expect(actualRawPending).toBeGreaterThanOrEqual(rawPendingBefore);
+      expect(actualClaimable).toBeGreaterThanOrEqual(claimableBefore);
+
+      const statsAfterClaim = await stakingFacet.getStakingStats();
+      const claimAfter = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterClaim.totalRewardsDistributed),
+      };
+      const claimedAmount = claimAfter.totalRewardsDistributed - claimBefore.totalRewardsDistributed;
+      expect(claimedAmount).toBe(actualClaimable);
+      const claimedStakerDelta = assertExactAmountDelta(
+        "staking.rewardClaim.staker",
+        claimBefore.staker,
+        claimAfter.staker,
+        claimedAmount,
+      );
+      const claimedCustodyDelta = assertExactAmountDelta(
+        "staking.rewardClaim.custody",
+        claimBefore.custody,
+        claimAfter.custody,
+        -claimedAmount,
+      );
+      assertConservedDeltas("staking.rewardClaim.conservation", [claimedStakerDelta.delta, claimedCustodyDelta.delta]);
+      assertExactAmountDelta("staking.rewardClaim.totalSupply", claimBefore.totalSupply, claimAfter.totalSupply, 0n);
+      assertExactAmountDelta("staking.rewardClaim.totalStaked", claimBefore.totalStaked, claimAfter.totalStaked, 0n);
+      const rewardPoolDelta = claimAfter.rewardPoolBalance - claimBefore.rewardPoolBalance;
+      expect(rewardPoolDelta).toBeLessThan(0n);
+      const rewardPoolDebit = -rewardPoolDelta;
+      const crossStakerAccrual = rewardPoolDebit - claimedAmount;
+      expect(crossStakerAccrual).toBeGreaterThanOrEqual(0n);
+      expect(rewardPoolDebit + actualForfeited).toBeGreaterThanOrEqual(actualRawPending);
+      assertExactAmountDelta(
+        "staking.rewardClaim.rewardPoolBalance",
+        claimBefore.rewardPoolBalance,
+        claimAfter.rewardPoolBalance,
+        -(claimedAmount + crossStakerAccrual),
+      );
+      assertConservedDeltas("staking.rewardClaim.liabilityReclassification", [
+        rewardPoolDelta,
+        claimedAmount,
+        crossStakerAccrual,
+      ]);
+
+      const repeatedClaimBefore = { ...claimAfter };
+      const repeatedClaimResponse = await apiCall(port, "POST", "/v1/staking/commands/claim-rewards", { body: {} });
+      if (repeatedClaimResponse.status === 202) {
+        await expectReceipt(extractTxHash(repeatedClaimResponse.payload));
+      }
+      const statsAfterRepeatedClaim = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("staking.repeatedRewardClaim", repeatedClaimBefore, {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterRepeatedClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterRepeatedClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterRepeatedClaim.totalRewardsDistributed),
+      });
+
+      const failedStakeBefore = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterRepeatedClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterRepeatedClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterRepeatedClaim.totalRewardsDistributed),
+      };
       const failedStakeResponse = await apiCall(port, "POST", "/v1/staking/commands/stake", {
         body: { amount: (economicsAfter.staker + 1n).toString() },
       });
@@ -3040,10 +3251,15 @@ describeLive("HTTP API contract integration", () => {
         allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
         totalSupply: await tokenSupplyFacet.totalSupply(),
         totalStaked: BigInt(statsAfterFailedStake.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterFailedStake.rewardPoolBalance),
         totalRewardsDistributed: BigInt(statsAfterFailedStake.totalRewardsDistributed),
       });
+      proofCompleted = true;
     } finally {
-      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
     }
   }, 300_000);
 
