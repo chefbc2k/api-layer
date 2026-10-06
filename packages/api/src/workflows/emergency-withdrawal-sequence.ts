@@ -1,3 +1,4 @@
+import { Interface, ZeroAddress, type TransactionReceipt } from "ethers";
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
@@ -20,6 +21,13 @@ import {
   waitForWorkflowReadback,
 } from "./emergency-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
+import {
+  assertConservedDeltas,
+  assertExactAmountDelta,
+  readEconomicAmount,
+} from "./economic-invariants.js";
+
+const erc20BalanceInterface = new Interface(["function balanceOf(address account) view returns (uint256)"]);
 
 export const emergencyWithdrawalSequenceWorkflowSchema = z.object({
   token: addressSchema,
@@ -38,6 +46,7 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
   body: z.infer<typeof emergencyWithdrawalSequenceWorkflowSchema>,
 ) {
   const emergency = createEmergencyPrimitiveService(context);
+  const custodyAddress = context.addressBook.toJSON().diamond;
 
   const recipientWhitelistedBefore = await emergency.isRecipientWhitelisted({
     auth,
@@ -95,16 +104,29 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
     };
   }
 
+  const economicsBefore = await readWithdrawalBalances(context, body.token, custodyAddress, body.recipient);
+  const economicReceipts: TransactionReceipt[] = [];
   const request = await emergency.requestEmergencyWithdrawal({
     auth,
     api: { executionSource: "live", gaslessMode: "none" },
     walletAddress,
     wireParams: [body.token, body.amount, body.recipient],
-  }).catch((error: unknown) => {
+  }).catch(async (error: unknown) => {
+    await assertFailedWithdrawalHasNoAssetSideEffects(
+      context,
+      body.token,
+      custodyAddress,
+      body.recipient,
+      economicsBefore,
+      "emergencyWithdrawalSequence.failedRequest",
+    );
     throw normalizeEmergencyExecutionError(error, "emergency-withdrawal-sequence", "request");
   });
   const requestTxHash = await waitForWorkflowWriteReceipt(context, request.body, "emergencyWithdrawalSequence.request");
   const requestReceipt = requestTxHash ? await readWorkflowReceipt(context, requestTxHash, "emergencyWithdrawalSequence.request") : null;
+  if (requestReceipt) {
+    economicReceipts.push(requestReceipt);
+  }
   const requestId = normalizeRequestId(request.body);
 
   const requestEvents = requestReceipt
@@ -140,6 +162,9 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
   let executed = instantExecutionEvents.length > 0 || requestId === `0x${"0".repeat(64)}`;
   if (requestId && requestId !== `0x${"0".repeat(64)}`) {
     for (const actorOverride of body.approvals) {
+      if (executed) {
+        break;
+      }
       const actor = resolveActorOverride(
         context,
         auth,
@@ -153,11 +178,23 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
         api: { executionSource: "live", gaslessMode: "none" },
         walletAddress: actor.walletAddress,
         wireParams: [requestId],
-      }).catch((error: unknown) => {
+      }).catch(async (error: unknown) => {
+        await assertFailedWithdrawalHasNoAssetSideEffects(
+          context,
+          body.token,
+          custodyAddress,
+          body.recipient,
+          economicsBefore,
+          "emergencyWithdrawalSequence.failedApproval",
+          economicReceipts,
+        );
         throw normalizeEmergencyExecutionError(error, "emergency-withdrawal-sequence", "approve");
       });
       const txHash = await waitForWorkflowWriteReceipt(context, write.body, "emergencyWithdrawalSequence.approve");
       const receipt = txHash ? await readWorkflowReceipt(context, txHash, "emergencyWithdrawalSequence.approve") : null;
+      if (receipt) {
+        economicReceipts.push(receipt);
+      }
       const approvalEvents = receipt
         ? await readOptionalEmergencyEventLogs(() => emergency.emergencyWithdrawalApprovedEventQuery({
             auth: actor.auth,
@@ -208,11 +245,23 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
       api: { executionSource: "live", gaslessMode: "none" },
       walletAddress: actor.walletAddress,
       wireParams: [requestId],
-    }).catch((error: unknown) => {
+    }).catch(async (error: unknown) => {
+      await assertFailedWithdrawalHasNoAssetSideEffects(
+        context,
+        body.token,
+        custodyAddress,
+        body.recipient,
+        economicsBefore,
+        "emergencyWithdrawalSequence.failedExecute",
+        economicReceipts,
+      );
       throw normalizeEmergencyExecutionError(error, "emergency-withdrawal-sequence", "execute");
     });
     const txHash = await waitForWorkflowWriteReceipt(context, write.body, "emergencyWithdrawalSequence.execute");
     const receipt = txHash ? await readWorkflowReceipt(context, txHash, "emergencyWithdrawalSequence.execute") : null;
+    if (receipt) {
+      economicReceipts.push(receipt);
+    }
     const events = receipt
       ? await readOptionalEmergencyEventLogs(() => emergency.emergencyWithdrawalExecutedEventQuery({
           auth: actor.auth,
@@ -234,6 +283,16 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
     walletAddress,
     wireParams: [body.recipient],
   });
+  const economicsAfter = await readWithdrawalBalances(context, body.token, custodyAddress, body.recipient);
+  const economics = assertWithdrawalEconomics(
+    body.token,
+    body.amount,
+    body.recipient,
+    economicsBefore,
+    economicsAfter,
+    economicReceipts,
+    executed,
+  );
 
   return {
     whitelist,
@@ -254,6 +313,7 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
       recipientWhitelistedAfter: readBooleanBody(recipientWhitelistedAfter.body),
       executed,
     },
+    economics,
     summary: {
       token: body.token,
       amount: body.amount,
@@ -269,4 +329,99 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
 
 async function readOptionalEmergencyEventLogs(read: () => Promise<unknown>) {
   return normalizeEventLogs(await read());
+}
+
+type WithdrawalBalances = {
+  custody: bigint;
+  recipient: bigint;
+};
+
+async function readWithdrawalBalances(
+  context: ApiExecutionContext,
+  token: string,
+  custody: string,
+  recipient: string,
+): Promise<WithdrawalBalances> {
+  return context.providerRouter.withProvider(
+    "read",
+    "workflow.emergencyWithdrawalSequence.assetBalances",
+    async (provider) => {
+      if (token.toLowerCase() === ZeroAddress) {
+        const [custodyBalance, recipientBalance] = await Promise.all([
+          provider.getBalance(custody),
+          provider.getBalance(recipient),
+        ]);
+        return { custody: custodyBalance, recipient: recipientBalance };
+      }
+      const readTokenBalance = async (account: string) => {
+        const result = await provider.call({
+          to: token,
+          data: erc20BalanceInterface.encodeFunctionData("balanceOf", [account]),
+        });
+        const decoded = erc20BalanceInterface.decodeFunctionResult("balanceOf", result);
+        return readEconomicAmount(decoded[0] as bigint, `emergencyWithdrawalSequence.balanceOf.${account}`);
+      };
+      const [custodyBalance, recipientBalance] = await Promise.all([
+        readTokenBalance(custody),
+        readTokenBalance(recipient),
+      ]);
+      return { custody: custodyBalance, recipient: recipientBalance };
+    },
+  );
+}
+
+async function assertFailedWithdrawalHasNoAssetSideEffects(
+  context: ApiExecutionContext,
+  token: string,
+  custody: string,
+  recipient: string,
+  before: WithdrawalBalances,
+  label: string,
+  receipts: readonly TransactionReceipt[] = [],
+): Promise<void> {
+  const after = await readWithdrawalBalances(context, token, custody, recipient);
+  try {
+    assertWithdrawalEconomics(token, "0", recipient, before, after, receipts, false);
+  } catch (error) {
+    throw new Error(`${label} economic invariant failed: ${String((error as { message?: unknown }).message ?? error)}`);
+  }
+}
+
+function assertWithdrawalEconomics(
+  token: string,
+  amountInput: string,
+  recipient: string,
+  before: WithdrawalBalances,
+  after: WithdrawalBalances,
+  receipts: readonly TransactionReceipt[],
+  executed: boolean,
+) {
+  const amount = readEconomicAmount(amountInput, "emergencyWithdrawalSequence.amount");
+  const released = executed ? amount : 0n;
+  const custody = assertExactAmountDelta(
+    "emergencyWithdrawalSequence.custody",
+    before.custody,
+    after.custody,
+    -released,
+  );
+  const recipientGas = token.toLowerCase() === ZeroAddress
+    ? receipts.reduce((total, receipt) => receipt.from.toLowerCase() === recipient.toLowerCase() ? total + receipt.fee : total, 0n)
+    : 0n;
+  const recipientDelta = assertExactAmountDelta(
+    "emergencyWithdrawalSequence.recipient",
+    before.recipient,
+    after.recipient,
+    released - recipientGas,
+  );
+  assertConservedDeltas(
+    "emergencyWithdrawalSequence.assetConservation",
+    [custody.delta, recipientDelta.delta, recipientGas],
+  );
+  return {
+    asset: token.toLowerCase() === ZeroAddress ? "native" : "erc20",
+    custody,
+    recipient: recipientDelta,
+    recipientGas: recipientGas.toString(),
+    released: released.toString(),
+  };
 }
