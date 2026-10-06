@@ -15,15 +15,18 @@ import {
   buildWriteSelectorMap,
   collectTransactionHashes,
   evaluateReceiptExpectation,
+  mergePersistentProofReports,
   projectionTableNames,
   receiptProofArtifactEligibility,
+  summarizePersistentProofReports,
   type IndexedEventRow,
+  type PersistentProofReports,
 } from "./indexer-receipt-proof-lib.js";
 import { fileExists, rootDir, writeJson } from "./utils.js";
 
 const run = promisify(execFile);
 const proofDir = path.join(rootDir, ".runtime", "local-fork-proofs");
-const artifactPaths = [
+const defaultArtifactPaths = [
   "http-contract-receipts.json",
   "layer1-core.json",
   "layer1-completion.json",
@@ -102,6 +105,13 @@ async function commandPath(command: string): Promise<string> {
 }
 
 async function loadArtifactHashes(): Promise<ArtifactHashCollection> {
+  const configuredArtifacts = process.env.API_LAYER_INDEXER_PROOF_ARTIFACTS
+    ?.split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  const artifactPaths = configuredArtifacts?.length
+    ? configuredArtifacts.map((entry) => path.isAbsolute(entry) ? entry : path.join(rootDir, entry))
+    : defaultArtifactPaths;
   const hashes = new Map<string, string[]>();
   const includedArtifacts: string[] = [];
   const skippedArtifacts: Array<{ path: string; reason: string }> = [];
@@ -418,12 +428,30 @@ async function runProof(
         result: "proven working",
       }];
     }));
+    let previousReports: PersistentProofReports = {};
+    if (await fileExists(persistentOutputPath)) {
+      const previous = JSON.parse(await readFile(persistentOutputPath, "utf8")) as {
+        summary?: unknown;
+        totals?: { catalogWriteMethods?: unknown };
+        reports?: unknown;
+      };
+      if (
+        previous.summary === "proven working"
+        && previous.totals?.catalogWriteMethods === allMethods.length
+        && previous.reports
+        && typeof previous.reports === "object"
+        && !Array.isArray(previous.reports)
+      ) {
+        previousReports = previous.reports as PersistentProofReports;
+      }
+    }
+    const persistentReports = mergePersistentProofReports(previousReports, reports);
     const persistentReport = {
       schemaVersion: 1,
       generatedAt: report.generatedAt,
       summary: "proven working",
-      totals: report.totals,
-      reports,
+      totals: summarizePersistentProofReports(persistentReports, allMethods.length, artifacts.skippedArtifacts.length),
+      reports: persistentReports,
     };
     await Promise.all([
       writeJson(outputPath, report),

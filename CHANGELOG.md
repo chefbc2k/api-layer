@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.373] - 2026-10-06
+
+### Changed
+
+- **VoiceAsset And UpgradeController Gap Batches Implemented:** Added event-specific production decode, projection, conflict-safe replay, and current-row assurance for ten VoiceAsset and six UpgradeController events. Added mounted-route denial fixtures for `initUpgradeController` and all five UpgradeController admin writes, proving read-only and actor-role rejection plus fail-closed non-loopback execution before provider access.
+- **Reviewed Event Policies Gain Deterministic Replay Proof:** Added production-registry decode, replay, and no-projection-write assurance for 34 reviewed raw-event-only policies across legacy execution, rights, token supply, vesting, voice metadata, voting power, and WhisperBlock. Added current-row projection assurance for delegation and ownership events plus reviewed raw-only assurance for BurnThreshold, EchoScore, Escrow, Governor, and Legacy events.
+- **Durable Fork Receipt Evidence Preserved Across Runs:** The local-fork indexer proof runner now accepts an explicit artifact set, merges successful method receipts into a persistent proof ledger without duplicate transaction hashes, and recomputes durable receipt, raw-event, projection-row, and remaining-method totals.
+- **Admin Boundary Evidence Is Actor-Preserving:** Actor negative-path reports now explicitly record all `200` non-admin API-role denials across the `50` admin-classified write methods. The Base Sepolia contract integration path also exercises role-multiplier configuration and readback through the mounted API and generated facet binding.
+- **Gap Artifacts Regenerated:** Refreshed the API test-gap and 40%-batch planner artifacts. Ready items increased from `378` to `456`; non-ready items decreased from `332` to `254`, resolving `78` prior gaps for `23.49%` forward progress. Indexer-proof gaps fell from `99` to `23` and fixture gaps fell from `197` to `195`.
+
+### Verified
+
+- **Baseline And Required Suites Passed:** Base Sepolia baseline verification passed for chain `84532` and the configured diamond. Gap-report tests passed `8/8`, gap-builder tests passed `12/12`, actor negative-path assurance passed `153/153`, and indexer assurance passed `243` active tests with `6` PostgreSQL-gated skips.
+- **Full Repository Suite Passed:** `pnpm test` passed `1,614` active tests across `146` files with `40` explicitly environment-gated skips.
+- **Quality, Build, And Coverage Gates Passed:** TypeScript, lint, code generation, and all workspace builds passed. Explicit surface coverage remains complete at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants; measured coverage passed at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines.
+
 ## [0.1.372] - 2026-10-05
 
 ### Changed

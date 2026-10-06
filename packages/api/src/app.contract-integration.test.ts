@@ -5027,6 +5027,51 @@ describeLive("HTTP API contract integration", () => {
     expect(delegationEventNames).toEqual(expect.arrayContaining(["DelegateChanged", "VotingPowerUpdated"]));
     expect(await delegationFacet.delegates(outsiderWallet.address)).toBe(transfereeWallet.address);
     expect(await delegationFacet.getCurrentVotes(transfereeWallet.address)).toBeGreaterThan(delegateVotesBefore);
+
+    const multiplierRole = id(`INDEXER_ROLE_MULTIPLIER_${Date.now()}_${Math.random().toString(16).slice(2)}`);
+    const founderRole = id("FOUNDER_ROLE");
+    const configureRoleResponse = await apiCall(port, "POST", "/v1/access-control/admin/configure-role", {
+      body: {
+        role: multiplierRole,
+        config: {
+          memberLimit: "1",
+          validityPeriod: "0",
+          minMemberLimit: "0",
+          quorumBps: "0",
+          absoluteMinQuorum: "0",
+          adminRole: founderRole,
+          restricted: false,
+          revocable: true,
+          requiresApproval: false,
+          recoveryActive: false,
+        },
+      },
+    });
+    expect(configureRoleResponse.status, JSON.stringify(configureRoleResponse.payload)).toBe(202);
+    await expectReceipt(extractTxHash(configureRoleResponse.payload));
+    const grantRoleResponse = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+      body: { role: multiplierRole, account: outsiderWallet.address, expiryTime: "0" },
+    });
+    expect(grantRoleResponse.status, JSON.stringify(grantRoleResponse.payload)).toBe(202);
+    await expectReceipt(extractTxHash(grantRoleResponse.payload));
+
+    const multiplier = "17777";
+    const multiplierResponse = await apiCall(port, "PATCH", "/v1/staking/commands/set-role-multiplier", {
+      body: { role: multiplierRole, multiplier },
+    });
+    expect(multiplierResponse.status, JSON.stringify(multiplierResponse.payload)).toBe(202);
+    const multiplierTxHash = extractTxHash(multiplierResponse.payload);
+    await expectReceipt(multiplierTxHash);
+    const multiplierReceipt = await provider.getTransactionReceipt(multiplierTxHash);
+    expect(multiplierReceipt).not.toBeNull();
+    expect(multiplierReceipt!.logs.some((log) => {
+      try {
+        return votingPowerFacet.interface.parseLog(log)?.name === "RoleMultiplierUpdated";
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    expect(await votingPowerFacet.calculateBaseRoleMultiplier(outsiderWallet.address)).toBe(BigInt(multiplier));
   }, 120_000);
 
   it("proves disposable access-control configuration, eventless globals, and self-renunciation receipts", async (ctx) => {

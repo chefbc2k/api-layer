@@ -33,9 +33,10 @@ Generated: ${report.generatedAt}
 - HTTP write domains: ${report.totals.domainCount}
 - Actor/method cases: ${report.totals.actorMethodCaseCount}
 - API boundary cases: ${report.totals.apiBoundaryCaseCount}
+- Admin API-role denial cases: ${report.totals.adminApiRoleCaseCount}
 - Stale/revoked/expired role cases: ${report.totals.roleLifecycleCaseCount}
 
-Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
+Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
 
 ## Domains
 

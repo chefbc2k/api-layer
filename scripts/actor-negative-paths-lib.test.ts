@@ -4,6 +4,7 @@ import policyJson from "../reviewed/reviewed-method-policy.json";
 import surfaceJson from "../reviewed/reviewed-api-surface.json";
 import reviewedJson from "../reviewed/reviewed-write-invariants.json";
 import {
+  ADMIN_API_ROLES,
   ACTOR_ROLES,
   buildActorNegativePathReport,
   validateActorNegativePathInputs,
@@ -26,12 +27,32 @@ describe("actor negative-path coverage", () => {
       domainCount: 13,
       actorMethodCaseCount: 1_813,
       apiBoundaryCaseCount: 777,
+      adminApiRoleCaseCount: 200,
     });
     expect(report.methods.map((method) => method.method)).toEqual(
       Object.keys(reviewed.methods).filter((key) => surface.methods[key]).sort((left, right) => left.localeCompare(right)),
     );
     expect(report.excludedAbiWrites).toEqual(["ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"]);
     expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(259);
+  });
+
+  it("records every actor-scoped denial at the admin API boundary", () => {
+    const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
+    const adminMethods = report.methods.filter((method) => surface.methods[method.method]?.classification === "admin");
+    const nonAdminMethods = report.methods.filter((method) => surface.methods[method.method]?.classification !== "admin");
+
+    expect(adminMethods).toHaveLength(50);
+    expect(report.totals.adminApiRoleCaseCount).toBe(200);
+    for (const method of adminMethods) {
+      for (const actor of method.actors) {
+        expect(actor.apiRoleDenials).toEqual(
+          ADMIN_API_ROLES.includes(actor.actor as typeof ADMIN_API_ROLES[number])
+            ? []
+            : ["non-admin-api-role"],
+        );
+      }
+    }
+    expect(nonAdminMethods.every((method) => method.actors.every((actor) => actor.apiRoleDenials.length === 0))).toBe(true);
   });
 
   it("applies unknown-key, read-only, and confused-deputy checks to every actor/write pair", () => {
