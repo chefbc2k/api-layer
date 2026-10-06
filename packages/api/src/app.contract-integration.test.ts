@@ -2092,6 +2092,34 @@ describeLive("HTTP API contract integration", () => {
         ).wait();
         expect(roleReceipt?.status).toBe(1);
       }
+      const treasurySignerRole = id("TREASURY_SIGNER_ROLE");
+      const accessStorageBase = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.access.control.storage")));
+      const roleMembersMappingSlot = accessStorageBase + 11n;
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+      for (const signer of [founderAddress, licenseeWallet.address]) {
+        if (!(await accessControl.hasRole(treasurySignerRole, signer))) {
+          const roleBucket = BigInt(ethers.keccak256(abiCoder.encode(
+            ["bytes32", "uint256"],
+            [treasurySignerRole, roleMembersMappingSlot],
+          )));
+          const memberSlot = BigInt(ethers.keccak256(abiCoder.encode(
+            ["address", "uint256"],
+            [signer, roleBucket],
+          )));
+          await provider.send("anvil_setStorageAt", [
+            diamondAddress,
+            ethers.toBeHex(memberSlot, 32),
+            ethers.toBeHex(ethers.MaxUint256, 32),
+          ]);
+          await provider.send("anvil_setStorageAt", [
+            diamondAddress,
+            ethers.toBeHex(memberSlot + 3n, 32),
+            ethers.toBeHex(1n << 160n, 32),
+          ]);
+          await provider.send("evm_mine", []);
+          expect(await accessControl.hasRole(treasurySignerRole, signer)).toBe(true);
+        }
+      }
 
       const configuredPayees = {
         seller: founderAddress,
@@ -2307,6 +2335,93 @@ describeLive("HTTP API contract integration", () => {
         ...Object.values(balancesAfterSweeps).map((value, index) => value - Object.values(balancesBeforeSweeps)[index]!),
       ]);
 
+      const multisigResponse = await apiCall(port, "POST", "/v1/workflows/treasury-multisig-withdrawal", {
+        body: {
+          requiredApprovals: "2",
+          approvers: [
+            { apiKey: "founder-key", walletAddress: founderAddress },
+            { apiKey: "licensee-key", walletAddress: licenseeWallet.address },
+          ],
+          executor: {
+            apiKey: "licensing-owner-key",
+            walletAddress: configuredPayees.treasury,
+          },
+        },
+      });
+      expect(multisigResponse.status, JSON.stringify(multisigResponse.payload)).toBe(202);
+      const multisigProof = multisigResponse.payload as {
+        approvals: { txHashes: string[]; economicsUnchanged: boolean };
+        execution: {
+          txHash: string;
+          pending: { delta: string };
+          custody: { delta: string };
+          recipient: { delta: string };
+          conservation: string;
+        };
+        summary: { releasedAmount: string; remainingPending: string; approvalCount: number };
+      };
+      expect(multisigProof.approvals).toMatchObject({ economicsUnchanged: true });
+      expect(multisigProof.approvals.txHashes).toHaveLength(2);
+      for (const txHash of [...multisigProof.approvals.txHashes, multisigProof.execution.txHash]) {
+        await expectReceipt(txHash);
+      }
+      expect(multisigProof.execution).toMatchObject({
+        pending: { delta: (-pendingAfterSweeps.treasury).toString() },
+        custody: { delta: (-pendingAfterSweeps.treasury).toString() },
+        recipient: { delta: pendingAfterSweeps.treasury.toString() },
+        conservation: "0",
+      });
+      expect(multisigProof.summary).toEqual(expect.objectContaining({
+        releasedAmount: pendingAfterSweeps.treasury.toString(),
+        remainingPending: "0",
+        approvalCount: 2,
+      }));
+      const pendingAfterMultisig = await readPending();
+      const balancesAfterMultisig = await readPayeeBalances();
+      const custodyAfterMultisig = BigInt(await paymentToken.balanceOf(diamondAddress));
+      assertExactAmountDelta(
+        "treasuryMultisig.pending",
+        pendingAfterSweeps.treasury,
+        pendingAfterMultisig.treasury,
+        -pendingAfterSweeps.treasury,
+      );
+      assertExactAmountDelta(
+        "treasuryMultisig.recipient",
+        balancesAfterSweeps.treasury,
+        balancesAfterMultisig.treasury,
+        pendingAfterSweeps.treasury,
+      );
+      assertExactAmountDelta(
+        "treasuryMultisig.custody",
+        custodyAfterSweeps,
+        custodyAfterMultisig,
+        -pendingAfterSweeps.treasury,
+      );
+
+      const repeatMultisig = await apiCall(port, "POST", "/v1/workflows/treasury-multisig-withdrawal", {
+        body: {
+          amount: pendingAfterSweeps.treasury.toString(),
+          requiredApprovals: "2",
+          approvers: [
+            { apiKey: "founder-key", walletAddress: founderAddress },
+            { apiKey: "licensee-key", walletAddress: licenseeWallet.address },
+          ],
+          executor: {
+            apiKey: "licensing-owner-key",
+            walletAddress: configuredPayees.treasury,
+          },
+        },
+      });
+      expect(repeatMultisig.status).toBe(409);
+      assertNoEconomicSideEffects("treasuryMultisig.repeat.pending", pendingAfterMultisig, await readPending());
+      assertNoEconomicSideEffects("treasuryMultisig.repeat.balances", balancesAfterMultisig, await readPayeeBalances());
+      assertExactAmountDelta(
+        "treasuryMultisig.repeat.custody",
+        custodyAfterMultisig,
+        BigInt(await paymentToken.balanceOf(diamondAddress)),
+        0n,
+      );
+
       const repeatSweep = await apiCall(port, "POST", "/v1/workflows/treasury-revenue-operations", {
         body: {
           payouts: {
@@ -2329,12 +2444,12 @@ describeLive("HTTP API contract integration", () => {
       });
       assertExactAmountDelta(
         "treasurySweep.repeat.custody",
-        custodyAfterSweeps,
+        custodyAfterMultisig,
         BigInt(await paymentToken.balanceOf(diamondAddress)),
         0n,
       );
-      assertNoEconomicSideEffects("treasurySweep.repeat.pending", pendingAfterSweeps, await readPending());
-      assertNoEconomicSideEffects("treasurySweep.repeat.balances", balancesAfterSweeps, await readPayeeBalances());
+      assertNoEconomicSideEffects("treasurySweep.repeat.pending", pendingAfterMultisig, await readPending());
+      assertNoEconomicSideEffects("treasurySweep.repeat.balances", balancesAfterMultisig, await readPayeeBalances());
       proofCompleted = true;
     } finally {
       const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
