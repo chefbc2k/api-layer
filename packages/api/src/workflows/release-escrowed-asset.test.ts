@@ -27,7 +27,7 @@ describe("runReleaseEscrowedAssetWorkflow", () => {
     vi.clearAllMocks();
   });
 
-  it("releases an escrowed asset, confirms owner transfer, and confirms escrow exit", async () => {
+  it("proves the releaseAsset economic state delta across ownership and escrow exit", async () => {
     const sequence: string[] = [];
     mocks.createMarketplacePrimitiveService.mockReturnValue({
       getAssetState: vi.fn()
@@ -199,5 +199,50 @@ describe("runReleaseEscrowedAssetWorkflow", () => {
         to: "0x00000000000000000000000000000000000000bb",
       },
     });
+  });
+
+  it("proves a rejected releaseAsset call has no economic side effects", async () => {
+    const originalOwner = "0x00000000000000000000000000000000000000aa";
+    const custodyOwner = "0x0000000000000000000000000000000000000ddd";
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: originalOwner }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      releaseAsset: vi.fn().mockRejectedValue(new Error("release reverted")),
+      assetReleasedEventQuery: vi.fn(),
+    });
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn().mockResolvedValue({ statusCode: 200, body: custodyOwner }),
+    });
+
+    await expect(runReleaseEscrowedAssetWorkflow({} as never, auth as never, undefined, {
+      tokenId: "13",
+      to: originalOwner,
+    })).rejects.toThrow("release reverted");
+    expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when a rejected releaseAsset call hides partial economic movement", async () => {
+    const originalOwner = "0x00000000000000000000000000000000000000aa";
+    const custodyOwner = "0x0000000000000000000000000000000000000ddd";
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getAssetState: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
+      getOriginalOwner: vi.fn().mockResolvedValue({ statusCode: 200, body: originalOwner }),
+      isInEscrow: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      releaseAsset: vi.fn().mockRejectedValue(new Error("release reverted")),
+      assetReleasedEventQuery: vi.fn(),
+    });
+    mocks.createVoiceAssetsPrimitiveService.mockReturnValue({
+      ownerOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: custodyOwner })
+        .mockResolvedValueOnce({ statusCode: 200, body: originalOwner }),
+    });
+
+    await expect(runReleaseEscrowedAssetWorkflow({} as never, auth as never, undefined, {
+      tokenId: "14",
+      to: originalOwner,
+    })).rejects.toThrow(
+      "releaseEscrowedAsset.failed economic invariant failed: owner changed",
+    );
   });
 });

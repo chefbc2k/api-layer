@@ -19,6 +19,39 @@ export const releaseEscrowedAssetSchema = z.object({
   to: z.string().regex(/^0x[a-fA-F0-9]{40}$/u),
 });
 
+type EscrowEconomicSnapshot = {
+  owner: string;
+  assetState: string;
+  originalOwner: string;
+  inEscrow: string;
+};
+
+function normalizeStateValue(value: unknown): string {
+  return normalizeAddress(value) ?? String(value);
+}
+
+function escrowEconomicSnapshot(owner: unknown, escrow: unknown): EscrowEconomicSnapshot {
+  const state = asRecord(escrow);
+  return {
+    owner: normalizeStateValue(owner),
+    assetState: normalizeStateValue(state?.assetState),
+    originalOwner: normalizeStateValue(state?.originalOwner),
+    inEscrow: normalizeStateValue(state?.inEscrow),
+  };
+}
+
+function assertNoEscrowEconomicSideEffects(
+  label: string,
+  before: EscrowEconomicSnapshot,
+  after: EscrowEconomicSnapshot,
+): void {
+  for (const key of Object.keys(before) as Array<keyof EscrowEconomicSnapshot>) {
+    if (before[key] !== after[key]) {
+      throw new Error(`${label} economic invariant failed: ${key} changed from ${before[key]} to ${after[key]}`);
+    }
+  }
+}
+
 export async function runReleaseEscrowedAssetWorkflow(
   context: ApiExecutionContext,
   auth: import("../shared/auth.js").AuthContext,
@@ -37,13 +70,35 @@ export async function runReleaseEscrowedAssetWorkflow(
     (result) => result.statusCode === 200 && typeof result.body === "string",
     "releaseEscrowedAsset.beforeOwner",
   );
-  const release = await marketplace.releaseAsset({
-    auth,
-    api: { executionSource: "auto", gaslessMode: "none" },
-    walletAddress,
-    wireParams: [body.tokenId, body.to],
-  });
-  const releaseTxHash = await waitForWorkflowWriteReceipt(context, release.body, "releaseEscrowedAsset.release");
+  const beforeEconomicState = escrowEconomicSnapshot(beforeOwner.body, beforeEscrow.body);
+  let release: Awaited<ReturnType<typeof marketplace.releaseAsset>>;
+  let releaseTxHash: string | null;
+  try {
+    release = await marketplace.releaseAsset({
+      auth,
+      api: { executionSource: "auto", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [body.tokenId, body.to],
+    });
+    releaseTxHash = await waitForWorkflowWriteReceipt(context, release.body, "releaseEscrowedAsset.release");
+  } catch (error) {
+    const failedOwner = await waitForWorkflowReadback(
+      () => readOwnerOf(voiceAssets, auth, walletAddress, body.tokenId),
+      (result) => result.statusCode === 200,
+      "releaseEscrowedAsset.failedOwner",
+    );
+    const failedEscrow = await waitForWorkflowReadback(
+      () => readMarketplaceEscrowState(marketplace, auth, walletAddress, body.tokenId).then((state) => ({ statusCode: 200, body: state })),
+      (result) => result.statusCode === 200,
+      "releaseEscrowedAsset.failedEscrow",
+    );
+    assertNoEscrowEconomicSideEffects(
+      "releaseEscrowedAsset.failed",
+      beforeEconomicState,
+      escrowEconomicSnapshot(failedOwner.body, failedEscrow.body),
+    );
+    throw error;
+  }
   const releaseReceipt = releaseTxHash ? await readWorkflowReceipt(context, releaseTxHash, "releaseEscrowedAsset.release") : null;
   const afterOwner = await waitForWorkflowReadback(
     () => readOwnerOf(voiceAssets, auth, walletAddress, body.tokenId),
