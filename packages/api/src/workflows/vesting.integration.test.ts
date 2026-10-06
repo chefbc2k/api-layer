@@ -194,8 +194,14 @@ describe("vesting workflow routes", () => {
       getVestingTotalAmount: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } }),
+      tokenBalanceOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" }),
+      totalSupply: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "10000" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "10000" }),
       revokeVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrevoke" } }),
-      vestingScheduleRevokedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrevoke-receipt" }]),
+      vestingScheduleRevokedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrevoke-receipt", revokedAmount: "1000" }]),
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xrevoke-receipt");
 
@@ -223,7 +229,12 @@ describe("vesting workflow routes", () => {
     await handler(request, response);
     expect(response.statusCode).toBe(202);
     expect(response.payload).toMatchObject({
-      revoke: { txHash: "0xrevoke-receipt", eventCount: 1 },
+      revoke: { txHash: "0xrevoke-receipt", eventCount: 1, revokedAmount: "1000" },
+      economics: {
+        canceledLiability: { delta: "1000" },
+        beneficiaryBalance: { delta: "0" },
+        totalSupply: { delta: "0" },
+      },
       summary: { revokedAfter: true },
     });
   });

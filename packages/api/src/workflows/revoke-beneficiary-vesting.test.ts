@@ -44,8 +44,14 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
       getVestingTotalAmount: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } }),
+      tokenBalanceOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" }),
+      totalSupply: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "10000" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "10000" }),
       revokeVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrevoke" } }),
-      vestingScheduleRevokedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrevoke-receipt" }]),
+      vestingScheduleRevokedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrevoke-receipt", revokedAmount: "1000" }]),
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xrevoke-receipt");
 
@@ -60,6 +66,14 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
     });
 
     expect(result.revoke.txHash).toBe("0xrevoke-receipt");
+    expect(result.revoke.revokedAmount).toBe("1000");
+    expect(result.economics).toEqual({
+      canceledLiability: { before: "0", after: "1000", delta: "1000" },
+      beneficiaryBalance: { before: "250", after: "250", delta: "0" },
+      totalSupply: { before: "10000", after: "10000", delta: "0" },
+      scheduleTotal: { before: "1000", after: "1000", delta: "0" },
+      released: { before: "0", after: "0", delta: "0" },
+    });
     expect(result.summary.revokedAfter).toBe(true);
   });
 
@@ -70,6 +84,8 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
       getVestingDetails: vi.fn(),
       getVestingReleasableAmount: vi.fn(),
       getVestingTotalAmount: vi.fn(),
+      tokenBalanceOf: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      totalSupply: vi.fn().mockResolvedValue({ statusCode: 200, body: "10000" }),
       revokeVestingSchedule: vi.fn().mockRejectedValue(new Error("execution reverted (unknown custom error) data=\"0xa2880f97\"")),
       vestingScheduleRevokedEventQuery: vi.fn(),
     });
@@ -100,6 +116,12 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
       getVestingTotalAmount: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "1000", totalReleased: "0", releasable: "0" } }),
+      tokenBalanceOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" }),
+      totalSupply: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "10000" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "10000" }),
       revokeVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrevoke" } }),
       vestingScheduleRevokedEventQuery,
     });
@@ -116,6 +138,27 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
     expect(result.revoke.txHash).toBeNull();
     expect(result.revoke.eventCount).toBe(0);
     expect(vestingScheduleRevokedEventQuery).not.toHaveBeenCalled();
+    expect(result.revoke.revokedAmount).toBe("1000");
+  });
+
+  it("rejects a failed revoke that changes token balances", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalAmount: "1000", releasedAmount: "100", revoked: false } }),
+      getVestingDetails: vi.fn().mockResolvedValue({ statusCode: 200, body: { revoked: false } }),
+      getVestingReleasableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      getVestingTotalAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalVested: "1000", totalReleased: "100", releasable: "0" } }),
+      tokenBalanceOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "250" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "251" }),
+      totalSupply: vi.fn().mockResolvedValue({ statusCode: 200, body: "10000" }),
+      revokeVestingSchedule: vi.fn().mockRejectedValue(new Error("execution reverted")),
+      vestingScheduleRevokedEventQuery: vi.fn(),
+    });
+
+    await expect(runRevokeBeneficiaryVestingWorkflow({} as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000ee",
+    })).rejects.toThrow("failedWrite.beneficiaryBalance economic invariant failed");
   });
 
 });

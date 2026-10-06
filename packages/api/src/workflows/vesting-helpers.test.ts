@@ -4,6 +4,7 @@ import { HttpError } from "../shared/errors.js";
 import {
   extractReleasedAmount,
   extractReleasedAmountFromLogs,
+  extractRevokedAmountFromLogs,
   getReleasableFromSummary,
   getReleasedAmount,
   getTotalAmount,
@@ -44,6 +45,8 @@ describe("vesting helpers", () => {
     expect(extractReleasedAmountFromLogs([{ transactionHash: "0xaaa", amount: 7n }], "0xaaa")).toBe("7");
     expect(extractReleasedAmountFromLogs([{ transactionHash: "0xaaa" }], "0xaaa")).toBeNull();
     expect(extractReleasedAmountFromLogs([{ transactionHash: "0xaaa", amount: "9" }], "0xbbb")).toBeNull();
+    expect(extractRevokedAmountFromLogs([{ transactionHash: "0xaaa", revokedAmount: 11n }], "0xaaa")).toBe("11");
+    expect(extractRevokedAmountFromLogs([{ transactionHash: "0xaaa" }], "0xaaa")).toBeNull();
   });
 
   it("recognizes AlreadyRevoked errors", () => {

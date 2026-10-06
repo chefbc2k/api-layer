@@ -57,6 +57,20 @@ export function extractReleasedAmountFromLogs(logs: unknown[], txHash: string | 
   return null;
 }
 
+export function extractRevokedAmountFromLogs(logs: unknown[], txHash: string | null): string | null {
+  for (const log of logs) {
+    const record = asRecord(log);
+    if (record?.transactionHash !== txHash) {
+      continue;
+    }
+    const amount = record.revokedAmount;
+    if (typeof amount === "string" || typeof amount === "number" || typeof amount === "bigint") {
+      return String(amount);
+    }
+  }
+  return null;
+}
+
 export function normalizeCreateVestingExecutionError(error: unknown, scheduleKind: string): unknown {
   const text = collectErrorText(error).toLowerCase();
   if (text.includes("unauthorizeduser") || text.includes("0xa2880f97")) {
