@@ -557,6 +557,7 @@ describeLive("HTTP API contract integration", () => {
   let fundingWallet: Wallet;
   let fundingWallets: Wallet[] = [];
   let licenseeWallet: Wallet;
+  let marketplaceBuyerWallet: Wallet;
   let transfereeWallet: Wallet;
   let outsiderWallet: Wallet;
   let diamondAddress: string;
@@ -910,6 +911,7 @@ describeLive("HTTP API contract integration", () => {
       .filter((value, index, array): value is string => typeof value === "string" && value.length > 0 && array.indexOf(value) === index)
       .map((privateKey) => new Wallet(privateKey, provider));
     licenseeWallet = new Wallet(licenseePrivateKey, provider);
+    marketplaceBuyerWallet = new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ?? licenseePrivateKey, provider);
     transfereeWallet = new Wallet(transfereePrivateKey, provider);
     outsiderWallet = new Wallet(outsiderPrivateKey, provider);
 
@@ -1931,6 +1933,136 @@ describeLive("HTTP API contract integration", () => {
       });
       expect(cancelEvents.status).toBe(200);
       expect((cancelEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === cancelTxHash)).toBe(true);
+    }
+  }, 300_000);
+
+  it("proves marketplace withdrawal token custody, failed-call safety, rounding, and replay behavior on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "marketplace withdrawal economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: marketplaceBuyerWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    try {
+      const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+        body: {
+          ipfsHash: `QmWithdrawalEconomics${Date.now()}`,
+          royaltyRate: "100",
+        },
+      });
+      expect(createVoiceResponse.status, JSON.stringify(createVoiceResponse.payload)).toBe(202);
+      const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(createVoiceResponse.payload));
+      const tokenId = BigInt(await waitFor(
+        () => voiceAsset.getTokenId(voiceHash),
+        (value) => BigInt(value as bigint) > 0n,
+        "marketplace withdrawal fixture token",
+      ));
+
+      await provider.send("evm_increaseTime", [86_401]);
+      await provider.send("evm_mine", []);
+
+      const paymentTokenAddress = await paymentFacet.getUsdcToken();
+      const paymentToken = new Contract(paymentTokenAddress, [
+        "function balanceOf(address account) view returns (uint256)",
+        "function approve(address spender,uint256 amount) returns (bool)",
+      ], provider);
+      const distributionAmount = 101n;
+      expect(BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address))).toBeGreaterThanOrEqual(distributionAmount);
+      const buyerNonce = await provider.getTransactionCount(marketplaceBuyerWallet.address, "pending");
+      const approvalReceipt = await (await paymentToken.connect(marketplaceBuyerWallet).approve(
+        diamondAddress,
+        distributionAmount,
+        { nonce: buyerNonce },
+      )).wait();
+      expect(approvalReceipt?.status).toBe(1);
+      const distributionReceipt = await (await paymentFacet.connect(marketplaceBuyerWallet).distributePayment(
+        tokenId,
+        distributionAmount,
+        founderAddress,
+        ethers.ZeroAddress,
+        false,
+        { nonce: buyerNonce + 1 },
+      )).wait();
+      expect(distributionReceipt?.status).toBe(1);
+
+      const pendingBefore = await paymentFacet.getPendingPayments(founderAddress);
+      expect(pendingBefore).toBeGreaterThan(0n);
+      expect(pendingBefore).toBeLessThan(distributionAmount);
+      const custodyBefore = BigInt(await paymentToken.balanceOf(diamondAddress));
+      const payeeBefore = BigInt(await paymentToken.balanceOf(founderAddress));
+
+      const latestBlock = await provider.getBlock("latest");
+      const expiredResponse = await apiCall(port, "POST", "/v1/workflows/withdraw-marketplace-payments", {
+        body: { deadline: String((latestBlock?.timestamp ?? 1) - 1) },
+      });
+      expect(expiredResponse.status).not.toBe(202);
+      assertNoEconomicSideEffects("marketplaceWithdrawal.expired", {
+        pending: pendingBefore,
+        custody: custodyBefore,
+        payee: payeeBefore,
+      }, {
+        pending: await paymentFacet.getPendingPayments(founderAddress),
+        custody: BigInt(await paymentToken.balanceOf(diamondAddress)),
+        payee: BigInt(await paymentToken.balanceOf(founderAddress)),
+      });
+
+      const withdrawalResponse = await apiCall(port, "POST", "/v1/workflows/withdraw-marketplace-payments", {
+        body: {},
+      });
+      expect(withdrawalResponse.status, JSON.stringify(withdrawalResponse.payload)).toBe(202);
+      const withdrawal = (withdrawalResponse.payload as { withdrawal: {
+        txHash: string;
+        releasedAmount: string;
+        economics: {
+          custody: { delta: string };
+          payee: { delta: string };
+          conservation: string;
+        };
+      } }).withdrawal;
+      await expectReceipt(withdrawal.txHash);
+      expect(withdrawal.releasedAmount).toBe(pendingBefore.toString());
+      expect(withdrawal.economics).toMatchObject({
+        custody: { delta: (-pendingBefore).toString() },
+        payee: { delta: pendingBefore.toString() },
+        conservation: "0",
+      });
+      const custodyAfter = BigInt(await paymentToken.balanceOf(diamondAddress));
+      const payeeAfter = BigInt(await paymentToken.balanceOf(founderAddress));
+      const custodyDelta = assertExactAmountDelta(
+        "marketplaceWithdrawal.custody",
+        custodyBefore,
+        custodyAfter,
+        -pendingBefore,
+      );
+      const payeeDelta = assertExactAmountDelta(
+        "marketplaceWithdrawal.payee",
+        payeeBefore,
+        payeeAfter,
+        pendingBefore,
+      );
+      assertConservedDeltas("marketplaceWithdrawal.conservation", [custodyDelta.delta, payeeDelta.delta]);
+      expect(await paymentFacet.getPendingPayments(founderAddress)).toBe(0n);
+
+      const repeatResponse = await apiCall(port, "POST", "/v1/workflows/withdraw-marketplace-payments", {
+        body: {},
+      });
+      expect(repeatResponse.status).toBe(409);
+      assertNoEconomicSideEffects("marketplaceWithdrawal.repeat", {
+        pending: 0n,
+        custody: custodyAfter,
+        payee: payeeAfter,
+      }, {
+        pending: await paymentFacet.getPendingPayments(founderAddress),
+        custody: BigInt(await paymentToken.balanceOf(diamondAddress)),
+        payee: BigInt(await paymentToken.balanceOf(founderAddress)),
+      });
+    } finally {
+      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
     }
   }, 300_000);
 
