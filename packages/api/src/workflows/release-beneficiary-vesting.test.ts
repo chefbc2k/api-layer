@@ -156,7 +156,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
     expect(result.release.mode).toBe("self");
   });
 
-  it("prefers the event-confirmed released amount over a stale write result", async () => {
+  it("prefers the conserved state and balance delta when the reported release amount is stale", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
       ...tokenEconomics("100", "148"),
       hasVestingSchedule: vi.fn()
@@ -176,7 +176,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
         .mockResolvedValueOnce({ statusCode: 200, body: { totalVested: "48", totalReleased: "48", releasable: "0" } }),
       releaseStandardVestingFor: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrelease", result: "12" } }),
       releaseStandardVesting: vi.fn(),
-      tokensReleasedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrelease-receipt", amount: "48" }]),
+      tokensReleasedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrelease-receipt", amount: "47" }]),
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xrelease-receipt");
 
@@ -192,6 +192,8 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
     });
 
     expect(result.release.releasedNow).toBe("48");
+    expect(result.release.reportedReleasedNow).toBe("47");
+    expect(result.release.reportedAmountMatchesState).toBe(false);
     expect(result.vesting.after.schedule).toMatchObject({ releasedAmount: "48" });
   });
 
@@ -267,7 +269,9 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
     });
 
     expect(result.release.txHash).toBe("0xrelease-receipt");
-    expect(result.release.releasedNow).toBeNull();
+    expect(result.release.releasedNow).toBe("2");
+    expect(result.release.reportedReleasedNow).toBeNull();
+    expect(result.release.reportedAmountMatchesState).toBeNull();
     expect(result.release.eventCount).toBe(1);
     expect(result.summary.releasableAfter).toBe("1");
   });

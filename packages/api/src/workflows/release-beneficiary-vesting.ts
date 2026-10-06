@@ -98,16 +98,13 @@ export async function runReleaseBeneficiaryVestingWorkflow(
       const state = result.body as Awaited<ReturnType<typeof readVestingState>>;
       const releasedAfter = getReleasedAmount(state.schedule.body);
       const releasableAfter = readBigInt(state.releasable.body);
-      const releasedEnough = releasedNowValue === null
-        ? releasedAfter > releasedBefore
-        : releasedAfter === releasedBefore + releasedNowValue;
-      return releasedEnough && releasableAfter <= releasableBefore;
+      return releasedAfter > releasedBefore && releasableAfter <= releasableBefore;
     },
     "releaseBeneficiaryVesting.readback",
   );
   const afterState = after.body as Awaited<ReturnType<typeof readVestingState>>;
   const releasedAfter = getReleasedAmount(afterState.schedule.body);
-  const effectiveReleaseAmount = releasedNowValue ?? (releasedAfter - releasedBefore);
+  const effectiveReleaseAmount = releasedAfter - releasedBefore;
   if (effectiveReleaseAmount <= 0n) {
     throw new Error("releaseBeneficiaryVesting economic invariant failed: release amount must be positive");
   }
@@ -154,7 +151,9 @@ export async function runReleaseBeneficiaryVestingWorkflow(
     release: {
       submission: release.body,
       txHash: releaseTxHash,
-      releasedNow,
+      releasedNow: effectiveReleaseAmount.toString(),
+      reportedReleasedNow: releasedNow,
+      reportedAmountMatchesState: releasedNowValue === null ? null : releasedNowValue === effectiveReleaseAmount,
       eventCount: releaseEvents.length,
       mode: body.mode,
     },

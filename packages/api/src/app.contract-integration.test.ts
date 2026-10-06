@@ -582,6 +582,7 @@ describeLive("HTTP API contract integration", () => {
   let stakingFacet: Contract;
   let delegationFacet: DelegationFacet;
   let tokenSupplyFacet: Contract;
+  let vestingFacet: Contract;
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
   let votingPowerFacet: VotingPowerFacet;
@@ -936,6 +937,7 @@ describeLive("HTTP API contract integration", () => {
     stakingFacet = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
     delegationFacet = new Contract(diamondAddress, facetRegistry.DelegationFacet.abi, provider) as unknown as DelegationFacet;
     tokenSupplyFacet = new Contract(diamondAddress, facetRegistry.TokenSupplyFacet.abi, provider);
+    vestingFacet = new Contract(diamondAddress, facetRegistry.VestingFacet.abi, provider);
     burnThresholdFacet = new Contract(diamondAddress, facetRegistry.BurnThresholdFacet.abi, provider);
     timewaveGiftFacet = new Contract(diamondAddress, facetRegistry.TimewaveGiftFacet.abi, provider);
     votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
@@ -3386,6 +3388,236 @@ describeLive("HTTP API contract integration", () => {
         rewardPoolBalance: BigInt(statsAfterFailedStake.rewardPoolBalance),
         totalRewardsDistributed: BigInt(statsAfterFailedStake.totalRewardsDistributed),
       });
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
+  }, 300_000);
+
+  it("detects the vesting release custody deficit and proves revoke accounting on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "vesting economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.00001") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00001") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      const timelockRole = id("TIMELOCK_ROLE");
+      const vestingManagerRole = id("VESTING_MANAGER_ROLE");
+      for (const role of [timelockRole, vestingManagerRole]) {
+        if (!(await accessControl.hasRole(role, founderAddress))) {
+          const roleReceipt = await (
+            await accessControl.connect(founderWallet).grantRole(role, founderAddress, ethers.MaxUint256)
+          ).wait();
+          expect(roleReceipt?.status).toBe(1);
+        }
+      }
+
+      const readSchedule = async (beneficiary: string) => {
+        if (!(await vestingFacet.hasVestingSchedule(beneficiary))) {
+          return {
+            totalAmount: 0n,
+            releasedAmount: 0n,
+            revoked: false,
+          };
+        }
+        const schedule = await vestingFacet.getVestingDetails(beneficiary);
+        return {
+          totalAmount: BigInt(schedule.totalAmount),
+          releasedAmount: BigInt(schedule.releasedAmount),
+          revoked: Boolean(schedule.revoked),
+        };
+      };
+      const readVestingEconomics = async (beneficiary: string) => {
+        const schedule = await readSchedule(beneficiary);
+        return {
+          founderBalance: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+          beneficiaryBalance: BigInt(await tokenSupplyFacet.tokenBalanceOf(beneficiary)),
+          totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+          scheduleTotal: schedule.totalAmount,
+          scheduleReleased: schedule.releasedAmount,
+          scheduleRevoked: schedule.revoked ? 1n : 0n,
+        };
+      };
+      const workflowTxHash = (payload: unknown, step: string) => {
+        const stepPayload = (payload as Record<string, unknown>)[step] as Record<string, unknown>;
+        const txHash = String(stepPayload.txHash);
+        expect(txHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+        return txHash;
+      };
+
+      const publicAmount = 20_003n * 10n ** 10n + 7n;
+      const publicBefore = await readVestingEconomics(outsiderWallet.address);
+      expect(await vestingFacet.hasVestingSchedule(outsiderWallet.address)).toBe(false);
+      const publicCreate = await apiCall(port, "POST", "/v1/workflows/create-beneficiary-vesting", {
+        body: {
+          beneficiary: outsiderWallet.address,
+          amount: publicAmount.toString(),
+          scheduleKind: "public",
+        },
+      });
+      expect(publicCreate.status, JSON.stringify(publicCreate.payload)).toBe(202);
+      await expectReceipt(workflowTxHash(publicCreate.payload, "create"));
+
+      const publicAfterCreate = await readVestingEconomics(outsiderWallet.address);
+      assertExactAmountDelta(
+        "vesting.publicCreate.founderBalance",
+        publicBefore.founderBalance,
+        publicAfterCreate.founderBalance,
+        -publicAmount,
+      );
+      assertExactAmountDelta(
+        "vesting.publicCreate.beneficiaryBalance",
+        publicBefore.beneficiaryBalance,
+        publicAfterCreate.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta("vesting.publicCreate.totalSupply", publicBefore.totalSupply, publicAfterCreate.totalSupply, 0n);
+      assertExactAmountDelta("vesting.publicCreate.scheduleTotal", 0n, publicAfterCreate.scheduleTotal, publicAmount);
+      assertConservedDeltas("vesting.publicCreate.liquidAndLocked", [
+        publicAfterCreate.founderBalance - publicBefore.founderBalance,
+        publicAfterCreate.beneficiaryBalance - publicBefore.beneficiaryBalance,
+        publicAfterCreate.scheduleTotal - publicAfterCreate.scheduleReleased,
+      ]);
+
+      const duplicateCreateBefore = await readVestingEconomics(outsiderWallet.address);
+      const duplicateCreate = await apiCall(port, "POST", "/v1/workflows/create-beneficiary-vesting", {
+        body: {
+          beneficiary: outsiderWallet.address,
+          amount: publicAmount.toString(),
+          scheduleKind: "public",
+        },
+      });
+      expect(duplicateCreate.status).not.toBe(202);
+      assertNoEconomicSideEffects(
+        "vesting.duplicateCreate",
+        duplicateCreateBefore,
+        await readVestingEconomics(outsiderWallet.address),
+      );
+
+      await provider.send("evm_increaseTime", [30 * 24 * 60 * 60 + 1]);
+      await provider.send("evm_mine", []);
+      const releasableBefore = BigInt(await vestingFacet.getVestingReleasableAmount(outsiderWallet.address));
+      expect(releasableBefore).toBeGreaterThan(0n);
+      const releaseBefore = await readVestingEconomics(outsiderWallet.address);
+      const release = await apiCall(port, "POST", "/v1/workflows/release-beneficiary-vesting", {
+        apiKey: "outsider-key",
+        body: {
+          beneficiary: outsiderWallet.address,
+          mode: "self",
+        },
+      });
+      expect(release.status).toBe(500);
+      expect(JSON.stringify(release.payload)).toContain("releaseBeneficiaryVesting.beneficiaryBalanceAfter");
+      const releaseAfter = await readVestingEconomics(outsiderWallet.address);
+      const releasedNow = releaseAfter.scheduleReleased - releaseBefore.scheduleReleased;
+      expect(releasedNow).toBeGreaterThan(0n);
+      assertExactAmountDelta(
+        "vesting.publicRelease.missingBeneficiaryCredit",
+        releaseBefore.beneficiaryBalance,
+        releaseAfter.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta("vesting.publicRelease.totalSupply", releaseBefore.totalSupply, releaseAfter.totalSupply, 0n);
+      assertConservedDeltas("vesting.publicRelease.custodyDeficit", [
+        releaseAfter.founderBalance - publicBefore.founderBalance,
+        releaseAfter.beneficiaryBalance - publicBefore.beneficiaryBalance,
+        releaseAfter.scheduleTotal - releaseAfter.scheduleReleased,
+      ], -releasedNow);
+
+      const repeatReleaseBefore = await readVestingEconomics(outsiderWallet.address);
+      const repeatRelease = await apiCall(port, "POST", "/v1/workflows/release-beneficiary-vesting", {
+        apiKey: "outsider-key",
+        body: {
+          beneficiary: outsiderWallet.address,
+          mode: "self",
+        },
+      });
+      const repeatReleaseAfter = await readVestingEconomics(outsiderWallet.address);
+      expect(repeatRelease.status).not.toBe(202);
+      assertExactAmountDelta(
+        "vesting.repeatRelease.beneficiaryBalance",
+        repeatReleaseBefore.beneficiaryBalance,
+        repeatReleaseAfter.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta(
+        "vesting.repeatRelease.totalSupply",
+        repeatReleaseBefore.totalSupply,
+        repeatReleaseAfter.totalSupply,
+        0n,
+      );
+      expect(repeatReleaseAfter.scheduleReleased).toBeGreaterThanOrEqual(repeatReleaseBefore.scheduleReleased);
+
+      const revokedAmount = 8_009n * 10n ** 10n + 3n;
+      const revokeBeforeCreate = await readVestingEconomics(transfereeWallet.address);
+      expect(await vestingFacet.hasVestingSchedule(transfereeWallet.address)).toBe(false);
+      const revokeCreate = await apiCall(port, "POST", "/v1/workflows/create-beneficiary-vesting", {
+        body: {
+          beneficiary: transfereeWallet.address,
+          amount: revokedAmount.toString(),
+          scheduleKind: "team",
+          vestingType: "2",
+        },
+      });
+      expect(revokeCreate.status, JSON.stringify(revokeCreate.payload)).toBe(202);
+      await expectReceipt(workflowTxHash(revokeCreate.payload, "create"));
+      const revokeAfterCreate = await readVestingEconomics(transfereeWallet.address);
+      assertExactAmountDelta(
+        "vesting.revokeCreate.founderBalance",
+        revokeBeforeCreate.founderBalance,
+        revokeAfterCreate.founderBalance,
+        -revokedAmount,
+      );
+      assertExactAmountDelta("vesting.revokeCreate.totalSupply", revokeBeforeCreate.totalSupply, revokeAfterCreate.totalSupply, 0n);
+      assertExactAmountDelta("vesting.revokeCreate.scheduleTotal", 0n, revokeAfterCreate.scheduleTotal, revokedAmount);
+
+      const revokeBefore = await readVestingEconomics(transfereeWallet.address);
+      const revoke = await apiCall(port, "POST", "/v1/workflows/revoke-beneficiary-vesting", {
+        body: { beneficiary: transfereeWallet.address },
+      });
+      expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+      await expectReceipt(workflowTxHash(revoke.payload, "revoke"));
+      const revokeAfter = await readVestingEconomics(transfereeWallet.address);
+      expect(revokeAfter.scheduleRevoked).toBe(1n);
+      assertExactAmountDelta(
+        "vesting.revoke.beneficiaryBalance",
+        revokeBefore.beneficiaryBalance,
+        revokeAfter.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta("vesting.revoke.totalSupply", revokeBefore.totalSupply, revokeAfter.totalSupply, 0n);
+      assertExactAmountDelta("vesting.revoke.scheduleTotal", revokeBefore.scheduleTotal, revokeAfter.scheduleTotal, 0n);
+      assertExactAmountDelta("vesting.revoke.scheduleReleased", revokeBefore.scheduleReleased, revokeAfter.scheduleReleased, 0n);
+      expect(revoke.payload).toMatchObject({
+        economics: {
+          canceledLiability: { delta: revokedAmount.toString() },
+          beneficiaryBalance: { delta: "0" },
+          totalSupply: { delta: "0" },
+          scheduleTotal: { delta: "0" },
+          released: { delta: "0" },
+        },
+      });
+
+      const repeatRevokeBefore = await readVestingEconomics(transfereeWallet.address);
+      const repeatRevoke = await apiCall(port, "POST", "/v1/workflows/revoke-beneficiary-vesting", {
+        body: { beneficiary: transfereeWallet.address },
+      });
+      expect(repeatRevoke.status).not.toBe(202);
+      assertNoEconomicSideEffects(
+        "vesting.repeatRevoke",
+        repeatRevokeBefore,
+        await readVestingEconomics(transfereeWallet.address),
+      );
       proofCompleted = true;
     } finally {
       const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);

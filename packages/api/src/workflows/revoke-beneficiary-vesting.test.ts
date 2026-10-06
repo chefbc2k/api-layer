@@ -51,7 +51,7 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
         .mockResolvedValueOnce({ statusCode: 200, body: "10000" })
         .mockResolvedValueOnce({ statusCode: 200, body: "10000" }),
       revokeVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xrevoke" } }),
-      vestingScheduleRevokedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrevoke-receipt", revokedAmount: "1000" }]),
+      vestingScheduleRevokedEventQuery: vi.fn().mockResolvedValue([{ transactionHash: "0xrevoke-receipt" }]),
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xrevoke-receipt");
 
@@ -67,6 +67,8 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
 
     expect(result.revoke.txHash).toBe("0xrevoke-receipt");
     expect(result.revoke.revokedAmount).toBe("1000");
+    expect(result.revoke.reportedRevokedAmount).toBeNull();
+    expect(result.revoke.reportedAmountMatchesLiability).toBeNull();
     expect(result.economics).toEqual({
       canceledLiability: { before: "0", after: "1000", delta: "1000" },
       beneficiaryBalance: { before: "250", after: "250", delta: "0" },

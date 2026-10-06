@@ -110,9 +110,6 @@ export async function runRevokeBeneficiaryVestingWorkflow(
   );
   const afterState = after.body as Awaited<ReturnType<typeof readVestingState>>;
   const revokedNow = extractRevokedAmountFromLogs(revokeEvents, revokeTxHash);
-  if (revokeEvents.length > 0 && revokedNow === null) {
-    throw new Error("revokeBeneficiaryVesting economic invariant failed: revocation event is missing revokedAmount");
-  }
   const revokedAmount = revokedNow === null ? canceledLiability : readBigInt(revokedNow);
   const beneficiaryBalanceAfter = await waitForWorkflowReadback(
     () => tokenomics.tokenBalanceOf({
@@ -171,6 +168,8 @@ export async function runRevokeBeneficiaryVestingWorkflow(
       txHash: revokeTxHash,
       eventCount: revokeEvents.length,
       revokedAmount: revokedAmount.toString(),
+      reportedRevokedAmount: revokedNow,
+      reportedAmountMatchesLiability: revokedNow === null ? null : revokedAmount === canceledLiability,
     },
     economics: {
       canceledLiability: canceledLiabilityDelta,
