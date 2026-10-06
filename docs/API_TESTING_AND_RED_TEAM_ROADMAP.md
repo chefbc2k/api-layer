@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Write-Invariant Metadata Automation Run — 2026-10-06
+
+- Revalidated the current production ABI inventory from isolated branch `codex/write-invariant-metadata-20261006`. All `260` mounted ABI write methods across `31` facets retain structured ABI signatures, required actors/roles, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. Actor classifications are `151` role-gated, `54` owner-or-approved, `36` self, `11` protocol-contract, and `8` permissionless; live safety remains `153` fork-only, `11` never automate live, and `96` safe with disposable fixtures.
+- Hardened the explicit authoring command so normal `pnpm run sync:write-invariants` preserves all human-reviewed entries, scaffolds only missing ABI writes, removes stale method keys, and leaves `reviewedAt` unchanged when the inventory is stable. Full heuristic replacement now requires the separate `--regenerate-all` opt-in, and conflicting regeneration modes fail closed.
+- Added regressions proving reviewed metadata survives a sync, newly introduced writes are scaffolded, stale entries are removed, and a stable ABI produces a byte-stable reviewed catalog. Existing validation continues to reject missing/stale metadata, ABI signature drift, structurally incomplete sections, stale read/event references, and inconsistent indexer expectations.
+- Verification passed: `pnpm run test:write-invariants` (`7/7`), `pnpm run codegen`, the byte-stability sync check, explicit `pnpm run coverage:check`, TypeScript, lint, and all workspace builds. Surface coverage remains `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.63%` statements, `96.78%` branches, `98.38%` functions, and `97.69%` lines.
+- The reviewed catalog SHA-256 is `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry SHA-256 is `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`. Code generation produced no semantic catalog drift, and transient API-surface timestamp churn was restored.
+- **Merge decision:** the write-invariant metadata workstream is 100% complete and verified for merge into `master`; there are no remaining blockers in this section.
+
 ## ABI-Driven Gap Report Automation Run — 2026-10-06
 
 - Rebased the reusable `codex/abi-gap-report-20261005` worktree onto synchronized local/remote production `master` `8ba7e73` after a concurrent assurance batch landed during verification. The isolated worktree preserved the unrelated primary checkout while the report was regenerated and revalidated against the new production evidence.
@@ -1205,17 +1214,17 @@ Build-blocker resolution:
 
 ### Write-Method Invariant Metadata Evidence
 
-The invariant catalog, revalidated on 2026-08-19, covers all `260` mounted ABI write methods across `31` facets. Every record includes the ABI signature plus required actor/role, preconditions, post-state readbacks, emitted-event expectations, balance effects, replay constraints, live-network safety, and indexer expectations. The current classification includes `152` role-gated, `54` owner-or-approved, `36` self, `10` protocol-contract, and `8` permissionless writes. Live safety defaults `153` writes to fork-only, marks `11` irreversible/global operations as never automate live, and permits `96` only with explicit disposable fixtures.
+The invariant catalog, revalidated on 2026-10-06, covers all `260` mounted ABI write methods across `31` facets. Every record includes the ABI signature plus required actor/role, preconditions, post-state readbacks, emitted-event expectations, balance effects, replay constraints, live-network safety, and indexer expectations. The current classification includes `151` role-gated, `54` owner-or-approved, `36` self, `11` protocol-contract, and `8` permissionless writes. Live safety defaults `153` writes to fork-only, marks `11` irreversible/global operations as never automate live, and permits `96` only with explicit disposable fixtures.
 
-Coverage behavior is fail-closed: normal codegen validates the reviewed catalog and does not auto-add new ABI methods. The generated registry rejects missing or stale method keys, ABI signature drift, incomplete invariant sections, invalid modes, stale/non-read post-state references, stale event references, and indexer events that are not declared receipt expectations. An explicit `pnpm run sync:write-invariants` authoring command is available for deliberate catalog regeneration, but it is not part of normal codegen.
+Coverage behavior is fail-closed: normal codegen validates the reviewed catalog and does not auto-add new ABI methods. The generated registry rejects missing or stale method keys, ABI signature drift, incomplete invariant sections, invalid modes, stale/non-read post-state references, stale event references, and indexer events that are not declared receipt expectations. The explicit `pnpm run sync:write-invariants` authoring command preserves reviewed entries, scaffolds only missing ABI writes, and removes stale keys; heuristic replacement of the full catalog requires the separate `--regenerate-all` opt-in and is not part of normal codegen.
 
 Verification evidence:
 
-- `pnpm run test:write-invariants`: `5/5` focused generator and validation tests passed, including a repository-level `260/260` current-ABI assertion.
+- `pnpm run test:write-invariants`: `7/7` focused generator, synchronization, and validation tests passed, including a repository-level `260/260` current-ABI assertion.
 - `pnpm run codegen`: regenerated all ABI/API artifacts and proved `260/260` invariant coverage during both registry generation and the final coverage gate.
 - `pnpm run coverage:check`: wrapper coverage passed for `492` functions and `218` events; HTTP coverage passed for `492` methods; write-invariant coverage passed for `260/260` ABI writes.
-- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: the fixed-order repository quality sequence passed on 2026-08-19; the full build reran codegen and all client, indexer, and API package builds.
-- `pnpm run test:coverage`: after one non-reproducible filesystem-test timeout passed `4/4` in isolation, the clean measured-coverage rerun passed at `99.98%` statements, `99.91%` branches, `100%` functions, and `99.98%` lines.
+- `pnpm exec tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build`: the fixed-order repository quality sequence passed on 2026-10-06; the full build reran codegen and all client, indexer, and API package builds.
+- `pnpm run test:coverage`: the measured-coverage suite passed at `97.63%` statements, `96.78%` branches, `98.38%` functions, and `97.69%` lines.
 - Regeneration produced no semantic changes to the invariant catalog or generated registry. The only transient output was the reviewed API surface's generation timestamp, which was restored to avoid committing non-semantic churn.
 - No merge blocker remains for the write-method invariant metadata section.
 
