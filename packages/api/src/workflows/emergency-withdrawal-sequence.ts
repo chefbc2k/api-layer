@@ -28,6 +28,32 @@ import {
 } from "./economic-invariants.js";
 
 const erc20BalanceInterface = new Interface(["function balanceOf(address account) view returns (uint256)"]);
+const emergencyWithdrawalRequestInterface = new Interface([
+  "event EmergencyWithdrawalRequested(bytes32 indexed requestId,address indexed token,uint256 indexed amount,address recipient,uint256 requestTime)",
+]);
+const ZERO_REQUEST_ID = `0x${"0".repeat(64)}`;
+
+function readMinedRequestId(
+  receipt: TransactionReceipt,
+  expected: { token: string; amount: string; recipient: string },
+): string | null {
+  for (const log of receipt.logs) {
+    try {
+      const parsed = emergencyWithdrawalRequestInterface.parseLog(log);
+      if (
+        parsed?.name === "EmergencyWithdrawalRequested" &&
+        String(parsed.args.token).toLowerCase() === expected.token.toLowerCase() &&
+        BigInt(parsed.args.amount) === BigInt(expected.amount) &&
+        String(parsed.args.recipient).toLowerCase() === expected.recipient.toLowerCase()
+      ) {
+        return normalizeRequestId(parsed.args.requestId);
+      }
+    } catch {
+      // Ignore unrelated receipt logs.
+    }
+  }
+  return null;
+}
 
 export const emergencyWithdrawalSequenceWorkflowSchema = z.object({
   token: addressSchema,
@@ -127,7 +153,15 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
   if (requestReceipt) {
     economicReceipts.push(requestReceipt);
   }
-  const requestId = normalizeRequestId(request.body);
+  const preflightRequestId = normalizeRequestId(request.body);
+  const minedRequestId = requestReceipt
+    ? readMinedRequestId(requestReceipt, {
+        token: body.token,
+        amount: body.amount,
+        recipient: body.recipient,
+      })
+    : null;
+  const requestId = minedRequestId ?? preflightRequestId;
 
   const requestEvents = requestReceipt
     ? await readOptionalEmergencyEventLogs(() => emergency.emergencyWithdrawalRequestedEventQuery({
@@ -142,7 +176,7 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
       }))
     : [];
 
-  const approvalCountAfterRequest = requestId && requestId !== `0x${"0".repeat(64)}`
+  const approvalCountAfterRequest = requestId && requestId !== ZERO_REQUEST_ID
     ? readScalarBody((await emergency.getApprovalCount({
       auth,
       api: { executionSource: "live", gaslessMode: "none" },
@@ -159,8 +193,8 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
     approvalEventCount: number,
     executedEventCount: number,
   }> = [];
-  let executed = instantExecutionEvents.length > 0 || requestId === `0x${"0".repeat(64)}`;
-  if (requestId && requestId !== `0x${"0".repeat(64)}`) {
+  let executed = instantExecutionEvents.length > 0 || requestId === ZERO_REQUEST_ID;
+  if (requestId && requestId !== ZERO_REQUEST_ID) {
     for (const actorOverride of body.approvals) {
       if (executed) {
         break;
@@ -231,7 +265,7 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
     txHash: string | null,
     eventCount: number,
   } | null = null;
-  if (body.execute && requestId && requestId !== `0x${"0".repeat(64)}` && !executed) {
+  if (body.execute && requestId && requestId !== ZERO_REQUEST_ID && !executed) {
     const actor = resolveActorOverride(
       context,
       auth,
@@ -300,10 +334,12 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
       submission: request.body,
       txHash: requestTxHash,
       requestId,
+      preflightRequestId,
+      requestIdSource: minedRequestId ? "receipt-event" : "preflight",
       approvalCountAfterRequest,
       requestEventCount: requestEvents.length,
       instantExecutionEventCount: instantExecutionEvents.length,
-      instantExecuted: requestId === `0x${"0".repeat(64)}` || instantExecutionEvents.length > 0,
+      instantExecuted: requestId === ZERO_REQUEST_ID || instantExecutionEvents.length > 0,
     },
     approvals,
     execute,
@@ -322,7 +358,7 @@ export async function runEmergencyWithdrawalSequenceWorkflow(
       approvalsRequested: (body.approvals ?? []).length,
       approvalsObserved: approvals.length,
       executed,
-      requiresManualExecution: Boolean(requestId && requestId !== `0x${"0".repeat(64)}`),
+      requiresManualExecution: Boolean(requestId && requestId !== ZERO_REQUEST_ID),
     },
   };
 }

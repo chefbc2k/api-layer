@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Interface } from "ethers";
 import { HttpError } from "../shared/errors.js";
 
 const mocks = vi.hoisted(() => ({
@@ -25,7 +26,7 @@ function encodeUint256(value: bigint): string {
 function makeContext(
   apiKeys: Record<string, unknown> = {},
   balanceReads: bigint[] = [1_000n, 0n, 900n, 100n],
-  receipt: { from?: string; fee?: bigint } = {},
+  receipt: { from?: string; fee?: bigint; logs?: Array<{ data: string; topics: string[] }> } = {},
 ) {
   let balanceReadIndex = 0;
   const readBalance = () => balanceReads[balanceReadIndex++] ?? balanceReads.at(-1) ?? 0n;
@@ -34,6 +35,7 @@ function makeContext(
       blockNumber: 100,
       from: receipt.from ?? "0x00000000000000000000000000000000000000aa",
       fee: receipt.fee ?? 0n,
+      logs: receipt.logs ?? [],
     })),
     call: vi.fn(async () => encodeUint256(readBalance())),
     getBalance: vi.fn(async () => readBalance()),
@@ -239,6 +241,64 @@ describe("emergency-withdrawal-sequence", () => {
     expect(result.approvals).toHaveLength(1);
     expect(result.execute).toBeNull();
     expect(result.summary.executed).toBe(true);
+  });
+
+  it("uses the mined request event id when transaction-time state differs from preflight", async () => {
+    mocks.waitForWorkflowWriteReceipt.mockReset();
+    mocks.waitForWorkflowWriteReceipt
+      .mockResolvedValueOnce("0xrequest")
+      .mockResolvedValueOnce("0xapprove");
+    const previewRequestId = `0x${"1".repeat(64)}`;
+    const minedRequestId = `0x${"2".repeat(64)}`;
+    const token = "0x00000000000000000000000000000000000000bb";
+    const recipient = "0x00000000000000000000000000000000000000cc";
+    const requestEvent = new Interface([
+      "event EmergencyWithdrawalRequested(bytes32 indexed requestId,address indexed token,uint256 indexed amount,address recipient,uint256 requestTime)",
+    ]).encodeEventLog(
+      "EmergencyWithdrawalRequested",
+      [minedRequestId, token, 100n, recipient, 123n],
+    );
+    const approveEmergencyWithdrawal = vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove" } });
+    mocks.createEmergencyPrimitiveService.mockReturnValue({
+      isRecipientWhitelisted: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: true })
+        .mockResolvedValueOnce({ statusCode: 200, body: true }),
+      requestEmergencyWithdrawal: vi.fn().mockResolvedValue({ statusCode: 202, body: { result: previewRequestId } }),
+      emergencyWithdrawalRequestedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xrequest" }] }),
+      emergencyWithdrawalEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [] }),
+      getApprovalCount: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "0" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
+      approveEmergencyWithdrawal,
+      emergencyWithdrawalApprovedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xapprove" }] }),
+      emergencyWithdrawalExecutedEventQuery: vi.fn().mockResolvedValue({ statusCode: 200, body: [{ transactionHash: "0xapprove" }] }),
+    });
+
+    const result = await runEmergencyWithdrawalSequenceWorkflow(
+      makeContext(
+        { approver: { apiKey: "approver", label: "approver", roles: ["service"], allowGasless: false } },
+        [1_000n, 0n, 900n, 100n],
+        { logs: [{ data: requestEvent.data, topics: [...requestEvent.topics] }] },
+      ),
+      { apiKey: "requester", label: "requester", roles: ["service"], allowGasless: false },
+      undefined,
+      {
+        token,
+        amount: "100",
+        recipient,
+        whitelistRecipient: false,
+        approvals: [{ apiKey: "approver" }],
+      },
+    );
+
+    expect(approveEmergencyWithdrawal).toHaveBeenCalledWith(expect.objectContaining({
+      wireParams: [minedRequestId],
+    }));
+    expect(result.request).toMatchObject({
+      requestId: minedRequestId,
+      preflightRequestId: previewRequestId,
+      requestIdSource: "receipt-event",
+    });
   });
 
   it("normalizes whitelist failures", async () => {
