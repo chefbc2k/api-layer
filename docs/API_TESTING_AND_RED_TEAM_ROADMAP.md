@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-05
+
+- Reused the dedicated red-team worktree, preserved its unfinished signed-envelope hardening, renamed the branch to `codex/red-team-harness-20261005`, fetched `origin`, and rebased the slice onto current local `master` `e1ac12d`. The primary checkout's unrelated actor/indexer edits were left untouched.
+- Hardened the signed-request oracle against ECDSA malleability and malformed authorization domains. It now rejects zero or out-of-range secp256k1 `r`/`s` scalars, noncanonical high-`s` signatures in full and EIP-2098 compact form, unsupported recovery IDs, negative timestamps/validity windows/nonces, and malformed bytes32 role bindings. Existing stale/future deadline, replay/nonce-gap, and signer-role substitution checks remain intact.
+- Added deterministic regressions for each new finding and updated valid signature fixtures to canonical low-`s` values. Regenerated the persistent gap reports; only their timestamp changed, with classifications stable at `378` ready, `197` needing fixtures, `36` unsafe on live networks, and `99` needing indexer proof.
+- Required red-team verification passed: `pnpm run test:redteam` (`116/116`) and guarded `pnpm run redteam:local-fork` (`160/160` across `11` files with all `6/6` deployed-fork probes active). The fork gate covered transaction replay/value movement, emergency pause/resume denial, early timelock execution denial, multisig/governance workflows, indexer consistency, and real stale-receipt replacement without enabling destructive live-network paths.
+- TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.65%` statements, `96.85%` branches, `98.44%` functions, and `97.69%` lines; `scripts/red-team-harness-lib.ts` measured `100%` statements/functions/lines and `98.44%` branches.
+- **Merge blocker:** the full repository suite passed `1,539` tests with `40` gated skips but timed out in `scripts/coverage-fs-patch.test.ts` on two separate aggregate runs. The same four-test file passed in isolation (`4/4` in `2.57s`), so the failure is outside the red-team slice but remains a repeated repository-gate failure. Do not merge until the aggregate-only timeout is diagnosed or stabilized and a complete `pnpm test` run passes; then rerun the required gates and merge this branch.
+
 ## ABI-Driven Gap Report Automation Run — 2026-10-05
 
 - Started `codex/abi-gap-report-20261005` from synchronized local/remote production `master` `91e5156`. The unrelated dirty primary checkout and the stale 2026-10-04 ABI autosave, whose only unmerged changes were report timestamps, remained untouched.

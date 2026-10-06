@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.373] - 2026-10-05
+
+### Changed
+
+- **Signed Envelopes Reject Malleable ECDSA Inputs:** Extended the red-team oracle to reject zero or out-of-range secp256k1 scalars, high-`s` full and compact signatures, unsupported recovery IDs, negative signed-domain values, and malformed bytes32 role bindings.
+- **Canonical Boundary Regressions Cover Confused-Deputy Inputs:** Added deterministic signature, nonce, timestamp, validity-window, and role-ID mutations while preserving replay, nonce-gap, deadline, and signer-role substitution coverage.
+- **Persistent Gap Evidence Remains Stable:** Regenerated the API gap reports with no semantic drift: `378` items remain ready, `197` need fixtures, `36` are unsafe on live networks, and `99` need indexer proof.
+
+### Verified
+
+- **Red-Team And Fork Gates Passed:** `pnpm run test:redteam` passed `116/116`; the guarded local-fork gate passed `160/160` across `11` files with all `6/6` deployed-fork probes active.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.65%` statements, `96.85%` branches, `98.44%` functions, and `97.69%` lines.
+- **Merge Remains Blocked By Aggregate Timeout:** Two full-suite runs each passed `1,539` tests with `40` gated skips but timed out in `scripts/coverage-fs-patch.test.ts`; its isolated rerun passed `4/4` in `2.57s`. The red-team branch must remain unmerged until a complete aggregate suite passes.
+
 ## [0.1.372] - 2026-10-05
 
 ### Changed
