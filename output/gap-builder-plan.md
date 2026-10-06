@@ -1,12 +1,12 @@
 # Gap Builder Plan
 
-Generated: `2026-10-06T11:00:34.142Z`
-Source gap report: `2026-10-06T11:00:32.187Z`
+Generated: `2026-10-06T11:05:20.597Z`
+Source gap report: `2026-10-06T11:05:18.424Z`
 
 ## Summary
 
-- Non-ready items in scope: `231`
-- Selected this run: `93`
+- Non-ready items in scope: `168`
+- Selected this run: `68`
 
 ## AccessControlFacet
 
@@ -145,7 +145,7 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 
 ## UpgradeControllerFacet
 
-Reduce UpgradeControllerFacet launch blockers across 5 gap items.
+Reduce UpgradeControllerFacet launch blockers across 6 gap items.
 
 - `UpgradeControllerFacet.approveUpgrade` (unsafe on live network)
   - Endpoint: `POST /v1/diamond-admin/admin/approve-upgrade`
@@ -162,6 +162,9 @@ Reduce UpgradeControllerFacet launch blockers across 5 gap items.
 - `UpgradeControllerFacet.setUpgradeControlEnforced` (unsafe on live network)
   - Endpoint: `POST /v1/diamond-admin/admin/set-upgrade-control-enforced`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `UpgradeControllerFacet.initUpgradeController` (needs fixture)
+  - Endpoint: `POST /v1/diamond-admin/diamond-admin`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
@@ -184,32 +187,10 @@ Reduce BurnThresholdFacet launch blockers across 4 gap items.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## CommunityRewardsFacet
-
-Reduce CommunityRewardsFacet launch blockers across 1 gap item.
-
-- `CommunityRewardsFacet.vestedAmount` (needs fixture)
-  - Endpoint: `GET /v1/tokenomics/queries/vested-amount`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`
-
 ## DelegationFacet
 
-Reduce DelegationFacet launch blockers across 7 gap items.
+Reduce DelegationFacet launch blockers across 3 gap items.
 
-- `DelegationFacet.DELEGATION_TYPEHASH` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/delegation-typehash`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DelegationFacet.DOMAIN_TYPEHASH` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/domain-typehash`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DelegationFacet.getPriorVotes` (needs fixture)
-  - Endpoint: `GET /v1/staking/queries/get-prior-votes`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DelegationFacet.getTotalVotingPower` (needs fixture)
-  - Endpoint: `GET /v1/staking/queries/get-total-voting-power`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 - `DelegationFacet.delegateBySig` (needs fixture)
   - Endpoint: `POST /v1/staking/commands/delegate-by-sig`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
@@ -224,32 +205,8 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 
 ## EchoScoreFacetV3
 
-Reduce EchoScoreFacetV3 launch blockers across 16 gap items.
+Reduce EchoScoreFacetV3 launch blockers across 8 gap items.
 
-- `EchoScoreFacetV3.getEchoScoreOracleV3` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/get-echo-score-oracle-v3`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.getOracleFutureDriftConfig` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/get-oracle-future-drift-config`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.getOracleQuorumSigners` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/get-oracle-quorum-signers`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.getOracleStalenessConfig` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/get-oracle-staleness-config`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.getReputation` (needs fixture)
-  - Endpoint: `GET /v1/staking/queries/get-reputation`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.getReputationHistory` (needs fixture)
-  - Endpoint: `GET /v1/staking/queries/get-reputation-history`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.isEchoScorePausedV3` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/is-echo-score-paused-v3`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EchoScoreFacetV3.isOracleHealthy` (needs fixture)
-  - Endpoint: `POST /v1/staking/queries/is-oracle-healthy`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 - `EchoScoreFacetV3.batchUpdateScores` (needs fixture)
   - Endpoint: `POST /v1/staking/commands/batch-update-scores`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
@@ -337,19 +294,9 @@ Reduce LegacyFacet launch blockers across 3 gap items.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## LegacyViewFacet
-
-Reduce LegacyViewFacet launch blockers across 1 gap item.
-
-- `LegacyViewFacet.validateBeneficiaries` (needs fixture)
-  - Endpoint: `POST /v1/voice-assets/queries/validate-beneficiaries`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`
-
 ## OwnershipFacet
 
-Reduce OwnershipFacet launch blockers across 6 gap items.
+Reduce OwnershipFacet launch blockers across 3 gap items.
 
 - `OwnershipFacet.acceptOwnership` (needs fixture)
   - Endpoint: `POST /v1/ownership/commands/accept-ownership`
@@ -359,49 +306,6 @@ Reduce OwnershipFacet launch blockers across 6 gap items.
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 - `OwnershipFacet.proposeOwnershipTransfer` (needs fixture)
   - Endpoint: `POST /v1/ownership/commands/propose-ownership-transfer`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `OwnershipFacet.setApprovedOwnerTarget` (needs fixture)
-  - Endpoint: `PATCH /v1/ownership/commands/set-approved-owner-target`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `OwnershipFacet.setOwnershipPolicyEnforced` (needs fixture)
-  - Endpoint: `PATCH /v1/ownership/commands/set-ownership-policy-enforced`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `OwnershipFacet.transferOwnership` (needs fixture)
-  - Endpoint: `POST /v1/ownership/commands/transfer-ownership`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
-
-## PaymentFacet
-
-Reduce PaymentFacet launch blockers across 9 gap items.
-
-- `PaymentFacet.getMevProtectionConfig` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/queries/get-mev-protection-config`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `PaymentFacet.getPendingTimewaveGift` (needs fixture)
-  - Endpoint: `GET /v1/marketplace/queries/get-pending-timewave-gift`
-  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `PaymentFacet.approveMultisigWithdrawal` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/approve-multisig-withdrawal`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `PaymentFacet.commitDistribution` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/commit-distribution`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `PaymentFacet.commitWithdraw` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/commit-withdraw`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `PaymentFacet.distributePayment` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/distribute-payment`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `PaymentFacet.distributePaymentFrom` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/distribute-payment-from`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `PaymentFacet.distributePaymentFromWithDeadline` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/distribute-payment-from-with-deadline`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `PaymentFacet.distributePaymentWithDeadline` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/distribute-payment-with-deadline`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`

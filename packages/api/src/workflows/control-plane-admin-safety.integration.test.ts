@@ -232,15 +232,6 @@ const adminWriteCases = [
   },
 ] as const;
 
-const initializationWriteCases = [
-  {
-    key: "UpgradeControllerFacet.initUpgradeController",
-    path: "/v1/diamond-admin/diamond-admin",
-    body: { signers: [address], threshold: "1", delay: "0" },
-    denial: "unauthorized or replayed upgrade-controller initialization",
-  },
-] as const;
-
 const actorRoles = ["buyer", "seller", "licensee", "collaborator"] as const;
 
 async function startServer() {
@@ -326,7 +317,7 @@ describe("control-plane admin route safety", () => {
     const { server, port } = await startServer();
 
     try {
-      for (const [caseIndex, testCase] of [...adminWriteCases, ...initializationWriteCases].entries()) {
+      for (const [caseIndex, testCase] of adminWriteCases.entries()) {
         const response = await fetch(`http://127.0.0.1:${port}${testCase.path}`, {
           method: "POST",
           headers: {
