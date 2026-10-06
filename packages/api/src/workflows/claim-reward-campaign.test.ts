@@ -15,15 +15,33 @@ vi.mock("./wait-for-write.js", () => ({
 
 import { runClaimRewardCampaignWorkflow } from "./claim-reward-campaign.js";
 
-function tokenEconomics(balanceBefore = "100", balanceAfter = balanceBefore, supply = "1000") {
+const custody = "0x0000000000000000000000000000000000000ddd";
+
+function tokenEconomics(
+  balanceBefore = "100",
+  balanceAfter = balanceBefore,
+  supply = "1000",
+  custodyBefore = "1000",
+  custodyAfterOverride?: string,
+) {
+  const custodyAfter = custodyAfterOverride ?? (BigInt(custodyBefore) - (BigInt(balanceAfter) - BigInt(balanceBefore))).toString();
   return {
     tokenBalanceOf: vi.fn()
       .mockResolvedValueOnce({ statusCode: 200, body: balanceBefore })
-      .mockResolvedValueOnce({ statusCode: 200, body: balanceAfter }),
+      .mockResolvedValueOnce({ statusCode: 200, body: custodyBefore })
+      .mockResolvedValueOnce({ statusCode: 200, body: balanceAfter })
+      .mockResolvedValueOnce({ statusCode: 200, body: custodyAfter }),
     totalSupply: vi.fn()
       .mockResolvedValueOnce({ statusCode: 200, body: supply })
       .mockResolvedValueOnce({ statusCode: 200, body: supply }),
   };
+}
+
+function workflowContext(providerRouter: unknown = { withProvider: vi.fn() }) {
+  return {
+    addressBook: { toJSON: () => ({ diamond: custody }) },
+    providerRouter,
+  } as never;
 }
 
 describe("runClaimRewardCampaignWorkflow", () => {
@@ -42,6 +60,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
   it("claims rewards and confirms claimed, claimable, and campaign totals in order", async () => {
     const sequence: string[] = [];
     const context = {
+      addressBook: { toJSON: () => ({ diamond: custody }) },
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: {
           getTransactionReceipt: (txHash: string) => Promise<unknown>;
@@ -130,7 +149,9 @@ describe("runClaimRewardCampaignWorkflow", () => {
       },
       economics: {
         claimerBalance: { before: "100", after: "120", delta: "20" },
+        custodyBalance: { before: "1000", after: "980", delta: "-20" },
         totalSupply: { before: "1000", after: "1000", delta: "0" },
+        conservation: "0",
       },
       claim: {
         submission: { txHash: "0xclaim-write", result: "20" },
@@ -165,6 +186,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xclaim-receipt");
     const context = {
+      addressBook: { toJSON: () => ({ diamond: custody }) },
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
           getTransactionReceipt?: (txHash: string) => Promise<unknown>;
@@ -206,6 +228,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xclaim-receipt");
     const context = {
+      addressBook: { toJSON: () => ({ diamond: custody }) },
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
           getTransactionReceipt: (txHash: string) => Promise<unknown>;
@@ -237,9 +260,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
     });
 
     try {
-      await runClaimRewardCampaignWorkflow({
-        providerRouter: { withProvider: vi.fn() },
-      } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      await runClaimRewardCampaignWorkflow(workflowContext(), auth, "0x00000000000000000000000000000000000000aa", {
         campaignId: "17",
         totalAllocation: "2",
         proof: [],
@@ -249,6 +270,24 @@ describe("runClaimRewardCampaignWorkflow", () => {
       expect((error as { statusCode?: number }).statusCode).toBe(409);
       expect((error as Error).message).toBe("claim-reward-campaign blocked by setup/state: campaign has no token funding");
     }
+  });
+
+  it("fails closed when a rejected claim hides custody movement", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "100", "1000", "500", "499"),
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      claim: vi.fn().mockRejectedValue(new Error("rejected claim")),
+      claimedEventQuery: vi.fn(),
+    });
+
+    await expect(runClaimRewardCampaignWorkflow(
+      workflowContext(),
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      { campaignId: "17", totalAllocation: "2", proof: [] },
+    )).rejects.toThrow("claimRewardCampaign.failed.custodyBalance economic invariant failed");
   });
 
   it("supports claim flows without a mined receipt by accepting increasing readbacks", async () => {
@@ -269,9 +308,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
 
-    const result = await runClaimRewardCampaignWorkflow({
-      providerRouter: { withProvider: vi.fn() },
-    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+    const result = await runClaimRewardCampaignWorkflow(workflowContext(), auth, "0x00000000000000000000000000000000000000aa", {
       campaignId: "18",
       totalAllocation: "1",
       proof: ["0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"],
@@ -309,6 +346,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xclaim-receipt");
     const context = {
+      addressBook: { toJSON: () => ({ diamond: custody }) },
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
           getTransactionReceipt?: (txHash: string) => Promise<unknown>;
@@ -401,9 +439,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       claimedEventQuery: vi.fn(),
     });
 
-    await expect(runClaimRewardCampaignWorkflow({
-      providerRouter: { withProvider: vi.fn() },
-    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+    await expect(runClaimRewardCampaignWorkflow(workflowContext(), auth, "0x00000000000000000000000000000000000000aa", {
       campaignId: "19",
       totalAllocation: "5",
       proof: [],
@@ -432,9 +468,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       claimedEventQuery: vi.fn(),
     });
 
-    await expect(runClaimRewardCampaignWorkflow({
-      providerRouter: { withProvider: vi.fn() },
-    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+    await expect(runClaimRewardCampaignWorkflow(workflowContext(), auth, "0x00000000000000000000000000000000000000aa", {
       campaignId: "19",
       totalAllocation: "5",
       proof: [],
@@ -456,9 +490,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       claimedEventQuery: vi.fn(),
     });
 
-    await expect(runClaimRewardCampaignWorkflow({
-      providerRouter: { withProvider: vi.fn() },
-    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+    await expect(runClaimRewardCampaignWorkflow(workflowContext(), auth, "0x00000000000000000000000000000000000000aa", {
       campaignId: "20",
       totalAllocation: "1",
       proof: [],

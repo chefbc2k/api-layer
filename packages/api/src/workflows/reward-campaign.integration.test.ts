@@ -204,7 +204,9 @@ describe("reward campaign workflow routes", () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
       tokenBalanceOf: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: "100" })
-        .mockResolvedValueOnce({ statusCode: 200, body: "110" }),
+        .mockResolvedValueOnce({ statusCode: 200, body: "500" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "110" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "490" }),
       totalSupply: vi.fn().mockResolvedValue({ statusCode: 200, body: "1000" }),
       getCampaign: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "5", paused: false } })
@@ -221,6 +223,9 @@ describe("reward campaign workflow routes", () => {
     mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xclaim-receipt");
 
     const router = createWorkflowRouter({
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
       apiKeys: {
         "test-key": {
           apiKey: "test-key",
@@ -278,7 +283,9 @@ describe("reward campaign workflow routes", () => {
       },
       economics: {
         claimerBalance: { before: "100", after: "110", delta: "10" },
+        custodyBalance: { before: "500", after: "490", delta: "-10" },
         totalSupply: { before: "1000", after: "1000", delta: "0" },
+        conservation: "0",
       },
       claim: {
         txHash: "0xclaim-receipt",
@@ -306,6 +313,9 @@ describe("reward campaign workflow routes", () => {
     });
 
     const router = createWorkflowRouter({
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
       apiKeys: {
         "test-key": {
           apiKey: "test-key",
