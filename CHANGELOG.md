@@ -2,6 +2,59 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.375] - 2026-10-06
+
+### Changed
+
+- **Write-Invariant Metadata Remains Complete:** Revalidated all `260` ABI write methods across `31` facets. Every entry retains its ABI signature, actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations.
+- **Authoring Sync Preserves Human Review:** Changed normal `sync:write-invariants` behavior to retain reviewed entries, scaffold only missing ABI writes, remove stale keys, and preserve the review date when no semantic change occurs. Full heuristic regeneration now requires the explicit `--regenerate-all` flag.
+- **Sync Drift Has Regression Coverage:** Added tests proving reviewed metadata is not overwritten, new writes are scaffolded, stale records are removed, and unchanged inventories remain byte-stable. Existing fail-closed coverage still rejects missing/stale metadata, ABI drift, incomplete sections, stale ABI references, and inconsistent projections.
+
+### Verified
+
+- **Invariant And Generation Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; canonical codegen, a byte-stability sync check, and explicit `pnpm run coverage:check` proved `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, and all workspace builds passed. Measured coverage passed at `97.63%` statements, `96.78%` branches, `98.38%` functions, and `97.69%` lines.
+
+## [0.1.374] - 2026-10-06
+
+### Changed
+
+- **Current-Master ABI Gap Evidence Revalidated:** Rebuilt the generated ABI/API inventories after rebasing onto the completed forty-percent assurance batch, then refreshed the persistent JSON and Markdown reports. Timestamp-normalized artifacts are identical to the production report across all `33` facets, `492` functions, `218` event occurrences, and `710` total items.
+- **Proof Inputs And Summaries Audited:** Confirmed all `159` referenced evidence paths exist, every item retains a valid proof-depth score and classification, and every facet summary reconciles with its underlying inventory. Classifications remain `542` ready, `132` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof.
+
+### Verified
+
+- **Reporter, Planner, And Repository Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,702` active tests across `147` files with `40` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.63%` statements, `96.78%` branches, `98.38%` functions, and `97.69%` lines.
+
+## [0.1.373] - 2026-10-06
+
+### Changed
+
+- **All Event/Indexer Gaps Gain Direct Proof:** Added event-specific production decode, projection, conflict-safe replay, and current-row assurance for every reviewed materialized event still lacking evidence. Added deterministic decode/replay and no-projection-write assurance for every reviewed raw-event-only policy. The generated report now attributes indexer proof to all `218` event occurrences and has zero remaining indexer-proof gaps.
+- **ABI-Native Read Fixtures Close The Read Backlog:** Added a generated-registry fixture matrix that ABI-encodes realistic inputs and state results, invokes every remaining read through the production client path, validates calldata/facet routing, and decodes the returned value. Together with the mounted role-multiplier readback, `65` prior read fixture gaps are now ready.
+- **Durable Fork Receipt Evidence Preserved Across Runs:** The local-fork indexer proof runner now accepts an explicit artifact set, merges successful method receipts into a persistent proof ledger without duplicate transaction hashes, and recomputes durable receipt, raw-event, projection-row, and remaining-method totals.
+- **Admin Boundary Evidence Is Actor-Preserving:** Actor negative-path reports now explicitly record all `200` non-admin API-role denials across the `50` admin-classified write methods. The Base Sepolia contract integration path also exercises role-multiplier configuration and readback through the mounted API and generated facet binding.
+- **Strict Write Promotion Remains Fail-Closed:** `UpgradeControllerFacet.initUpgradeController` remains `needs fixture`; denial-only evidence is not accepted as completion without an isolated-fork receipt, decoded event, readback, and Postgres/indexer projection proof. All `36` destructive/admin live-write items remain gated.
+- **Gap Artifacts Regenerated:** Refreshed the API test-gap and 40%-batch planner artifacts. Ready items increased from `378` to `542`; non-ready items decreased from `332` to `168`, resolving `164` prior gaps for `49.40%` forward progress. Indexer-proof gaps fell from `99` to `0` and fixture gaps fell from `197` to `132`. The initial plan selected `133/332` items (`40.06%`); the final next plan selects `68/168` (`40.48%`).
+
+### Verified
+
+- **Focused And Required Suites Passed:** The ABI-native read matrix passed `64/64`, event assurance passed `206/206`, gap-report tests passed `8/8`, gap-builder tests passed `12/12`, actor negative-path assurance passed `153/153`, and indexer assurance passed `267` active tests with `6` PostgreSQL-gated skips.
+- **Quality, Build, And Coverage Gates Passed:** TypeScript, lint, code generation, and all workspace builds passed. Explicit surface coverage remains complete at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.372] - 2026-10-05
+
+### Changed
+
+- **ABI Gap Evidence Revalidated:** Regenerated the ABI-driven JSON and Markdown gap reports from current production manifests, reviewed API surface, tests, and verification artifacts. The semantic inventory remains stable at `378` ready items, `197` needing fixtures, `36` unsafe on live networks, and `99` needing indexer proof across all `710` function and event occurrences.
+- **Proof Inputs Audited:** Confirmed all `158` referenced inputs exist and every facet, function, and event retains a valid proof-depth score and classification.
+
+### Verified
+
+- **Reporter And Planner Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,539` active tests across `146` files with `40` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.65%` statements, `96.88%` branches, `98.51%` functions, and `97.68%` lines.
+
 ## [0.1.371] - 2026-10-04
 
 ### Changed

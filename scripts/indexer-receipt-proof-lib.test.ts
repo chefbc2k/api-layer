@@ -4,8 +4,10 @@ import {
   buildWriteSelectorMap,
   collectTransactionHashes,
   evaluateReceiptExpectation,
+  mergePersistentProofReports,
   projectionTableNames,
   receiptProofArtifactEligibility,
+  summarizePersistentProofReports,
 } from "./indexer-receipt-proof-lib.js";
 
 describe("local-fork receipt-to-indexer proof", () => {
@@ -98,5 +100,47 @@ describe("local-fork receipt-to-indexer proof", () => {
       indexedRows: [],
       projectedTables: [],
     }).failures).toEqual([]);
+  });
+
+  it("merges durable method proof without losing receipts from earlier fork runs", () => {
+    const first = `0x${"66".repeat(32)}`;
+    const second = `0x${"77".repeat(32)}`;
+    const reports = mergePersistentProofReports({
+      "ExistingFacet.write": {
+        result: "proven working",
+        evidence: [{
+          txHash: first,
+          postgres: { rawEvents: { rowCount: 2 }, projections: [{ rowCount: 1 }] },
+          source: { workflowArtifacts: ["previous.json"] },
+        }],
+      },
+    }, {
+      "ExistingFacet.write": {
+        result: "proven working",
+        evidence: [{ txHash: first }],
+      },
+      "NewFacet.write": {
+        result: "proven working",
+        evidence: [{
+          txHash: second,
+          postgres: { rawEvents: { rowCount: 1 }, projections: [] },
+          source: { workflowArtifacts: ["current.json"] },
+        }],
+      },
+    });
+
+    expect(Object.keys(reports)).toEqual(["ExistingFacet.write", "NewFacet.write"]);
+    expect(reports["ExistingFacet.write"].evidence).toHaveLength(1);
+    expect(summarizePersistentProofReports(reports, 260)).toEqual({
+      artifactTransactionHashes: 2,
+      includedArtifacts: 1,
+      skippedArtifacts: 0,
+      indexedReceipts: 2,
+      provenWriteMethods: 2,
+      catalogWriteMethods: 260,
+      remainingWriteMethods: 258,
+      rawEvents: 1,
+      projectionRows: 0,
+    });
   });
 });

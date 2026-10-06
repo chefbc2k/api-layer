@@ -30,6 +30,21 @@ export type ReceiptProofArtifactEligibility = {
   reason: string | null;
 };
 
+export type PersistentReceiptEvidence = {
+  txHash?: unknown;
+  postgres?: {
+    rawEvents?: { rowCount?: unknown };
+    projections?: Array<{ rowCount?: unknown }>;
+  };
+  source?: { workflowArtifacts?: unknown };
+};
+
+export type PersistentMethodReport = Record<string, unknown> & {
+  evidence?: PersistentReceiptEvidence[];
+};
+
+export type PersistentProofReports = Record<string, PersistentMethodReport>;
+
 const TX_HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/u;
 
 export function receiptProofArtifactEligibility(value: unknown): ReceiptProofArtifactEligibility {
@@ -71,6 +86,74 @@ export function collectTransactionHashes(value: unknown, hashes = new Set<string
     collectTransactionHashes(entry, hashes);
   }
   return hashes;
+}
+
+export function mergePersistentProofReports(
+  previous: PersistentProofReports,
+  current: PersistentProofReports,
+): PersistentProofReports {
+  const methodKeys = [...new Set([...Object.keys(previous), ...Object.keys(current)])]
+    .sort((left, right) => left.localeCompare(right));
+  return Object.fromEntries(methodKeys.map((methodKey) => {
+    const priorReport = previous[methodKey];
+    const currentReport = current[methodKey];
+    const evidence = [...(priorReport?.evidence ?? []), ...(currentReport?.evidence ?? [])];
+    const uniqueEvidence = new Map<string, PersistentReceiptEvidence>();
+    for (const entry of evidence) {
+      if (typeof entry.txHash === "string" && TX_HASH_PATTERN.test(entry.txHash)) {
+        uniqueEvidence.set(entry.txHash.toLowerCase(), entry);
+      }
+    }
+    return [methodKey, {
+      ...(priorReport ?? {}),
+      ...(currentReport ?? {}),
+      evidence: [...uniqueEvidence.entries()]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([, entry]) => entry),
+    }];
+  }));
+}
+
+export function summarizePersistentProofReports(
+  reports: PersistentProofReports,
+  catalogWriteMethods: number,
+  skippedArtifacts = 0,
+) {
+  const receipts = new Map<string, PersistentReceiptEvidence>();
+  const artifacts = new Set<string>();
+  for (const report of Object.values(reports)) {
+    for (const evidence of report.evidence ?? []) {
+      if (typeof evidence.txHash === "string" && TX_HASH_PATTERN.test(evidence.txHash)) {
+        receipts.set(evidence.txHash.toLowerCase(), evidence);
+      }
+      if (Array.isArray(evidence.source?.workflowArtifacts)) {
+        for (const artifact of evidence.source.workflowArtifacts) {
+          if (typeof artifact === "string") {
+            artifacts.add(artifact);
+          }
+        }
+      }
+    }
+  }
+  const rowCount = (value: unknown): number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 ? value : 0;
+  const rawEvents = [...receipts.values()]
+    .reduce((sum, evidence) => sum + rowCount(evidence.postgres?.rawEvents?.rowCount), 0);
+  const projectionRows = [...receipts.values()].reduce(
+    (sum, evidence) => sum + (evidence.postgres?.projections ?? [])
+      .reduce((projectionSum, projection) => projectionSum + rowCount(projection.rowCount), 0),
+    0,
+  );
+  return {
+    artifactTransactionHashes: receipts.size,
+    includedArtifacts: artifacts.size,
+    skippedArtifacts,
+    indexedReceipts: receipts.size,
+    provenWriteMethods: Object.keys(reports).length,
+    catalogWriteMethods,
+    remainingWriteMethods: catalogWriteMethods - Object.keys(reports).length,
+    rawEvents,
+    projectionRows,
+  };
 }
 
 export function buildWriteSelectorMap(

@@ -200,6 +200,36 @@ const adminWriteCases = [
     body: { recipient: address, value: "0", data: "0x" },
     denial: "unauthorized multisig transaction submission",
   },
+  {
+    key: "UpgradeControllerFacet.approveUpgrade",
+    path: "/v1/diamond-admin/admin/approve-upgrade",
+    body: { upgradeId: role },
+    denial: "unauthorized or replayed upgrade approval",
+  },
+  {
+    key: "UpgradeControllerFacet.executeUpgrade",
+    path: "/v1/diamond-admin/admin/execute-upgrade",
+    body: { facetCuts: [], initContract: address, initCalldata: "0x", upgradeId: role },
+    denial: "unauthorized or stale upgrade execution",
+  },
+  {
+    key: "UpgradeControllerFacet.freezeUpgradeControl",
+    path: "/v1/diamond-admin/admin/freeze-upgrade-control",
+    body: {},
+    denial: "unauthorized or replayed upgrade-control freeze",
+  },
+  {
+    key: "UpgradeControllerFacet.proposeDiamondCut",
+    path: "/v1/diamond-admin/admin/propose-diamond-cut",
+    body: { facetCuts: [], initContract: address, initCalldata: "0x" },
+    denial: "unauthorized or stale diamond-cut proposal",
+  },
+  {
+    key: "UpgradeControllerFacet.setUpgradeControlEnforced",
+    path: "/v1/diamond-admin/admin/set-upgrade-control-enforced",
+    body: { enforced: true },
+    denial: "unauthorized or replayed upgrade-control enforcement change",
+  },
 ] as const;
 
 const actorRoles = ["buyer", "seller", "licensee", "collaborator"] as const;
@@ -238,7 +268,19 @@ describe("control-plane admin route safety", () => {
         roles: ["read-only"],
         allowGasless: false,
       },
+      "read-only-key-2": {
+        label: "read-only",
+        signerId: "reader",
+        roles: ["read-only"],
+        allowGasless: false,
+      },
       "founder-key": {
+        label: "founder",
+        signerId: "founder",
+        roles: ["founder"],
+        allowGasless: false,
+      },
+      "founder-key-2": {
         label: "founder",
         signerId: "founder",
         roles: ["founder"],
@@ -246,6 +288,15 @@ describe("control-plane admin route safety", () => {
       },
       ...Object.fromEntries(actorRoles.map((actorRole) => [
         `${actorRole}-key`,
+        {
+          label: actorRole,
+          signerId: actorRole,
+          roles: [actorRole],
+          allowGasless: false,
+        },
+      ])),
+      ...Object.fromEntries(actorRoles.map((actorRole) => [
+        `${actorRole}-key-2`,
         {
           label: actorRole,
           signerId: actorRole,
@@ -266,12 +317,12 @@ describe("control-plane admin route safety", () => {
     const { server, port } = await startServer();
 
     try {
-      for (const testCase of adminWriteCases) {
+      for (const [caseIndex, testCase] of adminWriteCases.entries()) {
         const response = await fetch(`http://127.0.0.1:${port}${testCase.path}`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            "x-api-key": "read-only-key",
+            "x-api-key": caseIndex < 30 ? "read-only-key" : "read-only-key-2",
           },
           body: JSON.stringify(testCase.body),
           signal: AbortSignal.timeout(2_500),
@@ -291,12 +342,12 @@ describe("control-plane admin route safety", () => {
 
     try {
       for (const actorRole of actorRoles) {
-        for (const testCase of adminWriteCases) {
+        for (const [caseIndex, testCase] of adminWriteCases.entries()) {
           const response = await fetch(`http://127.0.0.1:${port}${testCase.path}`, {
             method: "POST",
             headers: {
               "content-type": "application/json",
-              "x-api-key": `${actorRole}-key`,
+              "x-api-key": `${actorRole}-key${caseIndex < 30 ? "" : "-2"}`,
             },
             body: JSON.stringify(testCase.body),
             signal: AbortSignal.timeout(2_500),
@@ -319,12 +370,12 @@ describe("control-plane admin route safety", () => {
     const { server, port } = await startServer();
 
     try {
-      for (const testCase of adminWriteCases) {
+      for (const [caseIndex, testCase] of adminWriteCases.entries()) {
         const response = await fetch(`http://127.0.0.1:${port}${testCase.path}`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            "x-api-key": "founder-key",
+            "x-api-key": caseIndex < 30 ? "founder-key" : "founder-key-2",
           },
           body: JSON.stringify(testCase.body),
           signal: AbortSignal.timeout(2_500),

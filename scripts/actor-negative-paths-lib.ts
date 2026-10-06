@@ -10,12 +10,19 @@ export const ACTOR_ROLES = [
   "collaborator",
 ] as const;
 
+export const ADMIN_API_ROLES = ["founder", "admin", "operator"] as const;
+
 export type ActorRole = typeof ACTOR_ROLES[number];
 export type MethodPolicyFile = {
   methods: Record<string, { category: "read" | "write" }>;
 };
 export type ApiSurfaceFile = {
-  methods: Record<string, { domain: string; path: string; operationId: string }>;
+  methods: Record<string, {
+    domain: string;
+    path: string;
+    operationId: string;
+    classification?: string;
+  }>;
 };
 
 export type ActorNegativePathMethod = {
@@ -27,6 +34,7 @@ export type ActorNegativePathMethod = {
   roleLifecycleDenials: Array<"stale-role" | "revoked-role" | "expired-validity-window">;
   actors: Array<{
     actor: ActorRole;
+    apiRoleDenials: Array<"non-admin-api-role">;
     contractDenials: string[];
   }>;
 };
@@ -137,6 +145,10 @@ export function buildActorNegativePathReport(
         : [],
       actors: ACTOR_ROLES.map((actor) => ({
         actor,
+        apiRoleDenials: surface.methods[method]!.classification === "admin"
+          && !ADMIN_API_ROLES.includes(actor as typeof ADMIN_API_ROLES[number])
+          ? ["non-admin-api-role"]
+          : [],
         contractDenials: contractDenialsFor(invariant.requiredActor.kind),
       })),
     }));
@@ -147,9 +159,13 @@ export function buildActorNegativePathReport(
       .map((domain) => [domain, methods.filter((method) => method.domain === domain).length]),
   );
   const roleGatedMethodCount = methods.filter((method) => method.requiredActor.kind === "role").length;
+  const adminApiRoleCaseCount = methods.reduce(
+    (count, method) => count + method.actors.filter((actor) => actor.apiRoleDenials.length > 0).length,
+    0,
+  );
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt,
     totals: {
       abiWriteMethodCount: Object.keys(reviewed.methods).length,
@@ -157,6 +173,7 @@ export function buildActorNegativePathReport(
       domainCount: Object.keys(domains).length,
       actorMethodCaseCount: methods.length * ACTOR_ROLES.length,
       apiBoundaryCaseCount: methods.length * 3,
+      adminApiRoleCaseCount,
       roleLifecycleCaseCount: roleGatedMethodCount * ACTOR_ROLES.length * 3,
     },
     actors: ACTOR_ROLES,
