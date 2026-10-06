@@ -113,6 +113,8 @@ async function startLocalForkIfNeeded(runtimeConfig: Awaited<ReturnType<typeof r
       String(runtimeConfig.config.chainId),
       "--fork-url",
       runtimeConfig.config.cbdpRpcUrl,
+      "--prune-history",
+      "512",
     ],
     {
       stdio: ["ignore", "pipe", "pipe"],
@@ -2961,6 +2963,90 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 300_000);
 
+  it("proves staking custody conservation and failed-stake state preservation on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "staking custody economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    try {
+      const amount = 1n;
+      const allowanceBeforeApproval = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
+      if (allowanceBeforeApproval < amount) {
+        const approvalResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+          body: { spender: diamondAddress, amount: amount.toString() },
+        });
+        expect(approvalResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(approvalResponse.payload));
+      }
+
+      const allowanceBeforeStake = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
+      const statsBefore = await stakingFacet.getStakingStats();
+      const economicsBefore = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: allowanceBeforeStake,
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsBefore.totalStaked),
+        totalRewardsDistributed: BigInt(statsBefore.totalRewardsDistributed),
+      };
+
+      const stakeResponse = await apiCall(port, "POST", "/v1/staking/commands/stake", {
+        body: { amount: amount.toString() },
+      });
+      expect(stakeResponse.status).toBe(202);
+      await expectReceipt(extractTxHash(stakeResponse.payload));
+
+      const statsAfter = await stakingFacet.getStakingStats();
+      const economicsAfter = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfter.totalStaked),
+        totalRewardsDistributed: BigInt(statsAfter.totalRewardsDistributed),
+      };
+      const rewardsPaid = economicsAfter.totalRewardsDistributed - economicsBefore.totalRewardsDistributed;
+      const stakerDelta = assertExactAmountDelta(
+        "staking.custody.staker",
+        economicsBefore.staker,
+        economicsAfter.staker,
+        rewardsPaid - amount,
+      );
+      const custodyDelta = assertExactAmountDelta(
+        "staking.custody.contract",
+        economicsBefore.custody,
+        economicsAfter.custody,
+        amount - rewardsPaid,
+      );
+      assertConservedDeltas("staking.custody.conservation", [stakerDelta.delta, custodyDelta.delta]);
+      assertExactAmountDelta("staking.custody.allowance", economicsBefore.allowance, economicsAfter.allowance, -amount);
+      assertExactAmountDelta("staking.custody.totalSupply", economicsBefore.totalSupply, economicsAfter.totalSupply, 0n);
+      assertExactAmountDelta("staking.custody.totalStaked", economicsBefore.totalStaked, economicsAfter.totalStaked, amount);
+
+      const failedStakeBefore = { ...economicsAfter };
+      const failedStakeResponse = await apiCall(port, "POST", "/v1/staking/commands/stake", {
+        body: { amount: (economicsAfter.staker + 1n).toString() },
+      });
+      expect(failedStakeResponse.status).not.toBe(202);
+      const statsAfterFailedStake = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("staking.failedStake", failedStakeBefore, {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterFailedStake.totalStaked),
+        totalRewardsDistributed: BigInt(statsAfterFailedStake.totalRewardsDistributed),
+      });
+    } finally {
+      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+    }
+  }, 300_000);
+
   it("mutates whisperblock state through HTTP and matches live whisperblock contract state", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "whisperblock lifecycle proof", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000018") },
@@ -4675,14 +4761,33 @@ describeLive("HTTP API contract integration", () => {
     expect(Array.isArray(datasetCreatedEvents.payload)).toBe(true);
     expect((datasetCreatedEvents.payload as Array<Record<string, unknown>>).length).toBeGreaterThan(0);
 
+    const stakeAmount = 1n;
+    const stakingStatsBefore = await stakingFacet.getStakingStats();
+    const stakeEconomicsBefore = {
+      staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+      custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+      allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+      totalSupply: await tokenSupplyFacet.totalSupply(),
+      totalStaked: BigInt(stakingStatsBefore.totalStaked),
+      totalRewardsDistributed: BigInt(stakingStatsBefore.totalRewardsDistributed),
+    };
     const stakeWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/stake-and-delegate", {
       body: {
-        amount: "1",
+        amount: stakeAmount.toString(),
         delegatee: licenseeWallet.address,
       },
     });
     if (stakeWorkflowResponse.status === 500) {
       expect(JSON.stringify(stakeWorkflowResponse.payload)).toMatch(/Panic|OVERFLOW|delegate/u);
+      const stakingStatsAfter = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("stakeAndDelegate.failedDelegationPreflight", stakeEconomicsBefore, {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(stakingStatsAfter.totalStaked),
+        totalRewardsDistributed: BigInt(stakingStatsAfter.totalRewardsDistributed),
+      });
     } else {
       expect(stakeWorkflowResponse.status).toBe(202);
       expect(stakeWorkflowResponse.payload).toEqual({
@@ -4721,6 +4826,40 @@ describeLive("HTTP API contract integration", () => {
       });
       await expectReceipt(String(((stakeWorkflowResponse.payload as Record<string, unknown>).stake as Record<string, unknown>).txHash));
       await expectReceipt(String(((stakeWorkflowResponse.payload as Record<string, unknown>).delegation as Record<string, unknown>).txHash));
+
+      const stakingStatsAfter = await stakingFacet.getStakingStats();
+      const stakeEconomicsAfter = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(stakingStatsAfter.totalStaked),
+        totalRewardsDistributed: BigInt(stakingStatsAfter.totalRewardsDistributed),
+      };
+      const stakerDelta = assertExactAmountDelta(
+        "stakeAndDelegate.stakerBalance",
+        stakeEconomicsBefore.staker,
+        stakeEconomicsAfter.staker,
+        stakeEconomicsAfter.totalRewardsDistributed - stakeEconomicsBefore.totalRewardsDistributed - stakeAmount,
+      );
+      const custodyDelta = assertExactAmountDelta(
+        "stakeAndDelegate.custodyBalance",
+        stakeEconomicsBefore.custody,
+        stakeEconomicsAfter.custody,
+        stakeAmount - (stakeEconomicsAfter.totalRewardsDistributed - stakeEconomicsBefore.totalRewardsDistributed),
+      );
+      assertConservedDeltas("stakeAndDelegate.custodyConservation", [stakerDelta.delta, custodyDelta.delta]);
+      assertExactAmountDelta(
+        "stakeAndDelegate.totalSupply",
+        stakeEconomicsBefore.totalSupply,
+        stakeEconomicsAfter.totalSupply,
+        0n,
+      );
+      assertExactAmountDelta(
+        "stakeAndDelegate.totalStaked",
+        stakeEconomicsBefore.totalStaked,
+        stakeEconomicsAfter.totalStaked,
+        stakeAmount,
+      );
     }
 
     const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [6000n]);

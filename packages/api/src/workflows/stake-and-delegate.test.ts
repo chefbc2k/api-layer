@@ -44,10 +44,15 @@ describe("runStakeAndDelegateWorkflow", () => {
       },
       providerRouter: {
         withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: {
+          call: (request: unknown) => Promise<string>;
           getTransactionReceipt: (txHash: string) => Promise<unknown>;
         }) => Promise<unknown>) => {
           sequence.push(`receipt:${label}`);
           return work({
+            call: vi.fn(async () => {
+              sequence.push("delegation-preflight-call");
+              return "0x";
+            }),
             getTransactionReceipt: vi.fn(async (txHash: string) => receiptByTxHash.get(txHash) ?? null),
           });
         }),
@@ -130,6 +135,8 @@ describe("runStakeAndDelegateWorkflow", () => {
     });
 
     expect(sequence).toEqual([
+      "receipt:workflow.stakeAndDelegate.delegationPreflight",
+      "delegation-preflight-call",
       "read-allowance-before",
       "approve",
       "wait-approve",
@@ -178,6 +185,42 @@ describe("runStakeAndDelegateWorkflow", () => {
         amount: "100",
       },
     });
+  });
+
+  it("preflights delegation before approval so a delegate revert cannot partially commit stake custody", async () => {
+    const tokenAllowance = vi.fn();
+    const tokenApprove = vi.fn();
+    const stake = vi.fn();
+    const delegate = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenAllowance,
+      tokenApprove,
+    });
+    mocks.createStakingPrimitiveService.mockReturnValue({
+      stake,
+      delegate,
+    });
+    const call = vi.fn().mockRejectedValue(new Error("delegation preview reverted"));
+
+    await expect(runStakeAndDelegateWorkflow({
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          call: typeof call;
+        }) => Promise<unknown>) => work({ call })),
+      },
+    } as never, auth, "0x00000000000000000000000000000000000000aa", {
+      amount: "100",
+      delegatee: "0x00000000000000000000000000000000000000bb",
+    })).rejects.toThrow("delegation preview reverted");
+
+    expect(call).toHaveBeenCalledOnce();
+    expect(tokenAllowance).not.toHaveBeenCalled();
+    expect(tokenApprove).not.toHaveBeenCalled();
+    expect(stake).not.toHaveBeenCalled();
+    expect(delegate).not.toHaveBeenCalled();
   });
 
   it("skips approval when existing allowance already covers the stake amount", async () => {
