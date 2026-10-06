@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-06T11:05:18.424Z`
+Generated: `2026-10-06T11:10:39.779Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 

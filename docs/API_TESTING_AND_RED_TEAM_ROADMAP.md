@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## ABI-Driven Gap Report Automation Run — 2026-10-06
+
+- Rebased the reusable `codex/abi-gap-report-20261005` worktree onto synchronized local/remote production `master` `8ba7e73` after a concurrent assurance batch landed during verification. The isolated worktree preserved the unrelated primary checkout while the report was regenerated and revalidated against the new production evidence.
+- Rebuilt the generated ABI, RPC, HTTP, wrapper, and write-invariant inventories and regenerated `output/api-test-gap-report.json` and `.md`. Timestamp-normalized SHA-256 hashes match production at `c0f3e579a63231a8480eb637062c469a115d0ea73ca633d4512316892b15365a` and `3d0e95d39c91250daa7d75c0c2139621b81a79edb97f09c5a8f6eba90df7db3`.
+- The report records proof depth per facet, function, and event across `33` facets, `492` functions, `218` event occurrences, and `710` total items. All `159` referenced evidence paths exist, every item has a valid proof-depth score and classification, and every facet summary reconciles with its inventory. Classifications remain `542` ready, `132` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof; proof attribution remains `632` unit, `302` workflow, `109` local-fork, `60` Base Sepolia, `309` negative-path, `162` economic, `98` red-team, and `218` indexer items.
+- Verification passed: `pnpm run test:gap-report` (`8/8`), `pnpm run test:gap-builder` (`12/12`), and `pnpm test` (`1,702` active tests across `147` passing files with `40` gated skips). Measured coverage passed at `97.63%` statements, `96.78%` branches, `98.38%` functions, and `97.69%` lines. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` also passed; surface inventory remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** the ABI-driven gap report workstream remains 100% complete and verified for merge into `master`; the `168` non-ready items are explicitly tracked protocol-assurance backlog classifications, not report-generator blockers.
+
 ## API Assurance Gap Completion — 2026-10-06
 
 - Regenerated the live report from synchronized production history. The starting inventory was `378` ready and `332` non-ready items (`197` fixture, `99` indexer-proof, `36` unsafe live writes). The forty-percent planner selected `133/332` items (`40.06%`). After implementation, the report is `542` ready and `168` non-ready (`132` fixture, `0` indexer-proof, `36` unsafe); `164/332` starting gaps were promoted (`49.40%`). The regenerated next plan selects `68/168` items (`40.48%`).
@@ -13,7 +21,6 @@ This document is the master tracking file for the API assurance automation. Dail
 - **Unsafe live-write blockers by facet:** AccessControl `5`; DiamondCut `4`; Emergency `7`; EmergencyWithdrawal `5`; MultiSig `9`; Proposal `1` ABI-only overload; UpgradeController `5`. Each lacks successful exact-route local-fork/Base Sepolia evidence and stays unpromoted. Destructive/admin execution must remain on a disposable local fork or use the explicit documented opt-in plus proof path.
 - Required verification passed: `pnpm run test:gap-report` (`8/8`), `pnpm run test:gap-builder` (`12/12`), `pnpm run test:actor-negative-paths` (`153/153`), `pnpm run test:indexer:assurance` (`267` active, `6` skipped), `pnpm run coverage:check`, TypeScript, lint, code generation, and all workspace builds. Surface coverage remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - **Downstream readiness:** read consumers and event/indexer consumers can proceed against the generated API and reviewed projection registry. Write-dependent modules must continue to honor the `132` fixture blockers and `36` live-safety blockers above; this run does not claim those workflows complete.
-
 ## ABI-Driven Gap Report Automation Run — 2026-10-05
 
 - Started `codex/abi-gap-report-20261005` from synchronized local/remote production `master` `91e5156`. The unrelated dirty primary checkout and the stale 2026-10-04 ABI autosave, whose only unmerged changes were report timestamps, remained untouched.
