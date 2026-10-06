@@ -149,6 +149,53 @@ describe("runTreasuryRevenueOperationsWorkflow", () => {
     });
   });
 
+  it("serializes repeated payee sweeps so the second call observes the first liability release", async () => {
+    let firstSweepCompleted = false;
+    mocks.runWithdrawMarketplacePaymentsWorkflow
+      .mockImplementationOnce(async () => {
+        await Promise.resolve();
+        firstSweepCompleted = true;
+        return {
+          preflight: { payee: "0x00000000000000000000000000000000000000aa", pendingBefore: "10" },
+          withdrawal: {
+            mode: "standard",
+            txHash: "0xwithdraw",
+            pendingAfter: "0",
+            pendingDelta: { before: "10", after: "0", delta: "-10" },
+            releasedAmount: "10",
+            eventCount: 1,
+            deadline: null,
+          },
+          summary: { payee: "0x00000000000000000000000000000000000000aa", clearedPending: true, deadline: null },
+        };
+      })
+      .mockImplementationOnce(async () => {
+        expect(firstSweepCompleted).toBe(true);
+        throw new HttpError(409, "withdraw-marketplace-payments requires pending payments");
+      });
+
+    const result = await runTreasuryRevenueOperationsWorkflow(
+      context,
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      {
+        payouts: {
+          sweeps: [
+            { label: "first" },
+            { label: "repeat" },
+          ],
+        },
+      },
+    );
+
+    expect(result.payouts.sweeps.map((entry) => entry.step.status)).toEqual([
+      "completed",
+      "blocked-by-external-precondition",
+    ]);
+    expect(result.summary.completedSweepCount).toBe(1);
+    expect(result.summary.blockedSteps).toEqual(["payouts.repeat"]);
+  });
+
   it("summarizes blocked posture checks before and after sweeps", async () => {
     mocks.runInspectRevenuePostureWorkflow
       .mockRejectedValueOnce(new HttpError(409, "inspect-revenue-posture requires payment token", { phase: "before" }))

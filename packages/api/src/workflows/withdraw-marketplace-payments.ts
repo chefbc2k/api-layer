@@ -5,7 +5,6 @@ import { HttpError } from "../shared/errors.js";
 import { createMarketplacePrimitiveService } from "../modules/marketplace/primitives/generated/index.js";
 import {
   hasTransactionHash,
-  readBigInt,
   readWorkflowReceipt,
   resolveWorkflowAccountAddress,
   waitForWorkflowEventQuery,
@@ -13,7 +12,7 @@ import {
 } from "./reward-campaign-helpers.js";
 import { readMarketplacePaymentConfig, readPendingPaymentsSnapshot } from "./marketplace-payment-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
-import { assertExactAmountDelta } from "./economic-invariants.js";
+import { assertExactAmountDelta, readEconomicAmount } from "./economic-invariants.js";
 
 export const withdrawMarketplacePaymentsSchema = z.object({
   deadline: z.string().regex(/^\d+$/u).optional(),
@@ -39,7 +38,11 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
     "withdrawMarketplacePayments.pendingBefore",
   );
   const pendingBeforePayee = (pendingBefore.body as { payee?: unknown }).payee;
-  if (readBigInt(pendingBeforePayee) === 0n) {
+  const pendingBeforeAmount = readPendingPaymentAmount(
+    pendingBeforePayee,
+    "withdrawMarketplacePayments.pendingBefore.payee",
+  );
+  if (pendingBeforeAmount === 0n) {
     throw new HttpError(409, "withdraw-marketplace-payments requires pending payments");
   }
 
@@ -61,14 +64,25 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
   const withdrawalReceipt = withdrawalTxHash ? await readWorkflowReceipt(context, withdrawalTxHash, "withdrawMarketplacePayments.withdrawal") : null;
   const pendingAfter = await waitForWorkflowReadback(
     () => readPendingPaymentsSnapshot(marketplace, auth, walletAddress, { payee }).then((snapshot) => ({ statusCode: 200, body: snapshot })),
-    (result) => result.statusCode === 200 && readBigInt((result.body as { payee?: unknown }).payee) === 0n,
+    (result) => {
+      const pending = (result.body as { payee?: unknown }).payee;
+      return result.statusCode === 200 && pending !== null && pending !== undefined && readEconomicAmount(
+        pending as bigint | number | string,
+        "withdrawMarketplacePayments.pendingAfter.payee",
+      ) === 0n;
+    },
     "withdrawMarketplacePayments.pendingAfter",
   );
-  assertExactAmountDelta(
+  const pendingAfterPayee = (pendingAfter.body as { payee?: unknown }).payee;
+  const pendingAfterAmount = readPendingPaymentAmount(
+    pendingAfterPayee,
+    "withdrawMarketplacePayments.pendingAfter.payee",
+  );
+  const pendingDelta = assertExactAmountDelta(
     "withdrawMarketplacePayments.pending",
-    readBigInt(pendingBeforePayee),
-    readBigInt((pendingAfter.body as { payee?: unknown }).payee),
-    -readBigInt(pendingBeforePayee),
+    pendingBeforeAmount,
+    pendingAfterAmount,
+    -pendingBeforeAmount,
   );
 
   let withdrawalEvents: Awaited<ReturnType<typeof waitForWorkflowEventQuery>> = [];
@@ -95,7 +109,9 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
       mode: body.deadline ? "deadline" : "standard",
       submission: withdrawal.body,
       txHash: withdrawalTxHash,
-      pendingAfter: (pendingAfter.body as { payee?: unknown }).payee ?? null,
+      pendingAfter: pendingAfterPayee,
+      pendingDelta,
+      releasedAmount: pendingBeforeAmount.toString(),
       eventCount: withdrawalEvents.length,
       deadline: body.deadline ?? null,
     },
@@ -105,4 +121,11 @@ export async function runWithdrawMarketplacePaymentsWorkflow(
       deadline: body.deadline ?? null,
     },
   };
+}
+
+function readPendingPaymentAmount(value: unknown, label: string): bigint {
+  if (value === null || value === undefined) {
+    throw new Error(`${label} is missing`);
+  }
+  return readEconomicAmount(value as bigint | number | string, label);
 }

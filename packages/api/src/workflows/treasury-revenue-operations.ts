@@ -19,6 +19,8 @@ const payoutSweepEntrySchema = z.object({
   label: z.string().min(1).optional(),
 });
 
+type PayoutSweepEntry = z.infer<typeof payoutSweepEntrySchema>;
+
 export const treasuryRevenueOperationsWorkflowSchema = z.object({
   posture: inspectRevenuePostureWorkflowSchema.optional(),
   payouts: z.object({
@@ -54,22 +56,12 @@ export async function runTreasuryRevenueOperationsWorkflow(
     ))
     : notRequestedStep();
 
-  const sweeps = body.payouts?.sweeps
-    ? await Promise.all(body.payouts.sweeps.map(async (entry, index) => {
-      const actor = resolveActorOverride(context, auth, walletAddress, entry.actor);
-      const result = await runStateAwareStep(() => runWithdrawMarketplacePaymentsWorkflow(
-        context,
-        actor.auth,
-        actor.walletAddress,
-        { deadline: entry.deadline },
-      ));
-      return {
-        label: entry.label ?? `sweep-${index + 1}`,
-        actor: actor.walletAddress ?? walletAddress ?? null,
-        step: result,
-      };
-    }))
-    : [];
+  const sweeps = await runPayoutSweeps(
+    context,
+    auth,
+    walletAddress,
+    body.payouts?.sweeps,
+  );
 
   const postureAfter: StepState<Awaited<ReturnType<typeof runInspectRevenuePostureWorkflow>>> = body.payouts
     ? await runStateAwareStep(() => runInspectRevenuePostureWorkflow(
@@ -109,6 +101,34 @@ export async function runTreasuryRevenueOperationsWorkflow(
           : null,
     },
   };
+}
+
+async function runPayoutSweeps(
+  context: ApiExecutionContext,
+  auth: AuthContext,
+  walletAddress: string | undefined,
+  entries: PayoutSweepEntry[] | undefined,
+) {
+  const results: Array<{
+    label: string;
+    actor: string | null;
+    step: Awaited<ReturnType<typeof runStateAwareStep<Awaited<ReturnType<typeof runWithdrawMarketplacePaymentsWorkflow>>>>>;
+  }> = [];
+  for (const [index, entry] of (entries ?? []).entries()) {
+    const actor = resolveActorOverride(context, auth, walletAddress, entry.actor);
+    const step = await runStateAwareStep(() => runWithdrawMarketplacePaymentsWorkflow(
+      context,
+      actor.auth,
+      actor.walletAddress,
+      { deadline: entry.deadline },
+    ));
+    results.push({
+      label: entry.label ?? `sweep-${index + 1}`,
+      actor: actor.walletAddress ?? walletAddress ?? null,
+      step,
+    });
+  }
+  return results;
 }
 
 function resolveActorOverride(
