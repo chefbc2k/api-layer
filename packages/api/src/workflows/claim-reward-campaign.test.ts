@@ -15,6 +15,17 @@ vi.mock("./wait-for-write.js", () => ({
 
 import { runClaimRewardCampaignWorkflow } from "./claim-reward-campaign.js";
 
+function tokenEconomics(balanceBefore = "100", balanceAfter = balanceBefore, supply = "1000") {
+  return {
+    tokenBalanceOf: vi.fn()
+      .mockResolvedValueOnce({ statusCode: 200, body: balanceBefore })
+      .mockResolvedValueOnce({ statusCode: 200, body: balanceAfter }),
+    totalSupply: vi.fn()
+      .mockResolvedValueOnce({ statusCode: 200, body: supply })
+      .mockResolvedValueOnce({ statusCode: 200, body: supply }),
+  };
+}
+
 describe("runClaimRewardCampaignWorkflow", () => {
   const auth = {
     apiKey: "test-key",
@@ -43,6 +54,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       },
     } as never;
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "120"),
       getCampaign: vi.fn()
         .mockImplementationOnce(async () => {
           sequence.push("campaign-before");
@@ -116,6 +128,10 @@ describe("runClaimRewardCampaignWorkflow", () => {
         after: "25",
         claimedNow: "20",
       },
+      economics: {
+        claimerBalance: { before: "100", after: "120", delta: "20" },
+        totalSupply: { before: "1000", after: "1000", delta: "0" },
+      },
       claim: {
         submission: { txHash: "0xclaim-write", result: "20" },
         txHash: "0xclaim-receipt",
@@ -134,6 +150,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       "signer-1": "0x59c6995e998f97a5a0044976f7d0b6d62f4ea6b2dff7e94ece66d3bb5dc4080a",
     });
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("0", "15"),
       getCampaign: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "0", paused: false } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "15", paused: false } }),
@@ -178,6 +195,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       return 0 as ReturnType<typeof setTimeout>;
     }) as typeof setTimeout);
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("0", "10"),
       getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "5", paused: false } }),
       claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "10" }),
       claimed: vi.fn()
@@ -207,6 +225,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
 
   it("normalizes insufficient campaign funding into an explicit workflow block", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics(),
       getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
       claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
       claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
@@ -235,6 +254,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
   it("supports claim flows without a mined receipt by accepting increasing readbacks", async () => {
     const claimedEventQuery = vi.fn();
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "101"),
       getCampaign: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "10", paused: false } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "11", paused: false } }),
@@ -272,6 +292,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
 
   it("retries through non-200 claimed and campaign readbacks before confirming progress", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "108"),
       getCampaign: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "10", paused: false } })
         .mockResolvedValueOnce({ statusCode: 503, body: { error: "lagging indexer" } })
@@ -372,6 +393,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
     ],
   ])("normalizes %s reverts into workflow-specific 409 errors", async (_label, claimError, expectedMessage) => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics(),
       getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
       claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
       claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
@@ -402,6 +424,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
       },
     };
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics(),
       getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
       claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
       claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
@@ -425,6 +448,7 @@ describe("runClaimRewardCampaignWorkflow", () => {
   it("rethrows unknown claim failures unchanged", async () => {
     const claimError = new Error("unexpected claim failure");
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics(),
       getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
       claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "1" }),
       claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),

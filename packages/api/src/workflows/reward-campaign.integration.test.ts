@@ -202,6 +202,10 @@ describe("reward campaign workflow routes", () => {
 
   it("returns the structured claim-reward-campaign workflow result over the router path", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenBalanceOf: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "100" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "110" }),
+      totalSupply: vi.fn().mockResolvedValue({ statusCode: 200, body: "1000" }),
       getCampaign: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "5", paused: false } })
         .mockResolvedValueOnce({ statusCode: 200, body: { totalClaimed: "15", paused: false } }),
@@ -272,6 +276,10 @@ describe("reward campaign workflow routes", () => {
       claimed: {
         claimedNow: "10",
       },
+      economics: {
+        claimerBalance: { before: "100", after: "110", delta: "10" },
+        totalSupply: { before: "1000", after: "1000", delta: "0" },
+      },
       claim: {
         txHash: "0xclaim-receipt",
         eventCount: 1,
@@ -285,6 +293,8 @@ describe("reward campaign workflow routes", () => {
 
   it("returns a 409 when claim-reward-campaign is blocked by missing campaign funding", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      tokenBalanceOf: vi.fn().mockResolvedValue({ statusCode: 200, body: "100" }),
+      totalSupply: vi.fn().mockResolvedValue({ statusCode: 200, body: "1000" }),
       getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "0", paused: false } }),
       claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "2" }),
       claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),

@@ -33,6 +33,28 @@ export async function runReleaseBeneficiaryVestingWorkflow(
   const before = await readVestingState(tokenomics, auth, walletAddress, body.beneficiary);
   const releasedBefore = getReleasedAmount(before.schedule.body);
   const releasableBefore = readBigInt(before.releasable.body);
+  const beneficiaryBalanceBefore = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [body.beneficiary],
+    }),
+    (result) => result.statusCode === 200,
+    "releaseBeneficiaryVesting.beneficiaryBalanceBefore",
+  );
+  const totalSupplyBefore = await waitForWorkflowReadback(
+    () => tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+    (result) => result.statusCode === 200,
+    "releaseBeneficiaryVesting.totalSupplyBefore",
+  );
+  const beneficiaryBalanceBeforeValue = readBigInt(beneficiaryBalanceBefore.body);
+  const totalSupplyBeforeValue = readBigInt(totalSupplyBefore.body);
 
   const releaseOperation = body.mode === "self"
     ? tokenomics.releaseStandardVesting({
@@ -89,11 +111,43 @@ export async function runReleaseBeneficiaryVestingWorkflow(
   if (effectiveReleaseAmount <= 0n) {
     throw new Error("releaseBeneficiaryVesting economic invariant failed: release amount must be positive");
   }
-  assertExactAmountDelta(
+  const beneficiaryBalanceAfter = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [body.beneficiary],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === beneficiaryBalanceBeforeValue + effectiveReleaseAmount,
+    "releaseBeneficiaryVesting.beneficiaryBalanceAfter",
+  );
+  const totalSupplyAfter = await waitForWorkflowReadback(
+    () => tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === totalSupplyBeforeValue,
+    "releaseBeneficiaryVesting.totalSupplyAfter",
+  );
+  const releasedDelta = assertExactAmountDelta(
     "releaseBeneficiaryVesting.released",
     releasedBefore,
     releasedAfter,
     effectiveReleaseAmount,
+  );
+  const beneficiaryBalanceDelta = assertExactAmountDelta(
+    "releaseBeneficiaryVesting.beneficiaryBalance",
+    beneficiaryBalanceBeforeValue,
+    readBigInt(beneficiaryBalanceAfter.body),
+    effectiveReleaseAmount,
+  );
+  const totalSupplyDelta = assertExactAmountDelta(
+    "releaseBeneficiaryVesting.totalSupply",
+    totalSupplyBeforeValue,
+    readBigInt(totalSupplyAfter.body),
+    0n,
   );
 
   return {
@@ -115,6 +169,11 @@ export async function runReleaseBeneficiaryVestingWorkflow(
         releasable: afterState.releasable.body,
         totals: afterState.totals.body,
       },
+    },
+    economics: {
+      released: releasedDelta,
+      beneficiaryBalance: beneficiaryBalanceDelta,
+      totalSupply: totalSupplyDelta,
     },
     summary: {
       beneficiary: body.beneficiary,

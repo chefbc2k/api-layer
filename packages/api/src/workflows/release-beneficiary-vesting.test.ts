@@ -15,6 +15,17 @@ vi.mock("./wait-for-write.js", () => ({
 
 import { runReleaseBeneficiaryVestingWorkflow } from "./release-beneficiary-vesting.js";
 
+function tokenEconomics(balanceBefore = "100", balanceAfter = balanceBefore, supply = "1000") {
+  return {
+    tokenBalanceOf: vi.fn()
+      .mockResolvedValueOnce({ statusCode: 200, body: balanceBefore })
+      .mockResolvedValueOnce({ statusCode: 200, body: balanceAfter }),
+    totalSupply: vi.fn()
+      .mockResolvedValueOnce({ statusCode: 200, body: supply })
+      .mockResolvedValueOnce({ statusCode: 200, body: supply }),
+  };
+}
+
 describe("runReleaseBeneficiaryVestingWorkflow", () => {
   const auth = {
     apiKey: "test-key",
@@ -30,6 +41,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
   it("releases standard vesting for a beneficiary and confirms released amounts", async () => {
     const sequence: string[] = [];
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "120"),
       hasVestingSchedule: vi.fn()
         .mockImplementationOnce(async () => ({ statusCode: 200, body: true }))
         .mockImplementationOnce(async () => ({ statusCode: 200, body: true })),
@@ -99,10 +111,16 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
     ]);
     expect(result.release.releasedNow).toBe("20");
     expect(result.release.eventCount).toBe(1);
+    expect(result.economics).toEqual({
+      released: { before: "50", after: "70", delta: "20" },
+      beneficiaryBalance: { before: "100", after: "120", delta: "20" },
+      totalSupply: { before: "1000", after: "1000", delta: "0" },
+    });
   });
 
   it("supports the self-release path", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "105"),
       hasVestingSchedule: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: true })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
@@ -140,6 +158,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
 
   it("prefers the event-confirmed released amount over a stale write result", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "148"),
       hasVestingSchedule: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: true })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
@@ -179,6 +198,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
   it("skips receipt and event inspection when the release write never resolves to a transaction hash", async () => {
     const tokensReleasedEventQuery = vi.fn();
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "106"),
       hasVestingSchedule: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: true })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
@@ -213,6 +233,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
 
   it("falls back to post-state growth when neither logs nor the write payload expose a released amount", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "102"),
       hasVestingSchedule: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: true })
         .mockResolvedValueOnce({ statusCode: 200, body: true }),
@@ -253,6 +274,7 @@ describe("runReleaseBeneficiaryVestingWorkflow", () => {
 
   it("normalizes missing-schedule release failures into a workflow state block", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics(),
       hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
       getStandardVestingSchedule: vi.fn(),
       getVestingDetails: vi.fn(),
