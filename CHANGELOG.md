@@ -2,6 +2,33 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.377] - 2026-10-07
+
+### Changed
+
+- **Delegation, Upgrade Initialization, And EchoScore Fixtures Close Twelve Gaps:** Added a mounted-route safety matrix for all three remaining `DelegationFacet` writes, `UpgradeControllerFacet.initUpgradeController`, and all eight remaining `EchoScoreFacetV3` writes. The matrix verifies request-to-ABI decoding, transaction population and contract static-call preflight before persistence or wallet submission, read-only rejection before contract access, and injected stale, replayed, invalid, or unauthorized preflight failures without mutation.
+- **Persistent Non-Ready Count Falls By Twelve:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `552` to `564`, fixture gaps fall from `122` to `110`, and total non-ready items decrease from `158` to `146`. The `36` live-safety items remain conservatively blocked on genuine successful exact-route local-fork or Base Sepolia evidence.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The two mounted-route matrices passed `66/66`; `pnpm run test:gap-report` passed `8/8`; `pnpm run test:gap-builder` passed `12/12`; and `pnpm run test:actor-negative-paths` passed `219/219` across `10` files.
+- **Quality, Build, And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Fork Fixture Readiness Revalidated:** `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run setup:base-sepolia` passed. The setup runner seeded its Base Sepolia-backed local fork, confirmed funded founder, seller, buyer, licensee, and transferee actors, retained `4,000` buyer USDC with `4,000` allowance, confirmed proposer voting power, and created then aged token `11` into an active purchase-ready listing through transaction `0x8a3e1be72d04a6ac9abdaab00deb27ba1d94cecdc6e8951993c5c5566aaee4c8`.
+- **Instrumented Test Baseline Remains Green But Below Global 100%:** `pnpm run test:coverage` passed all executed shards with aggregate coverage of `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines. API application and client runtime surfaces remain at `100%`; remaining aggregate deficits are concentrated in shared API branches, the indexer worker, and operational scripts and therefore remain an explicit follow-up rather than being reported as full standard-test coverage.
+
+## [0.1.376] - 2026-10-06
+
+### Changed
+
+- **Selected Tokenomics Fixtures Close Ten Gaps:** Added one mounted-route preflight matrix for all four `BurnThresholdFacet` writes and all six remaining `TimewaveGiftFacet` writes. The matrix proves ABI-native request decoding, contract static-call preflight before persistence, authorized submission ordering, read-only rejection, and stale, replayed, insufficient-balance, or unauthorized-state rejection without mutation.
+- **Related Facets Close As Complete Groups:** Included `thresholdSetBurnLimit` with the three burn methods selected by the 40-item plan, then completed the adjacent Timewave gift write group to maintain the required ten-item implementation target. The durable actor-negative-path command now includes the new route matrix. `UpgradeControllerFacet.initUpgradeController` intentionally remains non-ready until it has an isolated-fork receipt, decoded event, state readback, and indexer projection proof.
+- **Persistent Non-Ready Count Falls By Ten:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `542` to `552`, fixture gaps fall from `132` to `122`, and total non-ready items decrease from `168` to `158`; the `36` live-safety items remain conservatively blocked on genuine successful exact-route fork or Base Sepolia receipts.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `30/30`; `pnpm run test:gap-report` passed `8/8`; `pnpm run test:gap-builder` passed `12/12`; and `pnpm run test:actor-negative-paths` passed `183/183` across `9` files.
+- **Quality, Build, And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.375] - 2026-10-06
 
 ### Changed
