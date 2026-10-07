@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.379] - 2026-10-07
+
+### Changed
+
+- **Current-Master Write Invariants Revalidated:** Audited all `260` ABI write methods across `31` facets after the latest production evidence update. Every method retains its ABI signature, required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations.
+- **Reviewed Catalog Remains Byte-Stable:** The explicit authoring sync preserved every human-reviewed entry and the catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`. Generated registry normalization also remained stable, confirming no semantic invariant drift.
+
+### Verified
+
+- **Invariant And Generation Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the byte-stability sync check, canonical code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Quality Gates Passed:** TypeScript, lint, and all workspace builds completed successfully. Transient reviewed API-surface timestamp churn was restored, leaving only the intended roadmap and changelog updates.
+
 ## [0.1.378] - 2026-10-07
 
 ### Changed
