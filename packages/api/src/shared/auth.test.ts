@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertAdminAuthorized,
   assertAdminNetworkAuthorized,
+  assertRequestedWalletAuthorized,
   assertWriteAuthorized,
   authenticate,
   loadApiKeys,
@@ -113,6 +114,34 @@ describe("auth", () => {
       allowGasless: false,
       roles: ["  "],
     })).toThrow("API key not permitted for write execution");
+  });
+
+  it("rejects a requested wallet that conflicts with the API key binding", () => {
+    expect(() => assertRequestedWalletAuthorized({
+      apiKey: "buyer-key",
+      label: "buyer",
+      walletAddress: "0x00000000000000000000000000000000000000aa",
+      allowGasless: true,
+      roles: ["buyer"],
+    }, "0x00000000000000000000000000000000000000bb")).toThrow(
+      "API key not permitted: configured walletAddress does not match x-wallet-address",
+    );
+  });
+
+  it("allows an omitted or case-insensitively matching requested wallet", () => {
+    const auth = {
+      apiKey: "buyer-key",
+      label: "buyer",
+      walletAddress: "0x00000000000000000000000000000000000000aA",
+      allowGasless: true,
+      roles: ["buyer"],
+    };
+
+    expect(() => assertRequestedWalletAuthorized(auth, undefined)).not.toThrow();
+    expect(() => assertRequestedWalletAuthorized(
+      auth,
+      "0x00000000000000000000000000000000000000Aa",
+    )).not.toThrow();
   });
 
   it.each(["service", "founder", "admin", "operator"])("allows the %s API role to reach admin contract preflight", (role) => {

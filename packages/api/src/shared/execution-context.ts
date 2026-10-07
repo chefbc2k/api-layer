@@ -14,7 +14,13 @@ import {
   traceCallWithAlchemy,
   traceTransactionWithAlchemy,
 } from "./alchemy-diagnostics.js";
-import { assertAdminAuthorized, assertAdminNetworkAuthorized, assertWriteAuthorized, loadApiKeys } from "./auth.js";
+import {
+  assertAdminAuthorized,
+  assertAdminNetworkAuthorized,
+  assertRequestedWalletAuthorized,
+  assertWriteAuthorized,
+  loadApiKeys,
+} from "./auth.js";
 import { submitSmartWalletCall } from "./cdp-smart-wallet.js";
 import { RateLimiter } from "./rate-limit.js";
 import type { ApiRequestOptions, EventInvocationRequest, HttpEventDefinition, HttpMethodDefinition, PrimitiveInvocationRequest, RouteResult } from "./route-types.js";
@@ -502,6 +508,7 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
   const isWrite = definition.mutability !== "view" && definition.mutability !== "pure" && definition.rateLimitKind !== "read";
   if (isWrite) {
     assertWriteAuthorized(request.auth);
+    assertRequestedWalletAuthorized(request.auth, request.walletAddress);
     if (definition.classification === "admin") {
       assertAdminAuthorized(request.auth);
       assertAdminNetworkAuthorized(context.config.cbdpRpcUrl, context.config.allowLiveAdminWrites);

@@ -64,6 +64,19 @@ export function assertWriteAuthorized(auth: AuthContext): void {
   }
 }
 
+export function assertRequestedWalletAuthorized(
+  auth: AuthContext,
+  requestedWalletAddress: string | undefined,
+): void {
+  if (
+    auth.walletAddress
+    && requestedWalletAddress
+    && auth.walletAddress.toLowerCase() !== requestedWalletAddress.toLowerCase()
+  ) {
+    throw new Error("API key not permitted: configured walletAddress does not match x-wallet-address");
+  }
+}
+
 export function assertAdminAuthorized(auth: AuthContext): void {
   if (!normalizedRoles(auth).some((role) => adminCapableRoles.has(role))) {
     throw new Error("API key not permitted for admin execution");

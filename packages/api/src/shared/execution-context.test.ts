@@ -31,6 +31,7 @@ const mocked = vi.hoisted(() => {
   const traceTransactionWithAlchemy = vi.fn().mockResolvedValue({ status: "ok" });
   const loadApiKeys = vi.fn().mockReturnValue({ founderKey: { apiKey: "founder-key" } });
   const assertWriteAuthorized = vi.fn();
+  const assertRequestedWalletAuthorized = vi.fn();
   const assertAdminAuthorized = vi.fn();
   const assertAdminNetworkAuthorized = vi.fn();
   return {
@@ -53,6 +54,7 @@ const mocked = vi.hoisted(() => {
     traceTransactionWithAlchemy,
     loadApiKeys,
     assertWriteAuthorized,
+    assertRequestedWalletAuthorized,
     assertAdminAuthorized,
     assertAdminNetworkAuthorized,
   };
@@ -86,6 +88,7 @@ vi.mock("./alchemy-diagnostics.js", () => ({
 vi.mock("./auth.js", () => ({
   loadApiKeys: mocked.loadApiKeys,
   assertWriteAuthorized: mocked.assertWriteAuthorized,
+  assertRequestedWalletAuthorized: mocked.assertRequestedWalletAuthorized,
   assertAdminAuthorized: mocked.assertAdminAuthorized,
   assertAdminNetworkAuthorized: mocked.assertAdminNetworkAuthorized,
 }));
@@ -187,6 +190,11 @@ beforeEach(() => {
     const writeRoles = new Set(["service", "founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"]);
     if (!auth.roles?.some((role) => writeRoles.has(role.toLowerCase()))) {
       throw new Error("API key not permitted for write execution");
+    }
+  });
+  mocked.assertRequestedWalletAuthorized.mockImplementation((auth: { walletAddress?: string }, walletAddress?: string) => {
+    if (auth.walletAddress && walletAddress && auth.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+      throw new Error("API key not permitted: configured walletAddress does not match x-wallet-address");
     }
   });
   mocked.assertAdminAuthorized.mockImplementation((auth: { roles?: string[] }) => {
@@ -949,6 +957,48 @@ describe("executeHttpMethodDefinition", () => {
 
     expect(mocked.contractStaticCall).not.toHaveBeenCalled();
     expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects configured API-key/wallet confusion across every mounted write before decoding or provider access", async () => {
+    const context = buildContext();
+    const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
+    const surfaceMethods = (apiSurfaceJson as { methods: Record<string, Record<string, unknown>> }).methods;
+    const writeDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write" && Boolean(surfaceMethods[key]))
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
+
+    expect(writeDefinitions).toHaveLength(259);
+    for (const definition of writeDefinitions) {
+      await expect(executeHttpMethodDefinition(
+        context as never,
+        definition as never,
+        buildRequest({
+          auth: {
+            apiKey: "buyer-key",
+            label: "buyer",
+            signerId: "buyer",
+            walletAddress: "0x00000000000000000000000000000000000000aa",
+            allowGasless: true,
+            roles: ["buyer"],
+          },
+          api: {
+            gaslessMode: definition.gaslessModes?.includes("cdpSmartWallet") ? "cdpSmartWallet" : "none",
+            executionSource: "auto",
+          },
+          walletAddress: "0x00000000000000000000000000000000000000bb",
+          wireParams: [],
+        }) as never,
+      ), definition.key).rejects.toThrow(
+        "API key not permitted: configured walletAddress does not match x-wallet-address",
+      );
+    }
+
+    expect(mocked.assertRequestedWalletAuthorized).toHaveBeenCalledTimes(writeDefinitions.length);
+    expect(mocked.decodeParamsFromWire).not.toHaveBeenCalled();
+    expect(context.providerRouter.withProvider).not.toHaveBeenCalled();
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.submitSmartWalletCall).not.toHaveBeenCalled();
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 

@@ -26,7 +26,7 @@ describe("actor negative-path coverage", () => {
       writeMethodCount: 259,
       domainCount: 13,
       actorMethodCaseCount: 1_813,
-      apiBoundaryCaseCount: 777,
+      apiBoundaryCaseCount: 1_036,
       adminApiRoleCaseCount: 200,
     });
     expect(report.methods.map((method) => method.method)).toEqual(
@@ -55,7 +55,7 @@ describe("actor negative-path coverage", () => {
     expect(nonAdminMethods.every((method) => method.actors.every((actor) => actor.apiRoleDenials.length === 0))).toBe(true);
   });
 
-  it("applies unknown-key, read-only, and confused-deputy checks to every actor/write pair", () => {
+  it("applies unknown-key, read-only, signer, and configured-wallet checks to every actor/write pair", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
 
     for (const method of report.methods) {
@@ -63,6 +63,7 @@ describe("actor negative-path coverage", () => {
         "unknown-api-key",
         "read-only-api-key",
         "api-key-signer-mismatch",
+        "api-key-wallet-mismatch",
       ]);
       expect(method.actors.map((actor) => actor.actor)).toEqual(ACTOR_ROLES);
     }

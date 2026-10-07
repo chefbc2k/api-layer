@@ -30,7 +30,12 @@ export type ActorNegativePathMethod = {
   domain: string;
   path: string;
   requiredActor: WriteInvariant["requiredActor"];
-  apiBoundaryDenials: ["unknown-api-key", "read-only-api-key", "api-key-signer-mismatch"];
+  apiBoundaryDenials: [
+    "unknown-api-key",
+    "read-only-api-key",
+    "api-key-signer-mismatch",
+    "api-key-wallet-mismatch",
+  ];
   roleLifecycleDenials: Array<"stale-role" | "revoked-role" | "expired-validity-window">;
   actors: Array<{
     actor: ActorRole;
@@ -139,7 +144,12 @@ export function buildActorNegativePathReport(
       domain: surface.methods[method]!.domain,
       path: surface.methods[method]!.path,
       requiredActor: invariant.requiredActor,
-      apiBoundaryDenials: ["unknown-api-key", "read-only-api-key", "api-key-signer-mismatch"],
+      apiBoundaryDenials: [
+        "unknown-api-key",
+        "read-only-api-key",
+        "api-key-signer-mismatch",
+        "api-key-wallet-mismatch",
+      ],
       roleLifecycleDenials: invariant.requiredActor.kind === "role"
         ? ["stale-role", "revoked-role", "expired-validity-window"]
         : [],
@@ -165,14 +175,14 @@ export function buildActorNegativePathReport(
   );
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt,
     totals: {
       abiWriteMethodCount: Object.keys(reviewed.methods).length,
       writeMethodCount: methods.length,
       domainCount: Object.keys(domains).length,
       actorMethodCaseCount: methods.length * ACTOR_ROLES.length,
-      apiBoundaryCaseCount: methods.length * 3,
+      apiBoundaryCaseCount: methods.length * 4,
       adminApiRoleCaseCount,
       roleLifecycleCaseCount: roleGatedMethodCount * ACTOR_ROLES.length * 3,
     },
@@ -183,7 +193,12 @@ export function buildActorNegativePathReport(
       Object.entries(capabilityTargets).map(([capability, target]) => [capability, {
         ...target,
         deniedActors: ACTOR_ROLES,
-        boundaryDenials: ["unknown-api-key", "read-only-api-key", "api-key-signer-mismatch"],
+        boundaryDenials: [
+          "unknown-api-key",
+          "read-only-api-key",
+          "api-key-signer-mismatch",
+          "api-key-wallet-mismatch",
+        ],
       }]),
     ),
     methods,
