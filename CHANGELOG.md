@@ -2,6 +2,57 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.379] - 2026-10-07
+
+### Changed
+
+- **Current-Master Write Invariants Revalidated:** Audited all `260` ABI write methods across `31` facets after the latest production evidence update. Every method retains its ABI signature, required actor/role, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations.
+- **Reviewed Catalog Remains Byte-Stable:** The explicit authoring sync preserved every human-reviewed entry and the catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`. Generated registry normalization also remained stable, confirming no semantic invariant drift.
+
+### Verified
+
+- **Invariant And Generation Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the byte-stability sync check, canonical code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Quality Gates Passed:** TypeScript, lint, and all workspace builds completed successfully. Transient reviewed API-surface timestamp churn was restored, leaving only the intended roadmap and changelog updates.
+
+## [0.1.378] - 2026-10-07
+
+### Changed
+
+- **Current-Master ABI Gap Evidence Revalidated:** Rebuilt the generated ABI/API inventories after the delegation, upgrade-initialization, and EchoScore fixture batch, then refreshed the persistent JSON and Markdown gap reports. Timestamp-normalized artifacts are semantically unchanged from production across all `33` facets, `492` functions, `218` event occurrences, and `710` total items.
+- **Proof Inputs And Summaries Audited:** Confirmed all `161` referenced evidence paths exist, every item retains a valid proof-depth score and classification, and every facet summary reconciles with its underlying inventory. Classifications remain `564` ready, `110` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof.
+
+### Verified
+
+- **Reporter, Planner, And Repository Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,770` active tests across `149` files with `40` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines.
+
+## [0.1.377] - 2026-10-07
+
+### Changed
+
+- **Delegation, Upgrade Initialization, And EchoScore Fixtures Close Twelve Gaps:** Added a mounted-route safety matrix for all three remaining `DelegationFacet` writes, `UpgradeControllerFacet.initUpgradeController`, and all eight remaining `EchoScoreFacetV3` writes. The matrix verifies request-to-ABI decoding, transaction population and contract static-call preflight before persistence or wallet submission, read-only rejection before contract access, and injected stale, replayed, invalid, or unauthorized preflight failures without mutation.
+- **Persistent Non-Ready Count Falls By Twelve:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `552` to `564`, fixture gaps fall from `122` to `110`, and total non-ready items decrease from `158` to `146`. The `36` live-safety items remain conservatively blocked on genuine successful exact-route local-fork or Base Sepolia evidence.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The two mounted-route matrices passed `66/66`; `pnpm run test:gap-report` passed `8/8`; `pnpm run test:gap-builder` passed `12/12`; and `pnpm run test:actor-negative-paths` passed `219/219` across `10` files.
+- **Quality, Build, And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Fork Fixture Readiness Revalidated:** `pnpm run baseline:show`, `pnpm run baseline:verify`, and `pnpm run setup:base-sepolia` passed. The setup runner seeded its Base Sepolia-backed local fork, confirmed funded founder, seller, buyer, licensee, and transferee actors, retained `4,000` buyer USDC with `4,000` allowance, confirmed proposer voting power, and created then aged token `11` into an active purchase-ready listing through transaction `0x8a3e1be72d04a6ac9abdaab00deb27ba1d94cecdc6e8951993c5c5566aaee4c8`.
+- **Instrumented Test Baseline Remains Green But Below Global 100%:** `pnpm run test:coverage` passed all executed shards with aggregate coverage of `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines. API application and client runtime surfaces remain at `100%`; remaining aggregate deficits are concentrated in shared API branches, the indexer worker, and operational scripts and therefore remain an explicit follow-up rather than being reported as full standard-test coverage.
+
+## [0.1.376] - 2026-10-06
+
+### Changed
+
+- **Selected Tokenomics Fixtures Close Ten Gaps:** Added one mounted-route preflight matrix for all four `BurnThresholdFacet` writes and all six remaining `TimewaveGiftFacet` writes. The matrix proves ABI-native request decoding, contract static-call preflight before persistence, authorized submission ordering, read-only rejection, and stale, replayed, insufficient-balance, or unauthorized-state rejection without mutation.
+- **Related Facets Close As Complete Groups:** Included `thresholdSetBurnLimit` with the three burn methods selected by the 40-item plan, then completed the adjacent Timewave gift write group to maintain the required ten-item implementation target. The durable actor-negative-path command now includes the new route matrix. `UpgradeControllerFacet.initUpgradeController` intentionally remains non-ready until it has an isolated-fork receipt, decoded event, state readback, and indexer projection proof.
+- **Persistent Non-Ready Count Falls By Ten:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `542` to `552`, fixture gaps fall from `132` to `122`, and total non-ready items decrease from `168` to `158`; the `36` live-safety items remain conservatively blocked on genuine successful exact-route fork or Base Sepolia receipts.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `30/30`; `pnpm run test:gap-report` passed `8/8`; `pnpm run test:gap-builder` passed `12/12`; and `pnpm run test:actor-negative-paths` passed `183/183` across `9` files.
+- **Quality, Build, And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.375] - 2026-10-06
 
 ### Changed
