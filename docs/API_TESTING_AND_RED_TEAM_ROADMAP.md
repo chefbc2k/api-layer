@@ -260,6 +260,14 @@ The Base Sepolia runner should:
 - consume existing setup helpers for new users, test funds, allowances, listings, and governance readiness
 - persist evidence with tx hashes, block numbers, actors, state deltas, decoded events, and final classifications
 
+#### 2026-10-05 Promotion Automation Evidence
+
+- Started `codex/base-sepolia-promotion-20261005` from fetched `origin/master` `91e5156` in an isolated worktree, preserving the unrelated dirty primary checkout and the prior promotion worktree.
+- The canonical explicit-env preflight exited `2` with `finalClassification: "blocked by setup/state"`. Environment-file presence, network `base-sepolia`, chain `84532`, diamond-address syntax, all three actor keys, actor distinctness, and founder/sender binding passed. `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` remains disabled, and both execution and diagnostics RPC origins resolve to the disallowed loopback endpoint `http://127.0.0.1:8548`.
+- The refusal occurred before provider access, setup helpers, funding, allowances, aged-listing creation, governance preparation, or proof execution. The refreshed `verify-base-sepolia-promotion-output.json` records `liveTarget.checked: false`, null setup, no scenario results, and zero transaction hashes, block numbers, actors, state deltas, or decoded events. Destructive protocol-admin writes remain disabled.
+- Non-live verification passed: the focused promotion suite passed `6/6`; `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order after reusing the existing pnpm dependency links in the isolated worktree. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Timestamp-only reviewed-surface churn was restored.
+- **Merge decision:** blocked; do not merge this partial workstream. Configure direct non-loopback Base Sepolia execution and diagnostics RPCs and explicitly enable `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true`; then rerun preflight and permit only the fixture-backed marketplace and governance proofs after every readiness check passes. Merge only when both scenario reports and the aggregate artifact classify `proven working`.
+
 #### 2026-08-02 Promotion Automation Evidence
 
 - Branch: `codex/base-sepolia-promotion`, created from an up-to-date `master` (`master...origin/master` was `0/0`).

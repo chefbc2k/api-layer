@@ -2,6 +2,16 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.372] - 2026-10-05
+
+### Changed
+
+- **Base Sepolia Promotion Again Fails Closed:** Refreshed the gated promotion artifact from current `origin/master`. The runner rejected the configured loopback execution and diagnostics RPCs plus the absent explicit live opt-in before provider access, setup helpers, funding, allowances, listings, governance preparation, or transaction submission. The artifact remains `blocked by setup/state` with empty transaction, block, actor, state-delta, and decoded-event evidence; destructive protocol-admin writes remain disabled.
+
+### Verified
+
+- **Non-Live Promotion And Quality Gates Passed:** The focused promotion suite passed `6/6`. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. This blocked workstream is intentionally not approved for merge until direct Base Sepolia RPCs and explicit promotion opt-in make preflight ready and both safe scenarios prove working.
+
 ## [0.1.371] - 2026-10-04
 
 ### Changed
