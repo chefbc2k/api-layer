@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-09T08:37:42.651Z",
-  "sourceGeneratedAt": "2026-10-09T08:37:40.638Z",
+  "generatedAt": "2026-10-09T10:31:59.597Z",
+  "sourceGeneratedAt": "2026-10-09T10:31:57.581Z",
   "totals": {
-    "nonReady": 102,
-    "selected": 41,
+    "nonReady": 75,
+    "selected": 40,
     "byClassification": {
-      "ready": 608,
-      "needs fixture": 66,
+      "ready": 635,
+      "needs fixture": 39,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
@@ -702,36 +702,17 @@
       ]
     },
     {
-      "facetName": "RightsFacet",
-      "objective": "Reduce RightsFacet launch blockers across 5 gap items.",
+      "facetName": "VestingFacet",
+      "objective": "Reduce VestingFacet launch blockers across 3 gap items.",
       "items": [
         {
-          "id": "RightsFacet.addCollaborator",
+          "id": "VestingFacet.releaseTokensFor",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/commands/add-collaborator"
-          },
-          "gaps": [
-            "no negative-path proof reference",
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "RightsFacet.createRightsGroup",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/licensing/rights/create-rights-group"
+            "path": "/v1/tokenomics/commands/release-tokens-for"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -747,13 +728,13 @@
           ]
         },
         {
-          "id": "RightsFacet.grantRight",
+          "id": "VestingFacet.releaseVestedTokens",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/commands/grant-right"
+            "path": "/v1/tokenomics/commands/release-vested-tokens"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -769,13 +750,13 @@
           ]
         },
         {
-          "id": "RightsFacet.registerRightContract",
+          "id": "VestingFacet.transferVestingSchedule",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/rights/register-right-contract"
+            "path": "/v1/tokenomics/commands/transfer-vesting-schedule"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -789,27 +770,33 @@
             "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
-        },
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "VoiceLicenseTemplateFacet",
+      "objective": "Reduce VoiceLicenseTemplateFacet launch blockers across 1 gap item.",
+      "items": [
         {
-          "id": "RightsFacet.removeCollaborator",
+          "id": "VoiceLicenseTemplateFacet.createLicenseFromTemplate",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "DELETE",
-            "path": "/v1/licensing/commands/remove-collaborator"
+            "method": "POST",
+            "path": "/v1/licensing/license-templates/create-license-from-template"
           },
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
-            "no successful verify-artifact route evidence"
+            "no workflow proof reference"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+            "Route the proof through an executable workflow or route-level integration test."
           ]
         }
       ],
