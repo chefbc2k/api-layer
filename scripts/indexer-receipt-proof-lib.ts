@@ -8,6 +8,19 @@ import {
 type WriteDefinition = ReturnType<typeof getAllWriteInvariantDefinitions>[string];
 type EventDefinitions = ReturnType<typeof getAllAbiEventDefinitions>;
 
+type CallTrace = {
+  to?: unknown;
+  input?: unknown;
+  error?: unknown;
+  calls?: unknown;
+};
+
+export type TracedWrite = {
+  selector: string;
+  methodKey: string;
+  definition: WriteDefinition;
+};
+
 export type IndexedEventRow = {
   facet_name: string | null;
   event_name: string;
@@ -169,6 +182,47 @@ export function buildWriteSelectorMap(
     selectors.set(selector, { methodKey, definition });
   }
   return selectors;
+}
+
+export function collectSuccessfulTracedWrites(
+  trace: unknown,
+  diamondAddress: string,
+  definitions = getAllWriteInvariantDefinitions(),
+): TracedWrite[] {
+  const selectors = buildWriteSelectorMap(definitions);
+  const expectedAddress = diamondAddress.toLowerCase();
+  const writes = new Map<string, TracedWrite>();
+
+  const visit = (value: unknown, ancestorsSucceeded: boolean): void => {
+    if (!value || typeof value !== "object") {
+      return;
+    }
+    const call = value as CallTrace;
+    const succeeded = ancestorsSucceeded && call.error === undefined;
+    if (!succeeded) {
+      return;
+    }
+    if (
+      typeof call.to === "string"
+      && call.to.toLowerCase() === expectedAddress
+      && typeof call.input === "string"
+      && /^0x[0-9a-fA-F]{8}/u.test(call.input)
+    ) {
+      const selector = call.input.slice(0, 10).toLowerCase();
+      const write = selectors.get(selector);
+      if (write) {
+        writes.set(write.methodKey, { selector, ...write });
+      }
+    }
+    if (Array.isArray(call.calls)) {
+      for (const child of call.calls) {
+        visit(child, succeeded);
+      }
+    }
+  };
+
+  visit(trace, true);
+  return [...writes.values()].sort((left, right) => left.methodKey.localeCompare(right.methodKey));
 }
 
 export function projectionTableNames(definition: WriteDefinition): string[] {

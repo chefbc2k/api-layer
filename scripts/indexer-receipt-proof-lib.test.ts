@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildWriteSelectorMap,
+  collectSuccessfulTracedWrites,
   collectTransactionHashes,
   evaluateReceiptExpectation,
   mergePersistentProofReports,
@@ -36,6 +37,46 @@ describe("local-fork receipt-to-indexer proof", () => {
     const selectors = buildWriteSelectorMap();
     expect(selectors.size).toBe(260);
     expect([...selectors.values()].some(({ methodKey }) => methodKey === "MarketplaceFacet.purchaseAsset")).toBe(true);
+  });
+
+  it("attributes only successful diamond writes observed in a call trace", () => {
+    const diamondAddress = "0x0000000000000000000000000000000000000001";
+    const selectors = buildWriteSelectorMap();
+    const outer = [...selectors.entries()].find(([, write]) => write.methodKey === "MarketplaceFacet.purchaseAsset")!;
+    const payment = [...selectors.entries()].find(([, write]) => write.methodKey === "PaymentFacet.distributePaymentFrom")!;
+    const escrow = [...selectors.entries()].find(([, write]) => write.methodKey === "EscrowFacet.releaseAsset")!;
+    const reverted = [...selectors.entries()].find(([, write]) => write.methodKey === "EscrowFacet.updateAssetState")!;
+
+    expect(collectSuccessfulTracedWrites({
+      to: diamondAddress,
+      input: `${outer[0]}${"00".repeat(32)}`,
+      calls: [
+        { to: diamondAddress.toUpperCase(), input: payment[0] },
+        { to: diamondAddress, input: escrow[0], calls: [{ to: diamondAddress, input: payment[0] }] },
+        { to: diamondAddress, input: reverted[0], error: "execution reverted" },
+        { to: "0x0000000000000000000000000000000000000002", input: reverted[0] },
+      ],
+    }, diamondAddress).map(({ methodKey }) => methodKey)).toEqual([
+      "EscrowFacet.releaseAsset",
+      "MarketplaceFacet.purchaseAsset",
+      "PaymentFacet.distributePaymentFrom",
+    ]);
+  });
+
+  it("does not credit successful descendants of a reverted trace branch", () => {
+    const diamondAddress = "0x0000000000000000000000000000000000000001";
+    const selectors = buildWriteSelectorMap();
+    const escrow = [...selectors.entries()].find(([, write]) => write.methodKey === "EscrowFacet.releaseAsset")!;
+    expect(collectSuccessfulTracedWrites({
+      to: diamondAddress,
+      input: "0xdeadbeef",
+      calls: [{
+        to: diamondAddress,
+        input: "0xdeadbeef",
+        error: "execution reverted",
+        calls: [{ to: diamondAddress, input: escrow[0] }],
+      }],
+    }, diamondAddress)).toEqual([]);
   });
 
   it("normalizes projection declarations to table names", () => {

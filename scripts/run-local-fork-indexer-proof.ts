@@ -13,10 +13,10 @@ import { EventIndexer } from "../packages/indexer/src/worker.js";
 import { projectionTables } from "../packages/indexer/src/projections/tables.js";
 import {
   buildWriteSelectorMap,
+  collectSuccessfulTracedWrites,
   collectTransactionHashes,
   evaluateReceiptExpectation,
   mergePersistentProofReports,
-  projectionTableNames,
   receiptProofArtifactEligibility,
   summarizePersistentProofReports,
   type IndexedEventRow,
@@ -54,6 +54,12 @@ type ReceiptProof = {
   definition: ReturnType<typeof getAllWriteInvariantDefinitions>[string];
   sourceArtifacts: string[];
   sourceScripts: string[];
+};
+
+type AttributedReceiptProof = ReceiptProof & {
+  topLevelMethodKey: string;
+  attribution: "top-level-selector" | "successful-call-trace";
+  observedSelector: string;
 };
 
 type RawEventEvidenceRow = IndexedEventRow & {
@@ -216,7 +222,7 @@ async function postgresEvidenceFor(pool: Pool, proof: ReceiptProof) {
     [proof.txHash],
   );
   const projections: Array<{ table: string; rowCount: number; rows: ProjectionEvidenceRow[] }> = [];
-  for (const table of projectionTableNames(proof.definition)) {
+  for (const table of projectionTables) {
     const result = await pool.query<ProjectionEvidenceRow>(
       `SELECT projection.id::text AS row_id, projection.source_raw_event_id::text
        FROM ${table} projection
@@ -262,40 +268,78 @@ async function runProof(
       byBlock.set(proof.blockNumber, [...(byBlock.get(proof.blockNumber) ?? []), proof]);
     }
     const results = [];
+    let callTracer: { status: "supported" | "unsupported"; detail?: string } = { status: "supported" };
     for (const [blockNumber, blockProofs] of [...byBlock.entries()].sort(([left], [right]) => left - right)) {
       await indexer.ingestRange(BigInt(blockNumber), BigInt(blockNumber), head);
       for (const proof of blockProofs) {
         const postgres = await postgresEvidenceFor(pool, proof);
-        const expectation = evaluateReceiptExpectation({
-          txHash: proof.txHash,
-          methodKey: proof.methodKey,
-          definition: proof.definition,
-          indexedRows: postgres.rawEvents.rows,
-          projectedTables: postgres.projections.filter((entry) => entry.rowCount > 0).map((entry) => entry.table),
-        });
-        results.push({
-          ...expectation,
-          blockNumber: proof.blockNumber,
-          receiptStatus: Number(proof.receipt.status),
-          receiptLogCount: proof.receipt.logs.length,
-          transactionSelector: proof.transaction.data.slice(0, 10).toLowerCase(),
-          affectedFacet: proof.methodKey.split(".", 1)[0],
-          methodSignature: proof.definition.signature,
-          decodedEvents: postgres.rawEvents.rows.map((row) => ({
-            rawEventId: row.id,
-            logIndex: row.log_index,
-            facetName: row.facet_name,
-            eventName: row.event_name,
-            eventSignature: row.event_signature,
-            decodedArgs: row.decoded_args,
-          })),
-          postgres,
-          source: {
-            workflowArtifacts: proof.sourceArtifacts,
-            producers: proof.sourceScripts,
-            ingestionScript: "scripts/run-local-fork-indexer-proof.ts",
-          },
-        });
+        const topLevelSelector = proof.transaction.data.slice(0, 10).toLowerCase();
+        let attributedProofs: AttributedReceiptProof[] = [{
+          ...proof,
+          topLevelMethodKey: proof.methodKey,
+          attribution: "top-level-selector",
+          observedSelector: topLevelSelector,
+        }];
+        try {
+          const trace = await provider.send("debug_traceTransaction", [proof.txHash, { tracer: "callTracer" }]);
+          const traced = collectSuccessfulTracedWrites(trace, proof.transaction.to!);
+          attributedProofs = traced.map((write) => ({
+            ...proof,
+            methodKey: write.methodKey,
+            definition: write.definition,
+            topLevelMethodKey: proof.methodKey,
+            attribution: write.methodKey === proof.methodKey ? "top-level-selector" : "successful-call-trace",
+            observedSelector: write.selector,
+          }));
+          if (!attributedProofs.some((entry) => entry.methodKey === proof.methodKey)) {
+            attributedProofs.push({
+              ...proof,
+              topLevelMethodKey: proof.methodKey,
+              attribution: "top-level-selector",
+              observedSelector: topLevelSelector,
+            });
+          }
+        } catch (error) {
+          callTracer = {
+            status: "unsupported",
+            detail: error instanceof Error ? error.message : String(error),
+          };
+        }
+        for (const attributed of attributedProofs) {
+          const expectation = evaluateReceiptExpectation({
+            txHash: attributed.txHash,
+            methodKey: attributed.methodKey,
+            definition: attributed.definition,
+            indexedRows: postgres.rawEvents.rows,
+            projectedTables: postgres.projections.filter((entry) => entry.rowCount > 0).map((entry) => entry.table),
+          });
+          results.push({
+            ...expectation,
+            blockNumber: attributed.blockNumber,
+            receiptStatus: Number(attributed.receipt.status),
+            receiptLogCount: attributed.receipt.logs.length,
+            transactionSelector: topLevelSelector,
+            observedSelector: attributed.observedSelector,
+            topLevelMethodKey: attributed.topLevelMethodKey,
+            attribution: attributed.attribution,
+            affectedFacet: attributed.methodKey.split(".", 1)[0],
+            methodSignature: attributed.definition.signature,
+            decodedEvents: postgres.rawEvents.rows.map((row) => ({
+              rawEventId: row.id,
+              logIndex: row.log_index,
+              facetName: row.facet_name,
+              eventName: row.event_name,
+              eventSignature: row.event_signature,
+              decodedArgs: row.decoded_args,
+            })),
+            postgres,
+            source: {
+              workflowArtifacts: attributed.sourceArtifacts,
+              producers: attributed.sourceScripts,
+              ingestionScript: "scripts/run-local-fork-indexer-proof.ts",
+            },
+          });
+        }
       }
     }
 
@@ -327,14 +371,6 @@ async function runProof(
     const httpRegistry = JSON.parse(
       await readFile(path.join(rootDir, "generated", "manifests", "http-endpoint-registry.json"), "utf8"),
     ) as HttpEndpointRegistry;
-    const traceProbeTxHash = proofs.at(-1)!.txHash;
-    let callTracer: { status: "supported" | "unsupported"; detail?: string };
-    try {
-      await provider.send("debug_traceTransaction", [traceProbeTxHash, { tracer: "callTracer" }]);
-      callTracer = { status: "supported" };
-    } catch (error) {
-      callTracer = { status: "unsupported", detail: error instanceof Error ? error.message : String(error) };
-    }
     const report = {
       schemaVersion: 2,
       generatedAt: new Date().toISOString(),
@@ -348,7 +384,7 @@ async function runProof(
         artifactTransactionHashes: artifacts.hashes.size,
         includedArtifacts: artifacts.includedArtifacts.length,
         skippedArtifacts: artifacts.skippedArtifacts.length,
-        indexedReceipts: results.length,
+        indexedReceipts: new Set(results.map((result) => result.txHash)).size,
         provenWriteMethods: provenMethodKeys.length,
         catalogWriteMethods: allMethods.length,
         remainingWriteMethods: allMethods.length - provenMethodKeys.length,
@@ -383,15 +419,27 @@ async function runProof(
         throw new Error(`missing HTTP endpoint registry entry for proven write ${methodKey}`);
       }
       const methodResults = results.filter((result) => result.methodKey === methodKey);
+      const routes = [...new Set(methodResults.map((result) => {
+        const observedEndpoint = httpRegistry.methods[result.topLevelMethodKey];
+        if (!observedEndpoint) {
+          throw new Error(`missing HTTP endpoint registry entry for observed workflow write ${result.topLevelMethodKey}`);
+        }
+        return `${observedEndpoint.httpMethod} ${observedEndpoint.path}`;
+      }))].sort((left, right) => left.localeCompare(right));
       return [methodKey, {
-        routes: [`${endpoint.httpMethod} ${endpoint.path}`],
+        routes,
         actors: ["local-fork-fixture"],
-        executionResult: "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        executionResult: methodResults.some((result) => result.attribution === "successful-call-trace")
+          ? "successful internal workflow call, receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed"
+          : "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
         evidence: methodResults.map((result) => ({
           localFork: true,
           methodKey: result.methodKey,
           affectedFacet: result.affectedFacet,
           methodSignature: result.methodSignature,
+          attribution: result.attribution,
+          topLevelMethodKey: result.topLevelMethodKey,
+          observedSelector: result.observedSelector,
           txHash: result.txHash,
           blockNumber: result.blockNumber,
           receipt: {
