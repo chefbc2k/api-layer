@@ -59,120 +59,122 @@ vi.mock("../shared/alchemy-diagnostics.js", async () => {
 });
 
 import { createGovernancePrimitiveRouter } from "../modules/governance/primitives/generated/routes.js";
-import { createMarketplacePrimitiveRouter } from "../modules/marketplace/primitives/generated/routes.js";
+import { createOwnershipPrimitiveRouter } from "../modules/ownership/primitives/generated/routes.js";
+import { createVoiceAssetsPrimitiveRouter } from "../modules/voice-assets/primitives/generated/routes.js";
 
 const originalSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
 const diamondAddress = "0x0000000000000000000000000000000000000001";
 const fixtureAccount = "0x00000000000000000000000000000000000000bb";
 const secondAccount = "0x00000000000000000000000000000000000000cc";
-const erc721ReceiverSelector = "0x150b7a02";
-const escrowOwnerField = ["ow", "ner"].join("");
 
-const escrowAndGovernorCases = [
+const beneficiary = {
+  sharePercentage: "2500",
+  activationTime: "1800000000",
+  account: fixtureAccount,
+  isActive: true,
+  canDelegate: false,
+  relationship: "heir",
+} as const;
+
+const runtimeBeneficiary = {
+  sharePercentage: 2_500n,
+  activationTime: 1_800_000_000n,
+  account: fixtureAccount,
+  isActive: true,
+  canDelegate: false,
+  relationship: "heir",
+} as const;
+
+const legacyOwnershipAndTimelockCases = [
   {
-    key: "EscrowFacet.escrowAsset",
-    negativePath: "reject unauthorized or stale asset escrow before mutation",
-    signature: "escrowAsset(uint256,address,uint8)",
+    key: "LegacyFacet.setMaxBeneficiaries",
+    negativePath: "reject unauthorized or replayed maximum-beneficiary configuration",
+    signature: "setMaxBeneficiaries(uint256)",
+    method: "PATCH",
+    path: "/v1/voice-assets/commands/set-max-beneficiaries",
+    body: { max: "12" },
+    runtimeArgs: [12n],
+  },
+  {
+    key: "LegacyFacet.setMinTimelockPeriod",
+    negativePath: "reject stale or unauthorized inheritance timelock configuration",
+    signature: "setMinTimelockPeriod(uint256)",
+    method: "PATCH",
+    path: "/v1/voice-assets/commands/set-min-timelock-period",
+    body: { period: "86400" },
+    runtimeArgs: [86_400n],
+  },
+  {
+    key: "LegacyFacet.updateBeneficiary",
+    negativePath: "reject stale beneficiary index or unauthorized beneficiary replacement",
+    signature: "updateBeneficiary((uint256,uint256,address,bool,bool,string),uint256)",
+    method: "PATCH",
+    path: "/v1/voice-assets/commands/update-beneficiary",
+    body: { beneficiary, index: "2" },
+    runtimeArgs: [runtimeBeneficiary, 2n],
+  },
+  {
+    key: "TimelockFacet.updateMinDelay",
+    negativePath: "reject unauthorized or replayed minimum-delay update",
+    signature: "updateMinDelay(uint256)",
+    method: "PATCH",
+    path: "/v1/governance/commands/update-min-delay",
+    body: { newDelay: "172800" },
+    runtimeArgs: [172_800n],
+  },
+  {
+    key: "OwnershipFacet.acceptOwnership",
+    negativePath: "reject unauthorized acceptance without a matching pending owner",
+    signature: "acceptOwnership()",
     method: "POST",
-    path: "/v1/marketplace/commands/escrow-asset",
-    body: { tokenId: "41", [escrowOwnerField]: fixtureAccount, state: "1" },
-    runtimeArgs: [41n, fixtureAccount, 1n],
-    preview: null,
+    path: "/v1/ownership/commands/accept-ownership",
+    body: {},
+    runtimeArgs: [],
   },
   {
-    key: "EscrowFacet.onERC721Received",
-    negativePath: "reject unauthorized ERC721 callback replay before mutation",
-    signature: "onERC721Received(address,address,uint256,bytes)",
+    key: "OwnershipFacet.cancelOwnershipTransfer",
+    negativePath: "reject unauthorized or stale ownership-transfer cancellation",
+    signature: "cancelOwnershipTransfer()",
+    method: "DELETE",
+    path: "/v1/ownership/commands/cancel-ownership-transfer",
+    body: {},
+    runtimeArgs: [],
+  },
+  {
+    key: "OwnershipFacet.proposeOwnershipTransfer",
+    negativePath: "reject unauthorized or replayed ownership-transfer proposal",
+    signature: "proposeOwnershipTransfer(address)",
     method: "POST",
-    path: "/v1/marketplace/commands/on-erc721-received",
-    body: {
-      arg0: fixtureAccount,
-      arg1: secondAccount,
-      arg2: "42",
-      arg3: "0x1234",
-    },
-    runtimeArgs: [fixtureAccount, secondAccount, 42n, "0x1234"],
-    preview: erc721ReceiverSelector,
+    path: "/v1/ownership/commands/propose-ownership-transfer",
+    body: { _newOwner: secondAccount },
+    runtimeArgs: [secondAccount],
   },
   {
-    key: "EscrowFacet.releaseAsset",
-    negativePath: "reject stale or unauthorized escrow release before mutation",
-    signature: "releaseAsset(uint256,address)",
+    key: "OwnershipFacet.setApprovedOwnerTarget",
+    negativePath: "reject unauthorized or stale approved-owner target change",
+    signature: "setApprovedOwnerTarget(address,bool)",
+    method: "PATCH",
+    path: "/v1/ownership/commands/set-approved-owner-target",
+    body: { target: secondAccount, approved: true },
+    runtimeArgs: [secondAccount, true],
+  },
+  {
+    key: "OwnershipFacet.setOwnershipPolicyEnforced",
+    negativePath: "reject unauthorized or replayed ownership-policy enforcement change",
+    signature: "setOwnershipPolicyEnforced(bool)",
+    method: "PATCH",
+    path: "/v1/ownership/commands/set-ownership-policy-enforced",
+    body: { enforced: true },
+    runtimeArgs: [true],
+  },
+  {
+    key: "OwnershipFacet.transferOwnership",
+    negativePath: "reject unauthorized direct ownership transfer or stale target",
+    signature: "transferOwnership(address)",
     method: "POST",
-    path: "/v1/marketplace/commands/release-asset",
-    body: { tokenId: "43", to: secondAccount },
-    runtimeArgs: [43n, secondAccount],
-    preview: null,
-  },
-  {
-    key: "EscrowFacet.updateAssetState",
-    negativePath: "reject replayed or stale escrow state transition before mutation",
-    signature: "updateAssetState(uint256,uint8)",
-    method: "PATCH",
-    path: "/v1/marketplace/commands/update-asset-state",
-    body: { tokenId: "44", newState: "2" },
-    runtimeArgs: [44n, 2n],
-    preview: null,
-  },
-  {
-    key: "GovernorFacet.setDefaultGasLimit",
-    negativePath: "reject unauthorized or replayed default gas-limit change",
-    signature: "setDefaultGasLimit(uint256)",
-    method: "PATCH",
-    path: "/v1/governance/commands/set-default-gas-limit",
-    body: { limit: "500000" },
-    runtimeArgs: [500_000n],
-    preview: null,
-  },
-  {
-    key: "GovernorFacet.setTrustedTarget",
-    negativePath: "reject unauthorized or stale trusted-target policy change",
-    signature: "setTrustedTarget(address,bool,uint256)",
-    method: "PATCH",
-    path: "/v1/governance/commands/set-trusted-target",
-    body: { target: secondAccount, trusted: true, gasLimit: "750000" },
-    runtimeArgs: [secondAccount, true, 750_000n],
-    preview: null,
-  },
-  {
-    key: "GovernorFacet.updateProposalThreshold",
-    negativePath: "reject unauthorized or replayed proposal-threshold update",
-    signature: "updateProposalThreshold(uint256)",
-    method: "PATCH",
-    path: "/v1/governance/commands/update-proposal-threshold",
-    body: { newProposalThreshold: "1000000000000000000000" },
-    runtimeArgs: [1_000_000_000_000_000_000_000n],
-    preview: null,
-  },
-  {
-    key: "GovernorFacet.updateQuorumNumerator",
-    negativePath: "reject unauthorized or replayed quorum update",
-    signature: "updateQuorumNumerator(uint256)",
-    method: "PATCH",
-    path: "/v1/governance/commands/update-quorum-numerator",
-    body: { newQuorumNumerator: "2500" },
-    runtimeArgs: [2_500n],
-    preview: null,
-  },
-  {
-    key: "GovernorFacet.updateVotingDelay",
-    negativePath: "reject unauthorized or stale voting-delay update",
-    signature: "updateVotingDelay(uint256)",
-    method: "PATCH",
-    path: "/v1/governance/commands/update-voting-delay",
-    body: { newVotingDelay: "7200" },
-    runtimeArgs: [7_200n],
-    preview: null,
-  },
-  {
-    key: "GovernorFacet.updateVotingPeriod",
-    negativePath: "reject unauthorized or replayed voting-period update",
-    signature: "updateVotingPeriod(uint256)",
-    method: "PATCH",
-    path: "/v1/governance/commands/update-voting-period",
-    body: { newVotingPeriod: "604800" },
-    runtimeArgs: [604_800n],
-    preview: null,
+    path: "/v1/ownership/commands/transfer-ownership",
+    body: { _newOwner: secondAccount },
+    runtimeArgs: [secondAccount],
   },
 ] as const;
 
@@ -189,7 +191,7 @@ function buildContext() {
     ) => work(provider, "fixture-rpc")),
   };
   const txStore = {
-    insert: vi.fn().mockResolvedValue("escrow-governor-request-1"),
+    insert: vi.fn().mockResolvedValue("legacy-ownership-timelock-request-1"),
     update: vi.fn().mockResolvedValue(undefined),
   };
   const context = {
@@ -206,7 +208,7 @@ function buildContext() {
     apiKeys: {
       "operator-key": {
         apiKey: "operator-key",
-        label: "escrow and governance operator",
+        label: "legacy ownership and timelock operator",
         signerId: "fixture-operator",
         roles: ["operator"],
         allowGasless: false,
@@ -243,7 +245,8 @@ async function startServer(context: ReturnType<typeof buildContext>["context"]) 
   const app = express();
   app.set("apiExecutionContext", context);
   app.use(express.json());
-  app.use(createMarketplacePrimitiveRouter(context as never));
+  app.use(createVoiceAssetsPrimitiveRouter(context as never));
+  app.use(createOwnershipPrimitiveRouter(context as never));
   app.use(createGovernancePrimitiveRouter(context as never));
   const server = app.listen(0);
   await new Promise<void>((resolve) => {
@@ -255,7 +258,7 @@ async function startServer(context: ReturnType<typeof buildContext>["context"]) 
   });
   const address = server.address();
   if (!address || typeof address === "string") {
-    throw new Error("escrow and governor fixture server did not bind a TCP port");
+    throw new Error("legacy, ownership, and timelock fixture server did not bind a TCP port");
   }
   return { server, port: address.port };
 }
@@ -266,22 +269,18 @@ async function closeServer(server: Awaited<ReturnType<typeof startServer>>["serv
   });
 }
 
-describe("escrow and governor command route preflight safety", () => {
+describe("legacy, ownership, and timelock command route preflight safety", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
       "fixture-operator": `0x${"11".repeat(32)}`,
     });
-    mocks.contractStaticCall.mockImplementation((signature: string) => (
-      signature === "onERC721Received(address,address,uint256,bytes)"
-        ? erc721ReceiverSelector
-        : null
-    ));
+    mocks.contractStaticCall.mockResolvedValue(null);
     mocks.contractPopulateTransaction.mockResolvedValue({
       to: diamondAddress,
       data: "0xfeed",
     });
-    mocks.walletSendTransaction.mockResolvedValue({ hash: "0xescrow-governor-write" });
+    mocks.walletSendTransaction.mockResolvedValue({ hash: "0xlegacy-ownership-timelock-write" });
     mocks.readActorStates.mockResolvedValue([]);
   });
 
@@ -293,7 +292,7 @@ describe("escrow and governor command route preflight safety", () => {
     }
   });
 
-  it.each(escrowAndGovernorCases)(
+  it.each(legacyOwnershipAndTimelockCases)(
     "preflights $key through its mounted route before mutation",
     async (testCase) => {
       const { context, txStore } = buildContext();
@@ -312,9 +311,9 @@ describe("escrow and governor command route preflight safety", () => {
 
         expect(response.status, testCase.key).toBe(202);
         await expect(response.json()).resolves.toEqual({
-          requestId: "escrow-governor-request-1",
-          txHash: "0xescrow-governor-write",
-          result: testCase.preview,
+          requestId: "legacy-ownership-timelock-request-1",
+          txHash: "0xlegacy-ownership-timelock-write",
+          result: null,
         });
         expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
         expect(mocks.contractPopulateTransaction).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
@@ -334,10 +333,9 @@ describe("escrow and governor command route preflight safety", () => {
         await closeServer(server);
       }
     },
-    15_000,
   );
 
-  it.each(escrowAndGovernorCases)(
+  it.each(legacyOwnershipAndTimelockCases)(
     "rejects unauthorized $key before contract preflight or mutation",
     async (testCase) => {
       const { context, txStore } = buildContext();
@@ -368,7 +366,7 @@ describe("escrow and governor command route preflight safety", () => {
     },
   );
 
-  it.each(escrowAndGovernorCases)(
+  it.each(legacyOwnershipAndTimelockCases)(
     "rejects stale, replayed, or unauthorized $key during preflight without mutation",
     async (testCase) => {
       mocks.contractStaticCall.mockRejectedValueOnce(new Error(testCase.negativePath));

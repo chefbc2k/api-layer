@@ -1,12 +1,12 @@
 # Gap Builder Plan
 
-Generated: `2026-10-09T02:52:34.460Z`
-Source gap report: `2026-10-09T02:52:28.949Z`
+Generated: `2026-10-09T08:37:42.651Z`
+Source gap report: `2026-10-09T08:37:40.638Z`
 
 ## Summary
 
-- Non-ready items in scope: `136`
-- Selected this run: `40`
+- Non-ready items in scope: `102`
+- Selected this run: `41`
 
 ## AccessControlFacet
 
@@ -165,28 +165,24 @@ Reduce UpgradeControllerFacet launch blockers across 5 gap items.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## LegacyFacet
+## RightsFacet
 
-Reduce LegacyFacet launch blockers across 3 gap items.
+Reduce RightsFacet launch blockers across 5 gap items.
 
-- `LegacyFacet.setMaxBeneficiaries` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/set-max-beneficiaries`
+- `RightsFacet.addCollaborator` (needs fixture)
+  - Endpoint: `POST /v1/licensing/commands/add-collaborator`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `RightsFacet.createRightsGroup` (needs fixture)
+  - Endpoint: `POST /v1/licensing/rights/create-rights-group`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `LegacyFacet.setMinTimelockPeriod` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/set-min-timelock-period`
+- `RightsFacet.grantRight` (needs fixture)
+  - Endpoint: `POST /v1/licensing/commands/grant-right`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `LegacyFacet.updateBeneficiary` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/update-beneficiary`
+- `RightsFacet.registerRightContract` (needs fixture)
+  - Endpoint: `POST /v1/licensing/rights/register-right-contract`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
-
-## TimelockFacet
-
-Reduce TimelockFacet launch blockers across 1 gap item.
-
-- `TimelockFacet.updateMinDelay` (needs fixture)
-  - Endpoint: `PATCH /v1/governance/commands/update-min-delay`
+- `RightsFacet.removeCollaborator` (needs fixture)
+  - Endpoint: `DELETE /v1/licensing/commands/remove-collaborator`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
