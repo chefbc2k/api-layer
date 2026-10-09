@@ -6,11 +6,25 @@ import {
   buildBlockedFundingOutput,
   buildBlockedPurchaseOutput,
   estimateBuyerNativeMinimum,
+  extractTxHash,
+  resolveMarketplaceWithdrawalApiKey,
   selectMarketplacePurchaseTarget,
   shouldAttemptMarketplaceRefresh,
 } from "./verify-marketplace-purchase-live.js";
 
 describe("verify marketplace purchase live target selection", () => {
+  it("extracts nested withdrawal transaction hashes and rejects malformed values", () => {
+    expect(extractTxHash({ withdrawal: { txHash: "0xwithdraw" } })).toBe("0xwithdraw");
+    expect(extractTxHash({ withdrawal: { txHash: "withdraw" } })).toBeNull();
+    expect(extractTxHash({ withdrawal: null })).toBeNull();
+  });
+
+  it("selects the configured withdrawal signer case-insensitively", () => {
+    expect(resolveMarketplaceWithdrawalApiKey("0xSELLER", "0xseller", "0xfounder")).toBe("seller-key");
+    expect(resolveMarketplaceWithdrawalApiKey("0xFOUNDER", "0xseller", "0xfounder")).toBe("founder-key");
+    expect(resolveMarketplaceWithdrawalApiKey("0xunknown", "0xseller", "0xfounder")).toBeNull();
+  });
+
   it("uses the aged fixture only when setup marked it purchase-ready", () => {
     expect(selectMarketplacePurchaseTarget({
       tokenId: "11",

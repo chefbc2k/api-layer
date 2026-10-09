@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-09T08:37:40.638Z`
+Generated: `2026-10-09T10:31:57.581Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,8 +13,8 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 608 |
-| needs fixture | 66 |
+| ready | 635 |
+| needs fixture | 39 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
@@ -26,13 +26,13 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 684 |
-| workflow | 366 |
+| unit | 701 |
+| workflow | 391 |
 | localFork | 111 |
 | baseSepolia | 60 |
-| negativePath | 367 |
+| negativePath | 392 |
 | economic | 169 |
-| redTeam | 164 |
+| redTeam | 190 |
 | indexer | 218 |
 
 ## Methodology
@@ -666,27 +666,27 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 
 ## RightsFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `1.29/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.62/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `addCollaborator` | write | yes | yes | — | — | — | — | — | workflow 2/8 | needs fixture |
-| `createRightsGroup` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `addCollaborator` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `createRightsGroup` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `getCategoryContracts` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getCollaborator` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
 | `getRightCategory` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getRightContract` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getRightsGroup` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getUserRights` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `grantRight` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `registerRightContract` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `removeCollaborator` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `revokeRight` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `grantRight` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `registerRightContract` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `removeCollaborator` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `revokeRight` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `rightIdExists` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
-| `updateCollaboratorShare` | write | yes | yes | — | — | — | — | — | workflow 2/8 | needs fixture |
-| `updateRightContract` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `updateCollaboratorShare` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `updateRightContract` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 
 ### Events
 
@@ -701,16 +701,16 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 
 ## StakingFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `2.18/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.33/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `advanceEpoch` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
-| `claimRewards` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
-| `executeUnstake` | write | yes | — | yes | — | yes | yes | — | adversarial 4/8 | needs fixture |
-| `fundRewardPool` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `advanceEpoch` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
+| `claimRewards` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
+| `executeUnstake` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
+| `fundRewardPool` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 | `getDegradedModeConfig` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getEffectiveApy` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getPendingRewards` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
@@ -721,14 +721,14 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 | `getTier` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `getTierConfig` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `getUnstakeRequest` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
-| `initStaking` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `initStakingWithToken` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `initStaking` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `initStakingWithToken` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `isDegradedModeActive` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
-| `queueTierConfigUpdate` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `requestUnstake` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
-| `setDegradedModeConfig` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setEchoScoreBoost` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setStakingPaused` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `queueTierConfigUpdate` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `requestUnstake` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
+| `setDegradedModeConfig` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `setEchoScoreBoost` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `setStakingPaused` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `stake` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 
 ### Events
@@ -819,7 +819,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## TokenSupplyFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `2.76/8`.
+Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` with an average score of `3.84/8`.
 
 ### Functions
 
@@ -828,24 +828,24 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 | `allowance` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `approve` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 | `balanceOf` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
-| `burn` | write | yes | — | — | — | yes | yes | yes | adversarial 4/8 | needs fixture |
-| `burnFrom` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `burn` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
+| `burnFrom` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `decimals` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
-| `initializeToken` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `supplyFinishMinting` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `initializeToken` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `supplyFinishMinting` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `supplyGetMaximum` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `supplyIsMintingFinished` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
-| `supplyMintTokens` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `supplySetMaximum` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `supplyMintTokens` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `supplySetMaximum` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `tokenAllowance` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `tokenApprove` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 | `tokenBalanceOf` | read | yes | — | — | — | yes | yes | yes | adversarial 4/8 | ready |
 | `tokenName` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `tokenSymbol` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
-| `tokenTransferFrom` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `tokenTransferFrom` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 | `totalSupply` | read | yes | — | — | yes | — | yes | — | adversarial 3/8 | ready |
 | `transfer` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
-| `transferFrom` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
+| `transferFrom` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 
 ### Events
 

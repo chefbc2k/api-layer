@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.381] - 2026-10-09
+
+### Changed
+
+- **Rights, Staking, And Token Supply Fixtures Close Twenty-Seven Gaps:** Added an ABI-registry-driven mounted-route matrix for all eight remaining `RightsFacet` writes, eleven remaining `StakingFacet` writes, and eight remaining `TokenSupplyFacet` writes. Every target now proves real request decoding, contract static-call preflight, transaction population, persistence-before-submission ordering, read-only actor rejection before contract access, and stale, replayed, or unauthorized preflight failure without mutation.
+- **Persistent Non-Ready Count Falls By Twenty-Seven:** Regenerated the API gap report and 40-item planner artifacts. Ready items increase from `608` to `635`, fixture gaps fall from `66` to `39`, and total non-ready items decrease from `102` to `75`. This resolves `26.47%` of the verified non-ready baseline while leaving all `36` live-admin safety blocks conservatively gated on successful exact-route fork or Base Sepolia evidence.
+
+### Verified
+
+- **Focused And Durable Safety Suites Passed:** The new actor-preserving route matrix passed `81/81`, covering authorized operator submission plus read-only and contract-preflight rejection for each of the `27` targets. The expanded durable actor-negative-path command passed `432/432`; gap reporter and planner suites passed `8/8` and `12/12`.
+- **Fork Setup And Baseline Preserved:** `pnpm run setup:base-sepolia` prepared funded founder, seller, buyer, licensee, and transferee actors, retained buyer USDC balance and allowance at `4,000`, confirmed proposer voting power, and created then aged token `11` into an active purchase-ready listing through transaction `0x5f565bd7d5542efc2fd180eacfb1dc4d7379e50468fc7b9f3aa8d6e5be89051c`. `pnpm run baseline:verify` retained the Base Sepolia diamond and signer baseline.
+- **Quality, Surface, And Measured Coverage Gates Passed:** TypeScript, lint, and full build/codegen passed in the required order. Surface generation remains complete across `492` contract functions, `492` HTTP methods, `218` event occurrences, and `260/260` write invariants. Instrumented aggregate coverage remains green at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines; the global 100% target remains open rather than overstated.
+
 ## [0.1.380] - 2026-10-07
 
 ### Changed
