@@ -1,16 +1,16 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-10-06T14:19:34.251Z
+Generated: 2026-10-07T13:03:00.035Z
 
 - ABI write methods: 260
 - Mounted HTTP write endpoints: 259
 - HTTP write domains: 13
 - Actor/method cases: 1813
-- API boundary cases: 777
+- API boundary cases: 1036
 - Admin API-role denial cases: 200
 - Stale/revoked/expired role cases: 3150
 
-Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
+Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Configured API-key/wallet mismatches are denied before decoding or provider access for direct and gasless writes, while direct signer/wallet mismatches are denied before transaction persistence or submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
 
 ## Domains
 
