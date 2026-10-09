@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.380] - 2026-10-07
+
+### Changed
+
+- **Escrow And Governor Command Fixtures Close Ten Gaps:** Added one mounted-route safety matrix for all four remaining `EscrowFacet` writes and all six remaining `GovernorFacet` writes. The matrix proves ABI-native request decoding, contract static-call preflight, transaction population, persistence-before-submission ordering, read-only rejection before contract access, and injected stale, replayed, or unauthorized preflight failures without mutation.
+- **Persistent Non-Ready Count Falls By Ten:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `564` to `574`, fixture gaps fall from `110` to `100`, and total non-ready items decrease from `146` to `136`. The `36` live-safety items remain blocked on genuine successful exact-route local-fork or Base Sepolia evidence; the next 40-item plan therefore selects those items plus three `LegacyFacet` writes and `TimelockFacet.updateMinDelay`.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `30/30`; `pnpm run test:actor-negative-paths` passed `249/249` across `11` files; `pnpm run test:gap-report` passed `8/8`; and `pnpm run test:gap-builder` passed `12/12`.
+- **Type, Lint, And Coverage Gates Passed:** `pnpm exec tsc -p tsconfig.json --noEmit` and `pnpm run lint` passed. `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.379] - 2026-10-07
 
 ### Changed

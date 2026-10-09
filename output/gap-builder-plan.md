@@ -1,11 +1,11 @@
 # Gap Builder Plan
 
-Generated: `2026-10-07T09:38:34.191Z`
-Source gap report: `2026-10-07T09:38:25.599Z`
+Generated: `2026-10-09T02:52:34.460Z`
+Source gap report: `2026-10-09T02:52:28.949Z`
 
 ## Summary
 
-- Non-ready items in scope: `146`
+- Non-ready items in scope: `136`
 - Selected this run: `40`
 
 ## AccessControlFacet
@@ -165,21 +165,28 @@ Reduce UpgradeControllerFacet launch blockers across 5 gap items.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## EscrowFacet
+## LegacyFacet
 
-Reduce EscrowFacet launch blockers across 4 gap items.
+Reduce LegacyFacet launch blockers across 3 gap items.
 
-- `EscrowFacet.escrowAsset` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/escrow-asset`
+- `LegacyFacet.setMaxBeneficiaries` (needs fixture)
+  - Endpoint: `PATCH /v1/voice-assets/commands/set-max-beneficiaries`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `EscrowFacet.onERC721Received` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/on-erc721-received`
+- `LegacyFacet.setMinTimelockPeriod` (needs fixture)
+  - Endpoint: `PATCH /v1/voice-assets/commands/set-min-timelock-period`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `EscrowFacet.releaseAsset` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/release-asset`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `EscrowFacet.updateAssetState` (needs fixture)
-  - Endpoint: `PATCH /v1/marketplace/commands/update-asset-state`
+- `LegacyFacet.updateBeneficiary` (needs fixture)
+  - Endpoint: `PATCH /v1/voice-assets/commands/update-beneficiary`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+
+Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+
+## TimelockFacet
+
+Reduce TimelockFacet launch blockers across 1 gap item.
+
+- `TimelockFacet.updateMinDelay` (needs fixture)
+  - Endpoint: `PATCH /v1/governance/commands/update-min-delay`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`

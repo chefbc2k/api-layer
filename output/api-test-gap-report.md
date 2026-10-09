@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-07T11:07:34.728Z`
+Generated: `2026-10-09T02:52:28.949Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,8 +13,8 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 564 |
-| needs fixture | 110 |
+| ready | 574 |
+| needs fixture | 100 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
@@ -26,13 +26,13 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 652 |
-| workflow | 324 |
+| unit | 660 |
+| workflow | 333 |
 | localFork | 109 |
 | baseSepolia | 60 |
-| negativePath | 331 |
+| negativePath | 340 |
 | economic | 167 |
-| redTeam | 119 |
+| redTeam | 129 |
 | indexer | 218 |
 
 ## Methodology
@@ -343,19 +343,19 @@ Facet classification: **unsafe on live network**. Proof depth spans `adversarial
 
 ## EscrowFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `2.5/8`.
+Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` with an average score of `3.9/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `escrowAsset` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `escrowAsset` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `getAssetState` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `getOriginalOwner` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `isInEscrow` | read | yes | yes | — | yes | yes | yes | — | adversarial 5/8 | ready |
-| `onERC721Received` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `releaseAsset` | write | yes | yes | — | — | — | — | — | workflow 2/8 | needs fixture |
-| `updateAssetState` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `onERC721Received` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `releaseAsset` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `updateAssetState` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 
 ### Events
 
@@ -367,7 +367,7 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 
 ## GovernorFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `1.1/8`.
+Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` with an average score of `3.3/8`.
 
 ### Functions
 
@@ -375,12 +375,12 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `getRoleMultiplier` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `getVotingConfig` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
-| `setDefaultGasLimit` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setTrustedTarget` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateProposalThreshold` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateQuorumNumerator` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `updateVotingDelay` | write | yes | — | — | — | yes | — | — | adversarial 2/8 | needs fixture |
-| `updateVotingPeriod` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `setDefaultGasLimit` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `setTrustedTarget` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `updateProposalThreshold` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `updateQuorumNumerator` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `updateVotingDelay` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `updateVotingPeriod` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 
 ### Events
 
