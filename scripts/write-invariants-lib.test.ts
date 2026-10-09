@@ -9,6 +9,7 @@ import {
   type ReviewedWriteInvariantFile,
   type WriteInvariant,
 } from "./write-invariants-lib.js";
+import { syncReviewedWriteInvariants } from "./sync-reviewed-write-invariants.js";
 import { generatedManifestDir, readJson } from "./utils.js";
 
 const registry: AbiRegistry = {
@@ -134,5 +135,40 @@ describe("write invariant metadata", () => {
     expect(writeCount).toBe(260);
     expect(output.totals).toEqual({ writeMethodCount: writeCount, metadataCount: writeCount });
     expect(Object.values(output.methods).every((method) => method.invariants.preconditions.length > 0)).toBe(true);
+  });
+
+  it("preserves reviewed entries while scaffolding missing writes and dropping stale keys", () => {
+    const current = reviewed();
+    current.methods["ExampleFacet.setValue"]!.requiredActor.description = "Human-reviewed actor requirement.";
+    current.methods["ExampleFacet.removedWrite"] = invariant();
+    const expandedRegistry: AbiRegistry = {
+      ...registry,
+      methods: {
+        ...registry.methods,
+        "ExampleFacet.resetValue": {
+          facetName: "ExampleFacet",
+          wrapperKey: "resetValue",
+          methodName: "resetValue",
+          signature: "resetValue(uint256)",
+          category: "write",
+          inputs: [{ name: "id", type: "uint256" }],
+        },
+      },
+    };
+
+    const output = syncReviewedWriteInvariants(expandedRegistry, current, { reviewedAt: "2026-10-05" });
+
+    expect(output.reviewedAt).toBe("2026-10-05");
+    expect(output.methods["ExampleFacet.setValue"]).toBe(current.methods["ExampleFacet.setValue"]);
+    expect(output.methods["ExampleFacet.setValue"]?.requiredActor.description).toBe("Human-reviewed actor requirement.");
+    expect(output.methods["ExampleFacet.resetValue"]?.abiSignature).toBe("resetValue(uint256)");
+    expect(output.methods["ExampleFacet.removedWrite"]).toBeUndefined();
+  });
+
+  it("does not churn the review date when the ABI inventory is unchanged", () => {
+    const current = reviewed();
+    const output = syncReviewedWriteInvariants(registry, current, { reviewedAt: "2026-10-05" });
+
+    expect(output).toEqual(current);
   });
 });
