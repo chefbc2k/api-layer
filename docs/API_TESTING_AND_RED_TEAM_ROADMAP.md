@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-11
+
+- Reused the clean isolated `codex/base-sepolia-promotion-20261010` worktree after fetching `origin/master`; branch, local `master`, and `origin/master` are synchronized at `9240b8b`. The unrelated dirty primary checkout remains untouched.
+- Fresh canonical readiness failed closed before provider access. `API_LAYER_BASE_SEPOLIA_ENV_PATH=/Users/chef/Public/api-layer/.env pnpm run verify:promotion:base-sepolia:preflight` exited `2` with `finalClassification: "blocked by setup/state"`. The env file, `base-sepolia` network, chain `84532`, deployed-diamond address, three valid distinct actor keys, and founder/sender binding all pass. Explicit live opt-in remains disabled, and both execution and diagnostics RPC origins remain loopback `http://127.0.0.1:8548`.
+- No live target query, setup helper, funding transfer, allowance, listing, governance preparation, proof scenario, or transaction ran. The refreshed `verify-base-sepolia-promotion-output.json` artifact at `2026-10-11T22:59:54.636Z` records `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence. Destructive protocol-admin writes remain disabled by construction.
+- Non-live verification passed: the focused promotion suite passed `6/6`; canonical code generation rebuilt the cold worktree's ignored artifacts; and explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** do not merge this partial workstream. Configure `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, then permit only the existing fixture-gated marketplace and governance proofs. Both scenarios and the aggregate artifact must classify `proven working` before merge.
+
 ## API Assurance Gap Completion — 2026-10-09
 
 - Regenerated the live report from clean local `master` after preserving the prior dirty autosave work. The starting inventory was `564` ready and `146` non-ready items (`110` needing fixtures and `36` unsafe on live networks). The forty-percent planner selected `59/146` items (`40.41%`): all `36` live-unsafe control-plane writes and `23` write-fixture gaps across Escrow, Governor, Legacy, Ownership, and Payment.
