@@ -188,6 +188,21 @@ describe("verify marketplace purchase live target selection", () => {
             txHash: "0xtx",
           },
         },
+        withdrawal: {
+          status: 202,
+          payload: {
+            withdrawal: {
+              txHash: "0xwithdraw",
+            },
+          },
+          txHash: "0xwithdraw",
+          receipt: {
+            status: 1,
+            blockNumber: 101,
+          },
+          pendingBefore: "915",
+          pendingAfter: "0",
+        },
         postState: {
           listing: {
             tokenId: "11",
@@ -203,8 +218,8 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.summary).toBe("proven working");
     expect(output.totals).toEqual({
       domainCount: 1,
-      routeCount: 5,
-      evidenceCount: 5,
+      routeCount: 7,
+      evidenceCount: 6,
     });
     expect(output.statusCounts).toEqual({
       "proven working": 1,
@@ -226,7 +241,12 @@ describe("verify marketplace purchase live target selection", () => {
         buyer: "0xbuyer",
       },
     });
-    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(5);
+    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(6);
+    expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
+      txHash: "0xwithdraw",
+      pendingBefore: "915",
+      pendingAfter: "0",
+    });
   });
 
   it("renders a structured blocked report for known contract-state purchase failures", () => {

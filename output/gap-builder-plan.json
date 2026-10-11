@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-07T09:38:34.191Z",
-  "sourceGeneratedAt": "2026-10-07T09:38:25.599Z",
+  "generatedAt": "2026-10-09T08:37:42.651Z",
+  "sourceGeneratedAt": "2026-10-09T08:37:40.638Z",
   "totals": {
-    "nonReady": 146,
-    "selected": 40,
+    "nonReady": 102,
+    "selected": 41,
     "byClassification": {
-      "ready": 564,
-      "needs fixture": 110,
+      "ready": 608,
+      "needs fixture": 66,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
@@ -702,17 +702,36 @@
       ]
     },
     {
-      "facetName": "EscrowFacet",
-      "objective": "Reduce EscrowFacet launch blockers across 4 gap items.",
+      "facetName": "RightsFacet",
+      "objective": "Reduce RightsFacet launch blockers across 5 gap items.",
       "items": [
         {
-          "id": "EscrowFacet.escrowAsset",
+          "id": "RightsFacet.addCollaborator",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/marketplace/commands/escrow-asset"
+            "path": "/v1/licensing/commands/add-collaborator"
+          },
+          "gaps": [
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "RightsFacet.createRightsGroup",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/licensing/rights/create-rights-group"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -728,13 +747,13 @@
           ]
         },
         {
-          "id": "EscrowFacet.onERC721Received",
+          "id": "RightsFacet.grantRight",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/marketplace/commands/on-erc721-received"
+            "path": "/v1/licensing/commands/grant-right"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -750,32 +769,35 @@
           ]
         },
         {
-          "id": "EscrowFacet.releaseAsset",
+          "id": "RightsFacet.registerRightContract",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/marketplace/commands/release-asset"
+            "path": "/v1/licensing/rights/register-right-contract"
           },
           "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
             "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         },
         {
-          "id": "EscrowFacet.updateAssetState",
+          "id": "RightsFacet.removeCollaborator",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/marketplace/commands/update-asset-state"
+            "method": "DELETE",
+            "path": "/v1/licensing/commands/remove-collaborator"
           },
           "gaps": [
             "no directly attributable test reference",

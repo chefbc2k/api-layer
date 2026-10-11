@@ -1,12 +1,12 @@
 # Gap Builder Plan
 
-Generated: `2026-10-07T09:38:34.191Z`
-Source gap report: `2026-10-07T09:38:25.599Z`
+Generated: `2026-10-09T08:37:42.651Z`
+Source gap report: `2026-10-09T08:37:40.638Z`
 
 ## Summary
 
-- Non-ready items in scope: `146`
-- Selected this run: `40`
+- Non-ready items in scope: `102`
+- Selected this run: `41`
 
 ## AccessControlFacet
 
@@ -165,21 +165,24 @@ Reduce UpgradeControllerFacet launch blockers across 5 gap items.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## EscrowFacet
+## RightsFacet
 
-Reduce EscrowFacet launch blockers across 4 gap items.
+Reduce RightsFacet launch blockers across 5 gap items.
 
-- `EscrowFacet.escrowAsset` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/escrow-asset`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `EscrowFacet.onERC721Received` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/on-erc721-received`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `EscrowFacet.releaseAsset` (needs fixture)
-  - Endpoint: `POST /v1/marketplace/commands/release-asset`
+- `RightsFacet.addCollaborator` (needs fixture)
+  - Endpoint: `POST /v1/licensing/commands/add-collaborator`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `EscrowFacet.updateAssetState` (needs fixture)
-  - Endpoint: `PATCH /v1/marketplace/commands/update-asset-state`
+- `RightsFacet.createRightsGroup` (needs fixture)
+  - Endpoint: `POST /v1/licensing/rights/create-rights-group`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `RightsFacet.grantRight` (needs fixture)
+  - Endpoint: `POST /v1/licensing/commands/grant-right`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `RightsFacet.registerRightContract` (needs fixture)
+  - Endpoint: `POST /v1/licensing/rights/register-right-contract`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `RightsFacet.removeCollaborator` (needs fixture)
+  - Endpoint: `DELETE /v1/licensing/commands/remove-collaborator`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`

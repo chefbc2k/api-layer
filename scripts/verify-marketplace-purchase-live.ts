@@ -101,7 +101,16 @@ function extractTxHash(payload: unknown): string | null {
   const purchase = record.purchase;
   if (purchase && typeof purchase === "object") {
     const txHash = (purchase as Record<string, unknown>).txHash;
-    return typeof txHash === "string" && txHash.startsWith("0x") ? txHash : null;
+    if (typeof txHash === "string" && txHash.startsWith("0x")) {
+      return txHash;
+    }
+  }
+  const withdrawal = record.withdrawal;
+  if (withdrawal && typeof withdrawal === "object") {
+    const txHash = (withdrawal as Record<string, unknown>).txHash;
+    if (typeof txHash === "string" && txHash.startsWith("0x")) {
+      return txHash;
+    }
   }
   return null;
 }
@@ -463,6 +472,17 @@ type MarketplacePurchaseDetails = {
       blockNumber: unknown;
     };
   };
+  withdrawal?: {
+    status: number;
+    payload: unknown;
+    txHash: string;
+    receipt: {
+      status: unknown;
+      blockNumber: unknown;
+    };
+    pendingBefore: string;
+    pendingAfter: string;
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -488,6 +508,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     { kind: "target", value: normalize(args.details.target) },
     args.details.preState ? { kind: "preState", value: normalize(args.details.preState) } : null,
     args.details.purchase ? { kind: "purchase", value: normalize(args.details.purchase) } : null,
+    args.details.withdrawal ? { kind: "withdrawal", value: normalize(args.details.withdrawal) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -497,10 +518,12 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     "marketplace-purchase": {
       routes: [
         "POST /v1/workflows/purchase-marketplace-asset",
+        "POST /v1/workflows/withdraw-marketplace-payments",
         "GET /v1/marketplace/queries/get-listing",
         "POST /v1/marketplace/events/asset-purchased/query",
         "POST /v1/marketplace/events/payment-distributed/query",
         "POST /v1/marketplace/events/asset-released/query",
+        "POST /v1/marketplace/events/usdcpayment-withdrawn/query",
       ],
       actors: args.actors,
       executionResult: args.executionResult,
@@ -909,11 +932,46 @@ async function main() {
       (value) => value.status === 200 && Array.isArray(value.payload) && value.payload.some((entry) => (entry as Record<string, unknown>)?.transactionHash === txHash),
       "asset released event",
     );
+    const withdrawalApiKey = target.sellerAddress.toLowerCase() === seller.address.toLowerCase()
+      ? "seller-key"
+      : target.sellerAddress.toLowerCase() === founder.address.toLowerCase()
+        ? "founder-key"
+        : null;
+    if (!withdrawalApiKey) {
+      throw new Error(`marketplace seller has no configured local-fork signer: ${target.sellerAddress}`);
+    }
+    const pendingBeforeWithdrawal = BigInt(await payment.getPendingPayments(target.sellerAddress));
+    if (pendingBeforeWithdrawal <= 0n) {
+      throw new Error(`marketplace purchase did not accrue seller payments: ${target.sellerAddress}`);
+    }
+    const withdrawalResponse = await apiCall(
+      port,
+      "POST",
+      "/v1/workflows/withdraw-marketplace-payments",
+      {
+        apiKey: withdrawalApiKey,
+        walletAddress: target.sellerAddress,
+        body: {},
+      },
+    );
+    if (withdrawalResponse.status !== 202) {
+      throw new Error(`marketplace payment withdrawal failed: ${JSON.stringify(withdrawalResponse.payload)}`);
+    }
+    const withdrawalTxHash = extractTxHash(withdrawalResponse.payload);
+    if (!withdrawalTxHash) {
+      throw new Error(`marketplace payment withdrawal did not return a tx hash: ${JSON.stringify(withdrawalResponse.payload)}`);
+    }
+    const withdrawalReceipt = await waitForReceipt(provider, withdrawalTxHash, "marketplace payment withdrawal");
+    const pendingAfterWithdrawal = await retryRead(
+      () => payment.getPendingPayments(target.sellerAddress).then((value: unknown) => BigInt(value as bigint).toString()),
+      (value) => value === "0",
+      "seller pending payment after withdrawal",
+    );
 
     const output = buildMarketplacePurchaseVerifyOutput({
       classification: "proven working",
-      executionResult: "marketplace purchase lifecycle completed with settlement and escrow release evidence",
-      actors: ["seller-key", "buyer-key", "read-key"],
+      executionResult: "marketplace purchase and seller withdrawal completed with settlement, receipt, and event evidence",
+      actors: [withdrawalApiKey, "buyer-key", "read-key"],
       details: {
         target: {
           source: target.source,
@@ -940,6 +998,17 @@ async function main() {
             status: receipt.status,
             blockNumber: receipt.blockNumber,
           },
+        },
+        withdrawal: {
+          status: withdrawalResponse.status,
+          payload: withdrawalResponse.payload,
+          txHash: withdrawalTxHash,
+          receipt: {
+            status: withdrawalReceipt.status,
+            blockNumber: withdrawalReceipt.blockNumber,
+          },
+          pendingBefore: pendingBeforeWithdrawal.toString(),
+          pendingAfter: pendingAfterWithdrawal,
         },
         postState: {
           owner: ownerAfter,
