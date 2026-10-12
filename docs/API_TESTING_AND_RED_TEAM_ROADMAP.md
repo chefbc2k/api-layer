@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## ABI-Driven Gap Report Automation Run — 2026-10-12
+
+- Reused `codex/abi-gap-report-20261011` from synchronized local/remote production `master` `9240b8b` in an isolated sibling worktree, leaving the unrelated dirty primary checkout untouched, then rebased onto concurrent production tip `ca6d52a` before merge. Canonical code generation used the production deployment manifest at `../CONTRACTS/artifacts/release-readiness/deployment-manifest.json`, preserving the mounted inventory at `492` functions and `218` event occurrences.
+- Rebuilt the ABI, RPC, HTTP, wrapper, reviewed-surface, and write-invariant inventories, then regenerated `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, and both forty-percent planner artifacts. After timestamp normalization, the report artifacts are byte-stable with production; their SHA-256 hashes are `5e95f111f7980d6733faf710f82467355bd4ea03f7e57c4bdd7c69ebb22d65b0` and `05008cc90ff0338c5013ca5cc75d776aeccf860903b77b4a203e2e67a62abd4d`.
+- The report continues to classify proof depth per facet, function, and event across `33` facets and `710` total items. All `164` declared input/evidence paths exist, every item has a valid proof-depth score and classification, and all facet/global summaries reconcile. Classifications remain `608` ready, `66` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof; proof attribution remains `684` unit, `366` workflow, `111` local-fork, `60` Base Sepolia, `367` negative-path, `169` economic, `164` red-team, and `218` indexer items. The next forty-percent plan selects `41/102` non-ready items (`40.20%`).
+- Verification passed: `pnpm run test:gap-report` (`8/8`), `pnpm run test:gap-builder` (`12/12`), and `pnpm test` (`1,902` active tests across `152` passing files with `40` gated skips). Measured coverage passed at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines. With project-pinned `pnpm@10.30.0`, TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` also passed; surface coverage remains `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** the ABI-driven gap-report workstream remains 100% complete and verified for merge into `master`; the `102` non-ready items are explicit protocol-assurance backlog classifications, not report-generator blockers.
+
 ## Write-Invariant Metadata Automation Run — 2026-10-12
 
 - Started the reusable `codex/write-invariant-metadata-20261012` branch from synchronized local and remote `master` `9240b8b`. The production delta since the prior invariant audit changes proof fixtures and report evidence only; no mounted ABI, invariant source, or invariant validator changed.

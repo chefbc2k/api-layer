@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.382] - 2026-10-12
+
+### Changed
+
+- **Current-Master ABI Gap Evidence Revalidated:** Rebuilt the mounted ABI/API inventories from the production deployment manifest and refreshed the persistent JSON, Markdown, and forty-percent planner artifacts. Timestamp-normalized report hashes remain byte-stable with production across all `33` facets, `492` functions, `218` event occurrences, and `710` total items.
+- **Proof Inputs And Summaries Audited:** Confirmed all `164` declared input/evidence paths exist, every item retains a valid proof-depth score and classification, and all facet/global summaries reconcile. Classifications remain `608` ready, `66` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof.
+
+### Verified
+
+- **Reporter, Planner, And Repository Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,902` active tests across `152` files with `40` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines.
+
 ## [0.1.381] - 2026-10-12
 
 ### Changed
