@@ -1,12 +1,12 @@
 # Gap Builder Plan
 
-Generated: `2026-10-12T02:50:27.952Z`
-Source gap report: `2026-10-12T02:50:20.873Z`
+Generated: `2026-10-12T14:37:51.751Z`
+Source gap report: `2026-10-12T14:37:49.541Z`
 
 ## Summary
 
-- Non-ready items in scope: `36`
-- Selected this run: `36`
+- Non-ready items in scope: `28`
+- Selected this run: `28`
 
 ## AccessControlFacet
 
@@ -32,26 +32,17 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 
 ## DiamondCutFacet
 
-Reduce DiamondCutFacet launch blockers across 4 gap items.
+Reduce DiamondCutFacet launch blockers across 1 gap item.
 
 - `DiamondCutFacet.diamondCut` (unsafe on live network)
   - Endpoint: `POST /v1/diamond-admin/admin/diamond-cut`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DiamondCutFacet.setTrustedInitCodehash` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-trusted-init-codehash`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DiamondCutFacet.setTrustedInitContract` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-trusted-init-contract`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DiamondCutFacet.setTrustedInitSelector` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-trusted-init-selector`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
 ## EmergencyFacet
 
-Reduce EmergencyFacet launch blockers across 7 gap items.
+Reduce EmergencyFacet launch blockers across 5 gap items.
 
 - `EmergencyFacet.approveRecovery` (unsafe on live network)
   - Endpoint: `POST /v1/emergency/admin/approve-recovery`
@@ -65,12 +56,6 @@ Reduce EmergencyFacet launch blockers across 7 gap items.
 - `EmergencyFacet.executeRecoveryStep` (unsafe on live network)
   - Endpoint: `POST /v1/emergency/admin/execute-recovery-step`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.setEmergencyTimeout` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/set-emergency-timeout`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.setResumeDelay` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/set-resume-delay`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 - `EmergencyFacet.startRecovery` (unsafe on live network)
   - Endpoint: `POST /v1/emergency/admin/start-recovery`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
@@ -79,7 +64,7 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 
 ## EmergencyWithdrawalFacet
 
-Reduce EmergencyWithdrawalFacet launch blockers across 5 gap items.
+Reduce EmergencyWithdrawalFacet launch blockers across 3 gap items.
 
 - `EmergencyWithdrawalFacet.approveEmergencyWithdrawal` (unsafe on live network)
   - Endpoint: `POST /v1/emergency/admin/approve-emergency-withdrawal`
@@ -89,12 +74,6 @@ Reduce EmergencyWithdrawalFacet launch blockers across 5 gap items.
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 - `EmergencyWithdrawalFacet.requestEmergencyWithdrawal` (unsafe on live network)
   - Endpoint: `POST /v1/emergency/admin/request-emergency-withdrawal`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyWithdrawalFacet.setRecipientWhitelist` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/set-recipient-whitelist`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyWithdrawalFacet.updateWithdrawalConfig` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/update-withdrawal-config`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
@@ -145,7 +124,7 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 
 ## UpgradeControllerFacet
 
-Reduce UpgradeControllerFacet launch blockers across 5 gap items.
+Reduce UpgradeControllerFacet launch blockers across 4 gap items.
 
 - `UpgradeControllerFacet.approveUpgrade` (unsafe on live network)
   - Endpoint: `POST /v1/diamond-admin/admin/approve-upgrade`
@@ -158,9 +137,6 @@ Reduce UpgradeControllerFacet launch blockers across 5 gap items.
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 - `UpgradeControllerFacet.proposeDiamondCut` (unsafe on live network)
   - Endpoint: `POST /v1/diamond-admin/admin/propose-diamond-cut`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `UpgradeControllerFacet.setUpgradeControlEnforced` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-upgrade-control-enforced`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`

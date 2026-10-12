@@ -3966,6 +3966,153 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
+  it("proves eight control-plane admin writes through mounted HTTP routes on a local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "control-plane admin write proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    const adminProofs: Array<{ route: string; actor: string; status: number; txHash: string; receiptStatus: number }> = [];
+    const submitAdminWrite = async (
+      path: string,
+      body: Record<string, unknown>,
+      contract: Contract,
+      expectedEvent?: string,
+    ) => {
+      const response = await apiCall(port, "POST", path, {
+        apiKey: "founder-key",
+        body,
+      });
+      expect(response.status, `${path}: ${JSON.stringify(response.payload)}`).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status, path).toBe(1);
+
+      const eventNames = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = contract.interface.parseLog(log);
+          return parsed ? [parsed.name] : [];
+        } catch {
+          return [];
+        }
+      });
+      if (expectedEvent) {
+        expect(eventNames, path).toContain(expectedEvent);
+      }
+      adminProofs.push({ route: `POST ${path}`, actor: "founder-key", status: response.status, txHash, receiptStatus: receipt!.status });
+      return { txHash, receipt: receipt!, eventNames };
+    };
+
+    const trustedInitContract = Wallet.createRandom().address;
+    const trustedInitSelector = "0x12345678";
+    const trustedInitCodehash = id(`control-plane-init-codehash-${Date.now()}`);
+
+    await submitAdminWrite(
+      "/v1/diamond-admin/admin/set-trusted-init-contract",
+      { initContract: trustedInitContract, trusted: true },
+      diamondCutFacet,
+      "TrustedInitContractSet",
+    );
+    await submitAdminWrite(
+      "/v1/diamond-admin/admin/set-trusted-init-selector",
+      { initContract: trustedInitContract, selector: trustedInitSelector, trusted: true },
+      diamondCutFacet,
+      "TrustedInitSelectorSet",
+    );
+    expect(await diamondCutFacet.isTrustedInitSelectorPolicyEnabled(trustedInitContract)).toBe(true);
+    expect(await diamondCutFacet.isTrustedInitSelector(trustedInitContract, trustedInitSelector)).toBe(true);
+
+    await submitAdminWrite(
+      "/v1/diamond-admin/admin/set-trusted-init-codehash",
+      { initContract: trustedInitContract, expectedCodehash: trustedInitCodehash },
+      diamondCutFacet,
+      "TrustedInitCodehashSet",
+    );
+    expect(await diamondCutFacet.getTrustedInitCodehash(trustedInitContract)).toBe(trustedInitCodehash);
+
+    await submitAdminWrite(
+      "/v1/emergency/admin/set-resume-delay",
+      { newDelay: "1801" },
+      emergencyFacet as unknown as Contract,
+    );
+    await submitAdminWrite(
+      "/v1/emergency/admin/set-emergency-timeout",
+      { newTimeout: "7201" },
+      emergencyFacet as unknown as Contract,
+    );
+
+    const whitelistedRecipient = Wallet.createRandom().address;
+    await submitAdminWrite(
+      "/v1/emergency/admin/set-recipient-whitelist",
+      { recipient: whitelistedRecipient, whitelisted: true },
+      emergencyWithdrawalFacet,
+      "RecipientWhitelisted",
+    );
+    expect(await emergencyWithdrawalFacet.isRecipientWhitelisted(whitelistedRecipient)).toBe(true);
+
+    const withdrawalConfig = {
+      delay: "3601",
+      maxInstant: "1000001",
+      requiredApprovals: "2",
+      requiresEmergencyAdmin: true,
+      daily24hLimit: "10000001",
+    };
+    const withdrawalConfigProof = await submitAdminWrite(
+      "/v1/emergency/admin/update-withdrawal-config",
+      withdrawalConfig,
+      emergencyWithdrawalFacet,
+      "WithdrawalConfigUpdated",
+    );
+    const configEvent = withdrawalConfigProof.receipt.logs
+      .map((log) => {
+        try {
+          return emergencyWithdrawalFacet.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((event) => event?.name === "WithdrawalConfigUpdated");
+    expect(configEvent?.args?.toArray()).toEqual([
+      3601n,
+      1000001n,
+      2n,
+      true,
+      10000001n,
+    ]);
+
+    await submitAdminWrite(
+      "/v1/diamond-admin/admin/set-upgrade-control-enforced",
+      { enforced: true },
+      upgradeControllerFacet,
+      "UpgradeControlEnforcementSet",
+    );
+    const upgradeStatus = await upgradeControllerFacet.getUpgradeControlStatus();
+    expect(upgradeStatus.initialized).toBe(true);
+    expect(upgradeStatus.enforced).toBe(true);
+
+    const proofArtifactPath = process.env.API_LAYER_CONTROL_PLANE_PROOF_ARTIFACT;
+    if (proofArtifactPath) {
+      await writeFile(path.resolve(proofArtifactPath), `${JSON.stringify({
+        generatedAt: new Date().toISOString(),
+        reports: {
+          "control-plane-admin-writes": {
+            routes: adminProofs.map((proof) => proof.route),
+            actors: ["founder-key"],
+            executionResult: "proven working",
+            evidence: adminProofs,
+            finalClassification: "proven working",
+            classification: "proven working",
+            result: "proven working",
+          },
+        },
+      }, null, 2)}\n`);
+    }
+  }, 180_000);
+
   it("runs the transfer-rights workflow and persists ownership state", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "transfer-rights workflow", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },

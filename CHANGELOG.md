@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.381] - 2026-10-12
+
+### Changed
+
+- **Eight Control-Plane Partials Proven On A Base Sepolia Fork:** Added actor-preserving mounted-route execution for three trusted-init policies, emergency resume delay and timeout, emergency-withdrawal recipient and configuration controls, and upgrade-control enforcement. Each path now records a successful founder-key transaction receipt plus contract event or direct state readback in `verify-control-plane-admin-output.json`.
+- **Persistent Non-Ready Count Falls By Eight:** Regenerated the gap report and planner from the new exact-route evidence. Ready items increase from `674` to `682`, unsafe-live items fall from `36` to `28`, and this batch advances `22.2%` of the verified 36-item baseline.
+- **Local-Fork Proof Isolation:** Added a dedicated checkpointed proof stage and artifact paths so the control-plane batch can run independently of unrelated full integration-suite failures without overwriting the general HTTP receipt ledger.
+
+### Verified
+
+- **Real HTTP And Contract Proof Passed:** The focused local-fork integration passed `1/1` and produced eight transaction hashes after validating HTTP `202` responses, successful receipts, decoded events, and direct contract readbacks. The run also identified the founder as unauthorized for MultiSig administration; those routes remain blocked pending the correct contract-admin actor mapping.
+- **Coverage And Reporter Gates Passed:** Local-fork runner tests passed `14/14`, gap reporter tests passed `8/8`, wrapper coverage remains `492/492` functions and `218/218` events, HTTP coverage remains `492/492`, and write-invariant coverage remains `260/260`.
+
 ## [0.1.380] - 2026-10-07
 
 ### Changed

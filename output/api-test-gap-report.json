@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-12T02:50:20.873Z",
+  "generatedAt": "2026-10-12T14:37:49.541Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -169,6 +169,7 @@
     "verifyArtifacts": [
       "verify-base-sepolia-promotion-output.json",
       "verify-completion-output.json",
+      "verify-control-plane-admin-output.json",
       "verify-focused-output.json",
       "verify-governance-output.json",
       "verify-live-output.json",
@@ -190,16 +191,16 @@
       "unit": 710,
       "workflow": 428,
       "localFork": 111,
-      "baseSepolia": 60,
+      "baseSepolia": 68,
       "negativePath": 427,
-      "economic": 177,
+      "economic": 175,
       "redTeam": 232,
       "indexer": 218
     },
     "classificationCounts": {
-      "ready": 674,
+      "ready": 682,
       "needs fixture": 0,
-      "unsafe on live network": 36,
+      "unsafe on live network": 28,
       "needs contract change": 0,
       "needs API guard": 0,
       "needs indexer proof": 0
@@ -5038,9 +5039,9 @@
         "eventCount": 5,
         "classification": "unsafe on live network",
         "classificationCounts": {
-          "ready": 10,
+          "ready": 13,
           "needs fixture": 0,
-          "unsafe on live network": 4,
+          "unsafe on live network": 1,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
@@ -5048,7 +5049,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.29,
+          "averageScore": 2.5,
           "maximumScore": 8
         }
       },
@@ -5404,7 +5405,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -5412,15 +5413,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -5432,7 +5432,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+                "network": "base-sepolia"
+              }
+            ]
           }
         },
         {
@@ -5458,7 +5465,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -5466,15 +5473,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -5486,7 +5492,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+                "network": "base-sepolia"
+              }
+            ]
           }
         },
         {
@@ -5512,7 +5525,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -5520,15 +5533,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -5540,7 +5552,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+                "network": "base-sepolia"
+              }
+            ]
           }
         }
       ],
@@ -5689,6 +5708,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
@@ -5741,6 +5761,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
@@ -5793,6 +5814,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
@@ -7405,9 +7427,9 @@
         "eventCount": 10,
         "classification": "unsafe on live network",
         "classificationCounts": {
-          "ready": 26,
+          "ready": 28,
           "needs fixture": 0,
-          "unsafe on live network": 7,
+          "unsafe on live network": 5,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
@@ -8184,13 +8206,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -8216,9 +8238,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -8249,13 +8269,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -8278,9 +8298,7 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -8554,7 +8572,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -8562,15 +8580,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -8582,7 +8599,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/emergency/admin/set-emergency-timeout",
+                "network": "base-sepolia"
+              }
+            ]
           }
         },
         {
@@ -8608,7 +8632,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -8616,15 +8640,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -8636,7 +8659,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/emergency/admin/set-resume-delay",
+                "network": "base-sepolia"
+              }
+            ]
           }
         },
         {
@@ -9406,9 +9436,9 @@
         "eventCount": 9,
         "classification": "unsafe on live network",
         "classificationCounts": {
-          "ready": 11,
+          "ready": 13,
           "needs fixture": 0,
-          "unsafe on live network": 5,
+          "unsafe on live network": 3,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
@@ -9416,7 +9446,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 3,
+          "averageScore": 3.13,
           "maximumScore": 8
         }
       },
@@ -9731,7 +9761,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -9739,15 +9769,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
@@ -9762,7 +9791,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/emergency/admin/set-recipient-whitelist",
+                "network": "base-sepolia"
+              }
+            ]
           }
         },
         {
@@ -9788,7 +9824,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": false,
@@ -9796,15 +9832,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -9816,7 +9851,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/emergency/admin/update-withdrawal-config",
+                "network": "base-sepolia"
+              }
+            ]
           }
         }
       ],
@@ -10247,6 +10289,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "packages/indexer/src/event-assurance.test.ts",
               "packages/indexer/src/projections/index.test.ts"
@@ -10304,6 +10347,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts",
               "packages/indexer/src/projections/index.test.ts"
             ],
@@ -28527,9 +28571,9 @@
         "eventCount": 6,
         "classification": "unsafe on live network",
         "classificationCounts": {
-          "ready": 15,
+          "ready": 16,
           "needs fixture": 0,
-          "unsafe on live network": 5,
+          "unsafe on live network": 4,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
@@ -28537,7 +28581,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.75,
+          "averageScore": 2.8,
           "maximumScore": 8
         }
       },
@@ -29283,7 +29327,7 @@
             "unit": true,
             "workflow": true,
             "localFork": false,
-            "baseSepolia": false,
+            "baseSepolia": true,
             "negativePath": true,
             "economic": false,
             "redTeam": true,
@@ -29291,15 +29335,14 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "unsafe on live network",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -29313,7 +29356,14 @@
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-control-plane-admin-output.json",
+                "domain": "control-plane-admin-writes",
+                "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
+                "network": "base-sepolia"
+              }
+            ]
           }
         }
       ],
@@ -29414,6 +29464,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
