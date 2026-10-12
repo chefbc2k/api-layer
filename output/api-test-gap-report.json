@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T08:37:40.638Z",
+  "generatedAt": "2026-10-12T02:50:20.873Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -77,6 +77,7 @@
       "packages/api/src/workflows/onboard-rights-holder.test.ts",
       "packages/api/src/workflows/onboard-voice-asset.integration.test.ts",
       "packages/api/src/workflows/onboard-voice-asset.test.ts",
+      "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
       "packages/api/src/workflows/operator-incentive-grant-flow.integration.test.ts",
       "packages/api/src/workflows/operator-incentive-grant-flow.test.ts",
       "packages/api/src/workflows/ownership-access.integration.test.ts",
@@ -186,18 +187,18 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 684,
-      "workflow": 366,
+      "unit": 710,
+      "workflow": 428,
       "localFork": 111,
       "baseSepolia": 60,
-      "negativePath": 367,
-      "economic": 169,
-      "redTeam": 164,
+      "negativePath": 427,
+      "economic": 177,
+      "redTeam": 232,
       "indexer": 218
     },
     "classificationCounts": {
-      "ready": 608,
-      "needs fixture": 66,
+      "ready": 674,
+      "needs fixture": 0,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
@@ -21417,19 +21418,19 @@
       "summary": {
         "functionCount": 15,
         "eventCount": 6,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 13,
-          "needs fixture": 8,
+          "ready": 21,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 1.29,
+          "averageScore": 2.62,
           "maximumScore": 8
         }
       },
@@ -21458,31 +21459,36 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21507,33 +21513,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21860,33 +21871,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21911,33 +21927,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21962,33 +21983,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -22013,33 +22039,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -22123,31 +22154,36 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -22172,33 +22208,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -22530,19 +22571,19 @@
       "summary": {
         "functionCount": 23,
         "eventCount": 10,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 22,
-          "needs fixture": 11,
+          "ready": 33,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.18,
+          "averageScore": 3.33,
           "maximumScore": 8
         }
       },
@@ -22568,34 +22609,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -22628,35 +22673,39 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/client/src/runtime/method-policy.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -22689,35 +22738,39 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -22750,34 +22803,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -23334,33 +23391,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -23385,33 +23447,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -23488,33 +23555,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -23540,34 +23612,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -23599,33 +23675,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -23650,33 +23731,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -23701,33 +23787,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -26879,19 +26970,19 @@
       "summary": {
         "functionCount": 21,
         "eventCount": 4,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 17,
-          "needs fixture": 8,
+          "ready": 25,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 2.76,
+          "averageScore": 3.84,
           "maximumScore": 8
         }
       },
@@ -27127,7 +27218,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -27137,22 +27228,25 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no workflow proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
@@ -27161,6 +27255,7 @@
               "scripts/red-team-harness-lib.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
             "indexerTests": [],
@@ -27187,33 +27282,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27290,33 +27390,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27341,33 +27446,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27502,33 +27612,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27553,33 +27668,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27899,34 +28019,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -28037,6 +28161,7 @@
               "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
@@ -28053,6 +28178,7 @@
               "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
@@ -28064,6 +28190,7 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
@@ -28081,6 +28208,7 @@
             ],
             "redTeamTests": [
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "indexerTests": [],
@@ -28115,34 +28243,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -29517,19 +29649,19 @@
       "summary": {
         "functionCount": 30,
         "eventCount": 8,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 35,
-          "needs fixture": 3,
+          "ready": 38,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 2.58,
+          "averageScore": 2.89,
           "maximumScore": 8
         }
       },
@@ -30756,33 +30888,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -30807,33 +30944,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -30971,33 +31113,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -31669,19 +31816,19 @@
       "summary": {
         "functionCount": 42,
         "eventCount": 13,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 43,
-          "needs fixture": 12,
+          "ready": 55,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.49,
+          "averageScore": 3.24,
           "maximumScore": 8
         }
       },
@@ -31707,32 +31854,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -31770,12 +31921,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -31783,18 +31934,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/workflows/onboard-rights-holder.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/onboard-rights-holder.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/onboard-rights-holder.test.ts"
+              "packages/api/src/workflows/onboard-rights-holder.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -31827,32 +31983,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -32285,12 +32445,12 @@
             "baseSepolia": true,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -32300,6 +32460,7 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
@@ -32308,17 +32469,21 @@
             "workflowTests": [
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/legacy-migration-recovery.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -32767,32 +32932,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -33092,33 +33261,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -33143,33 +33317,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -33195,32 +33374,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -33252,33 +33435,38 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -33325,6 +33513,7 @@
               "packages/api/src/app.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
               "packages/indexer/src/worker.test.ts",
@@ -33336,6 +33525,7 @@
             "workflowTests": [
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts"
             ],
             "negativePathTests": [
@@ -33343,6 +33533,7 @@
               "packages/api/src/app.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/actor-negative-paths-lib.test.ts",
@@ -33350,11 +33541,13 @@
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "redTeamTests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts"
+              "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -33478,32 +33671,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/api-surface-lib.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -33734,32 +33931,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -33792,32 +33993,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -33850,32 +34055,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -34129,32 +34338,36 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 1,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -35028,10 +35241,10 @@
       "summary": {
         "functionCount": 15,
         "eventCount": 10,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 23,
-          "needs fixture": 2,
+          "ready": 25,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
@@ -35040,7 +35253,7 @@
         "proofDepth": {
           "minimumLevel": "live",
           "maximumLevel": "indexer",
-          "averageScore": 4.16,
+          "averageScore": 4.36,
           "maximumScore": 8
         }
       },
@@ -35138,34 +35351,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -35846,34 +36063,40 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
-            "redTeam": false,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/indexer-receipt-proof-lib.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/indexer-receipt-proof-lib.test.ts"
             ],
-            "economicTests": [],
-            "redTeamTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -36613,19 +36836,19 @@
       "summary": {
         "functionCount": 16,
         "eventCount": 12,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 23,
-          "needs fixture": 5,
+          "ready": 28,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "inventory",
+          "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.18,
+          "averageScore": 3.89,
           "maximumScore": 8
         }
       },
@@ -36656,12 +36879,12 @@
             "baseSepolia": true,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -36670,21 +36893,27 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/verify-local-fork-lib.test.ts",
               "scripts/verify-report.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -36722,33 +36951,40 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -37164,35 +37400,41 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/api-surface-lib.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -37221,31 +37463,37 @@
             "workflow": true,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 7,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -37413,33 +37661,40 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -37522,33 +37777,40 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
-            "workflow": false,
+            "unit": true,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "tests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -38233,10 +38495,10 @@
       "summary": {
         "functionCount": 7,
         "eventCount": 2,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 8,
-          "needs fixture": 1,
+          "ready": 9,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
@@ -38245,7 +38507,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 5.22,
+          "averageScore": 5.44,
           "maximumScore": 8
         }
       },
@@ -38271,33 +38533,39 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 7,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "economicTests": [],
-            "redTeamTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -38859,10 +39127,10 @@
       "summary": {
         "functionCount": 11,
         "eventCount": 5,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 12,
-          "needs fixture": 4,
+          "ready": 16,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
@@ -38871,7 +39139,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.38,
+          "averageScore": 3.38,
           "maximumScore": 8
         }
       },
@@ -39213,32 +39481,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -39333,32 +39607,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -39391,32 +39671,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -39449,32 +39735,38 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -39767,10 +40059,10 @@
       "summary": {
         "functionCount": 17,
         "eventCount": 4,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 14,
-          "needs fixture": 7,
+          "ready": 21,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
@@ -39779,7 +40071,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.43,
+          "averageScore": 3.43,
           "maximumScore": 8
         }
       },
@@ -40337,32 +40629,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40395,32 +40691,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40453,32 +40753,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40511,32 +40815,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40569,32 +40877,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40627,32 +40939,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40685,32 +41001,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 2,
+            "level": "adversarial",
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -40952,10 +41272,10 @@
       "summary": {
         "functionCount": 14,
         "eventCount": 7,
-        "classification": "needs fixture",
+        "classification": "ready",
         "classificationCounts": {
-          "ready": 16,
-          "needs fixture": 5,
+          "ready": 21,
+          "needs fixture": 0,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
@@ -40964,7 +41284,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.52,
+          "averageScore": 4.19,
           "maximumScore": 8
         }
       },
@@ -41467,32 +41787,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 3,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -41531,33 +41855,37 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -41596,32 +41924,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 3,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -41660,32 +41992,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 3,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -41724,32 +42060,36 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": true,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "live",
-            "score": 3,
+            "level": "adversarial",
+            "score": 6,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
+          "classification": "ready",
+          "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/open-gap-fixture-closure.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   advanceLocalForkPastMarketplaceTradingLock,
+  buildMarketplaceWithdrawalDeadline,
   buildMarketplacePurchaseVerifyOutput,
   buildBlockedFundingOutput,
   buildBlockedPurchaseOutput,
@@ -196,6 +197,8 @@ describe("verify marketplace purchase live target selection", () => {
             },
           },
           txHash: "0xwithdraw",
+          mode: "deadline",
+          deadline: "4600",
           receipt: {
             status: 1,
             blockNumber: 101,
@@ -244,9 +247,16 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.reports["marketplace-purchase"].evidence).toHaveLength(6);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
+      mode: "deadline",
+      deadline: "4600",
       pendingBefore: "915",
       pendingAfter: "0",
     });
+  });
+
+  it("builds the payment-withdrawal deadline from the current chain timestamp", () => {
+    expect(buildMarketplaceWithdrawalDeadline(1_000n)).toBe("4600");
+    expect(buildMarketplaceWithdrawalDeadline("2000")).toBe("5600");
   });
 
   it("renders a structured blocked report for known contract-state purchase failures", () => {

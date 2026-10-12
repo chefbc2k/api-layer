@@ -1,12 +1,12 @@
 # Gap Builder Plan
 
-Generated: `2026-10-09T08:37:42.651Z`
-Source gap report: `2026-10-09T08:37:40.638Z`
+Generated: `2026-10-12T02:50:27.952Z`
+Source gap report: `2026-10-12T02:50:20.873Z`
 
 ## Summary
 
-- Non-ready items in scope: `102`
-- Selected this run: `41`
+- Non-ready items in scope: `36`
+- Selected this run: `36`
 
 ## AccessControlFacet
 
@@ -162,28 +162,6 @@ Reduce UpgradeControllerFacet launch blockers across 5 gap items.
 - `UpgradeControllerFacet.setUpgradeControlEnforced` (unsafe on live network)
   - Endpoint: `POST /v1/diamond-admin/admin/set-upgrade-control-enforced`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
-
-## RightsFacet
-
-Reduce RightsFacet launch blockers across 5 gap items.
-
-- `RightsFacet.addCollaborator` (needs fixture)
-  - Endpoint: `POST /v1/licensing/commands/add-collaborator`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.createRightsGroup` (needs fixture)
-  - Endpoint: `POST /v1/licensing/rights/create-rights-group`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.grantRight` (needs fixture)
-  - Endpoint: `POST /v1/licensing/commands/grant-right`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.registerRightContract` (needs fixture)
-  - Endpoint: `POST /v1/licensing/rights/register-right-contract`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.removeCollaborator` (needs fixture)
-  - Endpoint: `DELETE /v1/licensing/commands/remove-collaborator`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 

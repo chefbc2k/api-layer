@@ -605,4 +605,37 @@ describe("payment command route preflight safety", () => {
       }
     },
   );
+
+  it("surfaces wallet broadcast failures after preflight without marking the request submitted", async () => {
+    const testCase = paymentCommandCases[0];
+    mocks.walletSendTransaction.mockRejectedValueOnce(new Error("payment broadcast unavailable"));
+    const { context, txStore } = buildContext();
+    const { server, port } = await startServer(context);
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}${testCase.path}`, {
+        method: testCase.method,
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": "operator-key",
+        },
+        body: JSON.stringify(testCase.body),
+        signal: AbortSignal.timeout(2_500),
+      });
+      const payload = await response.json() as { error: string; diagnostics?: { cause?: string } };
+
+      expect(response.status).toBe(500);
+      expect(payload.error).toContain("payment broadcast unavailable");
+      expect(payload.diagnostics?.cause).toContain("payment broadcast unavailable");
+      expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
+      expect(txStore.insert).toHaveBeenCalledWith(expect.objectContaining({
+        method: testCase.key,
+        status: "submitting",
+      }));
+      expect(mocks.walletSendTransaction).toHaveBeenCalledOnce();
+      expect(txStore.update).not.toHaveBeenCalled();
+    } finally {
+      await closeServer(server);
+    }
+  });
 });

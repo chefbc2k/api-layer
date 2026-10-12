@@ -58,6 +58,11 @@ const MIN_BUYER_NATIVE_BALANCE = ethers.parseEther("0.00005");
 const MIN_FALLBACK_CREATOR_NATIVE_BALANCE = ethers.parseEther("0.00025");
 const BUYER_GAS_BUFFER_NUMERATOR = 12n;
 const BUYER_GAS_BUFFER_DENOMINATOR = 10n;
+const WITHDRAWAL_DEADLINE_BUFFER_SECONDS = 3_600n;
+
+export function buildMarketplaceWithdrawalDeadline(blockTimestamp: bigint | number | string): string {
+  return (BigInt(blockTimestamp) + WITHDRAWAL_DEADLINE_BUFFER_SECONDS).toString();
+}
 
 async function apiCall(
   port: number,
@@ -476,6 +481,8 @@ type MarketplacePurchaseDetails = {
     status: number;
     payload: unknown;
     txHash: string;
+    mode: "deadline";
+    deadline: string;
     receipt: {
       status: unknown;
       blockNumber: unknown;
@@ -944,6 +951,11 @@ async function main() {
     if (pendingBeforeWithdrawal <= 0n) {
       throw new Error(`marketplace purchase did not accrue seller payments: ${target.sellerAddress}`);
     }
+    const withdrawalBlock = await provider.getBlock("latest");
+    if (!withdrawalBlock) {
+      throw new Error("unable to resolve the latest block for the marketplace withdrawal deadline");
+    }
+    const withdrawalDeadline = buildMarketplaceWithdrawalDeadline(withdrawalBlock.timestamp);
     const withdrawalResponse = await apiCall(
       port,
       "POST",
@@ -951,7 +963,7 @@ async function main() {
       {
         apiKey: withdrawalApiKey,
         walletAddress: target.sellerAddress,
-        body: {},
+        body: { deadline: withdrawalDeadline },
       },
     );
     if (withdrawalResponse.status !== 202) {
@@ -1003,6 +1015,8 @@ async function main() {
           status: withdrawalResponse.status,
           payload: withdrawalResponse.payload,
           txHash: withdrawalTxHash,
+          mode: "deadline",
+          deadline: withdrawalDeadline,
           receipt: {
             status: withdrawalReceipt.status,
             blockNumber: withdrawalReceipt.blockNumber,
