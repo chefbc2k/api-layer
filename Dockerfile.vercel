@@ -1,0 +1,20 @@
+FROM node:26-alpine
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+WORKDIR /app
+
+RUN npm install -g pnpm@10.30.0
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json tsconfig.base.json ./
+COPY packages ./packages
+COPY generated ./generated
+COPY reviewed ./reviewed
+COPY abis ./abis
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @uspeaks/api build
+
+ENV NODE_ENV=production
+CMD API_LAYER_PORT="${PORT:-8787}" node dist/api/packages/api/src/index.js

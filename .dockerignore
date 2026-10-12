@@ -1,0 +1,11 @@
+.git
+.vercel
+node_modules
+dist
+coverage
+output
+.tmp
+.runtime
+Library
+*.log
+*.tsbuildinfo
