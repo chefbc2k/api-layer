@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-10-09T08:37:42.651Z",
-  "sourceGeneratedAt": "2026-10-09T08:37:40.638Z",
+  "generatedAt": "2026-10-13T05:59:28.338Z",
+  "sourceGeneratedAt": "2026-10-13T05:59:19.927Z",
   "totals": {
-    "nonReady": 102,
-    "selected": 41,
+    "nonReady": 67,
+    "selected": 40,
     "byClassification": {
-      "ready": 608,
-      "needs fixture": 66,
-      "unsafe on live network": 36,
+      "ready": 643,
+      "needs fixture": 39,
+      "unsafe on live network": 28,
       "needs contract change": 0,
       "needs API guard": 0,
       "needs indexer proof": 0
@@ -112,7 +112,7 @@
     },
     {
       "facetName": "DiamondCutFacet",
-      "objective": "Reduce DiamondCutFacet launch blockers across 4 gap items.",
+      "objective": "Reduce DiamondCutFacet launch blockers across 1 gap item.",
       "items": [
         {
           "id": "DiamondCutFacet.diamondCut",
@@ -122,57 +122,6 @@
           "endpoint": {
             "method": "POST",
             "path": "/v1/diamond-admin/admin/diamond-cut"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
-          "id": "DiamondCutFacet.setTrustedInitCodehash",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/diamond-admin/admin/set-trusted-init-codehash"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
-          "id": "DiamondCutFacet.setTrustedInitContract",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/diamond-admin/admin/set-trusted-init-contract"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
-          "id": "DiamondCutFacet.setTrustedInitSelector",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/diamond-admin/admin/set-trusted-init-selector"
           },
           "gaps": [
             "no successful verify-artifact route evidence"
@@ -191,7 +140,7 @@
     },
     {
       "facetName": "EmergencyFacet",
-      "objective": "Reduce EmergencyFacet launch blockers across 7 gap items.",
+      "objective": "Reduce EmergencyFacet launch blockers across 5 gap items.",
       "items": [
         {
           "id": "EmergencyFacet.approveRecovery",
@@ -262,40 +211,6 @@
           ]
         },
         {
-          "id": "EmergencyFacet.setEmergencyTimeout",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/emergency/admin/set-emergency-timeout"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
-          "id": "EmergencyFacet.setResumeDelay",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/emergency/admin/set-resume-delay"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
           "id": "EmergencyFacet.startRecovery",
           "kind": "function",
           "category": "write",
@@ -321,7 +236,7 @@
     },
     {
       "facetName": "EmergencyWithdrawalFacet",
-      "objective": "Reduce EmergencyWithdrawalFacet launch blockers across 5 gap items.",
+      "objective": "Reduce EmergencyWithdrawalFacet launch blockers across 3 gap items.",
       "items": [
         {
           "id": "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
@@ -365,40 +280,6 @@
           "endpoint": {
             "method": "POST",
             "path": "/v1/emergency/admin/request-emergency-withdrawal"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
-          "id": "EmergencyWithdrawalFacet.setRecipientWhitelist",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/emergency/admin/set-recipient-whitelist"
-          },
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
-          ]
-        },
-        {
-          "id": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
-          "kind": "function",
-          "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/emergency/admin/update-withdrawal-config"
           },
           "gaps": [
             "no successful verify-artifact route evidence"
@@ -607,7 +488,7 @@
     },
     {
       "facetName": "UpgradeControllerFacet",
-      "objective": "Reduce UpgradeControllerFacet launch blockers across 5 gap items.",
+      "objective": "Reduce UpgradeControllerFacet launch blockers across 4 gap items.",
       "items": [
         {
           "id": "UpgradeControllerFacet.approveUpgrade",
@@ -676,22 +557,82 @@
             "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
             "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
           ]
-        },
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "VestingFacet",
+      "objective": "Reduce VestingFacet launch blockers across 3 gap items.",
+      "items": [
         {
-          "id": "UpgradeControllerFacet.setUpgradeControlEnforced",
+          "id": "VestingFacet.releaseTokensFor",
           "kind": "function",
           "category": "write",
-          "classification": "unsafe on live network",
+          "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/diamond-admin/admin/set-upgrade-control-enforced"
+            "path": "/v1/tokenomics/commands/release-tokens-for"
           },
           "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VestingFacet.releaseVestedTokens",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/commands/release-vested-tokens"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VestingFacet.transferVestingSchedule",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/tokenomics/commands/transfer-vesting-schedule"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         }
       ],
@@ -702,36 +643,95 @@
       ]
     },
     {
-      "facetName": "RightsFacet",
-      "objective": "Reduce RightsFacet launch blockers across 5 gap items.",
+      "facetName": "VoiceAssetFacet",
+      "objective": "Reduce VoiceAssetFacet launch blockers across 9 gap items.",
       "items": [
         {
-          "id": "RightsFacet.addCollaborator",
+          "id": "VoiceAssetFacet.approveVoiceAsset",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/commands/add-collaborator"
+            "path": "/v1/voice-assets/commands/approve-voice-asset"
           },
           "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VoiceAssetFacet.customizeRoyaltyRate",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/voice-assets/:voiceHash/royalty-rate"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VoiceAssetFacet.lockVoiceAsset",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/:voiceHash/lock"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VoiceAssetFacet.recordRoyaltyPayment",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/:voiceHash/royalty-payments"
+          },
+          "gaps": [
+            "no workflow proof reference",
             "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
             "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         },
         {
-          "id": "RightsFacet.createRightsGroup",
+          "id": "VoiceAssetFacet.recordRoyaltyPaymentFrom",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/rights/create-rights-group"
+            "path": "/v1/voice-assets/commands/record-royalty-payment-from"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -747,13 +747,32 @@
           ]
         },
         {
-          "id": "RightsFacet.grantRight",
+          "id": "VoiceAssetFacet.recordUsage",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/commands/grant-right"
+            "path": "/v1/voice-assets/:voiceHash/usage-records"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VoiceAssetFacet.recordUsageFrom",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/voice-assets/commands/record-usage-from"
           },
           "gaps": [
             "no directly attributable test reference",
@@ -769,45 +788,39 @@
           ]
         },
         {
-          "id": "RightsFacet.registerRightContract",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "POST",
-            "path": "/v1/licensing/rights/register-right-contract"
-          },
-          "gaps": [
-            "no directly attributable test reference",
-            "no workflow proof reference",
-            "no negative-path proof reference",
-            "no successful verify-artifact route evidence"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "RightsFacet.removeCollaborator",
+          "id": "VoiceAssetFacet.revokeUser",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
             "method": "DELETE",
-            "path": "/v1/licensing/commands/remove-collaborator"
+            "path": "/v1/voice-assets/:voiceHash/authorization-grants/:user"
           },
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
-            "no negative-path proof reference",
-            "no successful verify-artifact route evidence"
+            "no negative-path proof reference"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "VoiceAssetFacet.setDefaultPlatformFee",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/voice-assets/commands/set-default-platform-fee"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
             "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]

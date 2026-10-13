@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.381] - 2026-10-12
+
+### Changed
+
+- **Grouped Mounted-Route Fixtures Close Twenty-Seven Gaps:** Added an ABI-registry-driven safety matrix for all eight remaining `RightsFacet` writes, eleven `StakingFacet` writes, and eight `TokenSupplyFacet` writes. The `81` cases prove authorized static-call preflight and persistence-before-submission ordering, read-only rejection before contract access, and stale or replayed contract rejection without mutation.
+- **Eight Control-Plane Routes Gain Exact Local-Fork Evidence:** Added a focused fork proof for three trusted-init controls, emergency resume delay and timeout, emergency-withdrawal recipient and configuration controls, and upgrade-control enforcement. The proof artifact records successful mounted-route receipts, event or state readbacks, and an explicit local-fork marker; the local-fork runner now refreshes it in an isolated stage.
+- **Non-Ready Inventory Falls By Thirty-Five:** Regenerated the gap report and 40-item plan. Ready items increase from `608` to `643`, fixture gaps fall from `66` to `39`, unsafe-live gaps fall from `36` to `28`, and total non-ready items decrease from `102` to `67`. The implementation closes `12` of the selected `40` items while completing the related Rights, Staking, and Token Supply groups.
+
+### Verified
+
+- **Focused Safety And Fork-Runner Suites Passed:** The mounted-route matrix passed `81/81`; the local-fork proof planner passed `14/14` with the isolated control-plane stage present.
+- **Required Gap-Builder Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and `pnpm run test:actor-negative-paths` passed `432/432` across `14` files.
+- **Surface Coverage Remains Complete:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` ABI write invariants.
+
 ## [0.1.380] - 2026-10-07
 
 ### Changed

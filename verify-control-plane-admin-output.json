@@ -1,0 +1,83 @@
+{
+  "generatedAt": "2026-10-12T14:37:48.915Z",
+  "reports": {
+    "control-plane-admin-writes": {
+      "network": "local fork",
+      "routes": [
+        "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+        "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+        "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+        "POST /v1/emergency/admin/set-resume-delay",
+        "POST /v1/emergency/admin/set-emergency-timeout",
+        "POST /v1/emergency/admin/set-recipient-whitelist",
+        "POST /v1/emergency/admin/update-withdrawal-config",
+        "POST /v1/diamond-admin/admin/set-upgrade-control-enforced"
+      ],
+      "actors": [
+        "founder-key"
+      ],
+      "executionResult": "proven working",
+      "evidence": [
+        {
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x2e80b791b3275d42d202222d09adf0e3002147b2ae1c7596d1e4020f396fae39",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xc7c56a3f1c8878ed81bd5cdbc884a55996338fb4e5b653594a6b8e0f6505e266",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x01e5d2b5dddadd5597e37a2ced889b4a27e31ba44fe46cf58114d24855ffc58e",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/emergency/admin/set-resume-delay",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x66219a1f56aff697a3cca84bf18d95ce2e2b767161dd402ffe054f639988806f",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/emergency/admin/set-emergency-timeout",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xf4d61b66ed64395420e9300eceefe470fd4354a8941b8780e679d1e26bf52a42",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/emergency/admin/set-recipient-whitelist",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xfa9c5835d6abc009cc8078dcff29ca038d87bc079000d2c620b003a4a56efce4",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/emergency/admin/update-withdrawal-config",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0x1167d827c28cd59907f5774dfe712aaf8ab4ac90d7517ce6c431ba1afd9e16d2",
+          "receiptStatus": 1
+        },
+        {
+          "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
+          "actor": "founder-key",
+          "status": 202,
+          "txHash": "0xb989db653427f9d25a0127684c5db6010e57c8e7c102c05b568d7ef81ec9382f",
+          "receiptStatus": 1
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    }
+  }
+}
