@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-13
+
+- Reused the clean isolated `codex/autosave-20261013-base-sepolia-promotion` worktree, fetched `origin`, and merged the current local production tip `807f123` into the promotion branch while leaving the unrelated dirty primary checkout untouched. Local production includes five verified commits beyond `origin/master` `9240b8b`.
+- Fresh canonical readiness failed closed before provider access. `API_LAYER_BASE_SEPOLIA_ENV_PATH=/Users/chef/Public/api-layer/.env pnpm run verify:promotion:base-sepolia:preflight` exited `2` with `finalClassification: "blocked by setup/state"`. The env file, `base-sepolia` network, chain `84532`, deployed-diamond address, three valid distinct actor keys, and founder/sender binding pass. Explicit live opt-in remains disabled, and both execution and diagnostics RPC origins remain loopback `http://127.0.0.1:8548`.
+- No live target query, setup helper, funding transfer, allowance, listing, governance preparation, proof scenario, or transaction ran. The refreshed `verify-base-sepolia-promotion-output.json` artifact at `2026-10-13T18:45:02.529Z` records `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence. Destructive protocol-admin writes remain disabled by construction.
+- Non-live verification passed: the focused promotion suite passed `6/6`, and explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** do not merge this partial workstream. Configure `API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true` and direct non-loopback Base Sepolia execution and diagnostics RPCs, rerun preflight, then permit only the existing fixture-gated marketplace and governance proofs. Both scenarios and the aggregate artifact must classify `proven working` before merge.
+
 ## ABI-Driven Gap Report Automation Run — 2026-10-12
 
 - Reused `codex/abi-gap-report-20261011` from synchronized local/remote production `master` `9240b8b` in an isolated sibling worktree, leaving the unrelated dirty primary checkout untouched, then rebased onto concurrent production tip `ca6d52a` before merge. Canonical code generation used the production deployment manifest at `../CONTRACTS/artifacts/release-readiness/deployment-manifest.json`, preserving the mounted inventory at `492` functions and `218` event occurrences.

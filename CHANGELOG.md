@@ -2,6 +2,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.383] - 2026-10-13
+
+### Changed
+
+- **Base Sepolia Promotion Readiness Rechecked On Current Production:** Integrated local production tip `807f123` into the reusable promotion branch and refreshed the fail-closed artifact from the canonical env. Static network, address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
+- **Live Proofs Remain Safely Blocked:** The gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, or transaction submission. Destructive protocol-admin writes remain excluded, and the roadmap records the exact blockers and next safe step.
+
+### Verified
+
+- **Non-Live Promotion Gates Passed:** The focused promotion suite passed `6/6`; `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.382] - 2026-10-12
 
 ### Changed
