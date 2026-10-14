@@ -2,6 +2,54 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.384] - 2026-10-13
+
+### Changed
+
+- **Voting Power And WhisperBlock Fixtures Close Twelve Gaps:** Added one generated-definition, mounted-route safety matrix for all seven remaining `VotingPowerFacet` writes and all five remaining `WhisperBlockFacet` writes. The matrix proves wire-to-ABI decoding, contract static-call preflight before persistence and wallet submission, read-only denial before provider access, and stale or replayed preflight rejection without mutation.
+- **Fixture Backlog Reaches Zero:** Added the matrix to the durable actor-negative-path command and regenerated both API gap artifacts plus both planner artifacts. Ready items increase from `670` to `682`, fixture gaps fall from `12` to `0`, and total non-ready items decrease from `40` to `28`. The remaining `28` are live-network safety gaps that require genuine exact-route proof, including the intentionally excluded legacy proposal overload.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `36/36`; `pnpm run test:actor-negative-paths` passed `561/561` across `17` files; `pnpm run test:gap-report` passed `8/8`; and `pnpm run test:gap-builder` passed `12/12`.
+- **Quality, Build, And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.383] - 2026-10-13
+
+### Changed
+
+- **Voice Data Command Fixtures Close Eleven Gaps:** Added one mounted-route safety matrix for both remaining `VoiceDatasetFacet` writes, five selected `VoiceLicenseFacet` writes, and four selected `VoiceMetadataFacet` writes. The matrix proves generated request decoding, contract static-call preflight before persistence and wallet submission, read-only rejection before contract access, and stale or replayed preflight rejection without mutation.
+- **Persistent Non-Ready Count Falls By Eleven:** Regenerated both API gap artifacts and both 40-item planner artifacts. Ready items increase from `659` to `670`, fixture gaps fall from `23` to `12`, and total non-ready items decrease from `51` to `40`; the regenerated next plan selects all `40` remaining items.
+
+### Verified
+
+- **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `33/33`; `pnpm run test:actor-negative-paths` passed `525/525` across `16` files; `pnpm run test:gap-report` passed `8/8`; and `pnpm run test:gap-builder` passed `12/12`.
+- **Coverage Gate Passed:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.382] - 2026-10-12
+
+### Changed
+
+- **Current-Master ABI Gap Evidence Revalidated:** Rebuilt the mounted ABI/API inventories from the production deployment manifest and refreshed the persistent JSON, Markdown, and forty-percent planner artifacts. Timestamp-normalized report hashes remain byte-stable with production across all `33` facets, `492` functions, `218` event occurrences, and `710` total items.
+- **Proof Inputs And Summaries Audited:** Confirmed all `164` declared input/evidence paths exist, every item retains a valid proof-depth score and classification, and all facet/global summaries reconcile. Classifications remain `608` ready, `66` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof.
+
+### Verified
+
+- **Reporter, Planner, And Repository Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,902` active tests across `152` files with `40` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines.
+
+## [0.1.381] - 2026-10-12
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest API fixture and indexer-evidence changes. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.380] - 2026-10-07
 
 ### Changed
