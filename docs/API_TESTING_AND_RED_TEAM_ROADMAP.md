@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-10-14
+
+- Started `codex/actor-negative-paths-20261014` from clean local production `master` `807f123`, which includes the latest verified assurance merges and is five commits ahead of `origin/master`. The unrelated dirty primary checkout and the prior actor-report timestamp autosave remained untouched.
+- Audited the production delta since the last actor baseline. The only behavioral change hardens offline signed-envelope validation for invalid or malleable ECDSA scalars, unsupported recovery IDs, negative timestamp/nonce values, and malformed role IDs; it does not change mounted HTTP writes, required actors, API-key authorization, signer binding, or contract preflight behavior. The affected red-team suite passed `116/116`.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Coverage remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases. The matrix continues to prove unauthorized actors cannot commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, or mutate ownership-controlled state.
+- Verification passed: `pnpm run test:actor-negative-paths` (`351/351`), `pnpm run test:redteam` (`116/116`), and `pnpm test` (`1,903` active tests across `152` passing files with `40` gated skips). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** this actor negative-path section remains 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## ABI-Driven Gap Report Automation Run — 2026-10-12
 
 - Reused `codex/abi-gap-report-20261011` from synchronized local/remote production `master` `9240b8b` in an isolated sibling worktree, leaving the unrelated dirty primary checkout untouched, then rebased onto concurrent production tip `ca6d52a` before merge. Canonical code generation used the production deployment manifest at `../CONTRACTS/artifacts/release-readiness/deployment-manifest.json`, preserving the mounted inventory at `492` functions and `218` event occurrences.
