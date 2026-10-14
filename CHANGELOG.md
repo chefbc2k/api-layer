@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.383] - 2026-10-14
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed the signed-envelope red-team hardening does not change mounted write routes, required actor metadata, API-key authorization, signer binding, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116` including malformed or malleable signature, recovery-ID, signed-domain, and role-ID probes.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.382] - 2026-10-12
 
 ### Changed
