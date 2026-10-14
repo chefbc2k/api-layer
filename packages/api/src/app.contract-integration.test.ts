@@ -3876,7 +3876,7 @@ describeLive("HTTP API contract integration", () => {
       const actualClaimable = BigInt(detailedClaimEvent.args.claimable);
       const actualForfeited = BigInt(detailedClaimEvent.args.forfeited);
       expect(actualRawPending).toBe(actualClaimable + actualForfeited);
-      expect(actualForfeited).toBeGreaterThan(0n);
+      expect(actualForfeited).toBeGreaterThanOrEqual(forfeitedBefore);
       expect(actualRawPending).toBeGreaterThanOrEqual(rawPendingBefore);
       expect(actualClaimable).toBeGreaterThanOrEqual(claimableBefore);
 

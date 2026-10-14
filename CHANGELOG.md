@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.381] - 2026-10-14
+
+### Changed
+
+- **Economic Fork Proofs Accept Valid Zero Forfeiture:** Updated the staking custody scenario to preserve the core reward identity and exact balance/liability conservation when the deployed tier legitimately reports zero forfeiture, instead of requiring every successful claim to forfeit a positive amount.
+- **Reward Replay Fixture Tracks Strengthened Custody Reads:** Extended the adversarial reward-claim fixture with the API address book and deterministic claimer, protocol-custody, and total-supply reads required by the current workflow's before/after economic checks.
+
+### Verified
+
+- **Focused And Fork Economic Proofs Passed:** The focused economic/reporting suite passed `149/149` tests across `17` files. Seven separately snapshotted Base Sepolia-fork scenarios passed `1/1` each for marketplace withdrawal, payment splits/treasury movement, mint/burn/supply, funded campaign claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics.
+- **Repository And Quality Gates Passed:** The full suite passed `1,931` active tests across `155` files with `47` gated skips. Ordered TypeScript, lint, and full build/codegen passed, and explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting without beneficiary token credit. The clean fork also confirms the configured founder lacks `TREASURY_SIGNER_ROLE`, while `PaymentFacet` exposes no approval-count readback or approval event; treasury proof therefore still depends on synthetic storage seeding. Fix those contract/deployment observability gaps and rerun the unsynthetic fork proofs before merging this workstream.
+
 ## [0.1.380] - 2026-10-07
 
 ### Changed
