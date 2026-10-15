@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.385] - 2026-10-14
+
+### Changed
+
+- **Local-Fork Receipt Evidence Refreshed Without Inflating Method Coverage:** The guarded receipt/indexer run added eight net-new transaction hashes from the passing layer-one core stage. The durable artifact now contains `546` receipts, `827` generated-registry-decoded raw events, and `549` PostgreSQL projection rows with idempotent replay across the same `107/260` distinct write methods.
+- **Voting-Power Proof Isolation:** Added a dedicated founder-backed API identity for the voting-power receipt batch so its nine founder writes no longer share the already-consumed default write-rate bucket.
+- **Control-Plane Artifact Contract Fixed:** Control-plane admin proof output now emits the top-level `proven working` summary required by the local-fork orchestrator, avoiding a false failure after all eight exact-route admin writes succeed.
+
+### Blocked
+
+- **End-To-End Write Completion Remains `153` Methods:** The prompt's `95` count is stale relative to the canonical artifact. Repeated upstream Base Sepolia provider timeouts blocked fixture provisioning and the HTTP dataset, governance, timelock, and licensing receipt stages. Failed stages restored fork checkpoints and deleted their source receipt artifacts, so no partial or rolled-back evidence was promoted and no merge was performed.
+
 ## [0.1.384] - 2026-10-13
 
 ### Changed

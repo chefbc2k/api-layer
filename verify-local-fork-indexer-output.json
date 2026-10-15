@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T13:29:36.442Z",
+  "generatedAt": "2026-10-14T18:34:58.212Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 538,
+    "artifactTransactionHashes": 546,
     "includedArtifacts": 5,
     "skippedArtifacts": 0,
-    "indexedReceipts": 538,
+    "indexedReceipts": 546,
     "provenWriteMethods": 107,
     "catalogWriteMethods": 260,
     "remainingWriteMethods": 153,
-    "rawEvents": 812,
-    "projectionRows": 534
+    "rawEvents": 827,
+    "projectionRows": 549
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -6008,7 +6008,7 @@
           "affectedFacet": "MarketplaceFacet",
           "methodSignature": "listAsset(uint256,uint256,uint256)",
           "txHash": "0x9e31f597a91f59bbf59220d3c07a6f3889fa1feaf075d422d206a11523b8eaf7",
-          "blockNumber": 48060571,
+          "blockNumber": 48111023,
           "receipt": {
             "status": 1,
             "logCount": 3
@@ -6057,8 +6057,8 @@
               "rowCount": 1,
               "rows": [
                 {
-                  "block_number": "48060571",
-                  "block_hash": "0xf368db93399f6e0a1c6f80d88aaeb688dbc0c40af57a85a977647bdc5bb6ad7b"
+                  "block_number": "48111023",
+                  "block_hash": "0x9bc99500f5ad681357e039efb96806beab7bc1d2609ffb8a0be318f4f97c9cbc"
                 }
               ]
             }
@@ -9289,6 +9289,69 @@
                 {
                   "block_number": "47149811",
                   "block_hash": "0x0129b1986fb35661df87ac264b656585e39e12a41cfb953e7715fa03505f5561"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)",
+          "affectedFacet": "ProposalFacet",
+          "methodSignature": "propose(address[],uint256[],bytes[],string,uint8)",
+          "txHash": "0x4e26c7a0eb3cc728e9751e2685999026a3bf4df26caa0c50b550230d241ec52c",
+          "blockNumber": 48111020,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "ProposalFacet.ProposalCreated(uint256,address,address[],uint256[],bytes[],string,uint256,uint256,uint8)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [
+              {
+                "table": "governance_proposals",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ],
+                "sourceRawEventIds": [
+                  "1"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111020",
+                  "block_hash": "0x25028dafc2b8719727989c08d9b4736e9adb86f73bee84d003a0550a242ade00"
                 }
               ]
             }
@@ -15455,6 +15518,77 @@
           "methodKey": "VoiceAssetFacet.registerVoiceAsset",
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "registerVoiceAsset(string,uint256)",
+          "txHash": "0x16c4eb261c0dd31ded6d6937e4e655114754b9ab3497f3a6ce0bfc992cf86ae9",
+          "blockNumber": 48111024,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "8",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "9",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetRegistered(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "8",
+                "9"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 2,
+                "rowIds": [
+                  "4",
+                  "5"
+                ],
+                "sourceRawEventIds": [
+                  "8",
+                  "9"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111024",
+                  "block_hash": "0x88f653c1091dabcbe85626b9ba5cd9576f16abf35acfa2658a6c0341cafa1cfd"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.registerVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "registerVoiceAsset(string,uint256)",
           "txHash": "0x1cdc12883b226d03b53ccd894a600b2a615d59f3ad7c7c61df4153e53f5efd95",
           "blockNumber": 47882456,
           "receipt": {
@@ -16071,6 +16205,77 @@
                 {
                   "block_number": "47873453",
                   "block_hash": "0x1a77e730e29b219940ab8f3331246163a28cce2a041ca0c892ab5ee1295e2893"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.registerVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "registerVoiceAsset(string,uint256)",
+          "txHash": "0x2e18d77c0669e5c66053c3c5f85c3d743dcf158f0969977d3465a042eb12cbcf",
+          "blockNumber": 48111028,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "17",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "18",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetRegistered(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "17",
+                "18"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 2,
+                "rowIds": [
+                  "10",
+                  "11"
+                ],
+                "sourceRawEventIds": [
+                  "17",
+                  "18"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111028",
+                  "block_hash": "0x72195c6240a7ade93a1805e1c65de9945c10f5600d59a852eda74988927b2d56"
                 }
               ]
             }
@@ -18295,6 +18500,77 @@
           "methodKey": "VoiceAssetFacet.registerVoiceAsset",
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "registerVoiceAsset(string,uint256)",
+          "txHash": "0x84d64dbb2adb983f7f286daac83e1577e6d54759f3ab4a52482ba40b777918d2",
+          "blockNumber": 48111027,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "15",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "16",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetRegistered(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "15",
+                "16"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 2,
+                "rowIds": [
+                  "8",
+                  "9"
+                ],
+                "sourceRawEventIds": [
+                  "15",
+                  "16"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111027",
+                  "block_hash": "0x791f3a64ff88add314f321dddcf027d9c55b8db83ca211656c4902c59758fa1a"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.registerVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "registerVoiceAsset(string,uint256)",
           "txHash": "0x84e67aed5dfd1724ca4a860d574db144d11c793eee55920010aa0e3f56ab2556",
           "blockNumber": 47873364,
           "receipt": {
@@ -19573,6 +19849,77 @@
           "methodKey": "VoiceAssetFacet.registerVoiceAsset",
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "registerVoiceAsset(string,uint256)",
+          "txHash": "0xc160d22bd5de7aea21cf732bac54348dae5bee1581f8d62d9786e395093586fd",
+          "blockNumber": 48111021,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "3",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetRegistered(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "2",
+                "3"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 2,
+                "rowIds": [
+                  "1",
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "2",
+                  "3"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111021",
+                  "block_hash": "0xa80c41c24d1342001bfdca79423ded6436507fdbc93cee5c0a43b776a3d9bf9a"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.registerVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "registerVoiceAsset(string,uint256)",
           "txHash": "0xc83de040a8e3e861f71c7179043d93eb72304a77f3d4385e967fc0d710df4b67",
           "blockNumber": 47882483,
           "receipt": {
@@ -20487,6 +20834,77 @@
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.registerVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "registerVoiceAsset(string,uint256)",
+          "txHash": "0xeda385ab81b045b5ea7c1c42870e547fe36fa47a1eca967eaf19f4d062d5b4f6",
+          "blockNumber": 48111025,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "10",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "11",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetRegistered(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "10",
+                "11"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 2,
+                "rowIds": [
+                  "6",
+                  "7"
+                ],
+                "sourceRawEventIds": [
+                  "10",
+                  "11"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111025",
+                  "block_hash": "0x437c18b47a27a074956295f8a332f080da4c54fd0e513e592bc5996d6852d845"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
@@ -21790,7 +22208,7 @@
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "setApprovalForAll(address,bool)",
           "txHash": "0xf3df7fe80a53d45c8ce5a951c0bea0193b55a125abfd88f1653d06f9c0483467",
-          "blockNumber": 48060570,
+          "blockNumber": 48111022,
           "receipt": {
             "status": 1,
             "logCount": 1
@@ -21827,8 +22245,8 @@
               "rowCount": 1,
               "rows": [
                 {
-                  "block_number": "48060570",
-                  "block_hash": "0xbe01f259791398e8a6b80449c0e403b8391d430a75583bb0f82a3a4c046f18e6"
+                  "block_number": "48111022",
+                  "block_hash": "0x4ca7dfc20a1425ba09d5fd951772d7236b74c1fdeabbd5e572026f4d9dc80bee"
                 }
               ]
             }
@@ -22844,6 +23262,69 @@
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.transferFromVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "transferFromVoiceAsset(address,address,uint256)",
+          "txHash": "0x5494867961ea6eb43d65ed6250317e92f25fb25e4c7a3c6e74c620e0ea04ec79",
+          "blockNumber": 48111029,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "19",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "19"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "12"
+                ],
+                "sourceRawEventIds": [
+                  "19"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111029",
+                  "block_hash": "0x07785ca27bbac2ba1bcad5957f629c4e6e57a06581a7432113b9ddbde4c586f2"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
@@ -24214,6 +24695,85 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VoiceDatasetFacet.createDataset",
+          "affectedFacet": "VoiceDatasetFacet",
+          "methodSignature": "createDataset(string,uint256[],uint256,string,uint96)",
+          "txHash": "0x018cc2f6a71ffc79b87d2de93ce19ce66383541662f8810ba430b18a8002c878",
+          "blockNumber": 48111026,
+          "receipt": {
+            "status": 1,
+            "logCount": 3
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "12",
+              "logIndex": 0,
+              "eventKey": "VoiceDatasetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "13",
+              "logIndex": 1,
+              "eventKey": "VoiceDatasetFacet.DatasetRoyaltyPayeeSet(uint256,address,address)"
+            },
+            {
+              "rawEventId": "14",
+              "logIndex": 2,
+              "eventKey": "VoiceDatasetFacet.DatasetCreated(uint256,address,string,uint256[],uint256,string,uint96)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 3,
+              "rowIds": [
+                "12",
+                "13",
+                "14"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_datasets",
+                "rowCount": 3,
+                "rowIds": [
+                  "1",
+                  "2",
+                  "3"
+                ],
+                "sourceRawEventIds": [
+                  "12",
+                  "13",
+                  "14"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48111026",
+                  "block_hash": "0x46422b049cb3b4ba6df8dba09bc33f71cd4ef22a1d0da1783d6eae1c4a4f1093"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/layer1-core.json"
+            ],
+            "producers": [
+              "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "VoiceDatasetFacet.createDataset",

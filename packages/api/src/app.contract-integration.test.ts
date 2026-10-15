@@ -781,6 +781,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "voting-power-proof-key": {
+        label: "voting-power-proof",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "emergency-proof-key": {
         label: "emergency-proof",
         signerId: "founder",
@@ -4098,6 +4104,7 @@ describeLive("HTTP API contract integration", () => {
     if (proofArtifactPath) {
       await writeFile(path.resolve(proofArtifactPath), `${JSON.stringify({
         generatedAt: new Date().toISOString(),
+        summary: "proven working",
         reports: {
           "control-plane-admin-writes": {
             network: "local fork",
@@ -5099,7 +5106,10 @@ describeLive("HTTP API contract integration", () => {
     }
 
     const submit = async (route: string, body: Record<string, unknown>) => {
-      const response = await apiCall(port, "PATCH", route, { body });
+      const response = await apiCall(port, "PATCH", route, {
+        apiKey: "voting-power-proof-key",
+        body,
+      });
       expect(response.status, JSON.stringify(response.payload)).toBe(202);
       const txHash = extractTxHash(response.payload);
       await expectReceipt(txHash);
@@ -5179,6 +5189,7 @@ describeLive("HTTP API contract integration", () => {
     const multiplierRole = id(`INDEXER_ROLE_MULTIPLIER_${Date.now()}_${Math.random().toString(16).slice(2)}`);
     const founderRole = id("FOUNDER_ROLE");
     const configureRoleResponse = await apiCall(port, "POST", "/v1/access-control/admin/configure-role", {
+      apiKey: "voting-power-proof-key",
       body: {
         role: multiplierRole,
         config: {
@@ -5198,6 +5209,7 @@ describeLive("HTTP API contract integration", () => {
     expect(configureRoleResponse.status, JSON.stringify(configureRoleResponse.payload)).toBe(202);
     await expectReceipt(extractTxHash(configureRoleResponse.payload));
     const grantRoleResponse = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+      apiKey: "voting-power-proof-key",
       body: { role: multiplierRole, account: outsiderWallet.address, expiryTime: "0" },
     });
     expect(grantRoleResponse.status, JSON.stringify(grantRoleResponse.payload)).toBe(202);
@@ -5205,6 +5217,7 @@ describeLive("HTTP API contract integration", () => {
 
     const multiplier = "17777";
     const multiplierResponse = await apiCall(port, "PATCH", "/v1/staking/commands/set-role-multiplier", {
+      apiKey: "voting-power-proof-key",
       body: { role: multiplierRole, multiplier },
     });
     expect(multiplierResponse.status, JSON.stringify(multiplierResponse.payload)).toBe(202);
