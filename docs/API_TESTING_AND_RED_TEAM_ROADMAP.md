@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-10-15
+
+- Started `codex/actor-negative-paths-20261015` from clean local production `master` `f2c8b68` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. After concurrent write-invariant revalidation advanced production, fast-forwarded to `bf8c708` before documentation and merge.
+- Audited the production delta since the 2026-10-14 actor baseline. It contains the prior actor merge plus write-invariant metadata revalidation only; no mounted HTTP write, required-actor metadata, API-key authorization, signer binding, role lifecycle, validation, or contract preflight source changed, so no duplicate negative-path case was added.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Coverage remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases. Unauthorized actors remain unable to commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, or mutate ownership-controlled state.
+- Verification passed: `pnpm run test:actor-negative-paths` (`351/351`), `pnpm run test:redteam` (`116/116`), and the canonical `pnpm test` retry (`1,903` active tests across `152` passing files with `40` gated skips). The first full-suite attempt encountered two transient Vitest worker module-fetch timeouts after `1,887` tests passed; the affected files passed independently (`16/16`) before the clean full retry. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** this actor negative-path section remains 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Write-Invariant Metadata Automation Run — 2026-10-15
 
 - Started `codex/write-invariant-metadata-20261015` from clean local production `master` `f2c8b68`, which includes the latest verified assurance merges and is seven commits ahead of `origin/master`. The unrelated dirty primary checkout remained untouched. The production delta since the 2026-10-12 invariant audit changes signed-envelope red-team validation and actor-report evidence only; it does not change the mounted ABI, reviewed invariant source, or invariant validator.
