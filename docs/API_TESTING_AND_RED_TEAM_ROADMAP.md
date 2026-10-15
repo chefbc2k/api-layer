@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-15
+
+- Started `codex/base-sepolia-promotion-20261015` from clean local production `master` `80c7412` after fetching `origin`; local production is `11` commits ahead of `origin/master`. The unrelated dirty primary checkout and the pre-existing conflicted promotion worktree were left untouched.
+- Refreshed `verify-base-sepolia-promotion-output.json` with the canonical explicit-env preflight. Network (`base-sepolia`), chain ID (`84532`), deployed diamond address format, founder/seller/buyer key validity and distinctness, and founder/sender binding pass. Readiness remains blocked because `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` is disabled and both the execution and diagnostics RPC origins resolve to loopback `http://127.0.0.1:8548`.
+- The fail-closed gate stopped before provider access, live-chain bytecode inspection, operator setup, user funding, test-token allowances, aged-listing creation, governance preparation, marketplace purchase, governance proof, or transaction submission. The persisted refusal artifact therefore contains no transaction hashes, block numbers, state deltas, decoded events, or promoted scenario classifications; its final classification is `blocked by setup/state`.
+- Destructive protocol-admin writes remain disabled and excluded from the manifest. The promotion runner unit suite passed `6/6`; canonical code generation succeeded, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. Transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** blocked. No partial promotion work is merged into `master`. The next safe run requires an operator-provided direct Base Sepolia execution RPC, a direct diagnostics RPC, and explicit `.env` opt-in; only after all static and live-target readiness checks pass may the existing setup helpers and safe marketplace/governance proof commands run.
+
 ## Actor Negative-Path Automation Run — 2026-10-15
 
 - Started `codex/actor-negative-paths-20261015` from clean local production `master` `f2c8b68` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. After concurrent write-invariant revalidation advanced production, fast-forwarded to `bf8c708` before documentation and merge.
