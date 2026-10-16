@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-10-16
+
+- Started `codex/actor-negative-paths-20261016` from clean local production `master` `80c7412` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is eleven verified assurance commits ahead.
+- Audited the production delta since the 2026-10-15 actor baseline. It contains only the merge commit for yesterday's verified actor revalidation; no mounted HTTP write, required-actor metadata, API-key authorization, signer binding, role lifecycle, validation, or contract preflight source changed, so no duplicate negative-path case was added.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Coverage remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases. Unauthorized actors remain unable to commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, or mutate ownership-controlled state.
+- Verification passed: `pnpm run test:actor-negative-paths` (`351/351`), `pnpm run test:redteam` (`116/116`), and `pnpm test` (`1,903` active tests across `152` passing files with `40` gated skips). TypeScript workspace builds, lint, full code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** this actor negative-path section remains 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Economic Invariants Automation Run — 2026-10-15
 
 - Reused the clean `codex/economic-invariants-20261012` worktree based on current `origin/master` `9240b8b`; the occupied primary checkout and its unrelated generated-report edits were left untouched. The economic branch retains balance/state-delta coverage for escrow release, marketplace withdrawals and payment splitting, reward claims, vesting release/revoke, mint/burn/supply, staking/reward-pool custody, treasury revenue and multisig movement, and emergency withdrawals, including rounding, replay, failed-call, and partial-state assertions.
