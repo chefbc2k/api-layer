@@ -2,7 +2,7 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.385] - 2026-10-14
+## [0.1.389] - 2026-10-14
 
 ### Changed
 
@@ -14,7 +14,7 @@
 
 - **End-To-End Write Completion Remains `153` Methods:** The prompt's `95` count is stale relative to the canonical artifact. Repeated upstream Base Sepolia provider timeouts blocked fixture provisioning and the HTTP dataset, governance, timelock, and licensing receipt stages. Failed stages restored fork checkpoints and deleted their source receipt artifacts, so no partial or rolled-back evidence was promoted and no merge was performed.
 
-## [0.1.384] - 2026-10-13
+## [0.1.388] - 2026-10-13
 
 ### Changed
 
@@ -26,7 +26,7 @@
 - **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `36/36`; `pnpm run test:actor-negative-paths` passed `561/561` across `17` files; `pnpm run test:gap-report` passed `8/8`; and `pnpm run test:gap-builder` passed `12/12`.
 - **Quality, Build, And Coverage Gates Passed:** With `pnpm` selected from `pnpm-lock.yaml`, `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed in order. Explicit `pnpm run coverage:check` and the build-time repeat confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
-## [0.1.383] - 2026-10-13
+## [0.1.387] - 2026-10-13
 
 ### Changed
 
@@ -37,6 +37,54 @@
 
 - **Focused And Required Batch Suites Passed:** The new mounted-route matrix passed `33/33`; `pnpm run test:actor-negative-paths` passed `525/525` across `16` files; `pnpm run test:gap-report` passed `8/8`; and `pnpm run test:gap-builder` passed `12/12`.
 - **Coverage Gate Passed:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.386] - 2026-10-16
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed it contains only the prior verified actor merge, with no changes to mounted write routes, required actors, API-key authorization, signer binding, role lifecycle behavior, validation, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript workspace builds, lint, full code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.385] - 2026-10-15
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed the write-invariant metadata revalidation does not change mounted write routes, required actors, API-key authorization, signer binding, role lifecycle behavior, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116`. A transient Vitest worker module-fetch timeout was isolated; both affected files passed `16/16`, and the canonical full-suite retry passed cleanly.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.384] - 2026-10-15
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the signed-envelope and actor-evidence updates. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.383] - 2026-10-14
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed the signed-envelope red-team hardening does not change mounted write routes, required actor metadata, API-key authorization, signer binding, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116` including malformed or malleable signature, recovery-ID, signed-domain, and role-ID probes.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.382] - 2026-10-12
 
