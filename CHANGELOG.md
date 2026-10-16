@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.387] - 2026-10-16
+
+### Changed
+
+- **Replay Identity Covers Complete Transaction Intent:** Replay fingerprints now bind chain ID, target contract, signer address, full calldata, transaction value, nonce, and deadline. Canonical case and unsigned-decimal normalization close equivalent-encoding bypasses, while malformed addresses, calldata, and numeric domains fail closed.
+- **Stale-Receipt Fork Probe Uses Fresh Canonical State:** The local-fork reorg test now tolerates post-revert mining-height differences, advances to the original receipt height when required, and bypasses ethers block caching with a raw canonical block lookup before evaluating the stale receipt.
+
+### Verified
+
+- **Red-Team Gates Passed:** `pnpm run test:redteam` passed `117/117`; guarded `pnpm run redteam:local-fork` passed `161/161` across `11` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,904` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.386] - 2026-10-16
 
 ### Changed

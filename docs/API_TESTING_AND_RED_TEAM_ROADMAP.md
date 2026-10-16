@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-16
+
+- Resumed the clean isolated `codex/autosave-20261016-red-team-harness` worktree and merged current local production `master` `7a72b9b`; fetched `origin/master` `9240b8b` remains an ancestor of local production. The unrelated dirty primary checkout was left untouched.
+- Hardened replay fingerprints so semantically equivalent encodings cannot evade duplicate detection while distinct transaction authority or intent cannot collide. The fingerprint now binds the chain, target contract, signer address, full calldata, transaction value, nonce, and deadline; it normalizes address/calldata case and unsigned-decimal leading zeroes, and fails closed on invalid chain IDs, addresses, incomplete hex bytes, or signed/non-decimal numeric domains.
+- The guarded fork run exposed two assumptions in the stale-receipt probe: replacement transactions are not guaranteed to land at the original height immediately after `evm_revert`, and ethers can retain a pre-revert block object. The probe now advances the fork to the original receipt height when necessary and reads the canonical replacement block through raw `eth_getBlockByNumber`, so its reorg oracle compares fresh canonical state rather than cached evidence.
+- Verification passed: `pnpm run test:redteam` (`117/117`), guarded `pnpm run redteam:local-fork` (`161/161` across `11` files with all `6/6` deployed-fork probes active), and `pnpm test` (`1,904` active tests across `152` passing files with `40` gated skips). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** this replay-domain and canonical stale-receipt adversarial slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Actor Negative-Path Automation Run — 2026-10-16
 
 - Started `codex/actor-negative-paths-20261016` from clean local production `master` `80c7412` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is eleven verified assurance commits ahead.
