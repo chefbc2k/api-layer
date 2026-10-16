@@ -963,6 +963,7 @@ describeLive("HTTP API contract integration", () => {
       await writeFile(resolvedArtifactPath, `${JSON.stringify({
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
+        summary: "proven working",
         status: "proven working",
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
       }, null, 2)}\n`);

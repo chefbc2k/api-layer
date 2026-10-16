@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-14T18:34:58.212Z",
+  "generatedAt": "2026-10-16T13:02:39.775Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 546,
+    "artifactTransactionHashes": 548,
     "includedArtifacts": 5,
     "skippedArtifacts": 0,
-    "indexedReceipts": 546,
+    "indexedReceipts": 548,
     "provenWriteMethods": 107,
     "catalogWriteMethods": 260,
     "remainingWriteMethods": 153,
-    "rawEvents": 827,
-    "projectionRows": 549
+    "rawEvents": 836,
+    "projectionRows": 552
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -6386,6 +6386,111 @@
           "methodKey": "MarketplaceFacet.purchaseAsset",
           "affectedFacet": "MarketplaceFacet",
           "methodSignature": "purchaseAsset(uint256)",
+          "txHash": "0x44468e79cf751fc3a89b2431050f6b26f0b82581423ee36626728380054b0250",
+          "blockNumber": 48190831,
+          "receipt": {
+            "status": 1,
+            "logCount": 8
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "PaymentFacet.MetadataAccessed(uint256,address,string)"
+            },
+            {
+              "rawEventId": "2",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetUsed(bytes32,bytes32,address)"
+            },
+            {
+              "rawEventId": "3",
+              "logIndex": 2,
+              "eventKey": "VoiceAssetFacet.RoyaltyPaid(bytes32,address,uint256,bytes32)"
+            },
+            {
+              "rawEventId": "4",
+              "logIndex": 3,
+              "eventKey": "PaymentFacet.PaymentDistributed(uint256,address,address,uint256)"
+            },
+            {
+              "rawEventId": "5",
+              "logIndex": 4,
+              "eventKey": "PaymentFacet.PaymentDistributed(uint256,address,address,uint256)"
+            },
+            {
+              "rawEventId": "6",
+              "logIndex": 5,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "7",
+              "logIndex": 6,
+              "eventKey": "EscrowFacet.AssetReleased(uint256,address)"
+            },
+            {
+              "rawEventId": "8",
+              "logIndex": 7,
+              "eventKey": "MarketplaceFacet.AssetPurchased(uint256,address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 8,
+              "rowIds": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8"
+              ]
+            },
+            "projections": [
+              {
+                "table": "market_sales",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ],
+                "sourceRawEventIds": [
+                  "8"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48190831",
+                  "block_hash": "0xcbb1cfeb4743285d6eeb0e6167d15d481e5a156501b9ae1bbf74da2915c30ff9"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/marketplace-purchase.json"
+            ],
+            "producers": [
+              "scripts/verify-marketplace-purchase-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "MarketplaceFacet.purchaseAsset",
+          "affectedFacet": "MarketplaceFacet",
+          "methodSignature": "purchaseAsset(uint256)",
           "txHash": "0x48be98baff7e1b685e0762e580510d7f5ec51626b88dcdf2c36fcedc565b975e",
           "blockNumber": 47882594,
           "receipt": {
@@ -8934,6 +9039,79 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "PaymentFacet.withdrawPayments",
+          "affectedFacet": "PaymentFacet",
+          "methodSignature": "withdrawPayments()",
+          "txHash": "0x0342cca023e9b9048a09c4ace24ea4f463248243329146e325f43f2504bd2d9f",
+          "blockNumber": 48190832,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "9",
+              "logIndex": 0,
+              "eventKey": "PaymentFacet.USDCPaymentWithdrawn(address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "9"
+              ]
+            },
+            "projections": [
+              {
+                "table": "payment_flows",
+                "rowCount": 1,
+                "rowIds": [
+                  "4"
+                ],
+                "sourceRawEventIds": [
+                  "9"
+                ]
+              },
+              {
+                "table": "payment_withdrawals",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ],
+                "sourceRawEventIds": [
+                  "9"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48190832",
+                  "block_hash": "0xdc23c771676d2e5f4e56c2d65ebad56443b335261bb55498eb7ed9fecc0b3205"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/marketplace-purchase.json"
+            ],
+            "producers": [
+              "scripts/verify-marketplace-purchase-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "PaymentFacet.withdrawPayments",

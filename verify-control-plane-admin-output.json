@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-10-13T13:01:13.009Z",
+  "generatedAt": "2026-10-16T12:34:06.071Z",
+  "summary": "proven working",
   "reports": {
     "control-plane-admin-writes": {
       "network": "local fork",
@@ -14,62 +15,63 @@
         "POST /v1/diamond-admin/admin/set-upgrade-control-enforced"
       ],
       "actors": [
-        "founder-key"
+        "control-plane-proof-a-key",
+        "control-plane-proof-b-key"
       ],
       "executionResult": "proven working",
       "evidence": [
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0xe26861ea211852ddfeaa2c1a5d04add778cc99afe6410cf505098b5e6b1a799e",
+          "txHash": "0x8e4b01a8b7afb55e30418392aa17fe3ed1aa90b6380cfe046fb696f7b82c379b",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0xd56663a35ef168733c0f62800de350bbdbb66020a3fc4b6b4bb5eb4f8bbefd23",
+          "txHash": "0xd9e9838688ebeb3819ab49fbd75dacc8372c07bcdba6c6937ff8199701056b04",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0xcb5187896f0a80e9ff265f912ccb685ce208addd0b1d013750f92548d3fb121b",
+          "txHash": "0x2816ff1e95c49757a5f21185bd521c4d6020912304be47c781a6f3a95d8097b4",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/emergency/admin/set-resume-delay",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-a-key",
           "status": 202,
           "txHash": "0x16534c2855912571b4c0d7dcd587197292df9fb059071cd6b12539e3eb1e528d",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/emergency/admin/set-emergency-timeout",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-b-key",
           "status": 202,
           "txHash": "0x11abf66395363f98d17538211b6d9e3c1ce5a462fce729ded615fc1866ba9741",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/emergency/admin/set-recipient-whitelist",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x60f04dea6b12e048d41f2ab29f69a9dd58e0ce7562262a4cfd284976a3fba8e8",
+          "txHash": "0xdb36062ef0b01ce4faddf94613ba7c769e4257d696dd13adb06a5320dfdf58ae",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/emergency/admin/update-withdrawal-config",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-b-key",
           "status": 202,
           "txHash": "0x2a96c71bbf1f9f3ed303fa086bf65af443418e7123ba1f2eb63d3f9f9f43b65c",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
-          "actor": "founder-key",
+          "actor": "control-plane-proof-b-key",
           "status": 202,
           "txHash": "0xdd1095b5ee79e7dd4f1b55de0354e2a0b765f1d576f9c004f04527685d1bdd6f",
           "receiptStatus": 1
