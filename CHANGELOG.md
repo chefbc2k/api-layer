@@ -2,21 +2,33 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.387] - 2026-10-15
+## [0.1.388] - 2026-10-16
 
 ### Changed
 
-- **Economic Fork Proofs Accept Valid Zero Forfeiture:** Updated the staking custody scenario to preserve the core reward identity and exact balance/liability conservation when the deployed tier legitimately reports zero forfeiture, instead of requiring every successful claim to forfeit a positive amount.
-- **Reward Replay Fixture Tracks Strengthened Custody Reads:** Extended the adversarial reward-claim fixture with the API address book and deterministic claimer, protocol-custody, and total-supply reads required by the current workflow's before/after economic checks.
+- **Economic Evidence Revalidated On Current Production:** Reconciled the economic-invariants branch with local production `master` and retained balance/state-delta assertions for escrow release, marketplace withdrawal and payment splitting, reward claims, vesting release/revoke, burn/mint/supply, staking/reward-pool custody, treasury movement, and emergency withdrawal, including rounding, repeat calls, failed calls, and partial-state safety.
+- **Fork Isolation Prevents Cross-Scenario Contamination:** A combined fork attempt became invalid after provider timeouts and shared-state failures. Rebootstrapping every scenario on its own fork produced clean, bounded evidence for all seven scenarios, so the failed batch is not treated as a protocol regression or successful proof.
 
 ### Verified
 
-- **Focused And Fork Economic Proofs Passed:** The focused economic/reporting suite passed `149/149` tests across `17` files. Seven separately snapshotted Base Sepolia-fork scenarios passed `1/1` each for marketplace withdrawal, payment splits/treasury movement, mint/burn/supply, funded campaign claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics.
-- **Repository And Quality Gates Passed:** The full suite passed `1,931` active tests across `155` files with `47` gated skips. Ordered TypeScript, lint, and full build/codegen passed, and explicit `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Economic And Repository Suites Passed:** The deterministic economic slice passed `143/143` across `17` files. Marketplace withdrawal, payment splits/treasury movement, burn/mint/supply, funded reward claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics each passed `1/1` on separately bootstrapped Base Sepolia forks. The full suite passed `1,932` active tests across `155` files with `47` gated skips.
+- **Required Quality Gates Passed:** Ordered TypeScript, lint, and full build/codegen passed. Build-time and explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ### Remaining Issues
 
-- **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting without beneficiary token credit. The clean fork also confirms the configured founder lacks `TREASURY_SIGNER_ROLE`, while `PaymentFacet` exposes no approval-count readback or approval event; treasury proof therefore still depends on synthetic storage seeding. Fix those contract/deployment observability gaps and rerun the unsynthetic fork proofs before merging this workstream.
+- **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting and emits release evidence without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. Repair and redeploy vesting, provision treasury signers through a supported path, and add approval observability before rerunning unsynthetic proofs and merging.
+
+## [0.1.387] - 2026-10-16
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest actor-evidence update. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.386] - 2026-10-16
 
