@@ -775,6 +775,18 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "control-plane-proof-a-key": {
+        label: "control-plane-proof-a",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "control-plane-proof-b-key": {
+        label: "control-plane-proof-b",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "payment-proof-key": {
         label: "payment-proof",
         signerId: "founder",
@@ -3988,8 +4000,11 @@ describeLive("HTTP API contract integration", () => {
       contract: Contract,
       expectedEvent?: string,
     ) => {
+      const apiKey = adminProofs.length < 4
+        ? "control-plane-proof-a-key"
+        : "control-plane-proof-b-key";
       const response = await apiCall(port, "POST", path, {
-        apiKey: "founder-key",
+        apiKey,
         body,
       });
       expect(response.status, `${path}: ${JSON.stringify(response.payload)}`).toBe(202);
@@ -4009,7 +4024,7 @@ describeLive("HTTP API contract integration", () => {
       if (expectedEvent) {
         expect(eventNames, path).toContain(expectedEvent);
       }
-      adminProofs.push({ route: `POST ${path}`, actor: "founder-key", status: response.status, txHash, receiptStatus: receipt!.status });
+      adminProofs.push({ route: `POST ${path}`, actor: apiKey, status: response.status, txHash, receiptStatus: receipt!.status });
       return { txHash, receipt: receipt!, eventNames };
     };
 
@@ -4109,7 +4124,7 @@ describeLive("HTTP API contract integration", () => {
           "control-plane-admin-writes": {
             network: "local fork",
             routes: adminProofs.map((proof) => proof.route),
-            actors: ["founder-key"],
+            actors: ["control-plane-proof-a-key", "control-plane-proof-b-key"],
             executionResult: "proven working",
             evidence: adminProofs,
             finalClassification: "proven working",
