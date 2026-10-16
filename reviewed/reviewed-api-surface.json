@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-13T18:48:59.016Z",
+  "generatedAt": "2026-10-15T19:15:05.639Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
