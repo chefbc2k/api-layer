@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.388] - 2026-10-16
+
+### Changed
+
+- **Base Sepolia Promotion Readiness Rechecked:** Aligned the isolated promotion branch with current local production and refreshed the persistent proof artifact from the canonical environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
+- **Live Proofs Remain Safely Blocked:** The gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
+
+### Verified
+
+- **Promotion Guard And Coverage Gates Passed:** The promotion runner suite passed `6/6`. Canonical code generation and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
+
 ## [0.1.387] - 2026-10-15
 
 ### Changed
