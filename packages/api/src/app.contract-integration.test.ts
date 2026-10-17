@@ -3985,7 +3985,7 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
-  it("proves eight control-plane admin writes through mounted HTTP routes on a local fork", async (ctx) => {
+  it("proves the selected control-plane gap batch through mounted HTTP routes on a local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
@@ -4000,10 +4000,11 @@ describeLive("HTTP API contract integration", () => {
       body: Record<string, unknown>,
       contract: Contract,
       expectedEvent?: string,
+      apiKeyOverride?: string,
     ) => {
-      const apiKey = adminProofs.length < 4
+      const apiKey = apiKeyOverride ?? (adminProofs.length < 4
         ? "control-plane-proof-a-key"
-        : "control-plane-proof-b-key";
+        : "control-plane-proof-b-key");
       const response = await apiCall(port, "POST", path, {
         apiKey,
         body,
@@ -4026,7 +4027,10 @@ describeLive("HTTP API contract integration", () => {
         expect(eventNames, path).toContain(expectedEvent);
       }
       adminProofs.push({ route: `POST ${path}`, actor: apiKey, status: response.status, txHash, receiptStatus: receipt!.status });
-      return { txHash, receipt: receipt!, eventNames };
+      const result = response.payload && typeof response.payload === "object"
+        ? (response.payload as Record<string, unknown>).result
+        : undefined;
+      return { txHash, receipt: receipt!, eventNames, result };
     };
 
     const trustedInitContract = Wallet.createRandom().address;
