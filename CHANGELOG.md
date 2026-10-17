@@ -2,29 +2,41 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.388] - 2026-10-16
+## [0.1.389] - 2026-10-17
 
 ### Changed
 
-- **Base Sepolia Promotion Readiness Rechecked:** Aligned the isolated promotion branch with current local production and refreshed the persistent proof artifact from the canonical environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
-- **Live Proofs Remain Safely Blocked:** The gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed it contains only the verified write-invariant metadata revalidation, with no changes to mounted write routes, required actors, API-key authorization, signer binding, role lifecycle behavior, validation, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
 
 ### Verified
 
-- **Promotion Guard And Coverage Gates Passed:** The promotion runner suite passed `6/6`. Canonical code generation and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
-- **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full code generation and workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
-## [0.1.387] - 2026-10-15
+## [0.1.388] - 2026-10-17
 
 ### Changed
 
-- **Base Sepolia Promotion Readiness Rechecked:** Refreshed the persistent promotion artifact from the canonical environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
-- **Live Proofs Remain Safely Blocked:** The gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, or transaction submission. Destructive protocol-admin writes remain excluded, and the roadmap records the exact blockers and next safe step.
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the prior invariant audit merged. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
 
 ### Verified
 
-- **Promotion Guard And Coverage Gates Passed:** The promotion runner unit suite passed `6/6`. Canonical code generation and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
-- **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` is classified `blocked by setup/state` with empty transaction, block, state-delta, and decoded-event evidence. This blocked workstream is not merged into `master`.
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.387] - 2026-10-16
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest actor-evidence update. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.386] - 2026-10-16
 
