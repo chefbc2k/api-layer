@@ -2,6 +2,13 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API Assurance Gap Completion — 2026-10-18
+
+- Consolidated the preserved `codex/autosave-20261018-api-assurance-gap-completion-2` passenger into production with a no-fast-forward merge after validating the prospective merged tree. The slice adds mounted-route negative-path coverage for `RightsFacet.addCollaborator` and `RightsFacet.removeCollaborator`, including actor authorization, ABI-native decoding, contract preflight rejection, transaction population, and persistence-before-submission ordering.
+- Regenerated `output/api-test-gap-report.json` and `.md` plus the JSON and Markdown builder plan. Classifications advance from `608` to `610` ready and from `66` to `64` needing fixtures; the `36` unsafe-live items remain unchanged, total non-ready inventory falls from `102` to `100`, and the next plan selects `40` items. Unit attribution rises to `685`, workflow attribution to `367`, and negative-path attribution to `369`.
+- Verification passed: the focused selected-gap matrix (`36/36`), `pnpm run coverage:check` (`492` wrapper functions, `218` event occurrences, `492` HTTP methods, `260/260` write invariants), `pnpm test` (`1,909` active tests across `152` files with `40` gated skips), both report generators, and `pnpm run test:indexer:assurance` (`267` active, `6` skipped). One isolated indexer case exceeded its five-second timeout during the first gate; the exact case and the complete indexer gate passed immediately on rerun.
+- **Merge decision:** the collaborator fixture slice and regenerated assurance state are verified for production. Remaining fixture and live-safety work stays explicitly tracked by the generated plan.
+
 ## Base Sepolia Promotion Automation Run — 2026-10-17
 
 - Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree, fetched `origin`, and merged current local production `master` `f82e6d0` as `be3d230`, preserving the 2026-10-17 actor and write-invariant evidence. Remote production remains `9240b8b`; the unrelated dirty primary checkout was left untouched.

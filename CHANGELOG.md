@@ -2,17 +2,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.390] - 2026-10-17
+## [0.1.390] - 2026-10-18
 
 ### Changed
 
-- **Base Sepolia Promotion Readiness Rechecked:** Merged current local production into the isolated promotion branch and refreshed the persistent proof artifact from the canonical environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
-- **Live Proofs Remain Safely Blocked:** The gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
+- **Rights Collaborator Write Fixtures Completed:** Added mounted-route negative-path coverage for `RightsFacet.addCollaborator` and `RightsFacet.removeCollaborator`, including actor authorization, ABI decoding, contract preflight rejection, transaction population, and persistence-before-submission behavior.
+- **Persistent Assurance State Advanced:** Regenerated the API gap report and builder plan. Ready items increase from `608` to `610`, fixture gaps fall from `66` to `64`, and the next plan contains `40` items; total non-ready inventory falls from `102` to `100` while the `36` live-safety items remain unchanged.
 
 ### Verified
 
-- **Promotion Guard And Coverage Gates Passed:** The promotion runner suite passed `6/6`; explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
-- **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
+- **Focused And Repository Suites Passed:** The selected-gap write matrix passed `36/36`, and `pnpm test` passed `1,909` active tests across `152` files with `40` intentionally gated skips.
+- **Coverage And Indexer Gates Passed:** `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. The canonical indexer assurance retry passed `267` active tests with `6` gated PostgreSQL skips after one isolated five-second timeout passed immediately in focused and full-gate reruns.
 
 ## [0.1.389] - 2026-10-17
 
