@@ -201,8 +201,18 @@ describeLocalFork("red-team local-fork probes", () => {
       nonce: transaction.nonce,
     });
     const replacementReceipt = await replacement.wait();
-    expect(replacementReceipt?.blockNumber).toBe(receipt!.blockNumber);
-    expect(replacementReceipt?.blockHash).not.toBe(receipt!.blockHash);
+    expect(replacementReceipt).not.toBeNull();
+    expect(replacement.hash).not.toBe(transaction.hash);
+
+    const replacementHead = Number(BigInt(await provider.send("eth_blockNumber", []) as string));
+    if (replacementHead < receipt!.blockNumber) {
+      await provider.send("anvil_mine", [ethers.toQuantity(receipt!.blockNumber - replacementHead)]);
+    }
+    const canonicalReplacementBlock = await provider.send("eth_getBlockByNumber", [
+      ethers.toQuantity(receipt!.blockNumber),
+      false,
+    ]) as { hash: string } | null;
+    expect(canonicalReplacementBlock?.hash).not.toBe(receipt!.blockHash);
 
     const findings = inspectTransactionObservation({
       expectedTransactionHash: transaction.hash,
@@ -213,7 +223,7 @@ describeLocalFork("red-team local-fork probes", () => {
         status: receipt!.status ?? 0,
         eventKeys: [],
       },
-      canonicalBlockHash: replacementReceipt?.blockHash ?? null,
+      canonicalBlockHash: canonicalReplacementBlock?.hash ?? null,
       observedHead: Number(BigInt(await provider.send("eth_blockNumber", []) as string)),
       requiredConfirmations: 1,
       expectedEventKeys: [],

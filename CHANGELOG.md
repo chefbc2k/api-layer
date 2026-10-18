@@ -2,7 +2,7 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.391] - 2026-10-16
+## [0.1.393] - 2026-10-16
 
 ### Changed
 
@@ -17,6 +17,31 @@
 ### Remaining Issues
 
 - **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting and emits release evidence without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. Repair and redeploy vesting, provision treasury signers through a supported path, and add approval observability before rerunning unsynthetic proofs and merging.
+
+## [0.1.392] - 2026-10-18
+
+### Changed
+
+- **API-Key Lookup Fails Closed On Prototype Names:** Authentication now requires the requested API key to be an explicitly configured own property. Names such as `constructor`, `toString`, `valueOf`, `hasOwnProperty`, and `__proto__` can no longer resolve inherited object members as credential records.
+- **Signer Mapping Uses The Same Ownership Boundary:** Signer resolution now requires the signer ID to be owned by the parsed signer map. Unconfigured prototype names produce the intended missing-private-key rejection, while explicitly configured prototype-named signers continue to work.
+- **Adversarial Credential Corpus Expanded:** Added twelve API-key and signer-map confused-deputy regressions to both canonical red-team commands.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth and execution-context tests passed `121/121`; `pnpm run test:redteam` passed `129/129`; guarded `pnpm run redteam:local-fork` passed `173/173` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,922` active tests across `153` files with `40` intentionally gated skips, including the formerly aggregate-only `coverage-fs-patch` case (`4/4`). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.391] - 2026-10-17
+
+### Changed
+
+- **Replay Identity Covers Complete Transaction Intent:** Replay fingerprints now bind chain ID, target contract, signer address, full calldata, transaction value, nonce, and deadline. Canonical case and unsigned-decimal normalization close equivalent-encoding bypasses, while malformed addresses, calldata, and numeric domains fail closed.
+- **Stale-Receipt Fork Probe Uses Fresh Canonical State:** The local-fork reorg test now tolerates post-revert mining-height differences, advances to the original receipt height when required, and bypasses ethers block caching with a raw canonical block lookup before evaluating the stale receipt.
+
+### Verified
+
+- **Red-Team Gates Passed:** `pnpm run test:redteam` passed `117/117`; guarded `pnpm run redteam:local-fork` passed `161/161` across `11` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,904` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.390] - 2026-10-18
 
