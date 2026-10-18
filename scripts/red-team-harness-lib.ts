@@ -216,18 +216,41 @@ function canonicalize(value: unknown): unknown {
 export function replayFingerprint(input: {
   chainId: number;
   contract: string;
-  actor: string;
-  selector: string;
+  signerAddress: string;
+  calldata: string;
+  value?: string;
   nonce: string;
   deadline: string;
-  payload: unknown;
 }): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize({
-    ...input,
+  if (!Number.isSafeInteger(input.chainId) || input.chainId <= 0) {
+    throw new Error("replay fingerprint chainId must be a positive safe integer");
+  }
+  if (!/^0x[\da-fA-F]{40}$/u.test(input.contract)) {
+    throw new Error("replay fingerprint contract must be a canonical address");
+  }
+  if (!/^0x[\da-fA-F]{40}$/u.test(input.signerAddress)) {
+    throw new Error("replay fingerprint signerAddress must be a canonical address");
+  }
+  if (!/^0x(?:[\da-fA-F]{2})*$/u.test(input.calldata)) {
+    throw new Error("replay fingerprint calldata must contain complete hex bytes");
+  }
+
+  const normalizeUnsignedInteger = (field: string, value: string): string => {
+    if (!/^\d+$/u.test(value)) {
+      throw new Error(`replay fingerprint ${field} must be an unsigned decimal integer`);
+    }
+    return BigInt(value).toString();
+  };
+  const normalized = {
+    chainId: input.chainId,
     contract: input.contract.toLowerCase(),
-    actor: input.actor.toLowerCase(),
-    selector: input.selector.toLowerCase(),
-  }))).digest("hex");
+    signerAddress: input.signerAddress.toLowerCase(),
+    calldata: input.calldata.toLowerCase(),
+    value: normalizeUnsignedInteger("value", input.value ?? "0"),
+    nonce: normalizeUnsignedInteger("nonce", input.nonce),
+    deadline: normalizeUnsignedInteger("deadline", input.deadline),
+  };
+  return createHash("sha256").update(JSON.stringify(normalized)).digest("hex");
 }
 
 export class ReplayLedger {

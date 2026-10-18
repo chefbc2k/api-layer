@@ -97,24 +97,50 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
   const baseReplay = {
     chainId: 84532,
     contract: "0x00000000000000000000000000000000000000aa",
-    actor: "0x00000000000000000000000000000000000000bb",
-    selector: "0x12345678",
+    signerAddress: "0x00000000000000000000000000000000000000bb",
+    calldata: "0x12345678000000000000000000000000000000000000000000000000000000000000000c",
+    value: "500",
     nonce: "7",
     deadline: "1900000000",
-    payload: { tokenId: "12", price: "500" },
   };
 
-  it("rejects an exact replay while domain-separating nonce, actor, deadline, and chain", () => {
+  it("rejects equivalent-calldata replays while domain-separating transaction authority and intent", () => {
     const ledger = new ReplayLedger();
     const fingerprint = replayFingerprint(baseReplay);
 
     expect(ledger.consume(fingerprint)).toBe(true);
     expect(ledger.consume(fingerprint)).toBe(false);
+    expect(replayFingerprint({
+      ...baseReplay,
+      contract: baseReplay.contract.toUpperCase().replace("0X", "0x"),
+      signerAddress: baseReplay.signerAddress.toUpperCase().replace("0X", "0x"),
+      calldata: baseReplay.calldata.toUpperCase().replace("0X", "0x"),
+      value: "000500",
+      nonce: "0007",
+      deadline: "001900000000",
+    })).toBe(fingerprint);
     expect(replayFingerprint({ ...baseReplay, nonce: "8" })).not.toBe(fingerprint);
     expect(replayFingerprint({ ...baseReplay, deadline: "1900000001" })).not.toBe(fingerprint);
     expect(replayFingerprint({ ...baseReplay, chainId: 1 })).not.toBe(fingerprint);
-    expect(replayFingerprint({ ...baseReplay, actor: "0x00000000000000000000000000000000000000cc" })).not.toBe(fingerprint);
-    expect(replayFingerprint({ ...baseReplay, payload: { price: "500", tokenId: "12" } })).toBe(fingerprint);
+    expect(replayFingerprint({
+      ...baseReplay,
+      signerAddress: "0x00000000000000000000000000000000000000cc",
+    })).not.toBe(fingerprint);
+    expect(replayFingerprint({ ...baseReplay, contract: "0x00000000000000000000000000000000000000cc" }))
+      .not.toBe(fingerprint);
+    expect(replayFingerprint({ ...baseReplay, calldata: `${baseReplay.calldata.slice(0, -1)}d` }))
+      .not.toBe(fingerprint);
+    expect(replayFingerprint({ ...baseReplay, value: "501" })).not.toBe(fingerprint);
+  });
+
+  it("fails closed on malformed replay-fingerprint domains", () => {
+    expect(() => replayFingerprint({ ...baseReplay, chainId: 0 })).toThrow("positive safe integer");
+    expect(() => replayFingerprint({ ...baseReplay, contract: "0x1234" })).toThrow("canonical address");
+    expect(() => replayFingerprint({ ...baseReplay, signerAddress: "0x1234" })).toThrow("canonical address");
+    expect(() => replayFingerprint({ ...baseReplay, calldata: "0x123" })).toThrow("complete hex bytes");
+    expect(() => replayFingerprint({ ...baseReplay, value: "-1" })).toThrow("unsigned decimal integer");
+    expect(() => replayFingerprint({ ...baseReplay, nonce: "0x07" })).toThrow("unsigned decimal integer");
+    expect(() => replayFingerprint({ ...baseReplay, deadline: "tomorrow" })).toThrow("unsigned decimal integer");
   });
 
   it("detects double-spend balance creation and accepts explicit mint/burn accounting", () => {
