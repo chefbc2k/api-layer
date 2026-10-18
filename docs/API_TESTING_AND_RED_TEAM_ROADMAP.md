@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-18
+
+- Reused the isolated red-team worktree, retained the completed replay-domain hardening from the prior run, renamed the branch to `codex/red-team-harness-20261018`, and merged current local production `master` `7d9b982`. Fetched `origin/master` `9240b8b` remains an ancestor of local production, and the unrelated dirty primary checkout remained untouched.
+- Mutated API keys and signer IDs with JavaScript prototype property names (`constructor`, `toString`, `valueOf`, `hasOwnProperty`, and `__proto__`). The prior direct property lookups could resolve inherited object members as though they were configured credentials; authentication would return a non-auth object and signer resolution would bypass the intended missing-key failure before failing later in wallet construction.
+- Hardened both credential boundaries with own-property checks. Unconfigured prototype-named API keys now fail as `invalid x-api-key`, and unconfigured prototype-named signer IDs fail as `missing private key`; explicitly configured keys and signers using those names remain supported. Added a twelve-case adversarial suite to both canonical red-team commands.
+- Verification passed: focused auth/execution-context regressions (`121/121`), `pnpm run test:redteam` (`129/129`), guarded `pnpm run redteam:local-fork` (`173/173` across `12` files with all `6/6` deployed-fork probes active), and `pnpm test` (`1,922` active tests across `153` passing files with `40` gated skips). The previously aggregate-only `coverage-fs-patch` timeout did not recur (`4/4`). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** the API-key/signer-map confused-deputy boundary and retained replay-hardening slice are 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Red-Team Harness Automation Run — 2026-10-17
 
 - Reused the isolated red-team worktree, preserved the completed replay-hardening commits, renamed the branch to `codex/red-team-harness-20261017`, and incorporated current local production `master` `f82e6d0`; fetched `origin/master` `9240b8b` remains an ancestor of local production. The unrelated dirty primary checkout was left untouched.
