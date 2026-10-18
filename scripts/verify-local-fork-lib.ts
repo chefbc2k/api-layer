@@ -257,6 +257,29 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       maxAttempts: 2,
     },
     {
+      id: "control-plane-admin-proof",
+      description: "record exact-route receipts and readbacks for the selected control-plane admin batch",
+      command: "env",
+      args: [
+        `API_LAYER_CONTRACT_RECEIPT_ARTIFACT=${path.join(PROOF_DIR, "control-plane-admin-receipts.json")}`,
+        "API_LAYER_CONTROL_PLANE_PROOF_ARTIFACT=verify-control-plane-admin-output.json",
+        "pnpm",
+        "vitest",
+        "run",
+        "packages/api/src/app.contract-integration.test.ts",
+        "-t",
+        "proves the selected control-plane gap batch through mounted HTTP routes on a local fork",
+        "--maxWorkers",
+        "1",
+      ],
+      destructive: true,
+      // The route-evidence artifact is the stage's success contract. Clearing it
+      // before each attempt prevents a failed rerun from leaving stale gap proof.
+      artifactPath: "verify-control-plane-admin-output.json",
+      requiredArtifactSummary: "proven working",
+      maxAttempts: 2,
+    },
+    {
       id: "layer1-core-proof",
       description: "record core workflow transaction, receipt, event, and state evidence",
       command: "pnpm",
