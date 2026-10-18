@@ -53,6 +53,18 @@ const HTTP_API_TIMEOUT_MS = 45_000;
 const SAFE_READ_ATTEMPTS = 4;
 const TX_RECEIPT_POLL_ATTEMPTS = 240;
 const TX_RECEIPT_POLL_DELAY_MS = 250;
+const MULTISIG_STORAGE_POSITION = BigInt(id("speak.multisig.storage"));
+
+function storageWord(value: bigint | string): string {
+  return ethers.zeroPadValue(typeof value === "bigint" ? ethers.toBeHex(value) : value, 32);
+}
+
+function mappingValueSlot(key: string, slot: bigint): bigint {
+  return BigInt(ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+    ["bytes32", "uint256"],
+    [key, slot],
+  )));
+}
 
 function isLoopbackRpcUrl(rpcUrl: string): boolean {
   try {
@@ -689,6 +701,41 @@ describeLive("HTTP API contract integration", () => {
     }
 
     throw new Error(`unable to top up ${address} to ${minimumWei.toString()} wei; current balance ${currentBalance.toString()}`);
+  }
+
+  async function seedLocalForkMultiSigFixture() {
+    const adminSlot = MULTISIG_STORAGE_POSITION + 11n;
+    const currentAdmin = await provider.getStorage(diamondAddress, adminSlot);
+    if (BigInt(currentAdmin) !== 0n) {
+      return false;
+    }
+
+    const standardOperationType = id("STANDARD");
+    const transactionOperationType = id("TRANSACTION");
+    const operationConfigMappingSlot = MULTISIG_STORAGE_POSITION + 1n;
+    const validOperationTypeMappingSlot = MULTISIG_STORAGE_POSITION + 8n;
+    const writes: Array<readonly [bigint, string]> = [
+      [adminSlot, storageWord(founderAddress)],
+      [MULTISIG_STORAGE_POSITION + 14n, storageWord(2n)],
+      [MULTISIG_STORAGE_POSITION + 15n, storageWord(100n)],
+      [MULTISIG_STORAGE_POSITION + 16n, storageWord(1n)],
+    ];
+
+    for (const operationType of [standardOperationType, transactionOperationType]) {
+      writes.push([mappingValueSlot(operationType, validOperationTypeMappingSlot), storageWord(1n)]);
+      const configSlot = mappingValueSlot(operationType, operationConfigMappingSlot);
+      writes.push(
+        [configSlot, storageWord(2n)],
+        [configSlot + 1n, storageWord(10n)],
+        [configSlot + 2n, storageWord(1n)],
+      );
+    }
+
+    for (const [slot, value] of writes) {
+      await provider.send("anvil_setStorageAt", [diamondAddress, ethers.toBeHex(slot, 32), value]);
+    }
+    await provider.send("evm_mine", []);
+    return true;
   }
 
   async function skipWhenFundingBlocked(
@@ -4153,6 +4200,7 @@ describeLive("HTTP API contract integration", () => {
 
     const recoveryFixtureRole = id("BOARD_MEMBER_ROLE");
     const originalRecoveryFixtureConfig = await accessControl.getRoleConfig(recoveryFixtureRole);
+    const multiSigStorageSeeded = await seedLocalForkMultiSigFixture();
     const standardOperationType = id("STANDARD");
     const originalStandardOperationConfig = await multisigFacet.getOperationConfig(standardOperationType);
     const customOperationType = id(`CONTROL_PLANE_PROOF_${Date.now()}`);
@@ -4303,6 +4351,9 @@ describeLive("HTTP API contract integration", () => {
         reports: {
           "control-plane-admin-writes": {
             network: "local fork",
+            fixtures: {
+              multiSigStorageSeeded,
+            },
             routes: adminProofs.map((proof) => proof.route),
             actors: [...new Set(adminProofs.map((proof) => proof.actor))],
             executionResult: "proven working",
