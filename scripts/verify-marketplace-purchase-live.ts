@@ -58,6 +58,15 @@ const MIN_BUYER_NATIVE_BALANCE = ethers.parseEther("0.00005");
 const MIN_FALLBACK_CREATOR_NATIVE_BALANCE = ethers.parseEther("0.00025");
 const BUYER_GAS_BUFFER_NUMERATOR = 12n;
 const BUYER_GAS_BUFFER_DENOMINATOR = 10n;
+const WITHDRAWAL_DEADLINE_WINDOW_SECONDS = 15n * 60n;
+
+export function buildMarketplaceWithdrawalDeadline(latestBlockTimestamp: bigint | number | string): string {
+  const timestamp = BigInt(latestBlockTimestamp);
+  if (timestamp < 0n) {
+    throw new Error("marketplace withdrawal deadline requires a non-negative block timestamp");
+  }
+  return (timestamp + WITHDRAWAL_DEADLINE_WINDOW_SECONDS).toString();
+}
 
 async function apiCall(
   port: number,
@@ -476,6 +485,13 @@ type MarketplacePurchaseDetails = {
     status: number;
     payload: unknown;
     txHash: string;
+    mode?: "standard" | "deadline";
+    deadline?: string;
+    deadlineBaseBlock?: {
+      blockNumber: number;
+      blockTimestamp: string;
+      windowSeconds: string;
+    };
     receipt: {
       status: unknown;
       blockNumber: unknown;
@@ -944,6 +960,11 @@ async function main() {
     if (pendingBeforeWithdrawal <= 0n) {
       throw new Error(`marketplace purchase did not accrue seller payments: ${target.sellerAddress}`);
     }
+    const withdrawalDeadlineBaseBlock = await provider.getBlock("latest");
+    if (!withdrawalDeadlineBaseBlock) {
+      throw new Error("unable to read the latest block for the marketplace withdrawal deadline");
+    }
+    const withdrawalDeadline = buildMarketplaceWithdrawalDeadline(withdrawalDeadlineBaseBlock.timestamp);
     const withdrawalResponse = await apiCall(
       port,
       "POST",
@@ -951,7 +972,7 @@ async function main() {
       {
         apiKey: withdrawalApiKey,
         walletAddress: target.sellerAddress,
-        body: {},
+        body: { deadline: withdrawalDeadline },
       },
     );
     if (withdrawalResponse.status !== 202) {
@@ -1003,6 +1024,13 @@ async function main() {
           status: withdrawalResponse.status,
           payload: withdrawalResponse.payload,
           txHash: withdrawalTxHash,
+          mode: "deadline",
+          deadline: withdrawalDeadline,
+          deadlineBaseBlock: {
+            blockNumber: withdrawalDeadlineBaseBlock.number,
+            blockTimestamp: withdrawalDeadlineBaseBlock.timestamp.toString(),
+            windowSeconds: WITHDRAWAL_DEADLINE_WINDOW_SECONDS.toString(),
+          },
           receipt: {
             status: withdrawalReceipt.status,
             blockNumber: withdrawalReceipt.blockNumber,
