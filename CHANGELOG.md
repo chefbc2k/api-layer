@@ -2,6 +2,23 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.390] - 2026-10-17
+
+### Changed
+
+- **Deadline Marketplace Withdrawal Proof:** The marketplace settlement verifier now derives a fork-head-relative deadline and exercises `PaymentFacet.withdrawPaymentsWithDeadline` through the mounted withdrawal workflow. Receipt `0xbea433f9367bcf358ee847bb91e4c83d7f2268f2ef9849b80a6b5cb81acf50ee` cleared the seller's pending USDC balance from `915` to `0`; the companion purchase receipt is `0xb9b7916fcbb393fc3cc75473c2122f3fe7b31a693b237ed4e49262d6b4caa5c7`.
+- **Durable Producer Attribution:** Direct `verify-marketplace-purchase-output.json` ingestion now records `scripts/verify-marketplace-purchase-live.ts` as its producer, preserving complete artifact provenance whether the proof runs standalone or through the aggregate local-fork runner.
+- **Receipt Coverage Advances:** The persistent receipt artifact now contains `550` receipts across `108/260` write methods, `845` decoded raw events, and `555` PostgreSQL projection rows. The new withdrawal event projects into both `payment_flows` and `payment_withdrawals`, and receipt replay is idempotent.
+
+### Verified
+
+- **Focused And Indexer Gates Passed:** Marketplace/API/local-fork focused tests passed `44/44`; indexer assurance passed `268` active tests; disposable PostgreSQL assurance passed `6/6`; gap-report, planner, and local-fork runner suites passed `8/8`, `12/12`, and `14/14` respectively.
+- **Quality And Surface Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Blocked
+
+- **End-To-End Write Completion Remains Incomplete:** The prompt's `95` count is stale. The canonical blocker moved from `153` to `152`; no merge is permitted until all remaining reachable writes and the `VoiceAssetFacet.registerVoiceAssetForCaller` diamond self-call blocker are resolved.
+
 ## [0.1.389] - 2026-10-14
 
 ### Changed

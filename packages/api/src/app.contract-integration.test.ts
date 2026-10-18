@@ -633,11 +633,11 @@ describeLive("HTTP API contract integration", () => {
 
   async function ensureNativeBalance(address: string, minimumWei: bigint) {
     if (isLoopbackRpcUrl(activeRpcUrl)) {
-      const currentBalance = await provider.getBalance(address);
       const targetBalance = (minimumWei > ethers.parseEther("0.02") ? minimumWei : ethers.parseEther("0.02")) + ethers.parseEther("0.005");
-      if (currentBalance < targetBalance) {
-        await provider.send("anvil_setBalance", [address, ethers.toQuantity(targetBalance)]);
-      }
+      // Randomized fixture actors do not exist in the upstream fork state. Seed
+      // them directly so local proof runs never block on an unnecessary remote
+      // account lookup before Anvil can materialize the account locally.
+      await provider.send("anvil_setBalance", [address, ethers.toQuantity(targetBalance)]);
       return;
     }
 
@@ -783,6 +783,30 @@ describeLive("HTTP API contract integration", () => {
       },
       "control-plane-proof-b-key": {
         label: "control-plane-proof-b",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "control-plane-proof-c-key": {
+        label: "control-plane-proof-c",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "control-plane-proof-d-key": {
+        label: "control-plane-proof-d",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "control-plane-proof-e-key": {
+        label: "control-plane-proof-e",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
+      "control-plane-proof-f-key": {
+        label: "control-plane-proof-f",
         signerId: "founder",
         roles: ["service"],
         allowGasless: false,
@@ -3992,8 +4016,17 @@ describeLive("HTTP API contract integration", () => {
     }
     if (await skipWhenFundingBlocked(ctx, "control-plane admin write proof", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.00001") },
     ])) return;
 
+    const proofApiKeys = [
+      "control-plane-proof-a-key",
+      "control-plane-proof-b-key",
+      "control-plane-proof-c-key",
+      "control-plane-proof-d-key",
+      "control-plane-proof-e-key",
+      "control-plane-proof-f-key",
+    ] as const;
     const adminProofs: Array<{ route: string; actor: string; status: number; txHash: string; receiptStatus: number }> = [];
     const submitAdminWrite = async (
       path: string,
@@ -4002,9 +4035,7 @@ describeLive("HTTP API contract integration", () => {
       expectedEvent?: string,
       apiKeyOverride?: string,
     ) => {
-      const apiKey = apiKeyOverride ?? (adminProofs.length < 4
-        ? "control-plane-proof-a-key"
-        : "control-plane-proof-b-key");
+      const apiKey = apiKeyOverride ?? proofApiKeys[adminProofs.length % proofApiKeys.length]!;
       const response = await apiCall(port, "POST", path, {
         apiKey,
         body,
@@ -4120,6 +4151,150 @@ describeLive("HTTP API contract integration", () => {
     expect(upgradeStatus.initialized).toBe(true);
     expect(upgradeStatus.enforced).toBe(true);
 
+    const recoveryFixtureRole = id("BOARD_MEMBER_ROLE");
+    const originalRecoveryFixtureConfig = await accessControl.getRoleConfig(recoveryFixtureRole);
+    const standardOperationType = id("STANDARD");
+    const originalStandardOperationConfig = await multisigFacet.getOperationConfig(standardOperationType);
+    const customOperationType = id(`CONTROL_PLANE_PROOF_${Date.now()}`);
+    let recoveryFlagChanged = false;
+    let operatorAdded = false;
+    let standardOperationConfigChanged = false;
+
+    try {
+      await submitAdminWrite(
+        "/v1/access-control/admin/set-recovery-active",
+        { role: recoveryFixtureRole, active: true },
+        accessControl as unknown as Contract,
+      );
+      recoveryFlagChanged = true;
+      expect(roleConfigToObject(await accessControl.getRoleConfig(recoveryFixtureRole))).toMatchObject({ recoveryActive: true });
+
+      await submitAdminWrite(
+        "/v1/access-control/admin/emergency-force-add",
+        { role: recoveryFixtureRole, account: licensingOwnerAddress },
+        accessControl as unknown as Contract,
+      );
+      expect(await accessControl.hasRole(recoveryFixtureRole, licensingOwnerAddress)).toBe(true);
+
+      const latestBlock = await provider.getBlock("latest");
+      if (!latestBlock) {
+        throw new Error("unable to read the local-fork head for founder sunset scheduling");
+      }
+      await submitAdminWrite(
+        "/v1/access-control/admin/schedule-founder-sunset",
+        { executeAt: String(latestBlock.timestamp + 31_536_000) },
+        accessControl as unknown as Contract,
+        "FounderSunsetScheduled",
+      );
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/add-operation-type",
+        { operationType: customOperationType },
+        multisigFacet,
+      );
+      expect(multisigOperationConfigToObject(await multisigFacet.getOperationConfig(customOperationType))).toMatchObject({
+        minApprovals: expect.any(String),
+        maxApprovals: "10",
+        allowsCancellation: true,
+      });
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/set-operation-config",
+        {
+          operationType: standardOperationType,
+          config: {
+            minApprovals: "2",
+            maxApprovals: "2",
+            allowsCancellation: true,
+          },
+        },
+        multisigFacet,
+      );
+      standardOperationConfigChanged = true;
+      expect(multisigOperationConfigToObject(await multisigFacet.getOperationConfig(standardOperationType))).toEqual({
+        minApprovals: "2",
+        maxApprovals: "2",
+        allowsCancellation: true,
+      });
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/add-operator",
+        { operator: outsiderWallet.address },
+        multisigFacet,
+      );
+      operatorAdded = true;
+      expect(await multisigFacet.isOperator(outsiderWallet.address)).toBe(true);
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/submit-transaction",
+        { recipient: outsiderWallet.address, value: "0", data: "0x" },
+        multisigFacet,
+        "OperationProposed",
+      );
+
+      const operationAction = multisigFacet.interface.encodeFunctionData("muSetPaused", [false]);
+      const proposedOperation = await submitAdminWrite(
+        "/v1/multisig/admin/propose-operation",
+        { actions: [operationAction], requiredApprovals: "2" },
+        multisigFacet,
+        "OperationProposed",
+      );
+      const operationId = String(proposedOperation.result);
+      expect(operationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/approve-operation",
+        { operationId },
+        multisigFacet,
+        "OperationApproved",
+      );
+      await submitAdminWrite(
+        "/v1/multisig/admin/approve-operation",
+        { operationId },
+        multisigFacet,
+        "OperationApproved",
+        "outsider-key",
+      );
+      expect((await multisigFacet.canExecuteOperation(operationId))[0]).toBe(true);
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/execute-operation",
+        { operationId },
+        multisigFacet,
+        "OperationExecuted",
+      );
+      expect((await multisigFacet.getOperation(operationId))[5]).toBe(true);
+
+      await submitAdminWrite(
+        "/v1/multisig/admin/mu-set-paused",
+        { paused: false },
+        multisigFacet,
+      );
+    } finally {
+      if (recoveryFlagChanged) {
+        const receipt = await (await accessControl.connect(founderWallet).setRecoveryActive(
+          recoveryFixtureRole,
+          Boolean(originalRecoveryFixtureConfig.recoveryActive),
+        )).wait();
+        expect(receipt?.status).toBe(1);
+      }
+      if (operatorAdded && await multisigFacet.isOperator(outsiderWallet.address)) {
+        const receipt = await (await multisigFacet.connect(founderWallet).removeOperator(outsiderWallet.address)).wait();
+        expect(receipt?.status).toBe(1);
+      }
+      if (standardOperationConfigChanged) {
+        const receipt = await (await multisigFacet.connect(founderWallet).setOperationConfig(
+          standardOperationType,
+          {
+            minApprovals: originalStandardOperationConfig.minApprovals,
+            maxApprovals: originalStandardOperationConfig.maxApprovals,
+            allowsCancellation: originalStandardOperationConfig.allowsCancellation,
+          },
+        )).wait();
+        expect(receipt?.status).toBe(1);
+      }
+    }
+
     const proofArtifactPath = process.env.API_LAYER_CONTROL_PLANE_PROOF_ARTIFACT;
     if (proofArtifactPath) {
       await writeFile(path.resolve(proofArtifactPath), `${JSON.stringify({
@@ -4129,7 +4304,7 @@ describeLive("HTTP API contract integration", () => {
           "control-plane-admin-writes": {
             network: "local fork",
             routes: adminProofs.map((proof) => proof.route),
-            actors: ["control-plane-proof-a-key", "control-plane-proof-b-key"],
+            actors: [...new Set(adminProofs.map((proof) => proof.actor))],
             executionResult: "proven working",
             evidence: adminProofs,
             finalClassification: "proven working",

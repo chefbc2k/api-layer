@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-17T08:01:18.168Z`
+Generated: `2026-10-18T03:13:42.879Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -28,9 +28,9 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | reviewedApiSurface | 709 |
 | unit | 710 |
 | workflow | 428 |
-| localFork | 119 |
+| localFork | 121 |
 | baseSepolia | 60 |
-| negativePath | 427 |
+| negativePath | 429 |
 | economic | 175 |
 | redTeam | 230 |
 | indexer | 218 |
@@ -43,7 +43,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 ## AccessControlFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `2.7/8`.
+Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `2.73/8`.
 
 ### Functions
 
@@ -82,7 +82,7 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 | `AccessControlFacet.AccessAttempt` | yes | — | — | yes | indexer 3/8 | ready |
 | `AccessControlFacet.DAOMemberRoleGranted` | yes | — | — | yes | indexer 3/8 | ready |
 | `AccessControlFacet.FounderSunsetExecuted` | yes | — | — | yes | indexer 3/8 | ready |
-| `AccessControlFacet.FounderSunsetScheduled` | yes | — | — | yes | indexer 2/8 | ready |
+| `AccessControlFacet.FounderSunsetScheduled` | yes | — | — | yes | indexer 3/8 | ready |
 | `AccessControlFacet.GovernanceParticipantRoleGranted` | yes | — | — | yes | indexer 2/8 | ready |
 | `AccessControlFacet.MarketplacePurchaserRoleGranted` | yes | — | — | yes | indexer 2/8 | ready |
 | `AccessControlFacet.MarketplaceSellerRoleGranted` | yes | — | — | yes | indexer 2/8 | ready |
@@ -487,7 +487,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## MultiSigFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `3.08/8`.
+Facet classification: **unsafe on live network**. Proof depth spans `live` to `indexer` with an average score of `3.13/8`.
 
 ### Functions
 
@@ -501,7 +501,7 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 | `execute` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | unsafe on live network |
 | `executeOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
 | `getOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `getOperationConfig` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
+| `getOperationConfig` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `getOperationStatus` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `hasApprovedOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOperator` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
@@ -554,7 +554,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## PaymentFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.45/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.48/8`.
 
 ### Functions
 
@@ -598,7 +598,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `updateTreasuryAddress` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `updateUnionTreasuryAddress` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `withdrawPayments` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
-| `withdrawPaymentsWithDeadline` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `withdrawPaymentsWithDeadline` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 
 ### Events
 
@@ -619,7 +619,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `PaymentFacet.PaymentDistributed` | yes | yes | — | yes | indexer 6/8 | ready |
 | `PaymentFacet.TimewaveGiftCreated` | yes | — | — | yes | indexer 2/8 | ready |
 | `PaymentFacet.TreasuryAddressUpdated` | yes | — | — | yes | indexer 2/8 | ready |
-| `PaymentFacet.USDCPaymentWithdrawn` | yes | — | — | yes | indexer 5/8 | ready |
+| `PaymentFacet.USDCPaymentWithdrawn` | yes | yes | — | yes | indexer 6/8 | ready |
 | `PaymentFacet.UnionTreasuryAddressUpdated` | yes | — | — | yes | indexer 2/8 | ready |
 | `PaymentFacet.UsdcTokenUpdated` | yes | — | — | yes | indexer 2/8 | ready |
 | `PaymentFacet.WithdrawalLimitUpdated` | yes | — | — | yes | indexer 2/8 | ready |

@@ -268,12 +268,14 @@ export function buildLocalForkProofPlan(): ProofStage[] {
         "run",
         "packages/api/src/app.contract-integration.test.ts",
         "-t",
-        "proves eight control-plane admin writes through mounted HTTP routes on a local fork",
+        "proves the selected control-plane gap batch through mounted HTTP routes on a local fork",
         "--maxWorkers",
         "1",
       ],
       destructive: true,
-      artifactPath: path.join(PROOF_DIR, "control-plane-admin-receipts.json"),
+      // The route-evidence artifact is the stage's success contract. Clearing it
+      // before each attempt prevents a failed rerun from leaving stale gap proof.
+      artifactPath: "verify-control-plane-admin-output.json",
       requiredArtifactSummary: "proven working",
       maxAttempts: 2,
     },

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   advanceLocalForkPastMarketplaceTradingLock,
+  buildMarketplaceWithdrawalDeadline,
   buildMarketplacePurchaseVerifyOutput,
   buildBlockedFundingOutput,
   buildBlockedPurchaseOutput,
@@ -11,6 +12,13 @@ import {
 } from "./verify-marketplace-purchase-live.js";
 
 describe("verify marketplace purchase live target selection", () => {
+  it("sets the marketplace withdrawal deadline fifteen minutes past the fork head", () => {
+    expect(buildMarketplaceWithdrawalDeadline(1_800_000_000n)).toBe("1800000900");
+    expect(() => buildMarketplaceWithdrawalDeadline(-1n)).toThrow(
+      "marketplace withdrawal deadline requires a non-negative block timestamp",
+    );
+  });
+
   it("uses the aged fixture only when setup marked it purchase-ready", () => {
     expect(selectMarketplacePurchaseTarget({
       tokenId: "11",
@@ -196,6 +204,13 @@ describe("verify marketplace purchase live target selection", () => {
             },
           },
           txHash: "0xwithdraw",
+          mode: "deadline",
+          deadline: "1800000900",
+          deadlineBaseBlock: {
+            blockNumber: 100,
+            blockTimestamp: "1800000000",
+            windowSeconds: "900",
+          },
           receipt: {
             status: 1,
             blockNumber: 101,
@@ -244,6 +259,8 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.reports["marketplace-purchase"].evidence).toHaveLength(6);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
+      mode: "deadline",
+      deadline: "1800000900",
       pendingBefore: "915",
       pendingAfter: "0",
     });

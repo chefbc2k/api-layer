@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T08:01:18.168Z",
+  "generatedAt": "2026-10-18T03:13:42.879Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -193,9 +193,9 @@
       "reviewedApiSurface": 709,
       "unit": 710,
       "workflow": 428,
-      "localFork": 119,
+      "localFork": 121,
       "baseSepolia": 60,
-      "negativePath": 427,
+      "negativePath": 429,
       "economic": 175,
       "redTeam": 230,
       "indexer": 218
@@ -228,7 +228,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.7,
+          "averageScore": 2.73,
           "maximumScore": 8
         }
       },
@@ -391,12 +391,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -1367,12 +1369,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -1608,12 +1612,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -1875,14 +1881,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -1891,10 +1897,13 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [
@@ -14069,9 +14078,9 @@
           "needs indexer proof": 0
         },
         "proofDepth": {
-          "minimumLevel": "unit",
+          "minimumLevel": "live",
           "maximumLevel": "indexer",
-          "averageScore": 3.08,
+          "averageScore": 3.13,
           "maximumScore": 8
         }
       },
@@ -14116,12 +14125,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -14170,6 +14181,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -14224,6 +14236,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
             ],
@@ -14477,6 +14490,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
             ],
@@ -14575,14 +14589,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "adversarial",
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -14594,7 +14608,9 @@
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -14816,6 +14832,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -14870,6 +14887,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts"
             ],
@@ -14929,6 +14947,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/multisig-command-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -14983,12 +15002,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -15039,6 +15060,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -16418,7 +16440,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.45,
+          "averageScore": 3.48,
           "maximumScore": 8
         }
       },
@@ -18745,7 +18767,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
@@ -18754,13 +18776,11 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -18779,7 +18799,14 @@
             ],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "PaymentFacet.withdrawPaymentsWithDeadline",
+                "route": "POST /v1/marketplace/commands/withdraw-payments-with-deadline",
+                "network": "local-fork"
+              }
+            ]
           }
         }
       ],
@@ -19602,7 +19629,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
@@ -19611,13 +19638,11 @@
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -19639,7 +19664,14 @@
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
             ],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-marketplace-purchase-output.json",
+                "domain": "marketplace-purchase",
+                "route": "POST /v1/marketplace/events/usdcpayment-withdrawn/query",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {
@@ -21534,6 +21566,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
@@ -21542,6 +21575,7 @@
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -21592,12 +21626,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -21950,12 +21986,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -22006,12 +22044,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -22062,12 +22102,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.test.ts",
               "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
             ],
             "economicTests": [],
@@ -33081,6 +33123,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
               "packages/api/src/shared/execution-context.test.ts",
@@ -33168,6 +33211,7 @@
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/app.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
               "packages/api/src/shared/execution-context.test.ts",

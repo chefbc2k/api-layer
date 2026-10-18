@@ -52,6 +52,7 @@ export const defaultReceiptProofArtifactProducers: Record<string, string> = {
   "layer1-completion.json": "scripts/verify-layer1-completion.ts",
   "layer1-remaining.json": "scripts/verify-layer1-remaining.ts",
   "marketplace-purchase.json": "scripts/verify-marketplace-purchase-live.ts",
+  "verify-marketplace-purchase-output.json": "scripts/verify-marketplace-purchase-live.ts",
   "governance.json": "scripts/verify-governance-workflows.ts",
 };
 
