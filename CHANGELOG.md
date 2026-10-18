@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.391] - 2026-10-18
+
+### Verified
+
+- **Local-Fork Guards And Focused Regressions Passed:** Revalidated the current production runner on an isolated branch and worktree. The resolver/runner/marketplace slice passed `134/134`, including `14/14` runner lock, live-safety, checkpoint, retry, artifact-cleanup, and structured-gap tests. Explicit surface coverage passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Partial Disposable-Fork Evidence Remained Safe:** A fresh runner-started fork on loopback port `8549` kept both live acknowledgements disabled and checkpointed destructive stages. Inventory generation, layer-one core/completion, governance, and receipt indexing passed; governance produced proposal and vote receipts, and the isolated indexer stage proved `12` receipts, `21` raw events, and `20` projection rows.
+
+### Blocked
+
+- **Full Local-Fork Promotion Withheld:** Upstream Alchemy storage timeouts prevented fixture provisioning, one WhisperBlock contract case timed out after the retried HTTP stage reached `27/28`, and a later fixture-wallet funding attempt encountered `nonce too low`. Marketplace and safe-read stages then failed closed because the fixture artifact did not exist. The aggregate report contains five runner gaps and status `failed`; partial generated evidence was restored, and nothing was merged into `master`.
+- **Retry Requirement:** Re-run on a fresh isolated fork with a healthy upstream and uncontended fixture-funding wallet. Merge only after fixture setup, all `28/28` HTTP contract tests, remaining layer-one routes, marketplace purchase, exhaustive safe reads, and receipt/indexer proof pass together.
+
 ## [0.1.390] - 2026-10-18
 
 ### Changed
