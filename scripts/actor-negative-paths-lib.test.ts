@@ -11,6 +11,7 @@ import {
   type ApiSurfaceFile,
   type MethodPolicyFile,
 } from "./actor-negative-paths-lib.js";
+import { renderActorNegativePathReportMarkdown } from "./generate-actor-negative-path-report.js";
 import type { ReviewedWriteInvariantFile } from "./write-invariants-lib.js";
 
 const policy = policyJson as MethodPolicyFile;
@@ -34,6 +35,14 @@ describe("actor negative-path coverage", () => {
     );
     expect(report.excludedAbiWrites).toEqual([]);
     expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(260);
+  });
+
+  it("renders the mounted-write summary from the report instead of a stale exclusion claim", () => {
+    const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
+    const markdown = renderActorNegativePathReportMarkdown(report);
+
+    expect(markdown).toContain("All 260 ABI write methods are mounted on the reviewed HTTP surface.");
+    expect(markdown).not.toContain("legacy proposal overload remains ABI-only");
   });
 
   it("records every actor-scoped denial at the admin API boundary", () => {
