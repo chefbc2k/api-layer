@@ -1,3 +1,4 @@
+import { Interface } from "ethers";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -109,6 +110,9 @@ describe("marketplace purchase workflow routes", () => {
   });
 
   it("returns the structured withdraw-marketplace-payments workflow result over the router path", async () => {
+    const paymentTokenInterface = new Interface(["function balanceOf(address account) view returns (uint256)"]);
+    const balanceReads = [1000n, 10n, 875n, 135n];
+    let balanceIndex = 0;
     mocks.createMarketplacePrimitiveService.mockReturnValue({
       getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
       isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
@@ -140,8 +144,15 @@ describe("marketplace purchase workflow routes", () => {
 
     const router = createWorkflowRouter({
       apiKeys: { "test-key": { apiKey: "test-key", label: "test", roles: ["service"], allowGasless: false } },
+      addressBook: {
+        toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
+      },
       providerRouter: {
-        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => work({
+        withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
+          call: () => Promise<string>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>) => work({
+          call: vi.fn(async () => paymentTokenInterface.encodeFunctionResult("balanceOf", [balanceReads[balanceIndex++]!])),
           getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1802 })),
         })),
       },
@@ -166,6 +177,11 @@ describe("marketplace purchase workflow routes", () => {
         txHash: "0xwithdraw-receipt",
         eventCount: 1,
         mode: "standard",
+        economics: {
+          custody: { delta: "-125" },
+          payee: { delta: "125" },
+          conservation: "0",
+        },
       },
       summary: {
         payee: "0x00000000000000000000000000000000000000aa",

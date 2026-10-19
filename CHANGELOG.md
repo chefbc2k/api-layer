@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.393] - 2026-10-16
+
+### Changed
+
+- **Economic Evidence Revalidated On Current Production:** Reconciled the economic-invariants branch with local production `master` and retained balance/state-delta assertions for escrow release, marketplace withdrawal and payment splitting, reward claims, vesting release/revoke, burn/mint/supply, staking/reward-pool custody, treasury movement, and emergency withdrawal, including rounding, repeat calls, failed calls, and partial-state safety.
+- **Fork Isolation Prevents Cross-Scenario Contamination:** A combined fork attempt became invalid after provider timeouts and shared-state failures. Rebootstrapping every scenario on its own fork produced clean, bounded evidence for all seven scenarios, so the failed batch is not treated as a protocol regression or successful proof.
+
+### Verified
+
+- **Economic And Repository Suites Passed:** The deterministic economic slice passed `143/143` across `17` files. Marketplace withdrawal, payment splits/treasury movement, burn/mint/supply, funded reward claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics each passed `1/1` on separately bootstrapped Base Sepolia forks. The full suite passed `1,932` active tests across `155` files with `47` gated skips.
+- **Required Quality Gates Passed:** Ordered TypeScript, lint, and full build/codegen passed. Build-time and explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting and emits release evidence without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. Repair and redeploy vesting, provision treasury signers through a supported path, and add approval observability before rerunning unsynthetic proofs and merging.
+
 ## [0.1.392] - 2026-10-18
 
 ### Changed
@@ -146,7 +162,6 @@
 
 - **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
 - **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
-
 ## [0.1.380] - 2026-10-07
 
 ### Changed

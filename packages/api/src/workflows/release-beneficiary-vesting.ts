@@ -16,6 +16,7 @@ import {
   normalizeReleaseVestingExecutionError,
 } from "./vesting-helpers.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
+import { assertExactAmountDelta } from "./economic-invariants.js";
 
 export const releaseBeneficiaryVestingSchema = z.object({
   beneficiary: z.string().regex(/^0x[a-fA-F0-9]{40}$/u),
@@ -32,6 +33,28 @@ export async function runReleaseBeneficiaryVestingWorkflow(
   const before = await readVestingState(tokenomics, auth, walletAddress, body.beneficiary);
   const releasedBefore = getReleasedAmount(before.schedule.body);
   const releasableBefore = readBigInt(before.releasable.body);
+  const beneficiaryBalanceBefore = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [body.beneficiary],
+    }),
+    (result) => result.statusCode === 200,
+    "releaseBeneficiaryVesting.beneficiaryBalanceBefore",
+  );
+  const totalSupplyBefore = await waitForWorkflowReadback(
+    () => tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+    (result) => result.statusCode === 200,
+    "releaseBeneficiaryVesting.totalSupplyBefore",
+  );
+  const beneficiaryBalanceBeforeValue = readBigInt(beneficiaryBalanceBefore.body);
+  const totalSupplyBeforeValue = readBigInt(totalSupplyBefore.body);
 
   const releaseOperation = body.mode === "self"
     ? tokenomics.releaseStandardVesting({
@@ -75,20 +98,62 @@ export async function runReleaseBeneficiaryVestingWorkflow(
       const state = result.body as Awaited<ReturnType<typeof readVestingState>>;
       const releasedAfter = getReleasedAmount(state.schedule.body);
       const releasableAfter = readBigInt(state.releasable.body);
-      const releasedEnough = releasedNowValue === null
-        ? releasedAfter > releasedBefore
-        : releasedAfter >= releasedBefore + releasedNowValue;
-      return releasedEnough && releasableAfter <= releasableBefore;
+      return releasedAfter > releasedBefore && releasableAfter <= releasableBefore;
     },
     "releaseBeneficiaryVesting.readback",
   );
   const afterState = after.body as Awaited<ReturnType<typeof readVestingState>>;
+  const releasedAfter = getReleasedAmount(afterState.schedule.body);
+  const effectiveReleaseAmount = releasedAfter - releasedBefore;
+  if (effectiveReleaseAmount <= 0n) {
+    throw new Error("releaseBeneficiaryVesting economic invariant failed: release amount must be positive");
+  }
+  const beneficiaryBalanceAfter = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [body.beneficiary],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === beneficiaryBalanceBeforeValue + effectiveReleaseAmount,
+    "releaseBeneficiaryVesting.beneficiaryBalanceAfter",
+  );
+  const totalSupplyAfter = await waitForWorkflowReadback(
+    () => tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === totalSupplyBeforeValue,
+    "releaseBeneficiaryVesting.totalSupplyAfter",
+  );
+  const releasedDelta = assertExactAmountDelta(
+    "releaseBeneficiaryVesting.released",
+    releasedBefore,
+    releasedAfter,
+    effectiveReleaseAmount,
+  );
+  const beneficiaryBalanceDelta = assertExactAmountDelta(
+    "releaseBeneficiaryVesting.beneficiaryBalance",
+    beneficiaryBalanceBeforeValue,
+    readBigInt(beneficiaryBalanceAfter.body),
+    effectiveReleaseAmount,
+  );
+  const totalSupplyDelta = assertExactAmountDelta(
+    "releaseBeneficiaryVesting.totalSupply",
+    totalSupplyBeforeValue,
+    readBigInt(totalSupplyAfter.body),
+    0n,
+  );
 
   return {
     release: {
       submission: release.body,
       txHash: releaseTxHash,
-      releasedNow,
+      releasedNow: effectiveReleaseAmount.toString(),
+      reportedReleasedNow: releasedNow,
+      reportedAmountMatchesState: releasedNowValue === null ? null : releasedNowValue === effectiveReleaseAmount,
       eventCount: releaseEvents.length,
       mode: body.mode,
     },
@@ -103,6 +168,11 @@ export async function runReleaseBeneficiaryVestingWorkflow(
         releasable: afterState.releasable.body,
         totals: afterState.totals.body,
       },
+    },
+    economics: {
+      released: releasedDelta,
+      beneficiaryBalance: beneficiaryBalanceDelta,
+      totalSupply: totalSupplyDelta,
     },
     summary: {
       beneficiary: body.beneficiary,
