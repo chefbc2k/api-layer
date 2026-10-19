@@ -10,11 +10,7 @@ async function main(): Promise<void> {
     path.join(generatedManifestDir, "http-endpoint-registry.json"),
   );
 
-  const excludedKeys = new Set([
-    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
-  ]);
-
-  const registryKeys = new Set(Object.keys(registry.methods).filter((key) => !excludedKeys.has(key)));
+  const registryKeys = new Set(Object.keys(registry.methods));
   const reviewedKeys = new Set(Object.keys(reviewed.methods));
   const generatedKeys = new Set(Object.keys(endpointRegistry.methods));
 

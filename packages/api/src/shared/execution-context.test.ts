@@ -772,7 +772,7 @@ describe("executeHttpMethodDefinition", () => {
       .filter(([key, method]) => method.category === "write" && Boolean(surfaceMethods[key]))
       .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
 
-    expect(writeDefinitions).toHaveLength(259);
+    expect(writeDefinitions).toHaveLength(260);
     for (const definition of writeDefinitions) {
       await expect(executeHttpMethodDefinition(
         context as never,
@@ -804,7 +804,7 @@ describe("executeHttpMethodDefinition", () => {
       .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
     const actorRoles = ["buyer", "seller", "licensee", "collaborator"];
 
-    expect(adminDefinitions).toHaveLength(50);
+    expect(adminDefinitions).toHaveLength(51);
     for (const role of actorRoles) {
       for (const definition of adminDefinitions) {
         await expect(executeHttpMethodDefinition(
@@ -845,7 +845,7 @@ describe("executeHttpMethodDefinition", () => {
       throw new Error("API key not permitted for live admin execution");
     });
 
-    expect(adminDefinitions).toHaveLength(50);
+    expect(adminDefinitions).toHaveLength(51);
     for (const definition of adminDefinitions) {
       await expect(executeHttpMethodDefinition(
         context as never,
@@ -928,7 +928,7 @@ describe("executeHttpMethodDefinition", () => {
       .filter(([key, method]) => method.category === "write" && Boolean(surfaceMethods[key]))
       .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
 
-    expect(writeDefinitions).toHaveLength(259);
+    expect(writeDefinitions).toHaveLength(260);
     for (const definition of writeDefinitions) {
       await expect(executeHttpMethodDefinition(
         context as never,
@@ -991,7 +991,7 @@ describe("executeHttpMethodDefinition", () => {
     mocked.contractStaticCall.mockReset();
     mocked.contractStaticCall.mockRejectedValue(new Error("contract authorization preflight rejected actor"));
 
-    expect(writeDefinitions).toHaveLength(259);
+    expect(writeDefinitions).toHaveLength(260);
     let rejectionCount = 0;
     let adminRoleRejectionCount = 0;
     for (const role of actorRoles) {
@@ -1025,9 +1025,9 @@ describe("executeHttpMethodDefinition", () => {
       }
     }
 
-    expect(rejectionCount).toBe(1_813);
-    expect(adminRoleRejectionCount).toBe(200);
-    expect(mocked.contractStaticCall).toHaveBeenCalledTimes(1_613);
+    expect(rejectionCount).toBe(1_820);
+    expect(adminRoleRejectionCount).toBe(204);
+    expect(mocked.contractStaticCall).toHaveBeenCalledTimes(1_616);
     expect(context.txStore.insert).not.toHaveBeenCalled();
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });

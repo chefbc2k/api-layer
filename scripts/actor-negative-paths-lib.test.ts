@@ -23,17 +23,17 @@ describe("actor negative-path coverage", () => {
 
     expect(report.totals).toMatchObject({
       abiWriteMethodCount: 260,
-      writeMethodCount: 259,
+      writeMethodCount: 260,
       domainCount: 13,
-      actorMethodCaseCount: 1_813,
-      apiBoundaryCaseCount: 777,
-      adminApiRoleCaseCount: 200,
+      actorMethodCaseCount: 1_820,
+      apiBoundaryCaseCount: 780,
+      adminApiRoleCaseCount: 204,
     });
     expect(report.methods.map((method) => method.method)).toEqual(
       Object.keys(reviewed.methods).filter((key) => surface.methods[key]).sort((left, right) => left.localeCompare(right)),
     );
-    expect(report.excludedAbiWrites).toEqual(["ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"]);
-    expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(259);
+    expect(report.excludedAbiWrites).toEqual([]);
+    expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(260);
   });
 
   it("records every actor-scoped denial at the admin API boundary", () => {
@@ -41,8 +41,8 @@ describe("actor negative-path coverage", () => {
     const adminMethods = report.methods.filter((method) => surface.methods[method.method]?.classification === "admin");
     const nonAdminMethods = report.methods.filter((method) => surface.methods[method.method]?.classification !== "admin");
 
-    expect(adminMethods).toHaveLength(50);
-    expect(report.totals.adminApiRoleCaseCount).toBe(200);
+    expect(adminMethods).toHaveLength(51);
+    expect(report.totals.adminApiRoleCaseCount).toBe(204);
     for (const method of adminMethods) {
       for (const actor of method.actors) {
         expect(actor.apiRoleDenials).toEqual(
@@ -72,8 +72,8 @@ describe("actor negative-path coverage", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
     const roleGated = report.methods.filter((method) => method.requiredActor.kind === "role");
 
-    expect(roleGated).toHaveLength(150);
-    expect(report.totals.roleLifecycleCaseCount).toBe(3_150);
+    expect(roleGated).toHaveLength(151);
+    expect(report.totals.roleLifecycleCaseCount).toBe(3_171);
     for (const method of roleGated) {
       expect(method.roleLifecycleDenials).toEqual(["stale-role", "revoked-role", "expired-validity-window"]);
       expect(method.actors.every((actor) => actor.contractDenials.includes("missing-required-role"))).toBe(true);

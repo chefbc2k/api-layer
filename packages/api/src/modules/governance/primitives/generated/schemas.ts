@@ -26,6 +26,7 @@ export const proposalSnapshotRequestSchemas = buildMethodRequestSchemas(governan
 export const proposalVotesRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposalVotes")!);
 export const proposeAddressArrayUint256ArrayBytesArrayStringUint8RequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposeAddressArrayUint256ArrayBytesArrayStringUint8")!);
 export const proposerRoleRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposerRole")!);
+export const proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8")!);
 export const prQueueRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "prQueue")!);
 export const prStateRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "prState")!);
 export const queueRequestSchemas = buildMethodRequestSchemas(governanceMethodDefinitions.find((definition) => definition.operationId === "queue")!);

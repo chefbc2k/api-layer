@@ -2,6 +2,89 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.394] - 2026-10-18
+
+### Changed
+
+- **Fail-Closed Proof Attribution Hardened:** Gap reporting now accepts a `fail-closed-before-provider` artifact only for an admin endpoint with consistent `proven working` classifications, an explicit Base Sepolia live-network guard marker, and route-scoped evidence matching the exact ABI key, HTTP route, `403` status, and before-provider result. Unknown proof kinds, contradictory classifications, incomplete evidence, and non-admin guard claims no longer receive live-proof credit.
+- **Zero-Gap Baseline Preserved With Validated Evidence:** Regenerated both API gap artifacts and both planner artifacts after the hardening. All `710/710` items remain ready, all `28` promoted admin routes retain validated guard evidence, and the current planner correctly selects `0` items because no non-ready work remains.
+
+### Verified
+
+- **Focused Guard And Reporter Gates Passed:** The live-admin guard producer passed `1/1`; the expanded gap reporter suite passed `11/11`, including rejection coverage for empty, mismatched, non-forbidden, contradictory, unknown-kind, missing-network, and non-admin guard claims.
+- **Required Gap Gates Passed:** `pnpm run test:gap-builder` passed `12/12`; `pnpm run test:actor-negative-paths` passed `576/576` across `17` files; and `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Static Quality Gates Passed:** TypeScript no-emit checking and focused ESLint passed for the changed gap reporter source and tests.
+
+## Coinbase daily build automation setup - 2026-10-18
+
+### Documented
+
+- User confirmed the Coinbase/USDC integration scope and authorized daily commits and default-branch updates. Added `docs/COINBASE_USDC_BUILD_LOG.md` with twenty fixed acceptance units, a daily 25% implementation target, full test/proof gates and explicit delivery/evidence logging.
+- Scheduled scope excludes the disregarded hosting request and the separately automated ABI assurance backlog. The planned build window is October 19–28, 2026 at 16:00 America/Chicago, with early completion and external launch blockers tracked explicitly. The actual remote default branch is currently `master`.
+
+## Vercel container hosting review - 2026-10-18
+
+### Documented
+
+- Verified current Vercel Container Runtime documentation: Dockerfile-based HTTP container deployments are supported in beta on all plans, with Git-triggered deployment, automatic HTTP routing and idle scale-down. Recorded the direct single-container deployment path in `docs/VERCEL_CONTAINER_DEPLOYMENT_REVIEW.md`.
+- Inspected the existing Express entrypoint, compiled output, port configuration and ignored build artifacts. Identified Docker packaging, self-contained generation, port alignment and runtime environment configuration as the immediate work; continuous indexer execution requires a separate worker.
+- Opened the Vercel dashboard through the web client and reached sign-in. No service was provisioned or deployed, and no credentials or account settings were changed.
+
+## Research review - 2026-10-18
+
+### Documented
+
+- Added `docs/COINBASE_USDC_AND_API_READINESS_REVIEW.md` with current Coinbase documentation, hosted guest-checkout deprecation, Headless/hosted-account product selection, proposed funding APIs, settlement/reconciliation design, customer-wallet approval handoff, and production acceptance criteria. This is research and specification; fiat rails remain unimplemented.
+- Added `docs/API_READINESS_INVENTORY_2026-10-18.md` and `output/api-readiness-review-2026-10-18.json`, reconciling all 33 facets and 492 registered function routes against the durable receipt/indexer artifact: 108/260 writes proven and 152 missing complete evidence. Listed all 152 existing routes requiring that proof, without equating missing evidence with broken code or the report's ready classification with production certification.
+- Recorded the absence of a Wagmi implementation/WGMI namespace in this workspace, the unavailable indexed execution mode, and the existing marketplace workflow's external USDC funding/allowance preconditions. Reviewed the current dirty working tree without replacing pre-existing changes.
+
+### Verified
+
+- Wrapper/RPC coverage passed for 492 functions and 218 event occurrences; HTTP coverage passed for 492 methods. Static registration reconciliation found no missing primitive function routes, and all 108 durable receipt-proof routes matched current definitions.
+- Focused verification passed 127/127 tests across API behavior, system/transaction routes, Coinbase smart-wallet relay, marketplace purchase, payment command safety and gap reporting. No live chain write, card charge or fiat conversion was performed.
+
+## [0.1.393] - 2026-10-18
+
+### Changed
+
+- **Final API Test Gap Closed:** Promoted `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` from an ABI-only exclusion to `POST /v1/governance/admin/legacy-proposals`. The compatibility route preserves the canonical five-argument `POST /v1/governance/proposals` endpoint, binds the legacy title-first signature explicitly, and is admin-only so non-loopback execution remains fail-closed unless the live-admin opt-in is enabled.
+- **Legacy Proposal Safety Is Directly Exercised:** Added route-level proof for exact overload selection and argument order, successful local preflight/submission plumbing, missing-title validation, read-only rejection, stale/replayed preflight failure, non-admin actor denial, and live-network rejection before provider execution or mutation.
+- **Complete Surface And Actor Inventories:** Removed the final proposal exclusion from API seeding, HTTP coverage, actor negative-path generation, and gap reporting. Regenerated HTTP primitives and persistent reports now cover all `492` methods, including all `260` ABI writes, with `1,820` actor-method cases, `780` API-boundary cases, `204` non-admin API-role denials, and `3,171` role-lifecycle cases.
+- **Gap Backlog Reached Zero:** Regenerated gap artifacts classify all `710/710` ABI items as ready (`492` functions and `218` events), with `0` non-ready items in the follow-up gap-builder plan. The exact legacy route is attributed to the durable Base Sepolia `fail-closed-before-provider` guard artifact.
+
+### Verified
+
+- **Required Gap Gates Passed:** `pnpm run test:gap-report` passed `9/9`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `576/576` across `17` files, and `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Focused And Adversarial Gates Passed:** The focused proposal route suite passed `10/10`, the combined proposal/control-plane/API-surface suite passed `23/23` before the final validation case was added, the live guard verifier passed `1/1`, and `pnpm run test:redteam` passed `116/116`.
+- **Build And Lint Passed:** All three workspace package builds completed successfully, and focused ESLint passed for the changed source, tests, and generated governance primitives.
+
+## [0.1.392] - 2026-10-18
+
+### Verified
+
+- **Receipt Proof Baseline Reconciled:** The prompt's `95`-method blocker is stale. The durable production-indexer artifact remains at `108/260` proven writes, leaving `152` methods without complete receipt-to-PostgreSQL evidence. Its verified evidence remains `550` receipts, `845` decoded raw events, and `555` PostgreSQL projection rows with replay idempotency.
+- **Indexer Failure Modes Stayed Green:** `pnpm run test:indexer:assurance` passed `268` active tests with `6` gated PostgreSQL integration skips, retaining duplicate ingestion, reorg replacement, partial-block rollback, delayed-RPC, projection rollback, receipt attribution, and generated-registry decoding coverage.
+- **Surface Coverage Stayed Complete:** The local-fork runner's code-generation stage and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Blocked
+
+- **No New Receipt Evidence Promoted:** The fork setup exhausted transient retries on an upstream Alchemy storage-read timeout. The continuing HTTP stage submitted writes but could not obtain convergent receipts across licensing, selected control-plane, and transfer-rights workflows, so the run was stopped without adding partial transaction or PostgreSQL evidence.
+- **Merge Remains Blocked:** No write method completed this run and the blocker remains `152`. Retry the selected control-plane receipt batch against a healthy fork upstream, then require successful generated-registry decoding, PostgreSQL projection, and replay before promotion.
+
+## [0.1.391] - 2026-10-18
+
+### Changed
+
+- **Control-Plane Guard Evidence Closes Twenty-Seven Gaps:** The exhaustive mounted admin-route safety suite now emits a durable exact-route verification artifact for the selected AccessControl, DiamondCut, Emergency, EmergencyWithdrawal, MultiSig, and UpgradeController batch. Each route is proven to reject with `403` before provider execution when the Base Sepolia live-admin opt-in is disabled.
+- **Live Proof Semantics Are Explicit:** Gap-report evidence now records whether a verified route outcome came from successful execution or the `fail-closed-before-provider` guard. The report no longer mislabels an intentionally blocked live admin call as a successful transaction while still recognizing the launch-safety proof.
+- **Planner Tests No Longer Depend On Open Repository Gaps:** Persistent-plan coverage now uses its own six-item fixture report, so closing the production backlog cannot make the planner suite fail merely because fewer than four real gaps remain.
+- **Backlog Reduced To One Intentional Exclusion:** Regenerated API gap and planner artifacts move the inventory from `682` ready / `28` unsafe to `709` ready / `1` unsafe. The sole remaining item is the ABI-only legacy `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` overload.
+
+### Verified
+
+- **Focused And Required Suites Passed:** The focused guard verifier passed `1/1`, actor negative paths passed `572/572` across `17` files, gap reporting passed `9/9`, and gap planning passed `12/12`.
+- **Quality And Surface Gates Passed:** TypeScript no-emit checking, focused ESLint, and `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.389] - 2026-10-17
 
 ### Changed

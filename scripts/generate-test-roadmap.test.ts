@@ -91,6 +91,27 @@ function baseInput(): Parameters<typeof buildGapReport>[0] {
   };
 }
 
+function failClosedGuardArtifact(): Parameters<typeof buildGapReport>[0]["verifyArtifacts"][number] {
+  return {
+    path: "verify-control-plane-guard-output.json",
+    reports: {
+      guard: {
+        classification: "proven working",
+        finalClassification: "proven working",
+        network: "Base Sepolia live-network guard",
+        proofKind: "fail-closed-before-provider",
+        routes: ["POST /v1/test"],
+        evidence: [{
+          methodKey: "TestFacet.setThing",
+          route: "POST /v1/test",
+          status: 403,
+          result: "fail-closed before provider execution",
+        }],
+      },
+    },
+  };
+}
+
 afterEach(async () => {
   await Promise.all(temporaryDirectories.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
@@ -138,6 +159,80 @@ describe("API test gap report", () => {
     });
   });
 
+  it("accepts exact-route fail-closed live-network guard evidence for an admin write", () => {
+    const input = baseInput();
+    input.httpRegistry.methods["TestFacet.setThing"].classification = "admin";
+    input.reviewedApiSurface.methods["TestFacet.setThing"].classification = "admin";
+    input.verifyArtifacts = [failClosedGuardArtifact()];
+
+    const report = buildGapReport(input);
+    const write = report.facets[0].functions[1];
+
+    expect(write).toMatchObject({
+      classification: "ready",
+      proof: { baseSepolia: true, localFork: false, workflow: true, negativePath: true },
+    });
+    expect(write.evidence.verifyArtifacts).toEqual([
+      expect.objectContaining({
+        artifact: "verify-control-plane-guard-output.json",
+        proofKind: "fail-closed-before-provider",
+      }),
+    ]);
+  });
+
+  it("rejects incomplete or mismatched fail-closed live-network guard evidence", () => {
+    const invalidGuardCases: Array<{
+      name: string;
+      mutate: (report: Parameters<typeof buildGapReport>[0]["verifyArtifacts"][number]["reports"][string]) => void;
+    }> = [
+      { name: "empty evidence", mutate: (report) => { report.evidence = []; } },
+      {
+        name: "wrong ABI key",
+        mutate: (report) => { report.evidence = [{ methodKey: "OtherFacet.setThing", route: "POST /v1/test", status: 403, result: "fail-closed before provider execution" }]; },
+      },
+      {
+        name: "wrong route evidence",
+        mutate: (report) => { report.evidence = [{ methodKey: "TestFacet.setThing", route: "POST /v1/other", status: 403, result: "fail-closed before provider execution" }]; },
+      },
+      {
+        name: "non-forbidden status",
+        mutate: (report) => { report.evidence = [{ methodKey: "TestFacet.setThing", route: "POST /v1/test", status: 401, result: "fail-closed before provider execution" }]; },
+      },
+      {
+        name: "wrong execution result",
+        mutate: (report) => { report.evidence = [{ methodKey: "TestFacet.setThing", route: "POST /v1/test", status: 403, result: "provider execution attempted" }]; },
+      },
+      { name: "missing live-network marker", mutate: (report) => { delete report.network; } },
+      { name: "conflicting final classification", mutate: (report) => { report.finalClassification = "blocked by setup/state"; } },
+      { name: "unknown proof kind", mutate: (report) => { report.proofKind = "asserted-without-execution"; } },
+    ];
+
+    for (const invalidCase of invalidGuardCases) {
+      const input = baseInput();
+      input.httpRegistry.methods["TestFacet.setThing"].classification = "admin";
+      input.reviewedApiSurface.methods["TestFacet.setThing"].classification = "admin";
+      const artifact = failClosedGuardArtifact();
+      invalidCase.mutate(artifact.reports.guard);
+      input.verifyArtifacts = [artifact];
+
+      const write = buildGapReport(input).facets[0].functions[1];
+
+      expect(write.proof.baseSepolia, invalidCase.name).toBe(false);
+      expect(write.classification, invalidCase.name).toBe("unsafe on live network");
+      expect(write.evidence.verifyArtifacts, invalidCase.name).toEqual([]);
+    }
+  });
+
+  it("does not attribute fail-closed guard evidence to a non-admin endpoint", () => {
+    const input = baseInput();
+    input.verifyArtifacts = [failClosedGuardArtifact()];
+
+    const write = buildGapReport(input).facets[0].functions[1];
+
+    expect(write.proof.baseSepolia).toBe(false);
+    expect(write.evidence.verifyArtifacts).toEqual([]);
+  });
+
   it("uses the required conservative gap classifications", () => {
     const input = baseInput();
     const proposalKey = "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)";
@@ -176,8 +271,12 @@ describe("API test gap report", () => {
     expect(byName.missingApi.classification).toBe("needs API guard");
     expect(byName.adminWrite.classification).toBe("unsafe on live network");
     expect(byName.plainWrite.classification).toBe("needs fixture");
-    expect(byName.propose.classification).toBe("unsafe on live network");
-    expect(byName.propose.apiExclusion).toContain("intentionally excluded");
+    expect(byName.propose.classification).toBe("needs API guard");
+    expect(byName.propose.apiExclusion).toBeNull();
+    expect(byName.propose.gaps).toEqual(expect.arrayContaining([
+      "missing HTTP registry entry",
+      "missing reviewed API surface entry",
+    ]));
     expect(report.facets[0].events[0]).toMatchObject({
       classification: "needs indexer proof",
       gaps: expect.arrayContaining(["no event-specific indexer test reference"]),

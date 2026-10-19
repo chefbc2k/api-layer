@@ -33,6 +33,7 @@ export function createGovernancePrimitiveRouter(context: ApiExecutionContext): R
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposalVotes")!, controller["proposalVotes"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposeAddressArrayUint256ArrayBytesArrayStringUint8")!, controller["proposeAddressArrayUint256ArrayBytesArrayStringUint8"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposerRole")!, controller["proposerRole"]);
+  registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8")!, controller["proposeStringStringAddressArrayUint256ArrayBytesArrayUint8"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "prQueue")!, controller["prQueue"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "prState")!, controller["prState"]);
   registerRoute(router, governanceMethodDefinitions.find((definition) => definition.operationId === "queue")!, controller["queue"]);

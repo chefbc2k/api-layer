@@ -738,6 +738,11 @@ describeLive("HTTP API contract integration", () => {
     return true;
   }
 
+  async function founderPendingNonce(): Promise<number> {
+    const nonce = await provider.send("eth_getTransactionCount", [founderAddress, "pending"]);
+    return Number(BigInt(String(nonce)));
+  }
+
   async function skipWhenFundingBlocked(
     ctx: TestContext,
     label: string,
@@ -4287,7 +4292,16 @@ describeLive("HTTP API contract integration", () => {
         multisigFacet,
         "OperationProposed",
       );
-      const operationId = String(proposedOperation.result);
+      const proposedEvent = proposedOperation.receipt.logs
+        .map((log) => {
+          try {
+            return multisigFacet.interface.parseLog(log);
+          } catch {
+            return null;
+          }
+        })
+        .find((event) => event?.name === "OperationProposed");
+      const operationId = String(proposedEvent?.args.operationId);
       expect(operationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
 
       await submitAdminWrite(
@@ -4323,11 +4337,15 @@ describeLive("HTTP API contract integration", () => {
         const receipt = await (await accessControl.connect(founderWallet).setRecoveryActive(
           recoveryFixtureRole,
           Boolean(originalRecoveryFixtureConfig.recoveryActive),
+          { nonce: await founderPendingNonce() },
         )).wait();
         expect(receipt?.status).toBe(1);
       }
       if (operatorAdded && await multisigFacet.isOperator(outsiderWallet.address)) {
-        const receipt = await (await multisigFacet.connect(founderWallet).removeOperator(outsiderWallet.address)).wait();
+        const receipt = await (await multisigFacet.connect(founderWallet).removeOperator(
+          outsiderWallet.address,
+          { nonce: await founderPendingNonce() },
+        )).wait();
         expect(receipt?.status).toBe(1);
       }
       if (standardOperationConfigChanged) {
@@ -4338,6 +4356,7 @@ describeLive("HTTP API contract integration", () => {
             maxApprovals: originalStandardOperationConfig.maxApprovals,
             allowsCancellation: originalStandardOperationConfig.allowsCancellation,
           },
+          { nonce: await founderPendingNonce() },
         )).wait();
         expect(receipt?.status).toBe(1);
       }

@@ -132,6 +132,43 @@ describe("api surface helpers", () => {
     });
   });
 
+  it("mounts the legacy proposal overload behind a distinct admin-only compatibility route", () => {
+    expect(buildMethodSurface(method({
+      facetName: "ProposalFacet",
+      wrapperKey: "propose(string,string,address[],uint256[],bytes[],uint8)",
+      methodName: "propose",
+      signature: "propose(string,string,address[],uint256[],bytes[],uint8)",
+      category: "write",
+      inputs: [
+        { name: "title", type: "string" },
+        { name: "description", type: "string" },
+        { name: "targets", type: "address[]" },
+        { name: "values", type: "uint256[]" },
+        { name: "calldatas", type: "bytes[]" },
+        { name: "proposalType", type: "uint8" },
+      ],
+      outputs: [{ name: "", type: "uint256" }],
+    }))).toMatchObject({
+      domain: "governance",
+      resource: "proposals",
+      classification: "admin",
+      httpMethod: "POST",
+      path: "/v1/governance/admin/legacy-proposals",
+      operationId: "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8",
+      inputShape: {
+        kind: "body",
+        bindings: [
+          { name: "title", source: "body", field: "title" },
+          { name: "description", source: "body", field: "description" },
+          { name: "targets", source: "body", field: "targets" },
+          { name: "values", source: "body", field: "values" },
+          { name: "calldatas", source: "body", field: "calldatas" },
+          { name: "proposalType", source: "body", field: "proposalType" },
+        ],
+      },
+    });
+  });
+
   it("builds method surfaces with default and overridden route shapes", () => {
     expect(buildMethodSurface(method())).toMatchObject({
       domain: "voice-assets",

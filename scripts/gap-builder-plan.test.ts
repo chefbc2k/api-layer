@@ -125,8 +125,15 @@ describe("gap-builder plan", () => {
     vi.setSystemTime(new Date("2026-09-27T01:02:03.000Z"));
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "gap-builder-plan-"));
     temporaryDirectories.push(tempDir);
+    const reportPath = path.join(tempDir, "report.json");
+    await writeFile(reportPath, JSON.stringify(report()), "utf8");
 
-    await main(["--output-dir", tempDir, "--max-items", "4", "--min-batch-items", "4"]);
+    await main([
+      "--report", reportPath,
+      "--output-dir", tempDir,
+      "--max-items", "4",
+      "--min-batch-items", "4",
+    ]);
 
     const [json, markdown] = await Promise.all([
       readFile(path.join(tempDir, "gap-builder-plan.json"), "utf8"),

@@ -589,6 +589,19 @@ function overrideVoiceAssetMethod(method: AbiMethodDefinition, entry: ApiSurface
   return override ? { ...entry, ...override } : entry;
 }
 
+function overrideGovernanceMethod(method: AbiMethodDefinition, entry: ApiSurfaceMethod): ApiSurfaceMethod {
+  const overrides: Record<string, Partial<ApiSurfaceMethod>> = {
+    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)": {
+      classification: "admin",
+      httpMethod: "POST",
+      path: "/v1/governance/admin/legacy-proposals",
+    },
+  };
+
+  const override = overrides[keyForMethod(method.facetName, method.wrapperKey)];
+  return override ? { ...entry, ...override } : entry;
+}
+
 export function buildMethodSurface(method: AbiMethodDefinition): ApiSurfaceMethod {
   const domain = domainByFacet[method.facetName];
   if (!domain) {
@@ -620,7 +633,13 @@ export function buildMethodSurface(method: AbiMethodDefinition): ApiSurfaceMetho
     notes: `${method.facetName}.${method.wrapperKey}`,
   };
   entry.path = defaultPathFor(domain, entry, method);
-  return domain === "voice-assets" ? overrideVoiceAssetMethod(method, entry) : entry;
+  if (domain === "voice-assets") {
+    return overrideVoiceAssetMethod(method, entry);
+  }
+  if (domain === "governance") {
+    return overrideGovernanceMethod(method, entry);
+  }
+  return entry;
 }
 
 export function buildEventSurface(event: AbiEventDefinition): ApiSurfaceEvent {

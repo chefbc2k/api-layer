@@ -132,7 +132,7 @@ describe("createApiServer", () => {
     const { server, port } = await startServer({ port: 0, quiet: true });
 
     try {
-      expect(writeEndpoints).toHaveLength(259);
+      expect(writeEndpoints).toHaveLength(260);
       for (const endpoint of writeEndpoints) {
         const path = endpoint.path.replace(/:[^/]+/gu, "invalid-before-auth");
         const { status, payload } = await apiCall(port, path, {

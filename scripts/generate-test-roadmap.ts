@@ -65,6 +65,8 @@ type VerifyDomain = {
   routes?: string[];
   classification?: string;
   finalClassification?: string;
+  network?: string;
+  proofKind?: string;
   evidence?: unknown[];
   [key: string]: unknown;
 };
@@ -84,6 +86,7 @@ type VerifyEvidence = {
   domain: string;
   route: string;
   network: Network;
+  proofKind: string;
 };
 
 type ProofFlags = {
@@ -197,11 +200,6 @@ const inputPaths = {
   reviewedApiSurface: "reviewed/reviewed-api-surface.json",
 } as const;
 
-const apiExclusions: Record<string, string> = {
-  "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)":
-    "legacy overloaded proposal variant is intentionally excluded from the HTTP surface",
-};
-
 const negativeKeywords = [
   "reject", "revert", "unauthorized", "forbidden", "invalid", "mismatch", "failure", "fails", "error",
 ];
@@ -294,22 +292,71 @@ function artifactNetwork(report: VerifyDomain): Network {
     : "base-sepolia";
 }
 
-function verifyEvidenceFor(route: string | null, artifacts: VerifyArtifact[]): VerifyEvidence[] {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isProvenWorking(report: VerifyDomain): boolean {
+  const classifications = [report.classification, report.finalClassification]
+    .filter((classification): classification is string => typeof classification === "string");
+  return classifications.length > 0 && classifications.every((classification) => classification === "proven working");
+}
+
+function hasFailClosedGuardEvidence(
+  report: VerifyDomain,
+  key: string,
+  route: string,
+  endpoint: Endpoint | undefined,
+): boolean {
+  if (endpoint?.classification !== "admin" || report.network !== "Base Sepolia live-network guard") {
+    return false;
+  }
+  return report.evidence?.some((entry) => isRecord(entry)
+    && entry.methodKey === key
+    && entry.route === route
+    && entry.status === 403
+    && entry.result === "fail-closed before provider execution") ?? false;
+}
+
+function verifyEvidenceFor(
+  key: string,
+  route: string | null,
+  endpoint: Endpoint | undefined,
+  artifacts: VerifyArtifact[],
+): VerifyEvidence[] {
   if (!route) {
     return [];
   }
   const evidence: VerifyEvidence[] = [];
   for (const artifact of artifacts) {
     for (const [domain, report] of Object.entries(artifact.reports)) {
-      const classification = report.classification ?? report.finalClassification;
-      if (classification === "proven working" && report.routes?.includes(route)) {
+      const proofKind = typeof report.proofKind === "string" ? report.proofKind : "successful-route-execution";
+      if (!isProvenWorking(report) || !report.routes?.includes(route)) {
+        continue;
+      }
+      if (proofKind === "fail-closed-before-provider") {
+        if (!hasFailClosedGuardEvidence(report, key, route, endpoint)) {
+          continue;
+        }
         evidence.push({
           artifact: artifact.path,
           domain,
           route,
-          network: artifactNetwork(report),
+          network: "base-sepolia",
+          proofKind,
         });
+        continue;
       }
+      if (proofKind !== "successful-route-execution") {
+        continue;
+      }
+      evidence.push({
+        artifact: artifact.path,
+        domain,
+        route,
+        network: artifactNetwork(report),
+        proofKind,
+      });
     }
   }
   return evidence;
@@ -386,7 +433,7 @@ function gapsFor(item: {
   if (!item.proof.unit) gaps.push("no directly attributable test reference");
   if (item.kind === "function" && item.category === "write" && !item.proof.workflow) gaps.push("no workflow proof reference");
   if (item.kind === "function" && item.category === "write" && !item.proof.negativePath) gaps.push("no negative-path proof reference");
-  if (!item.proof.localFork && !item.proof.baseSepolia) gaps.push("no successful verify-artifact route evidence");
+  if (!item.proof.localFork && !item.proof.baseSepolia) gaps.push("no proven verify-artifact route outcome");
   if (item.kind === "event" && !item.proof.indexer) gaps.push("no event-specific indexer test reference");
   return gaps;
 }
@@ -429,9 +476,9 @@ function buildItem(args: {
   const rpcEntry = rpcRegistry[registrySection][key];
   const route = endpointRoute(endpoint);
   const tokens = itemTokens(key, entry.name, entry.wrapperKey, entry.signature, endpoint ?? reviewedEndpoint);
-  const artifactEvidence = verifyEvidenceFor(route, artifacts);
+  const artifactEvidence = verifyEvidenceFor(key, route, endpoint ?? reviewedEndpoint, artifacts);
   const evidence = buildEvidence(tests, tokens, artifactEvidence, kind);
-  const exclusion = kind === "function" ? apiExclusions[key] ?? null : null;
+  const exclusion: string | null = null;
   const proof: ProofFlags = {
     abiManifest: true,
     rpcRegistry: Boolean(rpcEntry),
@@ -538,7 +585,7 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
     generatedAt: input.generatedAt,
     methodology: {
       testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
-      liveAttribution: "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
+      liveAttribution: "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
       classificationPolicy: "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
     },
     inputs: {

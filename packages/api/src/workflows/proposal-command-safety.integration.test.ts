@@ -65,12 +65,39 @@ const diamondAddress = "0x0000000000000000000000000000000000000001";
 
 const proposalWriteCases = [
   {
+    key: "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+    signature: "propose(string,string,address[],uint256[],bytes[],uint8)",
+    method: "POST",
+    path: "/v1/governance/admin/legacy-proposals",
+    body: {
+      title: "Legacy compatibility proposal",
+      description: "legacy proposal route preflight proof",
+      targets: [],
+      values: [],
+      calldatas: [],
+      proposalType: "0",
+    },
+    runtimeArgs: [
+      "Legacy compatibility proposal",
+      "legacy proposal route preflight proof",
+      [],
+      [],
+      [],
+      0n,
+    ],
+    previewResult: 73n,
+    expectedResult: "73",
+    preflightRejection: "duplicate legacy proposal rejects preflight",
+  },
+  {
     key: "ProposalFacet.cancelProposal",
     signature: "cancelProposal(uint256)",
     method: "DELETE",
     path: "/v1/governance/commands/cancel-proposal",
     body: { proposalId: "73" },
     runtimeArgs: [73n],
+    previewResult: null,
+    expectedResult: null,
     preflightRejection: "stale proposal state rejects cancellation",
   },
   {
@@ -85,6 +112,8 @@ const proposalWriteCases = [
       delay: "7200",
     },
     runtimeArgs: [1n, 1_000_000_000_000_000_000_000n, 2_500n, 7_200n],
+    previewResult: null,
+    expectedResult: null,
     preflightRejection: "replay proposal type configuration rejected",
   },
 ] as const;
@@ -203,6 +232,7 @@ describe("proposal command route preflight safety", () => {
   it.each(proposalWriteCases)(
     "preflights $key through its mounted route before mutation",
     async (testCase) => {
+      mocks.contractStaticCall.mockResolvedValueOnce(testCase.previewResult);
       const { context, txStore } = buildContext();
       const { server, port } = await startServer(context);
 
@@ -221,7 +251,7 @@ describe("proposal command route preflight safety", () => {
         await expect(response.json()).resolves.toEqual({
           requestId: "proposal-request-1",
           txHash: "0xproposal-command",
-          result: null,
+          result: testCase.expectedResult,
         });
         expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
         expect(txStore.insert).toHaveBeenCalledWith(expect.objectContaining({
@@ -302,4 +332,37 @@ describe("proposal command route preflight safety", () => {
       }
     },
   );
+
+  it("rejects a legacy proposal without a title before provider access or mutation", async () => {
+    const { context, providerRouter, txStore } = buildContext();
+    const { server, port } = await startServer(context);
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/v1/governance/admin/legacy-proposals`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": "operator-key",
+        },
+        body: JSON.stringify({
+          description: "missing title validation proof",
+          targets: [],
+          values: [],
+          calldatas: [],
+          proposalType: "0",
+        }),
+        signal: AbortSignal.timeout(2_500),
+      });
+      const payload = await response.json() as { error: string };
+
+      expect(response.status).toBe(400);
+      expect(payload).toEqual({ error: "Invalid input: expected string, received undefined" });
+      expect(providerRouter.withProvider).not.toHaveBeenCalled();
+      expect(mocks.contractStaticCall).not.toHaveBeenCalled();
+      expect(txStore.insert).not.toHaveBeenCalled();
+      expect(mocks.walletSendTransaction).not.toHaveBeenCalled();
+    } finally {
+      await closeServer(server);
+    }
+  });
 });

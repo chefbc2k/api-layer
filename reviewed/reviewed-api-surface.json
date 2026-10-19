@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-18T08:51:42.957Z",
+  "generatedAt": "2026-10-18T19:18:37.612Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
@@ -6452,6 +6452,57 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)"
+    },
+    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)": {
+      "facetName": "ProposalFacet",
+      "wrapperKey": "propose(string,string,address[],uint256[],bytes[],uint8)",
+      "domain": "governance",
+      "resource": "proposals",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/governance/admin/legacy-proposals",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "title",
+            "source": "body",
+            "field": "title"
+          },
+          {
+            "name": "description",
+            "source": "body",
+            "field": "description"
+          },
+          {
+            "name": "targets",
+            "source": "body",
+            "field": "targets"
+          },
+          {
+            "name": "values",
+            "source": "body",
+            "field": "values"
+          },
+          {
+            "name": "calldatas",
+            "source": "body",
+            "field": "calldatas"
+          },
+          {
+            "name": "proposalType",
+            "source": "body",
+            "field": "proposalType"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"
     },
     "ProposalFacet.prQueue": {
       "facetName": "ProposalFacet",

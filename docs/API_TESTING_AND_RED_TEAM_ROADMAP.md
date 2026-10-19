@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Event Indexer Proof Automation Run — 2026-10-18
+
+- Reconciled the automation prompt's `95`-method blocker against the credential-safe durable receipt artifact. The authoritative starting and ending count is `152` methods without complete receipt-to-PostgreSQL proof (`108/260` proven); no write method was promoted during this run.
+- Ran `pnpm run verify:local-fork -- --continue-on-gap`. Canonical code generation and `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. The fork fixture stage then exhausted two transient retries and failed on an upstream Alchemy storage-read timeout. The continuing HTTP stage submitted writes, but receipt polling did not converge across licensing, selected control-plane, and transfer-rights workflows, so the run was stopped without promoting partial receipt evidence.
+- The durable indexer artifact remains `proven working` with `550` receipts, `845` generated-registry-decoded raw events, `555` PostgreSQL projection rows, and replay-safe evidence for `108/260` distinct writes. No transaction hash or PostgreSQL row from the interrupted run was added to the artifact.
+- `pnpm run test:indexer:assurance` passed `268` active tests with `6` gated PostgreSQL integration skips. The passing gate retains duplicate-log idempotency, reorg replacement, partial-block atomic rollback, delayed-RPC handling, projection rollback, receipt attribution, and generated-registry decoding coverage.
+- **Merge decision:** do not merge. The end-to-end write workstream remains incomplete at `152` methods, and the current fork/provider path is not stable enough to produce promotable receipt-to-PostgreSQL proof. The next batch should retry the selected control-plane write receipts on a healthy fork upstream, then ingest and replay those exact blocks before advancing the durable count.
+
 ## Actor Negative-Path Automation Run — 2026-10-17
 
 - Started `codex/actor-negative-paths-20261017` from clean local production `master` `2c75eb0` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. After concurrent write-invariant revalidation advanced production, fast-forwarded to `a3eeb8d` before documentation and merge. Fetched `origin`; remote production remains `9240b8b`, while local production is seventeen verified assurance commits ahead.
