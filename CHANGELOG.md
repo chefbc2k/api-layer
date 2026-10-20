@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.396] - 2026-10-20
+
+### Changed
+
+- **Economic Evidence Revalidated On Current Production:** Reconciled the reusable economic branch with local production and confirmed the intervening changes are limited to assurance documentation and actor-report artifacts. The retained balance/state matrix covers escrow, marketplace withdrawals and splits, rewards, vesting, mint/burn/supply, staking/delegation, treasury movement, and emergency withdrawals without adding duplicate cases.
+- **Fork Evidence Was Rebootstrapped Independently:** Marketplace withdrawal, payment split/treasury sweep, mint/burn/supply, funded reward claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics each passed on isolated Base Sepolia forks. An initial emergency-withdrawal timeout was discarded; the leftover fork was terminated and the proof passed on a clean bootstrap.
+
+### Verified
+
+- **Economic And Repository Suites Passed:** The deterministic economic slice passed `169/169` tests across `17` files. The seven deployed-contract scenarios passed `1/1` each, and the full suite passed `1,951` active tests across `156` files with `47` intentionally gated skips.
+- **Required Quality Gates Passed:** Ordered TypeScript (`npx tsc -p tsconfig.json --noEmit`), lint, and full build/codegen passed. Build-time and explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Economic Expansion Remains Blocked:** The deployed vesting release path still advances release accounting and emits `TokensReleased` without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. No merge was performed; repair and redeploy vesting, provision supported treasury signers, and add approval observability before rerunning unsynthetic proofs and closing this workstream.
+
 ## [0.1.395] - 2026-10-20
 
 ### Changed
