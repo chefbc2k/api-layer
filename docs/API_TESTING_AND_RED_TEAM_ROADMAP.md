@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-20
+
+- Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree, fetched `origin`, and merged current local production `master` `e014760` as `ef9ba62`, resolving only documentation prepend conflicts while preserving the current production assurance changes. Local production is `66` commits ahead of remote production `9240b8b`; the unrelated dirty primary checkout was left untouched.
+- Refreshed `verify-base-sepolia-promotion-output.json` at `2026-10-20T19:06:19.968Z` through the canonical explicit-env preflight. Network (`base-sepolia`), chain ID (`84532`), diamond-address format, founder/seller/buyer key validity and distinctness, and founder/sender binding pass. Readiness remains blocked because `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` is disabled and both execution and diagnostics RPC origins resolve to loopback `http://127.0.0.1:8548`.
+- The fail-closed gate exited `2` before provider access or live-chain inspection. No operator setup, user funding, test-token allowance, aged listing, governance preparation, marketplace purchase, governance proof, transaction submission, or destructive protocol-admin write ran. The persistent artifact remains `blocked by setup/state`, with `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence.
+- Non-live verification passed: the focused promotion suite passed `6/6`, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** blocked. No partial promotion work is merged into `master`. The next safe run requires operator-provided direct Base Sepolia execution and diagnostics RPCs plus explicit `.env` opt-in; only after every static and live-target readiness check passes may the existing fixture-backed marketplace and governance proof commands run.
+
 ## Actor Negative-Path Automation Run — 2026-10-20
 
 - Started `codex/actor-negative-paths-20261020` from clean local production `master` `947d12c` in the reusable isolated actor worktree, leaving the unrelated dirty primary autosave checkout untouched. Fetched `origin`; remote production remains `9240b8b`. After verification, incorporated the concurrent write-invariant revalidation merge at local production `5546522`; it changes tracking documentation only and does not affect actor coverage.
