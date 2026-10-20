@@ -254,14 +254,21 @@ const selectedGapKeys = new Set([
   "AccessControlFacet.setPaused",
   "AccessControlFacet.setRecoveryActive",
   "DiamondCutFacet.diamondCut",
+  "DiamondCutFacet.setTrustedInitCodehash",
+  "DiamondCutFacet.setTrustedInitContract",
+  "DiamondCutFacet.setTrustedInitSelector",
   "EmergencyFacet.approveRecovery",
   "EmergencyFacet.completeRecovery",
   "EmergencyFacet.executeRecoveryAction",
   "EmergencyFacet.executeRecoveryStep",
+  "EmergencyFacet.setEmergencyTimeout",
+  "EmergencyFacet.setResumeDelay",
   "EmergencyFacet.startRecovery",
   "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
   "EmergencyWithdrawalFacet.executeWithdrawal",
   "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+  "EmergencyWithdrawalFacet.setRecipientWhitelist",
+  "EmergencyWithdrawalFacet.updateWithdrawalConfig",
   "MultiSigFacet.addOperationType",
   "MultiSigFacet.addOperator",
   "MultiSigFacet.approveOperation",
@@ -276,6 +283,7 @@ const selectedGapKeys = new Set([
   "UpgradeControllerFacet.executeUpgrade",
   "UpgradeControllerFacet.freezeUpgradeControl",
   "UpgradeControllerFacet.proposeDiamondCut",
+  "UpgradeControllerFacet.setUpgradeControlEnforced",
 ]);
 
 async function startServer() {
@@ -443,7 +451,7 @@ describe("control-plane admin route safety", () => {
         }
       }
 
-      expect(selectedGapCases).toHaveLength(28);
+      expect(selectedGapCases).toHaveLength(36);
       expect(evidence).toHaveLength(selectedGapCases.length);
 
       const outputPath = process.env.API_LAYER_CONTROL_PLANE_GUARD_ARTIFACT ?? null;
