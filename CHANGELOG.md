@@ -2,6 +2,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.396] - 2026-10-20
+
+### Changed
+
+- **Residual Admin Gap Batch Closed Safely:** Recovered the integrity-hardened gap reporter, regenerated an honest `702/710` ready baseline, and planned all `8/8` remaining non-ready items (`100%`, above the required `40%`). Added the three trusted-init setters, two emergency timing setters, two emergency-withdrawal configuration setters, and upgrade-control enforcement setter to the exact-route live-admin guard matrix.
+- **Report And Route Integrity Hardened:** Retained fail-closed classification validation, planner total reconciliation, and unique overloaded-event HTTP routes. Regeneration now reports `710/710` items ready with no fixture, unsafe-live, contract-change, API-guard, or indexer-proof gaps.
+
+### Verified
+
+- **Live Writes Stayed Disabled:** The regenerated guard artifact covers `36/36` admin routes. Every route returned `403` before provider execution while live-admin opt-in remained disabled; no live administrative transaction was submitted.
+- **Required Gates Passed:** Gap reporting passed `13/13`, gap planning passed `28/28`, actor/admin negative paths passed `577/577`, and indexer assurance passed `268/268` active tests with `6` PostgreSQL-gated skips. Lint, all workspace TypeScript builds, canonical code generation, and coverage checks passed at `492` functions, `218` event occurrences, `492` HTTP methods, `214` addressable event routes, and `260/260` write invariants.
+
+### Blocked
+
+- **Execution Certification Is Unchanged:** The eight promoted items gained safety-guard evidence, not successful execution evidence, so this run added `0` receipts, `0` decoded events, and `0` PostgreSQL rows. The durable artifact remains at `108/260` write methods, `550` receipts, `845` decoded raw events, and `555` PostgreSQL projection rows; `152` write methods still need complete receipt/readback/indexer/replay proof.
+
 ## [0.1.395] - 2026-10-19
 
 ### Verified
