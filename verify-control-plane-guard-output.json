@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-19T10:02:52.297Z",
+  "generatedAt": "2026-10-20T09:58:19.745Z",
   "summary": "proven working",
   "totals": {
     "domainCount": 1,
-    "routeCount": 28,
-    "evidenceCount": 28
+    "routeCount": 36,
+    "evidenceCount": 36
   },
   "statusCounts": {
     "proven working": 1,
@@ -22,14 +22,21 @@
         "POST /v1/access-control/admin/set-paused",
         "POST /v1/access-control/admin/set-recovery-active",
         "POST /v1/diamond-admin/admin/diamond-cut",
+        "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+        "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+        "POST /v1/diamond-admin/admin/set-trusted-init-selector",
         "POST /v1/emergency/admin/approve-recovery",
         "POST /v1/emergency/admin/complete-recovery",
         "POST /v1/emergency/admin/execute-recovery-action",
         "POST /v1/emergency/admin/execute-recovery-step",
+        "POST /v1/emergency/admin/set-emergency-timeout",
+        "POST /v1/emergency/admin/set-resume-delay",
         "POST /v1/emergency/admin/start-recovery",
         "POST /v1/emergency/admin/approve-emergency-withdrawal",
         "POST /v1/emergency/admin/execute-withdrawal",
         "POST /v1/emergency/admin/request-emergency-withdrawal",
+        "POST /v1/emergency/admin/set-recipient-whitelist",
+        "POST /v1/emergency/admin/update-withdrawal-config",
         "POST /v1/multisig/admin/add-operation-type",
         "POST /v1/multisig/admin/add-operator",
         "POST /v1/multisig/admin/approve-operation",
@@ -43,7 +50,8 @@
         "POST /v1/diamond-admin/admin/approve-upgrade",
         "POST /v1/diamond-admin/admin/execute-upgrade",
         "POST /v1/diamond-admin/admin/freeze-upgrade-control",
-        "POST /v1/diamond-admin/admin/propose-diamond-cut"
+        "POST /v1/diamond-admin/admin/propose-diamond-cut",
+        "POST /v1/diamond-admin/admin/set-upgrade-control-enforced"
       ],
       "actors": [
         "founder-key",
@@ -94,6 +102,27 @@
           "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
         },
         {
+          "methodKey": "DiamondCutFacet.setTrustedInitCodehash",
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "DiamondCutFacet.setTrustedInitContract",
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "DiamondCutFacet.setTrustedInitSelector",
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
           "methodKey": "EmergencyFacet.approveRecovery",
           "route": "POST /v1/emergency/admin/approve-recovery",
           "status": 403,
@@ -122,6 +151,20 @@
           "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
         },
         {
+          "methodKey": "EmergencyFacet.setEmergencyTimeout",
+          "route": "POST /v1/emergency/admin/set-emergency-timeout",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.setResumeDelay",
+          "route": "POST /v1/emergency/admin/set-resume-delay",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
           "methodKey": "EmergencyFacet.startRecovery",
           "route": "POST /v1/emergency/admin/start-recovery",
           "status": 403,
@@ -145,6 +188,20 @@
         {
           "methodKey": "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
           "route": "POST /v1/emergency/admin/request-emergency-withdrawal",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.setRecipientWhitelist",
+          "route": "POST /v1/emergency/admin/set-recipient-whitelist",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+          "route": "POST /v1/emergency/admin/update-withdrawal-config",
           "status": 403,
           "result": "fail-closed before provider execution",
           "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
@@ -243,6 +300,13 @@
         {
           "methodKey": "UpgradeControllerFacet.proposeDiamondCut",
           "route": "POST /v1/diamond-admin/admin/propose-diamond-cut",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "UpgradeControllerFacet.setUpgradeControlEnforced",
+          "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
           "status": 403,
           "result": "fail-closed before provider execution",
           "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
