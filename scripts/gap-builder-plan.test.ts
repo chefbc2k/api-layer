@@ -31,7 +31,7 @@ function report() {
     generatedAt: "2026-09-27T00:00:00.000Z",
     totals: {
       classificationCounts: {
-        ready: 1,
+        ready: 0,
         "needs fixture": 3,
         "unsafe on live network": 2,
         "needs contract change": 0,
@@ -102,6 +102,38 @@ describe("gap-builder plan", () => {
       "PaymentFacet.distributePayment",
     ]);
   });
+
+  it.each(Array.from({ length: 15 }, (_, index) => index + 10))(
+    "clamps a percentage target to the minimum batch size for a %i-item backlog",
+    (itemCount) => {
+      const expandedReport = report();
+      expandedReport.facets = [{
+        facetName: "PaymentFacet",
+        functions: Array.from({ length: itemCount }, (_, index) => (
+          item(`PaymentFacet.operation${String(index).padStart(2, "0")}`, "needs fixture")
+        )),
+        events: [],
+      }];
+      expandedReport.totals.classificationCounts = {
+        ready: 0,
+        "needs fixture": itemCount,
+        "unsafe on live network": 0,
+        "needs contract change": 0,
+        "needs API guard": 0,
+        "needs indexer proof": 0,
+      };
+
+      const plan = buildGapBuilderPlan(expandedReport, {
+        maxItems: 40,
+        minBatchItems: 10,
+        targetPercent: 40,
+      });
+
+      expect(plan.totals).toMatchObject({ nonReady: itemCount, selected: 10 });
+      expect(plan.batches).toHaveLength(1);
+      expect(plan.batches[0].items).toHaveLength(10);
+    },
+  );
 
   it("does not create a one-item facet slice at the batch cutoff", () => {
     const plan = buildGapBuilderPlan(report(), { maxItems: 3, minBatchItems: 1 });
@@ -205,6 +237,14 @@ describe("gap-builder plan", () => {
     const reportPath = path.join(tempDir, "report.json");
     const cleanReport = report();
     cleanReport.facets = [];
+    cleanReport.totals.classificationCounts = {
+      ready: 0,
+      "needs fixture": 0,
+      "unsafe on live network": 0,
+      "needs contract change": 0,
+      "needs API guard": 0,
+      "needs indexer proof": 0,
+    };
     await writeFile(reportPath, JSON.stringify(cleanReport), "utf8");
 
     await expect(main([
@@ -215,5 +255,13 @@ describe("gap-builder plan", () => {
 
     const plan = JSON.parse(await readFile(path.join(tempDir, "gap-builder-plan.json"), "utf8"));
     expect(plan.totals).toMatchObject({ nonReady: 0, selected: 0 });
+  });
+
+  it("rejects stale classification totals that disagree with facet items", () => {
+    const staleReport = report();
+    staleReport.totals.classificationCounts["needs fixture"] = 0;
+
+    expect(() => buildGapBuilderPlan(staleReport, { maxItems: 40, minBatchItems: 10 }))
+      .toThrow("needs fixture: reported 0, actual 3");
   });
 });

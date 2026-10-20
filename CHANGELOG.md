@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.395] - 2026-10-19
+
+### Verified
+
+- **Report-Driven Gap Inventory Remains Green:** Regenerated the API gap report and forty-percent plan at `710/710` ready items with `0` non-ready items and therefore `0/0` selected. No item was newly promoted in this run.
+- **Live Admin Writes Remain Fail-Closed:** Rebuilt the exact-route guard artifact for `28/28` selected admin routes. Every request returned `403` before provider execution with the live-admin opt-in disabled; no live administrative transaction was attempted.
+- **Required Gates Passed:** Gap reporting passed `11/11`, gap planning passed `28/28`, actor/admin negative paths passed `577/577`, and indexer assurance passed `268/268` active tests with `6` PostgreSQL-gated skips. Lint, all workspace TypeScript builds, canonical code generation, and coverage checks passed at `492` functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Blocked
+
+- **End-To-End Write Certification Is Still Partial:** The durable artifact remains at `108/260` write methods, `550` receipts, `845` decoded raw events, and `555` PostgreSQL projection rows. The `152` remaining methods still need receipt/readback/indexer/replay proof, so the accumulated assurance branch is not promoted to `master` by this run.
+
 ## [0.1.394] - 2026-10-18
 
 ### Changed

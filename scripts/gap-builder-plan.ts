@@ -76,6 +76,28 @@ const classificationPriority: Record<GapClassification, number> = {
   ready: 5,
 };
 
+const gapClassifications = Object.keys(classificationPriority) as GapClassification[];
+
+function validateClassificationCounts(report: GapReport, items: GapItem[]): void {
+  const actualCounts = Object.fromEntries(
+    gapClassifications.map((classification) => [classification, 0]),
+  ) as Record<GapClassification, number>;
+  for (const item of items) {
+    actualCounts[item.classification] += 1;
+  }
+
+  const mismatches = gapClassifications.flatMap((classification) => {
+    const reported = report.totals.classificationCounts[classification];
+    const actual = actualCounts[classification];
+    return reported === actual
+      ? []
+      : [`${classification}: reported ${String(reported)}, actual ${actual}`];
+  });
+  if (mismatches.length > 0) {
+    throw new Error(`gap-builder report classification totals do not match facet items (${mismatches.join("; ")})`);
+  }
+}
+
 function compareGapItems(left: GapItem, right: GapItem): number {
   return (
     classificationPriority[left.classification] - classificationPriority[right.classification] ||
@@ -156,13 +178,15 @@ function verificationFor(items: GapItem[]): string[] {
 
 export function buildGapBuilderPlan(report: GapReport, options: GapBuilderPlanOptions): GapBuilderPlan {
   const focus = options.focus?.trim().toLowerCase() || null;
-  const allItems = report.facets
-    .flatMap((facet) => [...facet.functions, ...facet.events])
+  const reportItems = report.facets.flatMap((facet) => [...facet.functions, ...facet.events]);
+  validateClassificationCounts(report, reportItems);
+  const allItems = reportItems
     .filter((item) => item.classification !== "ready")
     .filter((item) => !focus || item.id.toLowerCase().includes(focus) || item.facetName.toLowerCase().includes(focus))
     .sort(compareGapItems);
+  const minimumTarget = Math.min(allItems.length, options.minBatchItems);
   const targetCount = options.targetPercent
-    ? Math.ceil(allItems.length * (options.targetPercent / 100))
+    ? Math.max(minimumTarget, Math.ceil(allItems.length * (options.targetPercent / 100)))
     : options.maxItems;
   const selected = selectGroupedItems(allItems, targetCount, Boolean(options.targetPercent));
   if (

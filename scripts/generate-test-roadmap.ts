@@ -51,6 +51,16 @@ type Endpoint = {
   classification?: string;
 };
 
+type HttpRouteOccupant = {
+  kind: "function" | "event";
+  key: string;
+};
+
+type HttpRouteCollision = {
+  route: string;
+  occupants: HttpRouteOccupant[];
+};
+
 type Registry = {
   methods: Record<string, Endpoint>;
   events: Record<string, Endpoint>;
@@ -245,6 +255,24 @@ function endpointRoute(endpoint: Endpoint | undefined): string | null {
   return endpoint?.httpMethod && endpoint.path ? `${endpoint.httpMethod.toUpperCase()} ${endpoint.path}` : null;
 }
 
+function httpRouteCollisions(registry: Registry): Map<string, HttpRouteCollision> {
+  const occupantsByRoute = new Map<string, HttpRouteOccupant[]>();
+  for (const [section, entries] of Object.entries(registry) as Array<[keyof Registry, Record<string, Endpoint>]>) {
+    for (const [key, endpoint] of Object.entries(entries)) {
+      const route = endpointRoute(endpoint);
+      if (!route) continue;
+      const occupants = occupantsByRoute.get(route) ?? [];
+      occupants.push({ kind: section === "methods" ? "function" : "event", key });
+      occupantsByRoute.set(route, occupants);
+    }
+  }
+  return new Map(
+    [...occupantsByRoute.entries()]
+      .filter(([, occupants]) => occupants.length > 1)
+      .map(([route, occupants]) => [route, { route, occupants }]),
+  );
+}
+
 function itemTokens(key: string, name: string, wrapperKey: string, signature: string, endpoint: Endpoint | undefined): string[] {
   return [...new Set([key, name, wrapperKey, signature, endpoint?.operationId, endpoint?.path].filter((value): value is string => Boolean(value)))];
 }
@@ -410,7 +438,10 @@ function classifyEvent(proof: ProofFlags): GapClassification {
   if (!proof.rpcRegistry) {
     return "needs contract change";
   }
-  if (!proof.httpRegistry || !proof.reviewedApiSurface || !proof.indexer) {
+  if (!proof.httpRegistry || !proof.reviewedApiSurface) {
+    return "needs API guard";
+  }
+  if (!proof.indexer) {
     return "needs indexer proof";
   }
   if (!proof.unit && !proof.localFork && !proof.baseSepolia) {
@@ -424,10 +455,17 @@ function gapsFor(item: {
   category: "read" | "write" | "event";
   proof: ProofFlags;
   exclusion: string | null;
+  routeCollision: HttpRouteCollision | null;
 }): string[] {
   const gaps: string[] = [];
   if (!item.proof.rpcRegistry) gaps.push("missing RPC registry entry");
-  if (!item.proof.httpRegistry && !item.exclusion) gaps.push("missing HTTP registry entry");
+  if (!item.proof.httpRegistry && !item.exclusion && !item.routeCollision) gaps.push("missing HTTP registry entry");
+  if (item.routeCollision) {
+    const occupants = item.routeCollision.occupants
+      .map((occupant) => `${occupant.kind} ${occupant.key}`)
+      .join(", ");
+    gaps.push(`duplicate HTTP route ${item.routeCollision.route} shared by ${occupants}`);
+  }
   if (!item.proof.reviewedApiSurface && !item.exclusion) gaps.push("missing reviewed API surface entry");
   if (item.exclusion) gaps.push(item.exclusion);
   if (!item.proof.unit) gaps.push("no directly attributable test reference");
@@ -467,14 +505,16 @@ function buildItem(args: {
   reviewed: ReviewedApiSurface;
   tests: TestSource[];
   artifacts: VerifyArtifact[];
+  routeCollisions: Map<string, HttpRouteCollision>;
 }): GapItem {
-  const { occurrence, facetName, kind, entry, httpRegistry, rpcRegistry, reviewed, tests, artifacts } = args;
+  const { occurrence, facetName, kind, entry, httpRegistry, rpcRegistry, reviewed, tests, artifacts, routeCollisions } = args;
   const key = `${facetName}.${entry.wrapperKey}`;
   const registrySection = kind === "function" ? "methods" : "events";
   const endpoint = httpRegistry[registrySection][key];
   const reviewedEndpoint = reviewed[registrySection][key];
   const rpcEntry = rpcRegistry[registrySection][key];
   const route = endpointRoute(endpoint);
+  const routeCollision = route ? routeCollisions.get(route) ?? null : null;
   const tokens = itemTokens(key, entry.name, entry.wrapperKey, entry.signature, endpoint ?? reviewedEndpoint);
   const artifactEvidence = verifyEvidenceFor(key, route, endpoint ?? reviewedEndpoint, artifacts);
   const evidence = buildEvidence(tests, tokens, artifactEvidence, kind);
@@ -482,7 +522,7 @@ function buildItem(args: {
   const proof: ProofFlags = {
     abiManifest: true,
     rpcRegistry: Boolean(rpcEntry),
-    httpRegistry: Boolean(endpoint),
+    httpRegistry: Boolean(route) && !routeCollision,
     reviewedApiSurface: Boolean(reviewedEndpoint),
     unit: evidence.tests.length > 0,
     workflow: evidence.workflowTests.length > 0,
@@ -516,13 +556,14 @@ function buildItem(args: {
     proof,
     proofDepth: proofDepth(proof),
     classification,
-    gaps: gapsFor({ kind, category, proof, exclusion }),
+    gaps: gapsFor({ kind, category, proof, exclusion, routeCollision }),
     evidence,
   };
 }
 
 export function buildGapReport(input: BuildGapReportInput): GapReport {
   const occurrences = new Map<string, number>();
+  const routeCollisions = httpRouteCollisions(input.httpRegistry);
   const facets = input.manifest.facets.map<GapFacet>((facet) => {
     const makeItem = (kind: "function" | "event", entry: ManifestMethod | ManifestEvent): GapItem => {
       const key = `${facet.facetName}.${entry.wrapperKey}`;
@@ -538,6 +579,7 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
         reviewed: input.reviewedApiSurface,
         tests: input.tests,
         artifacts: input.verifyArtifacts,
+        routeCollisions,
       });
     };
     const functions = facet.functions.map((entry) => makeItem("function", entry));

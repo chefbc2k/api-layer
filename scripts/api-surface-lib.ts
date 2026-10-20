@@ -659,6 +659,48 @@ export function buildEventSurface(event: AbiEventDefinition): ApiSurfaceEvent {
   };
 }
 
+export function ensureUniqueEventPaths(events: Record<string, ApiSurfaceEvent>): Record<string, ApiSurfaceEvent> {
+  const routeGroups = new Map<string, string[]>();
+  for (const [key, event] of Object.entries(events)) {
+    const routeKey = `${event.httpMethod} ${event.path}`;
+    const entries = routeGroups.get(routeKey) ?? [];
+    entries.push(key);
+    routeGroups.set(routeKey, entries);
+  }
+  for (const keys of routeGroups.values()) {
+    if (keys.length <= 1) {
+      continue;
+    }
+    for (const key of keys) {
+      events[key] = {
+        ...events[key],
+        path: `${events[key].path}/${toKebabCase(events[key].facetName.replace(/Facet$/u, ""))}`,
+      };
+    }
+  }
+
+  const overloadedRouteGroups = new Map<string, string[]>();
+  for (const [key, event] of Object.entries(events)) {
+    const routeKey = `${event.httpMethod} ${event.path}`;
+    const entries = overloadedRouteGroups.get(routeKey) ?? [];
+    entries.push(key);
+    overloadedRouteGroups.set(routeKey, entries);
+  }
+  for (const keys of overloadedRouteGroups.values()) {
+    if (keys.length <= 1) {
+      continue;
+    }
+    for (const key of keys) {
+      events[key] = {
+        ...events[key],
+        path: `${events[key].path}/${toKebabCase(events[key].operationId)}`,
+      };
+    }
+  }
+
+  return events;
+}
+
 export function sortObject<T>(value: Record<string, T>): Record<string, T> {
   return Object.fromEntries(Object.entries(value).sort(([left], [right]) => left.localeCompare(right)));
 }

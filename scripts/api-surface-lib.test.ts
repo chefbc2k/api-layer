@@ -6,6 +6,7 @@ import {
   buildOperationId,
   classifyMethod,
   domainByFacet,
+  ensureUniqueEventPaths,
   keyForEvent,
   keyForMethod,
   loadAbiRegistry,
@@ -931,6 +932,67 @@ describe("api surface helpers", () => {
       beta: 2,
       gamma: 3,
     });
+  });
+
+  it("keeps same-facet overloaded event routes unique after facet disambiguation", () => {
+    const events = ensureUniqueEventPaths({
+      "TimelockFacet.OperationExecuted(bytes32)": buildEventSurface(event({
+        facetName: "TimelockFacet",
+        wrapperKey: "OperationExecuted(bytes32)",
+        eventName: "OperationExecuted",
+        signature: "OperationExecuted(bytes32)",
+      })),
+      "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)": buildEventSurface(event({
+        facetName: "TimelockFacet",
+        wrapperKey: "OperationExecuted(bytes32,uint256,uint256)",
+        eventName: "OperationExecuted",
+        signature: "OperationExecuted(bytes32,uint256,uint256)",
+      })),
+      "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)": buildEventSurface(event({
+        facetName: "VoiceLicenseFacet",
+        wrapperKey: "LicenseCreated(bytes32,address,bytes32,uint256,uint256)",
+        eventName: "LicenseCreated",
+        signature: "LicenseCreated(bytes32,address,bytes32,uint256,uint256)",
+      })),
+      "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)": buildEventSurface(event({
+        facetName: "VoiceLicenseFacet",
+        wrapperKey: "LicenseCreated(bytes32,bytes32,address,uint256,uint256)",
+        eventName: "LicenseCreated",
+        signature: "LicenseCreated(bytes32,bytes32,address,uint256,uint256)",
+      })),
+      "VoiceLicenseTemplateFacet.LicenseCreated": buildEventSurface(event({
+        facetName: "VoiceLicenseTemplateFacet",
+        wrapperKey: "LicenseCreated",
+        eventName: "LicenseCreated",
+        signature: "LicenseCreated(bytes32,bytes32,address)",
+      })),
+      "GovernorFacet.VoteCast": buildEventSurface(event({
+        facetName: "GovernorFacet",
+        wrapperKey: "VoteCast",
+        eventName: "VoteCast",
+        signature: "VoteCast(address,uint256,uint8,uint256,string)",
+      })),
+    });
+
+    expect(events["TimelockFacet.OperationExecuted(bytes32)"].path).toBe(
+      "/v1/governance/events/operation-executed/query/timelock/operation-executed-bytes32-event-query",
+    );
+    expect(events["TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"].path).toBe(
+      "/v1/governance/events/operation-executed/query/timelock/operation-executed-bytes32-uint256-uint256-event-query",
+    );
+    expect(events["VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)"].path).toBe(
+      "/v1/licensing/events/license-created/query/voice-license/license-created-bytes32-address-bytes32-uint256-uint256-event-query",
+    );
+    expect(events["VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)"].path).toBe(
+      "/v1/licensing/events/license-created/query/voice-license/license-created-bytes32-bytes32-address-uint256-uint256-event-query",
+    );
+    expect(events["VoiceLicenseTemplateFacet.LicenseCreated"].path).toBe(
+      "/v1/licensing/events/license-created/query/voice-license-template",
+    );
+    expect(events["GovernorFacet.VoteCast"].path).toBe("/v1/governance/events/vote-cast/query");
+
+    const routeKeys = Object.values(events).map((entry) => `${entry.httpMethod} ${entry.path}`);
+    expect(new Set(routeKeys).size).toBe(routeKeys.length);
   });
 
   it("throws for unmapped method or event facets", () => {

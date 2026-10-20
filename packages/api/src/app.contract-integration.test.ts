@@ -3590,13 +3590,18 @@ describeLive("HTTP API contract integration", () => {
     expect(activeTemplateHash).toBe("0x0000000000000000000000000000000000000000000000000000000000000000");
 
     const licenseCreatedReceipt = await provider.getTransactionReceipt(createLicenseTxHash);
-    const licenseCreatedEvents = await apiCall(port, "POST", "/v1/licensing/events/license-created/query/voice-license", {
+    const licenseCreatedEvents = await apiCall(
+      port,
+      "POST",
+      "/v1/licensing/events/license-created/query/voice-license/license-created-bytes32-address-bytes32-uint256-uint256-event-query",
+      {
       apiKey: "read-key",
       body: {
         fromBlock: String(licenseCreatedReceipt!.blockNumber),
         toBlock: String(licenseCreatedReceipt!.blockNumber),
       },
-    });
+      },
+    );
     expect(licenseCreatedEvents.status).toBe(200);
     expect((licenseCreatedEvents.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === createLicenseTxHash)).toBe(true);
 

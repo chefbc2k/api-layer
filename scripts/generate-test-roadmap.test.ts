@@ -332,6 +332,61 @@ describe("API test gap report", () => {
     expect(report.facets[0].functions[0].classification).toBe("needs fixture");
   });
 
+  it("marks same-facet overloaded event route collisions as non-ready", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions = [];
+    input.manifest.facets[0].events = [
+      { name: "ThingSet", wrapperKey: "ThingSet(uint256)", signature: "ThingSet(uint256)" },
+      { name: "ThingSet", wrapperKey: "ThingSet(bytes32)", signature: "ThingSet(bytes32)" },
+    ];
+    input.manifest.totals = { facetCount: 1, functionCount: 0, eventCount: 2 };
+    const sharedRoute = "/v1/test/events/thing-set/query/test";
+    const events = {
+      "TestFacet.ThingSet(uint256)": endpoint("POST", sharedRoute, "thingSetUint256EventQuery"),
+      "TestFacet.ThingSet(bytes32)": endpoint("POST", sharedRoute, "thingSetBytes32EventQuery"),
+    };
+    input.httpRegistry = { methods: {}, events };
+    input.rpcRegistry = { methods: {}, events };
+    input.reviewedApiSurface = { methods: {}, events };
+    input.tests = [{
+      path: "packages/indexer/src/events.test.ts",
+      content: "TestFacet.ThingSet(uint256) TestFacet.ThingSet(bytes32)",
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+    const expectedGap = `duplicate HTTP route POST ${sharedRoute} shared by event TestFacet.ThingSet(uint256), event TestFacet.ThingSet(bytes32)`;
+
+    expect(report.totals.classificationCounts).toMatchObject({ ready: 0, "needs API guard": 2 });
+    for (const item of report.facets[0].events) {
+      expect(item).toMatchObject({
+        classification: "needs API guard",
+        endpoint: { method: "POST", path: sharedRoute },
+        proof: { httpRegistry: false, reviewedApiSurface: true, unit: true, indexer: true },
+      });
+      expect(item.gaps).toContain(expectedGap);
+      expect(item.gaps).not.toContain("missing HTTP registry entry");
+    }
+  });
+
+  it("detects duplicate routes across method and event registry sections", () => {
+    const input = baseInput();
+    const sharedRoute = "/v1/test";
+    input.httpRegistry.events["TestFacet.ThingSet"] = endpoint("POST", sharedRoute, "thingSetEventQuery");
+    input.reviewedApiSurface.events["TestFacet.ThingSet"] = endpoint("POST", sharedRoute, "thingSetEventQuery");
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+    const write = report.facets[0].functions[1];
+    const eventItem = report.facets[0].events[0];
+    const expectedGap = `duplicate HTTP route POST ${sharedRoute} shared by function TestFacet.setThing, event TestFacet.ThingSet`;
+
+    expect(write).toMatchObject({ classification: "needs API guard", proof: { httpRegistry: false } });
+    expect(eventItem).toMatchObject({ classification: "needs API guard", proof: { httpRegistry: false } });
+    expect(write.gaps).toContain(expectedGap);
+    expect(eventItem.gaps).toContain(expectedGap);
+  });
+
   it("does not treat role-oriented payment language as economic proof", () => {
     const input = baseInput();
     input.tests = [{

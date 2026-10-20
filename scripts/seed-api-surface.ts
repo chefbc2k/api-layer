@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { buildEventSurface, buildMethodSurface, loadAbiRegistry, sortObject, toCamelCase, toKebabCase, type ApiSurfaceEvent, type ApiSurfaceMethod, type ReviewedApiSurfaceFile } from "./api-surface-lib.js";
+import { buildEventSurface, buildMethodSurface, ensureUniqueEventPaths, loadAbiRegistry, sortObject, toCamelCase, toKebabCase, type ApiSurfaceEvent, type ApiSurfaceMethod, type ReviewedApiSurfaceFile } from "./api-surface-lib.js";
 import { writeJson } from "./utils.js";
 
 function ensureUniqueOperationIds<T extends ApiSurfaceMethod | ApiSurfaceEvent>(
@@ -74,28 +74,6 @@ function ensureUniquePaths(methods: Record<string, ApiSurfaceMethod>): Record<st
   }
 
   return methods;
-}
-
-function ensureUniqueEventPaths(events: Record<string, ApiSurfaceEvent>): Record<string, ApiSurfaceEvent> {
-  const routeGroups = new Map<string, string[]>();
-  for (const [key, event] of Object.entries(events)) {
-    const routeKey = `${event.httpMethod} ${event.path}`;
-    const entries = routeGroups.get(routeKey) ?? [];
-    entries.push(key);
-    routeGroups.set(routeKey, entries);
-  }
-  for (const keys of routeGroups.values()) {
-    if (keys.length <= 1) {
-      continue;
-    }
-    for (const key of keys) {
-      events[key] = {
-        ...events[key],
-        path: `${events[key].path}/${toKebabCase(events[key].facetName.replace(/Facet$/u, ""))}`,
-      };
-    }
-  }
-  return events;
 }
 
 async function main(): Promise<void> {
