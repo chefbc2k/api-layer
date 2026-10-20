@@ -29,6 +29,9 @@ export function authenticate(apiKeys: Record<string, AuthContext>, apiKey: strin
   if (!apiKey) {
     throw new Error("missing x-api-key");
   }
+  if (!Object.hasOwn(apiKeys, apiKey)) {
+    throw new Error("invalid x-api-key");
+  }
   const context = apiKeys[apiKey];
   if (!context) {
     throw new Error("invalid x-api-key");

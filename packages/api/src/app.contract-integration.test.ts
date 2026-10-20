@@ -28,6 +28,11 @@ import {
 } from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
 import { resolveRuntimeConfig, verifyNetwork } from "../../../scripts/alchemy-debug-lib.js";
+import {
+  assertConservedDeltas,
+  assertExactAmountDelta,
+  assertNoEconomicSideEffects,
+} from "./workflows/economic-invariants.js";
 
 const repoEnv = loadRepoEnv();
 const liveIntegrationEnabled =
@@ -108,6 +113,8 @@ async function startLocalForkIfNeeded(runtimeConfig: Awaited<ReturnType<typeof r
       String(runtimeConfig.config.chainId),
       "--fork-url",
       runtimeConfig.config.cbdpRpcUrl,
+      "--prune-history",
+      "512",
     ],
     {
       stdio: ["ignore", "pipe", "pipe"],
@@ -550,6 +557,7 @@ describeLive("HTTP API contract integration", () => {
   let fundingWallet: Wallet;
   let fundingWallets: Wallet[] = [];
   let licenseeWallet: Wallet;
+  let marketplaceBuyerWallet: Wallet;
   let transfereeWallet: Wallet;
   let outsiderWallet: Wallet;
   let diamondAddress: string;
@@ -574,6 +582,7 @@ describeLive("HTTP API contract integration", () => {
   let stakingFacet: Contract;
   let delegationFacet: DelegationFacet;
   let tokenSupplyFacet: Contract;
+  let vestingFacet: Contract;
   let burnThresholdFacet: Contract;
   let timewaveGiftFacet: Contract;
   let votingPowerFacet: VotingPowerFacet;
@@ -903,6 +912,7 @@ describeLive("HTTP API contract integration", () => {
       .filter((value, index, array): value is string => typeof value === "string" && value.length > 0 && array.indexOf(value) === index)
       .map((privateKey) => new Wallet(privateKey, provider));
     licenseeWallet = new Wallet(licenseePrivateKey, provider);
+    marketplaceBuyerWallet = new Wallet(repoEnv.ORACLE_SIGNER_PRIVATE_KEY_2 ?? licenseePrivateKey, provider);
     transfereeWallet = new Wallet(transfereePrivateKey, provider);
     outsiderWallet = new Wallet(outsiderPrivateKey, provider);
 
@@ -927,6 +937,7 @@ describeLive("HTTP API contract integration", () => {
     stakingFacet = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
     delegationFacet = new Contract(diamondAddress, facetRegistry.DelegationFacet.abi, provider) as unknown as DelegationFacet;
     tokenSupplyFacet = new Contract(diamondAddress, facetRegistry.TokenSupplyFacet.abi, provider);
+    vestingFacet = new Contract(diamondAddress, facetRegistry.VestingFacet.abi, provider);
     burnThresholdFacet = new Contract(diamondAddress, facetRegistry.BurnThresholdFacet.abi, provider);
     timewaveGiftFacet = new Contract(diamondAddress, facetRegistry.TimewaveGiftFacet.abi, provider);
     votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
@@ -1927,6 +1938,527 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 300_000);
 
+  it("proves marketplace withdrawal token custody, failed-call safety, rounding, and replay behavior on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "marketplace withdrawal economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: marketplaceBuyerWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    try {
+      const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+        body: {
+          ipfsHash: `QmWithdrawalEconomics${Date.now()}`,
+          royaltyRate: "100",
+        },
+      });
+      expect(createVoiceResponse.status, JSON.stringify(createVoiceResponse.payload)).toBe(202);
+      const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(createVoiceResponse.payload));
+      const tokenId = BigInt(await waitFor(
+        () => voiceAsset.getTokenId(voiceHash),
+        (value) => BigInt(value as bigint) > 0n,
+        "marketplace withdrawal fixture token",
+      ));
+
+      await provider.send("evm_increaseTime", [86_401]);
+      await provider.send("evm_mine", []);
+
+      const paymentTokenAddress = await paymentFacet.getUsdcToken();
+      const paymentToken = new Contract(paymentTokenAddress, [
+        "function balanceOf(address account) view returns (uint256)",
+        "function approve(address spender,uint256 amount) returns (bool)",
+      ], provider);
+      const distributionAmount = 101n;
+      expect(BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address))).toBeGreaterThanOrEqual(distributionAmount);
+      const buyerNonce = await provider.getTransactionCount(marketplaceBuyerWallet.address, "pending");
+      const approvalReceipt = await (await paymentToken.connect(marketplaceBuyerWallet).approve(
+        diamondAddress,
+        distributionAmount,
+        { nonce: buyerNonce },
+      )).wait();
+      expect(approvalReceipt?.status).toBe(1);
+      const distributionReceipt = await (await paymentFacet.connect(marketplaceBuyerWallet).distributePayment(
+        tokenId,
+        distributionAmount,
+        founderAddress,
+        ethers.ZeroAddress,
+        false,
+        { nonce: buyerNonce + 1 },
+      )).wait();
+      expect(distributionReceipt?.status).toBe(1);
+
+      const pendingBefore = await paymentFacet.getPendingPayments(founderAddress);
+      expect(pendingBefore).toBeGreaterThan(0n);
+      expect(pendingBefore).toBeLessThan(distributionAmount);
+      const custodyBefore = BigInt(await paymentToken.balanceOf(diamondAddress));
+      const payeeBefore = BigInt(await paymentToken.balanceOf(founderAddress));
+
+      const latestBlock = await provider.getBlock("latest");
+      const expiredResponse = await apiCall(port, "POST", "/v1/workflows/withdraw-marketplace-payments", {
+        body: { deadline: String((latestBlock?.timestamp ?? 1) - 1) },
+      });
+      expect(expiredResponse.status).not.toBe(202);
+      assertNoEconomicSideEffects("marketplaceWithdrawal.expired", {
+        pending: pendingBefore,
+        custody: custodyBefore,
+        payee: payeeBefore,
+      }, {
+        pending: await paymentFacet.getPendingPayments(founderAddress),
+        custody: BigInt(await paymentToken.balanceOf(diamondAddress)),
+        payee: BigInt(await paymentToken.balanceOf(founderAddress)),
+      });
+
+      const withdrawalResponse = await apiCall(port, "POST", "/v1/workflows/withdraw-marketplace-payments", {
+        body: {},
+      });
+      expect(withdrawalResponse.status, JSON.stringify(withdrawalResponse.payload)).toBe(202);
+      const withdrawal = (withdrawalResponse.payload as { withdrawal: {
+        txHash: string;
+        releasedAmount: string;
+        economics: {
+          custody: { delta: string };
+          payee: { delta: string };
+          conservation: string;
+        };
+      } }).withdrawal;
+      await expectReceipt(withdrawal.txHash);
+      expect(withdrawal.releasedAmount).toBe(pendingBefore.toString());
+      expect(withdrawal.economics).toMatchObject({
+        custody: { delta: (-pendingBefore).toString() },
+        payee: { delta: pendingBefore.toString() },
+        conservation: "0",
+      });
+      const custodyAfter = BigInt(await paymentToken.balanceOf(diamondAddress));
+      const payeeAfter = BigInt(await paymentToken.balanceOf(founderAddress));
+      const custodyDelta = assertExactAmountDelta(
+        "marketplaceWithdrawal.custody",
+        custodyBefore,
+        custodyAfter,
+        -pendingBefore,
+      );
+      const payeeDelta = assertExactAmountDelta(
+        "marketplaceWithdrawal.payee",
+        payeeBefore,
+        payeeAfter,
+        pendingBefore,
+      );
+      assertConservedDeltas("marketplaceWithdrawal.conservation", [custodyDelta.delta, payeeDelta.delta]);
+      expect(await paymentFacet.getPendingPayments(founderAddress)).toBe(0n);
+
+      const repeatResponse = await apiCall(port, "POST", "/v1/workflows/withdraw-marketplace-payments", {
+        body: {},
+      });
+      expect(repeatResponse.status).toBe(409);
+      assertNoEconomicSideEffects("marketplaceWithdrawal.repeat", {
+        pending: 0n,
+        custody: custodyAfter,
+        payee: payeeAfter,
+      }, {
+        pending: await paymentFacet.getPendingPayments(founderAddress),
+        custody: BigInt(await paymentToken.balanceOf(diamondAddress)),
+        payee: BigInt(await paymentToken.balanceOf(founderAddress)),
+      });
+    } finally {
+      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+    }
+  }, 300_000);
+
+  it("proves payment-split liabilities and treasury sweeps conserve token custody on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "payment split and treasury movement economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: marketplaceBuyerWallet.address, minimumWei: ethers.parseEther("0.00001") },
+      { address: licensingOwnerAddress, minimumWei: ethers.parseEther("0.000006") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      const feeManagerRole = id("FEE_MANAGER_ROLE");
+      if (!(await accessControl.hasRole(feeManagerRole, founderAddress))) {
+        const roleReceipt = await (
+          await accessControl.connect(founderWallet).grantRole(feeManagerRole, founderAddress, ethers.MaxUint256)
+        ).wait();
+        expect(roleReceipt?.status).toBe(1);
+      }
+      const treasurySignerRole = id("TREASURY_SIGNER_ROLE");
+      const accessStorageBase = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.access.control.storage")));
+      const roleMembersMappingSlot = accessStorageBase + 11n;
+      const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+      for (const signer of [founderAddress, licenseeWallet.address]) {
+        if (!(await accessControl.hasRole(treasurySignerRole, signer))) {
+          const roleBucket = BigInt(ethers.keccak256(abiCoder.encode(
+            ["bytes32", "uint256"],
+            [treasurySignerRole, roleMembersMappingSlot],
+          )));
+          const memberSlot = BigInt(ethers.keccak256(abiCoder.encode(
+            ["address", "uint256"],
+            [signer, roleBucket],
+          )));
+          await provider.send("anvil_setStorageAt", [
+            diamondAddress,
+            ethers.toBeHex(memberSlot, 32),
+            ethers.toBeHex(ethers.MaxUint256, 32),
+          ]);
+          await provider.send("anvil_setStorageAt", [
+            diamondAddress,
+            ethers.toBeHex(memberSlot + 3n, 32),
+            ethers.toBeHex(1n << 160n, 32),
+          ]);
+          await provider.send("evm_mine", []);
+          expect(await accessControl.hasRole(treasurySignerRole, signer)).toBe(true);
+        }
+      }
+
+      const configuredPayees = {
+        seller: founderAddress,
+        treasury: licensingOwnerAddress,
+        unionTreasury: licenseeWallet.address,
+        devFund: transfereeWallet.address,
+      };
+      const addressUpdates = [
+        ["PATCH", "/v1/marketplace/commands/update-treasury-address", { newTreasury: configuredPayees.treasury }],
+        ["PATCH", "/v1/marketplace/commands/update-union-treasury-address", { newUnionTreasury: configuredPayees.unionTreasury }],
+        ["PATCH", "/v1/marketplace/commands/update-dev-fund-address", { newDevFund: configuredPayees.devFund }],
+      ] as const;
+      for (const [method, path, body] of addressUpdates) {
+        const response = await apiCall(port, method, path, { body });
+        expect(response.status, JSON.stringify(response.payload)).toBe(202);
+        await expectReceipt(extractTxHash(response.payload));
+      }
+      expect(await paymentFacet.getTreasuryAddress()).toBe(configuredPayees.treasury);
+      expect(await paymentFacet.getUnionTreasuryAddress()).toBe(configuredPayees.unionTreasury);
+      expect(await paymentFacet.getDevFundAddress()).toBe(configuredPayees.devFund);
+
+      const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+        body: {
+          ipfsHash: `QmPaymentSplitEconomics${Date.now()}`,
+          royaltyRate: "100",
+        },
+      });
+      expect(createVoiceResponse.status, JSON.stringify(createVoiceResponse.payload)).toBe(202);
+      const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(createVoiceResponse.payload));
+      const tokenId = BigInt(await waitFor(
+        () => voiceAsset.getTokenId(voiceHash),
+        (value) => BigInt(value as bigint) > 0n,
+        "payment split fixture token",
+      ));
+      await provider.send("evm_increaseTime", [86_401]);
+      await provider.send("evm_mine", []);
+
+      const paymentTokenAddress = await paymentFacet.getUsdcToken();
+      const paymentToken = new Contract(paymentTokenAddress, [
+        "function balanceOf(address account) view returns (uint256)",
+        "function allowance(address owner,address spender) view returns (uint256)",
+        "function approve(address spender,uint256 amount) returns (bool)",
+      ], provider);
+      const distributionAmount = 101n;
+      expect(BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address))).toBeGreaterThanOrEqual(distributionAmount);
+
+      const readPending = async () => ({
+        seller: BigInt(await paymentFacet.getPendingPayments(configuredPayees.seller)),
+        treasury: BigInt(await paymentFacet.getPendingPayments(configuredPayees.treasury)),
+        unionTreasury: BigInt(await paymentFacet.getPendingPayments(configuredPayees.unionTreasury)),
+        devFund: BigInt(await paymentFacet.getPendingPayments(configuredPayees.devFund)),
+      });
+      const readPayeeBalances = async () => ({
+        seller: BigInt(await paymentToken.balanceOf(configuredPayees.seller)),
+        treasury: BigInt(await paymentToken.balanceOf(configuredPayees.treasury)),
+        unionTreasury: BigInt(await paymentToken.balanceOf(configuredPayees.unionTreasury)),
+        devFund: BigInt(await paymentToken.balanceOf(configuredPayees.devFund)),
+      });
+      const readDistributionEconomics = async () => {
+        const [pending, payeeBalances, revenue, assetRevenue, stakingStats, buybackStatus, timewaveGift] = await Promise.all([
+          readPending(),
+          readPayeeBalances(),
+          paymentFacet.getRevenueMetrics(),
+          paymentFacet.getAssetRevenue(tokenId),
+          stakingFacet.getStakingStats(),
+          paymentFacet.getBuybackStatus(),
+          paymentFacet.getPendingTimewaveGift(configuredPayees.seller),
+        ]);
+        return {
+          buyer: BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address)),
+          custody: BigInt(await paymentToken.balanceOf(diamondAddress)),
+          allowance: BigInt(await paymentToken.allowance(marketplaceBuyerWallet.address, diamondAddress)),
+          pending,
+          payeeBalances,
+          totalVolume: BigInt(revenue.totalVolume),
+          totalFees: BigInt(revenue.totalFees),
+          totalRoyalties: BigInt(revenue.totalRoyalties),
+          assetVolume: BigInt(assetRevenue.totalVolume),
+          assetFees: BigInt(assetRevenue.totalFees),
+          assetRoyalties: BigInt(assetRevenue.totalRoyalties),
+          rewardPoolBalance: BigInt(stakingStats.rewardPoolBalance),
+          buybackAccumulator: BigInt(buybackStatus.accumulator),
+          timewaveGift: BigInt(timewaveGift),
+        };
+      };
+
+      const buyerNonce = await provider.getTransactionCount(marketplaceBuyerWallet.address, "pending");
+      const approvalReceipt = await (await paymentToken.connect(marketplaceBuyerWallet).approve(
+        diamondAddress,
+        distributionAmount,
+        { nonce: buyerNonce },
+      )).wait();
+      expect(approvalReceipt?.status).toBe(1);
+      const before = await readDistributionEconomics();
+
+      const latestBlock = await provider.getBlock("latest");
+      const expiredDistribution = await paymentFacet.connect(marketplaceBuyerWallet).distributePaymentWithDeadline(
+        tokenId,
+        distributionAmount,
+        configuredPayees.seller,
+        ethers.ZeroAddress,
+        false,
+        BigInt((latestBlock?.timestamp ?? 1) - 1),
+        { gasLimit: 1_000_000n, nonce: buyerNonce + 1 },
+      );
+      await expect(expiredDistribution.wait()).rejects.toThrow();
+      expect((await provider.getTransactionReceipt(expiredDistribution.hash))?.status).toBe(0);
+      const afterExpiredDistribution = await readDistributionEconomics();
+      const {
+        pending: pendingBeforeExpired,
+        payeeBalances: balancesBeforeExpired,
+        ...scalarBeforeExpired
+      } = before;
+      const {
+        pending: pendingAfterExpired,
+        payeeBalances: balancesAfterExpired,
+        ...scalarAfterExpired
+      } = afterExpiredDistribution;
+      assertNoEconomicSideEffects(
+        "paymentSplit.expiredDistribution",
+        scalarBeforeExpired,
+        scalarAfterExpired,
+      );
+      assertNoEconomicSideEffects("paymentSplit.expiredDistribution.pending", pendingBeforeExpired, pendingAfterExpired);
+      assertNoEconomicSideEffects("paymentSplit.expiredDistribution.balances", balancesBeforeExpired, balancesAfterExpired);
+
+      const distributionReceipt = await (await paymentFacet.connect(marketplaceBuyerWallet).distributePayment(
+        tokenId,
+        distributionAmount,
+        configuredPayees.seller,
+        ethers.ZeroAddress,
+        false,
+        { nonce: buyerNonce + 2 },
+      )).wait();
+      expect(distributionReceipt?.status).toBe(1);
+      const afterDistribution = await readDistributionEconomics();
+
+      const feeConfig = await paymentFacet.getFeeConfiguration();
+      const platformFee = (distributionAmount * BigInt(feeConfig.platformFee)) / 10_000n;
+      const unionShare = (distributionAmount * BigInt(feeConfig.unionShare)) / 10_000n;
+      const devFund = (distributionAmount * BigInt(feeConfig.devFund)) / 10_000n;
+      const timewaveGift = (distributionAmount * BigInt(feeConfig.timewaveGift)) / 10_000n;
+      const totalFees = platformFee + unionShare + devFund + timewaveGift;
+      const sellerProceeds = distributionAmount - totalFees;
+      const rewardPoolDelta = afterDistribution.rewardPoolBalance - before.rewardPoolBalance;
+      const buybackDelta = afterDistribution.buybackAccumulator - before.buybackAccumulator;
+      const treasuryProceeds = platformFee - rewardPoolDelta - buybackDelta;
+
+      expect(rewardPoolDelta).toBeGreaterThanOrEqual(0n);
+      expect(buybackDelta).toBeGreaterThanOrEqual(0n);
+      expect(treasuryProceeds).toBeGreaterThanOrEqual(0n);
+      assertExactAmountDelta("paymentSplit.buyer", before.buyer, afterDistribution.buyer, -distributionAmount);
+      assertExactAmountDelta("paymentSplit.custody", before.custody, afterDistribution.custody, distributionAmount);
+      assertExactAmountDelta("paymentSplit.allowance", before.allowance, afterDistribution.allowance, -distributionAmount);
+      assertExactAmountDelta("paymentSplit.seller", before.pending.seller, afterDistribution.pending.seller, sellerProceeds);
+      assertExactAmountDelta("paymentSplit.treasury", before.pending.treasury, afterDistribution.pending.treasury, treasuryProceeds);
+      assertExactAmountDelta("paymentSplit.unionTreasury", before.pending.unionTreasury, afterDistribution.pending.unionTreasury, unionShare);
+      assertExactAmountDelta("paymentSplit.devFund", before.pending.devFund, afterDistribution.pending.devFund, devFund);
+      assertExactAmountDelta("paymentSplit.timewaveGift", before.timewaveGift, afterDistribution.timewaveGift, timewaveGift);
+      assertExactAmountDelta("paymentSplit.totalVolume", before.totalVolume, afterDistribution.totalVolume, distributionAmount);
+      assertExactAmountDelta("paymentSplit.totalFees", before.totalFees, afterDistribution.totalFees, totalFees);
+      assertExactAmountDelta("paymentSplit.totalRoyalties", before.totalRoyalties, afterDistribution.totalRoyalties, sellerProceeds);
+      assertExactAmountDelta("paymentSplit.assetVolume", before.assetVolume, afterDistribution.assetVolume, distributionAmount);
+      assertExactAmountDelta("paymentSplit.assetFees", before.assetFees, afterDistribution.assetFees, totalFees);
+      assertExactAmountDelta("paymentSplit.assetRoyalties", before.assetRoyalties, afterDistribution.assetRoyalties, sellerProceeds);
+      assertConservedDeltas("paymentSplit.liabilities", [
+        sellerProceeds,
+        treasuryProceeds,
+        unionShare,
+        devFund,
+        rewardPoolDelta,
+        buybackDelta,
+        timewaveGift,
+        -distributionAmount,
+      ]);
+
+      const pendingBeforeSweeps = afterDistribution.pending;
+      const balancesBeforeSweeps = afterDistribution.payeeBalances;
+      const custodyBeforeSweeps = afterDistribution.custody;
+      const sweepResponse = await apiCall(port, "POST", "/v1/workflows/treasury-revenue-operations", {
+        body: {
+          payouts: {
+            sweeps: [
+              { label: "seller", actor: { apiKey: "founder-key", walletAddress: configuredPayees.seller } },
+              { label: "treasury", actor: { apiKey: "licensing-owner-key", walletAddress: configuredPayees.treasury } },
+              { label: "union-treasury", actor: { apiKey: "licensee-key", walletAddress: configuredPayees.unionTreasury } },
+              { label: "dev-fund", actor: { apiKey: "transferee-key", walletAddress: configuredPayees.devFund } },
+            ],
+          },
+        },
+      });
+      expect(sweepResponse.status, JSON.stringify(sweepResponse.payload)).toBe(202);
+      expect(sweepResponse.payload).toMatchObject({
+        summary: {
+          sweepCount: 4,
+          completedSweepCount: 3,
+          blockedSteps: ["payouts.treasury"],
+        },
+      });
+      const pendingAfterSweeps = await readPending();
+      const balancesAfterSweeps = await readPayeeBalances();
+      const custodyAfterSweeps = BigInt(await paymentToken.balanceOf(diamondAddress));
+      for (const label of ["seller", "treasury", "unionTreasury", "devFund"] as const) {
+        const releasedAmount = label === "treasury" ? 0n : pendingBeforeSweeps[label];
+        assertExactAmountDelta(`treasurySweep.${label}.pending`, pendingBeforeSweeps[label], pendingAfterSweeps[label], -releasedAmount);
+        assertExactAmountDelta(`treasurySweep.${label}.balance`, balancesBeforeSweeps[label], balancesAfterSweeps[label], releasedAmount);
+      }
+      const sweptAmount = pendingBeforeSweeps.seller + pendingBeforeSweeps.unionTreasury + pendingBeforeSweeps.devFund;
+      assertExactAmountDelta("treasurySweep.custody", custodyBeforeSweeps, custodyAfterSweeps, -sweptAmount);
+      assertConservedDeltas("treasurySweep.conservation", [
+        custodyAfterSweeps - custodyBeforeSweeps,
+        ...Object.values(balancesAfterSweeps).map((value, index) => value - Object.values(balancesBeforeSweeps)[index]!),
+      ]);
+
+      const multisigResponse = await apiCall(port, "POST", "/v1/workflows/treasury-multisig-withdrawal", {
+        body: {
+          requiredApprovals: "2",
+          approvers: [
+            { apiKey: "founder-key", walletAddress: founderAddress },
+            { apiKey: "licensee-key", walletAddress: licenseeWallet.address },
+          ],
+          executor: {
+            apiKey: "licensing-owner-key",
+            walletAddress: configuredPayees.treasury,
+          },
+        },
+      });
+      expect(multisigResponse.status, JSON.stringify(multisigResponse.payload)).toBe(202);
+      const multisigProof = multisigResponse.payload as {
+        approvals: { txHashes: string[]; economicsUnchanged: boolean };
+        execution: {
+          txHash: string;
+          pending: { delta: string };
+          custody: { delta: string };
+          recipient: { delta: string };
+          conservation: string;
+        };
+        summary: { releasedAmount: string; remainingPending: string; approvalCount: number };
+      };
+      expect(multisigProof.approvals).toMatchObject({ economicsUnchanged: true });
+      expect(multisigProof.approvals.txHashes).toHaveLength(2);
+      for (const txHash of [...multisigProof.approvals.txHashes, multisigProof.execution.txHash]) {
+        await expectReceipt(txHash);
+      }
+      expect(multisigProof.execution).toMatchObject({
+        pending: { delta: (-pendingAfterSweeps.treasury).toString() },
+        custody: { delta: (-pendingAfterSweeps.treasury).toString() },
+        recipient: { delta: pendingAfterSweeps.treasury.toString() },
+        conservation: "0",
+      });
+      expect(multisigProof.summary).toEqual(expect.objectContaining({
+        releasedAmount: pendingAfterSweeps.treasury.toString(),
+        remainingPending: "0",
+        approvalCount: 2,
+      }));
+      const pendingAfterMultisig = await readPending();
+      const balancesAfterMultisig = await readPayeeBalances();
+      const custodyAfterMultisig = BigInt(await paymentToken.balanceOf(diamondAddress));
+      assertExactAmountDelta(
+        "treasuryMultisig.pending",
+        pendingAfterSweeps.treasury,
+        pendingAfterMultisig.treasury,
+        -pendingAfterSweeps.treasury,
+      );
+      assertExactAmountDelta(
+        "treasuryMultisig.recipient",
+        balancesAfterSweeps.treasury,
+        balancesAfterMultisig.treasury,
+        pendingAfterSweeps.treasury,
+      );
+      assertExactAmountDelta(
+        "treasuryMultisig.custody",
+        custodyAfterSweeps,
+        custodyAfterMultisig,
+        -pendingAfterSweeps.treasury,
+      );
+
+      const repeatMultisig = await apiCall(port, "POST", "/v1/workflows/treasury-multisig-withdrawal", {
+        body: {
+          amount: pendingAfterSweeps.treasury.toString(),
+          requiredApprovals: "2",
+          approvers: [
+            { apiKey: "founder-key", walletAddress: founderAddress },
+            { apiKey: "licensee-key", walletAddress: licenseeWallet.address },
+          ],
+          executor: {
+            apiKey: "licensing-owner-key",
+            walletAddress: configuredPayees.treasury,
+          },
+        },
+      });
+      expect(repeatMultisig.status).toBe(409);
+      assertNoEconomicSideEffects("treasuryMultisig.repeat.pending", pendingAfterMultisig, await readPending());
+      assertNoEconomicSideEffects("treasuryMultisig.repeat.balances", balancesAfterMultisig, await readPayeeBalances());
+      assertExactAmountDelta(
+        "treasuryMultisig.repeat.custody",
+        custodyAfterMultisig,
+        BigInt(await paymentToken.balanceOf(diamondAddress)),
+        0n,
+      );
+
+      const repeatSweep = await apiCall(port, "POST", "/v1/workflows/treasury-revenue-operations", {
+        body: {
+          payouts: {
+            sweeps: [
+              { label: "seller", actor: { apiKey: "founder-key", walletAddress: configuredPayees.seller } },
+              { label: "treasury", actor: { apiKey: "licensing-owner-key", walletAddress: configuredPayees.treasury } },
+              { label: "union-treasury", actor: { apiKey: "licensee-key", walletAddress: configuredPayees.unionTreasury } },
+              { label: "dev-fund", actor: { apiKey: "transferee-key", walletAddress: configuredPayees.devFund } },
+            ],
+          },
+        },
+      });
+      expect(repeatSweep.status).toBe(202);
+      expect(repeatSweep.payload).toMatchObject({
+        summary: {
+          sweepCount: 4,
+          completedSweepCount: 0,
+          blockedSteps: ["payouts.seller", "payouts.treasury", "payouts.union-treasury", "payouts.dev-fund"],
+        },
+      });
+      assertExactAmountDelta(
+        "treasurySweep.repeat.custody",
+        custodyAfterMultisig,
+        BigInt(await paymentToken.balanceOf(diamondAddress)),
+        0n,
+      );
+      assertNoEconomicSideEffects("treasurySweep.repeat.pending", pendingAfterMultisig, await readPending());
+      assertNoEconomicSideEffects("treasurySweep.repeat.balances", balancesAfterMultisig, await readPayeeBalances());
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
+  }, 300_000);
+
   it("exposes governance baseline reads through HTTP and preserves live proposal-threshold failures", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "governance proposal-threshold proof", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },
@@ -2232,6 +2764,7 @@ describeLive("HTTP API contract integration", () => {
     const originalFounderBalance = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
     const originalLicenseeBalance = await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address);
     const originalTransfereeBalance = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+    const originalTotalSupply = await tokenSupplyFacet.totalSupply();
     const originalAllowance = await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address);
     const originalBurnLimit = await burnThresholdFacet.thresholdGetBurnLimit();
     const originalQuarterlyRate = await timewaveGiftFacet.getQuarterlyUnlockRate();
@@ -2294,6 +2827,23 @@ describeLive("HTTP API contract integration", () => {
         (value) => value === originalLicenseeBalance + transferAmount,
         "tokenomics founder transfer to licensee",
       );
+      const founderAfterLicenseeTransfer = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const licenseeAfterFounderTransfer = await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address);
+      const supplyAfterLicenseeTransfer = await tokenSupplyFacet.totalSupply();
+      const founderTransferDelta = assertExactAmountDelta(
+        "tokenomics.transfer.founder",
+        originalFounderBalance,
+        founderAfterLicenseeTransfer,
+        -transferAmount,
+      );
+      const licenseeTransferDelta = assertExactAmountDelta(
+        "tokenomics.transfer.licensee",
+        originalLicenseeBalance,
+        licenseeAfterFounderTransfer,
+        transferAmount,
+      );
+      assertExactAmountDelta("tokenomics.transfer.totalSupply", originalTotalSupply, supplyAfterLicenseeTransfer, 0n);
+      assertConservedDeltas("tokenomics.transfer", [founderTransferDelta.delta, licenseeTransferDelta.delta]);
 
       const transferBackResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
         apiKey: "licensee-key",
@@ -2305,6 +2855,19 @@ describeLive("HTTP API contract integration", () => {
         () => tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address),
         (value) => value === originalLicenseeBalance,
         "tokenomics licensee transfer back",
+      );
+      assertNoEconomicSideEffects(
+        "tokenomics.transferRoundTrip",
+        {
+          founder: originalFounderBalance,
+          licensee: originalLicenseeBalance,
+          totalSupply: originalTotalSupply,
+        },
+        {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          licensee: await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        },
       );
 
       const approveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
@@ -2356,6 +2919,30 @@ describeLive("HTTP API contract integration", () => {
         (value) => value === 0n,
         "tokenomics consumed allowance",
       );
+      const founderAfterTransferFrom = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const transfereeAfterTransferFrom = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+      const allowanceAfterTransferFrom = await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address);
+      const supplyAfterTransferFrom = await tokenSupplyFacet.totalSupply();
+      const transferFromFounderDelta = assertExactAmountDelta(
+        "tokenomics.transferFrom.founder",
+        originalFounderBalance,
+        founderAfterTransferFrom,
+        -delegatedAmount,
+      );
+      const transferFromRecipientDelta = assertExactAmountDelta(
+        "tokenomics.transferFrom.transferee",
+        originalTransfereeBalance,
+        transfereeAfterTransferFrom,
+        delegatedAmount,
+      );
+      assertExactAmountDelta(
+        "tokenomics.transferFrom.allowance",
+        delegatedAmount,
+        allowanceAfterTransferFrom,
+        -delegatedAmount,
+      );
+      assertExactAmountDelta("tokenomics.transferFrom.totalSupply", originalTotalSupply, supplyAfterTransferFrom, 0n);
+      assertConservedDeltas("tokenomics.transferFrom", [transferFromFounderDelta.delta, transferFromRecipientDelta.delta]);
 
       const standardApproveResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/approve", {
         body: { spender: outsiderWallet.address, amount: delegatedAmount.toString() },
@@ -2401,6 +2988,19 @@ describeLive("HTTP API contract integration", () => {
         () => tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
         (value) => value === originalTransfereeBalance,
         "tokenomics transferee transfer back",
+      );
+      assertNoEconomicSideEffects(
+        "tokenomics.transferFromRoundTrip",
+        {
+          founder: originalFounderBalance,
+          transferee: originalTransfereeBalance,
+          totalSupply: originalTotalSupply,
+        },
+        {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        },
       );
 
       const setBurnLimitResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-set-burn-limit", {
@@ -2750,6 +3350,980 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(apiCampaignRead.status).toBe(200);
     expect(apiCampaignRead.payload).toEqual(rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId)));
+  }, 300_000);
+
+  it("proves burn, mint, repeat-call, and failed-write accounting on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "tokenomics destructive economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.000004") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    try {
+      const minterRole = id("MINTER_ROLE");
+      if (!(await accessControl.hasRole(minterRole, founderAddress))) {
+        const roleReceipt = await (
+          await accessControl.connect(founderWallet).grantRole(minterRole, founderAddress, ethers.MaxUint256)
+        ).wait();
+        expect(roleReceipt?.status).toBe(1);
+      }
+      const tokenStorageBase = BigInt(id("speak.token.storage"));
+      const tokenFlagsSlot = tokenStorageBase + 11n;
+      const maxSupplySlot = tokenStorageBase + 12n;
+      const originalTokenFlags = BigInt(await provider.getStorage(diamondAddress, ethers.toBeHex(tokenFlagsSlot, 32)));
+      const disposableTokenFlags = originalTokenFlags & ~(0xffn << 8n);
+      const fixtureSupply = BigInt(await tokenSupplyFacet.totalSupply());
+      await provider.send("anvil_setStorageAt", [
+        diamondAddress,
+        ethers.toBeHex(tokenFlagsSlot, 32),
+        ethers.toBeHex(disposableTokenFlags, 32),
+      ]);
+      await provider.send("anvil_setStorageAt", [
+        diamondAddress,
+        ethers.toBeHex(maxSupplySlot, 32),
+        ethers.toBeHex(fixtureSupply + 100n, 32),
+      ]);
+      await provider.send("evm_mine", []);
+      expect(await tokenSupplyFacet.supplyIsMintingFinished()).toBe(false);
+
+      const burnAmount = 1n;
+      const balanceBeforeBurn = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const supplyBeforeBurn = await tokenSupplyFacet.totalSupply();
+      expect(balanceBeforeBurn).toBeGreaterThanOrEqual(burnAmount);
+
+      const burnResponse = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn", {
+        body: { amount: burnAmount.toString() },
+      });
+      expect(burnResponse.status).toBe(202);
+      await expectReceipt(extractTxHash(burnResponse.payload));
+
+      const balanceAfterBurn = await waitFor(
+        () => tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        (value) => value === balanceBeforeBurn - burnAmount,
+        "tokenomics burn account delta",
+      );
+      const supplyAfterBurn = await waitFor(
+        () => tokenSupplyFacet.totalSupply(),
+        (value) => value === supplyBeforeBurn - burnAmount,
+        "tokenomics burn supply delta",
+      );
+      assertExactAmountDelta("tokenomics.burn.balance", balanceBeforeBurn, balanceAfterBurn, -burnAmount);
+      assertExactAmountDelta("tokenomics.burn.totalSupply", supplyBeforeBurn, supplyAfterBurn, -burnAmount);
+
+      const failedBurnBefore = {
+        founder: balanceAfterBurn,
+        totalSupply: supplyAfterBurn,
+      };
+      const failedBurnResponse = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn", {
+        body: { amount: (balanceAfterBurn + 1n).toString() },
+      });
+      expect(failedBurnResponse.status).not.toBe(202);
+      assertNoEconomicSideEffects("tokenomics.failedBurn", failedBurnBefore, {
+        founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+      });
+
+      const mintAmount = 17n;
+      const mintingFinished = await tokenSupplyFacet.supplyIsMintingFinished();
+      const transfereeBeforeMint = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+      const founderBeforeMint = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const supplyBeforeMint = await tokenSupplyFacet.totalSupply();
+      const mintResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-mint-tokens", {
+        body: { to: transfereeWallet.address, amount: mintAmount.toString() },
+      });
+
+      expect(mintingFinished).toBe(false);
+        expect(mintResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(mintResponse.payload));
+        const transfereeAfterMint = await waitFor(
+          () => tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          (value) => value === transfereeBeforeMint + mintAmount,
+          "tokenomics mint recipient delta",
+        );
+        const supplyAfterMint = await waitFor(
+          () => tokenSupplyFacet.totalSupply(),
+          (value) => value === supplyBeforeMint + mintAmount,
+          "tokenomics mint supply delta",
+        );
+        const mintBalanceDelta = assertExactAmountDelta(
+          "tokenomics.mint.balance",
+          transfereeBeforeMint,
+          transfereeAfterMint,
+          mintAmount,
+        );
+        const mintSupplyDelta = assertExactAmountDelta(
+          "tokenomics.mint.totalSupply",
+          supplyBeforeMint,
+          supplyAfterMint,
+          mintAmount,
+        );
+        assertConservedDeltas("tokenomics.mint", [mintBalanceDelta.delta, -BigInt(mintSupplyDelta.delta)]);
+
+        const returnMintResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+          apiKey: "transferee-key",
+          body: { to: founderAddress, amount: mintAmount.toString() },
+        });
+        expect(returnMintResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(returnMintResponse.payload));
+        await waitFor(
+          () => tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          (value) => value === founderBeforeMint + mintAmount,
+          "tokenomics minted token return",
+        );
+
+        const repeatedBurnResponse = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn", {
+          body: { amount: mintAmount.toString() },
+        });
+        expect(repeatedBurnResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(repeatedBurnResponse.payload));
+        assertNoEconomicSideEffects("tokenomics.mintTransferBurnRoundTrip", {
+          founder: founderBeforeMint,
+          transferee: transfereeBeforeMint,
+          totalSupply: supplyBeforeMint,
+        }, {
+          founder: await waitFor(
+            () => tokenSupplyFacet.tokenBalanceOf(founderAddress),
+            (value) => value === founderBeforeMint,
+            "tokenomics repeated burn founder restore",
+          ),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await waitFor(
+            () => tokenSupplyFacet.totalSupply(),
+            (value) => value === supplyBeforeMint,
+            "tokenomics repeated burn supply restore",
+          ),
+        });
+
+        const finalizedTokenFlags = disposableTokenFlags | (1n << 8n);
+        await provider.send("anvil_setStorageAt", [
+          diamondAddress,
+          ethers.toBeHex(tokenFlagsSlot, 32),
+          ethers.toBeHex(finalizedTokenFlags, 32),
+        ]);
+        await provider.send("evm_mine", []);
+        expect(await tokenSupplyFacet.supplyIsMintingFinished()).toBe(true);
+        const finalizedBefore = {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        };
+        const failedMintResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-mint-tokens", {
+          body: { to: transfereeWallet.address, amount: mintAmount.toString() },
+        });
+        expect(failedMintResponse.status).not.toBe(202);
+        assertNoEconomicSideEffects("tokenomics.failedMintAfterFinalization", finalizedBefore, {
+          founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+          transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+          totalSupply: await tokenSupplyFacet.totalSupply(),
+        });
+    } finally {
+      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+    }
+  }, 300_000);
+
+  it("proves funded campaign reward custody, exact claims, and replay safety on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "campaign reward economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      const timelockRole = id("TIMELOCK_ROLE");
+      if (!(await accessControl.hasRole(timelockRole, founderAddress))) {
+        const roleReceipt = await (
+          await accessControl.connect(founderWallet).grantRole(timelockRole, founderAddress, ethers.MaxUint256)
+        ).wait();
+        expect(roleReceipt?.status).toBe(1);
+      }
+
+      const rewards = new Contract(diamondAddress, facetRegistry.CommunityRewardsFacet.abi, provider);
+      const totalAllocation = 31n;
+      const merkleRoot = ethers.solidityPackedKeccak256(
+        ["address", "uint256"],
+        [licenseeWallet.address, totalAllocation],
+      );
+      const initial = {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        claimer: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      expect(initial.founder).toBeGreaterThanOrEqual(totalAllocation);
+
+      const funding = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+        body: { to: diamondAddress, amount: totalAllocation.toString() },
+      });
+      expect(funding.status, JSON.stringify(funding.payload)).toBe(202);
+      await expectReceipt(extractTxHash(funding.payload));
+      const funded = {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        claimer: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      assertExactAmountDelta("campaignReward.funding.founder", initial.founder, funded.founder, -totalAllocation);
+      assertExactAmountDelta("campaignReward.funding.custody", initial.custody, funded.custody, totalAllocation);
+      assertExactAmountDelta("campaignReward.funding.claimer", initial.claimer, funded.claimer, 0n);
+      assertExactAmountDelta("campaignReward.funding.totalSupply", initial.totalSupply, funded.totalSupply, 0n);
+      assertConservedDeltas("campaignReward.funding.conservation", [
+        funded.founder - initial.founder,
+        funded.custody - initial.custody,
+      ]);
+
+      const latestBlock = await provider.getBlock("latest");
+      const creation = await apiCall(port, "POST", "/v1/workflows/create-reward-campaign", {
+        body: {
+          merkleRoot,
+          startTime: String(latestBlock?.timestamp ?? 1),
+          cliffSeconds: "0",
+          durationSeconds: "0",
+          tgeUnlockBps: "10000",
+          maxTotalClaimable: totalAllocation.toString(),
+        },
+      });
+      expect(creation.status, JSON.stringify(creation.payload)).toBe(202);
+      const creationPayload = creation.payload as {
+        campaign: { txHash: string; campaignId: string };
+      };
+      await expectReceipt(creationPayload.campaign.txHash);
+      const campaignId = creationPayload.campaign.campaignId;
+      expect(campaignId).toMatch(/^\d+$/u);
+      assertNoEconomicSideEffects("campaignReward.creation", funded, {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        claimer: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      });
+
+      const claim = await apiCall(port, "POST", "/v1/workflows/claim-reward-campaign", {
+        apiKey: "licensee-key",
+        body: {
+          campaignId,
+          totalAllocation: totalAllocation.toString(),
+          proof: [],
+        },
+      });
+      expect(claim.status, JSON.stringify(claim.payload)).toBe(202);
+      const claimPayload = claim.payload as {
+        economics: {
+          claimerBalance: { delta: string };
+          custodyBalance: { delta: string };
+          totalSupply: { delta: string };
+          conservation: string;
+        };
+        claim: { txHash: string };
+      };
+      await expectReceipt(claimPayload.claim.txHash);
+      expect(claimPayload.economics).toEqual({
+        claimerBalance: expect.objectContaining({ delta: totalAllocation.toString() }),
+        custodyBalance: expect.objectContaining({ delta: (-totalAllocation).toString() }),
+        totalSupply: expect.objectContaining({ delta: "0" }),
+        conservation: "0",
+      });
+
+      const claimed = {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        claimer: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+        accountClaimed: BigInt(await rewards.claimed(campaignId, licenseeWallet.address)),
+        campaignTotalClaimed: BigInt((await rewards.getCampaign(campaignId)).totalClaimed),
+      };
+      assertExactAmountDelta("campaignReward.claim.custody", funded.custody, claimed.custody, -totalAllocation);
+      assertExactAmountDelta("campaignReward.claim.claimer", funded.claimer, claimed.claimer, totalAllocation);
+      assertExactAmountDelta("campaignReward.claim.totalSupply", funded.totalSupply, claimed.totalSupply, 0n);
+      expect(claimed.accountClaimed).toBe(totalAllocation);
+      expect(claimed.campaignTotalClaimed).toBe(totalAllocation);
+
+      const replay = await apiCall(port, "POST", "/v1/workflows/claim-reward-campaign", {
+        apiKey: "licensee-key",
+        body: {
+          campaignId,
+          totalAllocation: totalAllocation.toString(),
+          proof: [],
+        },
+      });
+      expect(replay.status).toBe(409);
+      assertNoEconomicSideEffects("campaignReward.replay", claimed, {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        claimer: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+        accountClaimed: BigInt(await rewards.claimed(campaignId, licenseeWallet.address)),
+        campaignTotalClaimed: BigInt((await rewards.getCampaign(campaignId)).totalClaimed),
+      });
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
+  }, 300_000);
+
+  it("proves staking and reward-pool custody conservation on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "staking custody economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      const initialStakerBalance = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+      const amount = initialStakerBalance / 4n;
+      const rewardFunding = initialStakerBalance / 4n;
+      expect(amount).toBeGreaterThan(0n);
+      expect(rewardFunding).toBeGreaterThan(0n);
+      const allowanceBeforeApproval = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
+      if (allowanceBeforeApproval < amount) {
+        const approvalResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+          body: { spender: diamondAddress, amount: amount.toString() },
+        });
+        expect(approvalResponse.status, JSON.stringify(approvalResponse.payload)).toBe(202);
+        await expectReceipt(extractTxHash(approvalResponse.payload));
+      }
+
+      const allowanceBeforeStake = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
+      const statsBefore = await stakingFacet.getStakingStats();
+      const economicsBefore = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: allowanceBeforeStake,
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsBefore.totalStaked),
+        totalRewardsDistributed: BigInt(statsBefore.totalRewardsDistributed),
+      };
+
+      const stakeResponse = await apiCall(port, "POST", "/v1/staking/commands/stake", {
+        body: { amount: amount.toString() },
+      });
+      expect(stakeResponse.status, JSON.stringify(stakeResponse.payload)).toBe(202);
+      await expectReceipt(extractTxHash(stakeResponse.payload));
+
+      const statsAfter = await stakingFacet.getStakingStats();
+      const economicsAfter = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfter.totalStaked),
+        totalRewardsDistributed: BigInt(statsAfter.totalRewardsDistributed),
+      };
+      const rewardsPaid = economicsAfter.totalRewardsDistributed - economicsBefore.totalRewardsDistributed;
+      const stakerDelta = assertExactAmountDelta(
+        "staking.custody.staker",
+        economicsBefore.staker,
+        economicsAfter.staker,
+        rewardsPaid - amount,
+      );
+      const custodyDelta = assertExactAmountDelta(
+        "staking.custody.contract",
+        economicsBefore.custody,
+        economicsAfter.custody,
+        amount - rewardsPaid,
+      );
+      assertConservedDeltas("staking.custody.conservation", [stakerDelta.delta, custodyDelta.delta]);
+      assertExactAmountDelta("staking.custody.allowance", economicsBefore.allowance, economicsAfter.allowance, -amount);
+      assertExactAmountDelta("staking.custody.totalSupply", economicsBefore.totalSupply, economicsAfter.totalSupply, 0n);
+      assertExactAmountDelta("staking.custody.totalStaked", economicsBefore.totalStaked, economicsAfter.totalStaked, amount);
+
+      const rewardAllowanceBeforeApproval = await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress);
+      if (rewardAllowanceBeforeApproval < rewardFunding) {
+        const approvalResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+          body: { spender: diamondAddress, amount: rewardFunding.toString() },
+        });
+        expect(approvalResponse.status).toBe(202);
+        await expectReceipt(extractTxHash(approvalResponse.payload));
+      }
+
+      const statsBeforeFunding = await stakingFacet.getStakingStats();
+      const fundingBefore = {
+        funder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsBeforeFunding.totalStaked),
+        rewardPoolBalance: BigInt(statsBeforeFunding.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsBeforeFunding.totalRewardsDistributed),
+      };
+      const fundResponse = await apiCall(port, "POST", "/v1/staking/commands/fund-reward-pool", {
+        body: { amount: rewardFunding.toString() },
+      });
+      expect(fundResponse.status).toBe(202);
+      await expectReceipt(extractTxHash(fundResponse.payload));
+
+      const statsAfterFunding = await stakingFacet.getStakingStats();
+      const fundingAfter = {
+        funder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterFunding.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterFunding.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterFunding.totalRewardsDistributed),
+      };
+      const funderDelta = assertExactAmountDelta(
+        "staking.rewardPoolFunding.funder",
+        fundingBefore.funder,
+        fundingAfter.funder,
+        -rewardFunding,
+      );
+      const fundedCustodyDelta = assertExactAmountDelta(
+        "staking.rewardPoolFunding.custody",
+        fundingBefore.custody,
+        fundingAfter.custody,
+        rewardFunding,
+      );
+      assertConservedDeltas("staking.rewardPoolFunding.conservation", [funderDelta.delta, fundedCustodyDelta.delta]);
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.allowance",
+        fundingBefore.allowance,
+        fundingAfter.allowance,
+        -rewardFunding,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.totalSupply",
+        fundingBefore.totalSupply,
+        fundingAfter.totalSupply,
+        0n,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.totalStaked",
+        fundingBefore.totalStaked,
+        fundingAfter.totalStaked,
+        0n,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.rewardPoolBalance",
+        fundingBefore.rewardPoolBalance,
+        fundingAfter.rewardPoolBalance,
+        rewardFunding,
+      );
+      assertExactAmountDelta(
+        "staking.rewardPoolFunding.totalRewardsDistributed",
+        fundingBefore.totalRewardsDistributed,
+        fundingAfter.totalRewardsDistributed,
+        0n,
+      );
+
+      const failedFundingBefore = { ...fundingAfter };
+      const failedFundingResponse = await apiCall(port, "POST", "/v1/staking/commands/fund-reward-pool", {
+        body: { amount: (fundingAfter.funder + 1n).toString() },
+      });
+      expect(failedFundingResponse.status).not.toBe(202);
+      const statsAfterFailedFunding = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("staking.failedRewardPoolFunding", failedFundingBefore, {
+        funder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterFailedFunding.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterFailedFunding.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterFailedFunding.totalRewardsDistributed),
+      });
+
+      await provider.send("evm_increaseTime", [365 * 24 * 60 * 60]);
+      await provider.send("evm_mine", []);
+      const rewardBreakdownBeforeClaim = await stakingFacet.getRewardBreakdown(founderAddress);
+      const rawPendingBefore = BigInt(rewardBreakdownBeforeClaim.rawPending);
+      const claimableBefore = BigInt(rewardBreakdownBeforeClaim.claimable);
+      const forfeitedBefore = BigInt(rewardBreakdownBeforeClaim.forfeited);
+      expect(claimableBefore).toBeGreaterThan(0n);
+      expect(rawPendingBefore).toBe(claimableBefore + forfeitedBefore);
+
+      const statsBeforeClaim = await stakingFacet.getStakingStats();
+      const claimBefore = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsBeforeClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsBeforeClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsBeforeClaim.totalRewardsDistributed),
+      };
+      const claimResponse = await apiCall(port, "POST", "/v1/staking/commands/claim-rewards", { body: {} });
+      expect(claimResponse.status).toBe(202);
+      const claimTxHash = extractTxHash(claimResponse.payload);
+      await expectReceipt(claimTxHash);
+      const claimReceipt = await provider.getTransactionReceipt(claimTxHash);
+      const detailedClaimEvent = claimReceipt?.logs
+        .map((log) => {
+          try {
+            return stakingFacet.interface.parseLog({ topics: [...log.topics], data: log.data });
+          } catch {
+            return null;
+          }
+        })
+        .find((event) => event?.name === "RewardsClaimedDetailed");
+      expect(detailedClaimEvent).toBeTruthy();
+      if (!detailedClaimEvent) {
+        throw new Error("staking reward claim did not emit RewardsClaimedDetailed");
+      }
+      const actualRawPending = BigInt(detailedClaimEvent.args.rawPending);
+      const actualClaimable = BigInt(detailedClaimEvent.args.claimable);
+      const actualForfeited = BigInt(detailedClaimEvent.args.forfeited);
+      expect(actualRawPending).toBe(actualClaimable + actualForfeited);
+      expect(actualForfeited).toBeGreaterThanOrEqual(forfeitedBefore);
+      expect(actualRawPending).toBeGreaterThanOrEqual(rawPendingBefore);
+      expect(actualClaimable).toBeGreaterThanOrEqual(claimableBefore);
+
+      const statsAfterClaim = await stakingFacet.getStakingStats();
+      const claimAfter = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterClaim.totalRewardsDistributed),
+      };
+      const claimedAmount = claimAfter.totalRewardsDistributed - claimBefore.totalRewardsDistributed;
+      expect(claimedAmount).toBe(actualClaimable);
+      const claimedStakerDelta = assertExactAmountDelta(
+        "staking.rewardClaim.staker",
+        claimBefore.staker,
+        claimAfter.staker,
+        claimedAmount,
+      );
+      const claimedCustodyDelta = assertExactAmountDelta(
+        "staking.rewardClaim.custody",
+        claimBefore.custody,
+        claimAfter.custody,
+        -claimedAmount,
+      );
+      assertConservedDeltas("staking.rewardClaim.conservation", [claimedStakerDelta.delta, claimedCustodyDelta.delta]);
+      assertExactAmountDelta("staking.rewardClaim.totalSupply", claimBefore.totalSupply, claimAfter.totalSupply, 0n);
+      assertExactAmountDelta("staking.rewardClaim.totalStaked", claimBefore.totalStaked, claimAfter.totalStaked, 0n);
+      const rewardPoolDelta = claimAfter.rewardPoolBalance - claimBefore.rewardPoolBalance;
+      expect(rewardPoolDelta).toBeLessThan(0n);
+      const rewardPoolDebit = -rewardPoolDelta;
+      const crossStakerAccrual = rewardPoolDebit - claimedAmount;
+      expect(crossStakerAccrual).toBeGreaterThanOrEqual(0n);
+      expect(rewardPoolDebit + actualForfeited).toBeGreaterThanOrEqual(actualRawPending);
+      assertExactAmountDelta(
+        "staking.rewardClaim.rewardPoolBalance",
+        claimBefore.rewardPoolBalance,
+        claimAfter.rewardPoolBalance,
+        -(claimedAmount + crossStakerAccrual),
+      );
+      assertConservedDeltas("staking.rewardClaim.liabilityReclassification", [
+        rewardPoolDelta,
+        claimedAmount,
+        crossStakerAccrual,
+      ]);
+
+      const repeatedClaimBefore = { ...claimAfter };
+      const repeatedClaimResponse = await apiCall(port, "POST", "/v1/staking/commands/claim-rewards", { body: {} });
+      if (repeatedClaimResponse.status === 202) {
+        await expectReceipt(extractTxHash(repeatedClaimResponse.payload));
+      }
+      const statsAfterRepeatedClaim = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("staking.repeatedRewardClaim", repeatedClaimBefore, {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterRepeatedClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterRepeatedClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterRepeatedClaim.totalRewardsDistributed),
+      });
+
+      const failedStakeBefore = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterRepeatedClaim.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterRepeatedClaim.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterRepeatedClaim.totalRewardsDistributed),
+      };
+      const failedStakeResponse = await apiCall(port, "POST", "/v1/staking/commands/stake", {
+        body: { amount: (economicsAfter.staker + 1n).toString() },
+      });
+      expect(failedStakeResponse.status).not.toBe(202);
+      const statsAfterFailedStake = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("staking.failedStake", failedStakeBefore, {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(statsAfterFailedStake.totalStaked),
+        rewardPoolBalance: BigInt(statsAfterFailedStake.rewardPoolBalance),
+        totalRewardsDistributed: BigInt(statsAfterFailedStake.totalRewardsDistributed),
+      });
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
+  }, 300_000);
+
+  it("proves funded emergency withdrawal custody and execution replay safety on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "emergency withdrawal economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      for (const role of [id("EMERGENCY_ADMIN_ROLE"), id("FEE_MANAGER_ROLE")]) {
+        if (!(await accessControl.hasRole(role, founderAddress))) {
+          const roleReceipt = await (
+            await accessControl.connect(founderWallet).grantRole(role, founderAddress, ethers.MaxUint256)
+          ).wait();
+          expect(roleReceipt?.status).toBe(1);
+        }
+      }
+      const feeManagerRole = id("FEE_MANAGER_ROLE");
+      if (!(await accessControl.hasRole(feeManagerRole, licenseeWallet.address))) {
+        const roleReceipt = await (
+          await accessControl.connect(founderWallet).grantRole(feeManagerRole, licenseeWallet.address, ethers.MaxUint256)
+        ).wait();
+        expect(roleReceipt?.status).toBe(1);
+      }
+      const configReceipt = await (
+        await emergencyWithdrawalFacet.connect(founderWallet).updateWithdrawalConfig(0, 0, 2, false, 1000)
+      ).wait();
+      expect(configReceipt?.status).toBe(1);
+
+      const amount = 1n;
+      const initial = {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      expect(initial.founder).toBeGreaterThanOrEqual(amount);
+      const funding = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+        body: { to: diamondAddress, amount: amount.toString() },
+      });
+      expect(funding.status, JSON.stringify(funding.payload)).toBe(202);
+      await expectReceipt(extractTxHash(funding.payload));
+      const funded = {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      assertExactAmountDelta("emergencyWithdrawal.funding.founder", initial.founder, funded.founder, -amount);
+      assertExactAmountDelta("emergencyWithdrawal.funding.custody", initial.custody, funded.custody, amount);
+      assertExactAmountDelta("emergencyWithdrawal.funding.recipient", initial.recipient, funded.recipient, 0n);
+      assertExactAmountDelta("emergencyWithdrawal.funding.totalSupply", initial.totalSupply, funded.totalSupply, 0n);
+
+      const withdrawal = await apiCall(port, "POST", "/v1/workflows/emergency-withdrawal-sequence", {
+        body: {
+          token: diamondAddress,
+          amount: amount.toString(),
+          recipient: licenseeWallet.address,
+          whitelistRecipient: true,
+          whitelistActor: { apiKey: "founder-key", walletAddress: founderAddress },
+          approvals: [{ apiKey: "licensee-key", walletAddress: licenseeWallet.address }],
+        },
+      });
+      expect(withdrawal.status, JSON.stringify(withdrawal.payload)).toBe(202);
+      const withdrawalPayload = withdrawal.payload as {
+        request: { requestId: string; txHash: string };
+        approvals: Array<{ txHash: string; executedEventCount: number }>;
+        economics: {
+          asset: string;
+          custody: { delta: string };
+          recipient: { delta: string };
+          released: string;
+        };
+        withdrawalState: { executed: boolean };
+      };
+      await expectReceipt(withdrawalPayload.request.txHash);
+      expect(withdrawalPayload.approvals).toHaveLength(1);
+      await expectReceipt(withdrawalPayload.approvals[0]!.txHash);
+      expect(withdrawalPayload.approvals[0]!.executedEventCount).toBeGreaterThan(0);
+      expect(withdrawalPayload.request.requestId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+      expect(withdrawalPayload.withdrawalState.executed).toBe(true);
+      expect(withdrawalPayload.economics).toMatchObject({
+        asset: "erc20",
+        custody: { delta: "-1" },
+        recipient: { delta: "1" },
+        released: "1",
+      });
+
+      const executed = {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      assertExactAmountDelta("emergencyWithdrawal.execute.custody", funded.custody, executed.custody, -amount);
+      assertExactAmountDelta("emergencyWithdrawal.execute.recipient", funded.recipient, executed.recipient, amount);
+      assertExactAmountDelta("emergencyWithdrawal.execute.totalSupply", funded.totalSupply, executed.totalSupply, 0n);
+      assertConservedDeltas("emergencyWithdrawal.execute.conservation", [
+        executed.custody - funded.custody,
+        executed.recipient - funded.recipient,
+      ]);
+
+      const replay = await apiCall(port, "POST", "/v1/emergency/admin/execute-withdrawal", {
+        body: { requestId: withdrawalPayload.request.requestId },
+      });
+      expect(replay.status).not.toBe(202);
+      assertNoEconomicSideEffects("emergencyWithdrawal.replay", executed, {
+        founder: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      });
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
+  }, 300_000);
+
+  it("detects the vesting release custody deficit and proves revoke accounting on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "vesting economic invariants", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.00001") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00001") },
+    ])) return;
+
+    const snapshotId = await provider.send("evm_snapshot", []);
+    let proofCompleted = false;
+    try {
+      const timelockRole = id("TIMELOCK_ROLE");
+      const vestingManagerRole = id("VESTING_MANAGER_ROLE");
+      for (const role of [timelockRole, vestingManagerRole]) {
+        if (!(await accessControl.hasRole(role, founderAddress))) {
+          const roleReceipt = await (
+            await accessControl.connect(founderWallet).grantRole(role, founderAddress, ethers.MaxUint256)
+          ).wait();
+          expect(roleReceipt?.status).toBe(1);
+        }
+      }
+
+      const readSchedule = async (beneficiary: string) => {
+        if (!(await vestingFacet.hasVestingSchedule(beneficiary))) {
+          return {
+            totalAmount: 0n,
+            releasedAmount: 0n,
+            revoked: false,
+          };
+        }
+        const schedule = await vestingFacet.getVestingDetails(beneficiary);
+        return {
+          totalAmount: BigInt(schedule.totalAmount),
+          releasedAmount: BigInt(schedule.releasedAmount),
+          revoked: Boolean(schedule.revoked),
+        };
+      };
+      const readVestingEconomics = async (beneficiary: string) => {
+        const schedule = await readSchedule(beneficiary);
+        return {
+          founderBalance: BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress)),
+          beneficiaryBalance: BigInt(await tokenSupplyFacet.tokenBalanceOf(beneficiary)),
+          totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+          scheduleTotal: schedule.totalAmount,
+          scheduleReleased: schedule.releasedAmount,
+          scheduleRevoked: schedule.revoked ? 1n : 0n,
+        };
+      };
+      const workflowTxHash = (payload: unknown, step: string) => {
+        const stepPayload = (payload as Record<string, unknown>)[step] as Record<string, unknown>;
+        const txHash = String(stepPayload.txHash);
+        expect(txHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+        return txHash;
+      };
+
+      const publicAmount = 20_003n * 10n ** 10n + 7n;
+      const publicBefore = await readVestingEconomics(outsiderWallet.address);
+      expect(await vestingFacet.hasVestingSchedule(outsiderWallet.address)).toBe(false);
+      const publicCreate = await apiCall(port, "POST", "/v1/workflows/create-beneficiary-vesting", {
+        body: {
+          beneficiary: outsiderWallet.address,
+          amount: publicAmount.toString(),
+          scheduleKind: "public",
+        },
+      });
+      expect(publicCreate.status, JSON.stringify(publicCreate.payload)).toBe(202);
+      await expectReceipt(workflowTxHash(publicCreate.payload, "create"));
+
+      const publicAfterCreate = await readVestingEconomics(outsiderWallet.address);
+      assertExactAmountDelta(
+        "vesting.publicCreate.founderBalance",
+        publicBefore.founderBalance,
+        publicAfterCreate.founderBalance,
+        -publicAmount,
+      );
+      assertExactAmountDelta(
+        "vesting.publicCreate.beneficiaryBalance",
+        publicBefore.beneficiaryBalance,
+        publicAfterCreate.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta("vesting.publicCreate.totalSupply", publicBefore.totalSupply, publicAfterCreate.totalSupply, 0n);
+      assertExactAmountDelta("vesting.publicCreate.scheduleTotal", 0n, publicAfterCreate.scheduleTotal, publicAmount);
+      assertConservedDeltas("vesting.publicCreate.liquidAndLocked", [
+        publicAfterCreate.founderBalance - publicBefore.founderBalance,
+        publicAfterCreate.beneficiaryBalance - publicBefore.beneficiaryBalance,
+        publicAfterCreate.scheduleTotal - publicAfterCreate.scheduleReleased,
+      ]);
+
+      const duplicateCreateBefore = await readVestingEconomics(outsiderWallet.address);
+      const duplicateCreate = await apiCall(port, "POST", "/v1/workflows/create-beneficiary-vesting", {
+        body: {
+          beneficiary: outsiderWallet.address,
+          amount: publicAmount.toString(),
+          scheduleKind: "public",
+        },
+      });
+      expect(duplicateCreate.status).not.toBe(202);
+      assertNoEconomicSideEffects(
+        "vesting.duplicateCreate",
+        duplicateCreateBefore,
+        await readVestingEconomics(outsiderWallet.address),
+      );
+
+      await provider.send("evm_increaseTime", [30 * 24 * 60 * 60 + 1]);
+      await provider.send("evm_mine", []);
+      const releasableBefore = BigInt(await vestingFacet.getVestingReleasableAmount(outsiderWallet.address));
+      expect(releasableBefore).toBeGreaterThan(0n);
+      const releaseBefore = await readVestingEconomics(outsiderWallet.address);
+      const release = await apiCall(port, "POST", "/v1/workflows/release-beneficiary-vesting", {
+        apiKey: "outsider-key",
+        body: {
+          beneficiary: outsiderWallet.address,
+          mode: "self",
+        },
+      });
+      expect(release.status).toBe(500);
+      expect(JSON.stringify(release.payload)).toContain("releaseBeneficiaryVesting.beneficiaryBalanceAfter");
+      const releaseAfter = await readVestingEconomics(outsiderWallet.address);
+      const releasedNow = releaseAfter.scheduleReleased - releaseBefore.scheduleReleased;
+      expect(releasedNow).toBeGreaterThan(0n);
+      assertExactAmountDelta(
+        "vesting.publicRelease.missingBeneficiaryCredit",
+        releaseBefore.beneficiaryBalance,
+        releaseAfter.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta("vesting.publicRelease.totalSupply", releaseBefore.totalSupply, releaseAfter.totalSupply, 0n);
+      assertConservedDeltas("vesting.publicRelease.custodyDeficit", [
+        releaseAfter.founderBalance - publicBefore.founderBalance,
+        releaseAfter.beneficiaryBalance - publicBefore.beneficiaryBalance,
+        releaseAfter.scheduleTotal - releaseAfter.scheduleReleased,
+      ], -releasedNow);
+
+      const repeatReleaseBefore = await readVestingEconomics(outsiderWallet.address);
+      const repeatRelease = await apiCall(port, "POST", "/v1/workflows/release-beneficiary-vesting", {
+        apiKey: "outsider-key",
+        body: {
+          beneficiary: outsiderWallet.address,
+          mode: "self",
+        },
+      });
+      const repeatReleaseAfter = await readVestingEconomics(outsiderWallet.address);
+      expect(repeatRelease.status).not.toBe(202);
+      assertExactAmountDelta(
+        "vesting.repeatRelease.beneficiaryBalance",
+        repeatReleaseBefore.beneficiaryBalance,
+        repeatReleaseAfter.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta(
+        "vesting.repeatRelease.totalSupply",
+        repeatReleaseBefore.totalSupply,
+        repeatReleaseAfter.totalSupply,
+        0n,
+      );
+      expect(repeatReleaseAfter.scheduleReleased).toBeGreaterThanOrEqual(repeatReleaseBefore.scheduleReleased);
+
+      const revokedAmount = 8_009n * 10n ** 10n + 3n;
+      const revokeBeforeCreate = await readVestingEconomics(transfereeWallet.address);
+      expect(await vestingFacet.hasVestingSchedule(transfereeWallet.address)).toBe(false);
+      const revokeCreate = await apiCall(port, "POST", "/v1/workflows/create-beneficiary-vesting", {
+        body: {
+          beneficiary: transfereeWallet.address,
+          amount: revokedAmount.toString(),
+          scheduleKind: "team",
+          vestingType: "2",
+        },
+      });
+      expect(revokeCreate.status, JSON.stringify(revokeCreate.payload)).toBe(202);
+      await expectReceipt(workflowTxHash(revokeCreate.payload, "create"));
+      const revokeAfterCreate = await readVestingEconomics(transfereeWallet.address);
+      assertExactAmountDelta(
+        "vesting.revokeCreate.founderBalance",
+        revokeBeforeCreate.founderBalance,
+        revokeAfterCreate.founderBalance,
+        -revokedAmount,
+      );
+      assertExactAmountDelta("vesting.revokeCreate.totalSupply", revokeBeforeCreate.totalSupply, revokeAfterCreate.totalSupply, 0n);
+      assertExactAmountDelta("vesting.revokeCreate.scheduleTotal", 0n, revokeAfterCreate.scheduleTotal, revokedAmount);
+
+      const revokeBefore = await readVestingEconomics(transfereeWallet.address);
+      const revoke = await apiCall(port, "POST", "/v1/workflows/revoke-beneficiary-vesting", {
+        body: { beneficiary: transfereeWallet.address },
+      });
+      expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+      await expectReceipt(workflowTxHash(revoke.payload, "revoke"));
+      const revokeAfter = await readVestingEconomics(transfereeWallet.address);
+      expect(revokeAfter.scheduleRevoked).toBe(1n);
+      assertExactAmountDelta(
+        "vesting.revoke.beneficiaryBalance",
+        revokeBefore.beneficiaryBalance,
+        revokeAfter.beneficiaryBalance,
+        0n,
+      );
+      assertExactAmountDelta("vesting.revoke.totalSupply", revokeBefore.totalSupply, revokeAfter.totalSupply, 0n);
+      assertExactAmountDelta("vesting.revoke.scheduleTotal", revokeBefore.scheduleTotal, revokeAfter.scheduleTotal, 0n);
+      assertExactAmountDelta("vesting.revoke.scheduleReleased", revokeBefore.scheduleReleased, revokeAfter.scheduleReleased, 0n);
+      expect(revoke.payload).toMatchObject({
+        economics: {
+          canceledLiability: { delta: revokedAmount.toString() },
+          beneficiaryBalance: { delta: "0" },
+          totalSupply: { delta: "0" },
+          scheduleTotal: { delta: "0" },
+          released: { delta: "0" },
+        },
+      });
+
+      const repeatRevokeBefore = await readVestingEconomics(transfereeWallet.address);
+      const repeatRevoke = await apiCall(port, "POST", "/v1/workflows/revoke-beneficiary-vesting", {
+        body: { beneficiary: transfereeWallet.address },
+      });
+      expect(repeatRevoke.status).not.toBe(202);
+      assertNoEconomicSideEffects(
+        "vesting.repeatRevoke",
+        repeatRevokeBefore,
+        await readVestingEconomics(transfereeWallet.address),
+      );
+      proofCompleted = true;
+    } finally {
+      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      if (proofCompleted) {
+        expect(reverted).toBe(true);
+      }
+    }
   }, 300_000);
 
   it("mutates whisperblock state through HTTP and matches live whisperblock contract state", async (ctx) => {
@@ -4466,14 +6040,33 @@ describeLive("HTTP API contract integration", () => {
     expect(Array.isArray(datasetCreatedEvents.payload)).toBe(true);
     expect((datasetCreatedEvents.payload as Array<Record<string, unknown>>).length).toBeGreaterThan(0);
 
+    const stakeAmount = 1n;
+    const stakingStatsBefore = await stakingFacet.getStakingStats();
+    const stakeEconomicsBefore = {
+      staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+      custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+      allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+      totalSupply: await tokenSupplyFacet.totalSupply(),
+      totalStaked: BigInt(stakingStatsBefore.totalStaked),
+      totalRewardsDistributed: BigInt(stakingStatsBefore.totalRewardsDistributed),
+    };
     const stakeWorkflowResponse = await apiCall(port, "POST", "/v1/workflows/stake-and-delegate", {
       body: {
-        amount: "1",
+        amount: stakeAmount.toString(),
         delegatee: licenseeWallet.address,
       },
     });
     if (stakeWorkflowResponse.status === 500) {
       expect(JSON.stringify(stakeWorkflowResponse.payload)).toMatch(/Panic|OVERFLOW|delegate/u);
+      const stakingStatsAfter = await stakingFacet.getStakingStats();
+      assertNoEconomicSideEffects("stakeAndDelegate.failedDelegationPreflight", stakeEconomicsBefore, {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        allowance: await tokenSupplyFacet.tokenAllowance(founderAddress, diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(stakingStatsAfter.totalStaked),
+        totalRewardsDistributed: BigInt(stakingStatsAfter.totalRewardsDistributed),
+      });
     } else {
       expect(stakeWorkflowResponse.status).toBe(202);
       expect(stakeWorkflowResponse.payload).toEqual({
@@ -4512,6 +6105,40 @@ describeLive("HTTP API contract integration", () => {
       });
       await expectReceipt(String(((stakeWorkflowResponse.payload as Record<string, unknown>).stake as Record<string, unknown>).txHash));
       await expectReceipt(String(((stakeWorkflowResponse.payload as Record<string, unknown>).delegation as Record<string, unknown>).txHash));
+
+      const stakingStatsAfter = await stakingFacet.getStakingStats();
+      const stakeEconomicsAfter = {
+        staker: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        custody: await tokenSupplyFacet.tokenBalanceOf(diamondAddress),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+        totalStaked: BigInt(stakingStatsAfter.totalStaked),
+        totalRewardsDistributed: BigInt(stakingStatsAfter.totalRewardsDistributed),
+      };
+      const stakerDelta = assertExactAmountDelta(
+        "stakeAndDelegate.stakerBalance",
+        stakeEconomicsBefore.staker,
+        stakeEconomicsAfter.staker,
+        stakeEconomicsAfter.totalRewardsDistributed - stakeEconomicsBefore.totalRewardsDistributed - stakeAmount,
+      );
+      const custodyDelta = assertExactAmountDelta(
+        "stakeAndDelegate.custodyBalance",
+        stakeEconomicsBefore.custody,
+        stakeEconomicsAfter.custody,
+        stakeAmount - (stakeEconomicsAfter.totalRewardsDistributed - stakeEconomicsBefore.totalRewardsDistributed),
+      );
+      assertConservedDeltas("stakeAndDelegate.custodyConservation", [stakerDelta.delta, custodyDelta.delta]);
+      assertExactAmountDelta(
+        "stakeAndDelegate.totalSupply",
+        stakeEconomicsBefore.totalSupply,
+        stakeEconomicsAfter.totalSupply,
+        0n,
+      );
+      assertExactAmountDelta(
+        "stakeAndDelegate.totalStaked",
+        stakeEconomicsBefore.totalStaked,
+        stakeEconomicsAfter.totalStaked,
+        stakeAmount,
+      );
     }
 
     const proposalCalldata = governorFacet.interface.encodeFunctionData("updateVotingDelay", [6000n]);

@@ -14,6 +14,11 @@ import {
   waitForWorkflowReadback,
 } from "./reward-campaign-helpers.js";
 import { HttpError } from "../shared/errors.js";
+import {
+  assertConservedDeltas,
+  assertExactAmountDelta,
+  assertNoEconomicSideEffects,
+} from "./economic-invariants.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
 
 export const claimRewardCampaignSchema = z.object({
@@ -30,8 +35,42 @@ export async function runClaimRewardCampaignWorkflow(
 ) {
   const tokenomics = createTokenomicsPrimitiveService(context);
   const claimer = await resolveWorkflowAccountAddress(context, auth, walletAddress, "claimRewardCampaign");
+  const custody = context.addressBook.toJSON().diamond;
   const campaignBefore = await waitForCampaignRead(tokenomics, auth, walletAddress, body.campaignId, "claimRewardCampaign.campaignBefore");
   const campaignBeforeTotalClaimed = readBigInt(asRecord(campaignBefore.body)?.totalClaimed);
+  const claimerBalanceBefore = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [claimer],
+    }),
+    (result) => result.statusCode === 200,
+    "claimRewardCampaign.claimerBalanceBefore",
+  );
+  const totalSupplyBefore = await waitForWorkflowReadback(
+    () => tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+    (result) => result.statusCode === 200,
+    "claimRewardCampaign.totalSupplyBefore",
+  );
+  const claimerBalanceBeforeValue = readBigInt(claimerBalanceBefore.body);
+  const custodyBalanceBefore = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [custody],
+    }),
+    (result) => result.statusCode === 200,
+    "claimRewardCampaign.custodyBalanceBefore",
+  );
+  const custodyBalanceBeforeValue = readBigInt(custodyBalanceBefore.body);
+  const totalSupplyBeforeValue = readBigInt(totalSupplyBefore.body);
 
   const claimableBefore = await waitForWorkflowReadback(
     () => tokenomics.claimableAmount({
@@ -55,15 +94,34 @@ export async function runClaimRewardCampaignWorkflow(
   );
   const claimedBeforeValue = readBigInt(claimedBefore.body);
 
-  const claim = await tokenomics.claim({
-    auth,
-    api: { executionSource: "auto", gaslessMode: "none" },
-    walletAddress,
-    wireParams: [body.campaignId, body.totalAllocation, body.proof],
-  }).catch((error: unknown) => {
+  let claim: Awaited<ReturnType<typeof tokenomics.claim>>;
+  let claimTxHash: string | null;
+  try {
+    claim = await tokenomics.claim({
+      auth,
+      api: { executionSource: "auto", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [body.campaignId, body.totalAllocation, body.proof],
+    });
+    claimTxHash = await waitForWorkflowWriteReceipt(context, claim.body, "claimRewardCampaign.claim");
+  } catch (error) {
+    await assertFailedClaimHasNoEconomicSideEffects(
+      tokenomics,
+      auth,
+      walletAddress,
+      body.campaignId,
+      claimer,
+      custody,
+      {
+        campaignTotalClaimed: campaignBeforeTotalClaimed,
+        claimed: claimedBeforeValue,
+        claimerBalance: claimerBalanceBeforeValue,
+        custodyBalance: custodyBalanceBeforeValue,
+        totalSupply: totalSupplyBeforeValue,
+      },
+    );
     throw normalizeClaimRewardCampaignExecutionError(error);
-  });
-  const claimTxHash = await waitForWorkflowWriteReceipt(context, claim.body, "claimRewardCampaign.claim");
+  }
   const claimReceipt = claimTxHash ? await readWorkflowReceipt(context, claimTxHash, "claimRewardCampaign.claim") : null;
   const claimEvents = claimReceipt
     ? await waitForWorkflowEventQuery(
@@ -91,7 +149,7 @@ export async function runClaimRewardCampaignWorkflow(
         return false;
       }
       const nextClaimed = readBigInt(result.body);
-      return claimedNowValue === null ? nextClaimed > claimedBeforeValue : nextClaimed >= claimedBeforeValue + claimedNowValue;
+      return claimedNowValue === null ? nextClaimed > claimedBeforeValue : nextClaimed === claimedBeforeValue + claimedNowValue;
     },
     "claimRewardCampaign.claimedAfter",
   );
@@ -119,9 +177,89 @@ export async function runClaimRewardCampaignWorkflow(
         return false;
       }
       const totalClaimed = readBigInt(asRecord(result.body)?.totalClaimed);
-      return claimedNowValue === null ? totalClaimed > campaignBeforeTotalClaimed : totalClaimed >= campaignBeforeTotalClaimed + claimedNowValue;
+      return claimedNowValue === null ? totalClaimed > campaignBeforeTotalClaimed : totalClaimed === campaignBeforeTotalClaimed + claimedNowValue;
     },
     "claimRewardCampaign.campaignAfter",
+  );
+
+  const claimedAfterValue = readBigInt(claimedAfter.body);
+  const effectiveClaimAmount = claimedNowValue ?? (claimedAfterValue - claimedBeforeValue);
+  if (effectiveClaimAmount <= 0n) {
+    throw new Error("claimRewardCampaign economic invariant failed: claim amount must be positive");
+  }
+  const claimerBalanceAfter = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [claimer],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === claimerBalanceBeforeValue + effectiveClaimAmount,
+    "claimRewardCampaign.claimerBalanceAfter",
+  );
+  const custodyBalanceAfter = await waitForWorkflowReadback(
+    () => tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [custody],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === custodyBalanceBeforeValue - effectiveClaimAmount,
+    "claimRewardCampaign.custodyBalanceAfter",
+  );
+  const totalSupplyAfter = await waitForWorkflowReadback(
+    () => tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+    (result) => result.statusCode === 200 && readBigInt(result.body) === totalSupplyBeforeValue,
+    "claimRewardCampaign.totalSupplyAfter",
+  );
+  const claimedDelta = assertExactAmountDelta(
+    "claimRewardCampaign.claimed",
+    claimedBeforeValue,
+    claimedAfterValue,
+    effectiveClaimAmount,
+  );
+  assertExactAmountDelta(
+    "claimRewardCampaign.claimable",
+    readBigInt(claimableBefore.body),
+    readBigInt(claimableAfter.body),
+    -effectiveClaimAmount,
+  );
+  assertExactAmountDelta(
+    "claimRewardCampaign.campaignTotalClaimed",
+    campaignBeforeTotalClaimed,
+    readBigInt(asRecord(campaignAfter.body)?.totalClaimed),
+    effectiveClaimAmount,
+  );
+  assertConservedDeltas("claimRewardCampaign.claimAccounting", [
+    claimedDelta.delta,
+    -effectiveClaimAmount,
+  ]);
+  const claimerBalanceDelta = assertExactAmountDelta(
+    "claimRewardCampaign.claimerBalance",
+    claimerBalanceBeforeValue,
+    readBigInt(claimerBalanceAfter.body),
+    effectiveClaimAmount,
+  );
+  const custodyBalanceDelta = assertExactAmountDelta(
+    "claimRewardCampaign.custodyBalance",
+    custodyBalanceBeforeValue,
+    readBigInt(custodyBalanceAfter.body),
+    -effectiveClaimAmount,
+  );
+  const conservation = assertConservedDeltas("claimRewardCampaign.custodyTransfer", [
+    claimerBalanceDelta.delta,
+    custodyBalanceDelta.delta,
+  ]);
+  const totalSupplyDelta = assertExactAmountDelta(
+    "claimRewardCampaign.totalSupply",
+    totalSupplyBeforeValue,
+    readBigInt(totalSupplyAfter.body),
+    0n,
   );
 
   return {
@@ -138,6 +276,12 @@ export async function runClaimRewardCampaignWorkflow(
       after: claimedAfter.body,
       claimedNow,
     },
+    economics: {
+      claimerBalance: claimerBalanceDelta,
+      custodyBalance: custodyBalanceDelta,
+      totalSupply: totalSupplyDelta,
+      conservation,
+    },
     claim: {
       submission: claim.body,
       txHash: claimTxHash,
@@ -149,6 +293,56 @@ export async function runClaimRewardCampaignWorkflow(
       totalAllocation: body.totalAllocation,
     },
   };
+}
+
+async function assertFailedClaimHasNoEconomicSideEffects(
+  tokenomics: ReturnType<typeof createTokenomicsPrimitiveService>,
+  auth: import("../shared/auth.js").AuthContext,
+  walletAddress: string | undefined,
+  campaignId: string,
+  claimer: string,
+  custody: string,
+  before: Readonly<Record<string, bigint>>,
+): Promise<void> {
+  const [campaign, claimed, claimerBalance, custodyBalance, totalSupply] = await Promise.all([
+    tokenomics.getCampaign({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [campaignId],
+    }),
+    tokenomics.claimed({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [campaignId, claimer],
+    }),
+    tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [claimer],
+    }),
+    tokenomics.tokenBalanceOf({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [custody],
+    }),
+    tokenomics.totalSupply({
+      auth,
+      api: { executionSource: "live", gaslessMode: "none" },
+      walletAddress,
+      wireParams: [],
+    }),
+  ]);
+  assertNoEconomicSideEffects("claimRewardCampaign.failed", before, {
+    campaignTotalClaimed: readBigInt(asRecord(campaign.body)?.totalClaimed),
+    claimed: readBigInt(claimed.body),
+    claimerBalance: readBigInt(claimerBalance.body),
+    custodyBalance: readBigInt(custodyBalance.body),
+    totalSupply: readBigInt(totalSupply.body),
+  });
 }
 
 function normalizeClaimRewardCampaignExecutionError(error: unknown): unknown {

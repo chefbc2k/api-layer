@@ -2,18 +2,70 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.391] - 2026-10-18
+## [0.1.395] - 2026-10-20
 
 ### Changed
 
-- **Base Sepolia Promotion Readiness Rechecked:** Merged current local production into the isolated promotion branch and refreshed the persistent proof artifact from the canonical explicitly referenced environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
-- **Live Proofs Remain Safely Blocked:** The fail-closed gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path artifacts on current local production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` role-lifecycle cases.
+- **Credential Confused-Deputy Hardening Is Covered:** Audited the own-property API-key and signer-map checks plus their prototype-name mutation corpus. Unconfigured inherited names fail closed, explicit prototype-named credentials remain supported, and the mounted actor inventory has no authorization or role-model drift requiring duplicate matrix cases.
 
 ### Verified
 
-- **Promotion Guard And Coverage Gates Passed:** The promotion runner suite passed `6/6`; explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
-- **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
+- **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `357/357`, including founder/admin/operator/buyer/seller/licensee/collaborator, unknown-key, read-only-key, signer-mismatch, stale-role, revoked-role, and expired-validity behavior. `pnpm run test:redteam` passed `129/129`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,951` active tests across `156` files with `47` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
+## [0.1.394] - 2026-10-20
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest production assurance merges. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-removed generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.393] - 2026-10-16
+
+### Changed
+
+- **Economic Evidence Revalidated On Current Production:** Reconciled the economic-invariants branch with local production `master` and retained balance/state-delta assertions for escrow release, marketplace withdrawal and payment splitting, reward claims, vesting release/revoke, burn/mint/supply, staking/reward-pool custody, treasury movement, and emergency withdrawal, including rounding, repeat calls, failed calls, and partial-state safety.
+- **Fork Isolation Prevents Cross-Scenario Contamination:** A combined fork attempt became invalid after provider timeouts and shared-state failures. Rebootstrapping every scenario on its own fork produced clean, bounded evidence for all seven scenarios, so the failed batch is not treated as a protocol regression or successful proof.
+
+### Verified
+
+- **Economic And Repository Suites Passed:** The deterministic economic slice passed `143/143` across `17` files. Marketplace withdrawal, payment splits/treasury movement, burn/mint/supply, funded reward claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics each passed `1/1` on separately bootstrapped Base Sepolia forks. The full suite passed `1,932` active tests across `155` files with `47` gated skips.
+- **Required Quality Gates Passed:** Ordered TypeScript, lint, and full build/codegen passed. Build-time and explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting and emits release evidence without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. Repair and redeploy vesting, provision treasury signers through a supported path, and add approval observability before rerunning unsynthetic proofs and merging.
+
+## [0.1.392] - 2026-10-18
+
+### Changed
+
+- **API-Key Lookup Fails Closed On Prototype Names:** Authentication now requires the requested API key to be an explicitly configured own property. Names such as `constructor`, `toString`, `valueOf`, `hasOwnProperty`, and `__proto__` can no longer resolve inherited object members as credential records.
+- **Signer Mapping Uses The Same Ownership Boundary:** Signer resolution now requires the signer ID to be owned by the parsed signer map. Unconfigured prototype names produce the intended missing-private-key rejection, while explicitly configured prototype-named signers continue to work.
+- **Adversarial Credential Corpus Expanded:** Added twelve API-key and signer-map confused-deputy regressions to both canonical red-team commands.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth and execution-context tests passed `121/121`; `pnpm run test:redteam` passed `129/129`; guarded `pnpm run redteam:local-fork` passed `173/173` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,922` active tests across `153` files with `40` intentionally gated skips, including the formerly aggregate-only `coverage-fs-patch` case (`4/4`). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.391] - 2026-10-17
+
+### Changed
+
+- **Replay Identity Covers Complete Transaction Intent:** Replay fingerprints now bind chain ID, target contract, signer address, full calldata, transaction value, nonce, and deadline. Canonical case and unsigned-decimal normalization close equivalent-encoding bypasses, while malformed addresses, calldata, and numeric domains fail closed.
+- **Stale-Receipt Fork Probe Uses Fresh Canonical State:** The local-fork reorg test now tolerates post-revert mining-height differences, advances to the original receipt height when required, and bypasses ethers block caching with a raw canonical block lookup before evaluating the stale receipt.
+
+### Verified
+
+- **Red-Team Gates Passed:** `pnpm run test:redteam` passed `117/117`; guarded `pnpm run redteam:local-fork` passed `161/161` across `11` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,904` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 ## [0.1.390] - 2026-10-18
 
 ### Changed
@@ -133,7 +185,6 @@
 
 - **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
 - **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
-
 ## [0.1.380] - 2026-10-07
 
 ### Changed

@@ -52,6 +52,7 @@ import { runSubmitProposalWorkflow, submitProposalWorkflowSchema } from "./submi
 import { runTransferAndResecureVoiceAssetWorkflow, transferAndResecureVoiceAssetWorkflowSchema } from "./transfer-and-resecure-voice-asset.js";
 import { runTriggerEmergencyWorkflow, triggerEmergencyWorkflowSchema } from "./trigger-emergency.js";
 import { runTreasuryRevenueOperationsWorkflow, treasuryRevenueOperationsWorkflowSchema } from "./treasury-revenue-operations.js";
+import { runTreasuryMultisigWithdrawalWorkflow, treasuryMultisigWithdrawalSchema } from "./treasury-multisig-withdrawal.js";
 import { runUpdateMarketplaceListingPriceWorkflow, updateMarketplaceListingPriceSchema } from "./update-marketplace-listing-price.js";
 import { inspectVestingAdminPolicySchema, runInspectVestingAdminPolicyWorkflow, runUpdateVestingAdminPolicyWorkflow, updateVestingAdminPolicySchema } from "./vesting-admin-policy.js";
 import { runVoteOnProposalWorkflow, voteOnProposalWorkflowSchema } from "./vote-on-proposal.js";
@@ -98,6 +99,7 @@ export function createWorkflowRouter(context: ApiExecutionContext): Router {
   router.post("/v1/workflows/purchase-marketplace-asset", createWorkflowHandler(context, purchaseMarketplaceAssetSchema, (auth, walletAddress, body) => runPurchaseMarketplaceAssetWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/withdraw-marketplace-payments", createWorkflowHandler(context, withdrawMarketplacePaymentsSchema, (auth, walletAddress, body) => runWithdrawMarketplacePaymentsWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/treasury-revenue-operations", createWorkflowHandler(context, treasuryRevenueOperationsWorkflowSchema, (auth, walletAddress, body) => runTreasuryRevenueOperationsWorkflow(context, auth, walletAddress, body)));
+  router.post("/v1/workflows/treasury-multisig-withdrawal", createWorkflowHandler(context, treasuryMultisigWithdrawalSchema, (auth, walletAddress, body) => runTreasuryMultisigWithdrawalWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/create-beneficiary-vesting", createWorkflowHandler(context, createBeneficiaryVestingSchema, (auth, walletAddress, body) => runCreateBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/inspect-beneficiary-vesting", createWorkflowHandler(context, inspectBeneficiaryVestingSchema, (auth, walletAddress, body) => runInspectBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));
   router.post("/v1/workflows/release-beneficiary-vesting", createWorkflowHandler(context, releaseBeneficiaryVestingSchema, (auth, walletAddress, body) => runReleaseBeneficiaryVestingWorkflow(context, auth, walletAddress, body)));

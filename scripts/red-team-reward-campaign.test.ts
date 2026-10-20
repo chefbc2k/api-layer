@@ -16,6 +16,7 @@ vi.mock("../packages/api/src/workflows/wait-for-write.js", () => ({
 import { runClaimRewardCampaignWorkflow } from "../packages/api/src/workflows/claim-reward-campaign.js";
 
 const CLAIMER = "0x00000000000000000000000000000000000000aa";
+const CUSTODY = "0x00000000000000000000000000000000000000bb";
 const auth = {
   apiKey: "claimer-key",
   label: "claimer",
@@ -69,6 +70,13 @@ function createStatefulRewardService(state: RewardState) {
       return { statusCode: 200, body: (state.allocation - state.claimed).toString() };
     }),
     claimed: vi.fn(async () => ({ statusCode: 200, body: state.claimed.toString() })),
+    tokenBalanceOf: vi.fn(async (request: { wireParams: unknown[] }) => ({
+      statusCode: 200,
+      body: request.wireParams[0] === CLAIMER
+        ? state.claimerBalance.toString()
+        : state.campaignBalance.toString(),
+    })),
+    totalSupply: vi.fn(async () => ({ statusCode: 200, body: state.allocation.toString() })),
     claimedEventQuery: vi.fn(async () => [{
       transactionHash: "0xclaim-receipt",
       amount: lastClaimAmount.toString(),
@@ -78,6 +86,9 @@ function createStatefulRewardService(state: RewardState) {
 
 function context() {
   return {
+    addressBook: {
+      toJSON: () => ({ diamond: CUSTODY }),
+    },
     providerRouter: {
       withProvider: vi.fn().mockImplementation(async (
         _mode: string,
