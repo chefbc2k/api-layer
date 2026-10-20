@@ -2,7 +2,7 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.394] - 2026-10-20
+## [0.1.395] - 2026-10-20
 
 ### Changed
 
@@ -13,6 +13,18 @@
 
 - **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `357/357`, including founder/admin/operator/buyer/seller/licensee/collaborator, unknown-key, read-only-key, signer-mismatch, stale-role, revoked-role, and expired-validity behavior. `pnpm run test:redteam` passed `129/129`.
 - **Repository And Quality Gates Passed:** `pnpm test` passed `1,951` active tests across `156` files with `47` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.394] - 2026-10-20
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest production assurance merges. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-removed generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.393] - 2026-10-16
 
