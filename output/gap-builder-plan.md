@@ -1,11 +1,11 @@
 # Gap Builder Plan
 
-Generated: `2026-10-18T10:18:04.127Z`
-Source gap report: `2026-10-18T10:18:02.004Z`
+Generated: `2026-10-21T08:36:15.307Z`
+Source gap report: `2026-10-21T08:36:13.074Z`
 
 ## Summary
 
-- Non-ready items in scope: `100`
+- Non-ready items in scope: `99`
 - Selected this run: `40`
 
 ## AccessControlFacet
