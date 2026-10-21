@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-21
+
+- Reused the isolated red-team worktree, preserved its clean 2026-10-21 autosave, renamed the branch to `codex/red-team-harness-20261021`, fetched `origin`, and merged current local production `master` `d0bb88a`. Fetched `origin/master` `9240b8b` remains an ancestor of local production, and the unrelated dirty primary checkout remained untouched.
+- Mutated API-key wallet bindings and the signer map after priming the signer cache. The prior cache lookup happened before wallet-binding validation and before comparing the cached wallet with the current private-key mapping, so a second API identity sharing the signer ID could reuse authority despite a mismatched configured address, and a rotated signer mapping could continue returning the stale wallet.
+- Hardened signer resolution by constructing and validating the currently configured wallet before cache reuse, and by reusing a cached runner only when its address still matches the active mapping. Added regressions proving mismatched deputy bindings fail closed and signer-map rotation replaces, rather than reuses, the cached wallet; the prior prototype-name credential mutations remain covered.
+- Verification passed: focused auth/execution-context regressions (`88/88`), `pnpm run test:redteam` (`131/131`), guarded `pnpm run redteam:local-fork` (`175/175` across `12` files with all `6/6` deployed-fork probes active), and `pnpm test` (`1,953` active tests across `156` passing files with `47` gated skips). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this signer-cache confused-deputy and credential-rotation slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Actor Negative-Path Automation Run — 2026-10-21
 
 - Started `codex/actor-negative-paths-20261021` from clean local production `master` `e014760` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is sixty-six commits ahead.

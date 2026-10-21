@@ -76,14 +76,14 @@ async function signerRunnerFor(
     /* istanbul ignore next -- the throw path is exercised, but merged sourcemaps leave the statement/function uncredited */
     throw new Error("missing private key for signer " + auth.signerId);
   }
-  const cacheKey = `${auth.signerId}:${providerName}`;
-  const cached = context.signerRunners.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
   const signer = new Wallet(privateKey, provider);
   if (auth.walletAddress && signer.address.toLowerCase() !== auth.walletAddress.toLowerCase()) {
     throw new Error("API key not permitted: configured walletAddress does not match signerId");
+  }
+  const cacheKey = `${auth.signerId}:${providerName}`;
+  const cached = context.signerRunners.get(cacheKey);
+  if (cached?.address.toLowerCase() === signer.address.toLowerCase()) {
+    return cached;
   }
   context.signerRunners.set(cacheKey, signer);
   return signer;

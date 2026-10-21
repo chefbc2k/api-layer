@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.397] - 2026-10-21
+
+### Changed
+
+- **Signer Cache Revalidates API-Key Wallet Binding:** Signer resolution now validates the current private-key-derived address against every API identity's configured `walletAddress` before considering a cached runner. A second key sharing a signer ID can no longer inherit cached signing authority when its wallet binding disagrees.
+- **Signer Rotation Invalidates Stale Cached Authority:** Cached wallets are reused only when their address still matches the active signer mapping. Rotating `API_LAYER_SIGNER_MAP_JSON` replaces the cached wallet instead of continuing to sign with stale credentials.
+- **Adversarial Credential Corpus Expanded:** Added cache-primer/deputy and signer-map rotation mutations to the canonical deterministic and local-fork red-team commands.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `88/88`; `pnpm run test:redteam` passed `131/131`; guarded `pnpm run redteam:local-fork` passed `175/175` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,953` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.396] - 2026-10-21
 
 ### Changed
