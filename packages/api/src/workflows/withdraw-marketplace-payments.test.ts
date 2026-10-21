@@ -1,4 +1,7 @@
+import { Interface } from "ethers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { HttpError } from "../shared/errors.js";
 
 const mocks = vi.hoisted(() => ({
   createMarketplacePrimitiveService: vi.fn(),
@@ -14,6 +17,38 @@ vi.mock("./wait-for-write.js", () => ({
 }));
 
 import { runWithdrawMarketplacePaymentsWorkflow } from "./withdraw-marketplace-payments.js";
+
+const paymentTokenInterface = new Interface(["function balanceOf(address account) view returns (uint256)"]);
+const custodyAddress = "0x0000000000000000000000000000000000000ddd";
+
+function economicContext(
+  balances: bigint[],
+  sequence?: string[],
+  receiptBlock = 1701,
+) {
+  let balanceIndex = 0;
+  return {
+    addressBook: {
+      toJSON: () => ({ diamond: custodyAddress }),
+    },
+    providerRouter: {
+      withProvider: vi.fn().mockImplementation(async (
+        _mode: string,
+        label: string,
+        work: (provider: {
+          call: () => Promise<string>;
+          getTransactionReceipt: (txHash: string) => Promise<unknown>;
+        }) => Promise<unknown>,
+      ) => {
+        sequence?.push(label.includes("paymentTokenBalances") ? "payment-balances" : `receipt:${label}`);
+        return work({
+          call: vi.fn(async () => paymentTokenInterface.encodeFunctionResult("balanceOf", [balances[balanceIndex++]!])),
+          getTransactionReceipt: vi.fn(async () => ({ blockNumber: receiptBlock })),
+        });
+      }),
+    },
+  };
+}
 
 describe("runWithdrawMarketplacePaymentsWorkflow", () => {
   const auth = { apiKey: "test-key", label: "test", roles: ["service"], allowGasless: false };
@@ -55,23 +90,21 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
       return "0xwithdraw-receipt";
     });
 
-    const result = await runWithdrawMarketplacePaymentsWorkflow({
-      providerRouter: {
-        withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => {
-          sequence.push(`receipt:${label}`);
-          return work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1701 })) });
-        }),
-      },
-    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {
+    const result = await runWithdrawMarketplacePaymentsWorkflow(economicContext(
+      [1000n, 10n, 875n, 135n],
+      sequence,
+    ) as never, auth as never, "0x00000000000000000000000000000000000000aa", {
       deadline: "999999",
     });
 
     expect(sequence).toEqual([
       "pending-before",
+      "payment-balances",
       "withdraw-deadline",
       "wait-withdraw",
       "receipt:workflow.withdrawMarketplacePayments.withdrawal.receipt",
       "pending-after",
+      "payment-balances",
       "withdraw-events",
     ]);
     expect(result).toEqual({
@@ -86,6 +119,19 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
         submission: { txHash: "0xwithdraw-write" },
         txHash: "0xwithdraw-receipt",
         pendingAfter: "0",
+        pendingDelta: {
+          before: "125",
+          after: "0",
+          delta: "-125",
+        },
+        releasedAmount: "125",
+        economics: {
+          paymentToken: "0x00000000000000000000000000000000000000cc",
+          custodyAddress,
+          custody: { before: "1000", after: "875", delta: "-125" },
+          payee: { before: "10", after: "135", delta: "125" },
+          conservation: "0",
+        },
         eventCount: 1,
         deadline: "999999",
       },
@@ -116,6 +162,136 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     } as never, auth as never, "0x00000000000000000000000000000000000000aa", {})).rejects.toThrow(
       "withdraw-marketplace-payments requires pending payments",
     );
+  });
+
+  it("fails closed before ledger reads when the payment token is not configured", async () => {
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: null }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn(),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn(),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+
+    await expect(runWithdrawMarketplacePaymentsWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {})).rejects.toThrow(
+      "requires a configured payment token",
+    );
+    expect(marketplace.getPendingPayments).not.toHaveBeenCalled();
+  });
+
+  it("proves a rejected withdrawal leaves pending liability and token custody unchanged", async () => {
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockRejectedValue(new Error("withdraw rejected")),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+
+    await expect(runWithdrawMarketplacePaymentsWorkflow(
+      economicContext([100n, 5n, 100n, 5n]) as never,
+      auth as never,
+      "0x00000000000000000000000000000000000000aa",
+      {},
+    )).rejects.toThrow("withdraw rejected");
+    expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(2);
+  });
+
+  it("classifies treasury multisig withdrawals as blocked after proving no side effects", async () => {
+    const diagnostics = { cause: "execution reverted: MultisigRequired(uint256,uint256)" };
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockRejectedValue({ message: "withdraw failed", diagnostics }),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+
+    const result = runWithdrawMarketplacePaymentsWorkflow(
+      economicContext([100n, 5n, 100n, 5n]) as never,
+      auth as never,
+      "0x00000000000000000000000000000000000000dd",
+      {},
+    );
+
+    await expect(result).rejects.toMatchObject<HttpError>({
+      statusCode: 409,
+      message: "withdraw-marketplace-payments requires the treasury multisig withdrawal path",
+      diagnostics,
+    });
+    expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects a failed withdrawal response that hides partial token movement", async () => {
+    const marketplace = {
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn()
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" })
+        .mockResolvedValueOnce({ statusCode: 200, body: "25" }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn().mockRejectedValue(new Error("withdraw rejected")),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    };
+    mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
+
+    await expect(runWithdrawMarketplacePaymentsWorkflow(
+      economicContext([100n, 5n, 99n, 5n]) as never,
+      auth as never,
+      "0x00000000000000000000000000000000000000aa",
+      {},
+    )).rejects.toThrow("withdrawMarketplacePayments.failed.custody economic invariant failed");
+  });
+
+  it("fails closed when the pending-before ledger value is missing", async () => {
+    mocks.createMarketplacePrimitiveService.mockReturnValue({
+      getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
+      isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      paymentPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
+      getTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000dd" }),
+      getDevFundAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ee" }),
+      getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
+      getPendingPayments: vi.fn().mockResolvedValue({ statusCode: 200, body: {} }),
+      withdrawPaymentsWithDeadline: vi.fn(),
+      withdrawPayments: vi.fn(),
+      usdcpaymentWithdrawnEventQuery: vi.fn(),
+    });
+
+    await expect(runWithdrawMarketplacePaymentsWorkflow({
+      providerRouter: { withProvider: vi.fn() },
+    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {})).rejects.toThrow(
+      "pendingBefore.payee is missing",
+    );
+
+    expect(mocks.waitForWorkflowWriteReceipt).not.toHaveBeenCalled();
   });
 
   it("fails early when marketplace payments are paused", async () => {
@@ -157,9 +333,12 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     mocks.createMarketplacePrimitiveService.mockReturnValue(marketplace);
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
 
-    const result = await runWithdrawMarketplacePaymentsWorkflow({
-      providerRouter: { withProvider: vi.fn() },
-    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
+    const result = await runWithdrawMarketplacePaymentsWorkflow(
+      economicContext([100n, 5n, 90n, 15n]) as never,
+      auth as never,
+      "0x00000000000000000000000000000000000000aa",
+      {},
+    );
 
     expect(result.withdrawal).toMatchObject({
       mode: "standard",
@@ -203,21 +382,21 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
       return "0xwithdraw-receipt";
     });
 
-    const result = await runWithdrawMarketplacePaymentsWorkflow({
-      providerRouter: {
-        withProvider: vi.fn().mockImplementation(async (_mode: string, label: string, work: (provider: { getTransactionReceipt: (txHash: string) => Promise<unknown> }) => Promise<unknown>) => {
-          sequence.push(`receipt:${label}`);
-          return work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1901 })) });
-        }),
-      },
-    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
+    const result = await runWithdrawMarketplacePaymentsWorkflow(
+      economicContext([100n, 5n, 75n, 30n], sequence, 1901) as never,
+      auth as never,
+      "0x00000000000000000000000000000000000000aa",
+      {},
+    );
 
     expect(sequence).toEqual([
       "pending-before",
+      "payment-balances",
       "withdraw-standard",
       "wait-withdraw",
       "receipt:workflow.withdrawMarketplacePayments.withdrawal.receipt",
       "pending-after",
+      "payment-balances",
       "withdraw-events",
     ]);
     expect(result.withdrawal).toEqual({
@@ -225,6 +404,19 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
       submission: { txHash: "0xwithdraw-write" },
       txHash: "0xwithdraw-receipt",
       pendingAfter: "0",
+      pendingDelta: {
+        before: "25",
+        after: "0",
+        delta: "-25",
+      },
+      releasedAmount: "25",
+      economics: {
+        paymentToken: "0x00000000000000000000000000000000000000cc",
+        custodyAddress,
+        custody: { before: "100", after: "75", delta: "-25" },
+        payee: { before: "5", after: "30", delta: "25" },
+        conservation: "0",
+      },
       eventCount: 1,
       deadline: null,
     });
@@ -259,13 +451,12 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xwithdraw-receipt");
 
     try {
-      const result = await runWithdrawMarketplacePaymentsWorkflow({
-        providerRouter: {
-          withProvider: vi.fn().mockImplementation(async (_mode: string, _label: string, work: (provider: {
-            getTransactionReceipt: (txHash: string) => Promise<unknown>;
-          }) => Promise<unknown>) => work({ getTransactionReceipt: vi.fn(async () => ({ blockNumber: 1903 })) })),
-        },
-      } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
+      const result = await runWithdrawMarketplacePaymentsWorkflow(
+        economicContext([100n, 5n, 75n, 30n], undefined, 1903) as never,
+        auth as never,
+        "0x00000000000000000000000000000000000000aa",
+        {},
+      );
 
       expect(marketplace.getPendingPayments).toHaveBeenCalledTimes(3);
       expect(setTimeoutSpy).toHaveBeenCalled();
@@ -275,7 +466,11 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
     }
   });
 
-  it("normalizes a missing pending-after payee to null in the workflow summary", async () => {
+  it("fails closed when the pending-after payee readback is missing", async () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout").mockImplementation(((callback: (...args: never[]) => void) => {
+      callback();
+      return 0;
+    }) as typeof setTimeout);
     mocks.createMarketplacePrimitiveService.mockReturnValue({
       getUsdcToken: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000cc" }),
       isPaused: vi.fn().mockResolvedValue({ statusCode: 200, body: false }),
@@ -285,19 +480,25 @@ describe("runWithdrawMarketplacePaymentsWorkflow", () => {
       getUnionTreasuryAddress: vi.fn().mockResolvedValue({ statusCode: 200, body: "0x00000000000000000000000000000000000000ff" }),
       getPendingPayments: vi.fn()
         .mockResolvedValueOnce({ statusCode: 200, body: "15" })
-        .mockResolvedValueOnce({ statusCode: 200, body: {} }),
+        .mockResolvedValue({ statusCode: 200, body: {} }),
       withdrawPaymentsWithDeadline: vi.fn(),
       withdrawPayments: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xwithdraw-write" } }),
       usdcpaymentWithdrawnEventQuery: vi.fn(),
     });
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce(null);
 
-    const result = await runWithdrawMarketplacePaymentsWorkflow({
-      providerRouter: { withProvider: vi.fn() },
-    } as never, auth as never, "0x00000000000000000000000000000000000000aa", {});
-
-    expect(result.preflight.pendingBefore).toBe("15");
-    expect(result.withdrawal.pendingAfter).toBe(null);
+    try {
+      await expect(runWithdrawMarketplacePaymentsWorkflow(
+        economicContext([100n, 5n]) as never,
+        auth as never,
+        "0x00000000000000000000000000000000000000aa",
+        {},
+      )).rejects.toThrow(
+        "pendingAfter readback timeout",
+      );
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
   });
 
 });

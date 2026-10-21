@@ -1,4 +1,4 @@
-import { Wallet } from "ethers";
+import { Interface, Wallet } from "ethers";
 import { z } from "zod";
 
 import type { ApiExecutionContext } from "../shared/execution-context.js";
@@ -7,6 +7,7 @@ import type { RouteResult } from "../shared/route-types.js";
 import { createStakingPrimitiveService } from "../modules/staking/primitives/generated/index.js";
 import { createTokenomicsPrimitiveService } from "../modules/tokenomics/primitives/generated/index.js";
 import { waitForWorkflowWriteReceipt } from "./wait-for-write.js";
+import { assertExactAmountDelta } from "./economic-invariants.js";
 
 export const stakeAndDelegateSchema = z.object({
   amount: z.string().regex(/^\d+$/u),
@@ -24,6 +25,8 @@ export async function runStakeAndDelegateWorkflow(
   const stakerAddress = await resolveWorkflowStakerAddress(context, auth, walletAddress);
   const spender = context.addressBook.toJSON().diamond;
   const requiredAmount = BigInt(body.amount);
+
+  await preflightDelegation(context, spender, stakerAddress, body.delegatee);
 
   const allowanceBefore = await waitForWorkflowReadback(
     () => tokenomics.tokenAllowance({
@@ -81,9 +84,15 @@ export async function runStakeAndDelegateWorkflow(
     }),
     (result) => {
       const amount = readBigInt(asRecord(result.body)?.amount);
-      return result.statusCode === 200 && amount >= stakeBeforeAmount + requiredAmount;
+      return result.statusCode === 200 && amount === stakeBeforeAmount + requiredAmount;
     },
     "stakeAndDelegate.stakeInfoAfter",
+  );
+  assertExactAmountDelta(
+    "stakeAndDelegate.stakedAmount",
+    stakeBeforeAmount,
+    readBigInt(asRecord(stakeInfoAfter.body)?.amount),
+    requiredAmount,
   );
   const stakedEvents = stakeReceipt
     ? await waitForWorkflowEventQuery(
@@ -177,6 +186,30 @@ export async function runStakeAndDelegateWorkflow(
       amount: body.amount,
     },
   };
+}
+
+async function preflightDelegation(
+  context: ApiExecutionContext,
+  diamondAddress: string,
+  stakerAddress: string,
+  delegatee: string,
+): Promise<void> {
+  const calldata = new Interface(["function delegate(address delegatee)"]).encodeFunctionData("delegate", [delegatee]);
+  await context.providerRouter.withProvider(
+    "read",
+    "workflow.stakeAndDelegate.delegationPreflight",
+    async (provider) => {
+      const call = (provider as typeof provider & { call?: typeof provider.call }).call;
+      if (typeof call !== "function") {
+        return;
+      }
+      await call.call(provider, {
+        to: diamondAddress,
+        from: stakerAddress,
+        data: calldata,
+      });
+    },
+  );
 }
 
 function normalizeStakeExecutionError(error: unknown, amount: string): unknown {
