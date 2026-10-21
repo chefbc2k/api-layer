@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Actor Negative-Path Automation Run — 2026-10-21
+
+- Started `codex/actor-negative-paths-20261021` from clean local production `master` `e014760` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is sixty-six commits ahead.
+- Audited the production delta since the 2026-10-20 actor baseline. It is the verified merge commit for that actor revalidation only; no mounted HTTP write, required-actor metadata, API-key authorization, signer binding, role lifecycle, validation, or contract-preflight source changed, so no duplicate negative-path matrix was added.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Coverage remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases. Unauthorized actors remain unable to commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, or mutate ownership-controlled state.
+- Verification passed: `pnpm run test:actor-negative-paths` (`357/357`), `pnpm run test:redteam` (`129/129`), and the canonical `pnpm test` retry (`1,951` active tests across `156` passing files with `47` gated skips). The first actor and full-suite attempts each encountered one unrelated worker/request timeout; both exact cases passed immediately in isolation before their canonical suites passed cleanly. Lint, full code generation and workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this actor negative-path section remains 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Actor Negative-Path Automation Run — 2026-10-20
 
 - Started `codex/actor-negative-paths-20261020` from clean local production `master` `947d12c` in the reusable isolated actor worktree, leaving the unrelated dirty primary autosave checkout untouched. Fetched `origin`; remote production remains `9240b8b`. After verification, incorporated the concurrent write-invariant revalidation merge at local production `5546522`; it changes tracking documentation only and does not affect actor coverage.
