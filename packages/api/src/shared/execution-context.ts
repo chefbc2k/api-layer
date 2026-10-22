@@ -106,8 +106,11 @@ function requireSignerId(auth: AuthContext, definitionKey: string): string {
   return auth.signerId;
 }
 
-function signerQueueKey(auth: AuthContext, providerName: string): string {
-  return `${auth.signerId ?? "anonymous"}:${providerName}`;
+function signerQueueKey(providerName: string, signerAddress?: string): string {
+  return JSON.stringify([
+    signerAddress?.toLowerCase() ?? null,
+    providerName,
+  ]);
 }
 
 function isNonceExpiredError(error: unknown): boolean {
@@ -279,7 +282,7 @@ async function prepareWriteInvocationOnProvider(
     providerName,
     signer,
     signerAddress,
-    queueKey: signerQueueKey(auth, providerName),
+    queueKey: signerQueueKey(providerName, signerAddress),
     responseTemplate,
   };
 }

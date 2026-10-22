@@ -145,4 +145,55 @@ describe("red-team API key and signer-map boundaries", () => {
     expect(rotated?.address).toBe(new Wallet(rotatedPrivateKey).address);
     expect(rotated).not.toBe(original);
   });
+
+  it("does not let a rotated signer inherit the prior wallet nonce domain", async () => {
+    const originalPrivateKey = `0x${"33".repeat(32)}`;
+    const rotatedPrivateKey = `0x${"44".repeat(32)}`;
+    const auth = {
+      apiKey: "rotation-nonce-test",
+      label: "rotation nonce test",
+      signerId: "rotating",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    const context = {
+      signerRunners: new Map(),
+      signerQueues: new Map(),
+      signerNonces: new Map<string, number>(),
+    };
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
+      rotating: originalPrivateKey,
+      alias: originalPrivateKey,
+    });
+    const original = await __testOnly.signerRunnerFor(
+      context as never,
+      auth,
+      null as never,
+      "red-team",
+    );
+    const originalQueueKey = __testOnly.signerQueueKey("red-team", original?.address);
+    context.signerNonces.set(originalQueueKey, 41);
+    const alias = await __testOnly.signerRunnerFor(
+      context as never,
+      { ...auth, apiKey: "alias-key", signerId: "alias" },
+      null as never,
+      "red-team",
+    );
+    const aliasQueueKey = __testOnly.signerQueueKey("red-team", alias?.address);
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ rotating: rotatedPrivateKey });
+    const rotated = await __testOnly.signerRunnerFor(
+      context as never,
+      auth,
+      null as never,
+      "red-team",
+    );
+    const rotatedQueueKey = __testOnly.signerQueueKey("red-team", rotated?.address);
+
+    expect(aliasQueueKey).toBe(originalQueueKey);
+    expect(rotatedQueueKey).not.toBe(originalQueueKey);
+    expect(context.signerNonces.get(originalQueueKey)).toBe(41);
+    expect(context.signerNonces.has(rotatedQueueKey)).toBe(false);
+  });
 });

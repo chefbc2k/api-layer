@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.398] - 2026-10-22
+
+### Changed
+
+- **Nonce Coordination Follows Wallet Authority:** Direct-write submission queues and local nonce tracking are now keyed by the normalized resolved wallet address and provider. Multiple signer IDs mapped to one wallet share a single ordered nonce stream instead of racing independent submissions.
+- **Signer Rotation Starts A Fresh Nonce Domain:** Rotating a signer ID to a new private key no longer carries the prior wallet's locally advanced nonce into the replacement wallet, preventing nonce-gap transactions from wedging the rotated signer.
+- **Adversarial Signer-Mapping Corpus Expanded:** Added signer-alias and post-rotation nonce mutations to the canonical deterministic and local-fork red-team commands, plus direct execution coverage for case normalization and provider separation.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `91/91`; `pnpm run test:redteam` passed `132/132`; guarded `pnpm run redteam:local-fork` passed `176/176` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,956` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.397] - 2026-10-21
 
 ### Changed
