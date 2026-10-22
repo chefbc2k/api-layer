@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-22
+
+- Started `codex/red-team-harness-20261022` from clean local production `master` `e4f8f7b` in the reusable isolated red-team worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is seventy-two commits ahead.
+- Mutated signer mappings so two signer IDs resolve to the same wallet and then rotated one signer ID to a different wallet after local nonce state was populated. Submission queues and local nonces were keyed only by signer ID and provider, so aliases of one wallet could race with independent nonce streams while a newly rotated wallet inherited the prior wallet's next nonce and could submit an unmineable nonce-gap transaction.
+- Bound submission-queue and nonce identity to the normalized resolved wallet address plus provider. Signer aliases now serialize and advance one nonce stream for the shared wallet, while signer-map rotation starts the replacement wallet from its own pending nonce. Added direct execution and canonical red-team regressions for alias convergence, case normalization, provider separation, and rotation isolation.
+- Verification passed: focused auth/execution-context regressions (`91/91`), `pnpm run test:redteam` (`132/132`), guarded `pnpm run redteam:local-fork` (`176/176` across `12` files with all `6/6` deployed-fork probes active), and `pnpm test` (`1,956` active tests across `156` passing files with `47` gated skips). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this signer-alias double-spend and signer-rotation nonce-isolation slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Red-Team Harness Automation Run — 2026-10-21
 
 - Reused the isolated red-team worktree, preserved its clean 2026-10-21 autosave, renamed the branch to `codex/red-team-harness-20261021`, fetched `origin`, and merged current local production `master` `d0bb88a`. Fetched `origin/master` `9240b8b` remains an ancestor of local production, and the unrelated dirty primary checkout remained untouched.

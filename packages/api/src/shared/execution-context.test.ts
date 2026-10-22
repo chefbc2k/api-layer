@@ -620,12 +620,16 @@ describe("__testOnly helpers", () => {
   });
 
   it("uses an anonymous signer queue key when no signer id is present", () => {
-    expect(__testOnly.signerQueueKey({
-      apiKey: "public-key",
-      label: "public",
-      allowGasless: false,
-      roles: [],
-    }, "primary")).toBe("anonymous:primary");
+    expect(__testOnly.signerQueueKey("primary")).toBe(JSON.stringify([null, "primary"]));
+  });
+
+  it("binds signer queue identity to the resolved wallet address", () => {
+    expect(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000AA"))
+      .toBe(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000aa"));
+    expect(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000aa"))
+      .not.toBe(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000bb"));
+    expect(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000aa"))
+      .not.toBe(__testOnly.signerQueueKey("secondary", "0x00000000000000000000000000000000000000aa"));
   });
 
   it("does not clear a queue entry that has been replaced while work is still unwinding", async () => {
@@ -1161,9 +1165,11 @@ describe("executeHttpMethodDefinition", () => {
   });
 
   it("continues write submission after a previously rejected signer queue entry", async () => {
-    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0x" + "11".repeat(32) });
+    const privateKey = "0x" + "11".repeat(32);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: privateKey });
     const context = buildContext();
-    context.signerQueues.set("founder:primary", Promise.reject(new Error("prior failure")).catch(() => undefined));
+    const queueKey = __testOnly.signerQueueKey("primary", `wallet:${privateKey}`);
+    context.signerQueues.set(queueKey, Promise.reject(new Error("prior failure")).catch(() => undefined));
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
     mocked.serializeResultToWire.mockReturnValueOnce(true);
 
@@ -1949,7 +1955,51 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
-    expect(context.signerNonces.get("founder:primary")).toBe(6);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.get(queueKey)).toBe(6);
+  });
+
+  it("shares nonce state across wallet aliases without carrying it across signer-map rotation", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc", alias: "0xabc" });
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        auth: { ...buildRequest().auth, apiKey: "alias-key", signerId: "alias" },
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xdef" });
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(1, expect.objectContaining({ nonce: 4 }));
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(2, expect.objectContaining({ nonce: 5 }));
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(3, expect.objectContaining({ nonce: 4 }));
+    expect(context.signerNonces.get(
+      __testOnly.signerQueueKey("primary", "wallet:0xabc"),
+    )).toBe(6);
+    expect(context.signerNonces.get(
+      __testOnly.signerQueueKey("primary", "wallet:0xdef"),
+    )).toBe(5);
   });
 
   it("preserves the active signer queue entry until a queued write finishes", async () => {
@@ -2039,7 +2089,8 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
-    expect(context.signerNonces.get("founder:primary")).toBe(7);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.get(queueKey)).toBe(7);
   });
 
   it("surfaces primitive nonce-expired failures after all retries are exhausted", async () => {
@@ -2095,7 +2146,8 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
-    expect(context.signerNonces.get("founder:primary")).toBe(7);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.get(queueKey)).toBe(7);
   });
 
   it("wraps non-nonce submission failures with failure diagnostics and simulation output", async () => {
