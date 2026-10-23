@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-23
+
+- Started `codex/red-team-harness-20261023` from clean local production `master` `3a1ddc8` in the reusable isolated red-team worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is seventy-four commits ahead.
+- Mutated direct-write submission with an RPC `already known` response. The retry classifier treated that response as an expired nonce, advanced to a new nonce, and resubmitted the same calldata even though the first signed transaction was already present in the node mempool, creating a deterministic duplicate-execution and double-spend path.
+- Removed `already known` from the retryable nonce class so the request fails closed with diagnostics after one submission attempt and does not advance local nonce state. Added a direct execution regression proving at-most-once behavior plus a canonical red-team classifier mutation covering Error objects, message objects, and case normalization; ordinary stale-nonce variants retain their bounded recovery behavior.
+- Verification passed: focused auth/execution-context regressions (`93/93`), `pnpm run test:redteam` (`133/133`), guarded `pnpm run redteam:local-fork` (`177/177` across `12` files with all `6/6` deployed-fork probes active), and `pnpm test` (`1,958` active tests across `156` passing files with `47` gated skips). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this at-most-once direct-submission and already-known replay slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Red-Team Harness Automation Run — 2026-10-22
 
 - Started `codex/red-team-harness-20261022` from clean local production `master` `e4f8f7b` in the reusable isolated red-team worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is seventy-two commits ahead.

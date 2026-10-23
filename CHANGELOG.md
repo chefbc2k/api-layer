@@ -2,6 +2,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.399] - 2026-10-23
+
+### Changed
+
+- **Already-Known Transactions Fail Closed:** Direct-write submission no longer treats an RPC `already known` response as a retryable stale nonce. Because the original signed transaction may already be in the mempool, the API now returns diagnostics after one attempt instead of resubmitting the same calldata at a new nonce and risking duplicate execution or double spend.
+- **Ordinary Nonce Recovery Is Preserved:** `nonce too low`, `nonce expired`, already-used nonce, and underpriced replacement responses retain the existing bounded retry behavior and wallet-scoped nonce coordination.
+- **Adversarial Replay Corpus Expanded:** Added direct execution and canonical red-team mutations proving `already known` is treated as an ambiguous submission outcome, never as authorization to resubmit, and leaves local nonce state untouched.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `93/93`; `pnpm run test:redteam` passed `133/133`; guarded `pnpm run redteam:local-fork` passed `177/177` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,958` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.398] - 2026-10-22
 
 ### Changed

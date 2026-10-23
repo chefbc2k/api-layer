@@ -121,8 +121,7 @@ function isNonceExpiredError(error: unknown): boolean {
     message.includes("nonce expired") ||
     message.includes("replacement fee too low") ||
     message.includes("replacement transaction underpriced") ||
-    message.includes("transaction underpriced") ||
-    message.includes("already known")
+    message.includes("transaction underpriced")
   );
 }
 
@@ -187,6 +186,7 @@ export const __testOnly = {
   canonicalMethodSignature,
   resolveContractMethod,
   assertRequestedWalletMatchesSigner,
+  isNonceExpiredError,
 };
 
 function parseGaslessAllowlist(): Set<string> {
