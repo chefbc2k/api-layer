@@ -29,7 +29,7 @@
 ### Verified
 
 - **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `93/93`; `pnpm run test:redteam` passed `133/133`; guarded `pnpm run redteam:local-fork` passed `177/177` across `12` files with all `6/6` deployed-fork probes active.
-- **Repository And Quality Gates Passed:** `pnpm test` passed `1,958` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Repository And Quality Gates Passed:** After incorporating remote production through `5e07364`, `pnpm test` passed `2,019` active tests across `157` files with `55` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.398] - 2026-10-22
 
