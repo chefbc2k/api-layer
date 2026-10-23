@@ -84,3 +84,10 @@ Each unit includes implementation, validation, failure handling and meaningful t
 - `pnpm exec tsx .runtime/funding-rpc-proof.ts`: real local Anvil EVM, normal contract-inspection implementation; matching USDC returned 200, wrong token 409, wrong chain 409. Provider eligibility data was an explicit synthetic fixture. No external RPC, live chain write or fiat charge occurred. Receipt/settlement write-fork proof is not applicable to this read-only pricing batch; it remains required for later settlement work.
 - Durable summary: `output/coinbase-usdc/2026-10-23-verification.json`; full command logs remain in the attached worktree under `.runtime/coinbase-*.log`. Recovery commits `c46f44a`, `da25336` and `6169aa8` preserve the interrupted work; delivery is a clean scoped commit excluding transient symlinks and generator timestamp churn. Default-branch push and exact-commit remote check status will be recorded in a delivery receipt after verification.
 - No release/production completion is claimed. C06–C10 are next; Coinbase onboarding, real provider sandbox acceptance, settlement proofs and consuming frontend integration remain open.
+
+#### Run 5 delivery receipt
+
+- Clean implementation commit: `83bbf8aaba002e670475fd9d0a514bd2356dcfd3` (`feat(api): add verified Coinbase USDC eligibility and quote foundation`). The delivery tree was verified identical to the tested recovery tree before publication.
+- Atomic non-force push succeeded to `origin/master` and `origin/codex/coinbase-usdc-20261023`. `git ls-remote` confirmed both refs at that exact commit. The primary checkout and other worktrees were not reset or moved.
+- GitHub check-runs returned zero checks for the implementation SHA; combined status returned zero status contexts (its aggregate placeholder was `pending`). No build/test CI workflow or successful remote CI run is claimed. Local verification results above are the delivery gates.
+- This documentation receipt is committed and pushed separately; it changes no runtime/test source. Completion is 5/20 (25%); automation stays active for C06–C20.
