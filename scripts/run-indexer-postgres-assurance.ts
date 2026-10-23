@@ -60,13 +60,15 @@ async function main(): Promise<void> {
         "-f", "db/migrations/0002_hardening.sql",
         "-f", "db/migrations/0003_indexer_block_journal.sql",
         "-f", "db/migrations/0004_reward_campaign_projections.sql",
+        "-f", "db/migrations/0005_funding_quotes.sql",
       ]);
     }
 
-    const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "--maxWorkers", "1"], {
+    const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "packages/api/src/funding/postgres.integration.test.ts", "--maxWorkers", "1"], {
       env: {
         ...process.env,
         API_LAYER_INDEXER_TEST_DB_URL: `postgresql://postgres@127.0.0.1:${port}/postgres`,
+        API_LAYER_FUNDING_TEST_DB_URL: `postgresql://postgres@127.0.0.1:${port}/postgres`,
       },
       maxBuffer: 10 * 1024 * 1024,
     });
