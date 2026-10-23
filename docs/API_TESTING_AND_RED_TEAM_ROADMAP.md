@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-23
+
+- Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree, fetched `origin`, and merged current clean local production `master` `3a1ddc8` as `6c788a7`, resolving only documentation prepend conflicts while retaining the current signer nonce-domain hardening and prior promotion evidence. Remote `origin/master` remains `9240b8b`; the unrelated dirty primary checkout was left untouched.
+- Refreshed `verify-base-sepolia-promotion-output.json` at `2026-10-23T18:22:49.640Z` through the canonical explicitly referenced environment preflight. Network (`base-sepolia`), chain ID (`84532`), diamond-address format, valid and distinct founder/seller/buyer keys, and founder/sender binding pass. Readiness is still blocked because `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` is disabled and both execution and diagnostics RPC origins resolve to loopback `http://127.0.0.1:8548`.
+- The fail-closed gate exited `2` before provider access or live-chain inspection. No operator setup, user funding, test-token allowance, aged listing, governance preparation, marketplace purchase, governance proof, transaction submission, or destructive protocol-admin write ran. The refreshed artifact remains `blocked by setup/state`, with `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence.
+- Non-live verification passed: the focused promotion suite passed `6/6`, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** blocked. No partial promotion work is merged into `master`. The next safe run requires operator-provided direct Base Sepolia execution and diagnostics RPCs plus explicit `.env` opt-in; only after every static and live-target readiness check passes may the existing fixture-backed marketplace and governance proof commands run.
+
 ## Red-Team Harness Automation Run — 2026-10-22
 
 - Started `codex/red-team-harness-20261022` from clean local production `master` `e4f8f7b` in the reusable isolated red-team worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin`; remote production remains `9240b8b`, while local production is seventy-two commits ahead.
@@ -25,6 +33,7 @@ This document is the master tracking file for the API assurance automation. Dail
 - Regenerated `output/actor-negative-path-report.json` and `.md`. Coverage remains complete at `260` ABI writes, `259` mounted HTTP writes across `13` domains, `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases. Unauthorized actors remain unable to commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, or mutate ownership-controlled state.
 - Verification passed: `pnpm run test:actor-negative-paths` (`357/357`), `pnpm run test:redteam` (`129/129`), and the canonical `pnpm test` retry (`1,951` active tests across `156` passing files with `47` gated skips). The first actor and full-suite attempts each encountered one unrelated worker/request timeout; both exact cases passed immediately in isolation before their canonical suites passed cleanly. Lint, full code generation and workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
 - **Merge decision:** this actor negative-path section remains 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Base Sepolia Promotion Automation Run — 2026-10-20
 
 - Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree, fetched `origin`, and merged current local production `master` `e014760` as `ef9ba62`, resolving only documentation prepend conflicts while preserving the current production assurance changes. Local production is `66` commits ahead of remote production `9240b8b`; the unrelated dirty primary checkout was left untouched.

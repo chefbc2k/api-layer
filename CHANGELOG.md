@@ -2,6 +2,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.399] - 2026-10-23
+
+### Changed
+
+- **Base Sepolia Promotion Readiness Rechecked:** Reconciled the reusable isolated promotion branch with current clean local production and refreshed the persistent proof artifact from the canonical explicitly referenced environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
+- **Live Proofs Remain Safely Blocked:** The fail-closed gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
+
+### Verified
+
+- **Promotion Guard And Coverage Gates Passed:** The focused promotion suite passed `6/6`; explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
+
 ## [0.1.398] - 2026-10-22
 
 ### Changed
@@ -39,6 +51,7 @@
 
 - **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `357/357`, and `pnpm run test:redteam` passed `129/129`. One initial actor-suite request timeout passed immediately in isolation before the canonical retry passed cleanly.
 - **Repository And Quality Gates Passed:** The canonical `pnpm test` retry passed `1,951` active tests across `156` files with `47` intentionally gated skips after one initial unrelated indexer worker timeout passed in isolation. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.396] - 2026-10-20
 
 ### Changed
