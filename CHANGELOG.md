@@ -1,5 +1,21 @@
 # Changelog: USpeaks API Layer
 
+## Coinbase funding foundation - 2026-10-23
+
+### Added
+
+- Added disabled-by-default funding eligibility and non-payable quote endpoints with explicitly provisioned customer/wallet identity, exact approved origins, customer rate limiting, live chain/USDC validation, request-bound Coinbase JWT authentication and strict integer-based quote verification.
+- Added server-owned PostgreSQL quote persistence, expiry and owner filtering, restrictive table permissions/RLS, and an idempotent migration exercised twice against a disposable PostgreSQL instance. Extended the existing database assurance runner to execute funding tests alongside indexer tests.
+- Added 61 funding boundary/JWT tests and 8 real PostgreSQL cases. Added runtime documentation and daily build accounting that separates candidate implementation from verified acceptance. Orders, settlement and production launch remain outside this batch.
+
+### Fixed
+
+- Replaced a debug test's machine-specific `/Public` path assertion with its actual checkout parent, enabling isolated-worktree verification without changing runtime behavior. Removed dependency symlinks accidentally captured by a concurrent autosave and made the ignore rule cover dependency symlinks.
+
+### Verification
+
+- Funding 61/61 and disposable PostgreSQL 14/14 passed. Build-mode TypeScript, lint and all package builds passed. The first full regression found a portable-path assertion failure and a worker-loading timeout; the rerun passed 1,963 tests with 48 documented environment gates. Measured coverage passed at 97.49% statements, 96.56% branches, 98.06% functions and 97.60% lines. A disposable local-EVM check also exercised the real destination-inspection path. C01–C05 are accepted at 5/20 (25%); later provider/settlement acceptance remains pending. Exact delivery results are recorded in `docs/COINBASE_USDC_BUILD_LOG.md`.
+
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
 ## [0.1.380] - 2026-10-07

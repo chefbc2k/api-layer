@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-23",
+  "scope": "C01-C05 pricing foundation; disabled by default; no payable orders",
+  "baseline": {
+    "total": 20,
+    "startingCompleted": 0,
+    "attempted": 5,
+    "completed": 5,
+    "remaining": 15,
+    "percentCompleted": 25
+  },
+  "fullTests": {
+    "passed": 1963,
+    "skipped": 48,
+    "failed": 0,
+    "passingFiles": 153,
+    "skippedFiles": 4
+  },
+  "fundingFocused": {
+    "passed": 61
+  },
+  "postgres": {
+    "fundingPassed": 8,
+    "indexerPassed": 6,
+    "migrationPasses": 2
+  },
+  "actorNegativePathsPassed": 351,
+  "redTeamPassed": 115,
+  "indexerAssurance": {
+    "passed": 267,
+    "databaseGates": 6,
+    "databaseGatesSeparatelyPassed": 6
+  },
+  "coverage": {
+    "lines": {
+      "total": 5765,
+      "covered": 5627,
+      "skipped": 0,
+      "pct": 97.6
+    },
+    "statements": {
+      "total": 6067,
+      "covered": 5915,
+      "skipped": 0,
+      "pct": 97.49
+    },
+    "functions": {
+      "total": 1449,
+      "covered": 1421,
+      "skipped": 0,
+      "pct": 98.06
+    },
+    "branches": {
+      "total": 5359,
+      "covered": 5175,
+      "skipped": 0,
+      "pct": 96.56
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "typecheck": "pnpm exec tsc -b: passed",
+  "lint": "pnpm run lint: passed",
+  "build": "pnpm run build with explicit existing deployment manifest: passed",
+  "surface": {
+    "functions": 492,
+    "eventOccurrences": 218,
+    "writeInvariants": 260,
+    "result": "passed"
+  },
+  "destinationProof": {
+    "environment": "disposable-local-anvil",
+    "providerOptions": "synthetic fixture",
+    "actualEvmChainId": 84532,
+    "defaultContractInspection": true,
+    "matching": 200,
+    "tokenMismatch": 409,
+    "chainMismatch": 409,
+    "productionTransfers": 0
+  },
+  "providerExecution": "synthetic provider responses; real SDK JWT verification; Coinbase sandbox and production transfer not claimed",
+  "remoteCI": "No repository build/test CI workflow configured; only platform-managed Copilot and Dependabot workflows observed",
+  "logs": ".runtime/coinbase-*.log in attached managed worktree",
+  "recoveryCommit": "6169aa8c8857972a6004349bd20ee2d880d92838"
+}

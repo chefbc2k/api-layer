@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import path from "node:path";
 
 const mocked = vi.hoisted(() => {
   const spawn = vi.fn();
@@ -1446,15 +1447,16 @@ describe("alchemy-debug-lib", () => {
   });
 
   it("prefers the default parent-directory contracts workspace when no explicit override is set", async () => {
+    const defaultParent = path.resolve(__dirname, "..", "..");
     mocked.existsSync.mockImplementation((target: string) =>
-      target.endsWith("/Public/package.json") ||
-      target.endsWith("/Public/scripts/deployment"),
+      target === path.join(defaultParent, "package.json") ||
+      target === path.join(defaultParent, "scripts", "deployment"),
     );
     mocked.execFileSync.mockReturnValue("cafebabe\n");
 
     const runtime = await loadRuntimeEnvironment();
 
-    expect(runtime.contractsRoot).toMatch(/\/Public$/);
+    expect(runtime.contractsRoot).toBe(defaultParent);
     expect(runtime.scenarioCommit).toBe("cafebabe");
   });
 
