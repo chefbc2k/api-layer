@@ -22,7 +22,7 @@
 
 ### Changed
 
-- **Base Sepolia Promotion Readiness Rechecked:** Reconciled the reusable isolated promotion branch with current clean local production and refreshed the persistent proof artifact from the canonical explicitly referenced environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
+- **Base Sepolia Promotion Readiness Rechecked:** Reconciled the reusable isolated promotion branch with current clean local production plus the concurrent remote Coinbase funding foundation, then refreshed the persistent proof artifact from the canonical explicitly referenced environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
 - **Live Proofs Remain Safely Blocked:** The fail-closed gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
 
 ### Verified
