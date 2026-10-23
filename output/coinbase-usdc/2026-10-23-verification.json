@@ -85,5 +85,19 @@
   "providerExecution": "synthetic provider responses; real SDK JWT verification; Coinbase sandbox and production transfer not claimed",
   "remoteCI": "No repository build/test CI workflow configured; only platform-managed Copilot and Dependabot workflows observed",
   "logs": ".runtime/coinbase-*.log in attached managed worktree",
-  "recoveryCommit": "6169aa8c8857972a6004349bd20ee2d880d92838"
+  "recoveryCommit": "6169aa8c8857972a6004349bd20ee2d880d92838",
+  "delivery": {
+    "implementationCommit": "83bbf8aaba002e670475fd9d0a514bd2356dcfd3",
+    "remote": "origin",
+    "verifiedRefs": [
+      "refs/heads/master",
+      "refs/heads/codex/coinbase-usdc-20261023"
+    ],
+    "atomicNonForcePush": "succeeded",
+    "remoteCheckRuns": 0,
+    "remoteStatusContexts": 0,
+    "combinedStatusPlaceholder": "pending",
+    "remoteCIResult": "no configured repository build/test checks; no CI success claimed",
+    "runtimeTreeIdenticalToTestedRecovery": true
+  }
 }
