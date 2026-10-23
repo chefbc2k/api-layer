@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from "express";
 
 import { mountDomainModules } from "./modules/index.js";
+import { createFundingRouter } from "./funding/routes.js";
 import { toHttpError } from "./shared/errors.js";
 import { createApiExecutionContext, getTransactionRequest, getTransactionStatus } from "./shared/execution-context.js";
 import { createWorkflowRouter } from "./workflows/index.js";
@@ -28,6 +29,7 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
   const app = express();
   app.set("apiExecutionContext", apiExecutionContext);
   app.use(express.json({ limit: "1mb" }));
+  app.use(createFundingRouter(apiExecutionContext));
 
   app.get("/v1/system/health", (_request: Request, response: Response) => {
     response.json({
