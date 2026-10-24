@@ -2,6 +2,8 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import ts from "typescript";
+
 import { ensureDir, rootDir } from "./utils.js";
 
 export const GAP_CLASSIFICATIONS = [
@@ -89,6 +91,25 @@ type VerifyArtifact = {
 type TestSource = {
   path: string;
   content: string;
+};
+
+type TestReference = {
+  index: number;
+  length: number;
+};
+
+type IndexedTestSource = TestSource & {
+  exactReferences: Map<string, TestReference[]>;
+  declaredAbiKeys: Set<string>;
+};
+
+type ItemTokens = {
+  key: string;
+  strong: Array<{
+    value: string;
+    boundary: "token" | "route";
+  }>;
+  weak: string[];
 };
 
 type VerifyEvidence = {
@@ -273,47 +294,145 @@ function httpRouteCollisions(registry: Registry): Map<string, HttpRouteCollision
   );
 }
 
-function itemTokens(key: string, name: string, wrapperKey: string, signature: string, endpoint: Endpoint | undefined): string[] {
-  return [...new Set([key, name, wrapperKey, signature, endpoint?.operationId, endpoint?.path].filter((value): value is string => Boolean(value)))];
+function itemTokens(key: string, name: string, wrapperKey: string, signature: string, endpoint: Endpoint | undefined): ItemTokens {
+  const strongByValue = new Map<string, ItemTokens["strong"][number]>();
+  for (const token of [
+    { value: key, boundary: "token" as const },
+    { value: signature, boundary: "token" as const },
+    endpoint?.path ? { value: endpoint.path, boundary: "route" as const } : null,
+  ]) {
+    if (token) strongByValue.set(`${token.boundary}:${token.value}`, token);
+  }
+  return {
+    key,
+    strong: [...strongByValue.values()],
+    weak: [...new Set([name, wrapperKey, endpoint?.operationId].filter((value): value is string => Boolean(value)))],
+  };
 }
 
-function tokenIndexes(content: string, token: string): number[] {
+function tokenIndexes(content: string, token: string, boundary: "token" | "route"): number[] {
   const indexes: number[] = [];
-  const requiresIdentifierBoundary = /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(token);
   let index = content.indexOf(token);
   while (index >= 0) {
     const before = content[index - 1];
     const after = content[index + token.length];
-    const hasIdentifierBoundary = !requiresIdentifierBoundary
-      || (!before?.match(/[A-Za-z0-9_$-]/u) && !after?.match(/[A-Za-z0-9_$-]/u));
-    if (hasIdentifierBoundary) indexes.push(index);
+    const continuation = boundary === "route" ? /[A-Za-z0-9_./:%+@-]/u : /[A-Za-z0-9_$-]/u;
+    const hasBoundary = !before?.match(continuation) && !after?.match(continuation);
+    if (hasBoundary) indexes.push(index);
     index = content.indexOf(token, index + token.length);
   }
   return indexes;
 }
 
-function matchingTests(tests: TestSource[], tokens: string[]): TestSource[] {
-  return tests.filter((test) => tokens.some((token) => tokenIndexes(test.content, token).length > 0));
+function addExactReference(
+  references: Map<string, TestReference[]>,
+  value: string,
+  reference: TestReference,
+): void {
+  references.set(value, [...(references.get(value) ?? []), reference]);
 }
 
-function hasKeywordNearToken(content: string, tokens: string[], keywords: string[]): boolean {
-  const lower = content.toLowerCase();
-  for (const token of tokens) {
-    for (const index of tokenIndexes(content, token)) {
-      const windowStart = Math.max(0, index - 1_000);
-      const windowEnd = Math.min(lower.length, index + token.length + 1_000);
-      const window = lower.slice(windowStart, windowEnd);
-      const tokenOffset = index - windowStart;
-      const evidenceWindow = `${window.slice(0, tokenOffset)}${" ".repeat(token.length)}${window.slice(tokenOffset + token.length)}`;
-      if (keywords.some((keyword) => evidenceWindow.includes(keyword))) {
-        return true;
+function propertyNameText(name: ts.PropertyName): string | null {
+  return ts.isIdentifier(name) || ts.isStringLiteralLike(name) ? name.text : null;
+}
+
+function isExecutableWeakReference(node: ts.Identifier | ts.StringLiteralLike): boolean {
+  const parent = node.parent;
+  if (ts.isIdentifier(node)) {
+    return (ts.isCallExpression(parent) && parent.expression === node)
+      || (ts.isPropertyAccessExpression(parent) && parent.name === node);
+  }
+  return (ts.isCallExpression(parent) && parent.arguments.some((argument) => argument === node))
+    || (ts.isElementAccessExpression(parent) && parent.argumentExpression === node);
+}
+
+function indexTestSource(test: TestSource, knownAbiKeys: Set<string>): IndexedTestSource {
+  const sourceFile = ts.createSourceFile(test.path, test.content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const exactReferences = new Map<string, TestReference[]>();
+  const declaredAbiKeys = new Set<string>();
+  const visit = (node: ts.Node): void => {
+    if ((ts.isIdentifier(node) || ts.isStringLiteralLike(node)) && isExecutableWeakReference(node)) {
+      addExactReference(exactReferences, node.text, {
+        index: node.getStart(sourceFile),
+        length: node.getWidth(sourceFile),
+      });
+    }
+    if (ts.isPropertyAssignment(node)) {
+      const propertyName = propertyNameText(node.name);
+      if (
+        (propertyName === "key" || propertyName === "methodKey" || propertyName === "eventKey")
+        && ts.isStringLiteralLike(node.initializer)
+        && knownAbiKeys.has(node.initializer.text)
+      ) {
+        declaredAbiKeys.add(node.initializer.text);
       }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return { ...test, exactReferences, declaredAbiKeys };
+}
+
+function matchingReferences(test: IndexedTestSource, tokens: ItemTokens): TestReference[] {
+  if (test.declaredAbiKeys.size > 0 && !test.declaredAbiKeys.has(tokens.key)) {
+    return [];
+  }
+  const references: TestReference[] = [];
+  for (const token of tokens.strong) {
+    for (const index of tokenIndexes(test.content, token.value, token.boundary)) {
+      references.push({ index, length: token.value.length });
+    }
+  }
+  for (const token of tokens.weak) {
+    references.push(...test.exactReferences.get(token) ?? []);
+  }
+  return [...new Map(references.map((reference) => [
+    `${reference.index}:${reference.length}`,
+    reference,
+  ])).values()];
+}
+
+function hasKeywordNearReference(content: string, references: TestReference[], keywords: string[]): boolean {
+  const lower = content.toLowerCase();
+  for (const reference of references) {
+    const windowStart = Math.max(0, reference.index - 1_000);
+    const windowEnd = Math.min(lower.length, reference.index + reference.length + 1_000);
+    const window = lower.slice(windowStart, windowEnd);
+    const tokenOffset = reference.index - windowStart;
+    const evidenceWindow = `${window.slice(0, tokenOffset)}${" ".repeat(reference.length)}${window.slice(tokenOffset + reference.length)}`;
+    if (keywords.some((keyword) => evidenceWindow.includes(keyword))) {
+      return true;
     }
   }
   return false;
 }
 
+function isLoopbackUrl(value: unknown): boolean {
+  if (typeof value === "string") {
+    try {
+      const hostname = new URL(value).hostname.toLowerCase();
+      return hostname === "localhost"
+        || hostname.endsWith(".localhost")
+        || /^127(?:\.\d{1,3}){3}$/u.test(hostname)
+        || hostname === "[::1]"
+        || hostname === "::1";
+    } catch {
+      return false;
+    }
+  }
+  if (Array.isArray(value)) {
+    return value.some((entry) => isLoopbackUrl(entry));
+  }
+  if (isRecord(value)) {
+    return Object.values(value).some((entry) => isLoopbackUrl(entry));
+  }
+  return false;
+}
+
 function artifactNetwork(report: VerifyDomain): Network {
+  if (isLoopbackUrl(report)) {
+    return "local-fork";
+  }
   const serialized = JSON.stringify(report).toLowerCase();
   return serialized.includes("localfork") || serialized.includes("local fork") || serialized.includes("loopback") || serialized.includes("forkedfrom")
     ? "local-fork"
@@ -477,20 +596,22 @@ function gapsFor(item: {
 }
 
 function buildEvidence(
-  tests: TestSource[],
-  tokens: string[],
+  tests: IndexedTestSource[],
+  tokens: ItemTokens,
   verifyEvidence: VerifyEvidence[],
   kind: "function" | "event",
 ): ItemEvidence {
-  const matches = matchingTests(tests, tokens);
-  const paths = (sources: TestSource[]) => sources.map((source) => source.path).sort();
+  const matches = tests
+    .map((test) => ({ test, references: matchingReferences(test, tokens) }))
+    .filter((match) => match.references.length > 0);
+  const paths = (matched: typeof matches) => matched.map((match) => match.test.path).sort();
   return {
     tests: paths(matches),
-    workflowTests: paths(matches.filter((test) => test.path.includes("/workflows/") || test.path.endsWith(".integration.test.ts"))),
-    negativePathTests: paths(matches.filter((test) => hasKeywordNearToken(test.content, tokens, negativeKeywords))),
-    economicTests: paths(matches.filter((test) => hasKeywordNearToken(test.content, tokens, economicKeywords))),
-    redTeamTests: paths(matches.filter((test) => test.path.includes("red-team") || hasKeywordNearToken(test.content, tokens, redTeamKeywords))),
-    indexerTests: kind === "event" ? paths(matches.filter((test) => test.path.startsWith("packages/indexer/"))) : [],
+    workflowTests: paths(matches.filter(({ test }) => test.path.includes("/workflows/") || test.path.endsWith(".integration.test.ts"))),
+    negativePathTests: paths(matches.filter(({ test, references }) => hasKeywordNearReference(test.content, references, negativeKeywords))),
+    economicTests: paths(matches.filter(({ test, references }) => hasKeywordNearReference(test.content, references, economicKeywords))),
+    redTeamTests: paths(matches.filter(({ test, references }) => test.path.includes("red-team") || hasKeywordNearReference(test.content, references, redTeamKeywords))),
+    indexerTests: kind === "event" ? paths(matches.filter(({ test }) => test.path.startsWith("packages/indexer/"))) : [],
     verifyArtifacts: verifyEvidence,
   };
 }
@@ -503,7 +624,7 @@ function buildItem(args: {
   httpRegistry: Registry;
   rpcRegistry: Registry;
   reviewed: ReviewedApiSurface;
-  tests: TestSource[];
+  tests: IndexedTestSource[];
   artifacts: VerifyArtifact[];
   routeCollisions: Map<string, HttpRouteCollision>;
 }): GapItem {
@@ -564,6 +685,11 @@ function buildItem(args: {
 export function buildGapReport(input: BuildGapReportInput): GapReport {
   const occurrences = new Map<string, number>();
   const routeCollisions = httpRouteCollisions(input.httpRegistry);
+  const knownAbiKeys = new Set(input.manifest.facets.flatMap((facet) => [
+    ...facet.functions.map((entry) => `${facet.facetName}.${entry.wrapperKey}`),
+    ...facet.events.map((entry) => `${facet.facetName}.${entry.wrapperKey}`),
+  ]));
+  const indexedTests = input.tests.map((test) => indexTestSource(test, knownAbiKeys));
   const facets = input.manifest.facets.map<GapFacet>((facet) => {
     const makeItem = (kind: "function" | "event", entry: ManifestMethod | ManifestEvent): GapItem => {
       const key = `${facet.facetName}.${entry.wrapperKey}`;
@@ -577,7 +703,7 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
         httpRegistry: input.httpRegistry,
         rpcRegistry: input.rpcRegistry,
         reviewed: input.reviewedApiSurface,
-        tests: input.tests,
+        tests: indexedTests,
         artifacts: input.verifyArtifacts,
         routeCollisions,
       });
@@ -626,8 +752,8 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
     schemaVersion: 1,
     generatedAt: input.generatedAt,
     methodology: {
-      testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
-      liveAttribution: "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
+      testAttribution: "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, accessed member, computed member, or call argument. Incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter and registry tests are excluded to avoid self-attribution.",
+      liveAttribution: "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
       classificationPolicy: "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
     },
     inputs: {
@@ -713,7 +839,12 @@ export function renderGapReportMarkdown(report: GapReport): string {
 export async function loadGapReportInput(baseDir: string, generatedAt = new Date().toISOString()): Promise<BuildGapReportInput> {
   const resolveInput = (filePath: string) => path.join(baseDir, filePath);
   const testRoots = ["packages", "scripts", "scenario-adapter"];
-  const inventoryOnlyTests = new Set(["generate-test-roadmap.test.ts", "gap-builder-plan.test.ts", "write-invariants-lib.test.ts"]);
+  const inventoryOnlyTests = new Set([
+    "api-surface-lib.test.ts",
+    "generate-test-roadmap.test.ts",
+    "gap-builder-plan.test.ts",
+    "write-invariants-lib.test.ts",
+  ]);
   const testPaths = (await Promise.all(testRoots.map(async (testRoot) => {
     try {
       return await findFiles(

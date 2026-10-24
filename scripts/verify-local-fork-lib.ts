@@ -11,6 +11,7 @@ export type LocalForkCliOptions = {
   allowLive: boolean;
   allowLiveDestructive: boolean;
   continueOnGap: boolean;
+  stageIds: string[];
 };
 
 export type ProofStage = {
@@ -180,6 +181,18 @@ function optionValue(argv: string[], flag: string): string | null {
   return value;
 }
 
+function commaSeparatedOption(argv: string[], flag: string): string[] {
+  const value = optionValue(argv, flag);
+  if (value === null) {
+    return [];
+  }
+  const entries = [...new Set(value.split(",").map((entry) => entry.trim()).filter(Boolean))];
+  if (entries.length === 0) {
+    throw new Error(`${flag} requires at least one stage id`);
+  }
+  return entries;
+}
+
 export function parseLocalForkCliOptions(argv: string[]): LocalForkCliOptions {
   const knownFlags = new Set([
     "--",
@@ -187,6 +200,7 @@ export function parseLocalForkCliOptions(argv: string[]): LocalForkCliOptions {
     "--allow-live",
     "--allow-live-destructive",
     "--continue-on-gap",
+    "--stages",
   ]);
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -196,7 +210,7 @@ export function parseLocalForkCliOptions(argv: string[]): LocalForkCliOptions {
     if (!knownFlags.has(arg)) {
       throw new Error(`unknown option ${arg}`);
     }
-    if (arg === "--output") {
+    if (arg === "--output" || arg === "--stages") {
       index += 1;
     }
   }
@@ -206,7 +220,21 @@ export function parseLocalForkCliOptions(argv: string[]): LocalForkCliOptions {
     allowLive: argv.includes("--allow-live"),
     allowLiveDestructive: argv.includes("--allow-live-destructive"),
     continueOnGap: argv.includes("--continue-on-gap"),
+    stageIds: commaSeparatedOption(argv, "--stages"),
   };
+}
+
+export function selectProofStages(stages: ProofStage[], stageIds: string[]): ProofStage[] {
+  if (stageIds.length === 0) {
+    return stages;
+  }
+  const requested = new Set(stageIds);
+  const known = new Set(stages.map((stage) => stage.id));
+  const unknown = stageIds.filter((stageId) => !known.has(stageId));
+  if (unknown.length > 0) {
+    throw new Error(`unknown local-fork proof stage${unknown.length === 1 ? "" : "s"}: ${unknown.join(", ")}`);
+  }
+  return stages.filter((stage) => requested.has(stage.id));
 }
 
 export function assertRunnerSafety(

@@ -136,6 +136,9 @@ function selectGroupedItems(items: GapItem[], maxItems: number, allowSmallOverag
 
 function requiredWorkFor(item: GapItem): string[] {
   const work = new Set<string>();
+  if (item.classification === "needs contract change") {
+    work.add("Add or restore the ABI-backed RPC registry/wrapper entry before exposing or proving this surface.");
+  }
   if (item.classification === "needs API guard") {
     work.add("Add or restore the reviewed HTTP/API guard for this ABI surface.");
   }
@@ -165,6 +168,7 @@ function requiredWorkFor(item: GapItem): string[] {
 function verificationFor(items: GapItem[]): string[] {
   const commands = new Set<string>([
     "pnpm run test:gap-report",
+    "pnpm run test:gap-builder",
     "pnpm run coverage:check",
   ]);
   if (items.some((item) => item.classification === "needs indexer proof" || item.kind === "event")) {
@@ -184,6 +188,15 @@ export function buildGapBuilderPlan(report: GapReport, options: GapBuilderPlanOp
     .filter((item) => item.classification !== "ready")
     .filter((item) => !focus || item.id.toLowerCase().includes(focus) || item.facetName.toLowerCase().includes(focus))
     .sort(compareGapItems);
+  if (
+    !options.targetPercent
+    && options.maxItems < options.minBatchItems
+    && allItems.length >= options.minBatchItems
+  ) {
+    throw new Error(
+      `gap-builder max items ${options.maxItems} is below minimum batch size ${options.minBatchItems}`,
+    );
+  }
   const minimumTarget = Math.min(allItems.length, options.minBatchItems);
   const targetCount = options.targetPercent
     ? Math.max(minimumTarget, Math.ceil(allItems.length * (options.targetPercent / 100)))

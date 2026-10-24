@@ -2,6 +2,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.401] - 2026-10-23
+
+### Changed
+
+- **Evidence Attribution Integrity Restored:** Reinstated the AST-aware gap-report attribution lost during branch consolidation while preserving the newer duplicate-route checks. ABI keys and signatures now require token boundaries, HTTP paths require exact route boundaries, weak method names require TypeScript identifiers or whole literals, keyed matrices are scoped to their declared ABI keys, inventory-only API-surface tests are excluded, and nested loopback RPC URLs count as local-fork evidence.
+- **Five Hidden Gaps Closed As One Batch:** The hardened reporter exposed all `5` remaining non-ready items: `VoiceAssetFacet.getVoiceAssetDetails`, `VoiceAssetFacet.symbol`, `VoiceAssetFacet.tokenURI`, `MultiSigFacet.OperationExecuted`, and `VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)`. Added grouped ABI-native VoiceAsset read fixtures and explicit event decode/projection/replay cases for both indexer items.
+- **Gap Plans Are More Actionable:** Every generated batch now includes `pnpm run test:gap-builder`; contradictory fixed batch limits fail before selection; and `needs contract change` items explicitly direct maintainers to restore the ABI-backed RPC registry/wrapper entry.
+- **Gap Backlog Returned To Zero:** Regenerated all four gap artifacts after implementation. The intermediate plan selected all `5/5` non-ready items (fewer than the ten-item minimum because only five remained), and the final report classifies all `710/710` ABI items as ready.
+
+### Verified
+
+- **Focused And Required Gap Gates Passed:** The grouped VoiceAsset fixture passed `4/4`; `pnpm run test:gap-report` passed `24/24`; and `pnpm run test:gap-builder` passed `30/30`.
+- **Indexer And Coverage Gates Passed:** `pnpm run test:indexer:assurance` passed `270` active tests with `6` PostgreSQL-gated skips. `pnpm run coverage:check` confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods across `706` unique routes, and `260/260` write invariants.
+
 ## [0.1.396] - 2026-10-20
 
 ### Changed

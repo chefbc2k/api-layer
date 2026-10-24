@@ -11,6 +11,7 @@ import {
   collectStructuredGaps,
   parseLocalForkCliOptions,
   runProofStages,
+  selectProofStages,
   summarizeReviewedSurface,
   type ProofStage,
 } from "./verify-local-fork-lib.js";
@@ -31,6 +32,7 @@ describe("local-fork CLI and safety guards", () => {
       allowLive: false,
       allowLiveDestructive: false,
       continueOnGap: false,
+      stageIds: [],
     });
     expect(parseLocalForkCliOptions([
       "--",
@@ -39,14 +41,18 @@ describe("local-fork CLI and safety guards", () => {
       "--allow-live",
       "--allow-live-destructive",
       "--continue-on-gap",
+      "--stages",
+      "provision-fixtures,control-plane-admin-proof,event-indexer-proof",
     ])).toEqual({
       outputPath: "proof.json",
       allowLive: true,
       allowLiveDestructive: true,
       continueOnGap: true,
+      stageIds: ["provision-fixtures", "control-plane-admin-proof", "event-indexer-proof"],
     });
     expect(() => parseLocalForkCliOptions(["--unknown"])).toThrow("unknown option");
     expect(() => parseLocalForkCliOptions(["--output"])).toThrow("requires a value");
+    expect(() => parseLocalForkCliOptions(["--stages"])).toThrow("requires a value");
   });
 
   it("allows loopback by default and requires two explicit flags for destructive live stages", () => {
@@ -151,6 +157,18 @@ describe("local-fork proof planning and reporting", () => {
     expect(plan.find((stage) => stage.id === "control-plane-admin-proof")?.requiredArtifactSummary).toBe("proven working");
     expect(plan.find((stage) => stage.id === "probe-safe-reads")?.artifactPath).toContain("safe-reads.json");
     expect(plan.find((stage) => stage.id === "event-indexer-proof")?.artifactPath).toContain("event-indexer.json");
+  });
+
+  it("selects requested proof stages in plan order and rejects unknown stage ids", () => {
+    const plan = buildLocalForkProofPlan();
+    expect(selectProofStages(plan, ["event-indexer-proof", "provision-fixtures", "control-plane-admin-proof"])
+      .map((stage) => stage.id)).toEqual([
+      "provision-fixtures",
+      "control-plane-admin-proof",
+      "event-indexer-proof",
+    ]);
+    expect(selectProofStages(plan, [])).toBe(plan);
+    expect(() => selectProofStages(plan, ["missing-stage"])).toThrow("unknown local-fork proof stage");
   });
 
   it("executes sequentially, captures artifacts, and stops at the first failure by default", async () => {

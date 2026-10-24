@@ -8,7 +8,11 @@ import { buildGapBuilderPlan, main, renderGapBuilderPlanMarkdown } from "./gap-b
 
 const temporaryDirectories: string[] = [];
 
-function item(id: string, classification: "needs fixture" | "needs indexer proof" | "unsafe on live network", facetName = "PaymentFacet") {
+function item(
+  id: string,
+  classification: "needs fixture" | "needs indexer proof" | "unsafe on live network" | "needs contract change" | "needs API guard",
+  facetName = "PaymentFacet",
+) {
   return {
     id,
     kind: id.includes(".Event") ? "event" as const : "function" as const,
@@ -84,6 +88,19 @@ describe("gap-builder plan", () => {
       .toThrow("below minimum batch size");
   });
 
+  it("rejects contradictory fixed batch limits before selecting an empty plan", () => {
+    const expandedReport = report();
+    expandedReport.facets[0].functions.push(
+      ...Array.from({ length: 4 }, (_, index) => (
+        item(`PaymentFacet.extraOperation${index}`, "needs fixture")
+      )),
+    );
+    expandedReport.totals.classificationCounts["needs fixture"] += 4;
+
+    expect(() => buildGapBuilderPlan(expandedReport, { maxItems: 0, minBatchItems: 10 }))
+      .toThrow("max items 0 is below minimum batch size 10");
+  });
+
   it("selects every remaining item when fewer than the minimum batch size remain", () => {
     const plan = buildGapBuilderPlan(report(), { maxItems: 40, minBatchItems: 10 });
 
@@ -148,8 +165,33 @@ describe("gap-builder plan", () => {
 
     expect(markdown).toContain("# Gap Builder Plan");
     expect(markdown).toContain("Add unit, workflow, and negative-path fixtures");
+    expect(markdown).toContain("pnpm run test:gap-builder");
     expect(markdown).toContain("pnpm run test:indexer:assurance");
     expect(markdown).toContain("pnpm run coverage:check");
+  });
+
+  it("gives missing RPC registry items direct contract-restoration work", () => {
+    const contractReport = report();
+    contractReport.facets = [{
+      facetName: "PaymentFacet",
+      functions: [item("PaymentFacet.missingRpcMethod", "needs contract change")],
+      events: [],
+    }];
+    contractReport.totals.classificationCounts = {
+      ready: 0,
+      "needs fixture": 0,
+      "unsafe on live network": 0,
+      "needs contract change": 1,
+      "needs API guard": 0,
+      "needs indexer proof": 0,
+    };
+
+    const plan = buildGapBuilderPlan(contractReport, { maxItems: 40, minBatchItems: 10 });
+
+    expect(plan.batches[0].items[0].requiredWork).toContain(
+      "Add or restore the ABI-backed RPC registry/wrapper entry before exposing or proving this surface.",
+    );
+    expect(renderGapBuilderPlanMarkdown(plan)).toContain("ABI-backed RPC registry/wrapper entry");
   });
 
   it("writes persistent JSON and Markdown artifacts from the repository report", async () => {
