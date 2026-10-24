@@ -4,6 +4,7 @@ import policyJson from "../reviewed/reviewed-method-policy.json";
 import surfaceJson from "../reviewed/reviewed-api-surface.json";
 import reviewedJson from "../reviewed/reviewed-write-invariants.json";
 import {
+  ADDITIONAL_HTTP_WRITES,
   ADMIN_API_ROLES,
   ACTOR_ROLES,
   buildActorNegativePathReport,
@@ -21,6 +22,7 @@ describe("actor negative-path coverage", () => {
   it("covers every reviewed ABI write and every HTTP write domain", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
 
+    expect(report.schemaVersion).toBe(3);
     expect(report.totals).toMatchObject({
       abiWriteMethodCount: 260,
       writeMethodCount: 259,
@@ -28,12 +30,30 @@ describe("actor negative-path coverage", () => {
       actorMethodCaseCount: 1_813,
       apiBoundaryCaseCount: 777,
       adminApiRoleCaseCount: 200,
+      additionalHttpWriteCount: 1,
+      totalMountedHttpWriteCount: 260,
+      additionalHttpDomainCount: 1,
+      totalMountedHttpDomainCount: 14,
+      additionalHttpBoundaryCaseCount: 10,
     });
     expect(report.methods.map((method) => method.method)).toEqual(
       Object.keys(reviewed.methods).filter((key) => surface.methods[key]).sort((left, right) => left.localeCompare(right)),
     );
     expect(report.excludedAbiWrites).toEqual(["ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"]);
     expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(259);
+    expect(report.additionalHttpWrites).toEqual(ADDITIONAL_HTTP_WRITES);
+  });
+
+  it("tracks role-only, read-only, unknown, and wallet-mismatch denials for non-contract writes", () => {
+    const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
+
+    expect(report.additionalHttpWrites).toEqual([expect.objectContaining({
+      method: "POST",
+      path: "/v1/funding/quotes",
+      requiredIdentity: "funding-customer",
+      deniedActors: [...ACTOR_ROLES, "read-only", "unknown-key"],
+      boundaryDenials: ["missing-funding-user-id", "unknown-api-key", "wallet-binding-mismatch"],
+    })]);
   });
 
   it("records every actor-scoped denial at the admin API boundary", () => {

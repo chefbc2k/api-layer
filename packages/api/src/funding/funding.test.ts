@@ -90,11 +90,11 @@ describe("funding HTTP boundary", () => {
   const servers: Array<ReturnType<express.Express["listen"]>> = [];
   afterEach(async () => { for (const server of servers.splice(0)) await new Promise<void>(resolve => server.close(() => resolve())); });
 
-  async function setup(settings: { live?: boolean; disabled?: boolean; chain?: number; token?: string; fundingId?: boolean; binding?: string } = {}) {
+  async function setup(settings: { live?: boolean; disabled?: boolean; chain?: number; token?: string; fundingId?: boolean; binding?: string; apiKeys?: Record<string, unknown> } = {}) {
     const provider = { options: vi.fn().mockResolvedValue(structuredClone(options)), quote: vi.fn().mockResolvedValue(structuredClone(quote)) };
     const store = { insertQuote: vi.fn().mockResolvedValue({ id: "quote-id", expiresAt: "2026-10-20T16:01:00.000Z" }) };
     const inspectChain = vi.fn().mockResolvedValue({ chainId: settings.chain ?? 84532, token: settings.token ?? BASE_SEPOLIA_USDC });
-    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify({ customer: { label: "customer", walletAddress: settings.binding ?? wallet, ...(settings.fundingId === false ? {} : { fundingUserId: "user_a" }) } }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
+    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify(settings.apiKeys ?? { customer: { label: "customer", walletAddress: settings.binding ?? wallet, ...(settings.fundingId === false ? {} : { fundingUserId: "user_a" }) } }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
     const app = express(); app.use(express.json());
     app.use(createFundingRouter(context, { config: settings.disabled ? null : { ...config, mode: settings.live ? "live" : "sandbox" }, provider, store, inspectChain }));
     const server = app.listen(0); servers.push(server);
@@ -139,10 +139,33 @@ describe("funding HTTP boundary", () => {
   it.each([
     { "x-api-key": "" }, { "x-api-key": "unknown" }, { "x-wallet-address": "0x00000000000000000000000000000000000000bb" }, { origin: "https://evil.example" },
   ])("rejects unauthorized requests %j before provider access", async headers => {
-    const { call, provider } = await setup();
+    const { call, provider, store, inspectChain } = await setup();
     expect([401, 403]).toContain((await call(input, headers)).status);
+    expect(inspectChain).not.toHaveBeenCalled();
     expect(provider.options).not.toHaveBeenCalled();
+    expect(provider.quote).not.toHaveBeenCalled();
+    expect(store.insertQuote).not.toHaveBeenCalled();
   });
+  it.each(["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator", "read-only", "unknown-key"])(
+    "does not let a %s identity use the funding write without explicit customer provisioning",
+    async identity => {
+      const knownIdentity = identity !== "unknown-key";
+      const apiKeys = knownIdentity ? {
+        [identity]: {
+          label: identity,
+          walletAddress: wallet,
+          roles: identity === "read-only" ? ["read"] : [identity],
+        },
+      } : {};
+      const { call, provider, store, inspectChain } = await setup({ apiKeys });
+
+      expect((await call(input, { "x-api-key": identity })).status).toBe(knownIdentity ? 403 : 401);
+      expect(inspectChain).not.toHaveBeenCalled();
+      expect(provider.options).not.toHaveBeenCalled();
+      expect(provider.quote).not.toHaveBeenCalled();
+      expect(store.insertQuote).not.toHaveBeenCalled();
+    },
+  );
   it.each([{ fundingId: false }, { binding: "invalid" }, { binding: "0x0000000000000000000000000000000000000000" }])("requires valid explicitly provisioned customer bindings %j", async setting => {
     const { call, provider } = await setup(setting);
     expect((await call(input)).status).toBe(403); expect(provider.quote).not.toHaveBeenCalled();

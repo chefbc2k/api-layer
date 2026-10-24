@@ -1,16 +1,21 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-10-21T13:20:27.304Z
+Generated: 2026-10-24T16:02:32.040Z
 
 - ABI write methods: 260
-- Mounted HTTP write endpoints: 259
-- HTTP write domains: 13
+- Mounted contract write endpoints: 259
+- Additional stateful HTTP write endpoints: 1
+- Total mounted HTTP write endpoints: 260
+- Contract write domains: 13
+- Additional stateful HTTP domains: 1
+- Total mounted HTTP write domains: 14
 - Actor/method cases: 1813
 - API boundary cases: 777
 - Admin API-role denial cases: 200
 - Stale/revoked/expired role cases: 3150
+- Additional HTTP boundary cases: 10
 
-Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
+Every mounted contract write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The additional funding quote write requires a separately provisioned funding customer identity and exact wallet binding; contract roles, read-only keys, unknown keys, and confused-deputy wallet headers cannot reach provider or storage access. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
 
 ## Domains
 
@@ -29,6 +34,12 @@ Every mounted write endpoint is covered for founder, admin, operator, buyer, sel
 | tokenomics | 40 |
 | voice-assets | 38 |
 | whisperblock | 8 |
+
+## Additional stateful HTTP writes
+
+| Method | Path | Required identity | Denied identities |
+| --- | --- | --- | --- |
+| POST | /v1/funding/quotes | funding-customer | founder, admin, operator, buyer, seller, licensee, collaborator, read-only, unknown-key |
 
 ## Protected capabilities
 

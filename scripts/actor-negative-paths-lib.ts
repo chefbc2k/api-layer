@@ -43,6 +43,21 @@ export const HTTP_EXCLUDED_WRITE_METHODS = [
   "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
 ] as const;
 
+export const ADDITIONAL_HTTP_WRITES = [
+  {
+    method: "POST",
+    path: "/v1/funding/quotes",
+    domain: "funding",
+    requiredIdentity: "funding-customer",
+    deniedActors: [...ACTOR_ROLES, "read-only", "unknown-key"],
+    boundaryDenials: [
+      "missing-funding-user-id",
+      "unknown-api-key",
+      "wallet-binding-mismatch",
+    ],
+  },
+] as const;
+
 const capabilityTargets = {
   commercialize: {
     methods: ["VoiceDatasetFacet.createDataset", "MarketplaceFacet.listAsset"],
@@ -163,9 +178,10 @@ export function buildActorNegativePathReport(
     (count, method) => count + method.actors.filter((actor) => actor.apiRoleDenials.length > 0).length,
     0,
   );
+  const additionalHttpDomains = new Set(ADDITIONAL_HTTP_WRITES.map((endpoint) => endpoint.domain));
 
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt,
     totals: {
       abiWriteMethodCount: Object.keys(reviewed.methods).length,
@@ -175,9 +191,18 @@ export function buildActorNegativePathReport(
       apiBoundaryCaseCount: methods.length * 3,
       adminApiRoleCaseCount,
       roleLifecycleCaseCount: roleGatedMethodCount * ACTOR_ROLES.length * 3,
+      additionalHttpWriteCount: ADDITIONAL_HTTP_WRITES.length,
+      totalMountedHttpWriteCount: methods.length + ADDITIONAL_HTTP_WRITES.length,
+      additionalHttpDomainCount: additionalHttpDomains.size,
+      totalMountedHttpDomainCount: new Set([...Object.keys(domains), ...additionalHttpDomains]).size,
+      additionalHttpBoundaryCaseCount: ADDITIONAL_HTTP_WRITES.reduce(
+        (count, endpoint) => count + endpoint.deniedActors.length + 1,
+        0,
+      ),
     },
     actors: ACTOR_ROLES,
     excludedAbiWrites: HTTP_EXCLUDED_WRITE_METHODS,
+    additionalHttpWrites: ADDITIONAL_HTTP_WRITES,
     domains,
     capabilities: Object.fromEntries(
       Object.entries(capabilityTargets).map(([capability, target]) => [capability, {
