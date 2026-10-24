@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import abiRegistryJson from "../../../../generated/manifests/abi-method-registry.json";
 import apiSurfaceJson from "../../../../reviewed/reviewed-api-surface.json";
+import writeInvariantsJson from "../../../../reviewed/reviewed-write-invariants.json";
 
 const mocked = vi.hoisted(() => {
   const invokeRead = vi.fn();
@@ -977,6 +978,83 @@ describe("executeHttpMethodDefinition", () => {
 
     expect(mocked.contractStaticCall).toHaveBeenCalledWith("0x0000000000000000000000000000000000000001", true);
     expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
+  it("rejects stale, revoked, and expired roles for every actor on every role-gated write", async () => {
+    const actorRoles = ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"];
+    const lifecycleDenials = [
+      "stale role membership",
+      "revoked role membership",
+      "expired role validity window",
+    ];
+    const abiMethods = (abiRegistryJson as {
+      methods: Record<string, Record<string, unknown> & { category: string }>;
+    }).methods;
+    const surfaceMethods = (apiSurfaceJson as {
+      methods: Record<string, Record<string, unknown> & { classification?: string }>;
+    }).methods;
+    const invariantMethods = (writeInvariantsJson as {
+      methods: Record<string, { requiredActor: { kind: string } }>;
+    }).methods;
+    const roleGatedDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write"
+        && Boolean(surfaceMethods[key])
+        && invariantMethods[key]?.requiredActor.kind === "role")
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
+    const context = buildContext();
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify(Object.fromEntries(
+      actorRoles.map((role, index) => [role, `0x${String(index + 1).repeat(64)}`]),
+    ));
+    mocked.decodeParamsFromWire.mockReturnValue([]);
+
+    expect(roleGatedDefinitions).toHaveLength(150);
+    expect(roleGatedDefinitions.filter(({ classification }) => classification === "admin")).toHaveLength(46);
+
+    let rejectionCount = 0;
+    let apiRoleRejectionCount = 0;
+    let contractLifecycleRejectionCount = 0;
+    for (const denial of lifecycleDenials) {
+      mocked.contractStaticCall.mockReset();
+      mocked.contractStaticCall.mockRejectedValue(new Error(denial));
+
+      for (const role of actorRoles) {
+        for (const definition of roleGatedDefinitions) {
+          const apiRoleRejected = definition.classification === "admin"
+            && !["founder", "admin", "operator"].includes(role);
+          await expect(executeHttpMethodDefinition(
+            context as never,
+            definition as never,
+            buildRequest({
+              auth: {
+                apiKey: `${role}-key`,
+                label: role,
+                signerId: role,
+                allowGasless: false,
+                roles: [role],
+              },
+              walletAddress: undefined,
+              wireParams: [],
+            }) as never,
+          ), `${denial}: ${role}: ${definition.key}`).rejects.toThrow(
+            apiRoleRejected ? "API key not permitted for admin execution" : denial,
+          );
+          rejectionCount += 1;
+          if (apiRoleRejected) {
+            apiRoleRejectionCount += 1;
+          } else {
+            contractLifecycleRejectionCount += 1;
+          }
+        }
+      }
+      expect(mocked.contractStaticCall).toHaveBeenCalledTimes(866);
+    }
+
+    expect(rejectionCount).toBe(3_150);
+    expect(apiRoleRejectionCount).toBe(552);
+    expect(contractLifecycleRejectionCount).toBe(2_598);
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.contractPopulateTransaction).toHaveBeenCalledTimes(2_598);
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 
