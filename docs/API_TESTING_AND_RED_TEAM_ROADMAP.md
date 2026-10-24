@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-24
+
+- Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree and merged current clean local production `master` `e37862f` as `1981374`, retaining both the latest production assurance changes and prior promotion evidence. Fetched `origin/master` `5e07364` was already included. The unrelated dirty primary checkout was left untouched.
+- Refreshed `verify-base-sepolia-promotion-output.json` at `2026-10-24T18:45:17.984Z` through the canonical explicitly referenced environment preflight. Network (`base-sepolia`), chain ID (`84532`), diamond-address format, valid and distinct founder/seller/buyer keys, and founder/sender binding pass. Readiness remains blocked because `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` is disabled and both execution and diagnostics RPC origins resolve to loopback `http://127.0.0.1:8548`.
+- The fail-closed gate exited `2` before provider access or live-chain inspection. No operator setup, user funding, test-token allowance, aged listing, governance preparation, marketplace purchase, governance proof, transaction submission, or destructive protocol-admin write ran. The refreshed artifact remains `blocked by setup/state`, with `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence.
+- Non-live verification passed: the focused promotion suite passed `6/6`, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** blocked. No partial promotion work is merged into `master`. The next safe run requires operator-provided direct Base Sepolia execution and diagnostics RPCs plus explicit `.env` opt-in; only after every static and live-target readiness check passes may the existing fixture-backed marketplace and governance proof commands run.
+
 ## Base Sepolia Promotion Automation Run — 2026-10-23
 
 - Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree and merged clean local production `master` `3a1ddc8` as `6c788a7`, resolving only documentation prepend conflicts while retaining the current signer nonce-domain hardening and prior promotion evidence. After the proof preflight, concurrent remote production advanced through the Coinbase funding foundation and its verification receipt (`83bbf8a` through `5e07364`); merged both updates (`f088c04`, `c5d0683`) and reran both non-live verification gates after the source-bearing commit. The unrelated dirty primary checkout was left untouched.
