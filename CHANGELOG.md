@@ -18,15 +18,31 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.400] - 2026-10-24
+
+### Changed
+
+- **Write-Invariant Metadata Revalidated:** Reaudited the current production inventory and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.399] - 2026-10-23
 
 ### Changed
 
 - **Base Sepolia Promotion Readiness Rechecked:** Reconciled the reusable isolated promotion branch with current clean local production plus the concurrent remote Coinbase funding foundation, then refreshed the persistent proof artifact from the canonical explicitly referenced environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
 - **Live Proofs Remain Safely Blocked:** The fail-closed gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
+- **Already-Known Transactions Fail Closed:** Direct-write submission no longer treats an RPC `already known` response as a retryable stale nonce. Because the original signed transaction may already be in the mempool, the API now returns diagnostics after one attempt instead of resubmitting the same calldata at a new nonce and risking duplicate execution or double spend.
+- **Ordinary Nonce Recovery Is Preserved:** `nonce too low`, `nonce expired`, already-used nonce, and underpriced replacement responses retain the existing bounded retry behavior and wallet-scoped nonce coordination.
+- **Adversarial Replay Corpus Expanded:** Added direct execution and canonical red-team mutations proving `already known` is treated as an ambiguous submission outcome, never as authorization to resubmit, and leaves local nonce state untouched.
 
 ### Verified
 
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `93/93`; `pnpm run test:redteam` passed `133/133`; guarded `pnpm run redteam:local-fork` passed `177/177` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** After incorporating remote production through `5e07364`, `pnpm test` passed `2,019` active tests across `157` files with `55` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 - **Promotion Guard And Coverage Gates Passed:** The focused promotion suite passed `6/6`; explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 - **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
 
