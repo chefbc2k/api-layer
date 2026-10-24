@@ -18,6 +18,21 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.400] - 2026-10-24
+
+### Changed
+
+- **Economic Evidence Reconciled With Current Production:** Merged local production through `a5b3fc7` into the isolated economic branch. Coinbase funding and signer/replay hardening introduce no mounted ABI, deployment, or economic-workflow drift, so no duplicate production code was added.
+- **Deterministic Matrix Expanded And Recounted:** Replaced the stale historical `169/169` count with reproducible results. The prior 17-file selection is `133/133`; the broadened 26-suite gate is `257/257` and covers value movement, custody conservation, rounding, replay, failed writes, and partial-state side effects across escrow, marketplace payments, rewards, vesting, token supply, staking, treasury, and emergency withdrawals.
+
+### Verified
+
+- **Repository And Quality Gates Passed:** `pnpm test` passed `2,020` active tests across `157` files with `55` intentional environment gates. TypeScript, lint, full build/codegen, and explicit coverage passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Deployed Proof Is Blocked:** A fresh marketplace-withdrawal fork attempt timed out upstream during the initial voice-asset preview and produced no promotable economic transaction; the orphaned test/fork processes were terminated and the remaining scenarios were not run on the unhealthy provider. Vesting payout still lacks beneficiary credit, treasury signer setup still requires unsupported storage seeding, and payment approvals still lack readback/event observability. No merge was performed.
+
 ## [0.1.396] - 2026-10-20
 
 ### Changed
