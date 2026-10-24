@@ -1,5 +1,21 @@
 # Changelog: USpeaks API Layer
 
+## Coinbase funding foundation - 2026-10-23
+
+### Added
+
+- Added disabled-by-default funding eligibility and non-payable quote endpoints with explicitly provisioned customer/wallet identity, exact approved origins, customer rate limiting, live chain/USDC validation, request-bound Coinbase JWT authentication and strict integer-based quote verification.
+- Added server-owned PostgreSQL quote persistence, expiry and owner filtering, restrictive table permissions/RLS, and an idempotent migration exercised twice against a disposable PostgreSQL instance. Extended the existing database assurance runner to execute funding tests alongside indexer tests.
+- Added 61 funding boundary/JWT tests and 8 real PostgreSQL cases. Added runtime documentation and daily build accounting that separates candidate implementation from verified acceptance. Orders, settlement and production launch remain outside this batch.
+
+### Fixed
+
+- Replaced a debug test's machine-specific `/Public` path assertion with its actual checkout parent, enabling isolated-worktree verification without changing runtime behavior. Removed dependency symlinks accidentally captured by a concurrent autosave and made the ignore rule cover dependency symlinks.
+
+### Verification
+
+- Funding 61/61 and disposable PostgreSQL 14/14 passed. Build-mode TypeScript, lint and all package builds passed. The first full regression found a portable-path assertion failure and a worker-loading timeout; the rerun passed 1,963 tests with 48 documented environment gates. Measured coverage passed at 97.49% statements, 96.56% branches, 98.06% functions and 97.60% lines. A disposable local-EVM check also exercised the real destination-inspection path. C01–C05 are accepted at 5/20 (25%); later provider/settlement acceptance remains pending. Exact delivery results are recorded in `docs/COINBASE_USDC_BUILD_LOG.md`.
+
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
 ## [0.1.396] - 2026-10-20
@@ -17,6 +33,57 @@
 ### Remaining Issues
 
 - **Economic Expansion Remains Blocked:** The deployed vesting release path still advances release accounting and emits `TokensReleased` without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. No merge was performed; repair and redeploy vesting, provision supported treasury signers, and add approval observability before rerunning unsynthetic proofs and closing this workstream.
+
+## [0.1.399] - 2026-10-23
+
+### Changed
+
+- **Already-Known Transactions Fail Closed:** Direct-write submission no longer treats an RPC `already known` response as a retryable stale nonce. Because the original signed transaction may already be in the mempool, the API now returns diagnostics after one attempt instead of resubmitting the same calldata at a new nonce and risking duplicate execution or double spend.
+- **Ordinary Nonce Recovery Is Preserved:** `nonce too low`, `nonce expired`, already-used nonce, and underpriced replacement responses retain the existing bounded retry behavior and wallet-scoped nonce coordination.
+- **Adversarial Replay Corpus Expanded:** Added direct execution and canonical red-team mutations proving `already known` is treated as an ambiguous submission outcome, never as authorization to resubmit, and leaves local nonce state untouched.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `93/93`; `pnpm run test:redteam` passed `133/133`; guarded `pnpm run redteam:local-fork` passed `177/177` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** After incorporating remote production through `5e07364`, `pnpm test` passed `2,019` active tests across `157` files with `55` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.398] - 2026-10-22
+
+### Changed
+
+- **Nonce Coordination Follows Wallet Authority:** Direct-write submission queues and local nonce tracking are now keyed by the normalized resolved wallet address and provider. Multiple signer IDs mapped to one wallet share a single ordered nonce stream instead of racing independent submissions.
+- **Signer Rotation Starts A Fresh Nonce Domain:** Rotating a signer ID to a new private key no longer carries the prior wallet's locally advanced nonce into the replacement wallet, preventing nonce-gap transactions from wedging the rotated signer.
+- **Adversarial Signer-Mapping Corpus Expanded:** Added signer-alias and post-rotation nonce mutations to the canonical deterministic and local-fork red-team commands, plus direct execution coverage for case normalization and provider separation.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `91/91`; `pnpm run test:redteam` passed `132/132`; guarded `pnpm run redteam:local-fork` passed `176/176` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,956` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.397] - 2026-10-21
+
+### Changed
+
+- **Signer Cache Revalidates API-Key Wallet Binding:** Signer resolution now validates the current private-key-derived address against every API identity's configured `walletAddress` before considering a cached runner. A second key sharing a signer ID can no longer inherit cached signing authority when its wallet binding disagrees.
+- **Signer Rotation Invalidates Stale Cached Authority:** Cached wallets are reused only when their address still matches the active signer mapping. Rotating `API_LAYER_SIGNER_MAP_JSON` replaces the cached wallet instead of continuing to sign with stale credentials.
+- **Adversarial Credential Corpus Expanded:** Added cache-primer/deputy and signer-map rotation mutations to the canonical deterministic and local-fork red-team commands.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `88/88`; `pnpm run test:redteam` passed `131/131`; guarded `pnpm run redteam:local-fork` passed `175/175` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,953` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.396] - 2026-10-21
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path artifacts from current local production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** The production delta contains only the prior verified actor merge. No mounted route, actor metadata, API-key authorization, signer binding, role lifecycle, validation, or contract-preflight source changed, so the existing matrix continues to cover commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations without duplicate cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `357/357`, and `pnpm run test:redteam` passed `129/129`. One initial actor-suite request timeout passed immediately in isolation before the canonical retry passed cleanly.
+- **Repository And Quality Gates Passed:** The canonical `pnpm test` retry passed `1,951` active tests across `156` files with `47` intentionally gated skips after one initial unrelated indexer worker timeout passed in isolation. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 
 ## [0.1.395] - 2026-10-20
 

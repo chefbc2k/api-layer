@@ -4,6 +4,7 @@ const apiKeyRecordSchema = z.object({
   label: z.string(),
   signerId: z.string().optional(),
   walletAddress: z.string().optional(),
+  fundingUserId: z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/).optional(),
   allowGasless: z.boolean().default(false),
   roles: z.array(z.string()).default(["service"]),
 });
