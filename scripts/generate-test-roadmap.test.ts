@@ -65,7 +65,7 @@ function baseInput(): Parameters<typeof buildGapReport>[0] {
         content: "it('rejects an unauthorized write with unchanged balance and price', () => setThing())",
       },
       { path: "scripts/red-team-set.test.ts", content: "it('blocks replay mutation', () => setThing())" },
-      { path: "packages/indexer/src/events.test.ts", content: "it('projects the event', () => ThingSet)" },
+      { path: "packages/indexer/src/events.test.ts", content: "it('projects the event', () => decodeEvent('ThingSet'))" },
     ],
     verifyArtifacts: [{
       path: "verify-test-output.json",

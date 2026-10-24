@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-24T07:09:43.869Z",
+  "generatedAt": "2026-10-24T08:12:17.916Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, accessed member, computed member, or call argument. Incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter and registry tests are excluded to avoid self-attribution.",
     "liveAttribution": "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
