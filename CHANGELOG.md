@@ -18,6 +18,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.401] - 2026-10-24
+
+### Changed
+
+- **Actor Inventory Includes Non-Contract Writes:** Upgraded the persistent actor report to schema v3 and added `POST /v1/funding/quotes`, which is mounted outside the generated ABI surface. The report now distinguishes `259` contract-backed writes from one additional stateful HTTP write, for `260` mounted writes across `14` domains.
+- **Funding Roles Cannot Imply Customer Authority:** Added explicit founder, admin, operator, buyer, seller, licensee, collaborator, read-only, and unknown-key denial cases. Without a separately provisioned funding identity, requests fail before chain inspection, Coinbase access, or quote persistence; mismatched wallet headers retain the same fail-closed boundary.
+- **Canonical Actor Gate Covers Funding:** Added the funding boundary suite to `pnpm run test:actor-negative-paths`. Existing contract coverage remains `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases, with `10` additional funding identity/wallet cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** Focused report/funding tests passed `79/79`; `pnpm run test:actor-negative-paths` passed `432/432`; and `pnpm run test:redteam` passed `133/133`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `2,030` active tests across `157` files with `55` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants.
+
 ## [0.1.400] - 2026-10-24
 
 ### Changed
