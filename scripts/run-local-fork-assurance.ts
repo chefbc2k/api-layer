@@ -19,6 +19,7 @@ import {
   parseLocalForkCliOptions,
   persistLocalForkReport,
   runProofStages,
+  selectProofStages,
   summarizeReviewedSurface,
 } from "./verify-local-fork-lib.js";
 
@@ -39,7 +40,7 @@ function currentCommit(): string | null {
 
 async function main(): Promise<void> {
   const options = parseLocalForkCliOptions(process.argv.slice(2));
-  const stages = buildLocalForkProofPlan();
+  const stages = selectProofStages(buildLocalForkProofPlan(), options.stageIds);
   const configuredRpcUrl = readConfigFromEnv(loadRepoEnv()).cbdpRpcUrl;
   const runLock = isLoopbackRpcUrl(configuredRpcUrl)
     ? await acquireLocalForkRunLock(configuredRpcUrl)

@@ -1,189 +1,200 @@
 # Gap Builder Plan
 
-Generated: `2026-10-09T08:37:42.651Z`
-Source gap report: `2026-10-09T08:37:40.638Z`
+Generated: `2026-10-24T07:22:08.857Z`
+Source gap report: `2026-10-24T07:22:07.438Z`
 
 ## Summary
 
-- Non-ready items in scope: `102`
-- Selected this run: `41`
+- Non-ready items in scope: `80`
+- Selected this run: `40`
 
 ## AccessControlFacet
 
-Reduce AccessControlFacet launch blockers across 5 gap items.
+Reduce AccessControlFacet launch blockers across 2 gap items.
 
-- `AccessControlFacet.emergencyForceAdd` (unsafe on live network)
-  - Endpoint: `POST /v1/access-control/admin/emergency-force-add`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `AccessControlFacet.executeFounderSunset` (unsafe on live network)
-  - Endpoint: `POST /v1/access-control/admin/execute-founder-sunset`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `AccessControlFacet.scheduleFounderSunset` (unsafe on live network)
-  - Endpoint: `POST /v1/access-control/admin/schedule-founder-sunset`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `AccessControlFacet.setPaused` (unsafe on live network)
-  - Endpoint: `POST /v1/access-control/admin/set-paused`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `AccessControlFacet.setRecoveryActive` (unsafe on live network)
-  - Endpoint: `POST /v1/access-control/admin/set-recovery-active`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `AccessControlFacet.grantRole` (needs fixture)
+  - Endpoint: `POST /v1/access-control/admin/grant-role`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+- `AccessControlFacet.renounceRole` (needs fixture)
+  - Endpoint: `DELETE /v1/access-control/commands/renounce-role`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
 
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## DiamondCutFacet
+## CommunityRewardsFacet
 
-Reduce DiamondCutFacet launch blockers across 4 gap items.
+Reduce CommunityRewardsFacet launch blockers across 5 gap items.
 
-- `DiamondCutFacet.diamondCut` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/diamond-cut`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DiamondCutFacet.setTrustedInitCodehash` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-trusted-init-codehash`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DiamondCutFacet.setTrustedInitContract` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-trusted-init-contract`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `DiamondCutFacet.setTrustedInitSelector` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-trusted-init-selector`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `CommunityRewardsFacet.claimableAmount` (needs fixture)
+  - Endpoint: `POST /v1/tokenomics/queries/claimable-amount`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `CommunityRewardsFacet.createCampaign` (needs fixture)
+  - Endpoint: `POST /v1/tokenomics/community-rewards`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `CommunityRewardsFacet.pauseCampaign` (needs fixture)
+  - Endpoint: `POST /v1/tokenomics/commands/pause-campaign`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `CommunityRewardsFacet.setMerkleRoot` (needs fixture)
+  - Endpoint: `PATCH /v1/tokenomics/commands/set-merkle-root`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `CommunityRewardsFacet.unpauseCampaign` (needs fixture)
+  - Endpoint: `POST /v1/tokenomics/commands/unpause-campaign`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+
+## DelegationFacet
+
+Reduce DelegationFacet launch blockers across 1 gap item.
+
+- `DelegationFacet.delegate` (needs fixture)
+  - Endpoint: `POST /v1/staking/commands/delegate`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add explicit unauthorized, stale-state, or replay rejection coverage.
+
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
 ## EmergencyFacet
 
-Reduce EmergencyFacet launch blockers across 7 gap items.
+Reduce EmergencyFacet launch blockers across 10 gap items.
 
-- `EmergencyFacet.approveRecovery` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/approve-recovery`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.completeRecovery` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/complete-recovery`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.executeRecoveryAction` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/execute-recovery-action`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.executeRecoveryStep` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/execute-recovery-step`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.setEmergencyTimeout` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/set-emergency-timeout`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.setResumeDelay` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/set-resume-delay`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyFacet.startRecovery` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/start-recovery`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `EmergencyFacet.emergencyResume` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/emergency-resume`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+- `EmergencyFacet.emergencyStop` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/emergency-stop`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+- `EmergencyFacet.executeResponse` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/execute-response`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.executeScheduledResume` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/execute-scheduled-resume`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.extendPausedUntil` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/extend-paused-until`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.freezeAssets` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/freeze-assets`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.reportIncident` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/report-incident`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.scheduleEmergencyResume` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/schedule-emergency-resume`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.triggerEmergency` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/trigger-emergency`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `EmergencyFacet.unfreezeAssets` (needs fixture)
+  - Endpoint: `POST /v1/emergency/admin/unfreeze-assets`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## EmergencyWithdrawalFacet
+## EscrowFacet
 
-Reduce EmergencyWithdrawalFacet launch blockers across 5 gap items.
+Reduce EscrowFacet launch blockers across 2 gap items.
 
-- `EmergencyWithdrawalFacet.approveEmergencyWithdrawal` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/approve-emergency-withdrawal`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyWithdrawalFacet.executeWithdrawal` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/execute-withdrawal`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyWithdrawalFacet.requestEmergencyWithdrawal` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/request-emergency-withdrawal`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyWithdrawalFacet.setRecipientWhitelist` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/set-recipient-whitelist`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `EmergencyWithdrawalFacet.updateWithdrawalConfig` (unsafe on live network)
-  - Endpoint: `POST /v1/emergency/admin/update-withdrawal-config`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `EscrowFacet.getOriginalOwner` (needs fixture)
+  - Endpoint: `GET /v1/marketplace/queries/get-original-owner`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `EscrowFacet.isInEscrow` (needs fixture)
+  - Endpoint: `GET /v1/marketplace/queries/is-in-escrow`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state.
 
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`
 
-## MultiSigFacet
+## LegacyExecutionFacet
 
-Reduce MultiSigFacet launch blockers across 9 gap items.
+Reduce LegacyExecutionFacet launch blockers across 4 gap items.
 
-- `MultiSigFacet.addOperationType` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/add-operation-type`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.addOperator` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/add-operator`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.approveOperation` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/approve-operation`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.execute` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/execute`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.executeOperation` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/execute-operation`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.muSetPaused` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/mu-set-paused`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.proposeOperation` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/propose-operation`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.setOperationConfig` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/set-operation-config`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `MultiSigFacet.submitTransaction` (unsafe on live network)
-  - Endpoint: `POST /v1/multisig/admin/submit-transaction`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
-
-## ProposalFacet
-
-Reduce ProposalFacet launch blockers across 1 gap item.
-
-- `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` (unsafe on live network)
-  - Endpoint: `ABI-only`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
-
-## UpgradeControllerFacet
-
-Reduce UpgradeControllerFacet launch blockers across 5 gap items.
-
-- `UpgradeControllerFacet.approveUpgrade` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/approve-upgrade`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `UpgradeControllerFacet.executeUpgrade` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/execute-upgrade`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `UpgradeControllerFacet.freezeUpgradeControl` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/freeze-upgrade-control`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `UpgradeControllerFacet.proposeDiamondCut` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/propose-diamond-cut`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-- `UpgradeControllerFacet.setUpgradeControlEnforced` (unsafe on live network)
-  - Endpoint: `POST /v1/diamond-admin/admin/set-upgrade-control-enforced`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
-
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
-
-## RightsFacet
-
-Reduce RightsFacet launch blockers across 5 gap items.
-
-- `RightsFacet.addCollaborator` (needs fixture)
-  - Endpoint: `POST /v1/licensing/commands/add-collaborator`
+- `LegacyExecutionFacet.approveInheritance` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/approve-inheritance`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.createRightsGroup` (needs fixture)
-  - Endpoint: `POST /v1/licensing/rights/create-rights-group`
+- `LegacyExecutionFacet.delegateRights` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/delegate-rights`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.grantRight` (needs fixture)
-  - Endpoint: `POST /v1/licensing/commands/grant-right`
+- `LegacyExecutionFacet.executeInheritance` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/execute-inheritance`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.registerRightContract` (needs fixture)
-  - Endpoint: `POST /v1/licensing/rights/register-right-contract`
+- `LegacyExecutionFacet.initiateInheritance` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/legacy/initiate-inheritance`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Add explicit unauthorized, stale-state, or replay rejection coverage.
+
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+
+## LegacyFacet
+
+Reduce LegacyFacet launch blockers across 7 gap items.
+
+- `LegacyFacet.addBeneficiary` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/add-beneficiary`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `RightsFacet.removeCollaborator` (needs fixture)
-  - Endpoint: `DELETE /v1/licensing/commands/remove-collaborator`
+- `LegacyFacet.addDatasets` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/add-datasets`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `LegacyFacet.addInheritanceRequirement` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/add-inheritance-requirement`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `LegacyFacet.addVoiceAssets` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/commands/add-voice-assets`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `LegacyFacet.createLegacyPlan` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/legacy/create-legacy-plan`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `LegacyFacet.setBeneficiaryRelationship` (needs fixture)
+  - Endpoint: `PATCH /v1/voice-assets/commands/set-beneficiary-relationship`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `LegacyFacet.setInheritanceConditions` (needs fixture)
+  - Endpoint: `PATCH /v1/voice-assets/commands/set-inheritance-conditions`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+
+## LegacyViewFacet
+
+Reduce LegacyViewFacet launch blockers across 1 gap item.
+
+- `LegacyViewFacet.validateBeneficiary` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/queries/validate-beneficiary`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`
+
+## MarketplaceFacet
+
+Reduce MarketplaceFacet launch blockers across 6 gap items.
+
+- `MarketplaceFacet.cancelListing` (needs fixture)
+  - Endpoint: `DELETE /v1/marketplace/commands/cancel-listing`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+- `MarketplaceFacet.listAsset` (needs fixture)
+  - Endpoint: `POST /v1/marketplace/commands/list-asset`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `MarketplaceFacet.pause` (needs fixture)
+  - Endpoint: `POST /v1/marketplace/commands/pause`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `MarketplaceFacet.purchaseAsset` (needs fixture)
+  - Endpoint: `POST /v1/marketplace/commands/purchase-asset`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+- `MarketplaceFacet.unpause` (needs fixture)
+  - Endpoint: `POST /v1/marketplace/commands/unpause`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+- `MarketplaceFacet.updateListingPrice` (needs fixture)
+  - Endpoint: `PATCH /v1/marketplace/commands/update-listing-price`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
+
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+
+## OwnershipFacet
+
+Reduce OwnershipFacet launch blockers across 2 gap items.
+
+- `OwnershipFacet.isOwnershipPolicyEnforced` (needs fixture)
+  - Endpoint: `POST /v1/ownership/queries/is-ownership-policy-enforced`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `OwnershipFacet.pendingOwner` (needs fixture)
+  - Endpoint: `POST /v1/ownership/queries/pending-owner`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+
+Verification: `pnpm run test:gap-report`, `pnpm run test:gap-builder`, `pnpm run coverage:check`
 

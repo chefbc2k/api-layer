@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildWriteSelectorMap,
   collectTransactionHashes,
+  defaultReceiptProofArtifactProducers,
   evaluateReceiptExpectation,
   mergePersistentProofReports,
   projectionTableNames,
@@ -11,6 +12,13 @@ import {
 } from "./indexer-receipt-proof-lib.js";
 
 describe("local-fork receipt-to-indexer proof", () => {
+  it("includes the control-plane admin receipt batch in durable proof inputs", () => {
+    expect(defaultReceiptProofArtifactProducers["control-plane-admin-receipts.json"])
+      .toBe("packages/api/src/app.contract-integration.test.ts");
+    expect(defaultReceiptProofArtifactProducers["verify-marketplace-purchase-output.json"])
+      .toBe("scripts/verify-marketplace-purchase-live.ts");
+  });
+
   it("collects and deduplicates transaction hashes from nested workflow artifacts", () => {
     const first = `0x${"11".repeat(32)}`;
     const second = `0x${"22".repeat(32)}`;

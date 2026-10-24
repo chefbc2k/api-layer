@@ -24,6 +24,7 @@ import {
   proposalVotesRequestSchemas,
   proposeAddressArrayUint256ArrayBytesArrayStringUint8RequestSchemas,
   proposerRoleRequestSchemas,
+  proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas,
   prQueueRequestSchemas,
   prStateRequestSchemas,
   queueRequestSchemas,
@@ -131,6 +132,9 @@ export type ProposeAddressArrayUint256ArrayBytesArrayStringUint8Body = import("z
 export type ProposerRolePath = import("zod").infer<typeof proposerRoleRequestSchemas.path>;
 export type ProposerRoleQuery = import("zod").infer<typeof proposerRoleRequestSchemas.query>;
 export type ProposerRoleBody = import("zod").infer<typeof proposerRoleRequestSchemas.body>;
+export type ProposeStringStringAddressArrayUint256ArrayBytesArrayUint8Path = import("zod").infer<typeof proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas.path>;
+export type ProposeStringStringAddressArrayUint256ArrayBytesArrayUint8Query = import("zod").infer<typeof proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas.query>;
+export type ProposeStringStringAddressArrayUint256ArrayBytesArrayUint8Body = import("zod").infer<typeof proposeStringStringAddressArrayUint256ArrayBytesArrayUint8RequestSchemas.body>;
 export type PrQueuePath = import("zod").infer<typeof prQueueRequestSchemas.path>;
 export type PrQueueQuery = import("zod").infer<typeof prQueueRequestSchemas.query>;
 export type PrQueueBody = import("zod").infer<typeof prQueueRequestSchemas.body>;

@@ -1235,13 +1235,18 @@ async function verifyLicensing(input: {
   );
   const directLicense = await licenseFacet.getLicense(voiceHash, licensee.address);
   const activeTemplateHash = String((licenseReadResponse.payload as JsonRecord).templateHash);
-  const licenseCreatedEvents = await apiCall(port, "POST", "/v1/licensing/events/license-created/query/voice-license", {
+  const licenseCreatedEvents = await apiCall(
+    port,
+    "POST",
+    "/v1/licensing/events/license-created/query/voice-license/license-created-bytes32-address-bytes32-uint256-uint256-event-query",
+    {
     apiKey: "read-key",
     body: {
       fromBlock: String(createLicenseReceipt.blockNumber),
       toBlock: String(createLicenseReceipt.blockNumber),
     },
-  });
+    },
+  );
   evidence.push({
     route: "POST /v1/licensing/licenses/create-license",
     actor: "licensing-owner-key",
