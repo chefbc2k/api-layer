@@ -18,6 +18,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.401] - 2026-10-24
+
+### Changed
+
+- **Local-Fork Rewinds Reconcile Nonces:** Loopback submissions now trust the fork's pending nonce after snapshot restoration instead of retaining a higher in-memory nonce from reverted transactions. Live-provider submissions preserve the existing monotonic local high-water mark.
+- **Loopback Scope Is Explicit:** Rewind behavior is limited to localhost, IPv4 loopback, and IPv6 loopback RPC URLs; non-loopback providers keep production nonce coordination semantics.
+
+### Verified
+
+- **Focused Safety Gates Passed:** Execution-context and deterministic local-fork runner tests passed `96/96`, including all `14/14` runner tests. Canonical generation and coverage passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Aggregate Fork Proof Remains Blocked:** Inventory and fixture stages passed on a supervised loopback fork with all five actors funded, buyer USDC balance/allowance at `4000/4000`, governance ready, and listing token `11` purchase-ready. The fork listener then disappeared during HTTP receipt polling; the HTTP stage finished `4/35` passed and `31/35` failed with one structured runner gap, and later stages did not run. No live-network opt-in was enabled and no merge was performed.
+
 ## [0.1.400] - 2026-10-24
 
 ### Changed
