@@ -1,5 +1,15 @@
 # Changelog: USpeaks API Layer
 
+## Coinbase checkout and raw webhooks - 2026-10-25
+
+- Added embedded Headless order creation, Coinbase-account sessions, owner-scoped provider status/history, authenticated encrypted checkout persistence and separate checkout enablement. Unknown provider outcomes remain locked until reconciliation; settlement is never inferred from checkout/provider status.
+- Added raw-body Coinbase webhook verification before JSON parsing, signed event identity, replay window, private durable inbox and acknowledgement after PostgreSQL persistence. Asynchronous processing and settlement remain pending.
+- Added concurrent real-PostgreSQL checkout/replay proofs and raw signature boundary tests. Fixed a duplicate-request race between database unique indexes. Daily verification and release accounting are recorded in the Coinbase build log.
+
+## Coinbase checkout candidate - 2026-10-24
+
+- Implemented the C06–C10 candidate with focused tests; interruption left full gates unfinished. No new accepted units or default-branch delivery on October 24.
+
 ## Coinbase funding foundation - 2026-10-23
 
 ### Added

@@ -52,10 +52,10 @@ export class FundingStore {
     try {
       const result = await this.pool.query<FundingAttempt>(`INSERT INTO funding_attempts
         (user_id, kind, idempotency_key, fingerprint, quote_id, wallet_address, chain_id, sandbox)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (user_id, kind, idempotency_key) DO NOTHING RETURNING *`,
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT DO NOTHING RETURNING *`,
       [input.userId, input.kind, input.key, input.fingerprint, input.quoteId ?? null, input.wallet.toLowerCase(), input.chainId, input.sandbox]);
       const attempt = result.rows[0] ?? await this.findAttempt(input.userId, input.kind, input.key);
-      if (!attempt) throw new Error("Missing funding attempt");
+      if (!attempt) throw new HttpError(409, "Another checkout for this quote or an unresolved funding attempt already exists");
       if (attempt.fingerprint !== input.fingerprint) throw new HttpError(409, "Idempotency key was already used for a different checkout");
       return { created: result.rowCount === 1, attempt };
     } catch (error) {

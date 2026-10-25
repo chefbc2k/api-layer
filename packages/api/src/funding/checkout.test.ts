@@ -14,7 +14,7 @@ const user = "buyer_a", wallet = "0x00000000000000000000000000000000000000aa";
 const id = "11111111-1111-4111-8111-111111111111", quoteId = "22222222-2222-4222-8222-222222222222", orderId = "33333333-3333-4333-8333-333333333333";
 const key = Buffer.alloc(32, 42).toString("base64");
 const ref = `sandbox-${createHash("sha256").update(`uspeaks:${user}`).digest("hex").slice(0,32)}`;
-const order = { orderId, partnerUserRef: ref, status: "ONRAMP_ORDER_STATUS_PENDING_VERIFICATION" as const,
+const order = { orderId, partnerUserRef: ref, status: "ONRAMP_ORDER_STATUS_PENDING_AUTH" as const,
   paymentTotal: "100.75", paymentSubtotal: "100", paymentCurrency: "USD" as const, purchaseAmount: "100", purchaseCurrency: "USDC" as const,
   destinationAddress: wallet, destinationNetwork: "base" as const, fees: [{ type: "NETWORK", amount: "0.75", currency: "USD" as const }] };
 const config: FundingConfig = { mode: "sandbox", apiKeyId: "test", apiKeySecret: "secret", origins: ["https://app.example"], databaseUrl: "postgresql://localhost/test", checkoutEnabled: true, encryptionKey: key, redirectUrl: "https://app.example/funded" };

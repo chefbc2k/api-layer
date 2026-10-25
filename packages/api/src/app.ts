@@ -1,3 +1,4 @@
+import { createFundingWebhookRouter } from "./funding/webhook.js";
 import express, { type Request, type Response } from "express";
 
 import { mountDomainModules } from "./modules/index.js";
@@ -28,6 +29,7 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
   const apiExecutionContext = createApiExecutionContext();
   const app = express();
   app.set("apiExecutionContext", apiExecutionContext);
+  app.use(createFundingWebhookRouter());
   app.use(express.json({ limit: "1mb" }));
   app.use(createFundingRouter(apiExecutionContext));
 

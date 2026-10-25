@@ -19,7 +19,7 @@ const headlessInput = z.object({ quoteId: z.string().uuid() }).strict();
 const empty = z.object({}).strict();
 const keySchema = z.string().regex(/^[a-zA-Z0-9_-]{8,128}$/);
 const statuses: Record<string, string> = {
-  ONRAMP_ORDER_STATUS_PENDING_VERIFICATION: "awaiting_verification", ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "awaiting_payment",
+  ONRAMP_ORDER_STATUS_PENDING_AUTH: "awaiting_verification", ONRAMP_ORDER_STATUS_PENDING_PAYMENT: "awaiting_payment",
   ONRAMP_ORDER_STATUS_PROCESSING: "processing", ONRAMP_ORDER_STATUS_COMPLETED: "provider_completed", ONRAMP_ORDER_STATUS_FAILED: "failed",
 };
 

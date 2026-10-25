@@ -1,6 +1,6 @@
-# Coinbase funding API — pricing foundation
+# Coinbase funding API
 
-This release implements C01–C05 of the funding backlog. It exposes eligibility and non-payable pricing only. Orders, hosted checkout sessions, webhooks, settlement, approvals and purchases remain separate acceptance units. Funding is disabled by default.
+The pricing foundation implements C01–C05. The next batch adds embedded order creation, Coinbase-account sessions, owner-scoped status/history, and authenticated raw webhook ingestion. Funding and checkout are disabled by default. Recovery, asynchronous event processing, settlement, approvals and purchase handoff remain unfinished; provider completion never means verified settlement.
 
 ## Server configuration
 
@@ -49,3 +49,19 @@ Run `pnpm exec vitest run packages/api/src/funding/funding.test.ts --maxWorkers 
 Coinbase approval, usable CDP credentials, frontend source and controlled provider sandbox execution remain external acceptance dependencies. These tests use synthetic provider responses and disposable database data; they do not claim a completed Coinbase sandbox or real-money transaction.
 
 Provider contracts checked against [Buy Options](https://docs.cdp.coinbase.com/api-reference/rest-api/onramp-offramp/get-buy-options), [Create Onramp Order](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order), and [Circle USDC addresses](https://developers.circle.com/stablecoins/usdc-contract-addresses). Continue with C06–C10: orders, secure hosted sessions, owner-scoped status/history and durable idempotency.
+
+## Checkout and webhook batch (October 25)
+
+Apply migrations 0006 and 0007 after 0005. Enable checkout separately with `API_LAYER_FUNDING_CHECKOUT_ENABLED=true`, `API_LAYER_FUNDING_ENCRYPTION_KEY` (canonical base64 encoding of 32 random bytes), and `API_LAYER_FUNDING_REDIRECT_URL` (fixed approved origin). Keep this key in the deployment secret store and preserve it across restarts; key rotation needs a migration/re-encryption plan.
+
+- `POST /v1/funding/orders` accepts only `{ "quoteId": "<owned unexpired quote UUID>" }`. Requires `Idempotency-Key` of 8–128 letters, digits, `_` or `-`. Creates an embedded Headless verification experience; Coinbase collects contact/verification data. Requires Coinbase embedded access/domain approval. The backend does not attest to user agreement or phone verification.
+- `POST /v1/funding/sessions` accepts only `{}` and the same idempotency header. Creates a Coinbase-account hosted session with server-fixed wallet, Base USDC, redirect and opaque customer reference. It does not provide a guest bank/card checkout promise.
+- A successful create/replay returns local ID, sandbox flag, normalized status, `settlementStatus: "unverified"`, checkout URL and a five-minute local expiry. URLs and reusable provider auth tokens are encrypted using AES-256-GCM bound to owner and attempt. Reusable tokens are never returned. Expired links return 409; an uncertain create returns 202 with `retryCreation:false` and remains locked across restarts. Do not generate new keys to bypass ambiguity. Automatic provider-side ambiguity recovery is still pending (C10/C14).
+- `GET /v1/funding/orders/:id` uses the local attempt UUID. It checks ownership before contacting Coinbase and validates provider ID, recipient, customer reference and asset/network response. `provider_completed` remains distinct from settlement.
+- `GET /v1/funding/history?limit=20&cursor=<UUID>` returns owner-only metadata with an opaque next cursor. Limit 1–100. History never exposes checkout links, reusable tokens or ciphertext.
+
+Enable webhook ingestion separately with `API_LAYER_FUNDING_WEBHOOK_ENABLED=true`, `API_LAYER_FUNDING_WEBHOOK_SECRET` from the Coinbase subscription, and PostgreSQL URL. Configure Coinbase to deliver to HTTPS `/v1/webhooks/coinbase/onramp`. The raw route mounts before global JSON parsing, verifies v1 HMAC using signed content-type/event identity headers, checks timestamps within five minutes in both directions, and accepts the current signature header with legacy fallback. Requests over 256 KiB or compressed bodies are rejected. No end-user API key is required; the provider signature authenticates the request.
+
+An event is acknowledged only after its raw bytes and digest are durably stored. Concurrent duplicate deliveries return success without duplicating the inbox row; the same signed event ID with different content/type returns 503 for investigation. Database failure returns 503 so Coinbase can retry. Restrictive database roles keep provider event data private. Inbox processing, retention, event transitions, subscription health and reconciliation are still pending C12–C14; enabling ingestion alone does not update orders or credit funds. No live deployment was enabled in automated acceptance.
+
+Provider references rechecked October 25: [create order](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-order), [create session](https://docs.cdp.coinbase.com/api-reference/v2/rest-api/onramp/create-an-onramp-session), and [signature verification](https://docs.cdp.coinbase.com/webhooks/verify-signatures). Order lookup follows the installed CDP SDK's generated `getOnrampOrderById` contract. Provider fixtures are contract tests, not actual Coinbase sandbox acceptance.

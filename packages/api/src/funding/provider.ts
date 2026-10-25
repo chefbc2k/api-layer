@@ -19,7 +19,7 @@ export const quoteSchema = z.object({ order: z.object({
 export type CoinbaseQuote = z.infer<typeof quoteSchema>["order"];
 export const providerOrderSchema = quoteSchema.shape.order.extend({
   orderId: z.string().uuid(), partnerUserRef: z.string(),
-  status: z.enum(["ONRAMP_ORDER_STATUS_PENDING_VERIFICATION", "ONRAMP_ORDER_STATUS_PENDING_PAYMENT", "ONRAMP_ORDER_STATUS_PROCESSING", "ONRAMP_ORDER_STATUS_COMPLETED", "ONRAMP_ORDER_STATUS_FAILED"]),
+  status: z.enum(["ONRAMP_ORDER_STATUS_PENDING_AUTH", "ONRAMP_ORDER_STATUS_PENDING_PAYMENT", "ONRAMP_ORDER_STATUS_PROCESSING", "ONRAMP_ORDER_STATUS_COMPLETED", "ONRAMP_ORDER_STATUS_FAILED"]),
 });
 export type CoinbaseOrder = z.infer<typeof providerOrderSchema>;
 const checkoutUrl = z.string().url().refine(value => {
