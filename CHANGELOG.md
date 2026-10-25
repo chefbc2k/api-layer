@@ -4,7 +4,7 @@
 
 - Added embedded Headless order creation, Coinbase-account sessions, owner-scoped provider status/history, authenticated encrypted checkout persistence and separate checkout enablement. Unknown provider outcomes remain locked until reconciliation; settlement is never inferred from checkout/provider status.
 - Added raw-body Coinbase webhook verification before JSON parsing, signed event identity, replay window, private durable inbox and acknowledgement after PostgreSQL persistence. Asynchronous processing and settlement remain pending.
-- Added concurrent real-PostgreSQL checkout/replay proofs and raw signature boundary tests. Fixed a duplicate-request race between database unique indexes. Daily verification and release accounting are recorded in the Coinbase build log.
+- Added concurrent real-PostgreSQL checkout/replay proofs and raw signature boundary tests. Fixed a duplicate-request race between database unique indexes and aligned the pending-auth provider status with the current SDK. Final gates passed: 1,993 tests, 22 PostgreSQL proofs, typecheck/lint/build and coverage (96.84% statements). C06–C09/C11 accepted; total 10/20 (50%). Recovery, processing, settlement and release proofs remain open. Timeout failures and successful reruns are preserved in the daily log.
 
 ## Coinbase checkout candidate - 2026-10-24
 
