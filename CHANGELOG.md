@@ -18,7 +18,7 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
-## [0.1.401] - 2026-10-24
+## [0.1.403] - 2026-10-24
 
 ### Changed
 
@@ -29,6 +29,30 @@
 
 - **Focused Safety Gates Passed:** Execution-context and deterministic local-fork runner tests passed `96/96`, including all `14/14` runner tests. Canonical generation and coverage passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 - **Aggregate Fork Proof Remains Blocked:** Inventory and fixture stages passed on a supervised loopback fork with all five actors funded, buyer USDC balance/allowance at `4000/4000`, governance ready, and listing token `11` purchase-ready. The fork listener then disappeared during HTTP receipt polling; the HTTP stage finished `4/35` passed and `31/35` failed with one structured runner gap, and later stages did not run. No live-network opt-in was enabled and no merge was performed.
+
+## [0.1.402] - 2026-10-25
+
+### Changed
+
+- **Write-Invariant Metadata Revalidated:** Reaudited current production and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.401] - 2026-10-24
+
+### Changed
+
+- **Actor Inventory Includes Non-Contract Writes:** Upgraded the persistent actor report to schema v3 and added `POST /v1/funding/quotes`, which is mounted outside the generated ABI surface. The report now distinguishes `259` contract-backed writes from one additional stateful HTTP write, for `260` mounted writes across `14` domains.
+- **Funding Roles Cannot Imply Customer Authority:** Added explicit founder, admin, operator, buyer, seller, licensee, collaborator, read-only, and unknown-key denial cases. Without a separately provisioned funding identity, requests fail before chain inspection, Coinbase access, or quote persistence; mismatched wallet headers retain the same fail-closed boundary.
+- **Canonical Actor Gate Covers Funding:** Added the funding boundary suite to `pnpm run test:actor-negative-paths`. Existing contract coverage remains `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases, with `10` additional funding identity/wallet cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** Focused report/funding tests passed `79/79`; `pnpm run test:actor-negative-paths` passed `432/432`; and `pnpm run test:redteam` passed `133/133`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `2,030` active tests across `157` files with `55` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants.
 
 ## [0.1.400] - 2026-10-24
 
