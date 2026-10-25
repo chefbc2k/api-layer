@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T18:34:38.836Z",
+  "generatedAt": "2026-10-25T10:59:19.941Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 550,
-    "includedArtifacts": 6,
+    "artifactTransactionHashes": 560,
+    "includedArtifacts": 7,
     "skippedArtifacts": 0,
-    "indexedReceipts": 550,
-    "provenWriteMethods": 108,
+    "indexedReceipts": 560,
+    "provenWriteMethods": 109,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 152,
-    "rawEvents": 845,
-    "projectionRows": 555
+    "remainingWriteMethods": 151,
+    "rawEvents": 864,
+    "projectionRows": 566
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -10194,6 +10194,69 @@
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.advanceEpoch",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "advanceEpoch()",
+          "txHash": "0x9cccc78d52961e1d63ab415d35adcebeca71f61226f04b576a066c26b0ad6b8e",
+          "blockNumber": 48101438,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "12",
+              "logIndex": 0,
+              "eventKey": "StakingFacet.EpochAdvanced(uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "12"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "5"
+                ],
+                "sourceRawEventIds": [
+                  "12"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101438",
+                  "block_hash": "0x51ea3b47bc72d289efe9aef9c5a3c8f849e40d39bd01be99bd687b92886b1a88"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -10475,6 +10538,95 @@
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.claimRewards",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "claimRewards()",
+          "txHash": "0xbf588d10a2dd345ba62a3057bfc635c1d5760bd29be2e39ee26cac041508f013",
+          "blockNumber": 48101439,
+          "receipt": {
+            "status": 1,
+            "logCount": 3
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "13",
+              "logIndex": 0,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "14",
+              "logIndex": 1,
+              "eventKey": "StakingFacet.RewardsClaimed(address,uint256,uint256)"
+            },
+            {
+              "rawEventId": "15",
+              "logIndex": 2,
+              "eventKey": "StakingFacet.RewardsClaimedDetailed(address,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 3,
+              "rowIds": [
+                "13",
+                "14",
+                "15"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 2,
+                "rowIds": [
+                  "6",
+                  "7"
+                ],
+                "sourceRawEventIds": [
+                  "14",
+                  "15"
+                ]
+              },
+              {
+                "table": "staking_rewards",
+                "rowCount": 2,
+                "rowIds": [
+                  "1",
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "14",
+                  "15"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101439",
+                  "block_hash": "0x9697bbe601a8fdfb6794598cfda4ca1860539007b87ba3a47947ea188376f1fb"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -10558,6 +10710,81 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.executeUnstake",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "executeUnstake()",
+          "txHash": "0x52fc7c0f3e94ada295518853b06dd9706df8b0d5c3c93836232976ed3df61838",
+          "blockNumber": 48101442,
+          "receipt": {
+            "status": 1,
+            "logCount": 3
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "17",
+              "logIndex": 0,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "18",
+              "logIndex": 1,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "19",
+              "logIndex": 2,
+              "eventKey": "StakingFacet.Unstaked(address,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 3,
+              "rowIds": [
+                "17",
+                "18",
+                "19"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "9"
+                ],
+                "sourceRawEventIds": [
+                  "19"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101442",
+                  "block_hash": "0x3d374b2396cd5633963dac51cbae4a01568752453889859345722d153c2faba6"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
@@ -10803,6 +11030,81 @@
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.fundRewardPool",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "fundRewardPool(uint256)",
+          "txHash": "0xf19d2f0b934f5d0823f27793feeee62a21e7abfc89e35cf1efc160117f9c0c01",
+          "blockNumber": 48101434,
+          "receipt": {
+            "status": 1,
+            "logCount": 3
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "4",
+              "logIndex": 0,
+              "eventKey": "null.Approval(address,address,uint256)"
+            },
+            {
+              "rawEventId": "5",
+              "logIndex": 1,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "6",
+              "logIndex": 2,
+              "eventKey": "StakingFacet.RewardPoolFunded(uint256,uint256,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 3,
+              "rowIds": [
+                "4",
+                "5",
+                "6"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "3"
+                ],
+                "sourceRawEventIds": [
+                  "6"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101434",
+                  "block_hash": "0xaea7d1505d86121ac213643bb76c338ca205d533ea9b3927ced70a89cd398b5f"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -10886,6 +11188,69 @@
           "methodKey": "StakingFacet.requestUnstake",
           "affectedFacet": "StakingFacet",
           "methodSignature": "requestUnstake(uint256)",
+          "txHash": "0x6208d8a04178e1914cb93f8ac7a2d0cdb8d36662d5f73a35b5a57192fa8962af",
+          "blockNumber": 48101440,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "16",
+              "logIndex": 0,
+              "eventKey": "StakingFacet.UnstakeRequested(address,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "16"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "8"
+                ],
+                "sourceRawEventIds": [
+                  "16"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101440",
+                  "block_hash": "0x7cf3ecc5a8277d7357a1344bcc966eb30ee7999588cf3e01e08b12fbe8c79ebf"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.requestUnstake",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "requestUnstake(uint256)",
           "txHash": "0xb348673807802d0ad45bd11189c2ce9273c448293a6d4cb16541ca0a4f6bda9a",
           "blockNumber": 47882547,
           "receipt": {
@@ -10937,6 +11302,146 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "StakingFacet.setStakingPaused": {
+      "routes": [
+        "PATCH /v1/staking/commands/set-staking-paused"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.setStakingPaused",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "setStakingPaused(bool)",
+          "txHash": "0x235273027e72ebcb58ca920c8e2c540b5406a75947341384c2dbcd61937e3662",
+          "blockNumber": 48101431,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "StakingFacet.StakingPaused(bool,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ],
+                "sourceRawEventIds": [
+                  "1"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101431",
+                  "block_hash": "0x0c17583fb484b47b784cca8e9c8d6e23cfda805e74d3c373340af903b07ac9c4"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.setStakingPaused",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "setStakingPaused(bool)",
+          "txHash": "0x492949e814c4bfe33146d3a639041b327c5e6965d522a4c5dc9dcce40e7588d2",
+          "blockNumber": 48101432,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "StakingFacet.StakingPaused(bool,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "2"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101432",
+                  "block_hash": "0x2220a04896207bfa390182614033ab928a836934cfb217cebc58c1bf3387957d"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
@@ -11101,6 +11606,87 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "StakingFacet.stake",
+          "affectedFacet": "StakingFacet",
+          "methodSignature": "stake(uint256)",
+          "txHash": "0xc20f285f7aba7f90c52a735119d9bf9ad8ab5f878ae4fd285c2b706ba3f19271",
+          "blockNumber": 48101436,
+          "receipt": {
+            "status": 1,
+            "logCount": 4
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "8",
+              "logIndex": 0,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "9",
+              "logIndex": 1,
+              "eventKey": "null.Approval(address,address,uint256)"
+            },
+            {
+              "rawEventId": "10",
+              "logIndex": 2,
+              "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "11",
+              "logIndex": 3,
+              "eventKey": "StakingFacet.Staked(address,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 4,
+              "rowIds": [
+                "8",
+                "9",
+                "10",
+                "11"
+              ]
+            },
+            "projections": [
+              {
+                "table": "staking_positions",
+                "rowCount": 1,
+                "rowIds": [
+                  "4"
+                ],
+                "sourceRawEventIds": [
+                  "11"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101436",
+                  "block_hash": "0xe304cb44472eab5b56675ab9a37672501558846b9355250f6f7d71dc7dcb1801"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
@@ -12875,6 +13461,58 @@
           "methodKey": "TokenSupplyFacet.tokenApprove",
           "affectedFacet": "TokenSupplyFacet",
           "methodSignature": "tokenApprove(address,uint256)",
+          "txHash": "0x58b7f93572c62cdd8be7a1335cde82f46f778983fa9fd30d39d136f3d3cd9b5a",
+          "blockNumber": 48101435,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "7",
+              "logIndex": 0,
+              "eventKey": "TokenSupplyFacet.Approval(address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "7"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101435",
+                  "block_hash": "0x32c3d817a02259c46f2e2b02e3fd0749d6a96d40726f7af5886518ec7edb4561"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TokenSupplyFacet.tokenApprove",
+          "affectedFacet": "TokenSupplyFacet",
+          "methodSignature": "tokenApprove(address,uint256)",
           "txHash": "0x76453d6a3ffc18ad66fbce5257b0d97c9db28477f6ce1f387ebcbcdfe3196c8c",
           "blockNumber": 47149803,
           "receipt": {
@@ -12967,6 +13605,58 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "TokenSupplyFacet.tokenApprove",
+          "affectedFacet": "TokenSupplyFacet",
+          "methodSignature": "tokenApprove(address,uint256)",
+          "txHash": "0xb2414a1d0f5ba547b2011a4bf9c5e0de39b68bbb9362f9bbd175050ae248ea6b",
+          "blockNumber": 48101433,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "TokenSupplyFacet.Approval(address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "3"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "48101433",
+                  "block_hash": "0x3f20e03e18e4e6b6e3f2253dd2c34b179a9fdbc5dd3fe039b2b59a901b474d0f"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/staking-indexer-receipts.json"
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"

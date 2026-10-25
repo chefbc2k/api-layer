@@ -12,8 +12,10 @@ import {
 } from "./indexer-receipt-proof-lib.js";
 
 describe("local-fork receipt-to-indexer proof", () => {
-  it("includes the control-plane admin receipt batch in durable proof inputs", () => {
+  it("includes focused local-fork receipt batches in durable proof inputs", () => {
     expect(defaultReceiptProofArtifactProducers["control-plane-admin-receipts.json"])
+      .toBe("packages/api/src/app.contract-integration.test.ts");
+    expect(defaultReceiptProofArtifactProducers["staking-indexer-receipts.json"])
       .toBe("packages/api/src/app.contract-integration.test.ts");
     expect(defaultReceiptProofArtifactProducers["verify-marketplace-purchase-output.json"])
       .toBe("scripts/verify-marketplace-purchase-live.ts");
