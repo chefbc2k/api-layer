@@ -75,16 +75,31 @@ const fixtureAccount = "0x00000000000000000000000000000000000000bb";
 const targetKeys = [
   "VoiceDatasetFacet.burnDataset",
   "VoiceDatasetFacet.setMaxAssetsPerDataset",
+  "VoiceLicenseFacet.createLicense",
   "VoiceLicenseFacet.createLicenseWithMarketplace",
   "VoiceLicenseFacet.issueLicense",
   "VoiceLicenseFacet.recordLicensedUsage",
+  "VoiceLicenseFacet.revokeLicense",
+  "VoiceLicenseFacet.transferLicense",
   "VoiceLicenseFacet.updateLicenseTerms",
   "VoiceLicenseFacet.withdrawLicenseRevenue",
+  "VoiceLicenseTemplateFacet.setTemplateStatus",
+  "VoiceLicenseTemplateFacet.updateTemplate",
   "VoiceMetadataFacet.setAnalysisVersion",
+  "VoiceMetadataFacet.updateBasicAcousticFeatures",
   "VoiceMetadataFacet.updateClassificationCategory",
   "VoiceMetadataFacet.updateGeographicData",
   "VoiceMetadataFacet.updateVoiceClassifications",
 ] as const;
+
+const selectedRoutes: Partial<Record<(typeof targetKeys)[number], string>> = {
+  "VoiceLicenseFacet.createLicense": "/v1/licensing/licenses/create-license",
+  "VoiceLicenseFacet.revokeLicense": "/v1/licensing/commands/revoke-license",
+  "VoiceLicenseFacet.transferLicense": "/v1/licensing/commands/transfer-license",
+  "VoiceLicenseTemplateFacet.setTemplateStatus": "/v1/licensing/commands/set-template-status",
+  "VoiceLicenseTemplateFacet.updateTemplate": "/v1/licensing/commands/update-template",
+  "VoiceMetadataFacet.updateBasicAcousticFeatures": "/v1/voice-assets/:voiceHash/metadata/acoustic-features",
+};
 
 const allDefinitions: HttpMethodDefinition[] = [
   ...datasetsMethodDefinitions,
@@ -111,6 +126,22 @@ function fixtureValue(input: AbiParameter): unknown {
   throw new Error(`missing fixture value for ${input.type}`);
 }
 
+function runtimeValue(input: AbiParameter, value: unknown): unknown {
+  if (input.type.endsWith("[]")) {
+    const elementType = { ...input, type: input.type.slice(0, -2) };
+    return (value as unknown[]).map((entry) => runtimeValue(elementType, entry));
+  }
+  if (input.type.startsWith("tuple")) {
+    const tuple = value as Record<string, unknown>;
+    return Object.fromEntries((input.components ?? []).map((component) => [
+      component.name,
+      runtimeValue(component, tuple[component.name]),
+    ]));
+  }
+  if (/^u?int/.test(input.type)) return BigInt(String(value));
+  return value;
+}
+
 function requiredDefinition(key: (typeof targetKeys)[number]): HttpMethodDefinition {
   const definition = allDefinitions.find((candidate) => candidate.key === key);
   if (!definition) throw new Error(`missing generated route definition for ${key}`);
@@ -119,7 +150,12 @@ function requiredDefinition(key: (typeof targetKeys)[number]): HttpMethodDefinit
 
 const cases = targetKeys.map((key) => {
   const definition = requiredDefinition(key);
+  const selectedRoute = selectedRoutes[key];
+  if (selectedRoute && definition.path !== selectedRoute) {
+    throw new Error(`route mismatch for ${key}: expected ${selectedRoute}, received ${definition.path}`);
+  }
   const values = Object.fromEntries(definition.inputs.map((input) => [input.name, fixtureValue(input)]));
+  const args = definition.inputs.map((input) => runtimeValue(input, values[input.name]));
   let path = definition.path;
   const body: Record<string, unknown> = {};
   const query = new URLSearchParams();
@@ -135,6 +171,7 @@ const cases = targetKeys.map((key) => {
   return {
     key,
     definition,
+    args,
     path: queryString ? `${path}?${queryString}` : path,
     body,
     preflightRejection: `reject stale or replayed ${key} state`,
@@ -267,8 +304,8 @@ describe("voice dataset, license, and metadata command route preflight safety", 
     try {
       const response = await call(port, testCase, "operator-key");
       expect(response.status, `${testCase.key}: ${await response.text()}`).toBe(202);
-      expect(mocks.contractStaticCall).toHaveBeenCalledOnce();
-      expect(mocks.contractPopulateTransaction).toHaveBeenCalledOnce();
+      expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.definition.signature, testCase.args);
+      expect(mocks.contractPopulateTransaction).toHaveBeenCalledWith(testCase.definition.signature, testCase.args);
       expect(txStore.insert).toHaveBeenCalledOnce();
       expect(mocks.walletSendTransaction).toHaveBeenCalledOnce();
       expect(mocks.contractStaticCall.mock.invocationCallOrder[0]).toBeLessThan(txStore.insert.mock.invocationCallOrder[0]!);
@@ -298,7 +335,7 @@ describe("voice dataset, license, and metadata command route preflight safety", 
     try {
       const response = await call(port, testCase, "operator-key");
       expect(response.status).toBe(500);
-      expect(mocks.contractStaticCall).toHaveBeenCalledOnce();
+      expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.definition.signature, testCase.args);
       expect(txStore.insert).not.toHaveBeenCalled();
       expect(mocks.walletSendTransaction).not.toHaveBeenCalled();
     } finally {

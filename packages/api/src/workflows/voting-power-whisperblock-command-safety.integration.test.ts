@@ -78,6 +78,7 @@ const targetKeys = [
   "VotingPowerFacet.updateLockDuration",
   "VotingPowerFacet.updateVotingPower",
   "VotingPowerFacet.updateVotingPowerBatch",
+  "WhisperBlockFacet.registerVoiceFingerprint",
   "WhisperBlockFacet.revokeAccess",
   "WhisperBlockFacet.setAuditEnabled",
   "WhisperBlockFacet.setOffchainEntropy",
