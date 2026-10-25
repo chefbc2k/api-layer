@@ -2146,8 +2146,8 @@ describe("executeHttpMethodDefinition", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.walletSendTransaction
       .mockRejectedValueOnce(new Error("nonce too low"))
-      .mockRejectedValueOnce(new Error("replacement transaction underpriced"))
-      .mockRejectedValueOnce(new Error("nonce expired"));
+      .mockRejectedValueOnce(new Error("nonce expired"))
+      .mockRejectedValueOnce(new Error("nonce has already been used"));
 
     await expect(
       executeHttpMethodDefinition(
@@ -2158,17 +2158,37 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toMatchObject({
-      message: "nonce expired",
+      message: "nonce has already been used",
       diagnostics: expect.objectContaining({
         signer: "wallet:0xabc",
         provider: "primary",
-        cause: "nonce expired",
+        cause: "nonce has already been used",
       }),
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
     const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
-    expect(context.signerNonces.get(queueKey)).toBe(7);
+    expect(context.signerNonces.has(queueKey)).toBe(false);
+
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    mocked.walletSendTransaction.mockResolvedValueOnce({ hash: "0xrecovered" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toMatchObject({
+      statusCode: 202,
+      body: { txHash: "0xrecovered" },
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(4, expect.objectContaining({ nonce: 4 }));
+    expect(context.signerNonces.get(queueKey)).toBe(5);
   });
 
   it("surfaces primitive nonce-expired failures after all retries are exhausted", async () => {
@@ -2177,7 +2197,7 @@ describe("executeHttpMethodDefinition", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.walletSendTransaction
       .mockRejectedValueOnce("nonce expired")
-      .mockRejectedValueOnce("replacement fee too low")
+      .mockRejectedValueOnce("nonce has already been used")
       .mockRejectedValueOnce("nonce too low");
 
     await expect(
@@ -2194,13 +2214,21 @@ describe("executeHttpMethodDefinition", () => {
         cause: "nonce too low",
       }),
     });
+
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.has(queueKey)).toBe(false);
   });
 
-  it("fails closed without resubmission when the RPC already knows the signed transaction", async () => {
+  it.each([
+    "already known",
+    "replacement fee too low",
+    "replacement transaction underpriced",
+    "transaction underpriced",
+  ])("fails closed without resubmission for the ambiguous RPC outcome: %s", async (message) => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
-    mocked.walletSendTransaction.mockRejectedValueOnce(new Error("already known"));
+    mocked.walletSendTransaction.mockRejectedValueOnce(new Error(message));
 
     await expect(
       executeHttpMethodDefinition(
@@ -2211,11 +2239,11 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toMatchObject({
-      message: "already known",
+      message,
       diagnostics: expect.objectContaining({
         signer: "wallet:0xabc",
         provider: "primary",
-        cause: "already known",
+        cause: message,
       }),
     });
 
@@ -2231,7 +2259,7 @@ describe("executeHttpMethodDefinition", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.walletSendTransaction
       .mockRejectedValueOnce(new Error("nonce has already been used"))
-      .mockRejectedValueOnce(new Error("transaction underpriced"))
+      .mockRejectedValueOnce(new Error("nonce expired"))
       .mockResolvedValueOnce({ hash: "0xrecovered" });
 
     await expect(
@@ -2415,8 +2443,8 @@ describe("executeHttpMethodDefinition", () => {
     mocked.simulateTransactionWithAlchemy.mockResolvedValueOnce({ topLevelCall: { gasUsed: "999" } });
     mocked.walletSendTransaction
       .mockRejectedValueOnce(new Error("nonce too low"))
-      .mockRejectedValueOnce(new Error("replacement transaction underpriced"))
-      .mockRejectedValueOnce(new Error("already known"));
+      .mockRejectedValueOnce(new Error("nonce expired"))
+      .mockRejectedValueOnce(new Error("nonce has already been used"));
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
 
     await expect(
@@ -2428,10 +2456,10 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toMatchObject({
-      message: "already known",
+      message: "nonce has already been used",
       diagnostics: expect.objectContaining({
         simulation: { topLevelCall: { gasUsed: "999" } },
-        cause: "already known",
+        cause: "nonce has already been used",
       }),
     });
   });
