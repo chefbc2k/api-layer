@@ -222,6 +222,8 @@ describe("generated event-to-indexer assurance", () => {
     ["ProposalFacet.ProposalExecuted", "governance_proposals"],
     ["ProposalFacet.ProposalQueued", "governance_proposals"],
     ["ProposalFacet.ProposalTypeConfigSet", "governance_proposals"],
+    ["ProposalFacet.VoteCast", "governance_votes"],
+    ["ProposalFacet.VoteCast", "governance_proposals"],
     ["CommunityRewardsFacet.CampaignCapConfig", "reward_campaigns"],
     ["CommunityRewardsFacet.CampaignCreated", "reward_campaigns"],
     ["CommunityRewardsFacet.CampaignMerkleRootUpdated", "reward_campaigns"],

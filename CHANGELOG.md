@@ -18,6 +18,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.402] - 2026-10-24
+
+### Changed
+
+- **Forty-Item Gap Batch Closed:** Regenerated the gap inventory at `653/710` ready items, selected the required full `40`-item batch, and added direct proof for all selected items: `33` mounted write routes, `6` ABI-native reads, and `ProposalFacet.VoteCast` indexer projection/replay behavior.
+- **Grouped Command Safety Expanded:** Added dedicated access-control/emergency/governance and rewards/delegation/vesting route matrices, extended the payment matrix with both withdrawal methods, and registered the new matrices in `test:actor-negative-paths`. Every selected write now exercises decoded ABI arguments, contract static-call preflight before persistence/submission, read-only denial before contract access, and injected stale/replay/unauthorized failure without mutation.
+- **Remaining Backlog Reduced:** Regenerated all four gap artifacts after implementation. The report now classifies `693/710` items ready and the follow-up plan selects all `17` remaining non-ready items, reducing the backlog from `57` to `17` without changing API surface counts.
+
+### Verified
+
+- **Focused Suites Passed:** ABI-native reads passed `70/70`; the new control-plane and tokenomics/staking matrices passed `48/48` and `45/45`; the expanded payment matrix passed `78/78`; and event assurance passed `210/210`.
+- **Required Batch Gates Passed:** Gap reporting passed `25/25`, gap planning passed `30/30`, actor negative paths passed `676/676` across `19` files, and indexer assurance passed `272` active tests with `6` PostgreSQL-gated skips.
+- **Coverage Stayed Complete:** `pnpm run coverage:check` confirmed `492` functions, `218` event occurrences, `492` HTTP methods across `706` unique routes, and `260/260` write invariants.
+
 ## [0.1.401] - 2026-10-23
 
 ### Changed

@@ -349,6 +349,24 @@ const paymentCommandCases = [
     body: { newUnionTreasury: fixtureAccount },
     runtimeArgs: [fixtureAccount],
   },
+  {
+    key: "PaymentFacet.withdrawPayments",
+    negativePath: "reject unauthorized or replayed payment withdrawal",
+    signature: "withdrawPayments()",
+    method: "POST",
+    path: "/v1/marketplace/commands/withdraw-payments",
+    body: {},
+    runtimeArgs: [],
+  },
+  {
+    key: "PaymentFacet.withdrawPaymentsWithDeadline",
+    negativePath: "reject expired replay or unauthorized payment withdrawal",
+    signature: "withdrawPaymentsWithDeadline(uint256)",
+    method: "POST",
+    path: "/v1/marketplace/commands/withdraw-payments-with-deadline",
+    body: { deadline: "2000000000" },
+    runtimeArgs: [2_000_000_000n],
+  },
 ] as const;
 
 const integerResultSignatures = new Set([

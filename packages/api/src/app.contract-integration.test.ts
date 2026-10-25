@@ -5825,6 +5825,41 @@ describeLive("HTTP API contract integration", () => {
       expect((response.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === txHash)).toBe(true);
     };
 
+    const setStakingPaused = async (paused: boolean) => {
+      const response = await apiCall(port, "PATCH", "/v1/staking/commands/set-staking-paused", {
+        apiKey: stakingApiKey,
+        body: { paused },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      expect(receipt!.logs.some((log) => {
+        try {
+          const event = stakingFacet.interface.parseLog(log);
+          return event?.name === "StakingPaused" && event.args.paused === paused;
+        } catch {
+          return false;
+        }
+      })).toBe(true);
+      await expectDecodedEvent(
+        "/v1/staking/events/staking-paused/query",
+        txHash,
+        receipt!.blockNumber,
+      );
+      return txHash;
+    };
+
+    await setStakingPaused(true);
+    const rejectedPausedStake = await apiCall(port, "POST", "/v1/staking/commands/stake", {
+      apiKey: stakingApiKey,
+      body: { amount: stakeAmount.toString() },
+    });
+    expect(rejectedPausedStake.status, JSON.stringify(rejectedPausedStake.payload)).toBe(500);
+    expect(JSON.stringify(rejectedPausedStake.payload)).toMatch(/StakingPaused|staking paused|revert/i);
+    await setStakingPaused(false);
+
     const approve = async (amount: bigint) => {
       const response = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
         apiKey: stakingApiKey,

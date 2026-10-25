@@ -5,12 +5,14 @@ import { facetRegistry } from "../../../../../client/src/generated/registry.js";
 import { createVoiceAssetsPrimitiveService } from "./generated/service.js";
 
 const voiceHash = `0x${"31".repeat(32)}`;
+const secondVoiceHash = `0x${"32".repeat(32)}`;
 const tokenId = 42n;
 const owner = getAddress("0x00000000000000000000000000000000000000aa");
 const diamondAddress = "0x0000000000000000000000000000000000000001";
 
 const voiceAssetReadCases = [
   {
+    key: "VoiceAssetFacet.getVoiceAssetDetails",
     operationId: "getVoiceAssetDetails",
     abiMethod: "getVoiceAssetDetails",
     wrapperKey: "getVoiceAssetDetails",
@@ -21,6 +23,18 @@ const voiceAssetReadCases = [
     cacheTtlSeconds: 5,
   },
   {
+    key: "VoiceAssetFacet.getVoiceAssetsByOwner",
+    operationId: "getVoiceAssetsByOwner",
+    abiMethod: "getVoiceAssetsByOwner",
+    wrapperKey: "getVoiceAssetsByOwner",
+    wireParams: [owner],
+    abiParams: [owner],
+    abiOutputs: [[voiceHash, secondVoiceHash]],
+    body: [voiceHash, secondVoiceHash],
+    cacheTtlSeconds: 5,
+  },
+  {
+    key: "VoiceAssetFacet.tokenURI",
     operationId: "tokenUri",
     abiMethod: "tokenURI",
     wrapperKey: "tokenURI",
@@ -31,6 +45,7 @@ const voiceAssetReadCases = [
     cacheTtlSeconds: 5,
   },
   {
+    key: "VoiceAssetFacet.symbol",
     operationId: "symbol",
     abiMethod: "symbol",
     wrapperKey: "symbol",
@@ -41,6 +56,7 @@ const voiceAssetReadCases = [
     cacheTtlSeconds: 600,
   },
   {
+    key: "VoiceAssetFacet.name",
     operationId: "name",
     abiMethod: "name",
     wrapperKey: "name",
@@ -57,7 +73,7 @@ describe("voice-asset primitive read fixtures", () => {
     vi.clearAllMocks();
   });
 
-  it.each(voiceAssetReadCases)("executes VoiceAssetFacet.$wrapperKey through ABI-native state fixtures", async (testCase) => {
+  it.each(voiceAssetReadCases)("executes $key through ABI-native state fixtures", async (testCase) => {
     const iface = new Interface(facetRegistry.VoiceAssetFacet.abi);
     const runner = {
       call: vi.fn(async (transaction: { to?: string; data?: string }) => {
