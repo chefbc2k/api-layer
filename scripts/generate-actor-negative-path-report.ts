@@ -29,20 +29,31 @@ export async function generateActorNegativePathReport(generatedAt = new Date().t
 Generated: ${report.generatedAt}
 
 - ABI write methods: ${report.totals.abiWriteMethodCount}
-- Mounted HTTP write endpoints: ${report.totals.writeMethodCount}
-- HTTP write domains: ${report.totals.domainCount}
+- Mounted contract write endpoints: ${report.totals.writeMethodCount}
+- Additional stateful HTTP write endpoints: ${report.totals.additionalHttpWriteCount}
+- Total mounted HTTP write endpoints: ${report.totals.totalMountedHttpWriteCount}
+- Contract write domains: ${report.totals.domainCount}
+- Additional stateful HTTP domains: ${report.totals.additionalHttpDomainCount}
+- Total mounted HTTP write domains: ${report.totals.totalMountedHttpDomainCount}
 - Actor/method cases: ${report.totals.actorMethodCaseCount}
 - API boundary cases: ${report.totals.apiBoundaryCaseCount}
 - Admin API-role denial cases: ${report.totals.adminApiRoleCaseCount}
 - Stale/revoked/expired role cases: ${report.totals.roleLifecycleCaseCount}
+- Additional HTTP boundary cases: ${report.totals.additionalHttpBoundaryCaseCount}
 
-Every mounted write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
+Every mounted contract write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The additional funding quote write requires a separately provisioned funding customer identity and exact wallet binding; contract roles, read-only keys, unknown keys, and confused-deputy wallet headers cannot reach provider or storage access. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
 
 ## Domains
 
 | Domain | Write methods |
 | --- | ---: |
 ${domainRows}
+
+## Additional stateful HTTP writes
+
+| Method | Path | Required identity | Denied identities |
+| --- | --- | --- | --- |
+${report.additionalHttpWrites.map((endpoint) => `| ${endpoint.method} | ${endpoint.path} | ${endpoint.requiredIdentity} | ${endpoint.deniedActors.join(", ")} |`).join("\n")}
 
 ## Protected capabilities
 
@@ -56,7 +67,7 @@ ${capabilityRows}
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   generateActorNegativePathReport()
     .then((report) => {
-      console.log(`actor negative-path coverage OK: ${report.totals.actorMethodCaseCount} actor/method cases across ${report.totals.writeMethodCount} writes`);
+      console.log(`actor negative-path coverage OK: ${report.totals.actorMethodCaseCount} actor/method cases across ${report.totals.totalMountedHttpWriteCount} mounted writes (${report.totals.writeMethodCount} contract-backed)`);
     })
     .catch((error) => {
       console.error(error);

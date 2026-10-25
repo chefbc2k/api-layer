@@ -2,6 +2,7 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+<<<<<<< HEAD
 ## Base Sepolia Promotion Automation Run — 2026-10-24
 
 - Reused `codex/base-sepolia-promotion-20261015` in its clean isolated worktree and merged current clean local production `master` `e37862f` as `1981374`, retaining both the latest production assurance changes and prior promotion evidence. Fetched `origin/master` `5e07364` was already included. The unrelated dirty primary checkout was left untouched.
@@ -17,6 +18,16 @@ This document is the master tracking file for the API assurance automation. Dail
 - The fail-closed gate exited `2` before provider access or live-chain inspection. No operator setup, user funding, test-token allowance, aged listing, governance preparation, marketplace purchase, governance proof, transaction submission, or destructive protocol-admin write ran. The refreshed artifact remains `blocked by setup/state`, with `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence.
 - Non-live verification passed: the focused promotion suite passed `6/6`, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 - **Merge decision:** blocked. No partial promotion work is merged into `master`. The next safe run requires operator-provided direct Base Sepolia execution and diagnostics RPCs plus explicit `.env` opt-in; only after every static and live-target readiness check passes may the existing fixture-backed marketplace and governance proof commands run.
+=======
+## Actor Negative-Path Automation Run — 2026-10-24
+
+- Started `codex/actor-negative-paths-20261024` from clean local production `master` `a5b3fc7` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched `origin/master` `5e07364`, then incorporated the concurrent write-invariant revalidation merge at local production `e37862f` before final verification.
+- Audited the authorization-relevant production delta since the 2026-10-21 actor baseline. Signer-cache wallet revalidation, signer-rotation replacement, wallet-scoped nonce isolation, ambiguous `already known` handling, and the exhaustive stale/revoked/expired role matrix were already directly covered. The new `POST /v1/funding/quotes` stateful route was mounted outside the generated contract surface, so the persistent actor report's former “every mounted write” statement omitted it.
+- Added the funding quote route to schema-v3 actor evidence as a separately provisioned funding-customer write. Founder, admin, operator, buyer, seller, licensee, collaborator, read-only, and unknown-key identities now have explicit route-level denials without a funding identity; wallet-header confused-deputy requests also fail before chain inspection, Coinbase access, or quote persistence. Added the funding suite to the canonical actor command.
+- Regenerated `output/actor-negative-path-report.json` and `.md`. Coverage now distinguishes `259` contract-backed writes across `13` domains from one additional stateful funding write, for `260` mounted write endpoints across `14` domains. Contract evidence remains `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases; the funding route adds `10` explicit identity/wallet boundary cases. Unauthorized actors remain unable to commercialize, list, transfer, mint, vote, upgrade, pause, recover, withdraw, mutate ownership-controlled state, or create a funding quote under another identity.
+- Verification passed: focused report/funding tests (`79/79`), `pnpm run test:actor-negative-paths` (`432/432`), `pnpm run test:redteam` (`133/133`), and `pnpm test` (`2,030` active tests across `157` passing files with `55` gated skips). Lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** this expanded actor negative-path section is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+>>>>>>> master
 
 ## Write-Invariant Metadata Automation Run — 2026-10-24
 

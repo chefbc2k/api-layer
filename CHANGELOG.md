@@ -22,6 +22,7 @@
 
 ### Changed
 
+<<<<<<< HEAD
 - **Base Sepolia Promotion Readiness Rechecked:** Reconciled the reusable isolated promotion branch with current local production and refreshed the persistent proof artifact from the canonical explicitly referenced environment. Static network, chain, diamond-address, and actor checks pass; explicit live opt-in remains disabled and both execution and diagnostics RPCs remain loopback.
 - **Live Proofs Remain Safely Blocked:** The fail-closed gate stopped before provider access, setup, funding, allowances, listings, governance preparation, marketplace/governance proofs, transaction submission, or destructive protocol-admin writes. The roadmap records the exact blockers and next safe step.
 
@@ -29,6 +30,16 @@
 
 - **Promotion Guard And Coverage Gates Passed:** The focused promotion suite passed `6/6`; explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 - **No Live Evidence Was Fabricated:** `verify-base-sepolia-promotion-output.json` remains `blocked by setup/state`, with `liveTarget.checked: false` and empty transaction, block, actor, state-delta, decoded-event, and scenario evidence. This partial workstream is not merged into `master`.
+=======
+- **Actor Inventory Includes Non-Contract Writes:** Upgraded the persistent actor report to schema v3 and added `POST /v1/funding/quotes`, which is mounted outside the generated ABI surface. The report now distinguishes `259` contract-backed writes from one additional stateful HTTP write, for `260` mounted writes across `14` domains.
+- **Funding Roles Cannot Imply Customer Authority:** Added explicit founder, admin, operator, buyer, seller, licensee, collaborator, read-only, and unknown-key denial cases. Without a separately provisioned funding identity, requests fail before chain inspection, Coinbase access, or quote persistence; mismatched wallet headers retain the same fail-closed boundary.
+- **Canonical Actor Gate Covers Funding:** Added the funding boundary suite to `pnpm run test:actor-negative-paths`. Existing contract coverage remains `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases, with `10` additional funding identity/wallet cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** Focused report/funding tests passed `79/79`; `pnpm run test:actor-negative-paths` passed `432/432`; and `pnpm run test:redteam` passed `133/133`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `2,030` active tests across `157` files with `55` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants.
+>>>>>>> master
 
 ## [0.1.400] - 2026-10-24
 
