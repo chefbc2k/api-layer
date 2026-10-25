@@ -91,7 +91,7 @@ function normalize(value: unknown): unknown {
   return value;
 }
 
-function extractTxHash(payload: unknown): string | null {
+export function extractTxHash(payload: unknown): string | null {
   if (!payload || typeof payload !== "object") return null;
   const record = payload as Record<string, unknown>;
   const direct = record.txHash;
@@ -111,6 +111,21 @@ function extractTxHash(payload: unknown): string | null {
     if (typeof txHash === "string" && txHash.startsWith("0x")) {
       return txHash;
     }
+  }
+  return null;
+}
+
+export function resolveMarketplaceWithdrawalApiKey(
+  sellerAddress: string,
+  configuredSellerAddress: string,
+  founderAddress: string,
+): "seller-key" | "founder-key" | null {
+  const normalizedSellerAddress = sellerAddress.toLowerCase();
+  if (normalizedSellerAddress === configuredSellerAddress.toLowerCase()) {
+    return "seller-key";
+  }
+  if (normalizedSellerAddress === founderAddress.toLowerCase()) {
+    return "founder-key";
   }
   return null;
 }
@@ -932,11 +947,11 @@ async function main() {
       (value) => value.status === 200 && Array.isArray(value.payload) && value.payload.some((entry) => (entry as Record<string, unknown>)?.transactionHash === txHash),
       "asset released event",
     );
-    const withdrawalApiKey = target.sellerAddress.toLowerCase() === seller.address.toLowerCase()
-      ? "seller-key"
-      : target.sellerAddress.toLowerCase() === founder.address.toLowerCase()
-        ? "founder-key"
-        : null;
+    const withdrawalApiKey = resolveMarketplaceWithdrawalApiKey(
+      target.sellerAddress,
+      seller.address,
+      founder.address,
+    );
     if (!withdrawalApiKey) {
       throw new Error(`marketplace seller has no configured local-fork signer: ${target.sellerAddress}`);
     }
