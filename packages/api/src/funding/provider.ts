@@ -17,6 +17,18 @@ export const quoteSchema = z.object({ order: z.object({
   fees: z.array(z.object({ type: z.string(), amount: z.string(), currency: z.literal("USD") })),
 }) });
 export type CoinbaseQuote = z.infer<typeof quoteSchema>["order"];
+export const providerOrderSchema = quoteSchema.shape.order.extend({
+  orderId: z.string().uuid(), partnerUserRef: z.string(),
+  status: z.enum(["ONRAMP_ORDER_STATUS_PENDING_VERIFICATION", "ONRAMP_ORDER_STATUS_PENDING_PAYMENT", "ONRAMP_ORDER_STATUS_PROCESSING", "ONRAMP_ORDER_STATUS_COMPLETED", "ONRAMP_ORDER_STATUS_FAILED"]),
+});
+export type CoinbaseOrder = z.infer<typeof providerOrderSchema>;
+const checkoutUrl = z.string().url().refine(value => {
+  const url = new URL(value);
+  return url.protocol === "https:" && url.hostname === "pay.coinbase.com" && !url.port && !url.username && !url.password;
+}, "Invalid Coinbase checkout URL");
+const createdOrderSchema = z.object({ order: providerOrderSchema,
+  paymentLink: z.object({ url: checkoutUrl }), userAuthToken: z.string().optional(),
+});
 
 export class CoinbaseFundingProvider {
   constructor(
@@ -57,5 +69,23 @@ export class CoinbaseFundingProvider {
       ...input, isQuote: true, destinationNetwork: "base", purchaseCurrency: "USDC", paymentCurrency: "USD",
     }) as z.infer<typeof quoteSchema>;
     return result.order;
+  }
+
+  async createOrder(input: Record<string, unknown>): Promise<z.infer<typeof createdOrderSchema>> {
+    return await this.request("api.cdp.coinbase.com", "/platform/v2/onramp/orders", createdOrderSchema, undefined, {
+      ...input, isQuote: false, destinationNetwork: "base", purchaseCurrency: "USDC", paymentCurrency: "USD",
+    }) as z.infer<typeof createdOrderSchema>;
+  }
+
+  async getOrder(id: string): Promise<CoinbaseOrder> {
+    z.string().uuid().parse(id);
+    const result = await this.request("api.cdp.coinbase.com", `/platform/v2/onramp/orders/${id}`, z.object({ order: providerOrderSchema })) as { order: CoinbaseOrder };
+    return result.order;
+  }
+
+  async createSession(input: Record<string, unknown>): Promise<{ session: { onrampUrl: string } }> {
+    return await this.request("api.cdp.coinbase.com", "/platform/v2/onramp/sessions", z.object({ session: z.object({ onrampUrl: checkoutUrl }) }), undefined, {
+      ...input, destinationNetwork: "base", purchaseCurrency: "USDC",
+    }) as { session: { onrampUrl: string } };
   }
 }

@@ -19,19 +19,33 @@ export type FundingConfig = {
   apiKeySecret: string;
   origins: string[];
   databaseUrl: string;
+  checkoutEnabled?: boolean;
+  encryptionKey?: string;
+  redirectUrl?: string;
 };
 
 export function readFundingConfig(env: NodeJS.ProcessEnv = process.env): FundingConfig | null {
   if (env.API_LAYER_FUNDING_ENABLED === undefined || env.API_LAYER_FUNDING_ENABLED === "false") return null;
   if (env.API_LAYER_FUNDING_ENABLED !== "true") throw new Error("API_LAYER_FUNDING_ENABLED must be true or false");
   try {
-    return {
+    const config: FundingConfig = {
       mode: z.enum(["sandbox", "live"]).parse(env.API_LAYER_FUNDING_MODE ?? "sandbox"),
       apiKeyId: z.string().min(1).parse(env.CDP_API_KEY_ID),
       apiKeySecret: z.string().min(1).parse(env.CDP_API_KEY_SECRET),
       origins: z.array(origin).min(1).parse(JSON.parse(env.API_LAYER_FUNDING_ORIGINS_JSON ?? "[]")),
       databaseUrl: z.string().url().refine(v => /^postgres(ql)?:/.test(v)).parse(env.SUPABASE_DB_URL),
     };
+    const checkout = z.enum(["true", "false"]).parse(env.API_LAYER_FUNDING_CHECKOUT_ENABLED ?? "false");
+    if (checkout === "true") {
+      const key = env.API_LAYER_FUNDING_ENCRYPTION_KEY ?? "";
+      if (Buffer.from(key, "base64").length !== 32 || Buffer.from(key, "base64").toString("base64") !== key) throw new Error("Invalid encryption key");
+      const redirect = new URL(env.API_LAYER_FUNDING_REDIRECT_URL ?? "");
+      if (redirect.username || redirect.password || !config.origins.includes(redirect.origin)) throw new Error("Unapproved redirect");
+      config.checkoutEnabled = true;
+      config.encryptionKey = key;
+      config.redirectUrl = redirect.toString();
+    }
+    return config;
   } catch {
     // Do not expose Zod input values, connection strings or API secrets.
     throw new Error("Funding configuration requires valid mode, CDP credentials, approved origins and PostgreSQL URL");
