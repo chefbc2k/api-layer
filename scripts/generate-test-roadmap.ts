@@ -2,6 +2,8 @@ import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import ts from "typescript";
+
 import { ensureDir, rootDir } from "./utils.js";
 
 export const GAP_CLASSIFICATIONS = [
@@ -51,6 +53,16 @@ type Endpoint = {
   classification?: string;
 };
 
+type HttpRouteOccupant = {
+  kind: "function" | "event";
+  key: string;
+};
+
+type HttpRouteCollision = {
+  route: string;
+  occupants: HttpRouteOccupant[];
+};
+
 type Registry = {
   methods: Record<string, Endpoint>;
   events: Record<string, Endpoint>;
@@ -65,6 +77,8 @@ type VerifyDomain = {
   routes?: string[];
   classification?: string;
   finalClassification?: string;
+  network?: string;
+  proofKind?: string;
   evidence?: unknown[];
   [key: string]: unknown;
 };
@@ -79,11 +93,31 @@ type TestSource = {
   content: string;
 };
 
+type TestReference = {
+  index: number;
+  length: number;
+};
+
+type IndexedTestSource = TestSource & {
+  exactReferences: Map<string, TestReference[]>;
+  declaredAbiKeys: Set<string>;
+};
+
+type ItemTokens = {
+  key: string;
+  strong: Array<{
+    value: string;
+    boundary: "token" | "route";
+  }>;
+  weak: string[];
+};
+
 type VerifyEvidence = {
   artifact: string;
   domain: string;
   route: string;
   network: Network;
+  proofKind: string;
 };
 
 type ProofFlags = {
@@ -197,11 +231,6 @@ const inputPaths = {
   reviewedApiSurface: "reviewed/reviewed-api-surface.json",
 } as const;
 
-const apiExclusions: Record<string, string> = {
-  "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)":
-    "legacy overloaded proposal variant is intentionally excluded from the HTTP surface",
-};
-
 const negativeKeywords = [
   "reject", "revert", "unauthorized", "forbidden", "invalid", "mismatch", "failure", "fails", "error",
 ];
@@ -247,69 +276,234 @@ function endpointRoute(endpoint: Endpoint | undefined): string | null {
   return endpoint?.httpMethod && endpoint.path ? `${endpoint.httpMethod.toUpperCase()} ${endpoint.path}` : null;
 }
 
-function itemTokens(key: string, name: string, wrapperKey: string, signature: string, endpoint: Endpoint | undefined): string[] {
-  return [...new Set([key, name, wrapperKey, signature, endpoint?.operationId, endpoint?.path].filter((value): value is string => Boolean(value)))];
+function httpRouteCollisions(registry: Registry): Map<string, HttpRouteCollision> {
+  const occupantsByRoute = new Map<string, HttpRouteOccupant[]>();
+  for (const [section, entries] of Object.entries(registry) as Array<[keyof Registry, Record<string, Endpoint>]>) {
+    for (const [key, endpoint] of Object.entries(entries)) {
+      const route = endpointRoute(endpoint);
+      if (!route) continue;
+      const occupants = occupantsByRoute.get(route) ?? [];
+      occupants.push({ kind: section === "methods" ? "function" : "event", key });
+      occupantsByRoute.set(route, occupants);
+    }
+  }
+  return new Map(
+    [...occupantsByRoute.entries()]
+      .filter(([, occupants]) => occupants.length > 1)
+      .map(([route, occupants]) => [route, { route, occupants }]),
+  );
 }
 
-function tokenIndexes(content: string, token: string): number[] {
+function itemTokens(key: string, name: string, wrapperKey: string, signature: string, endpoint: Endpoint | undefined): ItemTokens {
+  const strongByValue = new Map<string, ItemTokens["strong"][number]>();
+  for (const token of [
+    { value: key, boundary: "token" as const },
+    { value: signature, boundary: "token" as const },
+    endpoint?.path ? { value: endpoint.path, boundary: "route" as const } : null,
+  ]) {
+    if (token) strongByValue.set(`${token.boundary}:${token.value}`, token);
+  }
+  return {
+    key,
+    strong: [...strongByValue.values()],
+    weak: [...new Set([name, wrapperKey, endpoint?.operationId].filter((value): value is string => Boolean(value)))],
+  };
+}
+
+function tokenIndexes(content: string, token: string, boundary: "token" | "route"): number[] {
   const indexes: number[] = [];
-  const requiresIdentifierBoundary = /^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(token);
   let index = content.indexOf(token);
   while (index >= 0) {
     const before = content[index - 1];
     const after = content[index + token.length];
-    const hasIdentifierBoundary = !requiresIdentifierBoundary
-      || (!before?.match(/[A-Za-z0-9_$-]/u) && !after?.match(/[A-Za-z0-9_$-]/u));
-    if (hasIdentifierBoundary) indexes.push(index);
+    const continuation = boundary === "route" ? /[A-Za-z0-9_./:%+@-]/u : /[A-Za-z0-9_$-]/u;
+    const hasBoundary = !before?.match(continuation) && !after?.match(continuation);
+    if (hasBoundary) indexes.push(index);
     index = content.indexOf(token, index + token.length);
   }
   return indexes;
 }
 
-function matchingTests(tests: TestSource[], tokens: string[]): TestSource[] {
-  return tests.filter((test) => tokens.some((token) => tokenIndexes(test.content, token).length > 0));
+function addExactReference(
+  references: Map<string, TestReference[]>,
+  value: string,
+  reference: TestReference,
+): void {
+  references.set(value, [...(references.get(value) ?? []), reference]);
 }
 
-function hasKeywordNearToken(content: string, tokens: string[], keywords: string[]): boolean {
-  const lower = content.toLowerCase();
-  for (const token of tokens) {
-    for (const index of tokenIndexes(content, token)) {
-      const windowStart = Math.max(0, index - 1_000);
-      const windowEnd = Math.min(lower.length, index + token.length + 1_000);
-      const window = lower.slice(windowStart, windowEnd);
-      const tokenOffset = index - windowStart;
-      const evidenceWindow = `${window.slice(0, tokenOffset)}${" ".repeat(token.length)}${window.slice(tokenOffset + token.length)}`;
-      if (keywords.some((keyword) => evidenceWindow.includes(keyword))) {
-        return true;
+function propertyNameText(name: ts.PropertyName): string | null {
+  return ts.isIdentifier(name) || ts.isStringLiteralLike(name) ? name.text : null;
+}
+
+function isExecutableWeakReference(node: ts.Identifier | ts.StringLiteralLike): boolean {
+  const parent = node.parent;
+  if (ts.isIdentifier(node)) {
+    return (ts.isCallExpression(parent) && parent.expression === node)
+      || (ts.isPropertyAccessExpression(parent) && parent.name === node);
+  }
+  return (ts.isCallExpression(parent) && parent.arguments.some((argument) => argument === node))
+    || (ts.isElementAccessExpression(parent) && parent.argumentExpression === node);
+}
+
+function indexTestSource(test: TestSource, knownAbiKeys: Set<string>): IndexedTestSource {
+  const sourceFile = ts.createSourceFile(test.path, test.content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const exactReferences = new Map<string, TestReference[]>();
+  const declaredAbiKeys = new Set<string>();
+  const visit = (node: ts.Node): void => {
+    if ((ts.isIdentifier(node) || ts.isStringLiteralLike(node)) && isExecutableWeakReference(node)) {
+      addExactReference(exactReferences, node.text, {
+        index: node.getStart(sourceFile),
+        length: node.getWidth(sourceFile),
+      });
+    }
+    if (ts.isPropertyAssignment(node)) {
+      const propertyName = propertyNameText(node.name);
+      if (
+        (propertyName === "key" || propertyName === "methodKey" || propertyName === "eventKey")
+        && ts.isStringLiteralLike(node.initializer)
+        && knownAbiKeys.has(node.initializer.text)
+      ) {
+        declaredAbiKeys.add(node.initializer.text);
       }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return { ...test, exactReferences, declaredAbiKeys };
+}
+
+function matchingReferences(test: IndexedTestSource, tokens: ItemTokens): TestReference[] {
+  if (test.declaredAbiKeys.size > 0 && !test.declaredAbiKeys.has(tokens.key)) {
+    return [];
+  }
+  const references: TestReference[] = [];
+  for (const token of tokens.strong) {
+    for (const index of tokenIndexes(test.content, token.value, token.boundary)) {
+      references.push({ index, length: token.value.length });
+    }
+  }
+  for (const token of tokens.weak) {
+    references.push(...test.exactReferences.get(token) ?? []);
+  }
+  return [...new Map(references.map((reference) => [
+    `${reference.index}:${reference.length}`,
+    reference,
+  ])).values()];
+}
+
+function hasKeywordNearReference(content: string, references: TestReference[], keywords: string[]): boolean {
+  const lower = content.toLowerCase();
+  for (const reference of references) {
+    const windowStart = Math.max(0, reference.index - 1_000);
+    const windowEnd = Math.min(lower.length, reference.index + reference.length + 1_000);
+    const window = lower.slice(windowStart, windowEnd);
+    const tokenOffset = reference.index - windowStart;
+    const evidenceWindow = `${window.slice(0, tokenOffset)}${" ".repeat(reference.length)}${window.slice(tokenOffset + reference.length)}`;
+    if (keywords.some((keyword) => evidenceWindow.includes(keyword))) {
+      return true;
     }
   }
   return false;
 }
 
+function isLoopbackUrl(value: unknown): boolean {
+  if (typeof value === "string") {
+    try {
+      const hostname = new URL(value).hostname.toLowerCase();
+      return hostname === "localhost"
+        || hostname.endsWith(".localhost")
+        || /^127(?:\.\d{1,3}){3}$/u.test(hostname)
+        || hostname === "[::1]"
+        || hostname === "::1";
+    } catch {
+      return false;
+    }
+  }
+  if (Array.isArray(value)) {
+    return value.some((entry) => isLoopbackUrl(entry));
+  }
+  if (isRecord(value)) {
+    return Object.values(value).some((entry) => isLoopbackUrl(entry));
+  }
+  return false;
+}
+
 function artifactNetwork(report: VerifyDomain): Network {
+  if (isLoopbackUrl(report)) {
+    return "local-fork";
+  }
   const serialized = JSON.stringify(report).toLowerCase();
   return serialized.includes("localfork") || serialized.includes("local fork") || serialized.includes("loopback") || serialized.includes("forkedfrom")
     ? "local-fork"
     : "base-sepolia";
 }
 
-function verifyEvidenceFor(route: string | null, artifacts: VerifyArtifact[]): VerifyEvidence[] {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isProvenWorking(report: VerifyDomain): boolean {
+  const classifications = [report.classification, report.finalClassification]
+    .filter((classification): classification is string => typeof classification === "string");
+  return classifications.length > 0 && classifications.every((classification) => classification === "proven working");
+}
+
+function hasFailClosedGuardEvidence(
+  report: VerifyDomain,
+  key: string,
+  route: string,
+  endpoint: Endpoint | undefined,
+): boolean {
+  if (endpoint?.classification !== "admin" || report.network !== "Base Sepolia live-network guard") {
+    return false;
+  }
+  return report.evidence?.some((entry) => isRecord(entry)
+    && entry.methodKey === key
+    && entry.route === route
+    && entry.status === 403
+    && entry.result === "fail-closed before provider execution") ?? false;
+}
+
+function verifyEvidenceFor(
+  key: string,
+  route: string | null,
+  endpoint: Endpoint | undefined,
+  artifacts: VerifyArtifact[],
+): VerifyEvidence[] {
   if (!route) {
     return [];
   }
   const evidence: VerifyEvidence[] = [];
   for (const artifact of artifacts) {
     for (const [domain, report] of Object.entries(artifact.reports)) {
-      const classification = report.classification ?? report.finalClassification;
-      if (classification === "proven working" && report.routes?.includes(route)) {
+      const proofKind = typeof report.proofKind === "string" ? report.proofKind : "successful-route-execution";
+      if (!isProvenWorking(report) || !report.routes?.includes(route)) {
+        continue;
+      }
+      if (proofKind === "fail-closed-before-provider") {
+        if (!hasFailClosedGuardEvidence(report, key, route, endpoint)) {
+          continue;
+        }
         evidence.push({
           artifact: artifact.path,
           domain,
           route,
-          network: artifactNetwork(report),
+          network: "base-sepolia",
+          proofKind,
         });
+        continue;
       }
+      if (proofKind !== "successful-route-execution") {
+        continue;
+      }
+      evidence.push({
+        artifact: artifact.path,
+        domain,
+        route,
+        network: artifactNetwork(report),
+        proofKind,
+      });
     }
   }
   return evidence;
@@ -363,7 +557,10 @@ function classifyEvent(proof: ProofFlags): GapClassification {
   if (!proof.rpcRegistry) {
     return "needs contract change";
   }
-  if (!proof.httpRegistry || !proof.reviewedApiSurface || !proof.indexer) {
+  if (!proof.httpRegistry || !proof.reviewedApiSurface) {
+    return "needs API guard";
+  }
+  if (!proof.indexer) {
     return "needs indexer proof";
   }
   if (!proof.unit && !proof.localFork && !proof.baseSepolia) {
@@ -377,35 +574,44 @@ function gapsFor(item: {
   category: "read" | "write" | "event";
   proof: ProofFlags;
   exclusion: string | null;
+  routeCollision: HttpRouteCollision | null;
 }): string[] {
   const gaps: string[] = [];
   if (!item.proof.rpcRegistry) gaps.push("missing RPC registry entry");
-  if (!item.proof.httpRegistry && !item.exclusion) gaps.push("missing HTTP registry entry");
+  if (!item.proof.httpRegistry && !item.exclusion && !item.routeCollision) gaps.push("missing HTTP registry entry");
+  if (item.routeCollision) {
+    const occupants = item.routeCollision.occupants
+      .map((occupant) => `${occupant.kind} ${occupant.key}`)
+      .join(", ");
+    gaps.push(`duplicate HTTP route ${item.routeCollision.route} shared by ${occupants}`);
+  }
   if (!item.proof.reviewedApiSurface && !item.exclusion) gaps.push("missing reviewed API surface entry");
   if (item.exclusion) gaps.push(item.exclusion);
   if (!item.proof.unit) gaps.push("no directly attributable test reference");
   if (item.kind === "function" && item.category === "write" && !item.proof.workflow) gaps.push("no workflow proof reference");
   if (item.kind === "function" && item.category === "write" && !item.proof.negativePath) gaps.push("no negative-path proof reference");
-  if (!item.proof.localFork && !item.proof.baseSepolia) gaps.push("no successful verify-artifact route evidence");
+  if (!item.proof.localFork && !item.proof.baseSepolia) gaps.push("no proven verify-artifact route outcome");
   if (item.kind === "event" && !item.proof.indexer) gaps.push("no event-specific indexer test reference");
   return gaps;
 }
 
 function buildEvidence(
-  tests: TestSource[],
-  tokens: string[],
+  tests: IndexedTestSource[],
+  tokens: ItemTokens,
   verifyEvidence: VerifyEvidence[],
   kind: "function" | "event",
 ): ItemEvidence {
-  const matches = matchingTests(tests, tokens);
-  const paths = (sources: TestSource[]) => sources.map((source) => source.path).sort();
+  const matches = tests
+    .map((test) => ({ test, references: matchingReferences(test, tokens) }))
+    .filter((match) => match.references.length > 0);
+  const paths = (matched: typeof matches) => matched.map((match) => match.test.path).sort();
   return {
     tests: paths(matches),
-    workflowTests: paths(matches.filter((test) => test.path.includes("/workflows/") || test.path.endsWith(".integration.test.ts"))),
-    negativePathTests: paths(matches.filter((test) => hasKeywordNearToken(test.content, tokens, negativeKeywords))),
-    economicTests: paths(matches.filter((test) => hasKeywordNearToken(test.content, tokens, economicKeywords))),
-    redTeamTests: paths(matches.filter((test) => test.path.includes("red-team") || hasKeywordNearToken(test.content, tokens, redTeamKeywords))),
-    indexerTests: kind === "event" ? paths(matches.filter((test) => test.path.startsWith("packages/indexer/"))) : [],
+    workflowTests: paths(matches.filter(({ test }) => test.path.includes("/workflows/") || test.path.endsWith(".integration.test.ts"))),
+    negativePathTests: paths(matches.filter(({ test, references }) => hasKeywordNearReference(test.content, references, negativeKeywords))),
+    economicTests: paths(matches.filter(({ test, references }) => hasKeywordNearReference(test.content, references, economicKeywords))),
+    redTeamTests: paths(matches.filter(({ test, references }) => test.path.includes("red-team") || hasKeywordNearReference(test.content, references, redTeamKeywords))),
+    indexerTests: kind === "event" ? paths(matches.filter(({ test }) => test.path.startsWith("packages/indexer/"))) : [],
     verifyArtifacts: verifyEvidence,
   };
 }
@@ -418,24 +624,26 @@ function buildItem(args: {
   httpRegistry: Registry;
   rpcRegistry: Registry;
   reviewed: ReviewedApiSurface;
-  tests: TestSource[];
+  tests: IndexedTestSource[];
   artifacts: VerifyArtifact[];
+  routeCollisions: Map<string, HttpRouteCollision>;
 }): GapItem {
-  const { occurrence, facetName, kind, entry, httpRegistry, rpcRegistry, reviewed, tests, artifacts } = args;
+  const { occurrence, facetName, kind, entry, httpRegistry, rpcRegistry, reviewed, tests, artifacts, routeCollisions } = args;
   const key = `${facetName}.${entry.wrapperKey}`;
   const registrySection = kind === "function" ? "methods" : "events";
   const endpoint = httpRegistry[registrySection][key];
   const reviewedEndpoint = reviewed[registrySection][key];
   const rpcEntry = rpcRegistry[registrySection][key];
   const route = endpointRoute(endpoint);
+  const routeCollision = route ? routeCollisions.get(route) ?? null : null;
   const tokens = itemTokens(key, entry.name, entry.wrapperKey, entry.signature, endpoint ?? reviewedEndpoint);
-  const artifactEvidence = verifyEvidenceFor(route, artifacts);
+  const artifactEvidence = verifyEvidenceFor(key, route, endpoint ?? reviewedEndpoint, artifacts);
   const evidence = buildEvidence(tests, tokens, artifactEvidence, kind);
-  const exclusion = kind === "function" ? apiExclusions[key] ?? null : null;
+  const exclusion: string | null = null;
   const proof: ProofFlags = {
     abiManifest: true,
     rpcRegistry: Boolean(rpcEntry),
-    httpRegistry: Boolean(endpoint),
+    httpRegistry: Boolean(route) && !routeCollision,
     reviewedApiSurface: Boolean(reviewedEndpoint),
     unit: evidence.tests.length > 0,
     workflow: evidence.workflowTests.length > 0,
@@ -469,13 +677,19 @@ function buildItem(args: {
     proof,
     proofDepth: proofDepth(proof),
     classification,
-    gaps: gapsFor({ kind, category, proof, exclusion }),
+    gaps: gapsFor({ kind, category, proof, exclusion, routeCollision }),
     evidence,
   };
 }
 
 export function buildGapReport(input: BuildGapReportInput): GapReport {
   const occurrences = new Map<string, number>();
+  const routeCollisions = httpRouteCollisions(input.httpRegistry);
+  const knownAbiKeys = new Set(input.manifest.facets.flatMap((facet) => [
+    ...facet.functions.map((entry) => `${facet.facetName}.${entry.wrapperKey}`),
+    ...facet.events.map((entry) => `${facet.facetName}.${entry.wrapperKey}`),
+  ]));
+  const indexedTests = input.tests.map((test) => indexTestSource(test, knownAbiKeys));
   const facets = input.manifest.facets.map<GapFacet>((facet) => {
     const makeItem = (kind: "function" | "event", entry: ManifestMethod | ManifestEvent): GapItem => {
       const key = `${facet.facetName}.${entry.wrapperKey}`;
@@ -489,8 +703,9 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
         httpRegistry: input.httpRegistry,
         rpcRegistry: input.rpcRegistry,
         reviewed: input.reviewedApiSurface,
-        tests: input.tests,
+        tests: indexedTests,
         artifacts: input.verifyArtifacts,
+        routeCollisions,
       });
     };
     const functions = facet.functions.map((entry) => makeItem("function", entry));
@@ -537,8 +752,8 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
     schemaVersion: 1,
     generatedAt: input.generatedAt,
     methodology: {
-      testAttribution: "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
-      liveAttribution: "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
+      testAttribution: "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, accessed member, computed member, or call argument. Incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter and registry tests are excluded to avoid self-attribution.",
+      liveAttribution: "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
       classificationPolicy: "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
     },
     inputs: {
@@ -624,7 +839,12 @@ export function renderGapReportMarkdown(report: GapReport): string {
 export async function loadGapReportInput(baseDir: string, generatedAt = new Date().toISOString()): Promise<BuildGapReportInput> {
   const resolveInput = (filePath: string) => path.join(baseDir, filePath);
   const testRoots = ["packages", "scripts", "scenario-adapter"];
-  const inventoryOnlyTests = new Set(["generate-test-roadmap.test.ts", "gap-builder-plan.test.ts", "write-invariants-lib.test.ts"]);
+  const inventoryOnlyTests = new Set([
+    "api-surface-lib.test.ts",
+    "generate-test-roadmap.test.ts",
+    "gap-builder-plan.test.ts",
+    "write-invariants-lib.test.ts",
+  ]);
   const testPaths = (await Promise.all(testRoots.map(async (testRoot) => {
     try {
       return await findFiles(

@@ -589,6 +589,19 @@ function overrideVoiceAssetMethod(method: AbiMethodDefinition, entry: ApiSurface
   return override ? { ...entry, ...override } : entry;
 }
 
+function overrideGovernanceMethod(method: AbiMethodDefinition, entry: ApiSurfaceMethod): ApiSurfaceMethod {
+  const overrides: Record<string, Partial<ApiSurfaceMethod>> = {
+    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)": {
+      classification: "admin",
+      httpMethod: "POST",
+      path: "/v1/governance/admin/legacy-proposals",
+    },
+  };
+
+  const override = overrides[keyForMethod(method.facetName, method.wrapperKey)];
+  return override ? { ...entry, ...override } : entry;
+}
+
 export function buildMethodSurface(method: AbiMethodDefinition): ApiSurfaceMethod {
   const domain = domainByFacet[method.facetName];
   if (!domain) {
@@ -620,7 +633,13 @@ export function buildMethodSurface(method: AbiMethodDefinition): ApiSurfaceMetho
     notes: `${method.facetName}.${method.wrapperKey}`,
   };
   entry.path = defaultPathFor(domain, entry, method);
-  return domain === "voice-assets" ? overrideVoiceAssetMethod(method, entry) : entry;
+  if (domain === "voice-assets") {
+    return overrideVoiceAssetMethod(method, entry);
+  }
+  if (domain === "governance") {
+    return overrideGovernanceMethod(method, entry);
+  }
+  return entry;
 }
 
 export function buildEventSurface(event: AbiEventDefinition): ApiSurfaceEvent {
@@ -638,6 +657,48 @@ export function buildEventSurface(event: AbiEventDefinition): ApiSurfaceEvent {
     path: `/v1/${domain}/events/${toKebabCase(event.eventName)}/query`,
     notes: `${event.facetName}.${event.wrapperKey}`,
   };
+}
+
+export function ensureUniqueEventPaths(events: Record<string, ApiSurfaceEvent>): Record<string, ApiSurfaceEvent> {
+  const routeGroups = new Map<string, string[]>();
+  for (const [key, event] of Object.entries(events)) {
+    const routeKey = `${event.httpMethod} ${event.path}`;
+    const entries = routeGroups.get(routeKey) ?? [];
+    entries.push(key);
+    routeGroups.set(routeKey, entries);
+  }
+  for (const keys of routeGroups.values()) {
+    if (keys.length <= 1) {
+      continue;
+    }
+    for (const key of keys) {
+      events[key] = {
+        ...events[key],
+        path: `${events[key].path}/${toKebabCase(events[key].facetName.replace(/Facet$/u, ""))}`,
+      };
+    }
+  }
+
+  const overloadedRouteGroups = new Map<string, string[]>();
+  for (const [key, event] of Object.entries(events)) {
+    const routeKey = `${event.httpMethod} ${event.path}`;
+    const entries = overloadedRouteGroups.get(routeKey) ?? [];
+    entries.push(key);
+    overloadedRouteGroups.set(routeKey, entries);
+  }
+  for (const keys of overloadedRouteGroups.values()) {
+    if (keys.length <= 1) {
+      continue;
+    }
+    for (const key of keys) {
+      events[key] = {
+        ...events[key],
+        path: `${events[key].path}/${toKebabCase(events[key].operationId)}`,
+      };
+    }
+  }
+
+  return events;
 }
 
 export function sortObject<T>(value: Record<string, T>): Record<string, T> {

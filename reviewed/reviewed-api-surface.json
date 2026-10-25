@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-18T08:51:42.957Z",
+  "generatedAt": "2026-10-20T09:57:35.691Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
@@ -6452,6 +6452,57 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)"
+    },
+    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)": {
+      "facetName": "ProposalFacet",
+      "wrapperKey": "propose(string,string,address[],uint256[],bytes[],uint8)",
+      "domain": "governance",
+      "resource": "proposals",
+      "classification": "admin",
+      "httpMethod": "POST",
+      "path": "/v1/governance/admin/legacy-proposals",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "title",
+            "source": "body",
+            "field": "title"
+          },
+          {
+            "name": "description",
+            "source": "body",
+            "field": "description"
+          },
+          {
+            "name": "targets",
+            "source": "body",
+            "field": "targets"
+          },
+          {
+            "name": "values",
+            "source": "body",
+            "field": "values"
+          },
+          {
+            "name": "calldatas",
+            "source": "body",
+            "field": "calldatas"
+          },
+          {
+            "name": "proposalType",
+            "source": "body",
+            "field": "proposalType"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"
     },
     "ProposalFacet.prQueue": {
       "facetName": "ProposalFacet",
@@ -15092,7 +15143,7 @@
       "domain": "governance",
       "operationId": "operationExecutedBytes32Uint256Uint256EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/governance/events/operation-executed/query/timelock",
+      "path": "/v1/governance/events/operation-executed/query/timelock/operation-executed-bytes32-uint256-uint256-event-query",
       "notes": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
     },
     "TimelockFacet.OperationExecuted(bytes32)": {
@@ -15101,7 +15152,7 @@
       "domain": "governance",
       "operationId": "operationExecutedBytes32EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/governance/events/operation-executed/query/timelock",
+      "path": "/v1/governance/events/operation-executed/query/timelock/operation-executed-bytes32-event-query",
       "notes": "TimelockFacet.OperationExecuted(bytes32)"
     },
     "TimelockFacet.OperationRemoved": {
@@ -15569,7 +15620,7 @@
       "domain": "licensing",
       "operationId": "licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/licensing/events/license-created/query/voice-license",
+      "path": "/v1/licensing/events/license-created/query/voice-license/license-created-bytes32-address-bytes32-uint256-uint256-event-query",
       "notes": "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)"
     },
     "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)": {
@@ -15578,7 +15629,7 @@
       "domain": "licensing",
       "operationId": "licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/licensing/events/license-created/query/voice-license",
+      "path": "/v1/licensing/events/license-created/query/voice-license/license-created-bytes32-bytes32-address-uint256-uint256-event-query",
       "notes": "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)"
     },
     "VoiceLicenseFacet.LicenseEnded": {

@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-20T09:58:19.745Z",
+  "summary": "proven working",
+  "totals": {
+    "domainCount": 1,
+    "routeCount": 36,
+    "evidenceCount": 36
+  },
+  "statusCounts": {
+    "proven working": 1,
+    "blocked by setup/state": 0,
+    "semantically clarified but not fully proven": 0,
+    "deeper issue remains": 0
+  },
+  "reports": {
+    "control-plane-live-admin-guard": {
+      "routes": [
+        "POST /v1/access-control/admin/emergency-force-add",
+        "POST /v1/access-control/admin/execute-founder-sunset",
+        "POST /v1/access-control/admin/schedule-founder-sunset",
+        "POST /v1/access-control/admin/set-paused",
+        "POST /v1/access-control/admin/set-recovery-active",
+        "POST /v1/diamond-admin/admin/diamond-cut",
+        "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+        "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+        "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+        "POST /v1/emergency/admin/approve-recovery",
+        "POST /v1/emergency/admin/complete-recovery",
+        "POST /v1/emergency/admin/execute-recovery-action",
+        "POST /v1/emergency/admin/execute-recovery-step",
+        "POST /v1/emergency/admin/set-emergency-timeout",
+        "POST /v1/emergency/admin/set-resume-delay",
+        "POST /v1/emergency/admin/start-recovery",
+        "POST /v1/emergency/admin/approve-emergency-withdrawal",
+        "POST /v1/emergency/admin/execute-withdrawal",
+        "POST /v1/emergency/admin/request-emergency-withdrawal",
+        "POST /v1/emergency/admin/set-recipient-whitelist",
+        "POST /v1/emergency/admin/update-withdrawal-config",
+        "POST /v1/multisig/admin/add-operation-type",
+        "POST /v1/multisig/admin/add-operator",
+        "POST /v1/multisig/admin/approve-operation",
+        "POST /v1/multisig/admin/execute",
+        "POST /v1/multisig/admin/execute-operation",
+        "POST /v1/multisig/admin/mu-set-paused",
+        "POST /v1/multisig/admin/propose-operation",
+        "POST /v1/multisig/admin/set-operation-config",
+        "POST /v1/multisig/admin/submit-transaction",
+        "POST /v1/governance/admin/legacy-proposals",
+        "POST /v1/diamond-admin/admin/approve-upgrade",
+        "POST /v1/diamond-admin/admin/execute-upgrade",
+        "POST /v1/diamond-admin/admin/freeze-upgrade-control",
+        "POST /v1/diamond-admin/admin/propose-diamond-cut",
+        "POST /v1/diamond-admin/admin/set-upgrade-control-enforced"
+      ],
+      "actors": [
+        "founder-key",
+        "founder-key-2"
+      ],
+      "executionResult": "all selected routes rejected before provider execution while live admin opt-in was disabled",
+      "evidence": [
+        {
+          "methodKey": "AccessControlFacet.emergencyForceAdd",
+          "route": "POST /v1/access-control/admin/emergency-force-add",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "AccessControlFacet.executeFounderSunset",
+          "route": "POST /v1/access-control/admin/execute-founder-sunset",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "AccessControlFacet.scheduleFounderSunset",
+          "route": "POST /v1/access-control/admin/schedule-founder-sunset",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "AccessControlFacet.setPaused",
+          "route": "POST /v1/access-control/admin/set-paused",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "AccessControlFacet.setRecoveryActive",
+          "route": "POST /v1/access-control/admin/set-recovery-active",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "DiamondCutFacet.diamondCut",
+          "route": "POST /v1/diamond-admin/admin/diamond-cut",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "DiamondCutFacet.setTrustedInitCodehash",
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "DiamondCutFacet.setTrustedInitContract",
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "DiamondCutFacet.setTrustedInitSelector",
+          "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.approveRecovery",
+          "route": "POST /v1/emergency/admin/approve-recovery",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.completeRecovery",
+          "route": "POST /v1/emergency/admin/complete-recovery",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.executeRecoveryAction",
+          "route": "POST /v1/emergency/admin/execute-recovery-action",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.executeRecoveryStep",
+          "route": "POST /v1/emergency/admin/execute-recovery-step",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.setEmergencyTimeout",
+          "route": "POST /v1/emergency/admin/set-emergency-timeout",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.setResumeDelay",
+          "route": "POST /v1/emergency/admin/set-resume-delay",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyFacet.startRecovery",
+          "route": "POST /v1/emergency/admin/start-recovery",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+          "route": "POST /v1/emergency/admin/approve-emergency-withdrawal",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.executeWithdrawal",
+          "route": "POST /v1/emergency/admin/execute-withdrawal",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+          "route": "POST /v1/emergency/admin/request-emergency-withdrawal",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.setRecipientWhitelist",
+          "route": "POST /v1/emergency/admin/set-recipient-whitelist",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+          "route": "POST /v1/emergency/admin/update-withdrawal-config",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.addOperationType",
+          "route": "POST /v1/multisig/admin/add-operation-type",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.addOperator",
+          "route": "POST /v1/multisig/admin/add-operator",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.approveOperation",
+          "route": "POST /v1/multisig/admin/approve-operation",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.execute",
+          "route": "POST /v1/multisig/admin/execute",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.executeOperation",
+          "route": "POST /v1/multisig/admin/execute-operation",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.muSetPaused",
+          "route": "POST /v1/multisig/admin/mu-set-paused",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.proposeOperation",
+          "route": "POST /v1/multisig/admin/propose-operation",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.setOperationConfig",
+          "route": "POST /v1/multisig/admin/set-operation-config",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "MultiSigFacet.submitTransaction",
+          "route": "POST /v1/multisig/admin/submit-transaction",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+          "route": "POST /v1/governance/admin/legacy-proposals",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "UpgradeControllerFacet.approveUpgrade",
+          "route": "POST /v1/diamond-admin/admin/approve-upgrade",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "UpgradeControllerFacet.executeUpgrade",
+          "route": "POST /v1/diamond-admin/admin/execute-upgrade",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "UpgradeControllerFacet.freezeUpgradeControl",
+          "route": "POST /v1/diamond-admin/admin/freeze-upgrade-control",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "UpgradeControllerFacet.proposeDiamondCut",
+          "route": "POST /v1/diamond-admin/admin/propose-diamond-cut",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        },
+        {
+          "methodKey": "UpgradeControllerFacet.setUpgradeControlEnforced",
+          "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
+          "status": 403,
+          "result": "fail-closed before provider execution",
+          "error": "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in"
+        }
+      ],
+      "network": "Base Sepolia live-network guard",
+      "proofKind": "fail-closed-before-provider",
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    }
+  }
+}

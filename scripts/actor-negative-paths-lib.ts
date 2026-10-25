@@ -39,9 +39,7 @@ export type ActorNegativePathMethod = {
   }>;
 };
 
-export const HTTP_EXCLUDED_WRITE_METHODS = [
-  "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
-] as const;
+export const HTTP_EXCLUDED_WRITE_METHODS: readonly string[] = [];
 
 export const ADDITIONAL_HTTP_WRITES = [
   {
@@ -122,7 +120,7 @@ export function validateActorNegativePathInputs(
 
   for (const key of writeKeys) {
     if (!reviewed.methods[key]) problems.push(`missing actor invariant ${key}`);
-    if (!surface.methods[key] && !HTTP_EXCLUDED_WRITE_METHODS.includes(key as typeof HTTP_EXCLUDED_WRITE_METHODS[number])) {
+    if (!surface.methods[key] && !HTTP_EXCLUDED_WRITE_METHODS.includes(key)) {
       problems.push(`missing HTTP write surface ${key}`);
     }
   }

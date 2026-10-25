@@ -12,6 +12,7 @@ import {
   type ApiSurfaceFile,
   type MethodPolicyFile,
 } from "./actor-negative-paths-lib.js";
+import { renderActorNegativePathReportMarkdown } from "./generate-actor-negative-path-report.js";
 import type { ReviewedWriteInvariantFile } from "./write-invariants-lib.js";
 
 const policy = policyJson as MethodPolicyFile;
@@ -25,13 +26,13 @@ describe("actor negative-path coverage", () => {
     expect(report.schemaVersion).toBe(3);
     expect(report.totals).toMatchObject({
       abiWriteMethodCount: 260,
-      writeMethodCount: 259,
+      writeMethodCount: 260,
       domainCount: 13,
-      actorMethodCaseCount: 1_813,
-      apiBoundaryCaseCount: 777,
-      adminApiRoleCaseCount: 200,
+      actorMethodCaseCount: 1_820,
+      apiBoundaryCaseCount: 780,
+      adminApiRoleCaseCount: 204,
       additionalHttpWriteCount: 1,
-      totalMountedHttpWriteCount: 260,
+      totalMountedHttpWriteCount: 261,
       additionalHttpDomainCount: 1,
       totalMountedHttpDomainCount: 14,
       additionalHttpBoundaryCaseCount: 10,
@@ -39,9 +40,17 @@ describe("actor negative-path coverage", () => {
     expect(report.methods.map((method) => method.method)).toEqual(
       Object.keys(reviewed.methods).filter((key) => surface.methods[key]).sort((left, right) => left.localeCompare(right)),
     );
-    expect(report.excludedAbiWrites).toEqual(["ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"]);
-    expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(259);
+    expect(report.excludedAbiWrites).toEqual([]);
+    expect(Object.values(report.domains).reduce((sum, count) => sum + count, 0)).toBe(260);
     expect(report.additionalHttpWrites).toEqual(ADDITIONAL_HTTP_WRITES);
+  });
+
+  it("renders the mounted-write summary from the report instead of a stale exclusion claim", () => {
+    const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
+    const markdown = renderActorNegativePathReportMarkdown(report);
+
+    expect(markdown).toContain("All 260 ABI write methods are mounted on the reviewed HTTP surface.");
+    expect(markdown).not.toContain("legacy proposal overload remains ABI-only");
   });
 
   it("tracks role-only, read-only, unknown, and wallet-mismatch denials for non-contract writes", () => {
@@ -61,8 +70,8 @@ describe("actor negative-path coverage", () => {
     const adminMethods = report.methods.filter((method) => surface.methods[method.method]?.classification === "admin");
     const nonAdminMethods = report.methods.filter((method) => surface.methods[method.method]?.classification !== "admin");
 
-    expect(adminMethods).toHaveLength(50);
-    expect(report.totals.adminApiRoleCaseCount).toBe(200);
+    expect(adminMethods).toHaveLength(51);
+    expect(report.totals.adminApiRoleCaseCount).toBe(204);
     for (const method of adminMethods) {
       for (const actor of method.actors) {
         expect(actor.apiRoleDenials).toEqual(
@@ -92,8 +101,8 @@ describe("actor negative-path coverage", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
     const roleGated = report.methods.filter((method) => method.requiredActor.kind === "role");
 
-    expect(roleGated).toHaveLength(150);
-    expect(report.totals.roleLifecycleCaseCount).toBe(3_150);
+    expect(roleGated).toHaveLength(151);
+    expect(report.totals.roleLifecycleCaseCount).toBe(3_171);
     for (const method of roleGated) {
       expect(method.roleLifecycleDenials).toEqual(["stale-role", "revoked-role", "expired-validity-window"]);
       expect(method.actors.every((actor) => actor.contractDenials.includes("missing-required-role"))).toBe(true);

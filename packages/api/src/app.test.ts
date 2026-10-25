@@ -132,7 +132,7 @@ describe("createApiServer", () => {
     const { server, port } = await startServer({ port: 0, quiet: true });
 
     try {
-      expect(writeEndpoints).toHaveLength(259);
+      expect(writeEndpoints).toHaveLength(260);
       for (const endpoint of writeEndpoints) {
         const path = endpoint.path.replace(/:[^/]+/gu, "invalid-before-auth");
         const { status, payload } = await apiCall(port, path, {
@@ -191,6 +191,83 @@ describe("createApiServer", () => {
       methodKey: "MarketplaceFacet.unpause",
     },
   ])("rejects a read-only API key for $methodKey before marketplace execution", async ({ method, path, body }) => {
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({
+      "read-only-key": { label: "read-only", signerId: "reader", roles: ["read-only"], allowGasless: false },
+    });
+
+    const { server, port } = await startServer({ port: 0, quiet: true });
+
+    try {
+      const { status, payload } = await apiCall(port, path, {
+        method,
+        headers: { "x-api-key": "read-only-key" },
+        body: JSON.stringify(body),
+      });
+      expect(status).toBe(403);
+      expect(payload).toEqual({ error: "API key not permitted for write execution" });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it.each([
+    {
+      method: "POST",
+      path: "/v1/licensing/commands/add-collaborator",
+      body: {
+        voiceHash: `0x${"1".repeat(64)}`,
+        collaborator: "0x00000000000000000000000000000000000000bb",
+        share: "2500",
+      },
+      methodKey: "RightsFacet.addCollaborator",
+    },
+    {
+      method: "POST",
+      path: "/v1/licensing/rights/create-rights-group",
+      body: {
+        voiceHash: `0x${"1".repeat(64)}`,
+        name: "narration",
+        rights: [],
+        members: [],
+      },
+      methodKey: "RightsFacet.createRightsGroup",
+    },
+    {
+      method: "POST",
+      path: "/v1/licensing/commands/grant-right",
+      body: {
+        voiceHash: `0x${"1".repeat(64)}`,
+        grantee: "0x00000000000000000000000000000000000000bb",
+        right: {
+          rightType: "narration",
+          startTime: "0",
+          endTime: "0",
+          transferable: false,
+          restrictions: [],
+          revocable: true,
+        },
+      },
+      methodKey: "RightsFacet.grantRight",
+    },
+    {
+      method: "POST",
+      path: "/v1/licensing/rights/register-right-contract",
+      body: {
+        category: "narration",
+        contractAddress: "0x00000000000000000000000000000000000000bb",
+      },
+      methodKey: "RightsFacet.registerRightContract",
+    },
+    {
+      method: "DELETE",
+      path: "/v1/licensing/commands/remove-collaborator",
+      body: {
+        voiceHash: `0x${"1".repeat(64)}`,
+        collaborator: "0x00000000000000000000000000000000000000bb",
+      },
+      methodKey: "RightsFacet.removeCollaborator",
+    },
+  ])("fails closed for a read-only API key on $methodKey before licensing execution", async ({ method, path, body }) => {
     process.env.API_LAYER_KEYS_JSON = JSON.stringify({
       "read-only-key": { label: "read-only", signerId: "reader", roles: ["read-only"], allowGasless: false },
     });

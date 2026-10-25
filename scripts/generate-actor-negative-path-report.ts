@@ -10,21 +10,18 @@ import {
 import type { ReviewedWriteInvariantFile } from "./write-invariants-lib.js";
 import { readJson, rootDir, writeJson } from "./utils.js";
 
-export async function generateActorNegativePathReport(generatedAt = new Date().toISOString()) {
-  const [policy, surface, reviewed] = await Promise.all([
-    readJson<MethodPolicyFile>(path.join(rootDir, "reviewed", "reviewed-method-policy.json")),
-    readJson<ApiSurfaceFile>(path.join(rootDir, "reviewed", "reviewed-api-surface.json")),
-    readJson<ReviewedWriteInvariantFile>(path.join(rootDir, "reviewed", "reviewed-write-invariants.json")),
-  ]);
-  const report = buildActorNegativePathReport(policy, surface, reviewed, generatedAt);
-  const jsonPath = path.join(rootDir, "output", "actor-negative-path-report.json");
-  const markdownPath = path.join(rootDir, "output", "actor-negative-path-report.md");
-  await writeJson(jsonPath, report);
+type ActorNegativePathReport = ReturnType<typeof buildActorNegativePathReport>;
+
+export function renderActorNegativePathReportMarkdown(report: ActorNegativePathReport): string {
   const domainRows = Object.entries(report.domains).map(([domain, count]) => `| ${domain} | ${count} |`).join("\n");
   const capabilityRows = Object.entries(report.capabilities).map(([capability, target]) =>
     `| ${capability} | ${target.methods.join("<br>")} | ${target.workflows.join("<br>")} |`,
   ).join("\n");
-  await writeFile(markdownPath, `# Actor and Signer Negative-Path Report
+  const mountedWriteSummary = report.excludedAbiWrites.length === 0
+    ? `All ${report.totals.abiWriteMethodCount} ABI write methods are mounted on the reviewed HTTP surface.`
+    : `${report.excludedAbiWrites.length} ABI write method(s) remain intentionally excluded from the HTTP surface and are listed separately in the JSON artifact.`;
+
+  return `# Actor and Signer Negative-Path Report
 
 Generated: ${report.generatedAt}
 
@@ -41,7 +38,7 @@ Generated: ${report.generatedAt}
 - Stale/revoked/expired role cases: ${report.totals.roleLifecycleCaseCount}
 - Additional HTTP boundary cases: ${report.totals.additionalHttpBoundaryCaseCount}
 
-Every mounted contract write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The additional funding quote write requires a separately provisioned funding customer identity and exact wallet binding; contract roles, read-only keys, unknown keys, and confused-deputy wallet headers cannot reach provider or storage access. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
+Every mounted contract write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. ${mountedWriteSummary} The additional funding quote write requires a separately provisioned funding customer identity and exact wallet binding; contract roles, read-only keys, unknown keys, and confused-deputy wallet headers cannot reach provider or storage access.
 
 ## Domains
 
@@ -60,7 +57,20 @@ ${report.additionalHttpWrites.map((endpoint) => `| ${endpoint.method} | ${endpoi
 | Capability | ABI methods | Workflow routes |
 | --- | --- | --- |
 ${capabilityRows}
-`, "utf8");
+`;
+}
+
+export async function generateActorNegativePathReport(generatedAt = new Date().toISOString()) {
+  const [policy, surface, reviewed] = await Promise.all([
+    readJson<MethodPolicyFile>(path.join(rootDir, "reviewed", "reviewed-method-policy.json")),
+    readJson<ApiSurfaceFile>(path.join(rootDir, "reviewed", "reviewed-api-surface.json")),
+    readJson<ReviewedWriteInvariantFile>(path.join(rootDir, "reviewed", "reviewed-write-invariants.json")),
+  ]);
+  const report = buildActorNegativePathReport(policy, surface, reviewed, generatedAt);
+  const jsonPath = path.join(rootDir, "output", "actor-negative-path-report.json");
+  const markdownPath = path.join(rootDir, "output", "actor-negative-path-report.md");
+  await writeJson(jsonPath, report);
+  await writeFile(markdownPath, renderActorNegativePathReportMarkdown(report), "utf8");
   return report;
 }
 

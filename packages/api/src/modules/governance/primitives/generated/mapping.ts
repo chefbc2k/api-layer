@@ -1298,6 +1298,108 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+    "facetName": "ProposalFacet",
+    "wrapperKey": "propose(string,string,address[],uint256[],bytes[],uint8)",
+    "domain": "governance",
+    "resource": "proposals",
+    "classification": "admin",
+    "httpMethod": "POST",
+    "path": "/v1/governance/admin/legacy-proposals",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "title",
+          "source": "body",
+          "field": "title"
+        },
+        {
+          "name": "description",
+          "source": "body",
+          "field": "description"
+        },
+        {
+          "name": "targets",
+          "source": "body",
+          "field": "targets"
+        },
+        {
+          "name": "values",
+          "source": "body",
+          "field": "values"
+        },
+        {
+          "name": "calldatas",
+          "source": "body",
+          "field": "calldatas"
+        },
+        {
+          "name": "proposalType",
+          "source": "body",
+          "field": "proposalType"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "proposeStringStringAddressArrayUint256ArrayBytesArrayUint8",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+    "methodName": "propose",
+    "signature": "propose(string,string,address[],uint256[],bytes[],uint8)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "title",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "targets",
+        "type": "address[]",
+        "internalType": "address[]"
+      },
+      {
+        "name": "values",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      {
+        "name": "calldatas",
+        "type": "bytes[]",
+        "internalType": "bytes[]"
+      },
+      {
+        "name": "proposalType",
+        "type": "uint8",
+        "internalType": "enum SharedEnums.ProposalType"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
     "key": "ProposalFacet.prQueue",
     "facetName": "ProposalFacet",
     "wrapperKey": "prQueue",
@@ -2878,7 +2980,7 @@ export const governanceEventDefinitions: HttpEventDefinition[] = [
     "domain": "governance",
     "operationId": "operationExecutedBytes32Uint256Uint256EventQuery",
     "httpMethod": "POST",
-    "path": "/v1/governance/events/operation-executed/query/timelock",
+    "path": "/v1/governance/events/operation-executed/query/timelock/operation-executed-bytes32-uint256-uint256-event-query",
     "notes": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)",
     "eventName": "OperationExecuted",
     "signature": "OperationExecuted(bytes32,uint256,uint256)",
@@ -2922,7 +3024,7 @@ export const governanceEventDefinitions: HttpEventDefinition[] = [
     "domain": "governance",
     "operationId": "operationExecutedBytes32EventQuery",
     "httpMethod": "POST",
-    "path": "/v1/governance/events/operation-executed/query/timelock",
+    "path": "/v1/governance/events/operation-executed/query/timelock/operation-executed-bytes32-event-query",
     "notes": "TimelockFacet.OperationExecuted(bytes32)",
     "eventName": "OperationExecuted",
     "signature": "OperationExecuted(bytes32)",

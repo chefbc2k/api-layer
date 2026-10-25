@@ -8,7 +8,11 @@ import { buildGapBuilderPlan, main, renderGapBuilderPlanMarkdown } from "./gap-b
 
 const temporaryDirectories: string[] = [];
 
-function item(id: string, classification: "needs fixture" | "needs indexer proof" | "unsafe on live network", facetName = "PaymentFacet") {
+function item(
+  id: string,
+  classification: "needs fixture" | "needs indexer proof" | "unsafe on live network" | "needs contract change" | "needs API guard",
+  facetName = "PaymentFacet",
+) {
   return {
     id,
     kind: id.includes(".Event") ? "event" as const : "function" as const,
@@ -31,7 +35,7 @@ function report() {
     generatedAt: "2026-09-27T00:00:00.000Z",
     totals: {
       classificationCounts: {
-        ready: 1,
+        ready: 0,
         "needs fixture": 3,
         "unsafe on live network": 2,
         "needs contract change": 0,
@@ -84,6 +88,19 @@ describe("gap-builder plan", () => {
       .toThrow("below minimum batch size");
   });
 
+  it("rejects contradictory fixed batch limits before selecting an empty plan", () => {
+    const expandedReport = report();
+    expandedReport.facets[0].functions.push(
+      ...Array.from({ length: 4 }, (_, index) => (
+        item(`PaymentFacet.extraOperation${index}`, "needs fixture")
+      )),
+    );
+    expandedReport.totals.classificationCounts["needs fixture"] += 4;
+
+    expect(() => buildGapBuilderPlan(expandedReport, { maxItems: 0, minBatchItems: 10 }))
+      .toThrow("max items 0 is below minimum batch size 10");
+  });
+
   it("selects every remaining item when fewer than the minimum batch size remain", () => {
     const plan = buildGapBuilderPlan(report(), { maxItems: 40, minBatchItems: 10 });
 
@@ -103,6 +120,38 @@ describe("gap-builder plan", () => {
     ]);
   });
 
+  it.each(Array.from({ length: 15 }, (_, index) => index + 10))(
+    "clamps a percentage target to the minimum batch size for a %i-item backlog",
+    (itemCount) => {
+      const expandedReport = report();
+      expandedReport.facets = [{
+        facetName: "PaymentFacet",
+        functions: Array.from({ length: itemCount }, (_, index) => (
+          item(`PaymentFacet.operation${String(index).padStart(2, "0")}`, "needs fixture")
+        )),
+        events: [],
+      }];
+      expandedReport.totals.classificationCounts = {
+        ready: 0,
+        "needs fixture": itemCount,
+        "unsafe on live network": 0,
+        "needs contract change": 0,
+        "needs API guard": 0,
+        "needs indexer proof": 0,
+      };
+
+      const plan = buildGapBuilderPlan(expandedReport, {
+        maxItems: 40,
+        minBatchItems: 10,
+        targetPercent: 40,
+      });
+
+      expect(plan.totals).toMatchObject({ nonReady: itemCount, selected: 10 });
+      expect(plan.batches).toHaveLength(1);
+      expect(plan.batches[0].items).toHaveLength(10);
+    },
+  );
+
   it("does not create a one-item facet slice at the batch cutoff", () => {
     const plan = buildGapBuilderPlan(report(), { maxItems: 3, minBatchItems: 1 });
 
@@ -116,8 +165,33 @@ describe("gap-builder plan", () => {
 
     expect(markdown).toContain("# Gap Builder Plan");
     expect(markdown).toContain("Add unit, workflow, and negative-path fixtures");
+    expect(markdown).toContain("pnpm run test:gap-builder");
     expect(markdown).toContain("pnpm run test:indexer:assurance");
     expect(markdown).toContain("pnpm run coverage:check");
+  });
+
+  it("gives missing RPC registry items direct contract-restoration work", () => {
+    const contractReport = report();
+    contractReport.facets = [{
+      facetName: "PaymentFacet",
+      functions: [item("PaymentFacet.missingRpcMethod", "needs contract change")],
+      events: [],
+    }];
+    contractReport.totals.classificationCounts = {
+      ready: 0,
+      "needs fixture": 0,
+      "unsafe on live network": 0,
+      "needs contract change": 1,
+      "needs API guard": 0,
+      "needs indexer proof": 0,
+    };
+
+    const plan = buildGapBuilderPlan(contractReport, { maxItems: 40, minBatchItems: 10 });
+
+    expect(plan.batches[0].items[0].requiredWork).toContain(
+      "Add or restore the ABI-backed RPC registry/wrapper entry before exposing or proving this surface.",
+    );
+    expect(renderGapBuilderPlanMarkdown(plan)).toContain("ABI-backed RPC registry/wrapper entry");
   });
 
   it("writes persistent JSON and Markdown artifacts from the repository report", async () => {
@@ -125,8 +199,15 @@ describe("gap-builder plan", () => {
     vi.setSystemTime(new Date("2026-09-27T01:02:03.000Z"));
     const tempDir = await mkdtemp(path.join(os.tmpdir(), "gap-builder-plan-"));
     temporaryDirectories.push(tempDir);
+    const reportPath = path.join(tempDir, "report.json");
+    await writeFile(reportPath, JSON.stringify(report()), "utf8");
 
-    await main(["--output-dir", tempDir, "--max-items", "4", "--min-batch-items", "4"]);
+    await main([
+      "--report", reportPath,
+      "--output-dir", tempDir,
+      "--max-items", "4",
+      "--min-batch-items", "4",
+    ]);
 
     const [json, markdown] = await Promise.all([
       readFile(path.join(tempDir, "gap-builder-plan.json"), "utf8"),
@@ -198,6 +279,14 @@ describe("gap-builder plan", () => {
     const reportPath = path.join(tempDir, "report.json");
     const cleanReport = report();
     cleanReport.facets = [];
+    cleanReport.totals.classificationCounts = {
+      ready: 0,
+      "needs fixture": 0,
+      "unsafe on live network": 0,
+      "needs contract change": 0,
+      "needs API guard": 0,
+      "needs indexer proof": 0,
+    };
     await writeFile(reportPath, JSON.stringify(cleanReport), "utf8");
 
     await expect(main([
@@ -208,5 +297,13 @@ describe("gap-builder plan", () => {
 
     const plan = JSON.parse(await readFile(path.join(tempDir, "gap-builder-plan.json"), "utf8"));
     expect(plan.totals).toMatchObject({ nonReady: 0, selected: 0 });
+  });
+
+  it("rejects stale classification totals that disagree with facet items", () => {
+    const staleReport = report();
+    staleReport.totals.classificationCounts["needs fixture"] = 0;
+
+    expect(() => buildGapBuilderPlan(staleReport, { maxItems: 40, minBatchItems: 10 }))
+      .toThrow("needs fixture: reported 0, actual 3");
   });
 });

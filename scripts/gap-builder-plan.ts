@@ -76,6 +76,28 @@ const classificationPriority: Record<GapClassification, number> = {
   ready: 5,
 };
 
+const gapClassifications = Object.keys(classificationPriority) as GapClassification[];
+
+function validateClassificationCounts(report: GapReport, items: GapItem[]): void {
+  const actualCounts = Object.fromEntries(
+    gapClassifications.map((classification) => [classification, 0]),
+  ) as Record<GapClassification, number>;
+  for (const item of items) {
+    actualCounts[item.classification] += 1;
+  }
+
+  const mismatches = gapClassifications.flatMap((classification) => {
+    const reported = report.totals.classificationCounts[classification];
+    const actual = actualCounts[classification];
+    return reported === actual
+      ? []
+      : [`${classification}: reported ${String(reported)}, actual ${actual}`];
+  });
+  if (mismatches.length > 0) {
+    throw new Error(`gap-builder report classification totals do not match facet items (${mismatches.join("; ")})`);
+  }
+}
+
 function compareGapItems(left: GapItem, right: GapItem): number {
   return (
     classificationPriority[left.classification] - classificationPriority[right.classification] ||
@@ -114,6 +136,9 @@ function selectGroupedItems(items: GapItem[], maxItems: number, allowSmallOverag
 
 function requiredWorkFor(item: GapItem): string[] {
   const work = new Set<string>();
+  if (item.classification === "needs contract change") {
+    work.add("Add or restore the ABI-backed RPC registry/wrapper entry before exposing or proving this surface.");
+  }
   if (item.classification === "needs API guard") {
     work.add("Add or restore the reviewed HTTP/API guard for this ABI surface.");
   }
@@ -143,6 +168,7 @@ function requiredWorkFor(item: GapItem): string[] {
 function verificationFor(items: GapItem[]): string[] {
   const commands = new Set<string>([
     "pnpm run test:gap-report",
+    "pnpm run test:gap-builder",
     "pnpm run coverage:check",
   ]);
   if (items.some((item) => item.classification === "needs indexer proof" || item.kind === "event")) {
@@ -156,13 +182,24 @@ function verificationFor(items: GapItem[]): string[] {
 
 export function buildGapBuilderPlan(report: GapReport, options: GapBuilderPlanOptions): GapBuilderPlan {
   const focus = options.focus?.trim().toLowerCase() || null;
-  const allItems = report.facets
-    .flatMap((facet) => [...facet.functions, ...facet.events])
+  const reportItems = report.facets.flatMap((facet) => [...facet.functions, ...facet.events]);
+  validateClassificationCounts(report, reportItems);
+  const allItems = reportItems
     .filter((item) => item.classification !== "ready")
     .filter((item) => !focus || item.id.toLowerCase().includes(focus) || item.facetName.toLowerCase().includes(focus))
     .sort(compareGapItems);
+  if (
+    !options.targetPercent
+    && options.maxItems < options.minBatchItems
+    && allItems.length >= options.minBatchItems
+  ) {
+    throw new Error(
+      `gap-builder max items ${options.maxItems} is below minimum batch size ${options.minBatchItems}`,
+    );
+  }
+  const minimumTarget = Math.min(allItems.length, options.minBatchItems);
   const targetCount = options.targetPercent
-    ? Math.ceil(allItems.length * (options.targetPercent / 100))
+    ? Math.max(minimumTarget, Math.ceil(allItems.length * (options.targetPercent / 100)))
     : options.maxItems;
   const selected = selectGroupedItems(allItems, targetCount, Boolean(options.targetPercent));
   if (
