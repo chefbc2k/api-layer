@@ -53,6 +53,7 @@ export const defaultReceiptProofArtifactProducers: Record<string, string> = {
   "layer1-remaining.json": "scripts/verify-layer1-remaining.ts",
   "marketplace-purchase.json": "scripts/verify-marketplace-purchase-live.ts",
   "governance.json": "scripts/verify-governance-workflows.ts",
+  "staking-indexer-receipts.json": "packages/api/src/app.contract-integration.test.ts",
 };
 
 const TX_HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/u;
