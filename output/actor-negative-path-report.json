@@ -1,16 +1,16 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-10-24T16:02:32.040Z",
+  "generatedAt": "2026-10-25T10:59:34.685Z",
   "totals": {
     "abiWriteMethodCount": 260,
-    "writeMethodCount": 259,
+    "writeMethodCount": 260,
     "domainCount": 13,
-    "actorMethodCaseCount": 1813,
-    "apiBoundaryCaseCount": 777,
-    "adminApiRoleCaseCount": 200,
-    "roleLifecycleCaseCount": 3150,
+    "actorMethodCaseCount": 1820,
+    "apiBoundaryCaseCount": 780,
+    "adminApiRoleCaseCount": 204,
+    "roleLifecycleCaseCount": 3171,
     "additionalHttpWriteCount": 1,
-    "totalMountedHttpWriteCount": 260,
+    "totalMountedHttpWriteCount": 261,
     "additionalHttpDomainCount": 1,
     "totalMountedHttpDomainCount": 14,
     "additionalHttpBoundaryCaseCount": 10
@@ -24,9 +24,7 @@
     "licensee",
     "collaborator"
   ],
-  "excludedAbiWrites": [
-    "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"
-  ],
+  "excludedAbiWrites": [],
   "additionalHttpWrites": [
     {
       "method": "POST",
@@ -56,7 +54,7 @@
     "datasets": 9,
     "diamond-admin": 10,
     "emergency": 22,
-    "governance": 16,
+    "governance": 17,
     "licensing": 20,
     "marketplace": 36,
     "multisig": 11,
@@ -10490,6 +10488,87 @@
         {
           "actor": "collaborator",
           "apiRoleDenials": [],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        }
+      ]
+    },
+    {
+      "method": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+      "domain": "governance",
+      "path": "/v1/governance/admin/legacy-proposals",
+      "requiredActor": {
+        "kind": "role",
+        "roles": [
+          "GOVERNANCE_PARTICIPANT_ROLE"
+        ],
+        "description": "The signer must hold the applicable GOVERNANCE_PARTICIPANT_ROLE privilege for ProposalFacet."
+      },
+      "apiBoundaryDenials": [
+        "unknown-api-key",
+        "read-only-api-key",
+        "api-key-signer-mismatch"
+      ],
+      "roleLifecycleDenials": [
+        "stale-role",
+        "revoked-role",
+        "expired-validity-window"
+      ],
+      "actors": [
+        {
+          "actor": "founder",
+          "apiRoleDenials": [],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        },
+        {
+          "actor": "admin",
+          "apiRoleDenials": [],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        },
+        {
+          "actor": "operator",
+          "apiRoleDenials": [],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        },
+        {
+          "actor": "buyer",
+          "apiRoleDenials": [
+            "non-admin-api-role"
+          ],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        },
+        {
+          "actor": "seller",
+          "apiRoleDenials": [
+            "non-admin-api-role"
+          ],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        },
+        {
+          "actor": "licensee",
+          "apiRoleDenials": [
+            "non-admin-api-role"
+          ],
+          "contractDenials": [
+            "missing-required-role"
+          ]
+        },
+        {
+          "actor": "collaborator",
+          "apiRoleDenials": [
+            "non-admin-api-role"
+          ],
           "contractDenials": [
             "missing-required-role"
           ]

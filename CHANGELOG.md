@@ -18,6 +18,22 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.402] - 2026-10-25
+
+### Changed
+
+- **Report-Driven Gap Inventory Closed:** Reconciled the preserved assurance batch with current `master`, regenerated the canonical gap report, and advanced the carried-forward `11`-item write-fixture plan from `699/710` ready to `710/710` ready. The live forty-percent planner now reports `0` non-ready items and selects `0`, because no report-classified gap remains.
+- **Final Voice And Licensing Fixtures Added:** Added exact mounted-route preflight, decoded-argument, read-only denial, and stale/replay/unauthorized rejection coverage for four VoiceAsset writes, three VoiceLicense writes, two VoiceLicenseTemplate writes, `VoiceMetadataFacet.updateBasicAcousticFeatures`, and `WhisperBlockFacet.registerVoiceFingerprint`.
+- **Actor Inventory Reconciled:** Mounted the legacy proposal overload, raised contract-backed actor coverage to `260/260` ABI writes, and retained the separate funding quote boundary. The report now covers `261` mounted stateful HTTP writes across `14` domains.
+
+### Verified
+
+- **Required Gates Passed:** Gap reporting passed `25/25`, gap planning passed `30/30`, actor negative paths passed `862/862`, indexer assurance passed `272` active tests with `6` PostgreSQL-gated skips, and coverage remained complete at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Receipt Evidence Kept Conservative:** Ten of the final eleven promoted writes already have durable local-fork receipts, decoded events, PostgreSQL raw-event evidence, and idempotent replay proof. `VoiceLicenseFacet.transferLicense` remains receipt-blocked because the deployed fixture path reverts with `VoiceNotTransferable` or `InvalidLicenseTemplate`; no live write was enabled or submitted.
+- **Staking Pause Receipt Promoted:** Added the focused staking artifact to the durable receipt input catalog. `StakingFacet.setStakingPaused` is now certified by pause/resume transactions `0x235273027e72ebcb58ca920c8e2c540b5406a75947341384c2dbcd61937e3662` and `0x492949e814c4bfe33146d3a639041b327c5e6965d522a4c5dc9dcce40e7588d2`; both receipts decode `StakingPaused`, persist one `raw_events` row plus one `staking_positions` row and a canonical block-journal row, and remain unchanged on replay. Durable coverage advances from `108/260` to `109/260`, leaving `151` methods rather than the stale automation prompt's `95`.
+- **Indexer Failure Modes Reverified:** The focused write matrix passed `96/96`, indexer assurance passed `272` active tests, and disposable PostgreSQL assurance passed `14/14`, including duplicate-log ingestion, atomic raw/projection rollback, reorg replacement, delayed RPC handling, and partial-range failure. Gap-report tests passed `25/25`, gap-builder tests passed `30/30`, and `pnpm run coverage:check` retained `492` functions, `218` events, `492` HTTP methods across `706` routes, and `260/260` write invariants. The branch remains unmerged because repository-wide receipt-to-PostgreSQL certification is not complete.
+- **Unrelated Actor Timeout Isolated:** A broader actor-suite recheck passed `873` cases and timed out once in the unauthorized `PaymentFacet.distributePaymentFrom` case after approximately fifteen minutes; that exact case passed immediately in isolation (`1/1`, `29ms`). This does not change the event/indexer result, and no merge was attempted.
+
 ## [0.1.401] - 2026-10-24
 
 ### Changed
