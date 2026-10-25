@@ -1,6 +1,6 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-10-24T16:02:32.040Z
+Generated: 2026-10-25T13:17:38.580Z
 
 - ABI write methods: 260
 - Mounted contract write endpoints: 259
