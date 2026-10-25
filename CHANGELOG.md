@@ -18,6 +18,18 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.402] - 2026-10-25
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the schema-v3 actor report from current local production and confirmed no authorization-surface drift since the expanded funding boundary landed. Coverage remains complete for `260` mounted writes across `14` domains: `259` contract-backed endpoints plus the funding quote write.
+- **Negative-Path Matrix Remains Complete:** The canonical evidence retains `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, `3,150` stale/revoked/expired role-lifecycle cases, and `10` funding identity/wallet boundary cases. No duplicate tests were added because local production has no actor-relevant delta.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `432/432`; `pnpm run test:redteam` passed `133/133`; and the canonical full-suite retry passed `2,030` active tests across `157` files with `55` environment-gated skips after one unrelated indexer timeout passed immediately in isolation.
+- **Repository And Quality Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants.
+
 ## [0.1.401] - 2026-10-24
 
 ### Changed
