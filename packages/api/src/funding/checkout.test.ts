@@ -154,6 +154,15 @@ describe("checkout HTTP and idempotency", () => {
     provider.getOrder.mockResolvedValue({ ...order, status: "ONRAMP_ORDER_STATUS_COMPLETED" });
     expect(await call(`orders/${id}`)).toMatchObject({ status: 200, body: { status: "provider_completed", settlementStatus: "unverified" } });
   });
+  it.each([
+    { orderId: quoteId },
+    { destinationAddress: "0x00000000000000000000000000000000000000bb" },
+    { partnerUserRef: "another-customer" },
+  ])("rejects an inconsistent provider order refresh %j", async mismatch => {
+    const { call, provider } = await setup(); await call("orders", { quoteId });
+    provider.getOrder.mockResolvedValue({ ...order, ...mismatch });
+    expect(await call(`orders/${id}`)).toMatchObject({ status: 502, body: { error: "Coinbase returned an inconsistent order" } });
+  });
   it("does not query another owner's provider order", async () => {
     const { call, store, provider } = await setup(); store.getAttempt.mockResolvedValue(null);
     expect((await call(`orders/${id}`)).status).toBe(404); expect(provider.getOrder).not.toHaveBeenCalled();
