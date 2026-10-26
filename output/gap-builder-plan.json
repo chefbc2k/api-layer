@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-09T08:37:42.651Z",
-  "sourceGeneratedAt": "2026-10-09T08:37:40.638Z",
+  "generatedAt": "2026-10-26T10:15:47.975Z",
+  "sourceGeneratedAt": "2026-10-26T10:15:45.896Z",
   "totals": {
     "nonReady": 102,
     "selected": 41,
@@ -588,7 +588,10 @@
           "kind": "function",
           "category": "write",
           "classification": "unsafe on live network",
-          "endpoint": null,
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/governance/admin/legacy-proposals"
+          },
           "gaps": [
             "legacy overloaded proposal variant is intentionally excluded from the HTTP surface",
             "no successful verify-artifact route evidence"

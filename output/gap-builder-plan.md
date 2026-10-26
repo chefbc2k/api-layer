@@ -1,7 +1,7 @@
 # Gap Builder Plan
 
-Generated: `2026-10-09T08:37:42.651Z`
-Source gap report: `2026-10-09T08:37:40.638Z`
+Generated: `2026-10-26T10:15:47.975Z`
+Source gap report: `2026-10-26T10:15:45.896Z`
 
 ## Summary
 
@@ -138,7 +138,7 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 Reduce ProposalFacet launch blockers across 1 gap item.
 
 - `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` (unsafe on live network)
-  - Endpoint: `ABI-only`
+  - Endpoint: `POST /v1/governance/admin/legacy-proposals`
   - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
