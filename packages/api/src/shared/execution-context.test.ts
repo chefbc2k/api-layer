@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import abiRegistryJson from "../../../../generated/manifests/abi-method-registry.json";
 import apiSurfaceJson from "../../../../reviewed/reviewed-api-surface.json";
+import writeInvariantsJson from "../../../../reviewed/reviewed-write-invariants.json";
 
 const mocked = vi.hoisted(() => {
   const invokeRead = vi.fn();
@@ -620,12 +621,16 @@ describe("__testOnly helpers", () => {
   });
 
   it("uses an anonymous signer queue key when no signer id is present", () => {
-    expect(__testOnly.signerQueueKey({
-      apiKey: "public-key",
-      label: "public",
-      allowGasless: false,
-      roles: [],
-    }, "primary")).toBe("anonymous:primary");
+    expect(__testOnly.signerQueueKey("primary")).toBe(JSON.stringify([null, "primary"]));
+  });
+
+  it("binds signer queue identity to the resolved wallet address", () => {
+    expect(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000AA"))
+      .toBe(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000aa"));
+    expect(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000aa"))
+      .not.toBe(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000bb"));
+    expect(__testOnly.signerQueueKey("primary", "0x00000000000000000000000000000000000000aa"))
+      .not.toBe(__testOnly.signerQueueKey("secondary", "0x00000000000000000000000000000000000000aa"));
   });
 
   it("does not clear a queue entry that has been replaced while work is still unwinding", async () => {
@@ -976,6 +981,83 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 
+  it("rejects stale, revoked, and expired roles for every actor on every role-gated write", async () => {
+    const actorRoles = ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"];
+    const lifecycleDenials = [
+      "stale role membership",
+      "revoked role membership",
+      "expired role validity window",
+    ];
+    const abiMethods = (abiRegistryJson as {
+      methods: Record<string, Record<string, unknown> & { category: string }>;
+    }).methods;
+    const surfaceMethods = (apiSurfaceJson as {
+      methods: Record<string, Record<string, unknown> & { classification?: string }>;
+    }).methods;
+    const invariantMethods = (writeInvariantsJson as {
+      methods: Record<string, { requiredActor: { kind: string } }>;
+    }).methods;
+    const roleGatedDefinitions = Object.entries(abiMethods)
+      .filter(([key, method]) => method.category === "write"
+        && Boolean(surfaceMethods[key])
+        && invariantMethods[key]?.requiredActor.kind === "role")
+      .map(([key, method]) => ({ key, ...method, ...surfaceMethods[key] }));
+    const context = buildContext();
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify(Object.fromEntries(
+      actorRoles.map((role, index) => [role, `0x${String(index + 1).repeat(64)}`]),
+    ));
+    mocked.decodeParamsFromWire.mockReturnValue([]);
+
+    expect(roleGatedDefinitions).toHaveLength(150);
+    expect(roleGatedDefinitions.filter(({ classification }) => classification === "admin")).toHaveLength(46);
+
+    let rejectionCount = 0;
+    let apiRoleRejectionCount = 0;
+    let contractLifecycleRejectionCount = 0;
+    for (const denial of lifecycleDenials) {
+      mocked.contractStaticCall.mockReset();
+      mocked.contractStaticCall.mockRejectedValue(new Error(denial));
+
+      for (const role of actorRoles) {
+        for (const definition of roleGatedDefinitions) {
+          const apiRoleRejected = definition.classification === "admin"
+            && !["founder", "admin", "operator"].includes(role);
+          await expect(executeHttpMethodDefinition(
+            context as never,
+            definition as never,
+            buildRequest({
+              auth: {
+                apiKey: `${role}-key`,
+                label: role,
+                signerId: role,
+                allowGasless: false,
+                roles: [role],
+              },
+              walletAddress: undefined,
+              wireParams: [],
+            }) as never,
+          ), `${denial}: ${role}: ${definition.key}`).rejects.toThrow(
+            apiRoleRejected ? "API key not permitted for admin execution" : denial,
+          );
+          rejectionCount += 1;
+          if (apiRoleRejected) {
+            apiRoleRejectionCount += 1;
+          } else {
+            contractLifecycleRejectionCount += 1;
+          }
+        }
+      }
+      expect(mocked.contractStaticCall).toHaveBeenCalledTimes(866);
+    }
+
+    expect(rejectionCount).toBe(3_150);
+    expect(apiRoleRejectionCount).toBe(552);
+    expect(contractLifecycleRejectionCount).toBe(2_598);
+    expect(context.txStore.insert).not.toHaveBeenCalled();
+    expect(mocked.contractPopulateTransaction).toHaveBeenCalledTimes(2_598);
+    expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
+  });
+
   it("enforces admin role boundaries and contract-preflights every authorized actor case before mutation", async () => {
     const actorRoles = ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"];
     const abiMethods = (abiRegistryJson as { methods: Record<string, Record<string, unknown> & { category: string }> }).methods;
@@ -1161,9 +1243,11 @@ describe("executeHttpMethodDefinition", () => {
   });
 
   it("continues write submission after a previously rejected signer queue entry", async () => {
-    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0x" + "11".repeat(32) });
+    const privateKey = "0x" + "11".repeat(32);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: privateKey });
     const context = buildContext();
-    context.signerQueues.set("founder:primary", Promise.reject(new Error("prior failure")).catch(() => undefined));
+    const queueKey = __testOnly.signerQueueKey("primary", `wallet:${privateKey}`);
+    context.signerQueues.set(queueKey, Promise.reject(new Error("prior failure")).catch(() => undefined));
     mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
     mocked.serializeResultToWire.mockReturnValueOnce(true);
 
@@ -1949,7 +2033,51 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
-    expect(context.signerNonces.get("founder:primary")).toBe(6);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.get(queueKey)).toBe(6);
+  });
+
+  it("shares nonce state across wallet aliases without carrying it across signer-map rotation", async () => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc", alias: "0xabc" });
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        auth: { ...buildRequest().auth, apiKey: "alias-key", signerId: "alias" },
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xdef" });
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(1, expect.objectContaining({ nonce: 4 }));
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(2, expect.objectContaining({ nonce: 5 }));
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(3, expect.objectContaining({ nonce: 4 }));
+    expect(context.signerNonces.get(
+      __testOnly.signerQueueKey("primary", "wallet:0xabc"),
+    )).toBe(6);
+    expect(context.signerNonces.get(
+      __testOnly.signerQueueKey("primary", "wallet:0xdef"),
+    )).toBe(5);
   });
 
   it("preserves the active signer queue entry until a queued write finishes", async () => {
@@ -2018,8 +2146,8 @@ describe("executeHttpMethodDefinition", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.walletSendTransaction
       .mockRejectedValueOnce(new Error("nonce too low"))
-      .mockRejectedValueOnce(new Error("replacement transaction underpriced"))
-      .mockRejectedValueOnce(new Error("already known"));
+      .mockRejectedValueOnce(new Error("nonce expired"))
+      .mockRejectedValueOnce(new Error("nonce has already been used"));
 
     await expect(
       executeHttpMethodDefinition(
@@ -2030,16 +2158,37 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toMatchObject({
-      message: "already known",
+      message: "nonce has already been used",
       diagnostics: expect.objectContaining({
         signer: "wallet:0xabc",
         provider: "primary",
-        cause: "already known",
+        cause: "nonce has already been used",
       }),
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
-    expect(context.signerNonces.get("founder:primary")).toBe(7);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.has(queueKey)).toBe(false);
+
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValueOnce(false);
+    mocked.walletSendTransaction.mockResolvedValueOnce({ hash: "0xrecovered" });
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).resolves.toMatchObject({
+      statusCode: 202,
+      body: { txHash: "0xrecovered" },
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenNthCalledWith(4, expect.objectContaining({ nonce: 4 }));
+    expect(context.signerNonces.get(queueKey)).toBe(5);
   });
 
   it("surfaces primitive nonce-expired failures after all retries are exhausted", async () => {
@@ -2048,8 +2197,8 @@ describe("executeHttpMethodDefinition", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.walletSendTransaction
       .mockRejectedValueOnce("nonce expired")
-      .mockRejectedValueOnce("replacement fee too low")
-      .mockRejectedValueOnce("already known");
+      .mockRejectedValueOnce("nonce has already been used")
+      .mockRejectedValueOnce("nonce too low");
 
     await expect(
       executeHttpMethodDefinition(
@@ -2060,11 +2209,47 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toMatchObject({
-      message: "already known",
+      message: "nonce too low",
       diagnostics: expect.objectContaining({
-        cause: "already known",
+        cause: "nonce too low",
       }),
     });
+
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.has(queueKey)).toBe(false);
+  });
+
+  it.each([
+    "already known",
+    "replacement fee too low",
+    "replacement transaction underpriced",
+    "transaction underpriced",
+  ])("fails closed without resubmission for the ambiguous RPC outcome: %s", async (message) => {
+    const context = buildContext();
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    mocked.walletSendTransaction.mockRejectedValueOnce(new Error(message));
+
+    await expect(
+      executeHttpMethodDefinition(
+        context as never,
+        buildWriteDefinition() as never,
+        buildRequest({
+          wireParams: ["0x0000000000000000000000000000000000000001", true],
+        }) as never,
+      ),
+    ).rejects.toMatchObject({
+      message,
+      diagnostics: expect.objectContaining({
+        signer: "wallet:0xabc",
+        provider: "primary",
+        cause: message,
+      }),
+    });
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(1);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.has(queueKey)).toBe(false);
   });
 
   it("retries direct writes across the alternate nonce-expired message variants before succeeding", async () => {
@@ -2074,7 +2259,7 @@ describe("executeHttpMethodDefinition", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
     mocked.walletSendTransaction
       .mockRejectedValueOnce(new Error("nonce has already been used"))
-      .mockRejectedValueOnce(new Error("transaction underpriced"))
+      .mockRejectedValueOnce(new Error("nonce expired"))
       .mockResolvedValueOnce({ hash: "0xrecovered" });
 
     await expect(
@@ -2095,7 +2280,8 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(3);
-    expect(context.signerNonces.get("founder:primary")).toBe(7);
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    expect(context.signerNonces.get(queueKey)).toBe(7);
   });
 
   it("wraps non-nonce submission failures with failure diagnostics and simulation output", async () => {
@@ -2257,8 +2443,8 @@ describe("executeHttpMethodDefinition", () => {
     mocked.simulateTransactionWithAlchemy.mockResolvedValueOnce({ topLevelCall: { gasUsed: "999" } });
     mocked.walletSendTransaction
       .mockRejectedValueOnce(new Error("nonce too low"))
-      .mockRejectedValueOnce(new Error("replacement transaction underpriced"))
-      .mockRejectedValueOnce(new Error("already known"));
+      .mockRejectedValueOnce(new Error("nonce expired"))
+      .mockRejectedValueOnce(new Error("nonce has already been used"));
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
 
     await expect(
@@ -2270,10 +2456,10 @@ describe("executeHttpMethodDefinition", () => {
         }) as never,
       ),
     ).rejects.toMatchObject({
-      message: "already known",
+      message: "nonce has already been used",
       diagnostics: expect.objectContaining({
         simulation: { topLevelCall: { gasUsed: "999" } },
-        cause: "already known",
+        cause: "nonce has already been used",
       }),
     });
   });

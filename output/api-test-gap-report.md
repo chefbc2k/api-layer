@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-09T08:37:40.638Z`
+Generated: `2026-10-18T10:18:02.004Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,8 +13,8 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 608 |
-| needs fixture | 66 |
+| ready | 610 |
+| needs fixture | 64 |
 | unsafe on live network | 36 |
 | needs contract change | 0 |
 | needs API guard | 0 |
@@ -26,11 +26,11 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | rpcRegistry | 710 |
 | httpRegistry | 709 |
 | reviewedApiSurface | 709 |
-| unit | 684 |
-| workflow | 366 |
+| unit | 685 |
+| workflow | 367 |
 | localFork | 111 |
 | baseSepolia | 60 |
-| negativePath | 367 |
+| negativePath | 369 |
 | economic | 169 |
 | redTeam | 164 |
 | indexer | 218 |
@@ -666,13 +666,13 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 
 ## RightsFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `1.29/8`.
+Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `1.48/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `addCollaborator` | write | yes | yes | — | — | — | — | — | workflow 2/8 | needs fixture |
+| `addCollaborator` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `createRightsGroup` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `getCategoryContracts` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getCollaborator` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
@@ -682,7 +682,7 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 | `getUserRights` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `grantRight` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `registerRightContract` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `removeCollaborator` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `removeCollaborator` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `revokeRight` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `rightIdExists` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
 | `updateCollaboratorShare` | write | yes | yes | — | — | — | — | — | workflow 2/8 | needs fixture |

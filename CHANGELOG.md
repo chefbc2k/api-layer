@@ -28,6 +28,288 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.403] - 2026-10-25
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the schema-v3 actor report from current local production and confirmed no authorization-surface drift since the expanded funding boundary landed. Coverage remains complete for `260` mounted writes across `14` domains: `259` contract-backed endpoints plus the funding quote write.
+- **Negative-Path Matrix Remains Complete:** The canonical evidence retains `1,813` founder/admin/operator/buyer/seller/licensee/collaborator actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, `3,150` stale/revoked/expired role-lifecycle cases, and `10` funding identity/wallet boundary cases. No duplicate tests were added because the production delta contains write-invariant tracking evidence only.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `432/432`; `pnpm run test:redteam` passed `133/133`; and the canonical full-suite retry passed `2,030` active tests across `157` files with `55` environment-gated skips after one unrelated indexer timeout passed immediately in isolation.
+- **Repository And Quality Gates Passed:** TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants.
+
+## [0.1.402] - 2026-10-25
+
+### Changed
+
+- **Write-Invariant Metadata Revalidated:** Reaudited current production and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.401] - 2026-10-24
+
+### Changed
+
+- **Actor Inventory Includes Non-Contract Writes:** Upgraded the persistent actor report to schema v3 and added `POST /v1/funding/quotes`, which is mounted outside the generated ABI surface. The report now distinguishes `259` contract-backed writes from one additional stateful HTTP write, for `260` mounted writes across `14` domains.
+- **Funding Roles Cannot Imply Customer Authority:** Added explicit founder, admin, operator, buyer, seller, licensee, collaborator, read-only, and unknown-key denial cases. Without a separately provisioned funding identity, requests fail before chain inspection, Coinbase access, or quote persistence; mismatched wallet headers retain the same fail-closed boundary.
+- **Canonical Actor Gate Covers Funding:** Added the funding boundary suite to `pnpm run test:actor-negative-paths`. Existing contract coverage remains `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases, with `10` additional funding identity/wallet cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** Focused report/funding tests passed `79/79`; `pnpm run test:actor-negative-paths` passed `432/432`; and `pnpm run test:redteam` passed `133/133`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `2,030` active tests across `157` files with `55` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants.
+
+## [0.1.400] - 2026-10-24
+
+### Changed
+
+- **Write-Invariant Metadata Revalidated:** Reaudited the current production inventory and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.399] - 2026-10-23
+
+### Changed
+
+- **Already-Known Transactions Fail Closed:** Direct-write submission no longer treats an RPC `already known` response as a retryable stale nonce. Because the original signed transaction may already be in the mempool, the API now returns diagnostics after one attempt instead of resubmitting the same calldata at a new nonce and risking duplicate execution or double spend.
+- **Ordinary Nonce Recovery Is Preserved:** `nonce too low`, `nonce expired`, already-used nonce, and underpriced replacement responses retain the existing bounded retry behavior and wallet-scoped nonce coordination.
+- **Adversarial Replay Corpus Expanded:** Added direct execution and canonical red-team mutations proving `already known` is treated as an ambiguous submission outcome, never as authorization to resubmit, and leaves local nonce state untouched.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `93/93`; `pnpm run test:redteam` passed `133/133`; guarded `pnpm run redteam:local-fork` passed `177/177` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** After incorporating remote production through `5e07364`, `pnpm test` passed `2,019` active tests across `157` files with `55` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.398] - 2026-10-22
+
+### Changed
+
+- **Nonce Coordination Follows Wallet Authority:** Direct-write submission queues and local nonce tracking are now keyed by the normalized resolved wallet address and provider. Multiple signer IDs mapped to one wallet share a single ordered nonce stream instead of racing independent submissions.
+- **Signer Rotation Starts A Fresh Nonce Domain:** Rotating a signer ID to a new private key no longer carries the prior wallet's locally advanced nonce into the replacement wallet, preventing nonce-gap transactions from wedging the rotated signer.
+- **Adversarial Signer-Mapping Corpus Expanded:** Added signer-alias and post-rotation nonce mutations to the canonical deterministic and local-fork red-team commands, plus direct execution coverage for case normalization and provider separation.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `91/91`; `pnpm run test:redteam` passed `132/132`; guarded `pnpm run redteam:local-fork` passed `176/176` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,956` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.397] - 2026-10-21
+
+### Changed
+
+- **Signer Cache Revalidates API-Key Wallet Binding:** Signer resolution now validates the current private-key-derived address against every API identity's configured `walletAddress` before considering a cached runner. A second key sharing a signer ID can no longer inherit cached signing authority when its wallet binding disagrees.
+- **Signer Rotation Invalidates Stale Cached Authority:** Cached wallets are reused only when their address still matches the active signer mapping. Rotating `API_LAYER_SIGNER_MAP_JSON` replaces the cached wallet instead of continuing to sign with stale credentials.
+- **Adversarial Credential Corpus Expanded:** Added cache-primer/deputy and signer-map rotation mutations to the canonical deterministic and local-fork red-team commands.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth/execution-context tests passed `88/88`; `pnpm run test:redteam` passed `131/131`; guarded `pnpm run redteam:local-fork` passed `175/175` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,953` active tests across `156` files with `47` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.396] - 2026-10-21
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path artifacts from current local production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** The production delta contains only the prior verified actor merge. No mounted route, actor metadata, API-key authorization, signer binding, role lifecycle, validation, or contract-preflight source changed, so the existing matrix continues to cover commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations without duplicate cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `357/357`, and `pnpm run test:redteam` passed `129/129`. One initial actor-suite request timeout passed immediately in isolation before the canonical retry passed cleanly.
+- **Repository And Quality Gates Passed:** The canonical `pnpm test` retry passed `1,951` active tests across `156` files with `47` intentionally gated skips after one initial unrelated indexer worker timeout passed in isolation. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.395] - 2026-10-20
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path artifacts on current local production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` key/signer boundary cases, `200` non-admin API-role denials, and `3,150` role-lifecycle cases.
+- **Credential Confused-Deputy Hardening Is Covered:** Audited the own-property API-key and signer-map checks plus their prototype-name mutation corpus. Unconfigured inherited names fail closed, explicit prototype-named credentials remain supported, and the mounted actor inventory has no authorization or role-model drift requiring duplicate matrix cases.
+
+### Verified
+
+- **Actor And Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `357/357`, including founder/admin/operator/buyer/seller/licensee/collaborator, unknown-key, read-only-key, signer-mismatch, stale-role, revoked-role, and expired-validity behavior. `pnpm run test:redteam` passed `129/129`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,951` active tests across `156` files with `47` intentionally gated skips. Lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.394] - 2026-10-20
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest production assurance merges. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-removed generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** TypeScript, lint, canonical code generation, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.393] - 2026-10-16
+
+### Changed
+
+- **Economic Evidence Revalidated On Current Production:** Reconciled the economic-invariants branch with local production `master` and retained balance/state-delta assertions for escrow release, marketplace withdrawal and payment splitting, reward claims, vesting release/revoke, burn/mint/supply, staking/reward-pool custody, treasury movement, and emergency withdrawal, including rounding, repeat calls, failed calls, and partial-state safety.
+- **Fork Isolation Prevents Cross-Scenario Contamination:** A combined fork attempt became invalid after provider timeouts and shared-state failures. Rebootstrapping every scenario on its own fork produced clean, bounded evidence for all seven scenarios, so the failed batch is not treated as a protocol regression or successful proof.
+
+### Verified
+
+- **Economic And Repository Suites Passed:** The deterministic economic slice passed `143/143` across `17` files. Marketplace withdrawal, payment splits/treasury movement, burn/mint/supply, funded reward claims, staking/reward-pool custody, funded emergency withdrawal, and vesting release/revoke diagnostics each passed `1/1` on separately bootstrapped Base Sepolia forks. The full suite passed `1,932` active tests across `155` files with `47` gated skips.
+- **Required Quality Gates Passed:** Ordered TypeScript, lint, and full build/codegen passed. Build-time and explicit `pnpm run coverage:check` each confirmed `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+### Remaining Issues
+
+- **Economic Expansion Remains Blocked And Unmerged:** The deployed vesting release path still advances release accounting and emits release evidence without beneficiary token credit. Treasury multisig proof still depends on direct storage seeding because no configured actor holds `TREASURY_SIGNER_ROLE`, and `PaymentFacet` still exposes neither approval-count readback nor an approval event. Repair and redeploy vesting, provision treasury signers through a supported path, and add approval observability before rerunning unsynthetic proofs and merging.
+
+## [0.1.392] - 2026-10-18
+
+### Changed
+
+- **API-Key Lookup Fails Closed On Prototype Names:** Authentication now requires the requested API key to be an explicitly configured own property. Names such as `constructor`, `toString`, `valueOf`, `hasOwnProperty`, and `__proto__` can no longer resolve inherited object members as credential records.
+- **Signer Mapping Uses The Same Ownership Boundary:** Signer resolution now requires the signer ID to be owned by the parsed signer map. Unconfigured prototype names produce the intended missing-private-key rejection, while explicitly configured prototype-named signers continue to work.
+- **Adversarial Credential Corpus Expanded:** Added twelve API-key and signer-map confused-deputy regressions to both canonical red-team commands.
+
+### Verified
+
+- **Red-Team And Workflow Gates Passed:** Focused auth and execution-context tests passed `121/121`; `pnpm run test:redteam` passed `129/129`; guarded `pnpm run redteam:local-fork` passed `173/173` across `12` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,922` active tests across `153` files with `40` intentionally gated skips, including the formerly aggregate-only `coverage-fs-patch` case (`4/4`). TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.391] - 2026-10-17
+
+### Changed
+
+- **Replay Identity Covers Complete Transaction Intent:** Replay fingerprints now bind chain ID, target contract, signer address, full calldata, transaction value, nonce, and deadline. Canonical case and unsigned-decimal normalization close equivalent-encoding bypasses, while malformed addresses, calldata, and numeric domains fail closed.
+- **Stale-Receipt Fork Probe Uses Fresh Canonical State:** The local-fork reorg test now tolerates post-revert mining-height differences, advances to the original receipt height when required, and bypasses ethers block caching with a raw canonical block lookup before evaluating the stale receipt.
+
+### Verified
+
+- **Red-Team Gates Passed:** `pnpm run test:redteam` passed `117/117`; guarded `pnpm run redteam:local-fork` passed `161/161` across `11` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,904` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.390] - 2026-10-18
+
+### Changed
+
+- **Rights Collaborator Write Fixtures Completed:** Added mounted-route negative-path coverage for `RightsFacet.addCollaborator` and `RightsFacet.removeCollaborator`, including actor authorization, ABI decoding, contract preflight rejection, transaction population, and persistence-before-submission behavior.
+- **Persistent Assurance State Advanced:** Regenerated the API gap report and builder plan. Ready items increase from `608` to `610`, fixture gaps fall from `66` to `64`, and the next plan contains `40` items; total non-ready inventory falls from `102` to `100` while the `36` live-safety items remain unchanged.
+
+### Verified
+
+- **Focused And Repository Suites Passed:** The selected-gap write matrix passed `36/36`, and `pnpm test` passed `1,909` active tests across `152` files with `40` intentionally gated skips.
+- **Coverage And Indexer Gates Passed:** `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. The canonical indexer assurance retry passed `267` active tests with `6` gated PostgreSQL skips after one isolated five-second timeout passed immediately in focused and full-gate reruns.
+
+## [0.1.389] - 2026-10-17
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed it contains only the verified write-invariant metadata revalidation, with no changes to mounted write routes, required actors, API-key authorization, signer binding, role lifecycle behavior, validation, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full code generation and workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.388] - 2026-10-17
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the prior invariant audit merged. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.387] - 2026-10-16
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest actor-evidence update. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.386] - 2026-10-16
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed it contains only the prior verified actor merge, with no changes to mounted write routes, required actors, API-key authorization, signer binding, role lifecycle behavior, validation, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116`.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript workspace builds, lint, full code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.385] - 2026-10-15
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed the write-invariant metadata revalidation does not change mounted write routes, required actors, API-key authorization, signer binding, role lifecycle behavior, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116`. A transient Vitest worker module-fetch timeout was isolated; both affected files passed `16/16`, and the canonical full-suite retry passed cleanly.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.384] - 2026-10-15
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the signed-envelope and actor-evidence updates. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.383] - 2026-10-14
+
+### Changed
+
+- **Actor And Signer Evidence Revalidated:** Regenerated the persistent actor negative-path JSON and Markdown artifacts from current production. Coverage remains complete for all `260` ABI writes and `259` mounted HTTP writes across `13` domains, with `1,813` actor-method cases, `777` unknown-key/read-only-key/API-key-signer boundary cases, `200` non-admin API-role denials, and `3,150` stale/revoked/expired role-lifecycle cases.
+- **Authorization Surface Remains Stable:** Audited the production delta and confirmed the signed-envelope red-team hardening does not change mounted write routes, required actor metadata, API-key authorization, signer binding, or contract preflight behavior. Protected commercialization, listing, transfer, minting, voting, upgrades, pauses, recovery, withdrawals, and ownership-controlled mutations retain explicit denial coverage.
+
+### Verified
+
+- **Actor And Affected Red-Team Suites Passed:** `pnpm run test:actor-negative-paths` passed `351/351`, and `pnpm run test:redteam` passed `116/116` including malformed or malleable signature, recovery-ID, signed-domain, and role-ID probes.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `1,903` active tests across `152` files with `40` intentionally gated skips. TypeScript, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+
+## [0.1.382] - 2026-10-12
+
+### Changed
+
+- **Current-Master ABI Gap Evidence Revalidated:** Rebuilt the mounted ABI/API inventories from the production deployment manifest and refreshed the persistent JSON, Markdown, and forty-percent planner artifacts. Timestamp-normalized report hashes remain byte-stable with production across all `33` facets, `492` functions, `218` event occurrences, and `710` total items.
+- **Proof Inputs And Summaries Audited:** Confirmed all `164` declared input/evidence paths exist, every item retains a valid proof-depth score and classification, and all facet/global summaries reconcile. Classifications remain `608` ready, `66` needing fixtures, `36` unsafe on live networks, and zero needing indexer proof.
+
+### Verified
+
+- **Reporter, Planner, And Repository Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,902` active tests across `152` files with `40` gated skips.
+- **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.61%` statements, `96.76%` branches, `98.30%` functions, and `97.69%` lines.
+
+## [0.1.381] - 2026-10-12
+
+### Changed
+
+- **Current Production Write Invariants Revalidated:** Audited all `260` mounted ABI write methods across `31` facets after the latest API fixture and indexer-evidence changes. Every method retains structured actor/role, precondition, post-state readback, event, balance, replay, live-network safety, and indexer metadata.
+- **Reviewed And Generated Catalogs Remain Stable:** The explicit authoring sync preserved the reviewed catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the timestamp-normalized generated registry remains `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+
+### Verified
+
+- **Invariant Validation Passed:** `pnpm run test:write-invariants` passed `7/7`, including missing/stale metadata, ABI drift, incomplete sections, stale read/event references, inconsistent indexer expectations, repository-wide coverage, and byte-stable sync behavior.
+- **Generation And Quality Gates Passed:** Canonical code generation, TypeScript, lint, all workspace builds, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
 ## [0.1.380] - 2026-10-07
 
 ### Changed

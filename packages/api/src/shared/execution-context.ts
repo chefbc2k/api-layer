@@ -67,20 +67,23 @@ async function signerRunnerFor(
     return undefined;
   }
   /* istanbul ignore next -- signer-map lookup and missing-key failure are exercised, but merged sourcemaps still pin a phantom statement/function here */
-  const privateKey = signerMap()[auth.signerId];
+  const configuredSigners = signerMap();
+  const privateKey = Object.hasOwn(configuredSigners, auth.signerId)
+    ? configuredSigners[auth.signerId]
+    : undefined;
   /* istanbul ignore next -- covered indirectly through write execution; Istanbul leaves this guard uncredited */
   if (!privateKey) {
     /* istanbul ignore next -- the throw path is exercised, but merged sourcemaps leave the statement/function uncredited */
     throw new Error("missing private key for signer " + auth.signerId);
   }
-  const cacheKey = `${auth.signerId}:${providerName}`;
-  const cached = context.signerRunners.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
   const signer = new Wallet(privateKey, provider);
   if (auth.walletAddress && signer.address.toLowerCase() !== auth.walletAddress.toLowerCase()) {
     throw new Error("API key not permitted: configured walletAddress does not match signerId");
+  }
+  const cacheKey = `${auth.signerId}:${providerName}`;
+  const cached = context.signerRunners.get(cacheKey);
+  if (cached?.address.toLowerCase() === signer.address.toLowerCase()) {
+    return cached;
   }
   context.signerRunners.set(cacheKey, signer);
   return signer;
@@ -103,8 +106,11 @@ function requireSignerId(auth: AuthContext, definitionKey: string): string {
   return auth.signerId;
 }
 
-function signerQueueKey(auth: AuthContext, providerName: string): string {
-  return `${auth.signerId ?? "anonymous"}:${providerName}`;
+function signerQueueKey(providerName: string, signerAddress?: string): string {
+  return JSON.stringify([
+    signerAddress?.toLowerCase() ?? null,
+    providerName,
+  ]);
 }
 
 function isNonceExpiredError(error: unknown): boolean {
@@ -112,11 +118,7 @@ function isNonceExpiredError(error: unknown): boolean {
   return (
     message.includes("nonce too low") ||
     message.includes("nonce has already been used") ||
-    message.includes("nonce expired") ||
-    message.includes("replacement fee too low") ||
-    message.includes("replacement transaction underpriced") ||
-    message.includes("transaction underpriced") ||
-    message.includes("already known")
+    message.includes("nonce expired")
   );
 }
 
@@ -181,6 +183,7 @@ export const __testOnly = {
   canonicalMethodSignature,
   resolveContractMethod,
   assertRequestedWalletMatchesSigner,
+  isNonceExpiredError,
 };
 
 function parseGaslessAllowlist(): Set<string> {
@@ -276,7 +279,7 @@ async function prepareWriteInvocationOnProvider(
     providerName,
     signer,
     signerAddress,
-    queueKey: signerQueueKey(auth, providerName),
+    queueKey: signerQueueKey(providerName, signerAddress),
     responseTemplate,
   };
 }
@@ -433,7 +436,6 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
           const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
           const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
           forcedNonce = resolveRetryNonce(pendingNonce, localNonce, forcedNonce);
-          context.signerNonces.set(prepared.queueKey, forcedNonce);
         }
       }
 

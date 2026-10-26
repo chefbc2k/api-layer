@@ -216,18 +216,41 @@ function canonicalize(value: unknown): unknown {
 export function replayFingerprint(input: {
   chainId: number;
   contract: string;
-  actor: string;
-  selector: string;
+  signerAddress: string;
+  calldata: string;
+  value?: string;
   nonce: string;
   deadline: string;
-  payload: unknown;
 }): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize({
-    ...input,
+  if (!Number.isSafeInteger(input.chainId) || input.chainId <= 0) {
+    throw new Error("replay fingerprint chainId must be a positive safe integer");
+  }
+  if (!/^0x[\da-fA-F]{40}$/u.test(input.contract)) {
+    throw new Error("replay fingerprint contract must be a canonical address");
+  }
+  if (!/^0x[\da-fA-F]{40}$/u.test(input.signerAddress)) {
+    throw new Error("replay fingerprint signerAddress must be a canonical address");
+  }
+  if (!/^0x(?:[\da-fA-F]{2})*$/u.test(input.calldata)) {
+    throw new Error("replay fingerprint calldata must contain complete hex bytes");
+  }
+
+  const normalizeUnsignedInteger = (field: string, value: string): string => {
+    if (!/^\d+$/u.test(value)) {
+      throw new Error(`replay fingerprint ${field} must be an unsigned decimal integer`);
+    }
+    return BigInt(value).toString();
+  };
+  const normalized = {
+    chainId: input.chainId,
     contract: input.contract.toLowerCase(),
-    actor: input.actor.toLowerCase(),
-    selector: input.selector.toLowerCase(),
-  }))).digest("hex");
+    signerAddress: input.signerAddress.toLowerCase(),
+    calldata: input.calldata.toLowerCase(),
+    value: normalizeUnsignedInteger("value", input.value ?? "0"),
+    nonce: normalizeUnsignedInteger("nonce", input.nonce),
+    deadline: normalizeUnsignedInteger("deadline", input.deadline),
+  };
+  return createHash("sha256").update(JSON.stringify(normalized)).digest("hex");
 }
 
 export class ReplayLedger {
@@ -273,6 +296,63 @@ export function inspectActorBinding(input: {
   return findings;
 }
 
+const SECP256K1_ORDER = BigInt("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
+const SECP256K1_HALF_ORDER = SECP256K1_ORDER >> 1n;
+
+function inspectCanonicalSignature(signature: string): RedTeamFinding[] {
+  if (!/^0x(?:[\da-fA-F]{128}|[\da-fA-F]{130})$/u.test(signature)) {
+    return [{
+      id: "signed-request-malformed-signature",
+      severity: "critical",
+      message: "signed request does not contain a canonical compact or full ECDSA signature",
+      evidence: { signature },
+    }];
+  }
+
+  const bytes = signature.slice(2);
+  const r = BigInt(`0x${bytes.slice(0, 64)}`);
+  const compact = bytes.length === 128;
+  const encodedS = BigInt(`0x${bytes.slice(64, 128)}`);
+  const s = compact ? encodedS & ((1n << 255n) - 1n) : encodedS;
+  const findings: RedTeamFinding[] = [];
+
+  if (r === 0n || r >= SECP256K1_ORDER) {
+    findings.push({
+      id: "signed-request-invalid-signature-r",
+      severity: "critical",
+      message: "signed request ECDSA r scalar is outside the secp256k1 range",
+      evidence: { r: r.toString() },
+    });
+  }
+  if (s === 0n || s >= SECP256K1_ORDER) {
+    findings.push({
+      id: "signed-request-invalid-signature-s",
+      severity: "critical",
+      message: "signed request ECDSA s scalar is outside the secp256k1 range",
+      evidence: { s: s.toString() },
+    });
+  } else if (s > SECP256K1_HALF_ORDER) {
+    findings.push({
+      id: "signed-request-malleable-signature",
+      severity: "critical",
+      message: "signed request uses a noncanonical high-s ECDSA signature",
+      evidence: { s: s.toString(), maximumCanonicalS: SECP256K1_HALF_ORDER.toString() },
+    });
+  }
+  if (!compact) {
+    const recoveryId = Number.parseInt(bytes.slice(128, 130), 16);
+    if (![0, 1, 27, 28].includes(recoveryId)) {
+      findings.push({
+        id: "signed-request-invalid-recovery-id",
+        severity: "critical",
+        message: "signed request ECDSA recovery id is not a supported parity value",
+        evidence: { recoveryId },
+      });
+    }
+  }
+  return findings;
+}
+
 export function inspectSignedRequestEnvelope(input: {
   issuedAt: bigint;
   deadline: bigint;
@@ -285,6 +365,22 @@ export function inspectSignedRequestEnvelope(input: {
   signerRoleIds?: string[];
 }): RedTeamFinding[] {
   const findings: RedTeamFinding[] = [];
+  const negativeFields = Object.entries({
+    issuedAt: input.issuedAt,
+    deadline: input.deadline,
+    observedAt: input.observedAt,
+    maximumValidityWindow: input.maximumValidityWindow,
+    nonce: input.nonce,
+    expectedNonce: input.expectedNonce,
+  }).filter(([, value]) => value < 0n).map(([field]) => field);
+  if (negativeFields.length > 0) {
+    findings.push({
+      id: "signed-request-negative-domain-value",
+      severity: "critical",
+      message: "signed request contains a negative timestamp, validity window, or nonce",
+      evidence: { negativeFields },
+    });
+  }
   if (input.issuedAt > input.observedAt) {
     findings.push({
       id: "signed-request-future-timestamp",
@@ -323,15 +419,18 @@ export function inspectSignedRequestEnvelope(input: {
       evidence: { nonce: input.nonce.toString(), expectedNonce: input.expectedNonce.toString() },
     });
   }
-  if (!/^0x(?:[\da-fA-F]{128}|[\da-fA-F]{130})$/u.test(input.signature)) {
-    findings.push({
-      id: "signed-request-malformed-signature",
-      severity: "critical",
-      message: "signed request does not contain a canonical compact or full ECDSA signature",
-      evidence: { signature: input.signature },
-    });
-  }
+  findings.push(...inspectCanonicalSignature(input.signature));
   if (input.claimedRoleId) {
+    const malformedRoleIds = [input.claimedRoleId, ...(input.signerRoleIds ?? [])]
+      .filter((roleId) => !/^0x[\da-fA-F]{64}$/u.test(roleId));
+    if (malformedRoleIds.length > 0) {
+      findings.push({
+        id: "signed-request-malformed-role-id",
+        severity: "critical",
+        message: "signed request role bindings must use canonical bytes32 role identifiers",
+        evidence: { malformedRoleIds },
+      });
+    }
     const signerRoles = new Set((input.signerRoleIds ?? []).map((roleId) => roleId.toLowerCase()));
     if (!signerRoles.has(input.claimedRoleId.toLowerCase())) {
       findings.push({
@@ -794,6 +893,7 @@ export function inspectEmergencyAction(input: {
 
 export const redTeamHarnessInternals = {
   canonicalize,
+  inspectCanonicalSignature,
   integerBounds,
   parseArrayType,
 };

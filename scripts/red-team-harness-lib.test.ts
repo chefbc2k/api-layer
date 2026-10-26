@@ -91,27 +91,56 @@ describe("red-team malformed payload mutation corpus", () => {
 });
 
 describe("red-team replay, value, ordering, and signer oracles", () => {
+  const scalar = (value: bigint) => value.toString(16).padStart(64, "0");
+  const fullSignature = (r: bigint, s: bigint, recoveryId: number) =>
+    `0x${scalar(r)}${scalar(s)}${recoveryId.toString(16).padStart(2, "0")}`;
   const baseReplay = {
     chainId: 84532,
     contract: "0x00000000000000000000000000000000000000aa",
-    actor: "0x00000000000000000000000000000000000000bb",
-    selector: "0x12345678",
+    signerAddress: "0x00000000000000000000000000000000000000bb",
+    calldata: "0x12345678000000000000000000000000000000000000000000000000000000000000000c",
+    value: "500",
     nonce: "7",
     deadline: "1900000000",
-    payload: { tokenId: "12", price: "500" },
   };
 
-  it("rejects an exact replay while domain-separating nonce, actor, deadline, and chain", () => {
+  it("rejects equivalent-calldata replays while domain-separating transaction authority and intent", () => {
     const ledger = new ReplayLedger();
     const fingerprint = replayFingerprint(baseReplay);
 
     expect(ledger.consume(fingerprint)).toBe(true);
     expect(ledger.consume(fingerprint)).toBe(false);
+    expect(replayFingerprint({
+      ...baseReplay,
+      contract: baseReplay.contract.toUpperCase().replace("0X", "0x"),
+      signerAddress: baseReplay.signerAddress.toUpperCase().replace("0X", "0x"),
+      calldata: baseReplay.calldata.toUpperCase().replace("0X", "0x"),
+      value: "000500",
+      nonce: "0007",
+      deadline: "001900000000",
+    })).toBe(fingerprint);
     expect(replayFingerprint({ ...baseReplay, nonce: "8" })).not.toBe(fingerprint);
     expect(replayFingerprint({ ...baseReplay, deadline: "1900000001" })).not.toBe(fingerprint);
     expect(replayFingerprint({ ...baseReplay, chainId: 1 })).not.toBe(fingerprint);
-    expect(replayFingerprint({ ...baseReplay, actor: "0x00000000000000000000000000000000000000cc" })).not.toBe(fingerprint);
-    expect(replayFingerprint({ ...baseReplay, payload: { price: "500", tokenId: "12" } })).toBe(fingerprint);
+    expect(replayFingerprint({
+      ...baseReplay,
+      signerAddress: "0x00000000000000000000000000000000000000cc",
+    })).not.toBe(fingerprint);
+    expect(replayFingerprint({ ...baseReplay, contract: "0x00000000000000000000000000000000000000cc" }))
+      .not.toBe(fingerprint);
+    expect(replayFingerprint({ ...baseReplay, calldata: `${baseReplay.calldata.slice(0, -1)}d` }))
+      .not.toBe(fingerprint);
+    expect(replayFingerprint({ ...baseReplay, value: "501" })).not.toBe(fingerprint);
+  });
+
+  it("fails closed on malformed replay-fingerprint domains", () => {
+    expect(() => replayFingerprint({ ...baseReplay, chainId: 0 })).toThrow("positive safe integer");
+    expect(() => replayFingerprint({ ...baseReplay, contract: "0x1234" })).toThrow("canonical address");
+    expect(() => replayFingerprint({ ...baseReplay, signerAddress: "0x1234" })).toThrow("canonical address");
+    expect(() => replayFingerprint({ ...baseReplay, calldata: "0x123" })).toThrow("complete hex bytes");
+    expect(() => replayFingerprint({ ...baseReplay, value: "-1" })).toThrow("unsigned decimal integer");
+    expect(() => replayFingerprint({ ...baseReplay, nonce: "0x07" })).toThrow("unsigned decimal integer");
+    expect(() => replayFingerprint({ ...baseReplay, deadline: "tomorrow" })).toThrow("unsigned decimal integer");
   });
 
   it("detects double-spend balance creation and accepts explicit mint/burn accounting", () => {
@@ -167,7 +196,7 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
       maximumValidityWindow: 600n,
       nonce: 7n,
       expectedNonce: 7n,
-      signature: `0x${"ab".repeat(65)}`,
+      signature: fullSignature(1n, 2n, 27),
       claimedRoleId: `0x${"11".repeat(32)}`,
       signerRoleIds: [`0x${"11".repeat(32)}`],
     };
@@ -175,7 +204,7 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
     expect(inspectSignedRequestEnvelope(validEnvelope)).toEqual([]);
     expect(inspectSignedRequestEnvelope({
       ...validEnvelope,
-      signature: `0x${"ab".repeat(64)}`,
+      signature: `0x${scalar(1n)}${scalar((1n << 255n) | 2n)}`,
     })).toEqual([]);
 
     const findings = inspectSignedRequestEnvelope({
@@ -201,6 +230,57 @@ describe("red-team replay, value, ordering, and signer oracles", () => {
     }).map((finding) => finding.id)).toEqual(expect.arrayContaining([
       "signed-request-invalid-validity-window",
       "signed-request-nonce-gap",
+    ]));
+  });
+
+  it("rejects invalid or malleable ECDSA scalars, recovery ids, role ids, and signed-domain values", () => {
+    const validEnvelope = {
+      issuedAt: 1_900_000_000n,
+      deadline: 1_900_000_300n,
+      observedAt: 1_900_000_100n,
+      maximumValidityWindow: 600n,
+      nonce: 7n,
+      expectedNonce: 7n,
+      signature: fullSignature(1n, 2n, 27),
+      claimedRoleId: `0x${"11".repeat(32)}`,
+      signerRoleIds: [`0x${"11".repeat(32)}`],
+    };
+    const curveOrder = BigInt("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
+    const halfOrder = curveOrder >> 1n;
+
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: fullSignature(0n, 2n, 27),
+    }).map((finding) => finding.id)).toEqual(["signed-request-invalid-signature-r"]);
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: fullSignature(curveOrder, curveOrder, 2),
+    }).map((finding) => finding.id)).toEqual(expect.arrayContaining([
+      "signed-request-invalid-signature-r",
+      "signed-request-invalid-signature-s",
+      "signed-request-invalid-recovery-id",
+    ]));
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: fullSignature(1n, halfOrder + 1n, 28),
+    }).map((finding) => finding.id)).toEqual(["signed-request-malleable-signature"]);
+    expect(inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      signature: `0x${scalar(1n)}${scalar(halfOrder + 1n)}`,
+    }).map((finding) => finding.id)).toEqual(["signed-request-malleable-signature"]);
+
+    const domainFindings = inspectSignedRequestEnvelope({
+      ...validEnvelope,
+      issuedAt: -1n,
+      nonce: -1n,
+      expectedNonce: -1n,
+      claimedRoleId: "0x1234",
+      signerRoleIds: ["0x1234"],
+    }).map((finding) => finding.id);
+    expect(domainFindings).toEqual(expect.arrayContaining([
+      "signed-request-negative-domain-value",
+      "signed-request-invalid-validity-window",
+      "signed-request-malformed-role-id",
     ]));
   });
 

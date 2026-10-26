@@ -59,11 +59,13 @@ vi.mock("../shared/alchemy-diagnostics.js", async () => {
 });
 
 import { createTokenomicsPrimitiveRouter } from "../modules/tokenomics/primitives/generated/routes.js";
+import { createLicensingPrimitiveRouter } from "../modules/licensing/primitives/generated/routes.js";
 
 const originalSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
 const diamondAddress = "0x0000000000000000000000000000000000000001";
 const fixtureAccount = "0x00000000000000000000000000000000000000bb";
 const secondSigner = "0x00000000000000000000000000000000000000cc";
+const voiceHash = "0x1111111111111111111111111111111111111111111111111111111111111111";
 
 const selectedGapWriteCases = [
   {
@@ -174,6 +176,26 @@ const selectedGapWriteCases = [
     preview: null,
     preflightRejection: "unauthorized vesting reassignment rejected",
   },
+  {
+    key: "RightsFacet.addCollaborator",
+    signature: "addCollaborator(bytes32,address,uint256)",
+    method: "POST",
+    path: "/v1/licensing/commands/add-collaborator",
+    body: { voiceHash, collaborator: fixtureAccount, share: "2500" },
+    runtimeArgs: [voiceHash, fixtureAccount, 2_500n],
+    preview: null,
+    preflightRejection: "unauthorized collaborator addition rejected",
+  },
+  {
+    key: "RightsFacet.removeCollaborator",
+    signature: "removeCollaborator(bytes32,address)",
+    method: "DELETE",
+    path: "/v1/licensing/commands/remove-collaborator",
+    body: { voiceHash, collaborator: fixtureAccount },
+    runtimeArgs: [voiceHash, fixtureAccount],
+    preview: null,
+    preflightRejection: "stale collaborator removal rejected",
+  },
 ] as const;
 
 function buildContext() {
@@ -244,6 +266,7 @@ async function startServer(context: ReturnType<typeof buildContext>["context"]) 
   app.set("apiExecutionContext", context);
   app.use(express.json());
   app.use(createTokenomicsPrimitiveRouter(context as never));
+  app.use(createLicensingPrimitiveRouter(context as never));
   const server = app.listen(0);
   await new Promise<void>((resolve) => {
     if (server.listening) {

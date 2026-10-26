@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 2,
-  "generatedAt": "2026-10-06T11:00:31.752Z",
+  "schemaVersion": 3,
+  "generatedAt": "2026-10-25T13:17:38.580Z",
   "totals": {
     "abiWriteMethodCount": 260,
     "writeMethodCount": 259,
@@ -8,7 +8,12 @@
     "actorMethodCaseCount": 1813,
     "apiBoundaryCaseCount": 777,
     "adminApiRoleCaseCount": 200,
-    "roleLifecycleCaseCount": 3150
+    "roleLifecycleCaseCount": 3150,
+    "additionalHttpWriteCount": 1,
+    "totalMountedHttpWriteCount": 260,
+    "additionalHttpDomainCount": 1,
+    "totalMountedHttpDomainCount": 14,
+    "additionalHttpBoundaryCaseCount": 10
   },
   "actors": [
     "founder",
@@ -21,6 +26,30 @@
   ],
   "excludedAbiWrites": [
     "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)"
+  ],
+  "additionalHttpWrites": [
+    {
+      "method": "POST",
+      "path": "/v1/funding/quotes",
+      "domain": "funding",
+      "requiredIdentity": "funding-customer",
+      "deniedActors": [
+        "founder",
+        "admin",
+        "operator",
+        "buyer",
+        "seller",
+        "licensee",
+        "collaborator",
+        "read-only",
+        "unknown-key"
+      ],
+      "boundaryDenials": [
+        "missing-funding-user-id",
+        "unknown-api-key",
+        "wallet-binding-mismatch"
+      ]
+    }
   ],
   "domains": {
     "access-control": 12,
