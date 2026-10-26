@@ -20,12 +20,12 @@ Each unit includes implementation, validation, failure handling and meaningful t
 | C03 | Authenticated user/wallet binding and destination/chain/token validation | complete (2026-10-23) |
 | C04 | Region, asset, network and payment-method eligibility endpoint | complete (2026-10-23) |
 | C05 | Quote endpoint with exact decimal handling and disclosed fees | complete (2026-10-23) |
-| C06 | Headless order creation with selected verification experience | pending |
-| C07 | Secure hosted Coinbase-account checkout sessions | pending |
-| C08 | Owner-scoped order lookup and normalized provider status | pending |
-| C09 | Owner-scoped, paginated funding history | pending |
-| C10 | Durable request idempotency and ambiguous-timeout recovery | pending |
-| C11 | Raw-body webhook mounting, signature verification and replay protection | pending |
+| C06 | Headless order creation with selected verification experience | complete (2026-10-25) |
+| C07 | Secure hosted Coinbase-account checkout sessions | complete (2026-10-25) |
+| C08 | Owner-scoped order lookup and normalized provider status | complete (2026-10-25) |
+| C09 | Owner-scoped, paginated funding history | complete (2026-10-25) |
+| C10 | Durable request idempotency and ambiguous-timeout recovery | partial; unknown-provider recovery pending |
+| C11 | Raw-body webhook mounting, signature verification and replay protection | complete (2026-10-25) |
 | C12 | Durable webhook inbox, deduplication and asynchronous processing | pending |
 | C13 | Ordered state transitions for provider events, failures and late completion | pending |
 | C14 | Reconciliation worker with retries, recovery and subscription health handling | pending |
@@ -91,3 +91,34 @@ Each unit includes implementation, validation, failure handling and meaningful t
 - Atomic non-force push succeeded to `origin/master` and `origin/codex/coinbase-usdc-20261023`. `git ls-remote` confirmed both refs at that exact commit. The primary checkout and other worktrees were not reset or moved.
 - GitHub check-runs returned zero checks for the implementation SHA; combined status returned zero status contexts (its aggregate placeholder was `pending`). No build/test CI workflow or successful remote CI run is claimed. Local verification results above are the delivery gates.
 - This documentation receipt is committed and pushed separately; it changes no runtime/test source. Completion is 5/20 (25%); automation stays active for C06–C20.
+
+### 2026-10-24 — run 6, checkout batch interrupted
+
+- Starting/ending accepted count 5/20 (25%). Attempted C06–C10 = 5/20 (25%); completed 0 pending full gates. Candidate checkout endpoints, encrypted checkout storage and reservation/idempotency migration were implemented. Focused funding tests passed 83/83 and `pnpm exec tsc -b` passed. Full gates and database concurrency proof had not finished before interruption. No default push; daily target missed. Autosave `7818b14` preserved the exact scoped files.
+
+### 2026-10-25 — run 7, checkout and raw webhook verification
+
+- Fetched origin and resolved actual default `master`; it remained at `5e07364`. The primary checkout was dirty with unrelated assurance work. Reused the clean isolated Coinbase worktree, created `codex/coinbase-usdc-20261025` from origin/master and carried only the scoped checkout autosave via `c273c87`. No prior entry existed for today.
+- Starting accepted count 5/20 (25%). Attempted C06–C10 and C11 = 6/20 (30%). C10 remains partial: durable reservations and retries prevent duplicate creation and recover a lost database acknowledgement, but provider success followed by an unknown timeout without an order ID is not yet reconciled. A locked attempt is not counted as recovery. C12 has an inbox foundation but no asynchronous worker and is not counted complete.
+- Implemented embedded Headless orders, secure hosted sessions, owner-scoped lookup/history, encrypted URLs/tokens, strict request fingerprints and persisted ambiguous states; added raw webhook mounting before JSON, authenticated signed bytes/headers, five-minute timestamp window, durable replay identity and acknowledgement-after-persistence. Provider status is explicitly unverified settlement.
+- Real PostgreSQL concurrency testing initially failed 1/20: competing unique indexes could reject an identical idempotency key. Corrected conflict handling at the INSERT and verified one creator among 12 simultaneous writers, persisted locks across independent connections, owner isolation, cursor ordering and collision rejection. Final database suite passed 22/22 (16 funding, 6 indexer), all migrations applied twice. Signature/funding tests passed 91/91 with 16 database gates separately executed. An initial webhook typecheck found implicit-any from Object.fromEntries; added an explicit string-record contract and reran the quality sequence.
+- Required full regression/coverage and final delivery receipt pending; no additional unit is accepted until all applicable gates finish. Logs: `.runtime/coinbase-20261025-*.log` in the attached worktree. Next priorities are C10 recovery plus C12–C15 processing/reconciliation/settlement. External actions: Coinbase production/embedded approval and CDP sandbox credentials, approved frontend origin and consuming frontend source, deployment PostgreSQL, and real provider sandbox acceptance. No live charge, transfer or production enablement occurred.
+
+#### Run 7 final acceptance
+
+- Before 5/20 (25%); attempted C06–C11 = 6/20 (30%); completed C06–C09 and C11 = 5/20 (25% original baseline); after 10/20 (50%). C10 and C12–C20 remain unaccepted. Durable inbox groundwork does not count as the asynchronous processing unit. Provider fixture tests do not count as sandbox acceptance. October 24 added no accepted units.
+- Focused `pnpm exec vitest run packages/api/src/funding --maxWorkers 1`: 91 passed, 16 database gates; all 16 executed separately. Verified the current SDK schema uses `ONRAMP_ORDER_STATUS_PENDING_AUTH`; corrected the candidate's invented pending-verification value and reran the affected suite (91 passed). Provider reference links and checkout settings are documented in `docs/COINBASE_FUNDING_API.md`.
+- `pnpm run test:indexer:postgres`: 22/22 passed (16 funding, six indexer), applying migrations 0001–0007 twice. Tests cover simultaneous creates, persisted ambiguity/restart, lost acknowledgement, owner isolation, equal-timestamp history cursors, role denial, concurrent webhook deduplication and content/type collisions.
+- Final `pnpm test` rerun passed 1,993, skipped 56 environment-gated tests, zero failures; 155 passing files/four skipped. The preceding run had 1,992 passes and one existing event-assurance timeout (RoyaltyPaid); retained the failure log. The retry passed with the normal configuration, without weakening timeouts/assertions. Database skips were executed above; remaining live/fork gates relate to later unaccepted release units.
+- `pnpm run test:coverage` first failed on an existing event-assurance TokensVested timeout and worker RPC timeout. Retried for that unresolved failure: exit 0, statements 96.84%, branches 95.79%, functions 97.51%, lines 97.09%. Exact final log `.runtime/coinbase-20261025-coverage-retry.log`; measured summary copied to the durable proof artifact. No skipped/live check is credited as production evidence.
+- Final quality sequence `pnpm exec tsc -b`, `pnpm run lint`, `API_LAYER_DEPLOYMENT_MANIFEST=/Users/chef/Public/CONTRACTS/artifacts/release-readiness/deployment-manifest.json pnpm run build`: all exit 0. Logs end in `types-release`, `lint-release`, `build-release`. Generated surface timestamp-only churn was removed after review; all substantive generated outputs remained stable.
+- `pnpm run coverage:check` exit 0: 492 functions/HTTP methods, 218 event occurrences, 260/260 write invariants. `pnpm run test:actor-negative-paths` 351 passed (rerun after raw-route mount). `pnpm run test:redteam` 115 passed. `pnpm run test:indexer:assurance` 267 passed, six database skips separately executed. No assertion failure remains unresolved in these gates.
+- `pnpm exec tsx .runtime/funding-rpc-proof.ts` passed using disposable local Anvil: real default contract inspection returned matching 200, token mismatch 409, chain mismatch 409. Provider eligibility data was synthetic; no chain writes/receipt settlement were introduced by this batch. Settlement/indexer end-to-end proof remains required for C15/C19/C20 and has not passed yet.
+- Source commits `c273c87` (carried scoped checkout candidate) and `e47c99549d7fbe58ff0b3c9e5fa53320461f31d8` (verified checkout correction/raw ingestion). Evidence summary: `output/coinbase-usdc/2026-10-25-verification.json`; detailed logs retained in attached worktree `.runtime/coinbase-20261025-*`. Default push and observed exact-SHA CI status follow in a delivery receipt.
+- Deadline risk: ten units remain with three scheduled days after today; full release by October 28 is not established. Obtain Coinbase embedded/production access, sandbox credentials, approved frontend origin/source and deployment PostgreSQL; independently finish C10/C12–C18 and then genuine C19/C20 proofs. No external approval or credential presence was inferred from fixture tests.
+
+#### Run 7 delivery receipt
+
+- Atomic non-force push succeeded to `origin/master` and `origin/codex/coinbase-usdc-20261025` at `4972672ac5807edcd25a4e608e88c53053e2b777`. `git ls-remote` confirmed both exact refs. The fetched default had no intervening commits to incorporate. The primary checkout/user edits were untouched.
+- GitHub exact-SHA check-runs: zero; status contexts: zero. Aggregate placeholder is `pending`, with no actual build/test job configured or running. Only platform-managed Copilot/Dependabot workflows exist. Local gates passed; remote CI success is not claimed.
+- This receipt is a documentation-only follow-up commit pushed to the same two refs. Runtime source remains `e47c995`; accepted count remains 10/20 (50%). Automation remains active within the original October 28 deadline; no extension or production completion is claimed.

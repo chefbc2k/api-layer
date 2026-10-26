@@ -9,6 +9,7 @@ import type { ApiExecutionContext } from "../shared/execution-context.js";
 import { BASE_USDC, BASE_SEPOLIA_USDC, decimalUnits, readFundingConfig, type FundingConfig } from "./config.js";
 import { CoinbaseFundingProvider, type CoinbaseQuote } from "./provider.js";
 import { FundingStore } from "./store.js";
+import { createCheckoutRouter, type CheckoutDependencies } from "./checkout.js";
 
 const locationSchema = z.object({ country: z.string().regex(/^[A-Z]{2}$/), subdivision: z.string().regex(/^[A-Z]{2}$/).optional() });
 const optionsRequest = locationSchema.strict().refine(v => v.country !== "US" || v.subdivision !== undefined, "US subdivision is required");
@@ -23,9 +24,10 @@ type Dependencies = {
   provider?: Pick<CoinbaseFundingProvider, "options" | "quote">;
   store?: Pick<FundingStore, "insertQuote">;
   inspectChain?: () => Promise<{ chainId: number; token: string }>;
+  checkout?: CheckoutDependencies;
 };
 
-function fundingActor(auth: AuthContext, request: Request): { userId: string; wallet: string } {
+export function fundingActor(auth: AuthContext, request: Request): { userId: string; wallet: string } {
   if (!auth.fundingUserId || !auth.walletAddress) throw new HttpError(403, "Funding requires an explicitly bound customer identity and wallet");
   let wallet: string;
   try { wallet = getAddress(auth.walletAddress); } catch { throw new HttpError(403, "Funding wallet binding is invalid"); }
@@ -70,7 +72,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
     if (origin) response.setHeader("Access-Control-Allow-Origin", origin);
     if (request.method === "OPTIONS") {
       response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-      response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-API-Key, X-Wallet-Address");
+      response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-API-Key, X-Wallet-Address, Idempotency-Key");
       response.sendStatus(204); return;
     }
     next();
@@ -133,5 +135,6 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
   };
   router.get("/v1/funding/options", handle(false));
   router.post("/v1/funding/quotes", handle(true));
+  router.use(createCheckoutRouter(context, config, inspectChain, dependencies.checkout));
   return router;
 }

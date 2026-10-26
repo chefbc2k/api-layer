@@ -1,5 +1,15 @@
 # Changelog: USpeaks API Layer
 
+## Coinbase checkout and raw webhooks - 2026-10-25
+
+- Added embedded Headless order creation, Coinbase-account sessions, owner-scoped provider status/history, authenticated encrypted checkout persistence and separate checkout enablement. Unknown provider outcomes remain locked until reconciliation; settlement is never inferred from checkout/provider status.
+- Added raw-body Coinbase webhook verification before JSON parsing, signed event identity, replay window, private durable inbox and acknowledgement after PostgreSQL persistence. Asynchronous processing and settlement remain pending.
+- Added concurrent real-PostgreSQL checkout/replay proofs and raw signature boundary tests. Fixed a duplicate-request race between database unique indexes and aligned the pending-auth provider status with the current SDK. Final gates passed: 1,993 tests, 22 PostgreSQL proofs, typecheck/lint/build and coverage (96.84% statements). C06–C09/C11 accepted; total 10/20 (50%). Recovery, processing, settlement and release proofs remain open. Timeout failures and successful reruns are preserved in the daily log.
+
+## Coinbase checkout candidate - 2026-10-24
+
+- Implemented the C06–C10 candidate with focused tests; interruption left full gates unfinished. No new accepted units or default-branch delivery on October 24.
+
 ## Coinbase funding foundation - 2026-10-23
 
 ### Added
@@ -17,6 +27,17 @@
 - Funding 61/61 and disposable PostgreSQL 14/14 passed. Build-mode TypeScript, lint and all package builds passed. The first full regression found a portable-path assertion failure and a worker-loading timeout; the rerun passed 1,963 tests with 48 documented environment gates. Measured coverage passed at 97.49% statements, 96.56% branches, 98.06% functions and 97.60% lines. A disposable local-EVM check also exercised the real destination-inspection path. C01–C05 are accepted at 5/20 (25%); later provider/settlement acceptance remains pending. Exact delivery results are recorded in `docs/COINBASE_USDC_BUILD_LOG.md`.
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
+
+## [0.1.404] - 2026-10-26
+
+### Changed
+
+- **Write-Invariant Metadata Revalidated:** Reaudited the consolidated local and remote production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; the dedicated invariant generator, TypeScript workspace builds, lint, canonical code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` write invariants.
 
 ## [0.1.403] - 2026-10-25
 
