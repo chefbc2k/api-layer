@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-18T10:18:02.004Z",
+  "generatedAt": "2026-10-26T15:04:40.183Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -16,6 +16,10 @@
       "packages/api/src/app.contract-integration.test.ts",
       "packages/api/src/app.routes.test.ts",
       "packages/api/src/app.test.ts",
+      "packages/api/src/funding/checkout.test.ts",
+      "packages/api/src/funding/funding.test.ts",
+      "packages/api/src/funding/postgres.integration.test.ts",
+      "packages/api/src/funding/webhook.test.ts",
       "packages/api/src/modules/access-control/primitives/access-control-reads.test.ts",
       "packages/api/src/modules/governance/primitives/proposal-reads.test.ts",
       "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
@@ -43,6 +47,7 @@
       "packages/api/src/workflows/create-marketplace-listing.test.ts",
       "packages/api/src/workflows/create-reward-campaign.test.ts",
       "packages/api/src/workflows/delegation-echo-score-command-safety.integration.test.ts",
+      "packages/api/src/workflows/economic-invariants.test.ts",
       "packages/api/src/workflows/emergency-helpers.test.ts",
       "packages/api/src/workflows/emergency-response.integration.test.ts",
       "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
@@ -105,6 +110,8 @@
       "packages/api/src/workflows/submit-proposal.test.ts",
       "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
       "packages/api/src/workflows/transfer-and-resecure-voice-asset.test.ts",
+      "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
+      "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
       "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
       "packages/api/src/workflows/treasury-revenue-operations.test.ts",
       "packages/api/src/workflows/trigger-emergency.test.ts",
@@ -151,6 +158,7 @@
       "scripts/manifest.test.ts",
       "scripts/promote-base-sepolia-scenarios.test.ts",
       "scripts/red-team-access-control-workflow.test.ts",
+      "scripts/red-team-auth-boundaries.test.ts",
       "scripts/red-team-harness-lib.test.ts",
       "scripts/red-team-local-fork.test.ts",
       "scripts/red-team-reward-campaign.test.ts",
@@ -186,18 +194,18 @@
       "rpcRegistry": 710,
       "httpRegistry": 709,
       "reviewedApiSurface": 709,
-      "unit": 685,
-      "workflow": 367,
+      "unit": 686,
+      "workflow": 371,
       "localFork": 111,
       "baseSepolia": 60,
-      "negativePath": 369,
-      "economic": 169,
-      "redTeam": 164,
+      "negativePath": 374,
+      "economic": 199,
+      "redTeam": 173,
       "indexer": 218
     },
     "classificationCounts": {
-      "ready": 610,
-      "needs fixture": 64,
+      "ready": 611,
+      "needs fixture": 63,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
@@ -223,7 +231,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.7,
+          "averageScore": 2.75,
           "maximumScore": 8
         }
       },
@@ -898,13 +906,13 @@
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
-            "redTeam": false,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -924,8 +932,12 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/onboard-rights-holder.test.ts"
             ],
-            "economicTests": [],
-            "redTeamTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -1067,10 +1079,12 @@
               "scripts/red-team-access-control-workflow.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/red-team-access-control-workflow.test.ts"
             ],
@@ -2496,7 +2510,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 3.78,
+          "averageScore": 3.67,
           "maximumScore": 8
         }
       },
@@ -2871,13 +2885,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -2891,9 +2905,7 @@
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
@@ -3152,6 +3164,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/operator-incentive-grant-flow.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
@@ -3163,6 +3176,7 @@
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/operator-incentive-grant-flow.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
@@ -3171,7 +3185,9 @@
               "packages/indexer/src/postgres.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/operator-incentive-grant-flow.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
@@ -3182,6 +3198,8 @@
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
@@ -3255,6 +3273,7 @@
             ],
             "economicTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
@@ -3318,6 +3337,7 @@
               "packages/api/src/workflows/reward-campaign.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
@@ -3325,6 +3345,7 @@
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
@@ -3451,6 +3472,7 @@
               "packages/api/src/workflows/reward-campaign.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/create-reward-campaign.test.ts",
               "packages/api/src/workflows/manage-reward-campaign.test.ts",
@@ -3460,6 +3482,7 @@
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
@@ -4118,12 +4141,12 @@
             "negativePathTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts",
-              "scripts/red-team-reward-campaign.test.ts"
+              "packages/indexer/src/postgres.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
@@ -5047,7 +5070,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.29,
+          "averageScore": 2.36,
           "maximumScore": 8
         }
       },
@@ -5077,13 +5100,13 @@
             "localFork": false,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -5102,7 +5125,9 @@
               "packages/api/src/workflows/manage-access-control.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -9415,7 +9440,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 3,
+          "averageScore": 3.5,
           "maximumScore": 8
         }
       },
@@ -9445,13 +9470,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "unsafe on live network",
@@ -9471,7 +9496,9 @@
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -9502,13 +9529,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
-            "redTeam": false,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "unsafe on live network",
@@ -9517,6 +9544,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
@@ -9525,11 +9553,17 @@
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
-            "economicTests": [],
-            "redTeamTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -9617,13 +9651,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -9644,7 +9678,9 @@
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "packages/api/src/workflows/inspect-emergency-posture.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -9675,13 +9711,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "unsafe on live network",
@@ -9701,7 +9737,9 @@
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -9789,13 +9827,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "unsafe on live network",
@@ -9804,6 +9842,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "workflowTests": [
@@ -9812,7 +9851,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -10001,13 +10042,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -10026,7 +10067,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts",
@@ -10174,13 +10217,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -10198,7 +10241,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
@@ -10337,7 +10382,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 3.9,
+          "averageScore": 4,
           "maximumScore": 8
         }
       },
@@ -10464,11 +10509,13 @@
               "packages/api/src/workflows/inspect-marketplace-listing.test.ts",
               "packages/api/src/workflows/marketplace-listing-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -10544,12 +10591,14 @@
               "packages/api/src/workflows/marketplace-listing-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -10622,11 +10671,13 @@
               "packages/api/src/workflows/inspect-marketplace-listing.test.ts",
               "packages/api/src/workflows/marketplace-listing-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -10721,13 +10772,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -10746,9 +10797,12 @@
               "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts"
+              "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
+            ],
             "redTeamTests": [
               "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts"
             ],
@@ -10918,7 +10972,8 @@
             ],
             "negativePathTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -11010,7 +11065,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 3.3,
+          "averageScore": 3.5,
           "maximumScore": 8
         }
       },
@@ -11040,13 +11095,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -11061,7 +11116,9 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -11374,13 +11431,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -11399,7 +11456,9 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [
               "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts"
             ],
@@ -12979,7 +13038,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 4.47,
+          "averageScore": 4.53,
           "maximumScore": 8
         }
       },
@@ -13074,12 +13133,12 @@
             "baseSepolia": true,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -13113,7 +13172,6 @@
               "packages/api/src/workflows/update-marketplace-listing-price.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts",
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
               "packages/api/src/workflows/inspect-marketplace-listing.test.ts",
@@ -13129,7 +13187,9 @@
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -13192,6 +13252,7 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "workflowTests": [
@@ -13199,15 +13260,19 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
@@ -13805,9 +13870,9 @@
             "workflow": true,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": true,
+            "negativePath": false,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
@@ -13830,11 +13895,11 @@
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/marketplace-listing.integration.test.ts"
             ],
-            "negativePathTests": [
+            "negativePathTests": [],
+            "economicTests": [],
+            "redTeamTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "economicTests": [],
-            "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"
             ],
@@ -14369,6 +14434,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "packages/api/src/workflows/governance-timelock-consequence-flow.integration.test.ts",
@@ -14380,9 +14446,12 @@
               "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "indexerTests": [],
@@ -15686,6 +15755,8 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/checkout.test.ts",
+              "packages/api/src/funding/postgres.integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
@@ -15725,6 +15796,7 @@
               "scripts/verify-local-fork-lib.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/funding/postgres.integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
@@ -15755,6 +15827,8 @@
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/checkout.test.ts",
+              "packages/api/src/funding/postgres.integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
@@ -15770,6 +15844,7 @@
               "packages/api/src/workflows/onboard-voice-asset.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/register-voice-asset.integration.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
@@ -15779,6 +15854,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/checkout.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/workflows/commercialize-voice-asset.integration.test.ts",
               "packages/api/src/workflows/commercialize-voice-asset.test.ts",
@@ -16370,7 +16446,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.45,
+          "averageScore": 3.53,
           "maximumScore": 8
         }
       },
@@ -16415,19 +16491,24 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "redTeamTests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -16572,13 +16653,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -16587,15 +16668,19 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
@@ -16740,13 +16825,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -16755,15 +16840,19 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
@@ -16796,13 +16885,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -16811,15 +16900,20 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/payment-command-safety.integration.test.ts"
+              "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts"
+            ],
             "redTeamTests": [
               "packages/api/src/workflows/payment-command-safety.integration.test.ts"
             ],
@@ -16996,6 +17090,7 @@
             ],
             "negativePathTests": [],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/inspect-revenue-posture.test.ts"
             ],
             "redTeamTests": [],
@@ -17048,6 +17143,7 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "workflowTests": [
@@ -17055,10 +17151,12 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
@@ -17066,6 +17164,7 @@
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
@@ -17098,13 +17197,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "adversarial",
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -17117,7 +17216,9 @@
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -17218,6 +17319,7 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "workflowTests": [
@@ -17225,11 +17327,14 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
@@ -17237,6 +17342,7 @@
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
@@ -17269,13 +17375,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "adversarial",
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -17284,11 +17390,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/client/src/runtime/read-gap-fixtures.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -17404,6 +17513,7 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "workflowTests": [
@@ -17411,10 +17521,12 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
@@ -17422,6 +17534,7 @@
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
@@ -17530,6 +17643,7 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "workflowTests": [
@@ -17537,10 +17651,12 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
@@ -17548,6 +17664,7 @@
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
@@ -17600,6 +17717,7 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
@@ -17608,16 +17726,21 @@
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
@@ -17739,6 +17862,7 @@
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.integration.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
@@ -17751,11 +17875,13 @@
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.integration.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
@@ -17768,6 +17894,7 @@
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.integration.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
@@ -18661,7 +18788,8 @@
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/marketplace-purchase.integration.test.ts"
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -18727,7 +18855,8 @@
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/marketplace-purchase.integration.test.ts"
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -19585,7 +19714,8 @@
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/workflows/marketplace-purchase.integration.test.ts"
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [
@@ -19770,7 +19900,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.96,
+          "averageScore": 3.04,
           "maximumScore": 8
         }
       },
@@ -19850,13 +19980,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
-            "redTeam": false,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -19870,10 +20000,15 @@
             ],
             "workflowTests": [],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
-            "redTeamTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -20674,7 +20809,8 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
-              "packages/api/src/workflows/multisig-protocol-change.test.ts"
+              "packages/api/src/workflows/multisig-protocol-change.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -20738,7 +20874,8 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/api/src/workflows/multisig-protocol-change.test.ts",
-              "packages/api/src/workflows/submit-proposal.test.ts"
+              "packages/api/src/workflows/submit-proposal.test.ts",
+              "scripts/actor-negative-paths-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -20916,9 +21053,12 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/checkout.test.ts",
+              "packages/api/src/funding/postgres.integration.test.ts",
               "packages/api/src/modules/access-control/primitives/access-control-reads.test.ts",
               "packages/api/src/modules/governance/primitives/proposal-reads.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
+              "packages/api/src/shared/execution-context.test.ts",
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -20927,6 +21067,7 @@
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
               "packages/api/src/workflows/emergency-helpers.test.ts",
               "packages/api/src/workflows/emergency-response.integration.test.ts",
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts",
               "packages/api/src/workflows/governance-admin-flow.test.ts",
               "packages/api/src/workflows/governance-execution-flow.test.ts",
@@ -20943,10 +21084,12 @@
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts",
@@ -20966,6 +21109,7 @@
               "scripts/verify-report.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/funding/postgres.integration.test.ts",
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
@@ -20974,6 +21118,7 @@
               "packages/api/src/workflows/create-marketplace-listing.test.ts",
               "packages/api/src/workflows/emergency-helpers.test.ts",
               "packages/api/src/workflows/emergency-response.integration.test.ts",
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts",
               "packages/api/src/workflows/governance-admin-flow.test.ts",
               "packages/api/src/workflows/governance-execution-flow.test.ts",
@@ -20990,10 +21135,12 @@
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts",
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts",
@@ -21002,7 +21149,10 @@
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/checkout.test.ts",
+              "packages/api/src/funding/postgres.integration.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
+              "packages/api/src/shared/execution-context.test.ts",
               "packages/api/src/workflows/catalog-listing-operations.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/create-beneficiary-vesting.test.ts",
@@ -21026,6 +21176,7 @@
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/trigger-emergency.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts",
@@ -21041,17 +21192,23 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-reward-campaign.test.ts",
               "scripts/verify-marketplace-purchase-live.test.ts"
             ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts",
               "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "scripts/red-team-access-control-workflow.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
@@ -22548,7 +22705,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.18,
+          "averageScore": 2.33,
           "maximumScore": 8
         }
       },
@@ -22637,20 +22794,19 @@
             "workflow": false,
             "localFork": true,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no workflow proof reference"
           ],
           "evidence": {
             "tests": [
@@ -22658,7 +22814,9 @@
               "packages/client/src/runtime/method-policy.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
@@ -22972,13 +23130,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "unit",
-            "score": 1,
+            "level": "adversarial",
+            "score": 2,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -22987,11 +23145,14 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/client/src/runtime/read-gap-fixtures.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -23134,14 +23295,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -23153,11 +23314,15 @@
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -23777,6 +23942,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
@@ -23784,18 +23950,22 @@
               "scripts/api-surface-lib.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/participant-activation-flow.integration.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/participant-activation-flow.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
@@ -24002,14 +24172,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -24022,7 +24192,9 @@
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
@@ -24628,6 +24800,7 @@
               "packages/api/src/workflows/recover-from-emergency.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
               "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "packages/api/src/workflows/governance-timelock-consequence-flow.integration.test.ts",
@@ -24639,9 +24812,12 @@
               "scripts/verify-local-fork-lib.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "indexerTests": [],
@@ -25068,6 +25244,7 @@
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
             "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
             "redTeamTests": [],
@@ -26887,8 +27064,8 @@
         "eventCount": 4,
         "classification": "needs fixture",
         "classificationCounts": {
-          "ready": 17,
-          "needs fixture": 8,
+          "ready": 18,
+          "needs fixture": 7,
           "unsafe on live network": 0,
           "needs contract change": 0,
           "needs API guard": 0,
@@ -26897,7 +27074,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.76,
+          "averageScore": 3.24,
           "maximumScore": 8
         }
       },
@@ -26959,10 +27136,12 @@
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+              "packages/api/src/workflows/stake-and-delegate.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -26976,6 +27155,7 @@
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -27033,6 +27213,7 @@
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/app.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/api/src/workflows/recover-from-emergency.test.ts"
@@ -27074,7 +27255,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -27084,7 +27265,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -27094,16 +27275,29 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts"
+            ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+              "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
@@ -27133,7 +27327,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -27143,30 +27337,35 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
-          "classification": "needs fixture",
+          "classification": "ready",
           "gaps": [
-            "no workflow proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/economic-invariants.test.ts"
+            ],
             "negativePathTests": [
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "scripts/red-team-harness-lib.test.ts",
               "scripts/verify-layer1-helpers.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-harness-lib.test.ts"
             ],
             "indexerTests": [],
@@ -27476,6 +27675,7 @@
             ],
             "workflowTests": [],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
             "economicTests": [
@@ -27508,33 +27708,39 @@
             "rpcRegistry": true,
             "httpRegistry": true,
             "reviewedApiSurface": true,
-            "unit": false,
+            "unit": true,
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
-            "economic": false,
-            "redTeam": false,
+            "negativePath": true,
+            "economic": true,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "adversarial",
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
-            "no directly attributable test reference",
             "no workflow proof reference",
-            "no negative-path proof reference",
             "no successful verify-artifact route evidence"
           ],
           "evidence": {
-            "tests": [],
+            "tests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "workflowTests": [],
-            "negativePathTests": [],
-            "economicTests": [],
-            "redTeamTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27616,12 +27822,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -27639,6 +27845,7 @@
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
@@ -27646,7 +27853,9 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -27741,7 +27950,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -27751,7 +27960,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -27761,20 +27970,41 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
-              "scripts/base-sepolia-operator-setup.test.ts"
+              "scripts/base-sepolia-operator-setup.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "workflowTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "scripts/base-sepolia-operator-setup.main.test.ts"
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/base-sepolia-operator-setup.main.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "scripts/base-sepolia-operator-setup.main.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "scripts/base-sepolia-operator-setup.main.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -27965,31 +28195,56 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": false,
+            "workflow": true,
             "localFork": false,
             "baseSepolia": true,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
           "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "workflowTests": [],
-            "negativePathTests": [],
+            "workflowTests": [
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/claim-reward-campaign.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
             ],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "scripts/red-team-reward-campaign.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -28042,9 +28297,9 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
-              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
@@ -28058,9 +28313,9 @@
             "workflowTests": [
               "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
-              "packages/api/src/workflows/release-escrowed-asset.test.ts",
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
@@ -28069,6 +28324,7 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
               "packages/api/src/workflows/ownership-access.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
@@ -28081,6 +28337,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/economic-invariants.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts",
               "scripts/base-sepolia-operator-setup.test.ts",
               "scripts/red-team-local-fork.test.ts"
@@ -28241,14 +28498,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -28261,7 +28518,9 @@
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
@@ -29535,7 +29794,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.58,
+          "averageScore": 2.84,
           "maximumScore": 8
         }
       },
@@ -30261,13 +30520,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30297,7 +30556,11 @@
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30328,13 +30591,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30343,6 +30606,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/inspect-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
@@ -30364,7 +30628,12 @@
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30395,13 +30664,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30410,6 +30679,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/inspect-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
@@ -30431,7 +30701,12 @@
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30462,13 +30737,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30498,7 +30773,11 @@
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30581,19 +30860,20 @@
             "localFork": false,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
           "gaps": [],
           "evidence": {
             "tests": [
+              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/create-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/inspect-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
@@ -30615,7 +30895,11 @@
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
               "packages/api/src/workflows/vesting-helpers.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -30659,13 +30943,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30682,7 +30966,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30713,13 +30999,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30736,7 +31022,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -30869,13 +31157,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -30894,7 +31182,10 @@
             "negativePathTests": [
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -31349,13 +31640,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -31373,7 +31664,9 @@
             "negativePathTests": [
               "packages/api/src/workflows/release-beneficiary-vesting.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/release-beneficiary-vesting.test.ts"
+            ],
             "redTeamTests": [
               "packages/indexer/src/event-assurance.test.ts"
             ],
@@ -31577,13 +31870,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 5,
+            "score": 6,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -31603,7 +31896,10 @@
             "negativePathTests": [
               "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts"
+            ],
             "redTeamTests": [
               "packages/indexer/src/event-assurance.test.ts"
             ],
@@ -32851,6 +33147,8 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/funding.test.ts",
+              "packages/api/src/funding/webhook.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
               "packages/api/src/shared/execution-context.test.ts",
@@ -32884,6 +33182,7 @@
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting.integration.test.ts",
@@ -32924,12 +33223,14 @@
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/api/src/workflows/vesting.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/webhook.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
               "packages/api/src/shared/execution-context.test.ts",
@@ -32961,6 +33262,7 @@
               "packages/api/src/workflows/rights-licensing.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
               "packages/api/src/workflows/transfer-and-resecure-voice-asset.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
               "packages/api/src/workflows/vesting-admin-policy.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
@@ -32972,8 +33274,12 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+              "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
+              "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
               "packages/api/src/workflows/treasury-revenue-operations.integration.test.ts",
+              "packages/api/src/workflows/vesting.integration.test.ts",
               "packages/client/src/runtime/abi-codec.test.ts",
               "scripts/run-test-coverage.test.ts"
             ],
@@ -33058,7 +33364,8 @@
               "packages/api/src/workflows/inspect-marketplace-listing.test.ts",
               "packages/api/src/workflows/marketplace-listing-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
-              "packages/api/src/workflows/purchase-marketplace-asset.test.ts"
+              "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
+              "packages/api/src/workflows/release-escrowed-asset.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -33984,6 +34291,7 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/funding/funding.test.ts",
               "scripts/custom-coverage-provider.test.ts"
             ],
             "workflowTests": [],
@@ -35046,7 +35354,7 @@
         "proofDepth": {
           "minimumLevel": "live",
           "maximumLevel": "indexer",
-          "averageScore": 4.16,
+          "averageScore": 4.2,
           "maximumScore": 8
         }
       },
@@ -36227,13 +36535,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
-            "economic": false,
+            "economic": true,
             "redTeam": false,
             "indexer": true
           },
           "proofDepth": {
             "level": "indexer",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -36247,7 +36555,9 @@
             ],
             "workflowTests": [],
             "negativePathTests": [],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
             "redTeamTests": [],
             "indexerTests": [
               "packages/indexer/src/event-assurance.test.ts"

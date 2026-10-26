@@ -28,6 +28,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.404] - 2026-10-26
+
+### Changed
+
+- **ABI Gap Evidence Refreshed:** Rebuilt the canonical ABI, RPC, HTTP, wrapper, reviewed-surface, event-projection, and write-invariant inventories and regenerated the JSON/Markdown gap report plus forty-percent plan from current production evidence.
+- **Token Burn Proof Promoted:** New workflow evidence moves `TokenSupplyFacet.burn` from `needs fixture` to `ready`. The report now records `611` ready items, `63` fixture gaps, and `36` unsafe-live operations across the unchanged `710`-item inventory; all `143` referenced evidence paths exist.
+- **Proof Depth Expanded:** Current attribution reaches `686` unit, `371` workflow, `111` local-fork, `60` Base Sepolia, `374` negative-path, `199` economic, `173` red-team, and `218` indexer items. There are no contract-change, API-guard, or indexer-proof gaps.
+
+### Verified
+
+- **Report And Repository Suites Passed:** Gap-report tests passed `8/8`, planner tests passed `12/12`, and the full repository suite passed `2,063` active tests across `159` files with `63` environment-gated skips.
+- **Coverage And Quality Gates Passed:** After one environmental worker timeout passed immediately in isolation, the unchanged measured-coverage rerun passed at `96.82%` statements, `95.55%` branches, `97.58%` functions, and `97.06%` lines. Ordered TypeScript, lint, full build/codegen, and explicit coverage inventory passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+
 ## [0.1.403] - 2026-10-25
 
 ### Changed

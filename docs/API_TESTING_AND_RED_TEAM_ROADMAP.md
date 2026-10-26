@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## ABI-Driven Gap Report Automation Run — 2026-10-26
+
+- Started `codex/abi-gap-report-20261026` from the clean consolidated production tip `9fd8f2b` after fetching and pruning `origin`. Both current local `master` (`5d49451`) and fetched `origin/master` (`3abb8ba`) are ancestors of that baseline, so the audit includes the latest verified local assurance history, Coinbase funding delivery, and red-team hardening.
+- Rebuilt the ABI, RPC, HTTP, wrapper, reviewed-surface, event-projection, and write-invariant inventories from the production deployment manifest, then regenerated `output/api-test-gap-report.json`, `output/api-test-gap-report.md`, and both forty-percent planner artifacts. Inventory remains `33` facets, `492` functions, `218` event occurrences, and `710` items; all `143` referenced evidence paths exist and every facet summary reconciles with its items.
+- Current proof attribution is `686` unit, `371` workflow, `111` local-fork, `60` Base Sepolia, `374` negative-path, `199` economic, `173` red-team, and `218` indexer items. The production delta promotes `TokenSupplyFacet.burn` from `needs fixture` to `ready`, moving classifications from `610` to `611` ready and from `64` to `63` needing fixtures; the `36` unsafe-live items remain unchanged and there are zero contract-change, API-guard, or indexer-proof gaps. The refreshed forty-percent plan selects `40/99` non-ready items.
+- Verification passed: `pnpm run test:gap-report` (`8/8`), `pnpm run test:gap-builder` (`12/12`), and `pnpm test` (`2,063` active tests across `159` passing files with `63` environment-gated skips). The first measured-coverage run encountered an environmental worker suspension and timed out the `RightsFacet.RightContractRegistered` replay case; that exact case passed immediately in isolation in `93ms`, and the unchanged canonical coverage rerun passed at `96.82%` statements, `95.55%` branches, `97.58%` functions, and `97.06%` lines.
+- With project-pinned `pnpm@10.30.0`, ordered `npx tsc -p tsconfig.json --noEmit`, `pnpm run lint`, and `pnpm run build` passed. Build-time and explicit `pnpm run coverage:check` runs confirmed `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` ABI write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** the ABI-driven gap-report workstream remains 100% complete and verified for merge into `master`; the `99` non-ready items are explicit protocol-assurance backlog classifications, not report-generator blockers.
+
 ## Actor Negative-Path Automation Run — 2026-10-25
 
 - Started `codex/actor-negative-paths-20261025` from clean local production `master` `af15485` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched and pruned `origin`; remote `master` remains `5e07364`. Before merge, incorporated the concurrent write-invariant revalidation at local production `204cb23`.

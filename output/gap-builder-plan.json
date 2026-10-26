@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-18T10:18:04.127Z",
-  "sourceGeneratedAt": "2026-10-18T10:18:02.004Z",
+  "generatedAt": "2026-10-26T15:04:46.797Z",
+  "sourceGeneratedAt": "2026-10-26T15:04:40.183Z",
   "totals": {
-    "nonReady": 100,
+    "nonReady": 99,
     "selected": 40,
     "byClassification": {
-      "ready": 610,
-      "needs fixture": 64,
+      "ready": 611,
+      "needs fixture": 63,
       "unsafe on live network": 36,
       "needs contract change": 0,
       "needs API guard": 0,
