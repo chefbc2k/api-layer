@@ -9,6 +9,12 @@ const diamondAddress = "0x0000000000000000000000000000000000000001";
 
 const proposalReadCases = [
   {
+    operationId: "queue",
+    key: "ProposalFacet.queue",
+    abiOutputs: [],
+    body: null,
+  },
+  {
     operationId: "proposalExists",
     key: "ProposalFacet.proposalExists",
     abiOutputs: [true],
@@ -23,6 +29,12 @@ const proposalReadCases = [
       forVotes: "89",
       abstainVotes: "5",
     },
+  },
+  {
+    operationId: "state",
+    key: "ProposalFacet.state",
+    abiOutputs: [2n],
+    body: "2",
   },
 ] as const;
 

@@ -1,0 +1,67 @@
+{
+  "reviewDate": "2026-10-25",
+  "generatedAt": "2026-10-25T22:52:34.738052+00:00",
+  "overallProductionReadinessPercent": null,
+  "reason": "No agreed weighted release rubric or production deployment/settlement evidence; route parity and static classifications are not release certification.",
+  "acceptedFundingUnits": 5,
+  "fundingBaselineUnits": 20,
+  "acceptedFundingPercent": 25,
+  "fundingCandidateWork": [
+    "Embedded sandbox order creation",
+    "Owner-scoped order lookup with status last observed at creation",
+    "Owner-scoped attempt history with cursor pagination",
+    "Durable idempotency and ambiguity blocking; reconciliation recovery remains missing"
+  ],
+  "fundingProductionEnabled": false,
+  "writeReceiptIndexerEvidence": {
+    "source": "verify-local-fork-indexer-output.json",
+    "generatedAt": "2026-10-25T10:59:19.941Z",
+    "proven": 109,
+    "total": 260,
+    "remaining": 151,
+    "percent": 41.9
+  },
+  "openReleaseDependencies": [
+    "Hosted Coinbase-account sessions",
+    "Authenticated raw-body webhooks and durable inbox",
+    "Lifecycle transitions and reconciliation worker including uncertain attempts",
+    "Exact on-chain USDC settlement verification",
+    "Live wallet balance, allowance and gas/sponsorship checks",
+    "Bounded USDC approvals and funding-to-purchase handoff",
+    "Provider sandbox acceptance and frontend integration",
+    "Coinbase production and embedded-order account enablement",
+    "Remaining exact-method receipt/indexer proof",
+    "Private transaction-request lookup authentication and ownership checks",
+    "Production deployment/configuration and operational evidence"
+  ],
+  "validation": {
+    "focusedFundingAndActorInventory": {
+      "passed": 122,
+      "failed": 0
+    },
+    "disposablePostgres": {
+      "passed": 20,
+      "failed": 0,
+      "migrationsAppliedTwice": true
+    },
+    "actorNegativePaths": {
+      "passed": 916,
+      "failed": 0
+    },
+    "fullRegression": {
+      "passed": 2587,
+      "skipped": 62,
+      "failed": 0,
+      "passedFiles": 169,
+      "skippedFiles": 4,
+      "log": ".runtime/coinbase-20261025-regression-final.log"
+    },
+    "typeScriptBuild": "passed",
+    "workspaceBuild": "passed",
+    "lint": "passed",
+    "generatedSurfaceCoverage": "492 functions, 218 event occurrences, 214 unique event entries, 260 write invariants",
+    "actualProviderSandboxExecuted": false,
+    "deployed": false,
+    "newMeasuredCodeCoverage": null
+  }
+}

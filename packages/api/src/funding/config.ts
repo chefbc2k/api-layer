@@ -15,6 +15,7 @@ const origin = z.string().refine((value) => {
 
 export type FundingConfig = {
   mode: "sandbox" | "live";
+  sandboxOrdersEnabled?: boolean;
   apiKeyId: string;
   apiKeySecret: string;
   origins: string[];
@@ -26,6 +27,7 @@ export function readFundingConfig(env: NodeJS.ProcessEnv = process.env): Funding
   if (env.API_LAYER_FUNDING_ENABLED !== "true") throw new Error("API_LAYER_FUNDING_ENABLED must be true or false");
   try {
     return {
+      ...(env.API_LAYER_FUNDING_SANDBOX_ORDERS_ENABLED === undefined ? {} : { sandboxOrdersEnabled: z.enum(["true", "false"]).parse(env.API_LAYER_FUNDING_SANDBOX_ORDERS_ENABLED) === "true" }),
       mode: z.enum(["sandbox", "live"]).parse(env.API_LAYER_FUNDING_MODE ?? "sandbox"),
       apiKeyId: z.string().min(1).parse(env.CDP_API_KEY_ID),
       apiKeySecret: z.string().min(1).parse(env.CDP_API_KEY_SECRET),

@@ -51,6 +51,7 @@ type Endpoint = {
   path?: string;
   operationId?: string;
   classification?: string;
+  signature?: string;
 };
 
 type HttpRouteOccupant = {
@@ -276,6 +277,56 @@ function endpointRoute(endpoint: Endpoint | undefined): string | null {
   return endpoint?.httpMethod && endpoint.path ? `${endpoint.httpMethod.toUpperCase()} ${endpoint.path}` : null;
 }
 
+function rpcRegistryGap(entry: ManifestMethod | ManifestEvent, rpcEntry: Endpoint | undefined): string | null {
+  if (!rpcEntry) {
+    return "missing RPC registry entry";
+  }
+  if (rpcEntry.signature !== entry.signature) {
+    return `RPC registry signature mismatch: expected ${entry.signature}, found ${rpcEntry.signature ?? "no signature"}`;
+  }
+  return null;
+}
+
+function httpRegistryGap(
+  entry: ManifestMethod | ManifestEvent,
+  kind: "function" | "event",
+  endpoint: Endpoint | undefined,
+): string | null {
+  if (!endpoint) {
+    return "missing HTTP registry entry";
+  }
+  if (!endpointRoute(endpoint)) {
+    return "HTTP registry entry is missing an HTTP method or path";
+  }
+  if (endpoint.signature !== entry.signature) {
+    return `HTTP registry signature mismatch: expected ${entry.signature}, found ${endpoint.signature ?? "no signature"}`;
+  }
+  if (!endpoint.operationId?.trim()) {
+    return "HTTP registry entry is missing an operation id";
+  }
+  if (kind === "function" && !endpoint.classification?.trim()) {
+    return "HTTP method registry entry is missing a classification";
+  }
+  return null;
+}
+
+function reviewedApiSurfaceGap(
+  endpoint: Endpoint | undefined,
+  reviewedEndpoint: Endpoint | undefined,
+): string | null {
+  if (!reviewedEndpoint) {
+    return "missing reviewed API surface entry";
+  }
+  if (!endpoint) {
+    return "reviewed API surface cannot be validated without an HTTP registry entry";
+  }
+  const identityFields = ["httpMethod", "path", "operationId", "classification"] as const;
+  const mismatches = identityFields.filter((field) => reviewedEndpoint[field] !== endpoint[field]);
+  return mismatches.length > 0
+    ? `reviewed API surface differs from HTTP registry for ${mismatches.join(", ")}`
+    : null;
+}
+
 function httpRouteCollisions(registry: Registry): Map<string, HttpRouteCollision> {
   const occupantsByRoute = new Map<string, HttpRouteOccupant[]>();
   for (const [section, entries] of Object.entries(registry) as Array<[keyof Registry, Record<string, Endpoint>]>) {
@@ -336,14 +387,61 @@ function propertyNameText(name: ts.PropertyName): string | null {
   return ts.isIdentifier(name) || ts.isStringLiteralLike(name) ? name.text : null;
 }
 
+function isInvokedMemberAccess(expression: ts.PropertyAccessExpression | ts.ElementAccessExpression): boolean {
+  let current: ts.Expression = expression;
+  while (
+    (ts.isPropertyAccessExpression(current.parent) || ts.isElementAccessExpression(current.parent))
+    && current.parent.expression === current
+  ) {
+    current = current.parent;
+  }
+  return ts.isCallExpression(current.parent) && current.parent.expression === current;
+}
+
+function isMockInvocationAssertion(expression: ts.PropertyAccessExpression | ts.ElementAccessExpression): boolean {
+  const expectCall = expression.parent;
+  if (
+    !ts.isCallExpression(expectCall)
+    || !expectCall.arguments.some((argument) => argument === expression)
+    || !ts.isIdentifier(expectCall.expression)
+    || expectCall.expression.text !== "expect"
+  ) {
+    return false;
+  }
+  let current: ts.Expression = expectCall;
+  while (ts.isPropertyAccessExpression(current.parent) && current.parent.expression === current) {
+    const matcher = current.parent.name.text;
+    if (
+      /^(?:toBeCalled|toHaveBeenCalled|toHaveBeenLastCalledWith|toHaveBeenNthCalledWith|toHaveReturned)/u.test(matcher)
+      && ts.isCallExpression(current.parent.parent)
+      && current.parent.parent.expression === current.parent
+    ) {
+      return true;
+    }
+    current = current.parent;
+  }
+  return false;
+}
+
+function isExpectMatcherCall(call: ts.CallExpression): boolean {
+  let expression = call.expression;
+  while (ts.isPropertyAccessExpression(expression) || ts.isElementAccessExpression(expression)) {
+    expression = expression.expression;
+  }
+  return (ts.isIdentifier(expression) && expression.text === "expect")
+    || (ts.isCallExpression(expression) && ts.isIdentifier(expression.expression) && expression.expression.text === "expect");
+}
+
 function isExecutableWeakReference(node: ts.Identifier | ts.StringLiteralLike): boolean {
   const parent = node.parent;
   if (ts.isIdentifier(node)) {
     return (ts.isCallExpression(parent) && parent.expression === node)
-      || (ts.isPropertyAccessExpression(parent) && parent.name === node);
+      || (ts.isPropertyAccessExpression(parent) && parent.name === node
+        && (isInvokedMemberAccess(parent) || isMockInvocationAssertion(parent)));
   }
-  return (ts.isCallExpression(parent) && parent.arguments.some((argument) => argument === node))
-    || (ts.isElementAccessExpression(parent) && parent.argumentExpression === node);
+  return (ts.isCallExpression(parent) && !isExpectMatcherCall(parent) && parent.arguments.some((argument) => argument === node))
+    || (ts.isElementAccessExpression(parent) && parent.argumentExpression === node
+      && (isInvokedMemberAccess(parent) || isMockInvocationAssertion(parent)));
 }
 
 function indexTestSource(test: TestSource, knownAbiKeys: Set<string>): IndexedTestSource {
@@ -575,17 +673,20 @@ function gapsFor(item: {
   proof: ProofFlags;
   exclusion: string | null;
   routeCollision: HttpRouteCollision | null;
+  rpcRegistryGap: string | null;
+  httpRegistryGap: string | null;
+  reviewedApiSurfaceGap: string | null;
 }): string[] {
   const gaps: string[] = [];
-  if (!item.proof.rpcRegistry) gaps.push("missing RPC registry entry");
-  if (!item.proof.httpRegistry && !item.exclusion && !item.routeCollision) gaps.push("missing HTTP registry entry");
+  if (item.rpcRegistryGap) gaps.push(item.rpcRegistryGap);
+  if (item.httpRegistryGap && !item.exclusion) gaps.push(item.httpRegistryGap);
   if (item.routeCollision) {
     const occupants = item.routeCollision.occupants
       .map((occupant) => `${occupant.kind} ${occupant.key}`)
       .join(", ");
     gaps.push(`duplicate HTTP route ${item.routeCollision.route} shared by ${occupants}`);
   }
-  if (!item.proof.reviewedApiSurface && !item.exclusion) gaps.push("missing reviewed API surface entry");
+  if (item.reviewedApiSurfaceGap && !item.exclusion) gaps.push(item.reviewedApiSurfaceGap);
   if (item.exclusion) gaps.push(item.exclusion);
   if (!item.proof.unit) gaps.push("no directly attributable test reference");
   if (item.kind === "function" && item.category === "write" && !item.proof.workflow) gaps.push("no workflow proof reference");
@@ -636,15 +737,18 @@ function buildItem(args: {
   const rpcEntry = rpcRegistry[registrySection][key];
   const route = endpointRoute(endpoint);
   const routeCollision = route ? routeCollisions.get(route) ?? null : null;
+  const rpcGap = rpcRegistryGap(entry, rpcEntry);
+  const httpGap = httpRegistryGap(entry, kind, endpoint);
+  const reviewedGap = reviewedApiSurfaceGap(endpoint, reviewedEndpoint);
   const tokens = itemTokens(key, entry.name, entry.wrapperKey, entry.signature, endpoint ?? reviewedEndpoint);
   const artifactEvidence = verifyEvidenceFor(key, route, endpoint ?? reviewedEndpoint, artifacts);
   const evidence = buildEvidence(tests, tokens, artifactEvidence, kind);
   const exclusion: string | null = null;
   const proof: ProofFlags = {
     abiManifest: true,
-    rpcRegistry: Boolean(rpcEntry),
-    httpRegistry: Boolean(route) && !routeCollision,
-    reviewedApiSurface: Boolean(reviewedEndpoint),
+    rpcRegistry: rpcGap === null,
+    httpRegistry: httpGap === null && !routeCollision,
+    reviewedApiSurface: reviewedGap === null,
     unit: evidence.tests.length > 0,
     workflow: evidence.workflowTests.length > 0,
     localFork: artifactEvidence.some((item) => item.network === "local-fork"),
@@ -677,7 +781,16 @@ function buildItem(args: {
     proof,
     proofDepth: proofDepth(proof),
     classification,
-    gaps: gapsFor({ kind, category, proof, exclusion, routeCollision }),
+    gaps: gapsFor({
+      kind,
+      category,
+      proof,
+      exclusion,
+      routeCollision,
+      rpcRegistryGap: rpcGap,
+      httpRegistryGap: httpGap,
+      reviewedApiSurfaceGap: reviewedGap,
+    }),
     evidence,
   };
 }
@@ -752,9 +865,9 @@ export function buildGapReport(input: BuildGapReportInput): GapReport {
     schemaVersion: 1,
     generatedAt: input.generatedAt,
     methodology: {
-      testAttribution: "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, accessed member, computed member, or call argument. Incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter and registry tests are excluded to avoid self-attribution.",
+      testAttribution: "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, invoked member, mock-invocation assertion target, invoked computed member, or non-assertion call argument. Passive result and DTO member reads, assertion values, incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter, registry, verification-report, and fixture-planner tests are excluded to avoid self-attribution.",
       liveAttribution: "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
-      classificationPolicy: "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
+      classificationPolicy: "Mechanical gaps dominate: RPC and HTTP entries must match the manifest ABI signature; HTTP routes require method, path, and operation id plus classifications for functions; reviewed API entries must match the generated HTTP method, path, operation id, and classification. Intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.",
     },
     inputs: {
       ...inputPaths,
@@ -843,6 +956,10 @@ export async function loadGapReportInput(baseDir: string, generatedAt = new Date
     "api-surface-lib.test.ts",
     "generate-test-roadmap.test.ts",
     "gap-builder-plan.test.ts",
+    "http-registry.test.ts",
+    "manifest.test.ts",
+    "verify-local-fork-lib.test.ts",
+    "verify-report.test.ts",
     "write-invariants-lib.test.ts",
   ]);
   const testPaths = (await Promise.all(testRoots.map(async (testRoot) => {

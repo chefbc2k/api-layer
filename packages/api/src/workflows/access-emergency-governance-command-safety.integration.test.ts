@@ -86,6 +86,7 @@ const targets = [
   { key: "ProposalFacet.prExecute", rejection: "reject stale or unauthorized proposal execution" },
   { key: "ProposalFacet.prQueue", rejection: "reject replayed or unauthorized proposal queue" },
   { key: "TimelockFacet.cancel", rejection: "reject stale or unauthorized timelock cancellation" },
+  { key: "TimelockFacet.schedule", rejection: "reject stale, replayed, or unauthorized timelock schedule" },
 ] as const;
 
 type AbiInput = {

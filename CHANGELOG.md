@@ -18,6 +18,31 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.404] - 2026-10-26
+
+### Changed
+
+- **Behavioral Evidence Attribution Hardened:** Test-gap reporting now accepts invoked members and explicit mock-invocation assertions while rejecting passive DTO/result member reads and assertion values. Registry, manifest, verification-report, and local-fork fixture-planner tests are excluded from protocol behavior evidence, preventing unrelated fields such as funding-order `state` from making ABI methods look covered.
+- **Nine Exposed Fixture Gaps Closed:** The stricter report exposed the complete remaining nine-item batch: `ProposalFacet.queue`, `ProposalFacet.state`, `TimelockFacet.schedule`, and six VoiceDataset mutation routes. Added ABI-native ProposalFacet read fixtures plus mounted-route success, decoded-argument, read-only denial, and stale/replay/unauthorized preflight coverage for Timelock scheduling and the six dataset writes.
+
+### Verified
+
+- **Gap Inventory Returned To Zero:** The hardened report moved from `701/710` ready with `9` selected gaps to `710/710` ready with `0` non-ready items and an empty follow-up plan. Focused reporter/read/safety coverage passed `162/162`; the canonical gap-report suite passed `38/38`; and the gap-builder suite passed `30/30`.
+- **Batch Gates Passed:** Actor negative paths passed `937/937`. Coverage remained complete at `492` functions, `218` events, `492` HTTP methods and `214` event routes across `706` unique routes, plus `260/260` write invariants. Focused ESLint, the API TypeScript build, and `git diff --check` also passed.
+
+## [0.1.403] - 2026-10-25
+
+### Changed
+
+- **Gap Readiness Now Requires Registry Parity:** The API test-gap reporter now rejects same-key RPC or generated HTTP entries whose ABI signatures differ from the contract manifest. HTTP entries also require a method, path, operation ID, and, for functions, a classification before they can satisfy API coverage.
+- **Reviewed Surface Drift Fails Closed:** Reviewed API entries must match the generated HTTP method, path, operation ID, and classification. A reviewed-only entry without a generated HTTP counterpart no longer reports reviewed parity.
+- **Zero-Backlog Boundary Hardened:** The required baseline contained `710/710` ready items and no selectable batch, so the ten-item minimum was inapplicable. Regression fixtures now prove that stale function and event signatures, missing HTTP metadata, method and event review drift, and orphaned reviewed entries become actionable gaps instead of false-ready items.
+
+### Verified
+
+- **Required Gap Gates Passed:** Post-implementation regeneration remained `710/710` ready with `0` non-ready items and an empty follow-up plan because all current registries satisfy the stricter parity rules. Gap-report tests passed `37/37`, gap-builder tests passed `30/30`, and coverage remained complete at `492` functions, `218` events, `492` HTTP methods across `706` unique routes, and `260/260` write invariants.
+- **Focused Quality Checks Passed:** TypeScript no-emit, focused ESLint, and `git diff --check` passed for the reporter implementation and regression suite.
+
 ## [0.1.402] - 2026-10-25
 
 ### Changed
@@ -5720,3 +5745,11 @@
 ### Remaining Issues
 - **Strict 100% Coverage Requirement Still Open:** The repo is green, but the hard coverage mandate is still not met. The largest remaining misses are concentrated in branch-heavy helpers and setup/runtime utilities, especially [/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts](/Users/chef/Public/api-layer/scripts/base-sepolia-operator-setup.ts), [/Users/chef/Public/api-layer/scripts/api-surface-lib.ts](/Users/chef/Public/api-layer/scripts/api-surface-lib.ts), [/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts](/Users/chef/Public/api-layer/packages/client/src/runtime/abi-codec.ts), [/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts](/Users/chef/Public/api-layer/packages/api/src/shared/execution-context.ts), and [/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts](/Users/chef/Public/api-layer/packages/indexer/src/projections/common.ts).
 - **Forward Progress For This Run:** Aggregate uncovered statements dropped from `38` to `34`, uncovered lines from `35` to `31`, and uncovered branches from `216` to `208`, which closes about `10.5%` of the prior statement gap, `11.4%` of the prior line gap, and `3.7%` of the prior branch gap.
+
+
+## 2026-10-25 — Coinbase sandbox checkout continuation
+
+- Add private durable sandbox checkout attempts, owner-scoped order lookup/history and idempotency/concurrency protection that blocks uncertain retries across restarts.
+- Add embedded Coinbase sandbox order adapter, approved-origin and destination binding, exact payment ceiling and sandbox payment-link flags; retain disabled production checkout and unverified settlement status.
+- Enforce quote/order write permission for bound read-only customer keys and include orders in actor-boundary verification.
+- Add real PostgreSQL concurrency, restart, ownership, pagination and role-denial tests; document current acceptance and production gaps without equating static route coverage with release readiness.

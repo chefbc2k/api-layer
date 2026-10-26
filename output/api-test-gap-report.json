@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-25T13:49:41.756Z",
+  "generatedAt": "2026-10-26T05:03:51.064Z",
   "methodology": {
-    "testAttribution": "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, accessed member, computed member, or call argument. Incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter and registry tests are excluded to avoid self-attribution.",
+    "testAttribution": "A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, invoked member, mock-invocation assertion target, invoked computed member, or non-assertion call argument. Passive result and DTO member reads, assertion values, incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter, registry, verification-report, and fixture-planner tests are excluded to avoid self-attribution.",
     "liveAttribution": "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
-    "classificationPolicy": "Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests."
+    "classificationPolicy": "Mechanical gaps dominate: RPC and HTTP entries must match the manifest ABI signature; HTTP routes require method, path, and operation id plus classifications for functions; reviewed API entries must match the generated HTTP method, path, operation id, and classification. Intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests."
   },
   "inputs": {
     "contractManifest": "generated/manifests/contract-manifest.json",
@@ -17,6 +17,7 @@
       "packages/api/src/app.routes.test.ts",
       "packages/api/src/app.test.ts",
       "packages/api/src/funding/funding.test.ts",
+      "packages/api/src/funding/orders.test.ts",
       "packages/api/src/funding/postgres.integration.test.ts",
       "packages/api/src/modules/access-control/primitives/access-control-reads.test.ts",
       "packages/api/src/modules/governance/primitives/proposal-reads.test.ts",
@@ -159,11 +160,9 @@
       "scripts/base-sepolia-operator-setup.test.ts",
       "scripts/coverage-fs-patch.test.ts",
       "scripts/custom-coverage-provider.test.ts",
-      "scripts/http-registry.test.ts",
       "scripts/indexer-receipt-proof-lib.test.ts",
       "scripts/indexer-trace-capability-lib.test.ts",
       "scripts/license-template-helper.test.ts",
-      "scripts/manifest.test.ts",
       "scripts/promote-base-sepolia-scenarios.test.ts",
       "scripts/red-team-access-control-workflow.test.ts",
       "scripts/red-team-auth-boundaries.test.ts",
@@ -176,9 +175,7 @@
       "scripts/utils.test.ts",
       "scripts/verify-governance-workflows.test.ts",
       "scripts/verify-layer1-helpers.test.ts",
-      "scripts/verify-local-fork-lib.test.ts",
       "scripts/verify-marketplace-purchase-live.test.ts",
-      "scripts/verify-report.test.ts",
       "scripts/vitest-config.test.ts"
     ],
     "verifyArtifacts": [
@@ -204,11 +201,11 @@
       "httpRegistry": 710,
       "reviewedApiSurface": 710,
       "unit": 710,
-      "workflow": 338,
+      "workflow": 334,
       "localFork": 123,
       "baseSepolia": 85,
-      "negativePath": 355,
-      "economic": 178,
+      "negativePath": 353,
+      "economic": 180,
       "redTeam": 296,
       "indexer": 218
     },
@@ -3068,7 +3065,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.82,
+          "averageScore": 3.76,
           "maximumScore": 8
         }
       },
@@ -3176,27 +3173,20 @@
           "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/participant-activation-flow.test.ts",
               "scripts/indexer-receipt-proof-lib.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/participant-activation-flow.test.ts"
+              "packages/api/src/workflows/claim-reward-campaign.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts",
-              "packages/api/src/workflows/participant-activation-flow.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "indexerTests": [],
@@ -3284,7 +3274,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": true,
+            "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
@@ -3294,7 +3284,7 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 5,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -3304,20 +3294,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
-            "workflowTests": [
-              "packages/api/src/workflows/claim-reward-campaign.test.ts"
-            ],
+            "workflowTests": [],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/red-team-reward-campaign.test.ts"
             ],
             "redTeamTests": [
@@ -4892,7 +4877,6 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
@@ -5930,8 +5914,7 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "scripts/manifest.test.ts"
+              "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
@@ -13034,12 +13017,10 @@
           "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts",
-              "packages/api/src/workflows/manage-reward-campaign.test.ts"
+              "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts",
-              "packages/api/src/workflows/manage-reward-campaign.test.ts"
+              "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts"
@@ -13681,7 +13662,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.83,
+          "averageScore": 2.79,
           "maximumScore": 8
         }
       },
@@ -13999,13 +13980,13 @@
             "localFork": false,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -14014,28 +13995,21 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
-              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
-              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "packages/indexer/src/worker.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -15071,7 +15045,7 @@
         "proofDepth": {
           "minimumLevel": "workflow",
           "maximumLevel": "indexer",
-          "averageScore": 3,
+          "averageScore": 2.93,
           "maximumScore": 8
         }
       },
@@ -15319,13 +15293,13 @@
             "localFork": false,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -15334,23 +15308,15 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
-              "packages/api/src/workflows/inspect-legacy-migration-posture.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
-              "packages/api/src/workflows/inspect-legacy-migration-posture.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
@@ -19198,7 +19164,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.15,
+          "averageScore": 3.04,
           "maximumScore": 8
         }
       },
@@ -20208,7 +20174,7 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": true,
+            "workflow": false,
             "localFork": false,
             "baseSepolia": false,
             "negativePath": false,
@@ -20217,8 +20183,8 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "workflow",
-            "score": 2,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -20227,11 +20193,9 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts"
+              "packages/api/src/modules/governance/primitives/proposal-reads.test.ts"
             ],
-            "workflowTests": [
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts"
-            ],
+            "workflowTests": [],
             "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
@@ -20316,17 +20280,17 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": true,
+            "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": true,
+            "negativePath": false,
             "economic": false,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 3,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -20335,17 +20299,10 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/workflows/multisig-protocol-change.test.ts",
-              "packages/api/src/workflows/trigger-emergency.test.ts",
-              "scripts/verify-local-fork-lib.test.ts"
+              "packages/api/src/modules/governance/primitives/proposal-reads.test.ts"
             ],
-            "workflowTests": [
-              "packages/api/src/workflows/multisig-protocol-change.test.ts",
-              "packages/api/src/workflows/trigger-emergency.test.ts"
-            ],
-            "negativePathTests": [
-              "packages/api/src/workflows/trigger-emergency.test.ts"
-            ],
+            "workflowTests": [],
+            "negativePathTests": [],
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
@@ -23168,8 +23125,7 @@
               "packages/api/src/workflows/stake-and-delegate.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/stake-and-delegate.test.ts"
+              "packages/api/src/app.contract-integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
@@ -23954,13 +23910,13 @@
             "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
-            "economic": true,
+            "economic": false,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -23968,24 +23924,17 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/governance-timelock-consequence-flow.test.ts",
               "packages/api/src/workflows/multisig-protocol-change-helpers.test.ts",
               "scripts/red-team-local-fork.test.ts"
             ],
-            "economicTests": [
-              "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts"
-            ],
+            "economicTests": [],
             "redTeamTests": [
               "scripts/red-team-local-fork.test.ts"
             ],
@@ -24329,12 +24278,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -24342,20 +24291,18 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/recover-from-emergency.test.ts",
-              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
-              "packages/api/src/workflows/vesting-helpers.test.ts"
+              "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/recover-from-emergency.test.ts",
-              "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
-              "packages/api/src/workflows/vesting-helpers.test.ts"
+              "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/vesting-helpers.test.ts"
+              "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": [
               {
@@ -27300,19 +27247,13 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/economic-invariants.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/modules/voice-assets/workflows/transfer-rights.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/economic-invariants.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/api/src/workflows/economic-invariants.test.ts"
             ],
             "economicTests": [
@@ -30874,7 +30815,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.18,
+          "averageScore": 3.11,
           "maximumScore": 8
         }
       },
@@ -31503,8 +31444,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
-              "packages/api/src/workflows/legacy-migration-recovery.test.ts",
-              "scripts/http-registry.test.ts"
+              "packages/api/src/workflows/legacy-migration-recovery.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
@@ -31991,17 +31931,17 @@
             "httpRegistry": true,
             "reviewedApiSurface": true,
             "unit": true,
-            "workflow": true,
+            "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": true,
-            "economic": true,
-            "redTeam": true,
+            "negativePath": false,
+            "economic": false,
+            "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
-            "level": "adversarial",
-            "score": 5,
+            "level": "unit",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -32010,43 +31950,12 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/modules/voice-assets/primitives/voice-asset-reads.test.ts",
-              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
-              "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
-              "scripts/red-team-harness-lib.test.ts"
+              "packages/api/src/modules/voice-assets/primitives/voice-asset-reads.test.ts"
             ],
-            "workflowTests": [
-              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
-              "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts"
-            ],
-            "negativePathTests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
-              "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
-              "scripts/red-team-harness-lib.test.ts"
-            ],
-            "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
-            ],
-            "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
-              "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
-              "scripts/red-team-harness-lib.test.ts"
-            ],
+            "workflowTests": [],
+            "negativePathTests": [],
+            "economicTests": [],
+            "redTeamTests": [],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -32386,8 +32295,7 @@
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts",
               "packages/client/src/runtime/provider-router.test.ts",
-              "packages/indexer/src/worker.test.ts",
-              "scripts/http-registry.test.ts"
+              "packages/indexer/src/worker.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/modules/voice-assets/workflows/register-voice-asset.test.ts"
@@ -34118,7 +34026,7 @@
         "proofDepth": {
           "minimumLevel": "live",
           "maximumLevel": "indexer",
-          "averageScore": 4.32,
+          "averageScore": 4.56,
           "maximumScore": 8
         }
       },
@@ -34148,13 +34056,13 @@
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -34162,19 +34070,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
+            ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -34307,8 +34219,7 @@
           "gaps": [],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "scripts/verify-local-fork-lib.test.ts"
+              "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
@@ -34651,13 +34562,13 @@
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -34665,19 +34576,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
+            ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -34783,13 +34698,13 @@
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -34797,19 +34712,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
+            ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -34855,13 +34774,13 @@
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -34869,19 +34788,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
+            ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -34994,13 +34917,13 @@
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -35008,19 +34931,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
+            ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -35066,13 +34993,13 @@
             "localFork": true,
             "baseSepolia": true,
             "negativePath": true,
-            "economic": false,
+            "economic": true,
             "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 6,
+            "score": 7,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -35080,19 +35007,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/catalog-listing-operations.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
             "workflowTests": [
-              "packages/api/src/workflows/catalog-listing-operations.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
               "scripts/actor-negative-paths-lib.test.ts"
             ],
-            "economicTests": [],
+            "economicTests": [
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
+            ],
             "redTeamTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
             "verifyArtifacts": [
@@ -35751,9 +35682,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "scripts/verify-local-fork-lib.test.ts",
-              "scripts/verify-report.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
@@ -35762,8 +35691,7 @@
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "scripts/verify-local-fork-lib.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
@@ -35887,8 +35815,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
-              "scripts/verify-local-fork-lib.test.ts"
+              "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts"
@@ -36398,8 +36325,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "scripts/verify-report.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
@@ -38253,8 +38179,7 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
-              "scripts/http-registry.test.ts"
+              "packages/api/src/app.contract-integration.test.ts"
             ],
             "workflowTests": [],
             "negativePathTests": [],
@@ -40005,7 +39930,6 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
@@ -40114,7 +40038,6 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
             "workflowTests": [],
@@ -40597,8 +40520,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
-              "scripts/verify-report.test.ts"
+              "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",

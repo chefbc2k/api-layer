@@ -1,13 +1,16 @@
 import { createHash } from "node:crypto";
-import { Contract, getAddress, ZeroAddress } from "ethers";
+import { Contract } from "ethers";
 import { Router, type Request } from "express";
 import { Pool } from "pg";
 import { z } from "zod";
-import { authenticate, type AuthContext } from "../shared/auth.js";
+import { authenticate, assertWriteAuthorized } from "../shared/auth.js";
 import { HttpError, toHttpError } from "../shared/errors.js";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 import { BASE_USDC, BASE_SEPOLIA_USDC, decimalUnits, readFundingConfig, type FundingConfig } from "./config.js";
-import { CoinbaseFundingProvider, type CoinbaseQuote } from "./provider.js";
+import { CoinbaseFundingProvider } from "./provider.js";
+import { fundingActor, validateQuote } from "./validation.js";
+export { validateQuote } from "./validation.js";
+import { mountFundingOrderRoutes } from "./order-routes.js";
 import { FundingStore } from "./store.js";
 
 const locationSchema = z.object({ country: z.string().regex(/^[A-Z]{2}$/), subdivision: z.string().regex(/^[A-Z]{2}$/).optional() });
@@ -22,39 +25,20 @@ type Dependencies = {
   config?: FundingConfig | null;
   provider?: Pick<CoinbaseFundingProvider, "options" | "quote">;
   store?: Pick<FundingStore, "insertQuote">;
+  orderProvider?: Pick<CoinbaseFundingProvider, "createSandboxOrder">;
+  orderStore?: Pick<FundingStore, "reserveOrder" | "completeOrder" | "markOrderUnknown" | "getOrder" | "listOrders">;
   inspectChain?: () => Promise<{ chainId: number; token: string }>;
 };
-
-function fundingActor(auth: AuthContext, request: Request): { userId: string; wallet: string } {
-  if (!auth.fundingUserId || !auth.walletAddress) throw new HttpError(403, "Funding requires an explicitly bound customer identity and wallet");
-  let wallet: string;
-  try { wallet = getAddress(auth.walletAddress); } catch { throw new HttpError(403, "Funding wallet binding is invalid"); }
-  if (wallet === ZeroAddress) throw new HttpError(403, "Funding wallet binding is invalid");
-  const suppliedWallet = request.header("x-wallet-address");
-  if (suppliedWallet && suppliedWallet.toLowerCase() !== wallet.toLowerCase()) throw new HttpError(403, "Funding wallet does not match authenticated customer");
-  return { userId: auth.fundingUserId, wallet };
-}
-
-export function validateQuote(quote: CoinbaseQuote, wallet: string, amountKind: "payment" | "purchase", amount: string): void {
-  try {
-    if (getAddress(quote.destinationAddress) !== getAddress(wallet)) throw new Error("recipient mismatch");
-    const total = decimalUnits(quote.paymentTotal, 6);
-    const subtotal = decimalUnits(quote.paymentSubtotal, 6);
-    const purchase = decimalUnits(quote.purchaseAmount, 6);
-    const fees = quote.fees.reduce((sum, fee) => sum + decimalUnits(fee.amount, 6), 0n);
-    if (total <= 0n || subtotal <= 0n || purchase <= 0n || total !== subtotal + fees) throw new Error("inconsistent pricing");
-    if ((amountKind === "payment" ? total : purchase) !== decimalUnits(amount, 6)) throw new Error("amount mismatch");
-  } catch { throw new HttpError(502, "Coinbase returned inconsistent quote pricing or destination"); }
-}
 
 export function createFundingRouter(context: ApiExecutionContext, dependencies: Dependencies = {}): Router {
   const router = Router();
   const config = dependencies.config === undefined ? readFundingConfig() : dependencies.config;
   if (!config) return router;
   const provider = dependencies.provider ?? new CoinbaseFundingProvider(config);
-  const store = dependencies.store ?? new FundingStore(new Pool({
+  const defaultStore = new FundingStore(new Pool({
     connectionString: config.databaseUrl, max: 3, idleTimeoutMillis: 10_000, allowExitOnIdle: true,
   }));
+  const store = dependencies.store ?? defaultStore;
   const inspectChain = dependencies.inspectChain ?? (() => context.providerRouter.withProvider("read", "funding.destination", async (rpc) => {
     const network = await rpc.getNetwork();
     const diamond = new Contract(context.config.diamondAddress, ["function getUsdcToken() view returns (address)"], rpc);
@@ -70,7 +54,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
     if (origin) response.setHeader("Access-Control-Allow-Origin", origin);
     if (request.method === "OPTIONS") {
       response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-      response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-API-Key, X-Wallet-Address");
+      response.setHeader("Access-Control-Allow-Headers", "Content-Type, X-API-Key, X-Wallet-Address, Idempotency-Key");
       response.sendStatus(204); return;
     }
     next();
@@ -79,6 +63,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
   const handle = (quote: boolean) => async (request: Request, response: import("express").Response) => {
     try {
       const auth = authenticate(context.apiKeys, request.header("x-api-key"));
+      if (quote) assertWriteAuthorized(auth);
       const actor = fundingActor(auth, request);
       await context.rateLimiter.enforce(quote ? "write" : "read", `funding:${actor.userId}`);
       const input = quote ? quoteRequest.parse(request.body) : optionsRequest.parse(request.query);
@@ -131,6 +116,11 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
       response.status(http.statusCode).json({ error: http.statusCode >= 500 && !(error instanceof HttpError) ? "Funding service is unavailable" : http.message });
     }
   };
+  mountFundingOrderRoutes(router, context, config, {
+    provider: dependencies.orderProvider ?? new CoinbaseFundingProvider(config),
+    store: dependencies.orderStore ?? defaultStore,
+    inspectChain,
+  });
   router.get("/v1/funding/options", handle(false));
   router.post("/v1/funding/quotes", handle(true));
   return router;

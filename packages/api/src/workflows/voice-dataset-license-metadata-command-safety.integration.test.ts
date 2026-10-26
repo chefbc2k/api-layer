@@ -73,8 +73,14 @@ const fixtureAccount = "0x00000000000000000000000000000000000000bb";
 // Each selected command is covered below by its mounted workflow route plus
 // explicit unauthorized and stale/replayed rejection paths before mutation.
 const targetKeys = [
+  "VoiceDatasetFacet.appendAssets",
   "VoiceDatasetFacet.burnDataset",
+  "VoiceDatasetFacet.removeAsset",
+  "VoiceDatasetFacet.setDatasetStatus",
+  "VoiceDatasetFacet.setLicense",
   "VoiceDatasetFacet.setMaxAssetsPerDataset",
+  "VoiceDatasetFacet.setMetadata",
+  "VoiceDatasetFacet.setRoyalty",
   "VoiceLicenseFacet.createLicense",
   "VoiceLicenseFacet.createLicenseWithMarketplace",
   "VoiceLicenseFacet.issueLicense",

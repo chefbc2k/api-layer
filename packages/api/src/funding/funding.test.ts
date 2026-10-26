@@ -206,6 +206,10 @@ describe("funding HTTP boundary", () => {
     const { call, provider } = await setup({ disabled: true });
     expect((await call()).status).toBe(404); expect(provider.options).not.toHaveBeenCalled();
   });
+  it("denies bound read-only customers permission to create quotes", async () => {
+    const { call, context, provider, store } = await setup(); context.apiKeys.customer.roles = ["read-only"];
+    expect((await call(input)).status).toBe(403); expect(provider.quote).not.toHaveBeenCalled(); expect(store.insertQuote).not.toHaveBeenCalled();
+  });
   it("enforces the customer rate limit before upstream requests", async () => {
     const { call, context, provider } = await setup();
     vi.spyOn(context.rateLimiter, "enforce").mockRejectedValue(new Error("rate limit exceeded"));

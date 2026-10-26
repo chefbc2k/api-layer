@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-25T13:49:41.756Z`
+Generated: `2026-10-26T05:03:51.064Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -27,19 +27,19 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | httpRegistry | 710 |
 | reviewedApiSurface | 710 |
 | unit | 710 |
-| workflow | 338 |
+| workflow | 334 |
 | localFork | 123 |
 | baseSepolia | 85 |
-| negativePath | 355 |
-| economic | 178 |
+| negativePath | 353 |
+| economic | 180 |
 | redTeam | 296 |
 | indexer | 218 |
 
 ## Methodology
 
-- A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, accessed member, computed member, or call argument. Incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter and registry tests are excluded to avoid self-attribution.
+- A protocol test is attributed by a bounded ABI key or signature, an exact generated HTTP path (optionally followed by a query or fragment), or a name/wrapper/operation id used as an invoked function, invoked member, mock-invocation assertion target, invoked computed member, or non-assertion call argument. Passive result and DTO member reads, assertion values, incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter, registry, verification-report, and fixture-planner tests are excluded to avoid self-attribution.
 - A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.
-- Mechanical gaps dominate; intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.
+- Mechanical gaps dominate: RPC and HTTP entries must match the manifest ABI signature; HTTP routes require method, path, and operation id plus classifications for functions; reviewed API entries must match the generated HTTP method, path, operation id, and classification. Intentionally excluded/admin operations without live proof are unsafe on live network; writes require unit, workflow, and negative-path evidence; events require event-specific indexer tests.
 
 ## AccessControlFacet
 
@@ -120,7 +120,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## CommunityRewardsFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.82/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.76/8`.
 
 ### Functions
 
@@ -129,7 +129,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `campaignCount` | read | yes | — | — | yes | — | yes | — | adversarial 3/8 | ready |
 | `claim` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 | `claimableAmount` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
-| `claimed` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
+| `claimed` | read | yes | — | — | — | yes | yes | yes | adversarial 4/8 | ready |
 | `createCampaign` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
 | `getCampaign` | read | yes | — | — | — | yes | yes | yes | adversarial 4/8 | ready |
 | `pauseCampaign` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
@@ -487,7 +487,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## MultiSigFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.83/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.79/8`.
 
 ### Functions
 
@@ -498,7 +498,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `approveOperation` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `canExecuteOperation` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `cancelOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `execute` | write | yes | yes | — | yes | yes | yes | yes | adversarial 6/8 | ready |
+| `execute` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
 | `executeOperation` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `getOperation` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getOperationConfig` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
@@ -525,7 +525,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## OwnershipFacet
 
-Facet classification: **ready**. Proof depth spans `workflow` to `indexer` with an average score of `3/8`.
+Facet classification: **ready**. Proof depth spans `workflow` to `indexer` with an average score of `2.93/8`.
 
 ### Functions
 
@@ -535,7 +535,7 @@ Facet classification: **ready**. Proof depth spans `workflow` to `indexer` with 
 | `cancelOwnershipTransfer` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `isOwnerTargetApproved` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOwnershipPolicyEnforced` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
-| `owner` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `owner` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `pendingOwner` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
 | `proposeOwnershipTransfer` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `setApprovedOwnerTarget` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
@@ -626,7 +626,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## ProposalFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.15/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.04/8`.
 
 ### Functions
 
@@ -649,9 +649,9 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `proposalVotes` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `propose(string,string,address[],uint256[],bytes[],uint8)` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
 | `propose(address[],uint256[],bytes[],string,uint8)` | write | yes | yes | yes | yes | yes | — | — | adversarial 5/8 | ready |
-| `queue` | read | yes | yes | — | — | — | — | — | workflow 2/8 | ready |
+| `queue` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `setProposalTypeConfig` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
-| `state` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `state` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 
 ### Events
 
@@ -757,14 +757,14 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `EXECUTOR_ROLE` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `PROPOSER_ROLE` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `cancel` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
-| `execute` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
+| `execute` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `getMinDelay` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getOperation` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getTimestamp` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isOperationExecuted` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
 | `isOperationPending` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isOperationReady` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `schedule` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
+| `schedule` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `updateMinDelay` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 
 ### Events
@@ -944,7 +944,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## VoiceAssetFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.18/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.11/8`.
 
 ### Functions
 
@@ -969,7 +969,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `isAuthorized` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isRegistrationPaused` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `lockVoiceAsset` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
-| `name` | read | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
+| `name` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `ownerOf` | read | yes | yes | — | yes | yes | yes | — | adversarial 5/8 | ready |
 | `recordRoyaltyPayment` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `recordRoyaltyPaymentFrom` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
@@ -1013,13 +1013,13 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## VoiceDatasetFacet
 
-Facet classification: **ready**. Proof depth spans `live` to `indexer` with an average score of `4.32/8`.
+Facet classification: **ready**. Proof depth spans `live` to `indexer` with an average score of `4.56/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `appendAssets` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `appendAssets` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
 | `burnDataset` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
 | `containsAsset` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
 | `createDataset` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
@@ -1027,13 +1027,13 @@ Facet classification: **ready**. Proof depth spans `live` to `indexer` with an a
 | `getDatasetsByCreator` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
 | `getMaxAssetsPerDataset` | read | yes | — | — | — | — | — | yes | adversarial 2/8 | ready |
 | `getTotalDatasets` | read | yes | — | — | — | — | — | yes | adversarial 2/8 | ready |
-| `removeAsset` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `removeAsset` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
 | `royaltyInfo` | read | yes | — | — | yes | yes | — | yes | adversarial 4/8 | ready |
-| `setDatasetStatus` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
-| `setLicense` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `setDatasetStatus` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
+| `setLicense` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
 | `setMaxAssetsPerDataset` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
-| `setMetadata` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
-| `setRoyalty` | write | yes | yes | yes | yes | yes | — | yes | adversarial 6/8 | ready |
+| `setMetadata` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
+| `setRoyalty` | write | yes | yes | yes | yes | yes | yes | yes | adversarial 7/8 | ready |
 
 ### Events
 

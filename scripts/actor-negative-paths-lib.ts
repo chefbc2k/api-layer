@@ -41,10 +41,9 @@ export type ActorNegativePathMethod = {
 
 export const HTTP_EXCLUDED_WRITE_METHODS: readonly string[] = [];
 
-export const ADDITIONAL_HTTP_WRITES = [
-  {
+export const ADDITIONAL_HTTP_WRITES = ["/v1/funding/quotes", "/v1/funding/orders"].map(path => ({
     method: "POST",
-    path: "/v1/funding/quotes",
+    path,
     domain: "funding",
     requiredIdentity: "funding-customer",
     deniedActors: [...ACTOR_ROLES, "read-only", "unknown-key"],
@@ -53,8 +52,7 @@ export const ADDITIONAL_HTTP_WRITES = [
       "unknown-api-key",
       "wallet-binding-mismatch",
     ],
-  },
-] as const;
+  } as const));
 
 const capabilityTargets = {
   commercialize: {
