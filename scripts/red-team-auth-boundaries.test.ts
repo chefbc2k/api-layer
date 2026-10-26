@@ -197,9 +197,18 @@ describe("red-team API key and signer-map boundaries", () => {
     expect(context.signerNonces.has(rotatedQueueKey)).toBe(false);
   });
 
-  it("does not classify an already-known signed transaction as safe to resubmit", () => {
-    expect(__testOnly.isNonceExpiredError(new Error("already known"))).toBe(false);
-    expect(__testOnly.isNonceExpiredError({ message: "ALREADY KNOWN" })).toBe(false);
-    expect(__testOnly.isNonceExpiredError(new Error("nonce too low"))).toBe(true);
+  it("does not classify ambiguous pending or replacement outcomes as safe to resubmit", () => {
+    for (const message of [
+      "already known",
+      "replacement fee too low",
+      "replacement transaction underpriced",
+      "transaction underpriced",
+    ]) {
+      expect(__testOnly.isNonceExpiredError(new Error(message))).toBe(false);
+      expect(__testOnly.isNonceExpiredError({ message: message.toUpperCase() })).toBe(false);
+    }
+    for (const message of ["nonce too low", "nonce has already been used", "nonce expired"]) {
+      expect(__testOnly.isNonceExpiredError(new Error(message))).toBe(true);
+    }
   });
 });

@@ -118,10 +118,7 @@ function isNonceExpiredError(error: unknown): boolean {
   return (
     message.includes("nonce too low") ||
     message.includes("nonce has already been used") ||
-    message.includes("nonce expired") ||
-    message.includes("replacement fee too low") ||
-    message.includes("replacement transaction underpriced") ||
-    message.includes("transaction underpriced")
+    message.includes("nonce expired")
   );
 }
 
@@ -439,7 +436,6 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
           const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
           const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
           forcedNonce = resolveRetryNonce(pendingNonce, localNonce, forcedNonce);
-          context.signerNonces.set(prepared.queueKey, forcedNonce);
         }
       }
 

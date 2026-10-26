@@ -1,5 +1,15 @@
 # Changelog: USpeaks API Layer
 
+## Coinbase checkout and raw webhooks - 2026-10-25
+
+- Added embedded Headless order creation, Coinbase-account sessions, owner-scoped provider status/history, authenticated encrypted checkout persistence and separate checkout enablement. Unknown provider outcomes remain locked until reconciliation; settlement is never inferred from checkout/provider status.
+- Added raw-body Coinbase webhook verification before JSON parsing, signed event identity, replay window, private durable inbox and acknowledgement after PostgreSQL persistence. Asynchronous processing and settlement remain pending.
+- Added concurrent real-PostgreSQL checkout/replay proofs and raw signature boundary tests. Fixed a duplicate-request race between database unique indexes and aligned the pending-auth provider status with the current SDK. Final gates passed: 1,993 tests, 22 PostgreSQL proofs, typecheck/lint/build and coverage (96.84% statements). C06–C09/C11 accepted; total 10/20 (50%). Recovery, processing, settlement and release proofs remain open. Timeout failures and successful reruns are preserved in the daily log.
+
+## Coinbase checkout candidate - 2026-10-24
+
+- Implemented the C06–C10 candidate with focused tests; interruption left full gates unfinished. No new accepted units or default-branch delivery on October 24.
+
 ## Coinbase funding foundation - 2026-10-23
 
 ### Added
@@ -34,6 +44,21 @@
 ### Remaining Issues
 
 - **Economic Expansion Remains Blocked And Unmerged:** Vesting release still advances accounting without beneficiary token credit; treasury approval proof still needs unsupported signer storage seeding and lacks approval readback/event evidence; the indexer full-suite timeout also needs stabilization. No merge to `master` was performed.
+## [0.1.404] - 2026-10-26
+
+### Changed
+
+- **ABI Gap Evidence Refreshed:** Rebuilt the canonical ABI, RPC, HTTP, wrapper, reviewed-surface, event-projection, and write-invariant inventories and regenerated the JSON/Markdown gap report plus forty-percent plan from current production evidence.
+- **Token Burn Proof Promoted:** New workflow evidence moves `TokenSupplyFacet.burn` from `needs fixture` to `ready`. The report now records `611` ready items, `63` fixture gaps, and `36` unsafe-live operations across the unchanged `710`-item inventory; all `143` referenced evidence paths exist.
+- **Proof Depth Expanded:** Current attribution reaches `686` unit, `371` workflow, `111` local-fork, `60` Base Sepolia, `374` negative-path, `199` economic, `173` red-team, and `218` indexer items. There are no contract-change, API-guard, or indexer-proof gaps.
+- **Write-Invariant Metadata Revalidated:** Reaudited the consolidated local and remote production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Report And Repository Suites Passed:** Gap-report tests passed `8/8`, planner tests passed `12/12`, and the full repository suite passed `2,063` active tests across `159` files with `63` environment-gated skips.
+- **Coverage And Quality Gates Passed:** After one environmental worker timeout passed immediately in isolation, the unchanged measured-coverage rerun passed at `96.82%` statements, `95.55%` branches, `97.58%` functions, and `97.06%` lines. Ordered TypeScript, lint, full build/codegen, and explicit coverage inventory passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; the dedicated invariant generator, TypeScript workspace builds, lint, canonical code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` write invariants.
 
 ## [0.1.403] - 2026-10-25
 

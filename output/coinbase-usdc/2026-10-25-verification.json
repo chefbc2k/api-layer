@@ -1,0 +1,116 @@
+{
+  "date": "2026-10-25",
+  "before": 5,
+  "attempted": [
+    "C06",
+    "C07",
+    "C08",
+    "C09",
+    "C10",
+    "C11"
+  ],
+  "completed": [
+    "C06",
+    "C07",
+    "C08",
+    "C09",
+    "C11"
+  ],
+  "after": 10,
+  "denominator": 20,
+  "attemptedPercent": 30,
+  "completedPercent": 25,
+  "overallPercent": 50,
+  "tests": {
+    "passed": 1993,
+    "skipped": 56,
+    "failed": 0
+  },
+  "fundingFocused": {
+    "passed": 91,
+    "databaseGated": 16
+  },
+  "postgres": {
+    "passed": 22,
+    "funding": 16,
+    "indexer": 6,
+    "migrationPasses": 2
+  },
+  "actorPassed": 351,
+  "redteamPassed": 115,
+  "indexer": {
+    "passed": 267,
+    "databaseGatedSeparatelyPassed": 6
+  },
+  "quality": {
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0
+  },
+  "coverage": {
+    "lines": {
+      "total": 5948,
+      "covered": 5775,
+      "skipped": 0,
+      "pct": 97.09
+    },
+    "statements": {
+      "total": 6283,
+      "covered": 6085,
+      "skipped": 0,
+      "pct": 96.84
+    },
+    "functions": {
+      "total": 1486,
+      "covered": 1449,
+      "skipped": 0,
+      "pct": 97.51
+    },
+    "branches": {
+      "total": 5535,
+      "covered": 5302,
+      "skipped": 0,
+      "pct": 95.79
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "localEvm": {
+    "environment": "disposable-local-anvil",
+    "providerOptions": "synthetic fixture",
+    "actualEvmChainId": 84532,
+    "defaultContractInspection": true,
+    "matching": 200,
+    "tokenMismatch": 409,
+    "chainMismatch": 409,
+    "productionTransfers": 0
+  },
+  "sourceCommit": "e47c99549d7fbe58ff0b3c9e5fa53320461f31d8",
+  "providerSandboxProven": false,
+  "productionEnabled": false,
+  "recoveredPriorFailures": [
+    "PostgreSQL duplicate-key index race (fixed)",
+    "implicit-any signature fields (fixed)",
+    "provider pending-auth enum (fixed)",
+    "full-suite indexer timeout (normal rerun passed)",
+    "coverage indexer/worker timeout (normal rerun passed)"
+  ],
+  "remaining": [
+    "C10",
+    "C12",
+    "C13",
+    "C14",
+    "C15",
+    "C16",
+    "C17",
+    "C18",
+    "C19",
+    "C20"
+  ],
+  "remoteBuildTestCIConfigured": false
+}

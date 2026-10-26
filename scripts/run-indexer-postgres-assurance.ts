@@ -61,6 +61,8 @@ async function main(): Promise<void> {
         "-f", "db/migrations/0003_indexer_block_journal.sql",
         "-f", "db/migrations/0004_reward_campaign_projections.sql",
         "-f", "db/migrations/0005_funding_quotes.sql",
+        "-f", "db/migrations/0006_funding_attempts.sql",
+        "-f", "db/migrations/0007_funding_webhook_inbox.sql",
       ]);
     }
 
