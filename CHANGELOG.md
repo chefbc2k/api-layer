@@ -35,11 +35,14 @@
 - **ABI Gap Evidence Refreshed:** Rebuilt the canonical ABI, RPC, HTTP, wrapper, reviewed-surface, event-projection, and write-invariant inventories and regenerated the JSON/Markdown gap report plus forty-percent plan from current production evidence.
 - **Token Burn Proof Promoted:** New workflow evidence moves `TokenSupplyFacet.burn` from `needs fixture` to `ready`. The report now records `611` ready items, `63` fixture gaps, and `36` unsafe-live operations across the unchanged `710`-item inventory; all `143` referenced evidence paths exist.
 - **Proof Depth Expanded:** Current attribution reaches `686` unit, `371` workflow, `111` local-fork, `60` Base Sepolia, `374` negative-path, `199` economic, `173` red-team, and `218` indexer items. There are no contract-change, API-guard, or indexer-proof gaps.
+- **Write-Invariant Metadata Revalidated:** Reaudited the consolidated local and remote production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
 
 ### Verified
 
 - **Report And Repository Suites Passed:** Gap-report tests passed `8/8`, planner tests passed `12/12`, and the full repository suite passed `2,063` active tests across `159` files with `63` environment-gated skips.
 - **Coverage And Quality Gates Passed:** After one environmental worker timeout passed immediately in isolation, the unchanged measured-coverage rerun passed at `96.82%` statements, `95.55%` branches, `97.58%` functions, and `97.06%` lines. Ordered TypeScript, lint, full build/codegen, and explicit coverage inventory passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; the dedicated invariant generator, TypeScript workspace builds, lint, canonical code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` write invariants.
 
 ## [0.1.403] - 2026-10-25
 
