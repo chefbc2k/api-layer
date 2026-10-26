@@ -28,6 +28,17 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.404] - 2026-10-26
+
+### Changed
+
+- **Write-Invariant Metadata Revalidated:** Reaudited the consolidated local and remote production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- **Fail-Closed Drift Checks Remain Complete:** The validator continues to reject missing or stale methods, ABI signature drift, incomplete sections, stale read/event references, and inconsistent indexer expectations. The reviewed catalog remained byte-stable and the generated registry remained semantically stable after timestamp removal.
+
+### Verified
+
+- **Invariant And Quality Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; the authoring sync was byte-stable; the dedicated invariant generator, TypeScript workspace builds, lint, canonical code generation, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` write invariants.
+
 ## [0.1.403] - 2026-10-25
 
 ### Changed

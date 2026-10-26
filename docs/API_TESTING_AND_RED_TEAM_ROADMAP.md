@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Write-Invariant Metadata Automation Run — 2026-10-26
+
+- Started `codex/write-invariant-metadata-20261026` in the clean reusable invariant worktree from consolidation commit `9fd8f2b`, which contains both local production `master` `5d49451` and fetched `origin/master` `3abb8ba`; the unrelated dirty primary ABI-gap checkout remained untouched. The production delta since the 2026-10-25 invariant merge adds Coinbase funding and red-team implementation/tracking changes but does not change the ABI inventory, reviewed invariant catalog, invariant generator, or validator.
+- Revalidated every mounted ABI write. All `260` write methods across `31` facets retain structured ABI signatures, required actors/roles, preconditions, post-state readbacks, emitted events, balance effects, replay constraints, live-network safety, and indexer expectations. Actor classifications remain `151` role-gated, `54` owner-or-approved, `36` self, `11` protocol-contract, and `8` permissionless; live safety remains `153` fork-only, `11` never automate live, and `96` safe with disposable fixtures.
+- Fail-closed coverage continues to reject missing and stale method keys, ABI signature drift, incomplete invariant sections, stale/non-read post-state references, stale event references, and inconsistent indexer expectations. The explicit authoring sync was byte-stable at reviewed-catalog SHA-256 `c1a0ba94aa5ce3fe3beb632c92c608ce7bc405190c1485ee5dde4e1afd24cfb0`; the generated registry remains semantically stable at timestamp-removed SHA-256 `2036753b19e3b69b13b96e3cc7ccd8aa3d01e1f160fcfcaec814ed6580af35a4`.
+- Verification passed: `pnpm run test:write-invariants` (`7/7`), the byte-stability `pnpm run sync:write-invariants` check, the dedicated invariant generator, TypeScript builds for all workspaces, lint, canonical code generation, and explicit `pnpm run coverage:check`. Surface coverage remains `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** the write-invariant metadata workstream remains 100% complete and verified for merge into `master`; there are no remaining blockers or metadata additions on the current ABI inventory.
+
 ## Actor Negative-Path Automation Run — 2026-10-25
 
 - Started `codex/actor-negative-paths-20261025` from clean local production `master` `af15485` in the reusable isolated actor worktree, leaving the unrelated dirty primary checkout untouched. Fetched and pruned `origin`; remote `master` remains `5e07364`. Before merge, incorporated the concurrent write-invariant revalidation at local production `204cb23`.
