@@ -40,7 +40,7 @@ describe("TxRequestStore", () => {
 
     expect(store.enabled()).toBe(false);
     await expect(store.insert({ method: "Facet.method", params: [], status: "queued" })).resolves.toBeNull();
-    await expect(store.get("req-1")).resolves.toBeNull();
+    await expect(store.getOwned("req-1", "owner-hash")).resolves.toBeNull();
     await expect(store.update("req-1", { status: "sent" })).resolves.toBeUndefined();
     await expect(store.close()).resolves.toBeUndefined();
     expect(poolState.instances).toHaveLength(0);
@@ -101,6 +101,7 @@ describe("TxRequestStore", () => {
         "founder",
         "0xrequest",
         "approved",
+        null,
       ],
     );
 
@@ -117,13 +118,13 @@ describe("TxRequestStore", () => {
       ["req-1", "confirmed", null, "0xtx", "0xrequest", "approved"],
     );
 
-    await expect(store.get("req-1")).resolves.toMatchObject({
+    await expect(store.getOwned("req-1", "owner-hash")).resolves.toMatchObject({
       id: "req-1",
       method: "Facet.method",
       tx_hash: "0xtx",
       status: "confirmed",
     });
-    expect(pool.query).toHaveBeenNthCalledWith(3, "SELECT * FROM tx_requests WHERE id = $1", ["req-1"]);
+    expect(pool.query).toHaveBeenNthCalledWith(3, "SELECT * FROM tx_requests WHERE id = $1 AND owner_hash = $2", ["req-1", "owner-hash"]);
 
     await store.close();
     expect(pool.end).toHaveBeenCalledTimes(1);
@@ -161,6 +162,7 @@ describe("TxRequestStore", () => {
         null,
         null,
         null,
+        null,
       ],
     );
 
@@ -178,7 +180,7 @@ describe("TxRequestStore", () => {
       ["req-2", "confirmed", JSON.stringify({ hash: "5" }), "0xhash", "0xrequest", "denied"],
     );
 
-    await expect(store.get("missing")).resolves.toBeNull();
+    await expect(store.getOwned("missing", "owner-hash")).resolves.toBeNull();
   });
 
   it("coalesces undefined update fields and omitted response payloads to null", async () => {
@@ -206,6 +208,7 @@ describe("TxRequestStore", () => {
         null,
         "queued",
         JSON.stringify(null),
+        null,
         null,
         null,
         null,

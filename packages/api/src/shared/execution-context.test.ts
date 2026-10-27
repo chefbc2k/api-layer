@@ -83,7 +83,8 @@ vi.mock("./alchemy-diagnostics.js", () => ({
   traceTransactionWithAlchemy: mocked.traceTransactionWithAlchemy,
 }));
 
-vi.mock("./auth.js", () => ({
+vi.mock("./auth.js", async () => ({
+  ...await vi.importActual<typeof import("./auth.js")>("./auth.js"),
   loadApiKeys: mocked.loadApiKeys,
   assertWriteAuthorized: mocked.assertWriteAuthorized,
   assertAdminAuthorized: mocked.assertAdminAuthorized,
@@ -290,7 +291,7 @@ function buildContext(overrides: Record<string, unknown> = {}) {
     txStore: {
       insert: vi.fn().mockResolvedValue("req-1"),
       update: vi.fn().mockResolvedValue(undefined),
-      get: vi.fn().mockResolvedValue({ id: "req-1" }),
+      getOwned: vi.fn().mockResolvedValue({ id: "req-1" }),
     },
     signerRunners: new Map(),
     signerQueues: new Map(),
@@ -1637,6 +1638,7 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(context.txStore.insert).toHaveBeenCalledWith(expect.objectContaining({
+      ownerHash: expect.stringMatching(/^[0-9a-f]{64}$/),
       status: "queued",
       relayMode: "cdpSmartWallet",
       apiKeyLabel: "founder",
@@ -1777,6 +1779,7 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(context.txStore.insert).toHaveBeenCalledWith(expect.objectContaining({
+      ownerHash: expect.stringMatching(/^[0-9a-f]{64}$/),
       status: "submitting",
       relayMode: "direct",
     }));
@@ -1884,6 +1887,7 @@ describe("executeHttpMethodDefinition", () => {
     });
 
     expect(context.txStore.insert).toHaveBeenCalledWith(expect.objectContaining({
+      ownerHash: expect.stringMatching(/^[0-9a-f]{64}$/),
       status: "relaying-signature",
       relayMode: "signature",
     }));
@@ -2455,11 +2459,10 @@ describe("executeHttpEventDefinition", () => {
 });
 
 describe("getTransactionRequest", () => {
-  it("reads the stored request record from the tx store", async () => {
-    const context = buildContext();
-
-    await expect(getTransactionRequest(context as never, "req-1")).resolves.toEqual({ id: "req-1" });
-    expect(context.txStore.get).toHaveBeenCalledWith("req-1");
+  it("authenticates before private storage access", async () => {
+    const context = buildContext({ apiKeys: {} });
+    await expect(getTransactionRequest(context as never, "invalid", "revoked")).rejects.toThrow("invalid x-api-key");
+    expect(context.txStore.getOwned).not.toHaveBeenCalled();
   });
 });
 
