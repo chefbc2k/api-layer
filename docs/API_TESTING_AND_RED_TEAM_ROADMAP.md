@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-10-27
+
+- Reused the clean `codex/red-team-harness-20261026` worktree, fetched `origin`, and fast-forwarded it to local production `master` `f5ebe12`; fetched `origin/master` `3abb8ba` remains an ancestor of that baseline. The unrelated dirty primary gap-completion checkout was preserved unchanged.
+- Audited production changes since the 2026-10-25 red-team merge and found a new durable Coinbase checkout plus signed raw-webhook surface outside the ABI-generated mutation corpus. Added both funding suites to the canonical deterministic and guarded local-fork red-team commands.
+- Added adversarial checkout cases proving a second API key with the same funding customer but a different wallet cannot replay checkout authority. Mutated provider destination, customer reference, purchase amount, and payment conservation; every mismatch locks the durable attempt as `outcome_unknown`, withholds checkout material and reusable credentials, and prevents a second provider request.
+- Added a deterministic signed-webhook corpus covering `16` byte, event-identity, content-type, duplicate-header, stale/future timestamp, signed-header-list, duplicate-field, uppercase/short MAC, and separator mutations. All variants fail closed before durable enqueue while valid raw-body signatures and replay-safe inbox behavior remain covered.
+- Verification passed: focused funding tests (`36/36`), `pnpm run test:redteam` (`169/169`), guarded `pnpm run redteam:local-fork` (`213/213` across `14` files with all `6/6` deployed-fork probes active), and `pnpm test` (`2,082` active tests across `159` passing files with `64` environment-gated skips). TypeScript no-emit, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants; transient reviewed-surface timestamp churn was restored.
+- **Merge decision:** the funding checkout/webhook red-team slice is 100% complete and verified for merge into `master`; there are no remaining blockers in this workstream.
+
 ## Daily Branch Consolidation — 2026-10-27
 
 - Recorded every linked worktree before branch movement. Five dirty worktrees were preserved on dated `codex/autosave-20261027-*` branches and pushed to `origin`; no user changes were discarded.

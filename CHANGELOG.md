@@ -34,6 +34,19 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.406] - 2026-10-27
+
+### Changed
+
+- **Funding Boundaries Joined The Red-Team Gates:** Added Coinbase checkout and signed raw-webhook suites to both canonical red-team commands so future funding changes cannot bypass the deterministic or guarded local-fork assurance runs.
+- **Checkout Confused Deputies Fail Closed:** A same-customer API key bound to a different wallet cannot reuse an existing idempotency key. Mutated provider destinations, customer references, amounts, and payment totals lock the attempt as ambiguous, return no checkout material or reusable credentials, and never issue a second provider request.
+- **Signed Webhook Mutation Corpus Expanded:** Added `16` deterministic mutations across raw bytes, event identity, content type, duplicate transport headers, stale/future timestamps, signed-header lists, duplicate signature fields, malformed MACs, and separators. Every mutation is rejected before durable enqueue.
+
+### Verified
+
+- **Red-Team And Fork Gates Passed:** Focused funding tests passed `36/36`; `pnpm run test:redteam` passed `169/169`; and guarded `pnpm run redteam:local-fork` passed `213/213` across `14` files with all `6/6` deployed-fork probes active.
+- **Repository And Quality Gates Passed:** `pnpm test` passed `2,082` active tests across `159` files with `64` environment-gated skips. TypeScript no-emit, lint, full build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` generated HTTP methods, and `260/260` write invariants.
+
 ## [0.1.405] - 2026-10-26
 
 ### Changed
