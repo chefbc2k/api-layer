@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createApiServer } from "../app.js";
+import { buildVerifyReportOutput, writeVerifyReportOutput } from "../../../../scripts/verify-report.js";
 
 const originalEnv = { ...process.env };
 const role = `0x${"11".repeat(32)}`;
@@ -201,6 +202,19 @@ const adminWriteCases = [
     denial: "unauthorized multisig transaction submission",
   },
   {
+    key: "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+    path: "/v1/governance/admin/legacy-proposals",
+    body: {
+      title: "Legacy compatibility proposal",
+      description: "live-network guard proof",
+      targets: [],
+      values: [],
+      calldatas: [],
+      proposalType: "0",
+    },
+    denial: "unauthorized legacy proposal submission",
+  },
+  {
     key: "UpgradeControllerFacet.approveUpgrade",
     path: "/v1/diamond-admin/admin/approve-upgrade",
     body: { upgradeId: role },
@@ -233,6 +247,7 @@ const adminWriteCases = [
 ] as const;
 
 const actorRoles = ["buyer", "seller", "licensee", "collaborator"] as const;
+const selectedGapKeys = new Set(adminWriteCases.map((testCase) => testCase.key));
 
 async function startServer() {
   const server = createApiServer({ port: 0, quiet: true }).listen();
@@ -368,6 +383,7 @@ describe("control-plane admin route safety", () => {
     process.env.ALCHEMY_RPC_URL = "https://sepolia.base.org";
     process.env.API_LAYER_ALLOW_LIVE_ADMIN_WRITES = "false";
     const { server, port } = await startServer();
+    const evidence: Array<Record<string, unknown>> = [];
 
     try {
       for (const [caseIndex, testCase] of adminWriteCases.entries()) {
@@ -385,6 +401,35 @@ describe("control-plane admin route safety", () => {
         expect(response.status, `${testCase.key}: live-network gate`).toBe(403);
         expect(payload, testCase.key).toEqual({
           error: "API key not permitted for live admin execution; set API_LAYER_ALLOW_LIVE_ADMIN_WRITES=true to opt in",
+        });
+        evidence.push({
+          methodKey: testCase.key,
+          route: `POST ${testCase.path}`,
+          status: response.status,
+          result: "fail-closed before provider execution",
+          error: (payload as { error: string }).error,
+        });
+      }
+
+      expect(selectedGapKeys).toHaveLength(36);
+      expect(evidence).toHaveLength(selectedGapKeys.size);
+
+      const outputPath = process.env.API_LAYER_CONTROL_PLANE_GUARD_ARTIFACT ?? null;
+      if (outputPath) {
+        writeVerifyReportOutput(outputPath, {
+          schemaVersion: 1,
+          generatedAt: new Date().toISOString(),
+          ...buildVerifyReportOutput({
+            "control-plane-live-admin-guard": {
+              routes: adminWriteCases.map((testCase) => `POST ${testCase.path}`),
+              actors: ["founder-key", "founder-key-2"],
+              executionResult: "all selected routes rejected before provider execution while live admin opt-in was disabled",
+              evidence,
+              network: "Base Sepolia live-network guard",
+              proofKind: "fail-closed-before-provider",
+              finalClassification: "proven working" as const,
+            },
+          }),
         });
       }
     } finally {
