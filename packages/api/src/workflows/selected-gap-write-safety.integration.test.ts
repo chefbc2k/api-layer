@@ -66,6 +66,19 @@ const diamondAddress = "0x0000000000000000000000000000000000000001";
 const fixtureAccount = "0x00000000000000000000000000000000000000bb";
 const secondSigner = "0x00000000000000000000000000000000000000cc";
 const voiceHash = "0x1111111111111111111111111111111111111111111111111111111111111111";
+const usageRight = {
+  rightType: "commercial",
+  startTime: "1700000000",
+  endTime: "1800000000",
+  transferable: true,
+  restrictions: ["non-exclusive"],
+  revocable: true,
+};
+const runtimeUsageRight = {
+  ...usageRight,
+  startTime: 1_700_000_000n,
+  endTime: 1_800_000_000n,
+};
 
 const selectedGapWriteCases = [
   {
@@ -187,6 +200,41 @@ const selectedGapWriteCases = [
     preflightRejection: "unauthorized collaborator addition rejected",
   },
   {
+    key: "RightsFacet.createRightsGroup",
+    signature: "createRightsGroup(bytes32,string,(string,uint256,uint256,bool,string[],bool)[],address[])",
+    method: "POST",
+    path: "/v1/licensing/rights/create-rights-group",
+    body: {
+      voiceHash,
+      name: "production rights",
+      rights: [usageRight],
+      members: [fixtureAccount],
+    },
+    runtimeArgs: [voiceHash, "production rights", [runtimeUsageRight], [fixtureAccount]],
+    preview: null,
+    preflightRejection: "duplicate or stale rights group rejected",
+  },
+  {
+    key: "RightsFacet.grantRight",
+    signature: "grantRight(bytes32,address,(string,uint256,uint256,bool,string[],bool))",
+    method: "POST",
+    path: "/v1/licensing/commands/grant-right",
+    body: { voiceHash, grantee: fixtureAccount, right: usageRight },
+    runtimeArgs: [voiceHash, fixtureAccount, runtimeUsageRight],
+    preview: null,
+    preflightRejection: "unauthorized or stale right grant rejected",
+  },
+  {
+    key: "RightsFacet.registerRightContract",
+    signature: "registerRightContract(string,address)",
+    method: "POST",
+    path: "/v1/licensing/rights/register-right-contract",
+    body: { category: "commercial", contractAddress: fixtureAccount },
+    runtimeArgs: ["commercial", fixtureAccount],
+    preview: "commercial-right-1",
+    preflightRejection: "duplicate or unauthorized right contract rejected",
+  },
+  {
     key: "RightsFacet.removeCollaborator",
     signature: "removeCollaborator(bytes32,address)",
     method: "DELETE",
@@ -195,6 +243,16 @@ const selectedGapWriteCases = [
     runtimeArgs: [voiceHash, fixtureAccount],
     preview: null,
     preflightRejection: "stale collaborator removal rejected",
+  },
+  {
+    key: "RightsFacet.revokeRight",
+    signature: "revokeRight(bytes32,address,string)",
+    method: "DELETE",
+    path: "/v1/licensing/commands/revoke-right",
+    body: { voiceHash, holder: fixtureAccount, rightType: "commercial" },
+    runtimeArgs: [voiceHash, fixtureAccount, "commercial"],
+    preview: null,
+    preflightRejection: "stale or unauthorized right revocation rejected",
   },
 ] as const;
 
@@ -294,9 +352,15 @@ describe("selected gap write route preflight safety", () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
       "fixture-operator": `0x${"11".repeat(32)}`,
     });
-    mocks.contractStaticCall.mockImplementation((signature: string) => (
-      signature === "thresholdBurnExcess(address)" ? 7n : null
-    ));
+    mocks.contractStaticCall.mockImplementation((signature: string) => {
+      if (signature === "thresholdBurnExcess(address)") {
+        return 7n;
+      }
+      if (signature === "registerRightContract(string,address)") {
+        return "commercial-right-1";
+      }
+      return null;
+    });
     mocks.contractPopulateTransaction.mockResolvedValue({
       to: diamondAddress,
       data: "0xfeed",

@@ -45,6 +45,16 @@ export type PersistentMethodReport = Record<string, unknown> & {
 
 export type PersistentProofReports = Record<string, PersistentMethodReport>;
 
+export const defaultReceiptProofArtifactProducers: Record<string, string> = {
+  "http-contract-receipts.json": "packages/api/src/app.contract-integration.test.ts",
+  "control-plane-admin-receipts.json": "packages/api/src/app.contract-integration.test.ts",
+  "layer1-core.json": "scripts/verify-layer1-live.ts",
+  "layer1-completion.json": "scripts/verify-layer1-completion.ts",
+  "layer1-remaining.json": "scripts/verify-layer1-remaining.ts",
+  "marketplace-purchase.json": "scripts/verify-marketplace-purchase-live.ts",
+  "governance.json": "scripts/verify-governance-workflows.ts",
+};
+
 const TX_HASH_PATTERN = /^0x[0-9a-fA-F]{64}$/u;
 
 export function receiptProofArtifactEligibility(value: unknown): ReceiptProofArtifactEligibility {
