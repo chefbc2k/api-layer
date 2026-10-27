@@ -28,6 +28,20 @@
 
 > **Mandatory Policy:** All work, including minor and major milestones, architectural shifts, and feature additions, MUST be documented in this changelog. No exceptions. This ensures transparency and a clear "building in public" record for the totality of the repo.
 
+## [0.1.405] - 2026-10-26
+
+### Changed
+
+- **Twelve Planned Gaps Closed:** Added mounted-route preflight, read-only denial, and stale/replay rejection coverage for `RightsFacet.createRightsGroup`, `grantRight`, `registerRightContract`, and `revokeRight`. Restored fresh local-fork receipt/readback proof for eight selected control-plane routes across DiamondCut, Emergency, EmergencyWithdrawal, and UpgradeController.
+- **Control-Plane Proofs Are Regenerable:** Restored the dedicated eight-route local-fork integration scenario and runner stage, retained its receipt batch as a default indexer-proof input, and added regression coverage so future assurance runs cannot silently omit those transactions.
+- **Gap Artifacts Improved:** Regenerated the JSON/Markdown report and forty-item plan. Ready items increased from `611` to `623`; non-ready items fell from `99` to `87`, comprising `59` fixture gaps and `28` unsafe-live operations.
+
+### Verified
+
+- **Focused Route And Fork Proofs Passed:** The four expanded Rights cases passed all `48/48` mounted-route matrix checks. The live integration scenario passed `1/1` on an isolated Base Sepolia fork, with all eight admin routes returning `202` and mining successful receipts; the proof-library suites passed `22/22`.
+- **Required Gap Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and `pnpm run test:actor-negative-paths` passed `447/447` across `14` files.
+- **Coverage And Quality Gates Passed:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. TypeScript no-emit, focused ESLint, and `git diff --check` also passed.
+
 ## [0.1.404] - 2026-10-26
 
 ### Changed
