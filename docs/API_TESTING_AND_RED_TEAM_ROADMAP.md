@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-10-27
+
+- Recorded every linked worktree before branch movement. Five dirty worktrees were preserved on dated `codex/autosave-20261027-*` branches and pushed to `origin`; no user changes were discarded.
+- Merged `codex/autosave-20261027-abi-gap-report` into local production `master` with `--no-ff`. Focused verification passed 70 active tests with 36 externally gated contract cases, and `pnpm run coverage:check` confirmed 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants.
+- The full pre-merge baseline passed 2,062 tests across 158 files and skipped 63 environment-gated cases. One generated event-projection case exceeded its five-second worker timeout; the exact `VoiceLicenseFacet.TemplateUpdated` case passed in isolation in 101 ms.
+- **Blocked branches:** event-indexer proof conflicts in four generated report/plan files; production indexer/funding conflicts in tracking, generated reports, funding code, and the Postgres runner; actor-negative-path conflicts in its funding test; transaction privacy conflicts in the reviewed API surface; local-fork, economic-invariant, and Base Sepolia passengers conflict in tracking documents. All failed merges were aborted and production was restored cleanly before assessing the next branch.
+- **Additional test blocker:** `codex/autosave-20261027-gap-completion-daily` passes its rights/staking matrix (81 tests) and report/planner suites (20 tests), but its control-plane admin suite fails three legacy proposal authorization cases because the route returns 404 instead of the expected 403. It remains preserved but is not merge-ready.
+
 ## ABI-Driven Gap Report Automation Run — 2026-10-26
 
 - Started `codex/abi-gap-report-20261026` from the clean consolidated production tip `9fd8f2b` after fetching and pruning `origin`. Both starting local `master` (`5d49451`) and fetched `origin/master` (`3abb8ba`) are ancestors of that baseline, so the audit includes the latest verified local assurance history, Coinbase funding delivery, and red-team hardening. Before final merge, incorporated the concurrent write-invariant revalidation at local production `a39530f`; its passenger changes are tracking-only and do not alter any gap-report input.

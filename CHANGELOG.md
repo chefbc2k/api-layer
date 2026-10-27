@@ -1,5 +1,11 @@
 # Changelog: USpeaks API Layer
 
+## Daily assurance branch consolidation - 2026-10-27
+
+- Preserved and pushed five dirty passenger worktrees before consolidation, then merged the current ABI-gap autosave into local production with an explicit merge commit. The merged slice adds mounted-route safety coverage for the remaining selected Rights control-plane writes, restores the local-fork receipt/indexer proof inputs, and refreshes the canonical gap report and forty-item plan.
+- Verified the merged slice with 70 focused passing tests, 36 intentionally gated contract tests, and complete generated coverage at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants. The repository-wide baseline produced 2,062 passing tests and one worker timeout that passed immediately in isolation.
+- Left conflicting passenger branches unmerged and clean rather than resolving generated-report, tracking-document, funding, or reviewed-surface conflicts automatically. The gap-completion passenger is additionally blocked by three control-plane authorization assertions where the legacy proposal route returns 404 instead of the expected 403.
+
 ## Coinbase checkout and raw webhooks - 2026-10-25
 
 - Added embedded Headless order creation, Coinbase-account sessions, owner-scoped provider status/history, authenticated encrypted checkout persistence and separate checkout enablement. Unknown provider outcomes remain locked until reconciliation; settlement is never inferred from checkout/provider status.
