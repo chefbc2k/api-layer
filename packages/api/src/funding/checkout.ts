@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import { Pool } from "pg";
 import { z } from "zod";
-import { authenticate } from "../shared/auth.js";
+import { assertWriteAuthorized, authenticate } from "../shared/auth.js";
 import { HttpError, toHttpError } from "../shared/errors.js";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 import { BASE_USDC, BASE_SEPOLIA_USDC, type FundingConfig } from "./config.js";
@@ -37,7 +37,9 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
   const provider = dependencies.provider ?? new CoinbaseFundingProvider(config);
   const store = dependencies.store ?? new FundingStore(new Pool({ connectionString: config.databaseUrl, max: 3, allowExitOnIdle: true, idleTimeoutMillis: 10_000 }));
   const principal = async (request: Request, write: boolean) => {
-    const actor = fundingActor(authenticate(context.apiKeys, request.header("x-api-key")), request);
+    const auth = authenticate(context.apiKeys, request.header("x-api-key"));
+    if (write) assertWriteAuthorized(auth);
+    const actor = fundingActor(auth, request);
     await context.rateLimiter.enforce(write ? "write" : "read", `funding:${actor.userId}`);
     return actor;
   };

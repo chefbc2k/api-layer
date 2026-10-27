@@ -33,8 +33,15 @@ describe("Coinbase raw webhook verification", () => {
     const server=app.listen(0,"127.0.0.1");
     await new Promise<void>(resolve=>server.once("listening",resolve));
     const address=server.address() as {port:number};
-    const send = (value=signature())=>fetch(`http://127.0.0.1:${address.port}/v1/webhooks/coinbase/onramp`,{ method:"POST",headers:{...headers,"x-webhook-signature":value},body });
+    const send = (value: string | null = signature(), extraHeaders: Record<string, string> = {}) => fetch(
+      `http://127.0.0.1:${address.port}/v1/webhooks/coinbase/onramp`,
+      { method: "POST", headers: { ...headers, ...extraHeaders, ...(value === null ? {} : { "x-webhook-signature": value }) }, body },
+    );
     try {
+      for (const identity of ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator", "read-only", "unknown-key"]) {
+        expect((await send(null, { "x-api-key": identity })).status, identity).toBe(401);
+      }
+      expect(enqueue).not.toHaveBeenCalled();
       expect((await send("invalid")).status).toBe(401); expect(enqueue).not.toHaveBeenCalled();
       expect(await (await send()).json()).toEqual({received:true,duplicate:false});
       expect(enqueue.mock.calls[0][3]).toEqual(body);

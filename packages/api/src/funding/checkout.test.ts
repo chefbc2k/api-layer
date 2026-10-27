@@ -62,7 +62,7 @@ describe("checkout provider requests", () => {
 describe("checkout HTTP and idempotency", () => {
   const servers: Array<ReturnType<express.Express["listen"]>> = [];
   afterEach(async () => { for (const server of servers.splice(0)) await new Promise<void>(resolve => server.close(() => resolve())); });
-  async function setup() {
+  async function setup(settings: { apiKeys?: Record<string, unknown> } = {}) {
     let attempt: FundingAttempt | null = null;
     const provider = { createOrder: vi.fn().mockResolvedValue({ order: structuredClone(order), paymentLink: { url: "https://pay.coinbase.com/checkout" }, userAuthToken: "never-return-this" }), createSession: vi.fn().mockResolvedValue({ session: { onrampUrl: "https://pay.coinbase.com/buy?sessionToken=secret" } }), getOrder: vi.fn().mockResolvedValue(structuredClone(order)) };
     const store = {
@@ -80,16 +80,17 @@ describe("checkout HTTP and idempotency", () => {
       getAttempt: vi.fn().mockImplementation(async () => attempt),
       history: vi.fn().mockImplementation(async () => attempt ? [attempt] : []),
     };
-    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify({ buyer: { label: "buyer", fundingUserId: user, walletAddress: wallet } }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
+    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify(settings.apiKeys ?? { buyer: { label: "buyer", fundingUserId: user, walletAddress: wallet } }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
     const app = express(); app.use(express.json());
-    app.use(createFundingRouter(context, { config, inspectChain: async () => ({ chainId: 84532, token: BASE_SEPOLIA_USDC }), checkout: { provider, store } }));
+    const inspectChain = vi.fn().mockResolvedValue({ chainId: 84532, token: BASE_SEPOLIA_USDC });
+    app.use(createFundingRouter(context, { config, inspectChain, checkout: { provider, store } }));
     const server = app.listen(0); servers.push(server); await new Promise<void>(resolve => server.once("listening", resolve));
     const port = (server.address() as import("node:net").AddressInfo).port;
     async function call(path: string, body?: unknown, headers: Record<string,string> = {}) {
       const response = await fetch(`http://127.0.0.1:${port}/v1/funding/${path}`, { method: body === undefined ? "GET" : "POST", headers: { "x-api-key": "buyer", "content-type": "application/json", "idempotency-key": "request_0001", ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
       return { status: response.status, body: await response.json() };
     }
-    return { call, provider, store, context, getAttempt: () => attempt };
+    return { call, provider, store, inspectChain, context, getAttempt: () => attempt };
   }
   it("creates an embedded order with no client contact attestations and encrypts reusable tokens", async () => {
     const { call, provider, getAttempt } = await setup();
@@ -144,6 +145,50 @@ describe("checkout HTTP and idempotency", () => {
     expect((await call("orders", { quoteId }, { "x-api-key": "other" })).status).toBe(401);
     expect((await call("orders", { quoteId }, { "idempotency-key": "" })).status).toBe(400);
     expect(provider.createOrder).not.toHaveBeenCalled();
+  });
+  it("denies every unprovisioned actor, read-only key, and unknown key on both checkout writes", async () => {
+    const actors = ["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator", "read-only"];
+    const apiKeys = Object.fromEntries(actors.map(actor => [actor, {
+      label: actor,
+      walletAddress: wallet,
+      roles: actor === "read-only" ? ["read-only"] : [actor],
+    }]));
+    const { call, provider, store, inspectChain } = await setup({ apiKeys });
+
+    for (const path of ["orders", "sessions"]) {
+      for (const actor of [...actors, "unknown-key"]) {
+        const result = await call(path, path === "orders" ? { quoteId } : {}, { "x-api-key": actor });
+        expect(result.status, `${path}: ${actor}`).toBe(actor === "unknown-key" ? 401 : 403);
+      }
+    }
+
+    expect(inspectChain).not.toHaveBeenCalled();
+    expect(store.findAttempt).not.toHaveBeenCalled();
+    expect(store.beginAttempt).not.toHaveBeenCalled();
+    expect(provider.createOrder).not.toHaveBeenCalled();
+    expect(provider.createSession).not.toHaveBeenCalled();
+  });
+  it("denies provisioned read-only and wallet-mismatched customers on both checkout writes", async () => {
+    const apiKeys = {
+      readonly: { label: "readonly", roles: ["read-only"], fundingUserId: user, walletAddress: wallet },
+      buyer: { label: "buyer", roles: ["buyer"], fundingUserId: user, walletAddress: wallet },
+    };
+    const { call, provider, store, inspectChain } = await setup({ apiKeys });
+
+    for (const path of ["orders", "sessions"]) {
+      const body = path === "orders" ? { quoteId } : {};
+      expect((await call(path, body, { "x-api-key": "readonly" })).status).toBe(403);
+      expect((await call(path, body, {
+        "x-api-key": "buyer",
+        "x-wallet-address": "0x00000000000000000000000000000000000000bb",
+      })).status).toBe(403);
+    }
+
+    expect(inspectChain).not.toHaveBeenCalled();
+    expect(store.findAttempt).not.toHaveBeenCalled();
+    expect(store.beginAttempt).not.toHaveBeenCalled();
+    expect(provider.createOrder).not.toHaveBeenCalled();
+    expect(provider.createSession).not.toHaveBeenCalled();
   });
   it("does not create an order for another owner or expired quote", async () => {
     const { call, store, provider } = await setup(); store.getQuoteRecord.mockResolvedValue(null);
