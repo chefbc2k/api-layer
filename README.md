@@ -118,3 +118,10 @@ API_LAYER_SCENARIO_COMMAND="node scenario-adapter/trace_access_bootstrap_invaria
 ```
 
 If a scenario uses multiple contract-signing actors, map signer addresses to API keys with `API_LAYER_SIGNER_API_KEYS_JSON` so API-mode calls preserve caller identity instead of collapsing to one global key.
+
+
+## Private transaction-request lookup
+
+`GET /v1/transactions/requests/:requestId` requires `x-api-key` and a UUID request ID. It returns only records created for that authenticated owner and logical signer; wallet headers, shared wallet addresses, display labels and administrator roles do not grant access. Missing, unauthorized and legacy ownerless records all return 404. Public on-chain receipt lookup remains public.
+
+Apply `db/migrations/0008_transaction_request_owner.sql` before deploying the updated API. For API-key rotation, configure a stable, opaque `requestOwnerId` in the server-owned API-key record and retain the same logical `signerId`. Without this optional ID, each key owns only its own requests. Old ownerless records are preserved and cannot be assigned by guessing from wallet/label metadata. See [the privacy build log](docs/API_TRANSACTION_REQUEST_PRIVACY_BUILD_LOG.md) for migration, key rotation and rollback behavior.

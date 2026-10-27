@@ -45,13 +45,13 @@ export function createApiServer(options: ApiServerOptions = {}): ApiServer {
   });
 
   app.get("/v1/transactions/requests/:requestId", async (request: Request, response: Response) => {
+    response.setHeader("Cache-Control", "no-store");
     try {
-      response.json(await getTransactionRequest(apiExecutionContext, String(request.params.requestId)));
+      response.json(await getTransactionRequest(apiExecutionContext, String(request.params.requestId), request.header("x-api-key")));
     } catch (error) {
       const httpError = toHttpError(error);
       response.status(httpError.statusCode).json({
-        error: httpError.message,
-        ...(httpError.diagnostics === undefined ? {} : { diagnostics: httpError.diagnostics }),
+        error: httpError.statusCode >= 500 ? "Transaction request lookup unavailable" : httpError.message,
       });
     }
   });

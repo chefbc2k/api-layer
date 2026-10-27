@@ -125,16 +125,15 @@ describe("createApiServer transaction and status routes", () => {
           status: "confirmed",
         },
       });
-      expect(mocks.getTransactionRequest).toHaveBeenNthCalledWith(1, mocks.apiExecutionContext, "req-1");
+      expect(mocks.getTransactionRequest).toHaveBeenNthCalledWith(1, mocks.apiExecutionContext, "req-1", undefined);
 
       await expect(apiCall(port, "/v1/transactions/requests/req-2")).resolves.toEqual({
         status: 409,
         payload: {
           error: "request blocked",
-          diagnostics: { reason: "missing-proof" },
         },
       });
-      expect(mocks.getTransactionRequest).toHaveBeenNthCalledWith(2, mocks.apiExecutionContext, "req-2");
+      expect(mocks.getTransactionRequest).toHaveBeenNthCalledWith(2, mocks.apiExecutionContext, "req-2", undefined);
     } finally {
       await closeServer(server);
     }

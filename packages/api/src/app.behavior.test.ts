@@ -139,6 +139,7 @@ describe("createApiServer coverage branches", () => {
           providerRouter: expect.any(Object),
         }),
         "req-123",
+        undefined,
       );
     } finally {
       await closeServer(server);
@@ -156,7 +157,7 @@ describe("createApiServer coverage branches", () => {
       expect(result).toEqual({
         status: 500,
         payload: {
-          error: "boom",
+          error: "Transaction request lookup unavailable",
         },
       });
     } finally {
