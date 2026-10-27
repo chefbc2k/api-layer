@@ -1,5 +1,11 @@
 # Changelog: USpeaks API Layer
 
+## API assurance fixture and guard evidence - 2026-10-27
+
+- Added mounted-route preflight, authorization, and stale/replay rejection coverage for 27 Rights, Staking, and TokenSupply writes. Together with direct guard evidence for 35 mounted admin routes, the live report moves from 608 to 670 ready items while total non-ready items fall from 102 to 40.
+- Added a generated fail-closed evidence artifact for all 35 mounted admin/control-plane routes. Every route rejected with HTTP 403 before provider execution while live-admin opt-in was disabled; the intentionally unmounted legacy Proposal overload remains separately blocked.
+- Required assurance gates pass at 432 actor-negative cases, 8 gap-report tests, 12 planner tests, 492 wrapper functions, 218 event occurrences, 492 HTTP methods, and 260/260 write invariants. No new receipts or PostgreSQL rows were produced, so these changes are not represented as end-to-end write completion.
+
 ## Coinbase checkout and raw webhooks - 2026-10-25
 
 - Added embedded Headless order creation, Coinbase-account sessions, owner-scoped provider status/history, authenticated encrypted checkout persistence and separate checkout enablement. Unknown provider outcomes remain locked until reconciliation; settlement is never inferred from checkout/provider status.

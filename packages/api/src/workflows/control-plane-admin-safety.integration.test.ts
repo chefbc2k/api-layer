@@ -202,19 +202,6 @@ const adminWriteCases = [
     denial: "unauthorized multisig transaction submission",
   },
   {
-    key: "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
-    path: "/v1/governance/admin/legacy-proposals",
-    body: {
-      title: "Legacy compatibility proposal",
-      description: "live-network guard proof",
-      targets: [],
-      values: [],
-      calldatas: [],
-      proposalType: "0",
-    },
-    denial: "unauthorized legacy proposal submission",
-  },
-  {
     key: "UpgradeControllerFacet.approveUpgrade",
     path: "/v1/diamond-admin/admin/approve-upgrade",
     body: { upgradeId: role },
@@ -411,7 +398,7 @@ describe("control-plane admin route safety", () => {
         });
       }
 
-      expect(selectedGapKeys).toHaveLength(36);
+      expect(selectedGapKeys).toHaveLength(35);
       expect(evidence).toHaveLength(selectedGapKeys.size);
 
       const outputPath = process.env.API_LAYER_CONTROL_PLANE_GUARD_ARTIFACT ?? null;

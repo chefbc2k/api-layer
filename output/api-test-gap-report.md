@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-09T10:31:57.581Z`
+Generated: `2026-10-27T11:40:17.723Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -13,9 +13,9 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 | Classification | Count |
 | --- | ---: |
-| ready | 635 |
+| ready | 670 |
 | needs fixture | 39 |
-| unsafe on live network | 36 |
+| unsafe on live network | 1 |
 | needs contract change | 0 |
 | needs API guard | 0 |
 | needs indexer proof | 0 |
@@ -29,7 +29,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | unit | 701 |
 | workflow | 391 |
 | localFork | 111 |
-| baseSepolia | 60 |
+| baseSepolia | 95 |
 | negativePath | 392 |
 | economic | 169 |
 | redTeam | 190 |
@@ -43,7 +43,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 
 ## AccessControlFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `2.7/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.83/8`.
 
 ### Functions
 
@@ -51,8 +51,8 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `configureRole` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `debugRoleIndexState` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `emergencyForceAdd` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `executeFounderSunset` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `emergencyForceAdd` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `executeFounderSunset` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `getOwnerOperationalRoles` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getQuorum` | read | yes | — | — | — | yes | — | — | adversarial 2/8 | ready |
 | `getRequiredSigners` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
@@ -68,11 +68,11 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 | `isRoleActive` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `renounceRole` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `revokeRole` | write | yes | yes | yes | — | yes | yes | yes | adversarial 6/8 | ready |
-| `scheduleFounderSunset` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `scheduleFounderSunset` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `setDefaultValidityPeriod` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `setMinValidations` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
-| `setPaused` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `setRecoveryActive` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `setPaused` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `setRecoveryActive` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `setRoleAdmin` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 
 ### Events
@@ -180,21 +180,21 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## DiamondCutFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `2.29/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.57/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `FOUNDER_ROLE` | read | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
-| `diamondCut` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | unsafe on live network |
+| `diamondCut` | write | yes | yes | — | yes | yes | yes | yes | adversarial 6/8 | ready |
 | `getTrustedInitCodehash` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isImmutableSelectorReserved` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isTrustedInitSelector` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isTrustedInitSelectorPolicyEnabled` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `setTrustedInitCodehash` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `setTrustedInitContract` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `setTrustedInitSelector` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `setTrustedInitCodehash` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `setTrustedInitContract` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `setTrustedInitSelector` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 
 ### Events
 
@@ -266,18 +266,18 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## EmergencyFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `workflow` to `indexer` with an average score of `3.7/8`.
+Facet classification: **ready**. Proof depth spans `workflow` to `indexer` with an average score of `3.91/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `approveRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `completeRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `approveRecovery` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `completeRecovery` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `emergencyResume` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `emergencyStop` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
-| `executeRecoveryAction` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `executeRecoveryStep` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `executeRecoveryAction` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `executeRecoveryStep` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `executeResponse` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `executeScheduledResume` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `extendPausedUntil` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
@@ -290,9 +290,9 @@ Facet classification: **unsafe on live network**. Proof depth spans `workflow` t
 | `isEmergencyStopped` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `reportIncident` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `scheduleEmergencyResume` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
-| `setEmergencyTimeout` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `setResumeDelay` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `startRecovery` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `setEmergencyTimeout` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `setResumeDelay` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `startRecovery` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `triggerEmergency` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 | `unfreezeAssets` | write | yes | yes | yes | — | yes | — | — | adversarial 4/8 | ready |
 
@@ -313,19 +313,19 @@ Facet classification: **unsafe on live network**. Proof depth spans `workflow` t
 
 ## EmergencyWithdrawalFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `adversarial` to `indexer` with an average score of `3/8`.
+Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` with an average score of `3.31/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `approveEmergencyWithdrawal` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `executeWithdrawal` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `approveEmergencyWithdrawal` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `executeWithdrawal` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `getApprovalCount` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isRecipientWhitelisted` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `requestEmergencyWithdrawal` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `setRecipientWhitelist` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `updateWithdrawalConfig` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `requestEmergencyWithdrawal` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `setRecipientWhitelist` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `updateWithdrawalConfig` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 
 ### Events
 
@@ -487,29 +487,29 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## MultiSigFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `3.08/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.46/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `addOperationType` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `addOperator` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `approveOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `addOperationType` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `addOperator` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `approveOperation` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `canExecuteOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `cancelOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `execute` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | unsafe on live network |
-| `executeOperation` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
+| `execute` | write | yes | yes | — | yes | yes | yes | yes | adversarial 6/8 | ready |
+| `executeOperation` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
 | `getOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getOperationConfig` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getOperationStatus` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `hasApprovedOperation` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `isOperator` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
-| `muSetPaused` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | unsafe on live network |
-| `proposeOperation` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
+| `muSetPaused` | write | yes | yes | — | yes | yes | — | — | adversarial 4/8 | ready |
+| `proposeOperation` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
 | `removeOperator` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `setOperationConfig` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
-| `submitTransaction` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
+| `setOperationConfig` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
+| `submitTransaction` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
 
 ### Events
 
@@ -858,15 +858,15 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## UpgradeControllerFacet
 
-Facet classification: **unsafe on live network**. Proof depth spans `unit` to `indexer` with an average score of `2.75/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `approveUpgrade` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
-| `executeUpgrade` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
-| `freezeUpgradeControl` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
+| `approveUpgrade` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
+| `executeUpgrade` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
+| `freezeUpgradeControl` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
 | `getOperationalInvariants` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getUpgrade` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
 | `getUpgradeControlStatus` | read | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
@@ -876,8 +876,8 @@ Facet classification: **unsafe on live network**. Proof depth spans `unit` to `i
 | `isUpgradeApproved` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isUpgradeControlFrozen` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `isUpgradeSigner` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `proposeDiamondCut` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
-| `setUpgradeControlEnforced` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | unsafe on live network |
+| `proposeDiamondCut` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
+| `setUpgradeControlEnforced` | write | yes | yes | — | yes | yes | — | yes | adversarial 5/8 | ready |
 
 ### Events
 
