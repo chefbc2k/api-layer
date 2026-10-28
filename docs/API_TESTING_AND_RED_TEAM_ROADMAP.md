@@ -2,6 +2,16 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-10-28
+
+- Recorded the repository and every linked worktree before movement. Three dirty passengers were preserved without discarding changes: `codex/autosave-20261028-api-assurance-gap-completion` (two autosave commits, including regenerated reports), `codex/autosave-20261028-abi-gap-report`, and `codex/autosave-20261028-coinbase-usdc`.
+- Fetched and pruned all remotes, confirmed `origin/HEAD` remains `master`, and used the clean local production worktree as the consolidation base. The open-branch audit covered local and remote `codex/*` refs, with duplicate remote tips and historical report-only tips classified separately from current passengers.
+- Merged `codex/autosave-20261028-abi-gap-report` with `--no-ff`, then regenerated the canonical report and plan. Current totals remain `710` items: `623` ready, `59` needing fixtures, and `28` unsafe on live networks; the next plan selects `40` items.
+- Verification for the merge passed: focused report/planner tests (`20/20`), `pnpm run coverage:check` (`492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants), `pnpm test` (`2,082` active tests across `159` files with `64` environment-gated skips), `pnpm run report:test-gaps`, and `pnpm run gap-builder:plan`.
+- **Test blockers:** the current gap-completion autosave passed `244/246` focused cases but fails the persistent-plan assertion (`selected` is `1`, expected `4`) and one stale/replay Rights case timed out. The Coinbase processor/readiness autosave passed `101` active focused tests with `21` PostgreSQL skips, but `packages/api/src/funding/readiness.test.ts` fails because Vitest cannot serialize a `BigInt` parameter. Neither branch is merge-ready.
+- **Conflict blockers:** actor/funding (`178/178` focused), transaction privacy (`103` active with `4` PostgreSQL skips), local-fork nonce reconciliation (`99/99`), event-indexer proof (`426` active with `6` PostgreSQL skips), concurrent checkout (`25/25`), and production indexer/funding (`411` active with `6` PostgreSQL skips) all passed their focused gates but conflicted with production. Conflicts were aborted without partial resolution; affected areas include funding tests/code, reviewed API surface, tracking documents, generated reports/plans, package metadata, contract integration coverage, and proof helpers. Base Sepolia also conflicts in the changelog/roadmap, while the economic-invariant passenger remains intentionally blocked by its recorded protocol evidence.
+- **Merge decision:** only the ABI report autosave is merged today. All other current passengers remain preserved on clean branches; report-only tips predating the freshly regenerated production artifacts are superseded rather than reintroduced.
+
 ## Red-Team Harness Automation Run — 2026-10-27
 
 - Reused the clean `codex/red-team-harness-20261026` worktree, fetched `origin`, and fast-forwarded it to local production `master` `f5ebe12`; fetched `origin/master` `3abb8ba` remains an ancestor of that baseline. The unrelated dirty primary gap-completion checkout was preserved unchanged.
