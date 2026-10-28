@@ -1,4 +1,5 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { buildEventSurface, buildMethodSurface, loadAbiRegistry, sortObject, toCamelCase, toKebabCase, type ApiSurfaceEvent, type ApiSurfaceMethod, type ReviewedApiSurfaceFile } from "./api-surface-lib.js";
 import { writeJson } from "./utils.js";
@@ -102,7 +103,7 @@ function ensureUniqueEventPaths(events: Record<string, ApiSurfaceEvent>): Record
   return events;
 }
 
-async function main(): Promise<void> {
+export async function buildReviewedApiSurface(): Promise<ReviewedApiSurfaceFile> {
   const registry = await loadAbiRegistry();
   const methods = ensureUniquePaths(ensureUniqueOperationIds(Object.fromEntries(
     Object.entries(registry.methods)
@@ -113,18 +114,24 @@ async function main(): Promise<void> {
     Object.entries(registry.events).map(([key, event]) => [key, buildEventSurface(event)]),
   ), "facetName"));
 
-  const reviewed: ReviewedApiSurfaceFile = {
+  return {
     version: 1,
     generatedAt: new Date().toISOString(),
     methods: sortObject(methods),
     events: sortObject(events),
   };
 
+}
+
+async function main(): Promise<void> {
+  const reviewed = await buildReviewedApiSurface();
   await writeJson(path.resolve("reviewed", "reviewed-api-surface.json"), reviewed);
   console.log(`seeded reviewed API surface with ${Object.keys(methods).length} methods and ${Object.keys(events).length} events`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
