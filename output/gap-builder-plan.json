@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-27T11:42:46.324Z",
-  "sourceGeneratedAt": "2026-10-27T11:42:44.063Z",
+  "generatedAt": "2026-10-28T10:14:27.398Z",
+  "sourceGeneratedAt": "2026-10-28T10:14:25.131Z",
   "totals": {
     "nonReady": 87,
-    "selected": 35,
+    "selected": 40,
     "byClassification": {
       "ready": 623,
       "needs fixture": 59,
@@ -619,7 +619,7 @@
     },
     {
       "facetName": "StakingFacet",
-      "objective": "Reduce StakingFacet launch blockers across 5 gap items.",
+      "objective": "Reduce StakingFacet launch blockers across 10 gap items.",
       "items": [
         {
           "id": "StakingFacet.advanceEpoch",
@@ -701,6 +701,113 @@
           "endpoint": {
             "method": "POST",
             "path": "/v1/staking/stakes/init-staking"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "StakingFacet.initStakingWithToken",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/stakes/init-staking-with-token"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "StakingFacet.queueTierConfigUpdate",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/commands/queue-tier-config-update"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "StakingFacet.requestUnstake",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/staking/commands/request-unstake"
+          },
+          "gaps": [
+            "no workflow proof reference",
+            "no negative-path proof reference"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "StakingFacet.setDegradedModeConfig",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/set-degraded-mode-config"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no successful verify-artifact route evidence"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "StakingFacet.setEchoScoreBoost",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "PATCH",
+            "path": "/v1/staking/commands/set-echo-score-boost"
           },
           "gaps": [
             "no directly attributable test reference",
