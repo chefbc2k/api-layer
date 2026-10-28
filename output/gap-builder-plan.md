@@ -1,12 +1,12 @@
 # Gap Builder Plan
 
-Generated: `2026-10-27T06:16:33.782Z`
-Source gap report: `2026-10-27T06:16:27.396Z`
+Generated: `2026-10-27T11:42:46.324Z`
+Source gap report: `2026-10-27T11:42:44.063Z`
 
 ## Summary
 
 - Non-ready items in scope: `87`
-- Selected this run: `40`
+- Selected this run: `35`
 
 ## AccessControlFacet
 
@@ -156,7 +156,7 @@ Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run t
 
 ## StakingFacet
 
-Reduce StakingFacet launch blockers across 10 gap items.
+Reduce StakingFacet launch blockers across 5 gap items.
 
 - `StakingFacet.advanceEpoch` (needs fixture)
   - Endpoint: `POST /v1/staking/commands/advance-epoch`
@@ -172,21 +172,6 @@ Reduce StakingFacet launch blockers across 10 gap items.
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 - `StakingFacet.initStaking` (needs fixture)
   - Endpoint: `POST /v1/staking/stakes/init-staking`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `StakingFacet.initStakingWithToken` (needs fixture)
-  - Endpoint: `POST /v1/staking/stakes/init-staking-with-token`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `StakingFacet.queueTierConfigUpdate` (needs fixture)
-  - Endpoint: `POST /v1/staking/commands/queue-tier-config-update`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `StakingFacet.requestUnstake` (needs fixture)
-  - Endpoint: `POST /v1/staking/commands/request-unstake`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `StakingFacet.setDegradedModeConfig` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/set-degraded-mode-config`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `StakingFacet.setEchoScoreBoost` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/set-echo-score-boost`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
