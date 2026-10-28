@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import type { CoinbaseQuote } from "./provider.js";
 import { HttpError } from "../shared/errors.js";
@@ -11,6 +12,7 @@ export type FundingQuoteInsert = {
 export type FundingAttempt = {
   id: string; user_id: string; kind: "headless" | "hosted"; fingerprint: string;
   wallet_address: string; chain_id: string; sandbox: boolean; state: "creating" | "uncertain" | "ready";
+  provider_user_ref?: string | null; provider_updated_at?: Date | null;
   provider_order_id: string | null; provider_status: string | null; checkout_ciphertext: string | null;
   checkout_expires_at: Date | null; created_at: Date;
 };
@@ -50,10 +52,12 @@ export class FundingStore {
   async beginAttempt(input: { userId: string; kind: "headless" | "hosted"; key: string; fingerprint: string;
     quoteId?: string; wallet: string; chainId: number; sandbox: boolean }): Promise<{ created: boolean; attempt: FundingAttempt }> {
     try {
+      const id = randomUUID();
+      const ref = `${input.sandbox ? "sandbox-" : ""}${id.replaceAll("-", "")}`;
       const result = await this.pool.query<FundingAttempt>(`INSERT INTO funding_attempts
-        (user_id, kind, idempotency_key, fingerprint, quote_id, wallet_address, chain_id, sandbox)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT DO NOTHING RETURNING *`,
-      [input.userId, input.kind, input.key, input.fingerprint, input.quoteId ?? null, input.wallet.toLowerCase(), input.chainId, input.sandbox]);
+        (user_id, kind, idempotency_key, fingerprint, quote_id, wallet_address, chain_id, sandbox, id, provider_user_ref)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT DO NOTHING RETURNING *`,
+      [input.userId, input.kind, input.key, input.fingerprint, input.quoteId ?? null, input.wallet.toLowerCase(), input.chainId, input.sandbox, id, ref]);
       const attempt = result.rows[0] ?? await this.findAttempt(input.userId, input.kind, input.key);
       if (!attempt) throw new HttpError(409, "Another checkout for this quote or an unresolved funding attempt already exists");
       if (attempt.fingerprint !== input.fingerprint) throw new HttpError(409, "Idempotency key was already used for a different checkout");

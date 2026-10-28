@@ -110,6 +110,10 @@ describe("funding HTTP boundary", () => {
   }
   const input = { country: "US", subdivision: "IL", paymentMethod: "GUEST_CHECKOUT_APPLE_PAY", purchaseAmount: "100" };
 
+  it("denies quote writes for a bound read-only key before provider or persistence", async () => {
+    const { context, call, provider, store } = await setup(); context.apiKeys.customer.roles=["read-only"];
+    expect((await call(input)).status).toBe(403); expect(provider.quote).not.toHaveBeenCalled(); expect(store.insertQuote).not.toHaveBeenCalled();
+  });
   it("returns scoped eligibility and keeps pricing uncacheable", async () => {
     const { call } = await setup();
     const result = await call(undefined, { origin: "https://app.example" });

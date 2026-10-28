@@ -37,6 +37,7 @@
     "build": "pnpm run codegen && pnpm -r build",
     "test": "vitest run --maxWorkers 1",
     "test:indexer:assurance": "vitest run packages/indexer/src scripts/indexer-receipt-proof-lib.test.ts scripts/indexer-trace-capability-lib.test.ts --maxWorkers 1",
+    "funding:worker": "tsx scripts/run-funding-worker.ts",
     "test:indexer:postgres": "tsx scripts/run-indexer-postgres-assurance.ts",
     "proof:indexer:local-fork-receipts": "tsx scripts/run-local-fork-indexer-proof.ts",
     "proof:indexer:trace-capability": "tsx scripts/verify-indexer-trace-capability.ts",

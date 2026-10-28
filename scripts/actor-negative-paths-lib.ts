@@ -43,20 +43,12 @@ export const HTTP_EXCLUDED_WRITE_METHODS = [
   "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
 ] as const;
 
-export const ADDITIONAL_HTTP_WRITES = [
-  {
-    method: "POST",
-    path: "/v1/funding/quotes",
-    domain: "funding",
-    requiredIdentity: "funding-customer",
-    deniedActors: [...ACTOR_ROLES, "read-only", "unknown-key"],
-    boundaryDenials: [
-      "missing-funding-user-id",
-      "unknown-api-key",
-      "wallet-binding-mismatch",
-    ],
-  },
-] as const;
+export const ADDITIONAL_HTTP_WRITES = ["/v1/funding/quotes", "/v1/funding/orders", "/v1/funding/sessions"].map(path => ({
+  method: "POST", path, domain: "funding", requiredIdentity: "funding-customer",
+  deniedActors: ["read-only", "unknown-key"],
+  boundaryDenials: ["missing-funding-user-id", "unknown-api-key", "wallet-binding-mismatch"],
+} as const));
+
 
 const capabilityTargets = {
   commercialize: {

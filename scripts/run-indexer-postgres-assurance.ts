@@ -64,6 +64,7 @@ async function main(): Promise<void> {
         "-f", "db/migrations/0006_funding_attempts.sql",
         "-f", "db/migrations/0007_funding_webhook_inbox.sql",
         "-f", "db/migrations/0008_transaction_request_owner.sql",
+        "-f", "db/migrations/0009_funding_processing.sql",
       ]);
     }
 
