@@ -14,6 +14,7 @@ import { projectionTables } from "../packages/indexer/src/projections/tables.js"
 import {
   buildWriteSelectorMap,
   collectTransactionHashes,
+  defaultReceiptProofArtifactProducers,
   evaluateReceiptExpectation,
   mergePersistentProofReports,
   projectionTableNames,
@@ -26,24 +27,10 @@ import { fileExists, rootDir, writeJson } from "./utils.js";
 
 const run = promisify(execFile);
 const proofDir = path.join(rootDir, ".runtime", "local-fork-proofs");
-const defaultArtifactPaths = [
-  "http-contract-receipts.json",
-  "layer1-core.json",
-  "layer1-completion.json",
-  "layer1-remaining.json",
-  "marketplace-purchase.json",
-  "governance.json",
-].map((name) => path.join(proofDir, name));
+const defaultArtifactPaths = Object.keys(defaultReceiptProofArtifactProducers)
+  .map((name) => path.join(proofDir, name));
 const outputPath = path.join(proofDir, "event-indexer.json");
 const persistentOutputPath = path.join(rootDir, "verify-local-fork-indexer-output.json");
-const artifactProducers: Record<string, string> = {
-  "http-contract-receipts.json": "packages/api/src/app.contract-integration.test.ts",
-  "layer1-core.json": "scripts/verify-layer1-live.ts",
-  "layer1-completion.json": "scripts/verify-layer1-completion.ts",
-  "layer1-remaining.json": "scripts/verify-layer1-remaining.ts",
-  "marketplace-purchase.json": "scripts/verify-marketplace-purchase-live.ts",
-  "governance.json": "scripts/verify-governance-workflows.ts",
-};
 
 type ReceiptProof = {
   txHash: string;
@@ -172,7 +159,7 @@ async function loadReceiptProofs(
       definition: write.definition,
       sourceArtifacts,
       sourceScripts: [...new Set(sourceArtifacts
-        .map((source) => artifactProducers[path.basename(source)])
+        .map((source) => defaultReceiptProofArtifactProducers[path.basename(source)])
         .filter((producer): producer is string => Boolean(producer)))].sort(),
     });
   }

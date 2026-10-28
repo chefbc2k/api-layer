@@ -80,7 +80,10 @@ describe("checkout HTTP and idempotency", () => {
       getAttempt: vi.fn().mockImplementation(async () => attempt),
       history: vi.fn().mockImplementation(async () => attempt ? [attempt] : []),
     };
-    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify({ buyer: { label: "buyer", fundingUserId: user, walletAddress: wallet } }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
+    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify({
+      buyer: { label: "buyer", fundingUserId: user, walletAddress: wallet },
+      deputy: { label: "mismatched deputy", fundingUserId: user, walletAddress: "0x00000000000000000000000000000000000000bb" },
+    }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
     const app = express(); app.use(express.json());
     app.use(createFundingRouter(context, { config, inspectChain: async () => ({ chainId: 84532, token: BASE_SEPOLIA_USDC }), checkout: { provider, store } }));
     const server = app.listen(0); servers.push(server); await new Promise<void>(resolve => server.once("listening", resolve));
@@ -109,6 +112,36 @@ describe("checkout HTTP and idempotency", () => {
   it("rejects idempotency-key reuse for a different quote", async () => {
     const { call, provider } = await setup(); await call("orders", { quoteId });
     expect((await call("orders", { quoteId: id })).status).toBe(409);
+    expect(provider.createOrder).toHaveBeenCalledTimes(1);
+  });
+  it("does not let a same-customer API key with a different wallet replay checkout authority", async () => {
+    const { call, provider } = await setup();
+    expect((await call("orders", { quoteId })).status).toBe(200);
+    expect((await call("orders", { quoteId }, { "x-api-key": "deputy" })).status).toBe(409);
+    expect(provider.createOrder).toHaveBeenCalledTimes(1);
+  });
+  it.each([
+    ["destination", { destinationAddress: "0x00000000000000000000000000000000000000bb" }],
+    ["customer", { partnerUserRef: "sandbox-confused-deputy" }],
+    ["purchase amount", { purchaseAmount: "101" }],
+    ["payment conservation", { paymentTotal: "100.76" }],
+  ])("locks the checkout after a mismatched provider %s response", async (_label, patch) => {
+    const { call, provider, getAttempt } = await setup();
+    provider.createOrder.mockResolvedValueOnce({
+      order: { ...structuredClone(order), ...patch },
+      paymentLink: { url: "https://pay.coinbase.com/checkout" },
+      userAuthToken: "must-not-leak",
+    });
+
+    const result = await call("orders", { quoteId });
+    expect(result).toMatchObject({
+      status: 202,
+      body: { id, status: "outcome_unknown", settlementStatus: "unverified", retryCreation: false },
+    });
+    expect(JSON.stringify(result)).not.toContain("must-not-leak");
+    expect(JSON.stringify(result)).not.toContain("pay.coinbase.com");
+    expect(getAttempt()?.state).toBe("uncertain");
+    expect((await call("orders", { quoteId })).status).toBe(202);
     expect(provider.createOrder).toHaveBeenCalledTimes(1);
   });
   it("does not repeat ambiguous provider requests", async () => {

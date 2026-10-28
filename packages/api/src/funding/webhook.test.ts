@@ -25,6 +25,33 @@ describe("Coinbase raw webhook verification", () => {
   it.each([undefined,"","t=1,h=content-type,v1=x","t=1234567890,t=1234567890,v1=abc","v0=abc"])("rejects malformed signatures %s", value => {
     expect(verifyWebhook(body,value,secret,headers)).toBe(false);
   });
+  it("rejects deterministic body, identity, timestamp, header-list, and MAC mutations", () => {
+    const now = Date.now();
+    const timestamp = Math.floor(now / 1000);
+    const valid = signature(body, timestamp);
+    const mutations: Array<[string, Buffer, string | undefined, Record<string, string | string[] | undefined>, number]> = [
+      ["body byte", Buffer.concat([body.subarray(0, body.length - 1), Buffer.from("!")]), valid, headers, now],
+      ["event id", body, valid, { ...headers, "x-event-id": "event-2" }, now],
+      ["event type", body, valid, { ...headers, "x-event-type": "onramp.transaction.failed" }, now],
+      ["content type", body, valid, { ...headers, "content-type": "text/plain" }, now],
+      ["missing signed header", body, valid, { ...headers, "x-event-id": undefined }, now],
+      ["duplicate transport header", body, valid, { ...headers, "x-event-id": ["event-1", "event-2"] }, now],
+      ["stale timestamp", body, valid, headers, now + 301_000],
+      ["future timestamp", body, valid, headers, now - 301_000],
+      ["duplicate signed name", body, signature(body, timestamp, "content-type x-event-id x-event-id x-event-type"), headers, now],
+      ["missing identity name", body, signature(body, timestamp, "content-type x-event-type"), headers, now],
+      ["uppercase signed name", body, valid.replace("content-type", "Content-Type"), headers, now],
+      ["duplicate timestamp field", body, `${valid},t=${timestamp}`, headers, now],
+      ["duplicate MAC field", body, `${valid},v1=${"0".repeat(64)}`, headers, now],
+      ["uppercase MAC", body, valid.replace(/v1=([a-f0-9]+)/, (_match, mac: string) => `v1=${mac.toUpperCase()}`), headers, now],
+      ["short MAC", body, valid.replace(/v1=[a-f0-9]+/, "v1=00"), headers, now],
+      ["extra separator", body, `${valid},`, headers, now],
+    ];
+
+    for (const [label, mutatedBody, mutatedSignature, mutatedHeaders, mutatedNow] of mutations) {
+      expect(verifyWebhook(mutatedBody, mutatedSignature, secret, mutatedHeaders, mutatedNow), label).toBe(false);
+    }
+  });
   it("mounts before JSON, acknowledges only after durable enqueue, and redacts errors", async () => {
     const enqueue = vi.fn().mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockRejectedValueOnce(new Error("secret database failure"));
     const app=express();
