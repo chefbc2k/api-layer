@@ -29,3 +29,25 @@ Rollback: retain migration 0008 and owner data. Do not restore the vulnerable un
 ### Verification and delivery
 
 Exact command results and delivery receipt are appended after the final checks complete. Initial offline dependency setup lacked the ignored lockfile; copied the existing primary lockfile into the isolated worktree and `pnpm install --offline --frozen-lockfile` succeeded without downloading. Initial focused run found one incomplete test mock after adding authentication; the mock now partially imports real authentication and the final focused rerun passed.
+
+
+## 2026-10-28 — resumed delivery verification
+
+The October 26 implementation was preserved by autosave commit `36cceff` before delivery. It was not credited as accepted. Starting open count remains 1; this run must complete 1 item (100% of the starting open count, exceeding the rounded-up 25% minimum). Resumed in the same isolated worktree on `codex/transaction-request-privacy-20261028`, based on fetched default `origin/master` `cc54b9cde612032289b304803fae6cc7ad5b19df`. Reapplied the scoped candidate as `0f3cb0b`; resolved only an unrelated generated timestamp conflict by retaining the current remote version. No older workstream code or reports were restored over the newer default branch.
+
+Verification against this integrated baseline:
+
+- `API_LAYER_DEPLOYMENT_MANIFEST=/Users/chef/Public/CONTRACTS/artifacts/release-readiness/deployment-manifest.json pnpm run build`: passed, including full code generation and all workspace TypeScript builds. Generator-only reviewed-surface timestamp churn was restored in this worktree.
+- `pnpm exec tsc -b`: passed.
+- `pnpm run lint`: passed.
+- `pnpm run coverage:check`: passed at 492 wrapper functions, 218 event occurrences, 492 HTTP methods and 260/260 write invariants.
+- `pnpm run test:indexer:postgres`: passed 26/26 across three files (16 funding, 6 indexer and 4 transaction-request privacy database cases), applying all migrations twice to disposable real PostgreSQL. This includes restart persistence, exact owner/signer isolation, explicit key rotation, preserved ownerless records and denied browser database access.
+- `pnpm run test:actor-negative-paths`: passed 447/447 across 14 files.
+- The first integrated `pnpm test` finished with 2,093 passing tests, 68 gated skips and one existing generated event-assurance timeout. That case stalled for 25 seconds against a 5-second timeout; the run took 1,501 seconds wall time. Its exact focused rerun passed in 101 milliseconds. No timeout was increased or assertion weakened. A canonical full retry is required before delivery and is recorded below.
+
+Full logs are preserved under `.runtime/privacy-20261028-*.log` in this worktree. No live provider payment, production database migration, contract transaction or service deployment was performed. GitHub workflow inventory contains only platform-managed Copilot/Dependabot workflows; no repository build/test workflow was found. Exact-commit checks are inspected after push rather than claiming CI success.
+
+- The second canonical retry again encountered a different existing event-assurance timeout (`TimewaveGiftFacet.VestingTransferred`, 175 seconds against 5 seconds) plus a Vitest task-update timeout, with 2,093 passing tests and 68 gated skips. Its exact focused rerun passed in 107 milliseconds. The host was exhibiting long wall-clock stalls between otherwise short tests. To address host idle suspension without weakening tests or changing unrelated indexer code, the final canonical run uses `/usr/bin/caffeinate -i pnpm test`. This inhibits idle sleep only while the command runs; all original assertions and timeouts remain unchanged.
+
+- Final full canonical regression with idle sleep inhibited passed: **2,094 tests across 160 files**, **68 gated skips across five files**, zero failed tests or unhandled errors, 116 seconds. The 26 database skips were executed successfully by the separate disposable PostgreSQL gate; the remaining 42 live contract/red-team checks are not claimed as executed and are outside this lookup-only change. Final log: `.runtime/privacy-20261028-full-awake.log`.
+- All required local checks for this scoped privacy fix now pass. No test timeout, assertion or global test configuration was weakened. Verified-source commit is `0f3cb0b`; the following documentation commit records the final gates. Acceptance remains pending successful remote-default delivery, whose exact receipt is appended after publication.

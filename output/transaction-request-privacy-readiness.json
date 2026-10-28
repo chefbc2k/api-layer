@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-28",
+  "scope": "transaction-request-privacy",
+  "acceptanceItemCount": 1,
+  "startingOpen": 1,
+  "minimumCompletedThisRun": 1,
+  "completionRequirement": "ceil(0.25 * startingOpen)",
+  "status": "verified-awaiting-default-branch-delivery",
+  "sourceCommit": "0f3cb0b",
+  "baseCommit": "cc54b9cde612032289b304803fae6cc7ad5b19df",
+  "checks": {
+    "fullRegression": {
+      "passed": 2094,
+      "skipped": 68,
+      "failed": 0,
+      "passedFiles": 160,
+      "skippedFiles": 5,
+      "log": ".runtime/privacy-20261028-full-awake.log"
+    },
+    "postgres": {
+      "passed": 26,
+      "failed": 0,
+      "migrationsAppliedTwice": true,
+      "privacySpecificTests": 4
+    },
+    "actorNegativePaths": {
+      "passed": 447,
+      "failed": 0
+    },
+    "typescript": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "generatedSurface": {
+      "functions": 492,
+      "eventOccurrences": 218,
+      "writeInvariants": 260
+    }
+  },
+  "rollout": {
+    "productionDeployed": false,
+    "productionDatabaseModified": false,
+    "requiredMigration": "db/migrations/0008_transaction_request_owner.sql",
+    "sequence": "Apply migration before deploying secured API; legacy rows remain preserved and inaccessible."
+  },
+  "otherWorkstreamsCompleted": false
+}
