@@ -6,7 +6,7 @@
   "startingOpen": 1,
   "minimumCompletedThisRun": 1,
   "completionRequirement": "ceil(0.25 * startingOpen)",
-  "status": "verified-awaiting-default-branch-delivery",
+  "status": "complete-verified-default-branch-delivery",
   "sourceCommit": "0f3cb0b",
   "baseCommit": "cc54b9cde612032289b304803fae6cc7ad5b19df",
   "checks": {
@@ -43,5 +43,19 @@
     "requiredMigration": "db/migrations/0008_transaction_request_owner.sql",
     "sequence": "Apply migration before deploying secured API; legacy rows remain preserved and inaccessible."
   },
-  "otherWorkstreamsCompleted": false
+  "otherWorkstreamsCompleted": false,
+  "completedThisRun": 1,
+  "completedPercentOfStartingOpen": 100,
+  "endingOpen": 0,
+  "deliveryCommit": "d064acffb157ce47447b699923e4e0b8c3104b73",
+  "remoteRefsVerified": [
+    "origin/master",
+    "origin/codex/transaction-request-privacy-20261028"
+  ],
+  "remoteCI": {
+    "checkRuns": 0,
+    "statusContexts": 0,
+    "aggregateState": "pending",
+    "successClaimed": false
+  }
 }

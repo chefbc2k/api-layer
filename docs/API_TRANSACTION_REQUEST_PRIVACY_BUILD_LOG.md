@@ -51,3 +51,12 @@ Full logs are preserved under `.runtime/privacy-20261028-*.log` in this worktree
 
 - Final full canonical regression with idle sleep inhibited passed: **2,094 tests across 160 files**, **68 gated skips across five files**, zero failed tests or unhandled errors, 116 seconds. The 26 database skips were executed successfully by the separate disposable PostgreSQL gate; the remaining 42 live contract/red-team checks are not claimed as executed and are outside this lookup-only change. Final log: `.runtime/privacy-20261028-full-awake.log`.
 - All required local checks for this scoped privacy fix now pass. No test timeout, assertion or global test configuration was weakened. Verified-source commit is `0f3cb0b`; the following documentation commit records the final gates. Acceptance remains pending successful remote-default delivery, whose exact receipt is appended after publication.
+
+
+### Verified delivery receipt — October 28
+
+- Atomic, non-force publication succeeded for `d064acffb157ce47447b699923e4e0b8c3104b73` to both `origin/master` and `origin/codex/transaction-request-privacy-20261028`. `git ls-remote` confirmed both refs at that exact SHA. It contains the scoped implementation `0f3cb0b` and the final local verification receipt; no unrelated changes were included.
+- GitHub exact-commit check-runs returned zero checks; combined status returned zero contexts with a `pending` aggregate placeholder. The workflow inventory contained only platform-managed Copilot/Dependabot jobs. No remote build/test CI pass is claimed; local checks above are the observed verification gates.
+- Accepted completion: **1 of 1 starting open items completed (100%)**, meeting the one-item rounded-up 25% requirement. Ending open items for this workstream: **0**. This closes source implementation and verified default-branch delivery, not production rollout.
+- Required rollout remains explicit: apply migration 0008 before deploying the secured API. No production database or service was changed. Existing ownerless rows remain preserved and inaccessible. Other funding, frontend, settlement and exact-method write-proof backlogs are not credited to this workstream.
+- The recurring privacy automation is now eligible for removal because its complete implementation and verified-delivery scope is satisfied. This documentation receipt updates the accepted status without changing the verified runtime/test source.
