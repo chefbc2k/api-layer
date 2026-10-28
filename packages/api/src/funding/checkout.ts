@@ -2,10 +2,10 @@ import { createHash } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import { Pool } from "pg";
 import { z } from "zod";
-import { authenticate } from "../shared/auth.js";
+import { authenticate, assertWriteAuthorized } from "../shared/auth.js";
 import { HttpError, toHttpError } from "../shared/errors.js";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
-import { BASE_USDC, BASE_SEPOLIA_USDC, type FundingConfig } from "./config.js";
+import { BASE_USDC, BASE_SEPOLIA_USDC, decimalUnits, type FundingConfig } from "./config.js";
 import { sealCheckout, openCheckout } from "./checkout-crypto.js";
 import { CoinbaseFundingProvider } from "./provider.js";
 import { FundingStore, type FundingAttempt } from "./store.js";
@@ -37,12 +37,15 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
   const provider = dependencies.provider ?? new CoinbaseFundingProvider(config);
   const store = dependencies.store ?? new FundingStore(new Pool({ connectionString: config.databaseUrl, max: 3, allowExitOnIdle: true, idleTimeoutMillis: 10_000 }));
   const principal = async (request: Request, write: boolean) => {
-    const actor = fundingActor(authenticate(context.apiKeys, request.header("x-api-key")), request);
+    const auth = authenticate(context.apiKeys, request.header("x-api-key"));
+    if (write) { try { assertWriteAuthorized(auth); } catch { throw new HttpError(403, "API key not permitted for funding writes"); } }
+    const actor = fundingActor(auth, request);
     await context.rateLimiter.enforce(write ? "write" : "read", `funding:${actor.userId}`);
     return actor;
   };
   const respond = (attempt: FundingAttempt, response: Response) => {
     if (attempt.state !== "ready") { response.status(202).json({ ...publicAttempt(attempt), retryCreation: false }); return; }
+    if (!attempt.checkout_ciphertext) { response.status(200).json({ ...publicAttempt(attempt), checkoutAvailable: false }); return; }
     if (!attempt.checkout_expires_at || attempt.checkout_expires_at.getTime() <= Date.now()) {
       response.status(409).json({ ...publicAttempt(attempt), error: "Checkout link expired; inspect order status before creating a new checkout" }); return;
     }
@@ -80,7 +83,7 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
       wallet: actor.wallet, chainId: chain.chainId, sandbox: config.mode === "sandbox" });
     if (!reservation.created) { respond(reservation.attempt, response); return; }
     const attempt = reservation.attempt;
-    const partnerUserRef = `${config.mode === "sandbox" ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${actor.userId}`).digest("hex").slice(0,32)}`;
+    const partnerUserRef = attempt.provider_user_ref ?? `${config.mode === "sandbox" ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${actor.userId}`).digest("hex").slice(0,32)}`;
     let checkoutUrl: string, reusableToken: string | undefined, orderId: string | undefined, status: string | undefined;
     try {
       if (kind === "headless" && quote) {
@@ -88,6 +91,7 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
           paymentMethod: quote.payment_method, [quote.amount_kind === "payment" ? "paymentAmount" : "purchaseAmount"]: quote.request_amount,
           clientIp: request.ip, domain: new URL(config.origins[0]).hostname });
         validateQuote(created.order, actor.wallet, quote.amount_kind, quote.request_amount);
+        if (decimalUnits(created.order.paymentTotal,6) > decimalUnits(quote.quote.paymentTotal,6)) throw new Error("Price increased; new quote required");
         if (created.order.partnerUserRef !== partnerUserRef) throw new Error("Provider customer mismatch");
         checkoutUrl = created.paymentLink.url; reusableToken = created.userAuthToken;
         orderId = created.order.orderId; status = created.order.status;
@@ -119,7 +123,7 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
     if (!attempt) throw new HttpError(404, "Funding order not found");
     if (attempt.provider_order_id) {
       const current = await provider.getOrder(attempt.provider_order_id);
-      const userRef = `${attempt.sandbox ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${actor.userId}`).digest("hex").slice(0,32)}`;
+      const userRef = attempt.provider_user_ref ?? `${attempt.sandbox ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${actor.userId}`).digest("hex").slice(0,32)}`;
       if (current.orderId !== attempt.provider_order_id || current.destinationAddress.toLowerCase() !== attempt.wallet_address || current.partnerUserRef !== userRef) throw new HttpError(502, "Coinbase returned an inconsistent order");
       attempt.provider_status = current.status;
     }

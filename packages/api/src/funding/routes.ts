@@ -1,9 +1,10 @@
+import { createReadinessRouter } from "./readiness.js";
 import { createHash } from "node:crypto";
 import { Contract, getAddress, ZeroAddress } from "ethers";
 import { Router, type Request } from "express";
 import { Pool } from "pg";
 import { z } from "zod";
-import { authenticate, type AuthContext } from "../shared/auth.js";
+import { authenticate, assertWriteAuthorized, type AuthContext } from "../shared/auth.js";
 import { HttpError, toHttpError } from "../shared/errors.js";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 import { BASE_USDC, BASE_SEPOLIA_USDC, decimalUnits, readFundingConfig, type FundingConfig } from "./config.js";
@@ -81,6 +82,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
   const handle = (quote: boolean) => async (request: Request, response: import("express").Response) => {
     try {
       const auth = authenticate(context.apiKeys, request.header("x-api-key"));
+      if (quote) { try { assertWriteAuthorized(auth); } catch { throw new HttpError(403, "API key not permitted for funding writes"); } }
       const actor = fundingActor(auth, request);
       await context.rateLimiter.enforce(quote ? "write" : "read", `funding:${actor.userId}`);
       const input = quote ? quoteRequest.parse(request.body) : optionsRequest.parse(request.query);
@@ -135,6 +137,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
   };
   router.get("/v1/funding/options", handle(false));
   router.post("/v1/funding/quotes", handle(true));
+  router.use(createReadinessRouter(context));
   router.use(createCheckoutRouter(context, config, inspectChain, dependencies.checkout));
   return router;
 }

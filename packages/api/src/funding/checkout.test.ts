@@ -91,6 +91,11 @@ describe("checkout HTTP and idempotency", () => {
     }
     return { call, provider, store, context, getAttempt: () => attempt };
   }
+  it.each(["orders", "sessions"])("denies %s for a bound read-only key before any create", async path => {
+    const { context, call, provider, store } = await setup(); context.apiKeys.buyer.roles=["read-only"];
+    expect((await call(path,path==="orders"?{quoteId}:{})).status).toBe(403);
+    expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
+  });
   it("creates an embedded order with no client contact attestations and encrypts reusable tokens", async () => {
     const { call, provider, getAttempt } = await setup();
     const result = await call("orders", { quoteId });
@@ -153,6 +158,15 @@ describe("checkout HTTP and idempotency", () => {
     const { call, provider } = await setup(); await call("orders", { quoteId });
     provider.getOrder.mockResolvedValue({ ...order, status: "ONRAMP_ORDER_STATUS_COMPLETED" });
     expect(await call(`orders/${id}`)).toMatchObject({ status: 200, body: { status: "provider_completed", settlementStatus: "unverified" } });
+  });
+  it.each([
+    ["provider order ID", { orderId: quoteId }],
+    ["destination wallet", { destinationAddress: "0x00000000000000000000000000000000000000bb" }],
+    ["customer reference", { partnerUserRef: "sandbox-another-customer" }],
+  ])("rejects a refreshed order with a mismatched %s", async (_field, mismatch) => {
+    const { call, provider } = await setup(); await call("orders", { quoteId });
+    provider.getOrder.mockResolvedValue({ ...order, ...mismatch });
+    expect(await call(`orders/${id}`)).toMatchObject({ status: 502, body: { error: "Coinbase returned an inconsistent order" } });
   });
   it("does not query another owner's provider order", async () => {
     const { call, store, provider } = await setup(); store.getAttempt.mockResolvedValue(null);
