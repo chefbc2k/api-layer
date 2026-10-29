@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { HttpError } from "./errors.js";
+import { transactionRequestOwnerHash } from "./request-owner.js";
 import { Interface, VoidSigner, Wallet, getBigInt, type Provider, type TransactionRequest } from "ethers";
 
 import { AddressBook, LocalCache, ProviderRouter, facetRegistry, readConfigFromEnv } from "../../../client/src/index.js";
@@ -14,7 +17,7 @@ import {
   traceCallWithAlchemy,
   traceTransactionWithAlchemy,
 } from "./alchemy-diagnostics.js";
-import { assertAdminAuthorized, assertAdminNetworkAuthorized, assertWriteAuthorized, loadApiKeys } from "./auth.js";
+import { assertAdminAuthorized, assertAdminNetworkAuthorized, assertWriteAuthorized, authenticate, loadApiKeys } from "./auth.js";
 import { submitSmartWalletCall } from "./cdp-smart-wallet.js";
 import { RateLimiter } from "./rate-limit.js";
 import type { ApiRequestOptions, EventInvocationRequest, HttpEventDefinition, HttpMethodDefinition, PrimitiveInvocationRequest, RouteResult } from "./route-types.js";
@@ -586,6 +589,7 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
       throw new Error(`non-zero spend caps are not yet supported for ${definition.key}`);
     }
     const requestId = await context.txStore.insert({
+      ownerHash: transactionRequestOwnerHash(request.auth),
       requesterWallet: request.walletAddress,
       signerId: request.auth.signerId,
       method: definition.key,
@@ -616,6 +620,7 @@ export async function executeHttpMethodDefinition(context: ApiExecutionContext, 
   }
 
   const requestId = await context.txStore.insert({
+    ownerHash: transactionRequestOwnerHash(request.auth),
     requesterWallet: request.walletAddress,
     signerId: request.auth.signerId,
     method: definition.key,
@@ -661,8 +666,17 @@ export async function executeHttpEventDefinition(context: ApiExecutionContext, d
   };
 }
 
-export async function getTransactionRequest(context: ApiExecutionContext, requestId: string): Promise<unknown> {
-  return context.txStore.get(requestId);
+export async function getTransactionRequest(context: ApiExecutionContext, requestId: string, apiKey?: string): Promise<unknown> {
+  // Reauthenticate against the current key map; labels and caller wallet headers are not identity.
+  const auth = authenticate(context.apiKeys, apiKey);
+  await context.rateLimiter.enforce("read", `tx-request:${transactionRequestOwnerHash(auth)}`);
+  if (!z.string().uuid().safeParse(requestId).success) throw new HttpError(400, "Invalid transaction request ID");
+  const record = await context.txStore.getOwned(requestId, transactionRequestOwnerHash(auth)).catch(() => {
+    throw new HttpError(503, "Transaction request lookup unavailable");
+  });
+  if (!record) throw new HttpError(404, "Transaction request not found");
+  const { owner_hash: _ownerHash, ...payload } = record;
+  return payload;
 }
 
 export async function getTransactionStatus(context: ApiExecutionContext, txHash: string): Promise<unknown> {
