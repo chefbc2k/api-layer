@@ -153,6 +153,7 @@ import {
   getTransactionStatus,
   resolveBufferedGasLimit,
   resolveRetryNonce,
+  resolveSubmissionNonce,
 } from "./execution-context.js";
 
 beforeEach(() => {
@@ -280,6 +281,7 @@ function buildContext(overrides: Record<string, unknown> = {}) {
       alchemySimulationEnforced: false,
       allowLiveAdminWrites: false,
       alchemyEndpointDetected: false,
+      cbdpRpcUrl: "https://rpc.example.test",
       alchemyRpcUrl: "https://alchemy.example",
       alchemySimulationBlock: "latest",
       alchemyTraceTimeout: 5_000,
@@ -375,6 +377,17 @@ describe("resolveRetryNonce", () => {
     expect(firstRetryNonce).toBe(13);
     expect(secondRetryNonce).toBe(14);
     expect(thirdRetryNonce).toBe(15);
+  });
+});
+
+describe("resolveSubmissionNonce", () => {
+  it("trusts the fork pending nonce after a local snapshot rewind", () => {
+    expect(resolveSubmissionNonce(7, 11, true)).toBe(7);
+  });
+
+  it("retains the local high-water mark for live providers", () => {
+    expect(resolveSubmissionNonce(7, 11, false)).toBe(11);
+    expect(resolveSubmissionNonce(12, 11, false)).toBe(12);
   });
 });
 
@@ -622,6 +635,14 @@ describe("__testOnly helpers", () => {
 
   it("uses an anonymous signer queue key when no signer id is present", () => {
     expect(__testOnly.signerQueueKey("primary")).toBe(JSON.stringify([null, "primary"]));
+  });
+
+  it("recognizes only loopback RPC URLs as rewindable", () => {
+    expect(__testOnly.isLoopbackRpcUrl("http://127.0.0.1:8548")).toBe(true);
+    expect(__testOnly.isLoopbackRpcUrl("http://localhost:8548")).toBe(true);
+    expect(__testOnly.isLoopbackRpcUrl("http://[::1]:8548")).toBe(true);
+    expect(__testOnly.isLoopbackRpcUrl("https://rpc.example.test")).toBe(false);
+    expect(__testOnly.isLoopbackRpcUrl("not a URL")).toBe(false);
   });
 
   it("binds signer queue identity to the resolved wallet address", () => {
@@ -2035,6 +2056,27 @@ describe("executeHttpMethodDefinition", () => {
     expect(mocked.walletSendTransaction).toHaveBeenCalledTimes(2);
     const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
     expect(context.signerNonces.get(queueKey)).toBe(6);
+  });
+
+  it("reconciles local nonce state after a loopback fork rewind", async () => {
+    const context = buildContext();
+    context.config.cbdpRpcUrl = "http://127.0.0.1:8548";
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    context.signerNonces.set(queueKey, 9);
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    expect(mocked.walletSendTransaction).toHaveBeenCalledWith(expect.objectContaining({ nonce: 4 }));
+    expect(context.signerNonces.get(queueKey)).toBe(5);
   });
 
   it("shares nonce state across wallet aliases without carrying it across signer-map rotation", async () => {
