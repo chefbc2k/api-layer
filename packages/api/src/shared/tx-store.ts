@@ -1,6 +1,7 @@
 import { Pool } from "pg";
 
 export type TxRequestInsert = {
+  ownerHash?: string;
   requesterWallet?: string;
   signerId?: string;
   method: string;
@@ -16,6 +17,7 @@ export type TxRequestInsert = {
 
 export type TxRequestRecord = {
   id: string;
+  owner_hash: string | null;
   requester_wallet: string | null;
   signer_id: string | null;
   method: string;
@@ -78,9 +80,10 @@ export class TxRequestStore {
           relay_mode,
           api_key_label,
           request_hash,
-          spend_cap_decision
+          spend_cap_decision,
+          owner_hash
         )
-        VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7::jsonb, $8, $9, $10, $11)
+        VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7::jsonb, $8, $9, $10, $11, $12)
         RETURNING id
       `,
       [
@@ -95,6 +98,7 @@ export class TxRequestStore {
         request.apiKeyLabel ?? null,
         request.requestHash ?? null,
         request.spendCapDecision ?? null,
+        request.ownerHash ?? null,
       ],
     );
     return result.rows[0]?.id ?? null;
@@ -126,13 +130,13 @@ export class TxRequestStore {
     );
   }
 
-  async get(id: string): Promise<TxRequestRecord | null> {
+  async getOwned(id: string, ownerHash: string): Promise<TxRequestRecord | null> {
     if (!this.pool) {
       return null;
     }
     const result = await this.pool.query<TxRequestRecord>(
-      "SELECT * FROM tx_requests WHERE id = $1",
-      [id],
+      "SELECT * FROM tx_requests WHERE id = $1 AND owner_hash = $2",
+      [id, ownerHash],
     );
     return result.rows[0] ?? null;
   }
