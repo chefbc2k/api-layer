@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Base Sepolia Promotion Automation Run — 2026-10-29
+
+- Preserved the unrelated dirty primary checkout and yesterday's clean blocked promotion branch, then started `codex/base-sepolia-promotion-20261029` from fetched `origin/master` `a74e0b4` in the isolated promotion worktree. The production delta is transaction-request privacy work only; the promotion runner, setup helpers, proof commands, and safety gates are unchanged.
+- Refreshed `verify-base-sepolia-promotion-output.json` at `2026-10-29T17:04:36.425Z` through the canonical explicitly referenced environment preflight. Network (`base-sepolia`), chain ID (`84532`), diamond-address format, valid and distinct founder/seller/buyer keys, and founder/sender binding pass. Readiness remains blocked because `API_LAYER_BASE_SEPOLIA_PROMOTION_READY` is disabled and both execution and diagnostics RPC origins resolve to loopback `http://127.0.0.1:8548`.
+- The fail-closed preflight exited `2` before provider access or live-chain inspection. No operator setup, user funding, test-token allowance, aged listing, governance preparation, marketplace purchase, governance proof, transaction submission, or destructive protocol-admin write ran. The artifact remains `blocked by setup/state`, with `liveTarget.checked: false`, null setup, no scenarios, and empty transaction-hash, block-number, actor, state-delta, and decoded-event evidence.
+- Non-live verification passed on the current production baseline: the focused promotion suite passed `6/6`, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants.
+- **Merge decision:** blocked. No partial promotion work is merged into `master`. The next safe run requires operator-provided direct Base Sepolia execution and diagnostics RPCs plus explicit `.env` opt-in; only after every static and live-target readiness check passes may the existing fixture-backed marketplace and governance proof commands run.
+
 ## Daily Branch Consolidation — 2026-10-28
 
 - Recorded the repository and every linked worktree before movement. Five dirty passenger states were preserved without discarding changes: `codex/autosave-20261028-api-assurance-gap-completion` (two autosave commits, including regenerated reports), `codex/autosave-20261028-abi-gap-report`, `codex/autosave-20261028-coinbase-usdc`, `codex/autosave-20261028-api-assurance-gap-completion-late`, and `codex/autosave-20261028-production-indexer-write-coverage`. The last two captured concurrent gap-planner/seed and production-indexer ledger changes found during the final sweep.
