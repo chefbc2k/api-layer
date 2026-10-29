@@ -60,6 +60,7 @@ vi.mock("../shared/alchemy-diagnostics.js", async () => {
 
 import { createTokenomicsPrimitiveRouter } from "../modules/tokenomics/primitives/generated/routes.js";
 import { createLicensingPrimitiveRouter } from "../modules/licensing/primitives/generated/routes.js";
+import { createStakingPrimitiveRouter } from "../modules/staking/primitives/generated/routes.js";
 
 const originalSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
 const diamondAddress = "0x0000000000000000000000000000000000000001";
@@ -254,6 +255,82 @@ const selectedGapWriteCases = [
     preview: null,
     preflightRejection: "stale or unauthorized right revocation rejected",
   },
+  {
+    key: "RightsFacet.updateCollaboratorShare",
+    signature: "updateCollaboratorShare(bytes32,address,uint256)",
+    method: "PATCH",
+    path: "/v1/licensing/commands/update-collaborator-share",
+    body: { voiceHash, collaborator: fixtureAccount, newShare: "3000" },
+    runtimeArgs: [voiceHash, fixtureAccount, 3_000n],
+    preview: null,
+    preflightRejection: "stale or unauthorized collaborator share update rejected",
+  },
+  {
+    key: "RightsFacet.updateRightContract",
+    signature: "updateRightContract(string,address)",
+    method: "PATCH",
+    path: "/v1/licensing/commands/update-right-contract",
+    body: { rightId: "commercial-right-1", newContractAddress: secondSigner },
+    runtimeArgs: ["commercial-right-1", secondSigner],
+    preview: null,
+    preflightRejection: "stale or unauthorized right contract update rejected",
+  },
+  {
+    key: "StakingFacet.advanceEpoch",
+    signature: "advanceEpoch()",
+    method: "POST",
+    path: "/v1/staking/commands/advance-epoch",
+    body: {},
+    runtimeArgs: [],
+    preview: null,
+    preflightRejection: "stale epoch transition rejected",
+  },
+  {
+    key: "StakingFacet.claimRewards",
+    signature: "claimRewards()",
+    method: "POST",
+    path: "/v1/staking/commands/claim-rewards",
+    body: {},
+    runtimeArgs: [],
+    preview: 25n,
+    preflightRejection: "replayed or empty reward claim rejected",
+  },
+  {
+    key: "StakingFacet.executeUnstake",
+    signature: "executeUnstake()",
+    method: "POST",
+    path: "/v1/staking/commands/execute-unstake",
+    body: {},
+    runtimeArgs: [],
+    preview: null,
+    preflightRejection: "stale withdrawal cooldown rejected",
+  },
+  {
+    key: "StakingFacet.fundRewardPool",
+    signature: "fundRewardPool(uint256)",
+    method: "POST",
+    path: "/v1/staking/commands/fund-reward-pool",
+    body: { amount: "1000" },
+    runtimeArgs: [1_000n],
+    preview: null,
+    preflightRejection: "unauthorized reward pool funding rejected",
+  },
+  {
+    key: "StakingFacet.initStaking",
+    signature: "initStaking(uint256,uint256,uint256,uint256[],uint256[])",
+    method: "POST",
+    path: "/v1/staking/stakes/init-staking",
+    body: {
+      minStakeDuration: "86400",
+      withdrawalCooldown: "604800",
+      baseApyBps: "500",
+      thresholds: ["1000", "5000"],
+      multipliers: ["10000", "12500"],
+    },
+    runtimeArgs: [86_400n, 604_800n, 500n, [1_000n, 5_000n], [10_000n, 12_500n]],
+    preview: null,
+    preflightRejection: "replayed staking initialization rejected",
+  },
 ] as const;
 
 function buildContext() {
@@ -325,6 +402,7 @@ async function startServer(context: ReturnType<typeof buildContext>["context"]) 
   app.use(express.json());
   app.use(createTokenomicsPrimitiveRouter(context as never));
   app.use(createLicensingPrimitiveRouter(context as never));
+  app.use(createStakingPrimitiveRouter(context as never));
   const server = app.listen(0);
   await new Promise<void>((resolve) => {
     if (server.listening) {
