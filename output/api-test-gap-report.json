@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-28T10:14:25.131Z",
+  "generatedAt": "2026-10-28T18:28:24.424Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -197,7 +197,7 @@
       "reviewedApiSurface": 709,
       "unit": 690,
       "workflow": 375,
-      "localFork": 119,
+      "localFork": 121,
       "baseSepolia": 60,
       "negativePath": 378,
       "economic": 197,
@@ -16489,7 +16489,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 3.53,
+          "averageScore": 3.55,
           "maximumScore": 8
         }
       },
@@ -18868,7 +18868,7 @@
             "reviewedApiSurface": true,
             "unit": true,
             "workflow": true,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": true,
             "economic": true,
@@ -18877,13 +18877,11 @@
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 4,
+            "score": 5,
             "maximumScore": 8
           },
           "classification": "ready",
-          "gaps": [
-            "no successful verify-artifact route evidence"
-          ],
+          "gaps": [],
           "evidence": {
             "tests": [
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -18903,7 +18901,14 @@
             ],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "PaymentFacet.withdrawPaymentsWithDeadline",
+                "route": "POST /v1/marketplace/commands/withdraw-payments-with-deadline",
+                "network": "local-fork"
+              }
+            ]
           }
         }
       ],
@@ -22763,7 +22768,7 @@
         "proofDepth": {
           "minimumLevel": "inventory",
           "maximumLevel": "indexer",
-          "averageScore": 2.33,
+          "averageScore": 2.36,
           "maximumScore": 8
         }
       },
@@ -23932,7 +23937,7 @@
             "reviewedApiSurface": true,
             "unit": false,
             "workflow": false,
-            "localFork": false,
+            "localFork": true,
             "baseSepolia": false,
             "negativePath": false,
             "economic": false,
@@ -23940,16 +23945,15 @@
             "indexer": false
           },
           "proofDepth": {
-            "level": "inventory",
-            "score": 0,
+            "level": "live",
+            "score": 1,
             "maximumScore": 8
           },
           "classification": "needs fixture",
           "gaps": [
             "no directly attributable test reference",
             "no workflow proof reference",
-            "no negative-path proof reference",
-            "no successful verify-artifact route evidence"
+            "no negative-path proof reference"
           ],
           "evidence": {
             "tests": [],
@@ -23958,7 +23962,14 @@
             "economicTests": [],
             "redTeamTests": [],
             "indexerTests": [],
-            "verifyArtifacts": []
+            "verifyArtifacts": [
+              {
+                "artifact": "verify-local-fork-indexer-output.json",
+                "domain": "StakingFacet.setStakingPaused",
+                "route": "PATCH /v1/staking/commands/set-staking-paused",
+                "network": "local-fork"
+              }
+            ]
           }
         },
         {

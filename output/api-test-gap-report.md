@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-10-28T10:14:25.131Z`
+Generated: `2026-10-28T18:28:24.424Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -28,7 +28,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | reviewedApiSurface | 709 |
 | unit | 690 |
 | workflow | 375 |
-| localFork | 119 |
+| localFork | 121 |
 | baseSepolia | 60 |
 | negativePath | 378 |
 | economic | 197 |
@@ -554,7 +554,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## PaymentFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.53/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `3.55/8`.
 
 ### Functions
 
@@ -598,7 +598,7 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 | `updateTreasuryAddress` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `updateUnionTreasuryAddress` | write | yes | yes | yes | — | yes | — | yes | adversarial 5/8 | ready |
 | `withdrawPayments` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
-| `withdrawPaymentsWithDeadline` | write | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
+| `withdrawPaymentsWithDeadline` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 
 ### Events
 
@@ -701,7 +701,7 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 
 ## StakingFacet
 
-Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `2.33/8`.
+Facet classification: **needs fixture**. Proof depth spans `inventory` to `indexer` with an average score of `2.36/8`.
 
 ### Functions
 
@@ -728,7 +728,7 @@ Facet classification: **needs fixture**. Proof depth spans `inventory` to `index
 | `requestUnstake` | write | yes | — | yes | — | — | yes | — | adversarial 3/8 | needs fixture |
 | `setDegradedModeConfig` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
 | `setEchoScoreBoost` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
-| `setStakingPaused` | write | — | — | — | — | — | — | — | inventory 0/8 | needs fixture |
+| `setStakingPaused` | write | — | — | yes | — | — | — | — | live 1/8 | needs fixture |
 | `stake` | write | yes | yes | yes | — | yes | yes | — | adversarial 5/8 | ready |
 
 ### Events

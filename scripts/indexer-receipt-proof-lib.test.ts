@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -17,8 +19,47 @@ describe("local-fork receipt-to-indexer proof", () => {
       .toBe("packages/api/src/app.contract-integration.test.ts");
     expect(defaultReceiptProofArtifactProducers["staking-indexer-receipts.json"])
       .toBe("packages/api/src/app.contract-integration.test.ts");
-    expect(defaultReceiptProofArtifactProducers["verify-marketplace-purchase-output.json"])
-      .toBe("scripts/verify-marketplace-purchase-live.ts");
+  });
+
+  it("keeps the durable proof ledger internally consistent and monotonic", () => {
+    const ledger = JSON.parse(readFileSync(
+      new URL("../verify-local-fork-indexer-output.json", import.meta.url),
+      "utf8",
+    )) as {
+      totals: {
+        indexedReceipts: number;
+        provenWriteMethods: number;
+        catalogWriteMethods: number;
+        remainingWriteMethods: number;
+        rawEvents: number;
+        projectionRows: number;
+      };
+      reports: Record<string, {
+        evidence: Array<{
+          txHash: string;
+          postgres: {
+            rawEvents: { rowCount: number };
+            projections: Array<{ rowCount: number }>;
+          };
+        }>;
+      }>;
+    };
+    const evidence = Object.values(ledger.reports).flatMap((report) => report.evidence);
+
+    expect(Object.keys(ledger.reports)).toHaveLength(ledger.totals.provenWriteMethods);
+    expect(new Set(evidence.map((entry) => entry.txHash)).size).toBe(ledger.totals.indexedReceipts);
+    expect(ledger.totals.catalogWriteMethods - ledger.totals.provenWriteMethods)
+      .toBe(ledger.totals.remainingWriteMethods);
+    expect(evidence.reduce((sum, entry) => sum + entry.postgres.rawEvents.rowCount, 0))
+      .toBe(ledger.totals.rawEvents);
+    expect(evidence.reduce(
+      (sum, entry) => sum + entry.postgres.projections.reduce(
+        (projectionSum, projection) => projectionSum + projection.rowCount,
+        0,
+      ),
+      0,
+    )).toBe(ledger.totals.projectionRows);
+    expect(ledger.totals.provenWriteMethods).toBeGreaterThanOrEqual(109);
   });
 
   it("collects and deduplicates transaction hashes from nested workflow artifacts", () => {
