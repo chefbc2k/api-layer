@@ -2,6 +2,13 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-11-04
+
+- Recorded all 28 linked worktrees before branch movement and preserved four dirty passenger states on dated autosave branches; no user changes were discarded. Fetched and pruned `origin`, confirmed production remains `master`, and audited 296 local plus 69 remote `codex/*` refs (119 distinct tips not yet ancestral to production).
+- Merged `codex/autosave-20261104-daily-consolidation-root` with `--no-ff`. The slice closes 39 planned mounted-route gaps across VoiceAsset, dataset, license, license-template, staking, and token-supply commands, restores the 35-route control-plane guard artifact, and refreshes the canonical gap report and plan.
+- Verification passed: 180 focused write-safety cases, report/planner tests (`20/20`), `pnpm run coverage:check` (492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants), `pnpm test` (2,223 active tests with 68 environment-gated skips), actor reporting (1,813 cases across 260 mounted writes), and indexer assurance (268 active tests with 6 PostgreSQL skips).
+- Remaining clean passengers and conflict-only historical tips are still being assessed against the updated production tree; final merge and blocker decisions will be appended to this entry before push.
+
 ## Daily Branch Consolidation — 2026-10-28
 
 - Recorded the repository and every linked worktree before movement. Five dirty passenger states were preserved without discarding changes: `codex/autosave-20261028-api-assurance-gap-completion` (two autosave commits, including regenerated reports), `codex/autosave-20261028-abi-gap-report`, `codex/autosave-20261028-coinbase-usdc`, `codex/autosave-20261028-api-assurance-gap-completion-late`, and `codex/autosave-20261028-production-indexer-write-coverage`. The last two captured concurrent gap-planner/seed and production-indexer ledger changes found during the final sweep.
