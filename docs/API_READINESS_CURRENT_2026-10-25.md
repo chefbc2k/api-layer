@@ -1,40 +1,21 @@
-# API production readiness — October 25, 2026
+# API production readiness ledger — updated November 4, 2026
 
-Not all identified implementation and assurance gaps are complete. The API has complete generated function-route coverage, but production readiness has not been established. There is no agreed weighted release checklist from which an honest single overall percentage can be calculated.
+Overall production readiness is not established. The historical filename is retained as the shared ledger named by the automations.
 
-| Measure | Current evidence | Meaning |
+| Workstream | Current evidence | Acceptance boundary |
 | --- | --- | --- |
-| Generated ABI function routes | 492/492 (100%) | Interface coverage; checked with `pnpm run coverage:check` during this review |
-| Static gap classifier | 710/710 classified ready | 492 functions plus 218 facet event occurrences; static evidence attribution, not production certification |
-| Accepted Coinbase funding units | 5/20 (25%) | C01–C05 accepted; remaining units retain their original denominator |
-| Exact-method receipt/indexer proof | 109/260 writes (41.9%) | Recorded successful fork receipts, PostgreSQL ingestion and replay evidence; 151 remain |
-| Overall production readiness | Not established | Requires functioning funding-to-contract flow and deployment/operational evidence |
+| Coinbase backend funding | 13/20 accepted (65%): C01–C09, C11–C13, C16 | Local backend gates and real PostgreSQL/local-EVM proofs; no production checkout or settlement launch |
+| Consuming frontend F01 | 0/1; open | Actual USpeaks repository/path/access still unconfirmed; MOLTSTUDIOS is not assumed to be the consumer |
+| Transaction-request privacy | Complete per separate owner ledger | See `output/transaction-request-privacy-readiness.json`; deployment still needs migration 0008 |
+| Exact-method write proof | Separately owned; baseline reported 109/260, 151 remaining | Checked-in default artifact is older (October 9: 107/260, 153 remaining); reconcile through its owner, not funding attribution |
+| Generated route coverage | 492 functions, 218 event occurrences, 260 write invariants | Static/surface assurance is not production certification |
 
-The durable write evidence is `verify-local-fork-indexer-output.json`, generated October 25 at 10:59:19 UTC. It records 560 receipts, 864 raw events and 566 projection rows. This updates the October 18 review's 108 proven / 152 remaining counts. The artifact was inspected, not regenerated in this change. A missing proof is an assurance gap and is not itself evidence of a broken function.
+C10/C14 recovery/polling/subscription health, C15 USDC receipt settlement, C17 bounded approvals, C18 signed purchase, C19 real provider/fork acceptance and C20 release acceptance remain open. Backend event processing now persists canonical Headless observations and typed hosted events; late completion and replay ordering are tested. Wallet readiness reads actual chain/token/listing/balance/allowance and EOA gas; customer-specific smart-account sponsorship stays explicitly unverified.
 
-## On-ramp work added in this working tree
+The November 4 batch completed three of eleven starting open funding/frontend items, meeting the rounded-up minimum of three. Eight remain including F01, so the next minimum is two. Preserve the original twenty-unit denominator and track F01 separately. October 26–November 3 interruptions did not earn acceptance; late recovery accounting is in the build log.
 
-The intended customer journey remains eligible payment method → Coinbase checkout → USDC in the customer's bound wallet → confirmed chain/token/recipient settlement → bounded allowance approval → fresh marketplace validation → signed contract purchase and receipt/indexer confirmation.
+CDP server credentials are present; funding and checkout remain disabled. A non-payable actual-provider quote probe returned HTTP 400 with domain-related diagnostics. Approved app domain/capabilities, the actual frontend/client context, webhook subscription secret, deployment PostgreSQL and actual sandbox checkout/settlement acceptance are still required. Synthetic provider fixtures are not Coinbase acceptance, and a UI callback/provider-completed status never proves USDC credit or authorizes purchase.
 
-New candidate code adds embedded sandbox order creation, owner-scoped detail and paginated attempt history, durable owner/key request fingerprints and concurrency protection. A reservation is committed before provider contact. Ambiguous outcomes remain blocked across restarts; repeated requests do not recreate orders. Sandbox URLs use Coinbase's documented fake-payment flags. Private verification tokens are omitted from customer responses, and history also omits checkout links. Provider completion always remains `settlementStatus: unverified` and `purchaseReady: false`.
+Verification: 2,262 regression tests passed, 73 live/database gates; all selected database cases separately passed within 31 real PostgreSQL checks. Actor checks 588, red-team 181, indexer 268 plus six separately executed PostgreSQL cases; typecheck, lint, workspace builds, surface checks and measured coverage passed. Actual local-EVM readiness proof used read fixtures with no transfers and is not settlement/fork production evidence. Full commands, failure corrections, source commits and delivery receipt are in `docs/COINBASE_USDC_BUILD_LOG.md` and `output/coinbase-usdc/2026-11-04-verification.json`.
 
-A bound read-only API key could previously reach quote creation; both quote and order creation now enforce write permission. The actor inventory includes the new funding write and its denial checks. Production order creation remains disabled. These changes are local working-tree changes; no deployment, live provider request or payment was executed.
-
-C06/C08/C09/C10 have implementation progress but remain pending acceptance. C10 specifically lacks recovery through provider reconciliation; the candidate only prevents unsafe retries. Lookup exposes the provider status last observed at order creation, not a fresh provider lookup. No additional full baseline unit is counted complete.
-
-## Remaining launch blockers
-
-- Coinbase hosted-account sessions, signed raw-body webhooks, durable inbox, lifecycle transitions and reconciliation worker.
-- Exact USDC settlement verification, live wallet balance/allowance/gas checks, bounded approvals and funding-to-purchase handoff.
-- Actual provider sandbox execution, matching contract settlement/fork proof, consuming frontend integration and Coinbase embedded/production access.
-- 151 exact-method write receipt/indexer proofs, plus deployment-specific persistence, RPC, rate-limit, signing and operational validation.
-- Existing `GET /v1/transactions/requests/:requestId` remains unauthenticated and has no owner check in `packages/api/src/app.ts`. This separate private-record gap is still open; the new funding lookups have their own owner checks.
-- Explicit indexed execution remains unavailable in `shared/execution-context.ts`; generated definitions do not advertise it.
-
-Card support must be presented according to current provider eligibility. Coinbase's reviewed Headless order API accepts Apple Pay and Google Pay; do not promise unrestricted direct entry of any credit/debit card. Embedded verification requires Coinbase account enablement. See [Headless Onramp](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview).
-
-## Verification
-
-Final verification: 2,587 regression tests passed (62 gated skips); 20 real PostgreSQL checks and 916 actor checks passed separately. Focused funding/inventory checks passed 122/122; TypeScript, lint, workspace builds and generated-surface checks passed. Results and commands are recorded in the October 25 entry of [the build log](./COINBASE_USDC_BUILD_LOG.md). Provider responses in tests are synthetic. Database tests run against disposable real PostgreSQL, with migrations applied twice. No new measured coverage percentage, production approval, deployment, real-money payment or on-chain USDC settlement is claimed.
-
-The machine-readable current assessment is `output/api-readiness-current-2026-10-25.json`. The concrete API and rollback behavior are documented in [the funding API contract](./COINBASE_FUNDING_API.md).
+Do not derive a weighted overall production percentage from 710 static classifications, local coverage or sandbox success. Other workstreams own their evidence and acceptance; no new write-proof or privacy completion is claimed by this funding batch.

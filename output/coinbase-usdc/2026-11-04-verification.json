@@ -1,0 +1,107 @@
+{
+  "date": "2026-11-04",
+  "before": 10,
+  "after": 13,
+  "baseline": 20,
+  "acceptedPercent": 65,
+  "startingOpenIncludingFrontend": 11,
+  "minimumCompleted": 3,
+  "attempted": [
+    "C12",
+    "C13",
+    "C16"
+  ],
+  "completed": [
+    "C12",
+    "C13",
+    "C16"
+  ],
+  "attemptedPercentOfOriginal": 15,
+  "completedPercentOfOriginal": 15,
+  "frontend": {
+    "id": "F01",
+    "complete": false
+  },
+  "sourceCommits": [
+    "b54db7f",
+    "4b48dc56c8cf532c37f71bbb160e4520172612ae"
+  ],
+  "gates": {
+    "test": {
+      "passed": 2262,
+      "skipped": 73,
+      "failed": 0
+    },
+    "postgres": {
+      "passed": 31,
+      "funding": 21,
+      "indexer": 6,
+      "privacy": 4,
+      "migrationsAppliedTwice": true
+    },
+    "focused": {
+      "passed": 150,
+      "databaseSkippedSeparatelyExecuted": 21
+    },
+    "actorsPassed": 588,
+    "redteamPassed": 181,
+    "indexer": {
+      "passed": 268,
+      "databaseSkippedSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6480,
+        "covered": 6230,
+        "skipped": 0,
+        "pct": 96.14
+      },
+      "statements": {
+        "total": 6862,
+        "covered": 6571,
+        "skipped": 0,
+        "pct": 95.75
+      },
+      "functions": {
+        "total": 1591,
+        "covered": 1545,
+        "skipped": 0,
+        "pct": 97.1
+      },
+      "branches": {
+        "total": 5904,
+        "covered": 5576,
+        "skipped": 0,
+        "pct": 94.44
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "proofs": {
+    "localEvm": "output/coinbase-usdc/2026-11-04-readiness-local.json",
+    "nonPayableProviderProbe": "output/coinbase-usdc/2026-11-04-provider-quote-probe.json"
+  },
+  "actualProviderCheckoutAccepted": false,
+  "settlementAccepted": false,
+  "productionEnabled": false,
+  "remoteBuildTestCIConfigured": false,
+  "remaining": [
+    "C10",
+    "C14",
+    "C15",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "F01"
+  ]
+}

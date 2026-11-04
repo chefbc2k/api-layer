@@ -1,0 +1,19 @@
+{
+  "probe": "actual-provider-isQuote-true",
+  "passed": false,
+  "httpStatus": 400,
+  "failedPhase": "response-schema",
+  "errorFields": [
+    "correlationId",
+    "errorLink",
+    "errorMessage",
+    "errorType"
+  ],
+  "errorTopics": [
+    "domain"
+  ],
+  "error": "Provider rejected request, authentication, capability, schema or transport not established",
+  "fiatCharge": 0,
+  "chainTransfer": 0,
+  "checkoutOrSettlementAccepted": false
+}

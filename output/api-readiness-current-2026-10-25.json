@@ -3,65 +3,75 @@
   "generatedAt": "2026-10-25T22:52:34.738052+00:00",
   "overallProductionReadinessPercent": null,
   "reason": "No agreed weighted release rubric or production deployment/settlement evidence; route parity and static classifications are not release certification.",
-  "acceptedFundingUnits": 5,
+  "acceptedFundingUnits": 13,
   "fundingBaselineUnits": 20,
-  "acceptedFundingPercent": 25,
+  "acceptedFundingPercent": 65,
   "fundingCandidateWork": [
-    "Embedded sandbox order creation",
-    "Owner-scoped order lookup with status last observed at creation",
-    "Owner-scoped attempt history with cursor pagination",
-    "Durable idempotency and ambiguity blocking; reconciliation recovery remains missing"
+    "C10/C14 polling, subscription health and legacy ambiguity recovery",
+    "C15 receipt settlement",
+    "C17 bounded approvals",
+    "C18 signed purchase handoff"
   ],
   "fundingProductionEnabled": false,
   "writeReceiptIndexerEvidence": {
-    "source": "verify-local-fork-indexer-output.json",
-    "generatedAt": "2026-10-25T10:59:19.941Z",
-    "proven": 109,
-    "total": 260,
-    "remaining": 151,
-    "percent": 41.9
+    "owner": "separate write-proof automation",
+    "workstreamBaselineReported": {
+      "proven": 109,
+      "remaining": 151,
+      "total": 260
+    },
+    "observedDefaultArtifact": {
+      "source": "verify-local-fork-indexer-output.json",
+      "generatedAt": "2026-10-09T08:11:04.687Z",
+      "proven": 107,
+      "remaining": 153,
+      "total": 260
+    },
+    "reconciled": false,
+    "note": "Different historical artifacts; funding automation does not claim progress or overwrite receipt proof ownership."
   },
   "openReleaseDependencies": [
-    "Hosted Coinbase-account sessions",
-    "Authenticated raw-body webhooks and durable inbox",
-    "Lifecycle transitions and reconciliation worker including uncertain attempts",
-    "Exact on-chain USDC settlement verification",
-    "Live wallet balance, allowance and gas/sponsorship checks",
-    "Bounded USDC approvals and funding-to-purchase handoff",
-    "Provider sandbox acceptance and frontend integration",
-    "Coinbase production and embedded-order account enablement",
-    "Remaining exact-method receipt/indexer proof",
-    "Private transaction-request lookup authentication and ownership checks",
-    "Production deployment/configuration and operational evidence"
+    "C10/C14 recovery/polling/subscription health",
+    "C15 exact USDC settlement",
+    "C17 bounded approvals and C18 purchase handoff",
+    "C19 actual provider checkout/fork settlement acceptance",
+    "F01 consuming frontend integration",
+    "CDP app-domain/capability validation and webhook subscription secret",
+    "Deployment persistence and operational evidence",
+    "Remaining exact-method receipt/indexer proofs owned by separate automation"
   ],
   "validation": {
-    "focusedFundingAndActorInventory": {
-      "passed": 122,
-      "failed": 0
-    },
-    "disposablePostgres": {
-      "passed": 20,
-      "failed": 0,
-      "migrationsAppliedTwice": true
-    },
-    "actorNegativePaths": {
-      "passed": 916,
-      "failed": 0
-    },
-    "fullRegression": {
-      "passed": 2587,
-      "skipped": 62,
-      "failed": 0,
-      "passedFiles": 169,
-      "skippedFiles": 4,
-      "log": ".runtime/coinbase-20261025-regression-final.log"
-    },
-    "typeScriptBuild": "passed",
-    "workspaceBuild": "passed",
-    "lint": "passed",
-    "generatedSurfaceCoverage": "492 functions, 218 event occurrences, 214 unique event entries, 260 write invariants",
+    "source": "output/coinbase-usdc/2026-11-04-verification.json",
     "actualProviderSandboxExecuted": false,
-    "deployed": false,
-    "newMeasuredCodeCoverage": null
+    "deployed": false
+  },
+  "updatedDate": "2026-11-04",
+  "frontendAcceptance": {
+    "id": "F01",
+    "status": "open-repository-unconfirmed",
+    "accepted": 0,
+    "total": 1
+  },
+  "startingOpenFundingAndFrontend": 11,
+  "minimumCompletedThisRun": 3,
+  "completedThisRun": [
+    "C12",
+    "C13",
+    "C16"
+  ],
+  "remainingFundingAndFrontend": [
+    "C10",
+    "C14",
+    "C15",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "transactionRequestPrivacy": {
+    "status": "complete per separate owner ledger",
+    "source": "output/transaction-request-privacy-readiness.json",
+    "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   }
 }

@@ -5,6 +5,7 @@
 - Continued the preserved Coinbase batch on the latest default branch, retained transaction-request privacy changes, and assigned funding migration 0009 to avoid the existing 0008 migration.
 - Added durable asynchronous event processing with concurrent claims, retries/quarantine, canonical Headless refresh, typed hosted observations and ordered late-completion handling. Added live authenticated customer balance/allowance/listing/gas readiness and explicit sponsorship blockers.
 - Carried sandbox safety, quote-price ceiling, write authorization and funding actor inventory forward from the older candidate. Fixed BigInt test-title formatting and stale actor inventory expectations. Added real PostgreSQL worker/restart proofs and disposable Anvil readiness proof without transfers.
+- Final backend gates passed: 2,262 regression tests, 31 PostgreSQL proofs, 588 actor checks, 181 red-team checks, typecheck/lint/build, surface checks and measured coverage (95.75% statements). C12/C13/C16 accepted: 13/20 (65%). Real non-payable quote probe returned HTTP 400 related to the test domain; provider checkout/settlement acceptance remains open.
 - Restored missing daily accounting for interrupted October 26–November 3 runs: no new units were accepted or pushed during those gaps. F01 remains separately open pending confirmation/access to the consuming frontend. Final gates and acceptance are recorded in the funding build log.
 
 ## [0.1.408] - 2026-11-04
