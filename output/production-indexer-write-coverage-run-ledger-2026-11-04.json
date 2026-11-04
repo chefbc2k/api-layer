@@ -5,12 +5,12 @@
   "frozenAt": "2026-11-04T09:03:07Z",
   "sourceCommit": "14fa7ac20a120038c8d884ef24449252f4dea574",
   "sourceArtifact": "verify-local-fork-indexer-output.json",
-  "catalogWriteMethods": 260,
+  "catalogWriteMethods": 265,
   "startingProvenMethods": 109,
-  "startingOpenMethods": 151,
-  "frozenCompletionTarget": 38,
+  "startingOpenMethods": 156,
+  "frozenCompletionTarget": 39,
   "independentlyCompletedBeforeFreeze": [
-    "PaymentFacet.withdrawPaymentsWithDeadline",
+    "PaymentFacet.withdrawPaymentsWithDeadline(uint256)",
     "StakingFacet.setStakingPaused"
   ],
   "openMethodKeys": [
@@ -107,6 +107,8 @@
     "PaymentFacet.setMevProtectionConfig",
     "PaymentFacet.setStakingConfig",
     "PaymentFacet.setUsdcToken",
+    "PaymentFacet.withdrawPayments(address,uint256)",
+    "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
     "ProposalFacet.cancelProposal",
     "ProposalFacet.prExecute",
     "ProposalFacet.prQueue",
@@ -156,12 +158,15 @@
     "VestingFacet.revokeVestingSchedule",
     "VestingFacet.setMinimumVestingDuration",
     "VestingFacet.transferVestingSchedule",
+    "VoiceAssetFacet.approve",
     "VoiceAssetFacet.recordRoyaltyPayment",
     "VoiceAssetFacet.recordRoyaltyPaymentFrom",
     "VoiceAssetFacet.recordUsageFrom",
     "VoiceAssetFacet.registerVoiceAssetForCaller",
+    "VoiceAssetFacet.transferFrom",
     "VoiceLicenseFacet.createLicenseWithMarketplace",
     "VoiceLicenseFacet.issueLicense",
+    "VoiceLicenseFacet.recordUsage",
     "VoiceLicenseFacet.transferLicense",
     "VoiceLicenseFacet.updateLicenseTerms",
     "VoiceLicenseFacet.withdrawLicenseRevenue"
@@ -204,17 +209,26 @@
     "LegacyFacet.updateBeneficiary",
     "MultiSigFacet.cancelOperation",
     "MultiSigFacet.execute",
-    "MultiSigFacet.removeOperator"
+    "MultiSigFacet.removeOperator",
+    "OwnershipFacet.acceptOwnership"
   ],
   "status": "in-progress",
   "completedMethodKeys": [],
   "blockedMethodKeys": [],
   "notes": [
     "Static 710/710 readiness classification is excluded from backlog completion.",
-    "Frozen against the strongest validated October 25/29 durable artifact (109 proven methods); the current default-branch artifact is stale at 107 and is not used to enlarge or erase the backlog.",
+    "Frozen against the current ABI source (265 writes) and the strongest validated October 25/29 durable artifact (109 proven exact methods after overload rekeying); stale checked-in generated 492/260 catalogs are not used to undercount the backlog.",
     "The two methods independently completed before this freeze are baseline updates only and are not credited to this run.",
     "Claims do not overlap the October 28 in-progress ledger at origin/codex/autosave-20261028-production-indexer-write-coverage.",
     "Completion requires exact HTTP execution, successful receipt, expected decoded logs or eventless state/journal evidence, real PostgreSQL ingestion, and idempotent replay."
   ],
-  "sourceProofCommit": "b0dbc70a9f31749ce159181647fce68af41ead4f"
+  "sourceProofCommit": "b0dbc70a9f31749ce159181647fce68af41ead4f",
+  "freezeAmendment": {
+    "amendedAt": "2026-11-04T09:10:00Z",
+    "reason": "Current ABI source regenerates to 510 functions and 265 writes; the checked-in generated 492/260 registry is stale. Exact overload rekeying preserves 109 proven writes and adds five genuinely open write keys.",
+    "originalRecordedStartingOpenMethods": 151,
+    "correctedStartingOpenMethods": 156,
+    "originalRecordedTarget": 38,
+    "correctedTarget": 39
+  }
 }
