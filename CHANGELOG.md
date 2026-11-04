@@ -20,6 +20,7 @@
 - Merged the current assurance-gap autosave and local-fork execution-safeguard autosave with `--no-ff`. The resulting production tree closes 39 planned mounted-route gaps, restores the 35-route admin guard artifact, and adds fork-rewind-safe nonce reconciliation plus execution-context regressions.
 - Reverted two historical metadata merges after the repository-wide gate exposed stale assumptions: the October 1 invariant draft failed five role/indexer assertions, and the October 23 method-policy draft failed nine mounted-write/actor assertions. A clean indexer-proof slice remained unmerged after its exact prospective merge failed one receipt-producer regression. The current Base Sepolia, red-team, event-indexer, actor, ABI-report, and other historical tips remain preserved because they conflict with production; an obsolete proof timestamp and accidental tracked dependency symlinks were also kept out of production.
 - Post-merge verification passed `pnpm run coverage:check` at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants; `pnpm test` at 2,227 active tests with 68 environment-gated skips; actor reporting at 1,813 cases across 260 mounted writes; and indexer assurance at 268 active tests with 6 PostgreSQL skips.
+- Live indexer proof commands remained environment-blocked: Base Sepolia rejected the trace-capability RPC request with HTTP 401/filter settings, and the local-fork receipt proof lacked the required RPC and diamond-address inputs. Neither command changed an artifact.
 
 ## [0.1.407] - 2026-10-29
 
