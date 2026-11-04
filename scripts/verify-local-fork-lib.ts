@@ -336,14 +336,6 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       requiredArtifactSummary: "proven working",
     },
     {
-      id: "event-indexer-proof",
-      description: "decode real workflow receipts, project them into PostgreSQL, and prove replay idempotency",
-      command: "pnpm",
-      args: ["run", "proof:indexer:local-fork-receipts"],
-      destructive: false,
-      artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
-    },
-    {
       id: "probe-safe-reads",
       description: "execute every reviewed read and event endpoint with lifecycle fixture inputs",
       command: "pnpm",
@@ -355,6 +347,33 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       ],
       destructive: false,
       artifactPath: path.join(PROOF_DIR, "safe-reads.json"),
+    },
+    {
+      id: "access-control-indexer-proof",
+      description: "record the reachable AccessControl receipt batch and isolate the deployed setPaused self-call blocker",
+      command: "env",
+      args: [
+        `API_LAYER_CONTRACT_RECEIPT_ARTIFACT=${path.join(PROOF_DIR, "access-control-indexer-receipts.json")}`,
+        "pnpm",
+        "vitest",
+        "run",
+        "packages/api/src/app.contract-integration.test.ts",
+        "-t",
+        "proves four reachable AccessControl writes and isolates the setPaused contract blocker",
+        "--maxWorkers",
+        "1",
+      ],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "access-control-indexer-receipts.json"),
+      maxAttempts: 2,
+    },
+    {
+      id: "event-indexer-proof",
+      description: "decode real workflow receipts, project them into PostgreSQL, and prove replay idempotency",
+      command: "pnpm",
+      args: ["run", "proof:indexer:local-fork-receipts"],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
     },
   ];
 }

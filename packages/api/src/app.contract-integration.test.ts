@@ -5711,6 +5711,95 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
+  it("proves four reachable AccessControl writes and isolates the setPaused contract blocker", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "AccessControl receipt/indexer proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    const submitAccessControlWrite = async (
+      routePath: string,
+      body: Record<string, unknown>,
+      expectedEvent: string | null,
+    ) => {
+      const response = await apiCall(port, "POST", routePath, {
+        apiKey: "founder-key",
+        body,
+      });
+      expect(response.status, `${routePath}: ${JSON.stringify(response.payload)}`).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status, routePath).toBe(1);
+      const eventNames = (receipt?.logs ?? []).flatMap((log) => {
+        for (const contract of [accessControl as unknown as Contract, emergencyFacet as unknown as Contract]) {
+          try {
+            const parsed = contract.interface.parseLog(log);
+            if (parsed) return [parsed.name];
+          } catch {
+            // Try the other facet ABI before treating this as an unrelated log.
+          }
+        }
+        return [];
+      });
+      if (expectedEvent === null) {
+        expect(receipt?.logs, `${routePath} must remain explicitly eventless`).toHaveLength(0);
+      } else {
+        expect(eventNames, routePath).toContain(expectedEvent);
+      }
+      return { txHash, receipt: receipt!, eventNames };
+    };
+
+    const boardMemberRole = id("BOARD_MEMBER_ROLE");
+    const recoveredBoardMember = Wallet.createRandom().address;
+    const recoveryProof = await submitAccessControlWrite(
+      "/v1/access-control/admin/set-recovery-active",
+      { role: boardMemberRole, active: true },
+      null,
+    );
+    expect(recoveryProof.receipt.logs).toHaveLength(0);
+    expect((await accessControl.getRoleConfig(boardMemberRole)).recoveryActive).toBe(true);
+
+    const forceAddProof = await submitAccessControlWrite(
+      "/v1/access-control/admin/emergency-force-add",
+      { role: boardMemberRole, account: recoveredBoardMember },
+      null,
+    );
+    expect(forceAddProof.receipt.logs).toHaveLength(0);
+    expect(await accessControl.hasRole(boardMemberRole, recoveredBoardMember)).toBe(true);
+
+    const emergencyStateBefore = await emergencyFacet.getEmergencyState();
+    const founderNonceBeforePausedAttempt = await provider.getTransactionCount(founderAddress);
+    const pausedResponse = await apiCall(port, "POST", "/v1/access-control/admin/set-paused", {
+      apiKey: "founder-key",
+      body: { paused: true },
+    });
+    expect(pausedResponse.status).toBe(500);
+    expect(await provider.getTransactionCount(founderAddress)).toBe(founderNonceBeforePausedAttempt);
+    expect(await emergencyFacet.getEmergencyState()).toBe(emergencyStateBefore);
+
+    const latestBlock = await provider.getBlock("latest");
+    const executeAt = BigInt(latestBlock!.timestamp + 5);
+    await submitAccessControlWrite(
+      "/v1/access-control/admin/schedule-founder-sunset",
+      { executeAt: executeAt.toString() },
+      "FounderSunsetScheduled",
+    );
+    await provider.send("evm_setNextBlockTimestamp", [ethers.toQuantity(executeAt)]);
+    await provider.send("anvil_mine", ["0x1"]);
+
+    await submitAccessControlWrite(
+      "/v1/access-control/admin/execute-founder-sunset",
+      {},
+      "FounderSunsetExecuted",
+    );
+    expect(await accessControl.isFounderSunsetActive()).toBe(true);
+    expect(await accessControl.hasRole(id("FOUNDER_ROLE"), founderAddress)).toBe(false);
+  }, 180_000);
+
   it("runs the transfer-rights workflow and persists ownership state", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "transfer-rights workflow", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },

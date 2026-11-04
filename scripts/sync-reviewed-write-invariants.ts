@@ -56,14 +56,11 @@ const neverAutomateMethod = /^(diamondCut|emergencyForceAdd|executeMultisigWithd
 const configMethod = /^(addOperationType|addOperator|configure|init|pause|removeOperator|set|unpause|update.*Config|update.*Address|updateFee|updateMinDelay|updateProposalThreshold|updateQuorum|updateVotingDelay|updateVotingPeriod)/u;
 
 const eventNamesByMethodKey: Record<string, string[]> = {
-  "AccessControlFacet.emergencyForceAdd": ["RoleGranted", "SecurityAction"],
   "AccessControlFacet.grantRole": ["RoleGranted"],
   "AccessControlFacet.renounceRole": ["RoleRenounced"],
   "AccessControlFacet.revokeRole": ["RoleRevoked", "ParticipantRoleRevoked"],
   "AccessControlFacet.setDefaultValidityPeriod": ["SecurityAction"],
   "AccessControlFacet.setMinValidations": ["SecurityAction"],
-  "AccessControlFacet.setPaused": ["SecurityAction"],
-  "AccessControlFacet.setRecoveryActive": ["SecurityAction"],
   "CommunityRewardsFacet.claim": ["Claimed"],
   "CommunityRewardsFacet.createCampaign": ["CampaignCreated", "CampaignVestingConfig", "CampaignCapConfig"],
   "CommunityRewardsFacet.unpauseCampaign": ["CampaignUnpaused"],
@@ -151,8 +148,12 @@ const eventNamesByMethodKey: Record<string, string[]> = {
   "WhisperBlockFacet.setOffchainEntropy": ["OffchainKeyGenerated"],
 };
 
+const crossFacetEventKeysByMethodKey: Record<string, string[]> = {
+  "AccessControlFacet.setPaused": ["EmergencyFacet.EmergencyStateChanged"],
+};
+
 const allEventsRequiredMethods = new Set([
-  "AccessControlFacet.emergencyForceAdd",
+  "AccessControlFacet.setPaused",
   "CommunityRewardsFacet.createCampaign",
   "DelegationFacet.delegate",
   "DelegationFacet.delegateBySig",
@@ -169,8 +170,11 @@ const allEventsRequiredMethods = new Set([
 ]);
 
 const readbackOverrides: Record<string, string[]> = {
+  "AccessControlFacet.emergencyForceAdd": ["AccessControlFacet.hasRole"],
   "AccessControlFacet.grantRole": ["AccessControlFacet.hasRole", "AccessControlFacet.getRoleMember"],
   "AccessControlFacet.revokeRole": ["AccessControlFacet.hasRole", "AccessControlFacet.getRoleMember"],
+  "AccessControlFacet.setPaused": ["EmergencyFacet.getEmergencyState"],
+  "AccessControlFacet.setRecoveryActive": ["AccessControlFacet.getRoleConfig"],
   "DiamondCutFacet.diamondCut": ["DiamondLoupeFacet.facets", "DiamondLoupeFacet.facetFunctionSelectors"],
   "MarketplaceFacet.purchaseAsset": ["MarketplaceFacet.getListing", "VoiceAssetFacet.ownerOf"],
   "StakingFacet.claimRewards": ["StakingFacet.getPendingRewards", "StakingFacet.getStakeInfo"],
@@ -303,6 +307,13 @@ function readbacksFor(key: string, method: AbiMethod, registry: AbiRegistry): Wr
 }
 
 function eventsFor(key: string, method: AbiMethod, registry: AbiRegistry): Array<[string, AbiEvent]> {
+  const crossFacetKeys = crossFacetEventKeysByMethodKey[key];
+  if (crossFacetKeys) {
+    return crossFacetKeys.flatMap((eventKey) => {
+      const event = registry.events[eventKey];
+      return event ? [[eventKey, event] as [string, AbiEvent]] : [];
+    });
+  }
   const overrides = eventNamesByMethodKey[key];
   if (overrides) {
     return overrides.flatMap((eventName) => Object.entries(registry.events)

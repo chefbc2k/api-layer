@@ -102,12 +102,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.RoleGranted",
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The deployed emergency recovery path mutates role membership without emitting a method-specific ABI event; receipt status and hasRole readback are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -128,13 +125,10 @@
         "rationale": "This write can irreversibly upgrade, mint, transfer control, withdraw emergency funds, or change global emergency posture; automated proofs must stay on an isolated fork."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.RoleGranted",
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "The successful eventless receipt is journaled and replay-safe without fabricating raw events or projections."
       }
     },
     "AccessControlFacet.executeFounderSunset": {
@@ -611,8 +605,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "AccessControlFacet.getQuorum",
-            "assertion": "AccessControlFacet.getQuorum reflects the receipt-confirmed AccessControlFacet.setPaused transition for the affected identifiers and actor."
+            "method": "EmergencyFacet.getEmergencyState",
+            "assertion": "EmergencyFacet.getEmergencyState reflects the receipt-confirmed AccessControlFacet.setPaused transition."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -620,7 +614,7 @@
       "emittedEvents": {
         "mode": "all",
         "events": [
-          "AccessControlFacet.SecurityAction"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
@@ -642,12 +636,14 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
-          "AccessControlFacet.SecurityAction"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "emergency_incidents:ledger"
+        ],
+        "assertion": "The emergency-state transition is decoded and projected once; duplicate ingestion is idempotent and the ledger projection matches getEmergencyState."
       }
     },
     "AccessControlFacet.setRecoveryActive": {
@@ -675,18 +671,16 @@
         "mode": "required",
         "checks": [
           {
-            "method": "AccessControlFacet.isRoleActive",
-            "assertion": "AccessControlFacet.isRoleActive reflects the receipt-confirmed AccessControlFacet.setRecoveryActive transition for the affected identifiers and actor."
+            "method": "AccessControlFacet.getRoleConfig",
+            "assertion": "AccessControlFacet.getRoleConfig exposes the receipt-confirmed recoveryActive flag for the affected role."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The deployed recovery-flag setter changes role configuration without emitting a method-specific ABI event; receipt status and getRoleConfig readback are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -707,12 +701,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "The successful eventless receipt is journaled and replay-safe without fabricating raw events or projections."
       }
     },
     "AccessControlFacet.setRoleAdmin": {

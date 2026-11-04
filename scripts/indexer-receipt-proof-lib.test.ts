@@ -19,6 +19,8 @@ describe("local-fork receipt-to-indexer proof", () => {
       .toBe("packages/api/src/app.contract-integration.test.ts");
     expect(defaultReceiptProofArtifactProducers["staking-indexer-receipts.json"])
       .toBe("packages/api/src/app.contract-integration.test.ts");
+    expect(defaultReceiptProofArtifactProducers["access-control-indexer-receipts.json"])
+      .toBe("packages/api/src/app.contract-integration.test.ts");
   });
 
   it("keeps the durable proof ledger internally consistent and monotonic", () => {
