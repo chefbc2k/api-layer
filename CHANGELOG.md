@@ -13,6 +13,14 @@
 - **Focused Safety Suites Passed:** The VoiceAsset and dataset/licensing matrices passed `60/60` cases, and the artifact-producing control-plane suite passed `3/3` cases.
 - **Required Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `576/576` across `17` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 
+## Daily assurance branch consolidation - 2026-11-04
+
+- Recorded all 28 linked worktrees before branch movement and preserved four dirty states on `codex/autosave-20261104-daily-consolidation-root`, `codex/autosave-20261104-red-team-harness`, `codex/autosave-20261104-local-fork-automation`, and `codex/autosave-20261104-event-indexer-proof`. No user changes were discarded.
+- Fetched and pruned `origin`, confirmed `master` remains the production branch, and audited all 296 local plus 69 remote `codex/*` refs. The audit classified 119 distinct unmerged tips before consolidation and re-ran merge preflights after every production change.
+- Merged the current assurance-gap autosave and local-fork execution-safeguard autosave with `--no-ff`. The resulting production tree closes 39 planned mounted-route gaps, restores the 35-route admin guard artifact, and adds fork-rewind-safe nonce reconciliation plus execution-context regressions.
+- Reverted two historical metadata merges after the repository-wide gate exposed stale assumptions: the October 1 invariant draft failed five role/indexer assertions, and the October 23 method-policy draft failed nine mounted-write/actor assertions. A clean indexer-proof slice remained unmerged after its exact prospective merge failed one receipt-producer regression. The current Base Sepolia, red-team, event-indexer, actor, ABI-report, and other historical tips remain preserved because they conflict with production; an obsolete proof timestamp and accidental tracked dependency symlinks were also kept out of production.
+- Post-merge verification passed `pnpm run coverage:check` at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants; `pnpm test` at 2,227 active tests with 68 environment-gated skips; actor reporting at 1,813 cases across 260 mounted writes; and indexer assurance at 268 active tests with 6 PostgreSQL skips.
+
 ## [0.1.407] - 2026-10-29
 
 ### Changed
