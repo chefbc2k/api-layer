@@ -60,6 +60,7 @@ vi.mock("../shared/alchemy-diagnostics.js", async () => {
 
 import { createTokenomicsPrimitiveRouter } from "../modules/tokenomics/primitives/generated/routes.js";
 import { createLicensingPrimitiveRouter } from "../modules/licensing/primitives/generated/routes.js";
+import { createStakingPrimitiveRouter } from "../modules/staking/primitives/generated/routes.js";
 
 const originalSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
 const diamondAddress = "0x0000000000000000000000000000000000000001";
@@ -254,7 +255,221 @@ const selectedGapWriteCases = [
     preview: null,
     preflightRejection: "stale or unauthorized right revocation rejected",
   },
+  {
+    key: "RightsFacet.updateCollaboratorShare",
+    signature: "updateCollaboratorShare(bytes32,address,uint256)",
+    method: "PATCH",
+    path: "/v1/licensing/commands/update-collaborator-share",
+    body: { voiceHash, collaborator: fixtureAccount, newShare: "3000" },
+    runtimeArgs: [voiceHash, fixtureAccount, 3_000n],
+    preview: null,
+    preflightRejection: "stale or unauthorized collaborator share update rejected",
+  },
+  {
+    key: "RightsFacet.updateRightContract",
+    signature: "updateRightContract(string,address)",
+    method: "PATCH",
+    path: "/v1/licensing/commands/update-right-contract",
+    body: { rightId: "commercial-right-1", newContractAddress: secondSigner },
+    runtimeArgs: ["commercial-right-1", secondSigner],
+    preview: null,
+    preflightRejection: "stale or unauthorized right contract update rejected",
+  },
+  {
+    key: "StakingFacet.advanceEpoch",
+    signature: "advanceEpoch()",
+    method: "POST",
+    path: "/v1/staking/commands/advance-epoch",
+    body: {},
+    runtimeArgs: [],
+    preview: null,
+    preflightRejection: "stale epoch transition rejected",
+  },
+  {
+    key: "StakingFacet.claimRewards",
+    signature: "claimRewards()",
+    method: "POST",
+    path: "/v1/staking/commands/claim-rewards",
+    body: {},
+    runtimeArgs: [],
+    preview: 25n,
+    preflightRejection: "replayed or empty reward claim rejected",
+  },
+  {
+    key: "StakingFacet.executeUnstake",
+    signature: "executeUnstake()",
+    method: "POST",
+    path: "/v1/staking/commands/execute-unstake",
+    body: {},
+    runtimeArgs: [],
+    preview: null,
+    preflightRejection: "stale withdrawal cooldown rejected",
+  },
+  {
+    key: "StakingFacet.fundRewardPool",
+    signature: "fundRewardPool(uint256)",
+    method: "POST",
+    path: "/v1/staking/commands/fund-reward-pool",
+    body: { amount: "1000" },
+    runtimeArgs: [1_000n],
+    preview: null,
+    preflightRejection: "unauthorized reward pool funding rejected",
+  },
+  {
+    key: "StakingFacet.initStaking",
+    signature: "initStaking(uint256,uint256,uint256,uint256[],uint256[])",
+    method: "POST",
+    path: "/v1/staking/stakes/init-staking",
+    body: {
+      minStakeDuration: "86400",
+      withdrawalCooldown: "604800",
+      baseApyBps: "500",
+      thresholds: ["1000", "5000"],
+      multipliers: ["10000", "12500"],
+    },
+    runtimeArgs: [86_400n, 604_800n, 500n, [1_000n, 5_000n], [10_000n, 12_500n]],
+    preview: null,
+    preflightRejection: "replayed staking initialization rejected",
+  },
+  {
+    key: "StakingFacet.initStakingWithToken",
+    signature: "initStakingWithToken(address,uint256,uint256,uint256,uint256[],uint256[])",
+    method: "POST",
+    path: "/v1/staking/stakes/init-staking-with-token",
+    body: {
+      uspkToken: fixtureAccount,
+      minStakeDuration: "86400",
+      withdrawalCooldown: "604800",
+      baseApyBps: "500",
+      thresholds: ["1000", "10000"],
+      multipliers: ["10000", "12500"],
+    },
+    runtimeArgs: [fixtureAccount, 86_400n, 604_800n, 500n, [1_000n, 10_000n], [10_000n, 12_500n]],
+    preview: null,
+    preflightRejection: "stale staking token initialization rejected",
+  },
+  {
+    key: "StakingFacet.queueTierConfigUpdate",
+    signature: "queueTierConfigUpdate(uint256[],uint256[])",
+    method: "POST",
+    path: "/v1/staking/commands/queue-tier-config-update",
+    body: {
+      thresholds: ["2000", "20000"],
+      multipliers: ["10000", "15000"],
+    },
+    runtimeArgs: [[2_000n, 20_000n], [10_000n, 15_000n]],
+    preview: null,
+    preflightRejection: "stale tier configuration rejected",
+  },
+  {
+    key: "StakingFacet.requestUnstake",
+    signature: "requestUnstake(uint256)",
+    method: "POST",
+    path: "/v1/staking/commands/request-unstake",
+    body: { amount: "2500" },
+    runtimeArgs: [2_500n],
+    preview: null,
+    preflightRejection: "stale unstake balance rejected",
+  },
+  {
+    key: "StakingFacet.setDegradedModeConfig",
+    signature: "setDegradedModeConfig(bool,uint256,uint256)",
+    method: "PATCH",
+    path: "/v1/staking/commands/set-degraded-mode-config",
+    body: {
+      enabled: true,
+      staleAfterSeconds: "3600",
+      maxStakePerWallet: "100000",
+    },
+    runtimeArgs: [true, 3_600n, 100_000n],
+    preview: null,
+    preflightRejection: "unauthorized degraded-mode configuration rejected",
+  },
+  {
+    key: "StakingFacet.setEchoScoreBoost",
+    signature: "setEchoScoreBoost(uint256,uint256)",
+    method: "PATCH",
+    path: "/v1/staking/commands/set-echo-score-boost",
+    body: { boostBps: "1250", minScore: "80" },
+    runtimeArgs: [1_250n, 80n],
+    preview: null,
+    preflightRejection: "replayed echo-score boost rejected",
+  },
+  {
+    key: "StakingFacet.setStakingPaused",
+    signature: "setStakingPaused(bool)",
+    method: "PATCH",
+    path: "/v1/staking/commands/set-staking-paused",
+    body: { paused: true },
+    runtimeArgs: [true],
+    preview: null,
+    preflightRejection: "replayed staking pause update rejected",
+  },
+  {
+    key: "TokenSupplyFacet.burnFrom",
+    signature: "burnFrom(address,uint256)",
+    method: "DELETE",
+    path: "/v1/tokenomics/commands/burn-from",
+    body: { account: fixtureAccount, amount: "100" },
+    runtimeArgs: [fixtureAccount, 100n],
+    preview: null,
+    preflightRejection: "unauthorized allowance burn rejected",
+  },
+  {
+    key: "TokenSupplyFacet.initializeToken",
+    signature: "initializeToken()",
+    method: "POST",
+    path: "/v1/tokenomics/token-supply",
+    body: {},
+    runtimeArgs: [],
+    preview: null,
+    preflightRejection: "replayed token initialization rejected",
+  },
+  {
+    key: "TokenSupplyFacet.supplyFinishMinting",
+    signature: "supplyFinishMinting()",
+    method: "POST",
+    path: "/v1/tokenomics/commands/supply-finish-minting",
+    body: {},
+    runtimeArgs: [],
+    preview: null,
+    preflightRejection: "replayed minting finalization rejected",
+  },
+  {
+    key: "TokenSupplyFacet.supplyMintTokens",
+    signature: "supplyMintTokens(address,uint256)",
+    method: "POST",
+    path: "/v1/tokenomics/commands/supply-mint-tokens",
+    body: { to: fixtureAccount, amount: "500000" },
+    runtimeArgs: [fixtureAccount, 500_000n],
+    preview: null,
+    preflightRejection: "unauthorized supply mint rejected",
+  },
+  {
+    key: "TokenSupplyFacet.supplySetMaximum",
+    signature: "supplySetMaximum(uint256)",
+    method: "POST",
+    path: "/v1/tokenomics/commands/supply-set-maximum",
+    body: { maxSupply_: "1000000000" },
+    runtimeArgs: [1_000_000_000n],
+    preview: null,
+    preflightRejection: "stale maximum supply update rejected",
+  },
+  {
+    key: "TokenSupplyFacet.tokenTransferFrom",
+    signature: "tokenTransferFrom(address,address,uint256)",
+    method: "POST",
+    path: "/v1/tokenomics/commands/token-transfer-from",
+    body: { from: fixtureAccount, to: secondSigner, amount: "250" },
+    runtimeArgs: [fixtureAccount, secondSigner, 250n],
+    preview: true,
+    preflightRejection: "unauthorized token allowance transfer rejected",
+  },
 ] as const;
+
+function serializedPreview(value: null | string | boolean | bigint): null | string | boolean {
+  return typeof value === "bigint" ? value.toString() : value;
+}
 
 function buildContext() {
   const provider = {
@@ -325,6 +540,7 @@ async function startServer(context: ReturnType<typeof buildContext>["context"]) 
   app.use(express.json());
   app.use(createTokenomicsPrimitiveRouter(context as never));
   app.use(createLicensingPrimitiveRouter(context as never));
+  app.use(createStakingPrimitiveRouter(context as never));
   const server = app.listen(0);
   await new Promise<void>((resolve) => {
     if (server.listening) {
@@ -358,6 +574,12 @@ describe("selected gap write route preflight safety", () => {
       }
       if (signature === "registerRightContract(string,address)") {
         return "commercial-right-1";
+      }
+      if (signature === "claimRewards()") {
+        return 25n;
+      }
+      if (signature === "tokenTransferFrom(address,address,uint256)") {
+        return true;
       }
       return null;
     });
@@ -398,7 +620,7 @@ describe("selected gap write route preflight safety", () => {
         await expect(response.json()).resolves.toEqual({
           requestId: "selected-gap-request-1",
           txHash: "0xselected-gap-write",
-          result: testCase.preview === null ? null : testCase.preview.toString(),
+          result: serializedPreview(testCase.preview),
         });
         expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
         expect(mocks.contractPopulateTransaction).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
