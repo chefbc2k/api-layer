@@ -94,6 +94,11 @@ describe("checkout HTTP and idempotency", () => {
     }
     return { call, provider, store, context, getAttempt: () => attempt };
   }
+  it.each(["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"])("denies role-only %s on both checkout writes", async role => {
+    const { context, call, provider, store } = await setup(); context.apiKeys.buyer.roles=[role]; delete context.apiKeys.buyer.fundingUserId;
+    expect((await call("orders",{quoteId})).status).toBe(403); expect((await call("sessions",{})).status).toBe(403);
+    expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
+  });
   it.each(["orders", "sessions"])("denies %s for a bound read-only key before any create", async path => {
     const { context, call, provider, store } = await setup(); context.apiKeys.buyer.roles=["read-only"];
     expect((await call(path,path==="orders"?{quoteId}:{})).status).toBe(403);

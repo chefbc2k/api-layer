@@ -1,0 +1,98 @@
+{
+  "environment": "disposable-local-anvil",
+  "contractFixture": "read-only ABI dispatch runtime",
+  "productionMarketplaceExecution": false,
+  "providerSandbox": false,
+  "tokenMismatchRejected": true,
+  "nonce": 0,
+  "observations": {
+    "ready": {
+      "walletAddress": "0x00000000000000000000000000000000000000AA",
+      "chainId": 84532,
+      "tokenAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "spender": "0x00000000000000000000000000000000000000dd",
+      "tokenId": "1",
+      "blockNumber": 1,
+      "blockHash": "0x091f498d5d10bc730b19f7c0475b13f6cd86223ba26f5e48565dd0d08a684a84",
+      "requiredUsdcUnits": "10000001",
+      "balanceUsdcUnits": "10000001",
+      "allowanceUsdcUnits": "10000001",
+      "nativeBalanceWei": "1000000000000000000",
+      "gasUnits": "25812",
+      "gasBudgetWei": "77436000000000",
+      "readiness": "ready_for_user_signature",
+      "blockers": [],
+      "purchaseAuthorized": false,
+      "settlementStatus": "unverified",
+      "sponsorshipVerified": false
+    },
+    "one_unit_short": {
+      "walletAddress": "0x00000000000000000000000000000000000000AA",
+      "chainId": 84532,
+      "tokenAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "spender": "0x00000000000000000000000000000000000000dd",
+      "tokenId": "1",
+      "blockNumber": 2,
+      "blockHash": "0x71c074c226c859832c1b820b2f7c0a453b50f634742d8d55545015663d7d0e67",
+      "requiredUsdcUnits": "10000001",
+      "balanceUsdcUnits": "10000000",
+      "allowanceUsdcUnits": "10000001",
+      "nativeBalanceWei": "1000000000000000000",
+      "gasUnits": null,
+      "gasBudgetWei": null,
+      "readiness": "action_required",
+      "blockers": [
+        "insufficient_usdc",
+        "gas_estimate_requires_funding_and_allowance"
+      ],
+      "purchaseAuthorized": false,
+      "settlementStatus": "unverified",
+      "sponsorshipVerified": false
+    },
+    "allowance_short": {
+      "walletAddress": "0x00000000000000000000000000000000000000AA",
+      "chainId": 84532,
+      "tokenAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "spender": "0x00000000000000000000000000000000000000dd",
+      "tokenId": "1",
+      "blockNumber": 3,
+      "blockHash": "0x78fef3aa4cc5002f35676db03a090bcf66728d6016067af0aa4fbcaa8f3737fc",
+      "requiredUsdcUnits": "10000001",
+      "balanceUsdcUnits": "10000001",
+      "allowanceUsdcUnits": "10000000",
+      "nativeBalanceWei": "1000000000000000000",
+      "gasUnits": null,
+      "gasBudgetWei": null,
+      "readiness": "action_required",
+      "blockers": [
+        "approval_required",
+        "gas_estimate_requires_funding_and_allowance"
+      ],
+      "purchaseAuthorized": false,
+      "settlementStatus": "unverified",
+      "sponsorshipVerified": false
+    },
+    "smartWallet": {
+      "walletAddress": "0x00000000000000000000000000000000000000AA",
+      "chainId": 84532,
+      "tokenAddress": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "spender": "0x00000000000000000000000000000000000000dd",
+      "tokenId": "1",
+      "blockNumber": 4,
+      "blockHash": "0x257cee1bda9ecad6a835328ed6f39f479bccccfc910c7209e9a1175e7c6f1f90",
+      "requiredUsdcUnits": "10000001",
+      "balanceUsdcUnits": "10000001",
+      "allowanceUsdcUnits": "10000001",
+      "nativeBalanceWei": "1000000000000000000",
+      "gasUnits": null,
+      "gasBudgetWei": null,
+      "readiness": "action_required",
+      "blockers": [
+        "customer_sponsorship_unverified"
+      ],
+      "purchaseAuthorized": false,
+      "settlementStatus": "unverified",
+      "sponsorshipVerified": false
+    }
+  }
+}

@@ -110,6 +110,10 @@ describe("funding HTTP boundary", () => {
   }
   const input = { country: "US", subdivision: "IL", paymentMethod: "GUEST_CHECKOUT_APPLE_PAY", purchaseAmount: "100" };
 
+  it.each(["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"])("denies role-only %s on quote writes", async role => {
+    const {context,call,provider,store}=await setup(); context.apiKeys.customer.roles=[role];delete context.apiKeys.customer.fundingUserId;
+    expect((await call(input)).status).toBe(403);expect(provider.quote).not.toHaveBeenCalled();expect(store.insertQuote).not.toHaveBeenCalled();
+  });
   it("denies quote writes for a bound read-only key before provider or persistence", async () => {
     const { context, call, provider, store } = await setup(); context.apiKeys.customer.roles=["read-only"];
     expect((await call(input)).status).toBe(403); expect(provider.quote).not.toHaveBeenCalled(); expect(store.insertQuote).not.toHaveBeenCalled();

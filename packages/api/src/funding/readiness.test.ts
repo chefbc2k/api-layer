@@ -22,7 +22,7 @@ describe("live customer wallet readiness",()=>{
     expect(String(allowance.args[1]).toLowerCase()).toBe(diamond);
     expect(rpc.estimateGas).toHaveBeenCalledWith(expect.objectContaining({to:expect.stringMatching(/dd$/i),from:expect.stringMatching(/aa$/i)}));
   });
-  it.each([{balance:10_000_000n},{allowance:10_000_000n}])("reports insufficient units before gas estimation %j",async patch=>{
+  it.each([{balance:10_000_000n},{allowance:10_000_000n}])("reports insufficient units before gas estimation %s",async patch=>{
     const {rpc,run}=fixture(patch);expect((await run()).readiness).toBe("action_required"); expect(rpc.estimateGas).not.toHaveBeenCalled();
   });
   it("does not treat global relay configuration as customer sponsorship",async()=>{
@@ -33,7 +33,7 @@ describe("live customer wallet readiness",()=>{
     const {rpc,run}=fixture();rpc.estimateGas.mockRejectedValueOnce(new Error("private provider error"));
     expect((await run()).blockers).toEqual(["purchase_simulation_unavailable"]);
   });
-  it.each([{chain:1},{token:wallet},{decimals:18},{active:false},{expiry:999n},{price:0n}])("rejects wrong deployment or unavailable listing %j",async patch=>{
+  it.each([{chain:1},{token:wallet},{decimals:18},{active:false},{expiry:999n},{price:0n}])("rejects wrong deployment or unavailable listing %s",async patch=>{
     await expect(fixture(patch).run()).rejects.toThrow();
   });
 });

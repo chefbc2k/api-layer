@@ -9,6 +9,14 @@
 - Testing: full test suite, measured coverage, lint, TypeScript builds, generated API coverage and applicable actor/indexer/PostgreSQL/fork proofs. Skipped or unavailable required integration checks are blockers, not passing evidence.
 - Environment: sandbox and disposable fork/test funds for automated acceptance. Real fiat charges, real-money transfers and production credentials/access approval remain external launch dependencies.
 
+## Current schedule and separate frontend item
+
+The October 25 follow-up instruction supersedes the original October 28 deadline. Continue daily until C01–C20 **and F01** are accepted and delivered. Each run snapshots all open items, including externally blocked items, and targets `ceil(open * 0.25)` completions. F01 is the actual consuming frontend wallet/checkout/approval/purchase integration; it remains open and is not included in the historical 20-unit denominator. The October 25 backend delivery accepted 10/20, despite older recovered documents listing only five.
+
+| Separate item | Status | Required action |
+| --- | --- | --- |
+| F01 | open, frontend repository unconfirmed | Identify the USpeaks consuming frontend repository/path and grant source access; implement and verify the complete wallet-to-purchase user flow there |
+
 ## Fixed baseline
 
 Each unit includes implementation, validation, failure handling and meaningful tests. Status starts pending; no integration code has been completed by scheduling this automation.
@@ -122,3 +130,35 @@ Each unit includes implementation, validation, failure handling and meaningful t
 - Atomic non-force push succeeded to `origin/master` and `origin/codex/coinbase-usdc-20261025` at `4972672ac5807edcd25a4e608e88c53053e2b777`. `git ls-remote` confirmed both exact refs. The fetched default had no intervening commits to incorporate. The primary checkout/user edits were untouched.
 - GitHub exact-SHA check-runs: zero; status contexts: zero. Aggregate placeholder is `pending`, with no actual build/test job configured or running. Only platform-managed Copilot/Dependabot workflows exist. Local gates passed; remote CI success is not claimed.
 - This receipt is a documentation-only follow-up commit pushed to the same two refs. Runtime source remains `e47c995`; accepted count remains 10/20 (50%). Automation remains active within the original October 28 deadline; no extension or production completion is claimed.
+
+### Interrupted runs — October 26 through November 3 (retrospective entry recorded November 4)
+
+These entries are late recovery accounting, not claims that daily delivery or quotas were achieved. The source stayed scoped and no additional acceptance was certified. Historical accepted count remained 10/20 (50%), with C10/C12–C20 and F01 open (11 items; rounded-up daily minimum three).
+
+| Date / run | Attempted | Completed | Evidence / outcome |
+| --- | --- | --- | --- |
+| 2026-10-26 / 8 | none evidenced | 0 | No completed implementation/test artifact or default delivery found. Target missed. |
+| 2026-10-27 / 9 | C12, C13, C16 (3/20 = 15%) | 0 | Candidate worker/lifecycle/readiness, scoped read-only authorization and sandbox fixes. Initial funding suite 98 passed; PostgreSQL 26 passed. Later focused suite failed to load readiness tests because `%j` formatted BigInt fixture titles: 101 passed, 21 database gates, one failed suite. Full gates not completed. |
+| 2026-10-28 / 10 | same unfinished batch | 0 | Autosave `b1b25f3` preserved the scoped candidate; no acceptance/default push. |
+| 2026-10-29 / 11 | none newly evidenced | 0 | No new verified unit or full gate receipt; target missed. |
+| 2026-10-30 / 12 | none newly evidenced | 0 | No new verified unit or full gate receipt; target missed. |
+| 2026-10-31 / 13 | none newly evidenced | 0 | No new verified unit or full gate receipt; target missed. |
+| 2026-11-01 / 14 | none newly evidenced | 0 | No new verified unit or full gate receipt; target missed. |
+| 2026-11-02 / 15 | none newly evidenced | 0 | No new verified unit or full gate receipt; target missed. |
+| 2026-11-03 / 16 | none newly evidenced | 0 | No new verified unit or full gate receipt; target missed. |
+
+No external blocker is used to excuse those interrupted verification gaps. Required all-repository checks were unfinished, not passing. The existing Coinbase/frontend launch prerequisites remained open throughout. Nothing was force-pushed or promoted to production.
+
+### 2026-11-04 — run 17, finish durable events and wallet readiness
+
+- Starting accepted C01–C09/C11 = 10/20 (50%); starting open snapshot C10, C12, C13, C14, C15, C16, C17, C18, C19, C20, F01 = 11. Minimum `ceil(11 * .25) = 3`. Selected C12/C13/C16 = 3/20 (15% historical baseline), 3/11 (27.27%) of starting open items. Completion pending final gates; no planning or blocked guard is counted.
+- Fetched origin/default `master`, observed `14fa7ac`; primary checkout remains owned by other work. Created `codex/coinbase-usdc-20261104` from latest default and carried only Coinbase autosave `b1b25f3`. Resolved two integration conflicts by preserving privacy migration 0008 and actor inventory, assigning funding migration 0009. Candidate carry commit `b54db7f` retains the entire scoped implementation without merging the arbitrary recovery branch history.
+- Inspected the alternate October 25 sandbox candidate in `3c1f50b`. Its old order implementation/migration would replace delivered encrypted sessions/raw ingestion, so preserved its branch and ported the relevant read-only denial, sandbox payment flags, actor inventory and readiness documents into the current API design. Kept newer provider lookup and encrypted persistence. Added creation-time fiat-price ceiling against the saved quote. Preserved three additional primary-checkout order identity mismatch tests by exact scoped patch; unrelated primary edits were not copied.
+- C12 candidate: PostgreSQL transactional claims with `FOR UPDATE SKIP LOCKED`, atomic event/attempt commit, bounded backoff, durable quarantine after eight failures and fixed error categories without payloads. CLI `pnpm run funding:worker`, separately enabled, handles up to 100 items per invocation. Headless events fetch canonical provider status; hosted events validate authenticated provider payloads. Unknown/legacy ambiguous references are retained, not guessed. Worker does not credit funds.
+- C13 candidate: ordered provider statuses reject stale/pending regressions, preserve completed status and allow newer failed-to-completed observations. Unique opaque per-attempt provider references identify new hosted/Headless attempts; existing stable legacy references remain protected. Missing checkout links after event recovery return metadata rather than decrypting null. Provider completion remains unverified settlement.
+- C16 candidate: authenticated `GET /v1/funding/readiness?tokenId=...` reads live deployment chain/native USDC/6 decimals, listing price/availability, wallet balance, allowance to the actual diamond spender, ETH and wallet code. Funded EOAs get actual purchase gas simulation and a 20% estimate margin; unsupported/unverified customer sponsorship remains an explicit blocker. No approval, signature, purchase or automatic relay is issued. Verified spender path against `MarketplaceFacet.purchaseAsset -> PaymentFacet.distributePaymentFrom -> IERC20.safeTransferFrom(payer,address(this),amount)` in the local contracts source.
+- Fixed readiness BigInt test-title serialization and updated actor inventory assertions for three funding write endpoints. The first full run failed only those two stale inventory assertions (2,246 passed, 73 gates); fixed metadata/tests and reran required suites. Focused funding/inventory 150 passed, 21 database gates; `pnpm run test:indexer:postgres` separately passed all 31 checks (21 funding, six indexer, four privacy), migrations applied twice.
+- `pnpm exec tsx scripts/proof-funding-readiness-local.ts output/coinbase-usdc/2026-11-04-readiness-local.json`: passed against disposable local Anvil using ABI read fixtures, actual RPC/contract calls and EVM gas estimates. Exact units, one-unit balance shortage, allowance shortage, customer sponsorship unknown and wrong USDC token were exercised. Wallet nonce stayed zero. This is not production marketplace execution, Coinbase sandbox acceptance, fork settlement or C19 proof.
+- Frontend discovery: connected projects are api-layer, CONTRACTS, MOLTSTUDIOS, paperclip and poster projects. MOLTSTUDIOS has a web client but no confirmed USpeaks API-layer consumer binding in inspected source/configuration. Requested exact repository/path/access through the user-input tool; no answer yet. F01 remains open. No server key was placed in frontend code and no unrelated frontend project was modified.
+- Rechecked current official [Onramp webhook contract](https://docs.cdp.coinbase.com/webhooks/onramp) and [Headless integration](https://docs.cdp.coinbase.com/onramp/headless-onramp/overview). Provider fixtures remain synthetic. C10/C14 polling, subscription health and legacy ambiguity recovery remain open; C15 settlement, C17 approval, C18 purchase and C19/C20 provider/release proofs remain open. Coinbase server credentials/capabilities, frontend source and deployment database/onboarding need actual acceptance; none is inferred from tests.
+- Detailed command logs `.runtime/coinbase-20261104-*`; final counts, default push and observed exact-SHA CI status will follow after gates complete. Privacy remains separately accepted per `output/transaction-request-privacy-readiness.json`; write-proof counts remain owned by that automation. Imported October 25 readiness data is historical recovery material and must not override newer delivered evidence.
