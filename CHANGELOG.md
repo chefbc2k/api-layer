@@ -7,11 +7,13 @@
 - **Thirty-Nine Planned Gaps Closed:** Added mounted-route write-safety coverage for four `VoiceAssetFacet` commands plus eight `VoiceDatasetFacet`, `VoiceLicenseFacet`, and `VoiceLicenseTemplateFacet` commands. The grouped matrices prove decoded ABI arguments, contract static-call preflight before persistence and submission, read-only denial before provider access, and stale/replay/unauthorized rejection without mutation.
 - **Live Admin Guard Evidence Restored:** Restored the env-gated verification writer for the 35-route control-plane safety matrix and regenerated `verify-control-plane-guard-output.json`. The exact-route artifact proves fail-closed Base Sepolia guard behavior before provider execution and closes 27 selected live-safety gaps without sending a transaction.
 - **Gap Backlog Reduced:** Regenerated the JSON and Markdown gap report and plan. Ready items increased from `654` to `693`; non-ready items fell from `56` to `17`, comprising `16` fixture gaps and one intentionally HTTP-excluded legacy proposal overload.
+- **Write-Invariant Metadata Revalidated:** Reaudited the synchronized production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata. Missing/stale method, ABI-drift, incomplete-section, stale-reference, and indexer-consistency checks remain fail closed.
 
 ### Verified
 
 - **Focused Safety Suites Passed:** The VoiceAsset and dataset/licensing matrices passed `60/60` cases, and the artifact-producing control-plane suite passed `3/3` cases.
 - **Required Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `576/576` across `17` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Invariant Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; authoring sync was byte-stable, the dedicated generator passed at `260/260`, and explicit `pnpm run coverage:check` reconfirmed `492` wrapper functions, `218` events, `492` HTTP methods, and complete invariant coverage.
 
 ## Daily assurance branch consolidation - 2026-11-04
 
