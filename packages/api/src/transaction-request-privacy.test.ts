@@ -49,6 +49,18 @@ describe("private transaction-request HTTP authorization", () => {
     expect((await call("invalid", "malformed")).status).toBe(401);
     expect(getOwned).not.toHaveBeenCalled();
   });
+  it.each([
+    "Owner",
+    "owner,stranger",
+    "owner, rotated",
+    "__proto__",
+    "constructor",
+    "toString",
+  ])("rejects mutated credential %j before request-ID validation or storage", async key => {
+    const { call, getOwned } = await setup();
+    expect((await call(key, "malformed")).status).toBe(401);
+    expect(getOwned).not.toHaveBeenCalled();
+  });
   it("returns only the owner's private payload without owner hashes and disables caching", async () => {
     const { call, getOwned, context } = await setup();
     const result = await call("owner");
@@ -74,9 +86,31 @@ describe("private transaction-request HTTP authorization", () => {
     const renamed = { ...context.apiKeys.fallback, label: "renamed", walletAddress: "different" };
     expect(transactionRequestOwnerHash(renamed)).toBe(transactionRequestOwnerHash(context.apiKeys.fallback));
   });
+  it("separates principal and fallback namespaces under delimiter, case and signer mutations", async () => {
+    const { context } = await setup();
+    const baseline = context.apiKeys.owner;
+    const mutations = [
+      { ...baseline, requestOwnerId: undefined, apiKey: baseline.requestOwnerId! },
+      { ...baseline, requestOwnerId: baseline.requestOwnerId!.toUpperCase() },
+      { ...baseline, signerId: `${baseline.signerId}:rotated` },
+      { ...baseline, signerId: undefined },
+      { ...baseline, requestOwnerId: `${baseline.requestOwnerId}_suffix` },
+    ];
+    expect(new Set([transactionRequestOwnerHash(baseline), ...mutations.map(transactionRequestOwnerHash)]).size).toBe(mutations.length + 1);
+  });
   it("validates UUIDs before storage and returns the same response for missing, cross-owner and legacy ownerless rows", async () => {
     const { call, getOwned } = await setup();
-    expect((await call("owner", "invalid")).status).toBe(400); expect(getOwned).not.toHaveBeenCalled();
+    for (const mutatedId of [
+      "invalid",
+      `${id}0`,
+      id.slice(0, -1),
+      id.replaceAll("-", ""),
+      `${id}%2fother`,
+      "ffffffff-ffff-ffff-ffff-ffffffffffff%3fowner=customer_a",
+    ]) {
+      expect((await call("owner", mutatedId)).status).toBe(400);
+    }
+    expect(getOwned).not.toHaveBeenCalled();
     getOwned.mockResolvedValue(null);
     expect(await call("owner")).toMatchObject({ status: 404, payload: { error: "Transaction request not found" } });
   });
