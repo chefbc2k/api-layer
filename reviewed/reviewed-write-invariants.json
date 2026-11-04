@@ -1,22 +1,21 @@
 {
   "version": 1,
-  "reviewedAt": "2026-10-04",
+  "reviewedAt": "2026-09-15",
   "methods": {
     "AccessControlFacet.configureRole": {
       "abiSignature": "configureRole(bytes32,(uint256,uint256,uint256,uint256,uint256,bytes32,bool,bool,bool,bool))",
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
           "TIMELOCK_ROLE",
           "FOUNDER_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
         },
         {
           "kind": "protocol-state",
@@ -504,21 +503,14 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "AccessControlFacet.getQuorum",
-            "assertion": "AccessControlFacet.getQuorum reflects the receipt-confirmed AccessControlFacet.setDefaultValidityPeriod transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The deployed ABI exposes no getter for the default validity period; the successful receipt is authoritative."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "Source review confirms setDefaultValidityPeriod only updates storage and emits no event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -538,12 +530,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "AccessControlFacet.setMinValidations": {
@@ -551,16 +541,15 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
           "TIMELOCK_ROLE",
           "FOUNDER_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "Before founder sunset the signer must hold FOUNDER_ROLE; afterward the signer must hold TIMELOCK_ROLE."
         },
         {
           "kind": "protocol-state",
@@ -568,21 +557,14 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "AccessControlFacet.getQuorum",
-            "assertion": "AccessControlFacet.getQuorum reflects the receipt-confirmed AccessControlFacet.setMinValidations transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The deployed ABI exposes no getter for the minimum validation count; the successful receipt is authoritative."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "Source review confirms setMinValidations only updates storage and emits no event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -602,12 +584,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "AccessControlFacet.setPaused": {
@@ -1520,7 +1500,7 @@
         "mode": "all",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
@@ -1545,7 +1525,7 @@
         "mode": "required",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "projections": [
           "governance_delegations:current"
@@ -1596,7 +1576,7 @@
         "mode": "all",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
@@ -1621,7 +1601,7 @@
         "mode": "required",
         "events": [
           "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
+          "DelegationFacet.VotingPowerUpdated"
         ],
         "projections": [
           "governance_delegations:current"
@@ -2737,12 +2717,11 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
+        "mode": "all",
         "events": [
-          "EmergencyFacet.EmergencyResumeExecuted",
-          "EmergencyFacet.EmergencyResumeScheduled"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "rationale": "The immediate resume path emits the canonical emergency-state transition event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -2762,8 +2741,7 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "EmergencyFacet.EmergencyResumeExecuted",
-          "EmergencyFacet.EmergencyResumeScheduled"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
         "projections": [
           "emergency_incidents:ledger"
@@ -6006,8 +5984,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MarketplaceFacet.getListing",
-            "assertion": "MarketplaceFacet.getListing reflects the receipt-confirmed MarketplaceFacet.unpause transition for the affected identifiers and actor."
+            "method": "MarketplaceFacet.isPaused",
+            "assertion": "MarketplaceFacet.isPaused returns false after the receipt-confirmed MarketplaceFacet.unpause transition."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -8054,24 +8032,22 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.pauseBuybacks."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.pauseBuybacks."
         }
       ],
       "postStateReadbacks": {
         "mode": "required",
         "checks": [
           {
-            "method": "PaymentFacet.paymentPaused",
-            "assertion": "PaymentFacet.paymentPaused reflects the receipt-confirmed PaymentFacet.pauseBuybacks transition for the affected identifiers and actor."
+            "method": "PaymentFacet.getBuybackStatus",
+            "assertion": "PaymentFacet.getBuybackStatus reflects the receipt-confirmed PaymentFacet.pauseBuybacks transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -8084,20 +8060,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "burn",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8645,16 +8610,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "EMERGENCY_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold EMERGENCY_ADMIN_ROLE for PaymentFacet.setPaymentPaused."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold EMERGENCY_ADMIN_ROLE for PaymentFacet.setPaymentPaused."
         },
         {
           "kind": "funding",
@@ -8679,20 +8642,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "transfer",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8795,16 +8747,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setTreasuryWithdrawalLimit."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setTreasuryWithdrawalLimit."
         },
         {
           "kind": "argument",
@@ -8837,20 +8787,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "unlock",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8953,16 +8892,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateDevFundAddress."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateDevFundAddress."
         },
         {
           "kind": "argument",
@@ -8995,20 +8932,9 @@
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "transfer",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration without moving an asset balance."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -9038,16 +8964,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateFeeConfiguration."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateFeeConfiguration."
         },
         {
           "kind": "protocol-state",
@@ -9109,16 +9033,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateTreasuryAddress."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.updateTreasuryAddress."
         },
         {
           "kind": "argument",
@@ -9140,12 +9062,11 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
+        "mode": "all",
         "events": [
-          "PaymentFacet.TreasuryAddressUpdated",
-          "PaymentFacet.UnionTreasuryAddressUpdated"
+          "PaymentFacet.TreasuryAddressUpdated"
         ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "rationale": "The successful path must emit the canonical treasury-address transition event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -9167,8 +9088,7 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "PaymentFacet.TreasuryAddressUpdated",
-          "PaymentFacet.UnionTreasuryAddressUpdated"
+          "PaymentFacet.TreasuryAddressUpdated"
         ],
         "projections": [
           "payment_flows:ledger"
@@ -9181,16 +9101,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.updateUnionTreasuryAddress."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.updateUnionTreasuryAddress."
         },
         {
           "kind": "argument",
@@ -15237,17 +15155,16 @@
     "VoiceAssetFacet.registerVoiceAssetForCaller": {
       "abiSignature": "registerVoiceAssetForCaller(string,uint256,address)",
       "requiredActor": {
-        "kind": "role",
+        "kind": "contract",
         "roles": [
-          "VOICE_ADMIN_ROLE",
-          "VOICE_OPERATOR_ROLE"
+          "DIAMOND_SELF_CALL"
         ],
-        "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+        "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable VOICE_ADMIN_ROLE or VOICE_OPERATOR_ROLE privilege for VoiceAssetFacet."
+          "description": "Only a diamond self-call can perform this internal registration transition; direct EOA and HTTP callers always revert."
         },
         {
           "kind": "argument",
@@ -16440,12 +16357,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
-        "events": [
-          "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
-          "VoiceDatasetFacet.DatasetStatusChanged"
-        ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed implementation exposes no event for setMaxAssetsPerDataset; receipt and getMaxAssetsPerDataset readback are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -16465,15 +16379,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
-          "VoiceDatasetFacet.DatasetStatusChanged"
-        ],
-        "projections": [
-          "voice_datasets:current"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event exists; the indexer must accept the successful receipt without fabricating a projection."
       }
     },
     "VoiceDatasetFacet.setMetadata": {
@@ -17475,14 +17384,9 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "VoiceMetadataFacet.getGeographicData",
-            "assertion": "VoiceMetadataFacet.getGeographicData reflects the receipt-confirmed VoiceMetadataFacet.setAnalysisVersion transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "The reviewed ABI exposes no getter for the current analysis version; the successful receipt and AnalysisVersionUpdated transition event are authoritative."
       },
       "emittedEvents": {
         "mode": "all",
