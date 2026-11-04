@@ -7,6 +7,42 @@
 - Reconfirmed the deployed vesting defect on an isolated Base Sepolia fork: release accounting advances without beneficiary liquid-token credit. The payment-split/treasury scenario still requires direct `TREASURY_SIGNER_ROLE` storage seeding and timed out before distribution on a dedicated retry; `PaymentFacet` still lacks approval readback/event evidence.
 - The full suite reached 2,093 passing tests with 68 environment-gated skips before one indexer replay case timed out; that exact case passed alone in 110 ms. This workstream remains blocked and unmerged pending protocol fixes, supported treasury signer provisioning, payment approval observability, and stable fork/indexer runners.
 
+## [0.1.408] - 2026-11-04
+
+### Changed
+
+- **Thirty-Nine Planned Gaps Closed:** Added mounted-route write-safety coverage for four `VoiceAssetFacet` commands plus eight `VoiceDatasetFacet`, `VoiceLicenseFacet`, and `VoiceLicenseTemplateFacet` commands. The grouped matrices prove decoded ABI arguments, contract static-call preflight before persistence and submission, read-only denial before provider access, and stale/replay/unauthorized rejection without mutation.
+- **Live Admin Guard Evidence Restored:** Restored the env-gated verification writer for the 35-route control-plane safety matrix and regenerated `verify-control-plane-guard-output.json`. The exact-route artifact proves fail-closed Base Sepolia guard behavior before provider execution and closes 27 selected live-safety gaps without sending a transaction.
+- **Gap Backlog Reduced:** Regenerated the JSON and Markdown gap report and plan. Ready items increased from `654` to `693`; non-ready items fell from `56` to `17`, comprising `16` fixture gaps and one intentionally HTTP-excluded legacy proposal overload.
+- **Write-Invariant Metadata Revalidated:** Reaudited the synchronized production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata. Missing/stale method, ABI-drift, incomplete-section, stale-reference, and indexer-consistency checks remain fail closed.
+
+### Verified
+
+- **Focused Safety Suites Passed:** The VoiceAsset and dataset/licensing matrices passed `60/60` cases, and the artifact-producing control-plane suite passed `3/3` cases.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `576/576` across `17` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Invariant Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; authoring sync was byte-stable, the dedicated generator passed at `260/260`, and explicit `pnpm run coverage:check` reconfirmed `492` wrapper functions, `218` events, `492` HTTP methods, and complete invariant coverage.
+
+## Daily assurance branch consolidation - 2026-11-04
+
+- Recorded all 28 linked worktrees before branch movement and preserved four dirty states on `codex/autosave-20261104-daily-consolidation-root`, `codex/autosave-20261104-red-team-harness`, `codex/autosave-20261104-local-fork-automation`, and `codex/autosave-20261104-event-indexer-proof`. No user changes were discarded.
+- Fetched and pruned `origin`, confirmed `master` remains the production branch, and audited all 296 local plus 69 remote `codex/*` refs. The audit classified 119 distinct unmerged tips before consolidation and re-ran merge preflights after every production change.
+- Merged the current assurance-gap autosave and local-fork execution-safeguard autosave with `--no-ff`. The resulting production tree closes 39 planned mounted-route gaps, restores the 35-route admin guard artifact, and adds fork-rewind-safe nonce reconciliation plus execution-context regressions.
+- Reverted two historical metadata merges after the repository-wide gate exposed stale assumptions: the October 1 invariant draft failed five role/indexer assertions, and the October 23 method-policy draft failed nine mounted-write/actor assertions. A clean indexer-proof slice remained unmerged after its exact prospective merge failed one receipt-producer regression. The current Base Sepolia, red-team, event-indexer, actor, ABI-report, and other historical tips remain preserved because they conflict with production; an obsolete proof timestamp and accidental tracked dependency symlinks were also kept out of production.
+- Post-merge verification passed `pnpm run coverage:check` at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants; `pnpm test` at 2,227 active tests with 68 environment-gated skips; actor reporting at 1,813 cases across 260 mounted writes; and indexer assurance at 268 active tests with 6 PostgreSQL skips.
+- Live indexer proof commands remained environment-blocked: Base Sepolia rejected the trace-capability RPC request with HTTP 401/filter settings, and the local-fork receipt proof lacked the required RPC and diamond-address inputs. Neither command changed an artifact.
+
+## [0.1.407] - 2026-10-29
+
+### Changed
+
+- **Twelve Planned Fixture Gaps Closed:** Extended the mounted-route write-safety matrix across six `StakingFacet` and six `TokenSupplyFacet` commands selected by the forty-item gap-builder batch. Each route now proves decoded ABI argument coercion, contract static-call preflight before request persistence and transaction submission, read-only denial before contract access, and stale/replay/unauthorized preflight failure without mutation.
+- **Gap Backlog Reduced:** Regenerated the JSON and Markdown gap report and plan. Ready items increased from `630` to `642`; non-ready items fell from `80` to `68`, comprising `40` fixture gaps and `28` unsafe-live operations.
+
+### Verified
+
+- **Focused And Actor Gates Passed:** The expanded write-safety matrix passed `105/105` cases, and `pnpm run test:actor-negative-paths` passed `504/504` tests across `14` files.
+- **Required Report And Coverage Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. The API TypeScript build, focused ESLint, and `git diff --check` also passed.
+
 ## Daily assurance branch consolidation - 2026-10-28
 
 - Recorded every linked worktree before branch movement and preserved five dirty passenger states on dated autosave branches: API assurance gap completion, ABI gap reporting, Coinbase USDC funding, a concurrent gap-planner/seed follow-up, and a concurrent production-indexer run ledger. No user changes were discarded; the root passenger also required a second commit for four report artifacts regenerated by its first autosave commit.

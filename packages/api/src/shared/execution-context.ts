@@ -125,6 +125,29 @@ function isNonceExpiredError(error: unknown): boolean {
   );
 }
 
+function isLoopbackRpcUrl(rpcUrl: string | undefined): boolean {
+  if (!rpcUrl) {
+    return false;
+  }
+  try {
+    const hostname = new URL(rpcUrl).hostname.toLowerCase();
+    return hostname === "localhost"
+      || hostname === "::1"
+      || hostname === "[::1]"
+      || /^127(?:\.\d{1,3}){3}$/u.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function resolveSubmissionNonce(
+  chainNonce: number,
+  localNonce: number,
+  trustChainNonce: boolean,
+): number {
+  return trustChainNonce ? chainNonce : Math.max(chainNonce, localNonce);
+}
+
 export function resolveRetryNonce(
   pendingNonce: number,
   localNonce: number,
@@ -187,6 +210,7 @@ export const __testOnly = {
   resolveContractMethod,
   assertRequestedWalletMatchesSigner,
   isNonceExpiredError,
+  isLoopbackRpcUrl,
 };
 
 function parseGaslessAllowlist(): Set<string> {
@@ -406,7 +430,12 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
 
       const submit = async (forcedNonce?: number) => {
         const chainNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
-        const nextNonce = forcedNonce ?? Math.max(chainNonce, context.signerNonces.get(prepared.queueKey) ?? 0);
+        const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
+        const nextNonce = forcedNonce ?? resolveSubmissionNonce(
+          chainNonce,
+          localNonce,
+          isLoopbackRpcUrl(context.config.cbdpRpcUrl),
+        );
         const gasLimit = await resolveBufferedGasLimit(provider, prepared.responseTemplate, prepared.signerAddress);
         const response = await prepared.signer.sendTransaction({
           ...prepared.responseTemplate,
