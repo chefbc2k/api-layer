@@ -10,6 +10,12 @@
 - Live proof commands remained environment-blocked: Base Sepolia rejected the trace-capability request with HTTP 401/filter settings, and the local-fork receipt proof lacked RPC and diamond-address inputs. Neither command changed an artifact.
 - Remaining clean passengers are deliberately unmerged: the local-fork autosave fails one eventless-write expectation, the 265-write indexer autosave fails five indexer assertions, and the staking-pause proof tip fails one receipt-producer assertion. The historical Base Sepolia timestamp-only tip and tracked `node_modules` symlinks remain excluded; the other 112 distinct tips require conflict resolution on their owning workstreams.
 
+## Write-invariant metadata revalidation - 2026-11-05
+
+- Rebuilt the canonical deployment-filtered ABI inventory on `codex/write-invariant-metadata-20261105` and confirmed that all 260 mounted writes across 31 facets still carry required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- Confirmed fail-closed missing/stale-key, ABI-drift, incomplete-section, stale-reference, and indexer-consistency validation. The focused invariant suite passed 7/7, the authoring sync was byte-stable, and canonical code generation plus explicit coverage checks passed at 492 wrapper functions, 218 event occurrences, 492 HTTP methods, and 260/260 write invariants.
+- Discarded only an ignored 265-write generated-registry residue from the unmerged production-indexer autosave; the reviewed catalog and timestamp-normalized registry retained their established hashes, and no unmounted overload or selector metadata entered production.
+
 ## Coinbase event processing and readiness candidate - 2026-11-04
 
 - Continued the preserved Coinbase batch on the latest default branch, retained transaction-request privacy changes, and assigned funding migration 0009 to avoid the existing 0008 migration.
