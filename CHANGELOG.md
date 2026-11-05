@@ -1,5 +1,12 @@
 # Changelog: USpeaks API Layer
 
+## Funding state and RPC red-team hardening - 2026-11-05
+
+- Added processor and readiness mutation suites to both canonical red-team commands. Unknown persisted/incoming states and provider observations more than five minutes ahead of durable receipt time now fail closed instead of advancing or pinning the lifecycle state machine.
+- Bound canonical Headless status refreshes back to the server-owned quote. Positive purchase/subtotal/total values, exact subtotal-plus-fee conservation, and the originally requested payment or purchase amount must all match before the worker may mutate an attempt or mark the inbox event processed.
+- Required readiness to use a fresh, height-consistent RPC block and to recheck its hash after pinned listing, balance, allowance, bytecode, and gas-input reads. Stale, future, mismatched-height, and reorged snapshots cannot produce a ready-to-sign response.
+- Verification passed 30 focused mutations, 31 disposable PostgreSQL proofs, 230 deterministic red-team cases, 274 guarded local-fork cases with all six deployed probes active, and 2,284 active repository tests with 73 gated skips. TypeScript, lint, deployment-filtered build/codegen, and explicit coverage checks passed at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants.
+
 ## Daily assurance branch consolidation - 2026-11-05
 
 - Recorded all 29 linked worktrees before branch movement and preserved three dirty states on `codex/autosave-20261105-daily-consolidation-root`, `codex/autosave-20261105-production-indexer-write-coverage`, and `codex/autosave-20261105-local-fork-automation`. All three autosaves were pushed without discarding user changes.

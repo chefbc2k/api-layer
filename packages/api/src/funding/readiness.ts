@@ -11,13 +11,19 @@ const listingAbi = ["function getUsdcToken() view returns (address)",
   "function getListing(uint256) view returns (tuple(uint256 tokenId,address seller,uint256 price,uint256 createdAt,uint256 createdBlock,uint256 lastUpdateBlock,uint256 expiresAt,bool isActive))",
   "function purchaseAsset(uint256)"];
 const tokenAbi = ["function decimals() view returns (uint8)","function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)"];
-export async function inspectReadiness(provider: Provider, chainId: number, diamondAddress: string, walletAddress: string, tokenId: string) {
+export function assertFreshReadinessBlock(block: { number: number; timestamp: number; hash: string | null }, expectedNumber: number, nowMs: number): void {
+  const now = Math.floor(nowMs / 1000);
+  if (block.number !== expectedNumber || !block.hash || !Number.isSafeInteger(block.timestamp)
+    || block.timestamp < now - 5 * 60 || block.timestamp > now + 30) throw new HttpError(503,"Funding RPC snapshot is stale or inconsistent");
+}
+export async function inspectReadiness(provider: Provider, chainId: number, diamondAddress: string, walletAddress: string, tokenId: string, nowMs=Date.now()) {
   const wallet=getAddress(walletAddress), spender=getAddress(diamondAddress);
   const network=await provider.getNetwork();
   if (Number(network.chainId)!==chainId || ![8453,84532].includes(chainId)) throw new HttpError(409,"Funding chain mismatch");
   const blockNumber=await provider.getBlockNumber();
   const block=await provider.getBlock(blockNumber);
   if (!block) throw new Error("Readiness block unavailable");
+  assertFreshReadinessBlock(block,blockNumber,nowMs);
   const diamond=new Contract(spender,listingAbi,provider);
   const token=getAddress(String(await diamond.getUsdcToken({blockTag:blockNumber})));
   if (token.toLowerCase()!==(chainId===8453?BASE_USDC:BASE_SEPOLIA_USDC)) throw new HttpError(409,"Marketplace token is not native USDC");
@@ -27,6 +33,8 @@ export async function inspectReadiness(provider: Provider, chainId: number, diam
     erc20.balanceOf(wallet,{blockTag:blockNumber}),erc20.allowance(wallet,spender,{blockTag:blockNumber}),
     provider.getBalance(wallet,blockNumber),provider.getCode(wallet,blockNumber),
   ]);
+  const confirmedBlock=await provider.getBlock(blockNumber);
+  if (!confirmedBlock || confirmedBlock.hash !== block.hash) throw new HttpError(503,"Funding RPC snapshot is stale or inconsistent");
   if (BigInt(decimals)!==6n) throw new HttpError(409,"USDC decimal configuration mismatch");
   if (!listing.isActive || BigInt(listing.tokenId)!==BigInt(tokenId) || BigInt(listing.price)<=0n
     || (BigInt(listing.expiresAt)!==0n && BigInt(listing.expiresAt)<BigInt(block.timestamp))
