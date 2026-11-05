@@ -2,6 +2,17 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Daily Branch Consolidation — 2026-11-05
+
+- Inventoried all 29 linked worktrees before movement. Three dirty states were committed and pushed on dated autosave branches: the primary assurance-gap work, the current production-indexer generated-surface work, and local-fork execution work. No user changes were discarded, and every worktree was clean before branch assessment began.
+- Fetched and pruned `origin`, reconfirmed `origin/HEAD -> master`, and inspected 305 local plus 78 remote `codex/*` refs together with the remaining Dependabot branch. There were 121 distinct tips not ancestral to fetched production; after consolidation, 112 distinct tips still preflight-conflict.
+- Merged `codex/red-team-harness-20261104` with `--no-ff` after its 19 transaction-request privacy cases passed, then reconfirmed focused coverage on the combined tree. This also preserves local production's November 4 write-invariant revalidation history.
+- Merged `codex/production-indexer-write-coverage-20261104` with `--no-ff` after validating its JSON proof ledger. Only the in-progress November 4 ledger entered production; its descendant autosave remains isolated because the 265-write generated surface fails the hard-coded 260-write assertion and four selector-map tests on the `approve(address,uint256)` collision.
+- Regenerated the gap report, 17-item plan, and actor report. Negative-path attribution advances from 415 to 416. Actor coverage now records 262 mounted HTTP writes—259 contract-backed writes plus funding quotes, orders, and sessions—and 30 explicit funding HTTP boundary cases while the 1,813 contract actor/method cases remain complete.
+- Verification passed: `pnpm run coverage:check` (492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants), `pnpm test` (2,269 active tests, 73 gated skips), report/planner tests (20/20), actor-negative-path tests (588/588), and indexer assurance (268 active tests, 6 PostgreSQL skips).
+- Live proof commands remain externally blocked: Base Sepolia returns HTTP 401 / request-filter rejection for trace capability, and the local-fork receipt proof has no configured RPC or diamond address. Both stop before artifact mutation.
+- **Remaining blockers:** the local-fork autosave fails one eventless-write expectation because `EmergencyFacet.setEmergencyState` now emits `EmergencyStateChanged`; the 265-write indexer autosave fails five indexer assertions; and the older staking-pause tip fails one missing marketplace receipt-producer expectation. The obsolete Base Sepolia timestamp-only proof and accidental dependency symlinks remain excluded. All other passengers remain preserved on conflict-blocked branches for owner-led reconciliation.
+
 ## Red-Team Harness Automation Run — 2026-11-04
 
 - Started `codex/red-team-harness-20261104` from current local production `master` `09ab1ca` after fetching `origin`; fetched `origin/master` `14fa7ac` is an ancestor of that baseline. Preserved the unrelated dirty primary checkout and resumed the clean `codex/autosave-20261104-red-team-harness` passenger in the isolated red-team worktree.

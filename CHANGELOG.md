@@ -1,5 +1,15 @@
 # Changelog: USpeaks API Layer
 
+## Daily assurance branch consolidation - 2026-11-05
+
+- Recorded all 29 linked worktrees before branch movement and preserved three dirty states on `codex/autosave-20261105-daily-consolidation-root`, `codex/autosave-20261105-production-indexer-write-coverage`, and `codex/autosave-20261105-local-fork-automation`. All three autosaves were pushed without discarding user changes.
+- Fetched and pruned `origin`, confirmed `master` remains production, and audited 305 local plus 78 remote `codex/*` refs and the remaining Dependabot ref. The audit deduplicated 121 unmerged tips; 112 remain conflict-only against the consolidated production tree.
+- Merged `codex/red-team-harness-20261104` and the proof-ledger ancestor `codex/production-indexer-write-coverage-20261104` with `--no-ff`. The first merge carries the private transaction-request red-team corpus and the prior local write-invariant revalidation; the second preserves the November 4 production-indexer run ledger without importing its failing 265-write generated-surface autosave.
+- Regenerated the canonical gap, plan, and actor reports. Actor evidence now covers 262 mounted HTTP writes (259 contract-backed plus funding quotes, orders, and sessions) and 30 additional HTTP boundary cases. Negative-path attribution increased from 415 to 416 while the planner remains at 17 non-ready items.
+- Verification passed `pnpm run coverage:check` at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants; `pnpm test` at 2,269 active tests with 73 environment-gated skips; report/planner tests at 20/20; actor-negative-path tests at 588/588; and indexer assurance at 268 active tests with 6 PostgreSQL skips.
+- Live proof commands remained environment-blocked: Base Sepolia rejected the trace-capability request with HTTP 401/filter settings, and the local-fork receipt proof lacked RPC and diamond-address inputs. Neither command changed an artifact.
+- Remaining clean passengers are deliberately unmerged: the local-fork autosave fails one eventless-write expectation, the 265-write indexer autosave fails five indexer assertions, and the staking-pause proof tip fails one receipt-producer assertion. The historical Base Sepolia timestamp-only tip and tracked `node_modules` symlinks remain excluded; the other 112 distinct tips require conflict resolution on their owning workstreams.
+
 ## Coinbase event processing and readiness candidate - 2026-11-04
 
 - Continued the preserved Coinbase batch on the latest default branch, retained transaction-request privacy changes, and assigned funding migration 0009 to avoid the existing 0008 migration.

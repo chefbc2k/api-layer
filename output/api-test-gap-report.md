@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-11-04T08:01:48.975Z`
+Generated: `2026-11-05T08:12:09.941Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -30,7 +30,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | workflow | 415 |
 | localFork | 119 |
 | baseSepolia | 95 |
-| negativePath | 415 |
+| negativePath | 416 |
 | economic | 210 |
 | redTeam | 212 |
 | indexer | 218 |
@@ -819,7 +819,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 
 ## TokenSupplyFacet
 
-Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` with an average score of `4.32/8`.
+Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` with an average score of `4.36/8`.
 
 ### Functions
 
@@ -830,7 +830,7 @@ Facet classification: **ready**. Proof depth spans `adversarial` to `indexer` wi
 | `balanceOf` | read | yes | yes | — | — | yes | yes | — | adversarial 4/8 | ready |
 | `burn` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `burnFrom` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
-| `decimals` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
+| `decimals` | read | yes | — | — | — | yes | yes | — | adversarial 3/8 | ready |
 | `initializeToken` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `supplyFinishMinting` | write | yes | yes | — | — | yes | yes | yes | adversarial 5/8 | ready |
 | `supplyGetMaximum` | read | yes | — | — | — | — | yes | — | adversarial 2/8 | ready |
