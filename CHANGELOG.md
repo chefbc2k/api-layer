@@ -1,5 +1,12 @@
 # Changelog: USpeaks API Layer
 
+## Economic invariants assurance - 2026-11-05
+
+- Reconciled `codex/economic-invariants-20261012` with local production `master` `90a62e2` while preserving the dirty primary checkout. The new funding and assurance-report changes do not alter the mounted ABI or existing economic workflow implementations.
+- Revalidated `301/301` deterministic tests across `27` suites for escrow, marketplace settlement and withdrawals, rewards, vesting, token supply, staking/delegation, treasury movement, emergency withdrawals, rounding, replay, rejected writes, and partial-state safety.
+- The isolated Base Sepolia-fork vesting diagnostic passed `1/1` and again proved that release accounting and `TokensReleased` advance without beneficiary liquid-token credit; revoke accounting remained consistent.
+- Explicit coverage passed at `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. The workstream remains blocked and unmerged pending vesting repair/redeployment, supported treasury signer provisioning, payment-approval observability, and stable payment-split/indexer proof runners.
+
 ## Economic invariants assurance - 2026-11-04
 
 - Reconciled `codex/economic-invariants-20261012` with local production `master` `09ab1ca` while preserving the dirty primary checkout. The production delta adds nonce hardening and mounted command-safety coverage without changing the ABI, deployment manifest, or economic workflow implementations.

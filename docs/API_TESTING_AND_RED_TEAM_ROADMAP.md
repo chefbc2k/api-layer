@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Economic Invariants Automation Run — 2026-11-05
+
+- Reused the clean `codex/economic-invariants-20261012` worktree, fetched and pruned remotes, and merged current local production `master` `90a62e2` while preserving the unrelated dirty primary checkout. Production drift adds Coinbase funding processing/readiness and assurance-report updates; it does not change the mounted ABI, deployment manifest, or escrow, reward, vesting, token-supply, staking, payment, treasury, and emergency economic implementations.
+- Revalidated the exact deterministic economic matrix at `301/301` tests across `27` suites. The matrix retains balance/state-delta, conservation, rounding, repeat-call, rejected-write, and partial-state assertions for escrow release; marketplace purchase, withdrawal, splits, and treasury sweeps; reward custody and claims; vesting create/release/revoke; mint/burn/supply; staking/delegation; treasury multisig/revenue movement; and emergency withdrawals.
+- Re-ran the isolated Base Sepolia-fork vesting diagnostic. The proof runner bootstrapped from its configured Base Sepolia fixture after the dedicated loopback endpoint was initially unavailable, and the scenario passed `1/1`, again detecting the deployed defect: release accounting and `TokensReleased` evidence advance without a beneficiary liquid-token credit. Revoke accounting remained internally consistent.
+- Explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` ABI write invariants. The worktree remained free of generated drift.
+- **Merge decision and next steps:** do not merge this partial workstream. Repair and redeploy vesting beneficiary credit, provision treasury signers through a supported role-admin/deployment path, add payment-approval readback or event observability, and stabilize the payment-split/indexer proof runners. Then rerun all seven isolated economic scenarios plus the full ordered quality and coverage gates before marking this section complete.
+
 ## Economic Invariants Automation Run — 2026-11-04
 
 - Reused the clean `codex/economic-invariants-20261012` worktree, fetched and pruned remotes, and merged current local production `master` `09ab1ca`; the dirty primary checkout and its unrelated changes were left untouched. The production delta adds execution-context nonce hardening and mounted command-safety suites, but does not change the ABI, deployment manifest, payment, vesting, treasury, or other economic workflow implementations.
