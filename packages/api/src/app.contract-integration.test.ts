@@ -868,6 +868,12 @@ describeLive("HTTP API contract integration", () => {
         roles: ["service"],
         allowGasless: false,
       },
+      "whisper-restore-key": {
+        label: "whisper-restore",
+        signerId: "founder",
+        roles: ["service"],
+        allowGasless: false,
+      },
       "read-key": {
         label: "reader",
         roles: ["read-only"],
@@ -4692,6 +4698,7 @@ describeLive("HTTP API contract integration", () => {
       expect((auditEventResponse.payload as Array<Record<string, unknown>>).length).toBeGreaterThan(0);
     } finally {
       const restoreSystemParametersResponse = await apiCall(port, "PATCH", "/v1/whisperblock/commands/update-system-parameters", {
+        apiKey: "whisper-restore-key",
         body: {
           newMinKeyStrength: String(originalWhisperConfig.minKeyStrength),
           newMinEntropy: String(originalWhisperConfig.minEntropy),
@@ -4702,12 +4709,14 @@ describeLive("HTTP API contract integration", () => {
       await expectReceipt(extractTxHash(restoreSystemParametersResponse.payload));
 
       const restoreTrustedOracleResponse = await apiCall(port, "PATCH", "/v1/whisperblock/commands/set-trusted-oracle", {
+        apiKey: "whisper-restore-key",
         body: { oracle: String(originalWhisperConfig.trustedOracle) },
       });
       expect(restoreTrustedOracleResponse.status).toBe(202);
       await expectReceipt(extractTxHash(restoreTrustedOracleResponse.payload));
 
       const restoreAuditResponse = await apiCall(port, "PATCH", "/v1/whisperblock/commands/set-audit-enabled", {
+        apiKey: "whisper-restore-key",
         body: { enabled: Boolean(originalWhisperConfig.requireAudit) },
       });
       expect(restoreAuditResponse.status).toBe(202);

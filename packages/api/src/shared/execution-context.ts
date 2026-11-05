@@ -140,6 +140,25 @@ function isLoopbackRpcUrl(rpcUrl: string | undefined): boolean {
   }
 }
 
+async function readPendingNonce(
+  provider: Provider,
+  signerAddress: string,
+  preferRawRpc: boolean,
+): Promise<number> {
+  const rpcProvider = provider as Provider & {
+    send?: (method: string, params: unknown[]) => Promise<unknown>;
+  };
+  if (preferRawRpc && typeof rpcProvider.send === "function") {
+    const rawNonce = await rpcProvider.send("eth_getTransactionCount", [signerAddress, "pending"]);
+    const parsedNonce = typeof rawNonce === "number" ? rawNonce : Number(BigInt(String(rawNonce)));
+    if (!Number.isSafeInteger(parsedNonce) || parsedNonce < 0) {
+      throw new Error(`invalid pending nonce returned by loopback RPC: ${String(rawNonce)}`);
+    }
+    return parsedNonce;
+  }
+  return provider.getTransactionCount(signerAddress, "pending");
+}
+
 export function resolveSubmissionNonce(
   chainNonce: number,
   localNonce: number,
@@ -211,6 +230,7 @@ export const __testOnly = {
   assertRequestedWalletMatchesSigner,
   isNonceExpiredError,
   isLoopbackRpcUrl,
+  readPendingNonce,
 };
 
 function parseGaslessAllowlist(): Set<string> {
@@ -429,12 +449,13 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
       }
 
       const submit = async (forcedNonce?: number) => {
-        const chainNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+        const trustChainNonce = isLoopbackRpcUrl(context.config.cbdpRpcUrl);
+        const chainNonce = await readPendingNonce(provider, prepared.signerAddress, trustChainNonce);
         const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
         const nextNonce = forcedNonce ?? resolveSubmissionNonce(
           chainNonce,
           localNonce,
-          isLoopbackRpcUrl(context.config.cbdpRpcUrl),
+          trustChainNonce,
         );
         const gasLimit = await resolveBufferedGasLimit(provider, prepared.responseTemplate, prepared.signerAddress);
         const response = await prepared.signer.sendTransaction({
@@ -465,7 +486,11 @@ async function sendTransaction(context: ApiExecutionContext, definition: HttpMet
             );
           }
           lastNonceError = error;
-          const pendingNonce = await provider.getTransactionCount(prepared.signerAddress, "pending");
+          const pendingNonce = await readPendingNonce(
+            provider,
+            prepared.signerAddress,
+            isLoopbackRpcUrl(context.config.cbdpRpcUrl),
+          );
           const localNonce = context.signerNonces.get(prepared.queueKey) ?? 0;
           forcedNonce = resolveRetryNonce(pendingNonce, localNonce, forcedNonce);
         }

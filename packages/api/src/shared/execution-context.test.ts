@@ -2083,6 +2083,46 @@ describe("executeHttpMethodDefinition", () => {
     expect(context.signerNonces.get(queueKey)).toBe(5);
   });
 
+  it("bypasses cached provider nonces when reconciling a loopback fork rewind", async () => {
+    const rawNonceProvider = {
+      getTransactionReceipt: vi.fn().mockResolvedValue(null),
+      getTransactionCount: vi.fn().mockResolvedValue(9),
+      estimateGas: vi.fn().mockResolvedValue(50_000n),
+      send: vi.fn().mockResolvedValue("0x4"),
+    };
+    const context = buildContext({
+      providerRouter: {
+        withProvider: vi.fn().mockImplementation(async (
+          _kind: string,
+          _label: string,
+          work: (provider: unknown, providerName: string) => Promise<unknown>,
+        ) => work(rawNonceProvider, "primary")),
+      },
+    });
+    context.config.cbdpRpcUrl = "http://127.0.0.1:8548";
+    mocked.decodeParamsFromWire.mockReturnValueOnce(["0x0000000000000000000000000000000000000001", true]);
+    mocked.serializeResultToWire.mockReturnValue(false);
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({ founder: "0xabc" });
+    const queueKey = __testOnly.signerQueueKey("primary", "wallet:0xabc");
+    context.signerNonces.set(queueKey, 9);
+
+    await executeHttpMethodDefinition(
+      context as never,
+      buildWriteDefinition() as never,
+      buildRequest({
+        wireParams: ["0x0000000000000000000000000000000000000001", true],
+      }) as never,
+    );
+
+    expect(rawNonceProvider.send).toHaveBeenCalledWith(
+      "eth_getTransactionCount",
+      ["wallet:0xabc", "pending"],
+    );
+    expect(rawNonceProvider.getTransactionCount).not.toHaveBeenCalled();
+    expect(mocked.walletSendTransaction).toHaveBeenCalledWith(expect.objectContaining({ nonce: 4 }));
+    expect(context.signerNonces.get(queueKey)).toBe(5);
+  });
+
   it("shares nonce state across wallet aliases without carrying it across signer-map rotation", async () => {
     const context = buildContext();
     mocked.decodeParamsFromWire.mockReturnValue(["0x0000000000000000000000000000000000000001", true]);

@@ -2777,11 +2777,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "EmergencyFacet.EmergencyStateChanged"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed ABI exposes no method-specific event for setEmergencyTimeout; receipt and state readbacks are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -2799,14 +2797,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "EmergencyFacet.EmergencyStateChanged"
-        ],
-        "projections": [
-          "emergency_incidents:ledger"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
       }
     },
     "EmergencyFacet.executeRecoveryAction": {
