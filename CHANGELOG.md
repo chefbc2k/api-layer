@@ -1,5 +1,64 @@
 # Changelog: USpeaks API Layer
 
+## [0.1.412] - 2026-11-05
+
+### Changed
+
+- **Behavioral Attribution Restored And Hardened:** Restored AST-aware evidence matching so unqualified names, wrapper keys, and operation IDs count only when invoked or used in an explicit mock-invocation assertion. Passive DTO fields, assertion values, metadata literals, and prose no longer make an ABI item ready. Restored registry identity, duplicate-route, and live-proof validation while retaining facet-qualified ambiguity handling and the executable legacy-proposal exclusion guard. The initially empty `710/710` report became a truthful intermediate baseline of `622` ready and `88` non-ready items, and the planner selected the required `40`-item grouped batch.
+- **Forty Selected Gaps Closed In Grouped Matrices:** Restored five ABI-native suites covering the selected AccessControl, CommunityRewards, Delegation, Emergency, Escrow, Legacy, LegacyExecution, Timelock, and VoiceLicense reads and writes. The matrices exercise decoded ABI arguments, realistic read serialization, static preflight before persistence/submission, read-only denial, and stale, replayed, or unauthorized rejection without mutation. All `40` originally selected items now classify ready.
+- **Overloaded Event Routes Are Unique:** Added deterministic overload suffixes after facet disambiguation and a fail-closed uniqueness check for event query paths. The two Timelock `OperationExecuted` overloads and two VoiceLicense `LicenseCreated` overloads now mount on distinct reviewed/generated endpoints instead of colliding on one route.
+- **Hardened Backlog Reduced:** Regenerated all four required gap artifacts. Ready items increased from the hardened `622` baseline to `695`; non-ready items fell from `88` to `15`, a `73`-item reduction that includes the complete selected batch plus adjacent coverage from the grouped matrices. The follow-up plan selects all `15` remaining items.
+
+### Verified
+
+- **Focused Fixtures And Routes Passed:** The five restored grouped suites passed `228/228` cases. API-surface, HTTP-registry, and mounted-route regressions passed `19/19`, including deterministic overload paths.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `41/41`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `854/854` across `25` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Indexer And Quality Gates Passed:** `pnpm run test:indexer:assurance` passed `270` active tests with `6` PostgreSQL-gated skips, including `208/208` event-assurance cases. The API TypeScript build and focused ESLint passed.
+
+## [0.1.411] - 2026-11-04
+
+### Changed
+
+- **Ambiguous Evidence Fails Closed:** Hardened gap attribution so unqualified names, wrapper keys, signatures, and operation IDs count only when they identify one manifest item. Cross-facet methods and overloaded events now require a facet-qualified ABI key or exact route. The audit exposed four false-ready items, and the planner selected all four because fewer than ten non-ready items remained.
+- **Timelock And VoiceAsset Fixtures Added:** Extended the mounted command-safety matrix for `TimelockFacet.execute` with seven-argument ABI decoding, preflight-before-persistence/send ordering, read-only denial, and stale/replay/unauthorized no-mutation coverage. Extended the ABI-native VoiceAsset read matrix with exact qualified keys and `supportsInterface(bytes4)`, including boolean serialization and no-cache behavior.
+- **Exact Event Projection Assurance Added:** Added `MultiSigFacet.OperationExecuted` and `VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)` to the exact-key indexer matrix, covering ABI decode, reviewed Postgres projection, and deterministic replay/idempotency.
+- **Backlog Returned To Zero:** Regenerated all four gap artifacts after implementation. The hardened report moved from `706` ready / `4` non-ready to `710` ready / `0` non-ready, and the follow-up plan is empty.
+
+### Verified
+
+- **Focused Fixtures Passed:** The changed VoiceAsset, Timelock, and event-assurance suites passed `246/246` cases; event assurance accounted for `208/208` and the mounted Timelock matrix for `33/33`.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `11/11`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `632/632` across `21` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Indexer And Quality Gates Passed:** `pnpm run test:indexer:assurance` passed `270` active tests with `6` environment-gated PostgreSQL skips, the API TypeScript build passed, and focused ESLint plus `git diff --check` passed.
+
+## [0.1.410] - 2026-11-04
+
+### Changed
+
+- **Inventory Evidence No Longer Masks Runtime Gaps:** Excluded `api-surface-lib.test.ts` from behavioral test attribution. The hardened report exposed the only two false-ready items, `VoiceAssetFacet.getVoiceAssetDetails(bytes32)` and `VoiceAssetFacet.tokenURI(uint256)`, and the planner selected both because fewer than ten non-ready items remained.
+- **VoiceAsset Reads Exercised Through ABI-Native State:** Added one grouped primitive read matrix for the two selected methods plus adjacent `name()` and `symbol()` reads. The fixtures verify ABI argument encoding, provider execution, result decoding and wire serialization, facet resolution, and route-specific cache behavior.
+- **Backlog Returned To Zero:** Regenerated all four gap artifacts after implementation. The final report is `710` ready / `0` non-ready and the follow-up plan is empty; the inventory-only helper is absent from the report's test inputs.
+
+### Verified
+
+- **Focused Fixtures Passed:** The VoiceAsset read matrix passed `4/4` cases and the hardened gap reporter passed `9/9` cases.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `9/9`, `pnpm run test:gap-builder` passed `12/12`, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Broader Safety Gates Passed:** `pnpm run test:actor-negative-paths` passed `629/629` across `21` files, the API TypeScript build passed, and focused ESLint plus `git diff --check` passed.
+
+## [0.1.409] - 2026-11-04
+
+### Changed
+
+- **Final Seventeen Planned Gaps Closed:** Added grouped mounted-route safety matrices for four `VoiceMetadataFacet`, seven `VotingPowerFacet`, and five `WhisperBlockFacet` commands. The `48` route cases prove ABI argument decoding, contract static-call preflight before persistence and submission, read-only denial before provider access, and stale, replayed, or unauthorized preflight rejection without mutation.
+- **ABI-Only Proposal Exclusion Is Enforced:** Added an executable guard for the intentionally HTTP-excluded legacy `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` overload. Gap classification now accepts intentional exclusions only when the generated and reviewed HTTP surfaces both omit the method and its registered guard proves the fork-only policy; accidental exposure fails as `needs API guard`.
+- **Gap Backlog Exhausted:** Regenerated the JSON and Markdown gap report and plan. Ready items increased from `693` to `710`, and non-ready items fell from `17` to `0`; the follow-up plan is empty.
+- **Empty-Backlog Planner Regression Fixed:** Made the planner persistence test use its own non-ready fixture report so it remains deterministic after the repository backlog reaches zero.
+
+### Verified
+
+- **Focused Safety Suites Passed:** The four new suites passed `49/49` cases, including the ABI-only exclusion guard and all `16` mounted command routes.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `9/9`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `629/629` across `21` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Quality Gates Passed:** The API TypeScript build, focused ESLint, and `git diff --check` passed.
+
 ## [0.1.408] - 2026-11-04
 
 ### Changed

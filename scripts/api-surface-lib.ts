@@ -640,6 +640,52 @@ export function buildEventSurface(event: AbiEventDefinition): ApiSurfaceEvent {
   };
 }
 
+export function ensureUniqueEventPaths(events: Record<string, ApiSurfaceEvent>): Record<string, ApiSurfaceEvent> {
+  const uniqueEvents = Object.fromEntries(
+    Object.entries(events).map(([key, event]) => [key, { ...event }]),
+  );
+  const collisions = (): string[][] => {
+    const keysByRoute = new Map<string, string[]>();
+    for (const [key, event] of Object.entries(uniqueEvents)) {
+      const route = `${event.httpMethod} ${event.path}`;
+      keysByRoute.set(route, [...(keysByRoute.get(route) ?? []), key]);
+    }
+    return [...keysByRoute.values()].filter((keys) => keys.length > 1);
+  };
+
+  for (const keys of collisions()) {
+    for (const key of keys) {
+      const event = uniqueEvents[key];
+      uniqueEvents[key] = {
+        ...event,
+        path: `${event.path}/${toKebabCase(event.facetName.replace(/Facet$/u, ""))}`,
+      };
+    }
+  }
+
+  for (const keys of collisions()) {
+    for (const key of keys) {
+      const event = uniqueEvents[key];
+      const eventName = event.wrapperKey.split("(", 1)[0];
+      const operationBase = event.operationId.replace(/EventQuery$/u, "");
+      const eventPrefix = toCamelCase(eventName);
+      const overloadSuffix = operationBase.startsWith(eventPrefix)
+        ? operationBase.slice(eventPrefix.length)
+        : operationBase;
+      uniqueEvents[key] = {
+        ...event,
+        path: `${event.path}/${toKebabCase(overloadSuffix || event.operationId)}`,
+      };
+    }
+  }
+
+  const unresolved = collisions();
+  if (unresolved.length > 0) {
+    throw new Error(`could not derive unique event paths for ${unresolved.flat().join(", ")}`);
+  }
+  return uniqueEvents;
+}
+
 export function sortObject<T>(value: Record<string, T>): Record<string, T> {
   return Object.fromEntries(Object.entries(value).sort(([left], [right]) => left.localeCompare(right)));
 }

@@ -66,6 +66,8 @@ const originalSignerMap = process.env.API_LAYER_SIGNER_MAP_JSON;
 const diamondAddress = "0x0000000000000000000000000000000000000001";
 const fixtureAccount = "0x00000000000000000000000000000000000000bb";
 const secondAccount = "0x00000000000000000000000000000000000000cc";
+const emptyPredecessor = `0x${"00".repeat(32)}`;
+const executionSalt = `0x${"22".repeat(32)}`;
 
 const beneficiary = {
   sharePercentage: "2500",
@@ -121,6 +123,23 @@ const legacyOwnershipAndTimelockCases = [
     path: "/v1/governance/commands/update-min-delay",
     body: { newDelay: "172800" },
     runtimeArgs: [172_800n],
+  },
+  {
+    key: "TimelockFacet.execute",
+    negativePath: "reject stale, replayed, or unauthorized timelock execution",
+    signature: "execute(uint256,address[],uint256[],bytes[],bytes32,bytes32,uint256)",
+    method: "POST",
+    path: "/v1/governance/commands/execute",
+    body: {
+      proposalId: "77",
+      targets: [fixtureAccount],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      predecessor: emptyPredecessor,
+      salt: executionSalt,
+      delay: "86400",
+    },
+    runtimeArgs: [77n, [fixtureAccount], [0n], ["0x1234"], emptyPredecessor, executionSalt, 86_400n],
   },
   {
     key: "OwnershipFacet.acceptOwnership",

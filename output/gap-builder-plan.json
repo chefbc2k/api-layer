@@ -1,35 +1,127 @@
 {
-  "generatedAt": "2026-11-04T08:01:51.215Z",
-  "sourceGeneratedAt": "2026-11-04T08:01:48.975Z",
+  "generatedAt": "2026-11-05T07:35:53.274Z",
+  "sourceGeneratedAt": "2026-11-05T07:35:51.829Z",
   "totals": {
-    "nonReady": 17,
-    "selected": 17,
+    "nonReady": 15,
+    "selected": 15,
     "byClassification": {
-      "ready": 693,
-      "needs fixture": 16,
-      "unsafe on live network": 1,
+      "ready": 695,
+      "needs fixture": 14,
+      "unsafe on live network": 0,
       "needs contract change": 0,
       "needs API guard": 0,
-      "needs indexer proof": 0
+      "needs indexer proof": 1
     }
   },
   "batches": [
     {
-      "facetName": "ProposalFacet",
-      "objective": "Reduce ProposalFacet launch blockers across 1 gap item.",
+      "facetName": "PaymentFacet",
+      "objective": "Reduce PaymentFacet launch blockers across 2 gap items.",
       "items": [
         {
-          "id": "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+          "id": "PaymentFacet.withdrawPayments",
           "kind": "function",
           "category": "write",
-          "classification": "unsafe on live network",
-          "endpoint": null,
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/withdraw-payments"
+          },
           "gaps": [
-            "legacy overloaded proposal variant is intentionally excluded from the HTTP surface",
-            "no successful verify-artifact route evidence"
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference"
           ],
           "requiredWork": [
-            "Add fail-closed live-network gating plus focused negative-path coverage before any live execution.",
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        },
+        {
+          "id": "PaymentFacet.withdrawPaymentsWithDeadline",
+          "kind": "function",
+          "category": "write",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/marketplace/commands/withdraw-payments-with-deadline"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no workflow proof reference",
+            "no negative-path proof reference",
+            "no proven verify-artifact route outcome"
+          ],
+          "requiredWork": [
+            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
+            "Route the proof through an executable workflow or route-level integration test.",
+            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check",
+        "pnpm run test:actor-negative-paths"
+      ]
+    },
+    {
+      "facetName": "ProposalFacet",
+      "objective": "Reduce ProposalFacet launch blockers across 3 gap items.",
+      "items": [
+        {
+          "id": "ProposalFacet.queue",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/governance/queries/queue"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no proven verify-artifact route outcome"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "ProposalFacet.state",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/governance/queries/state"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no proven verify-artifact route outcome"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "ProposalFacet.VoteCast",
+          "kind": "event",
+          "category": "event",
+          "classification": "needs indexer proof",
+          "endpoint": {
+            "method": "POST",
+            "path": "/v1/governance/events/vote-cast/query"
+          },
+          "gaps": [
+            "no proven verify-artifact route outcome",
+            "no event-specific indexer test reference"
+          ],
+          "requiredWork": [
+            "Add event-specific indexer/projection proof and replay/idempotency coverage.",
             "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
           ]
         }
@@ -37,85 +129,58 @@
       "verification": [
         "pnpm run test:gap-report",
         "pnpm run coverage:check",
-        "pnpm run test:actor-negative-paths"
+        "pnpm run test:indexer:assurance"
       ]
     },
     {
-      "facetName": "VoiceMetadataFacet",
-      "objective": "Reduce VoiceMetadataFacet launch blockers across 4 gap items.",
+      "facetName": "RightsFacet",
+      "objective": "Reduce RightsFacet launch blockers across 1 gap item.",
       "items": [
         {
-          "id": "VoiceMetadataFacet.setAnalysisVersion",
+          "id": "RightsFacet.getCollaborator",
           "kind": "function",
-          "category": "write",
+          "category": "read",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/voice-assets/commands/set-analysis-version"
+            "method": "GET",
+            "path": "/v1/licensing/queries/get-collaborator"
           },
           "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
+            "no directly attributable test reference",
+            "no proven verify-artifact route outcome"
           ],
           "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
           ]
-        },
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check"
+      ]
+    },
+    {
+      "facetName": "TokenSupplyFacet",
+      "objective": "Reduce TokenSupplyFacet launch blockers across 1 gap item.",
+      "items": [
         {
-          "id": "VoiceMetadataFacet.updateClassificationCategory",
+          "id": "TokenSupplyFacet.burn",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/voice-assets/commands/update-classification-category"
+            "method": "DELETE",
+            "path": "/v1/tokenomics/commands/burn"
           },
           "gaps": [
             "no workflow proof reference",
-            "no negative-path proof reference"
+            "no negative-path proof reference",
+            "no proven verify-artifact route outcome"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "VoiceMetadataFacet.updateGeographicData",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/voice-assets/commands/update-geographic-data"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "VoiceMetadataFacet.updateVoiceClassifications",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/voice-assets/commands/update-voice-classifications"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.",
             "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
@@ -128,139 +193,138 @@
       ]
     },
     {
-      "facetName": "VotingPowerFacet",
-      "objective": "Reduce VotingPowerFacet launch blockers across 7 gap items.",
+      "facetName": "VestingFacet",
+      "objective": "Reduce VestingFacet launch blockers across 2 gap items.",
       "items": [
         {
-          "id": "VotingPowerFacet.setMaxLockDuration",
+          "id": "VestingFacet.getStandardVestingSchedule",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/tokenomics/queries/get-standard-vesting-schedule"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no proven verify-artifact route outcome"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "VestingFacet.getVestingTotalAmount",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/tokenomics/queries/get-vesting-total-amount"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no proven verify-artifact route outcome"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        }
+      ],
+      "verification": [
+        "pnpm run test:gap-report",
+        "pnpm run coverage:check"
+      ]
+    },
+    {
+      "facetName": "VoiceAssetFacet",
+      "objective": "Reduce VoiceAssetFacet launch blockers across 5 gap items.",
+      "items": [
+        {
+          "id": "VoiceAssetFacet.getVoiceAssetsByOwner",
+          "kind": "function",
+          "category": "read",
+          "classification": "needs fixture",
+          "endpoint": {
+            "method": "GET",
+            "path": "/v1/voice-assets/by-owner/:owner"
+          },
+          "gaps": [
+            "no directly attributable test reference",
+            "no proven verify-artifact route outcome"
+          ],
+          "requiredWork": [
+            "Add a direct unit or workflow fixture that exercises the read with realistic state.",
+            "Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route."
+          ]
+        },
+        {
+          "id": "VoiceAssetFacet.authorizeUser",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/set-max-lock-duration"
+            "method": "POST",
+            "path": "/v1/voice-assets/:voiceHash/authorization-grants"
           },
           "gaps": [
-            "no workflow proof reference",
             "no negative-path proof reference"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         },
         {
-          "id": "VotingPowerFacet.setRoleMultiplier",
+          "id": "VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/set-role-multiplier"
+            "method": "POST",
+            "path": "/v1/voice-assets/tokens/:tokenId/transfers/safe-with-data"
           },
           "gaps": [
-            "no workflow proof reference",
             "no negative-path proof reference"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         },
         {
-          "id": "VotingPowerFacet.setupInitialVotingPower",
+          "id": "VoiceAssetFacet.safeTransferFrom(address,address,uint256)",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/setup-initial-voting-power"
+            "method": "POST",
+            "path": "/v1/voice-assets/tokens/:tokenId/transfers/safe"
           },
           "gaps": [
-            "no workflow proof reference",
             "no negative-path proof reference"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         },
         {
-          "id": "VotingPowerFacet.setZeroLockDuration",
+          "id": "VoiceAssetFacet.transferFromVoiceAsset",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/set-zero-lock-duration"
+            "method": "POST",
+            "path": "/v1/voice-assets/tokens/:tokenId/transfers"
           },
           "gaps": [
-            "no workflow proof reference",
             "no negative-path proof reference"
           ],
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "VotingPowerFacet.updateLockDuration",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/update-lock-duration"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "VotingPowerFacet.updateVotingPower",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/update-voting-power"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "VotingPowerFacet.updateVotingPowerBatch",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/staking/commands/update-voting-power-batch"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
             "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         }
@@ -273,35 +337,16 @@
     },
     {
       "facetName": "WhisperBlockFacet",
-      "objective": "Reduce WhisperBlockFacet launch blockers across 5 gap items.",
+      "objective": "Reduce WhisperBlockFacet launch blockers across 1 gap item.",
       "items": [
         {
-          "id": "WhisperBlockFacet.revokeAccess",
+          "id": "WhisperBlockFacet.registerVoiceFingerprint",
           "kind": "function",
           "category": "write",
           "classification": "needs fixture",
           "endpoint": {
-            "method": "DELETE",
-            "path": "/v1/whisperblock/commands/revoke-access"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "WhisperBlockFacet.setAuditEnabled",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/whisperblock/commands/set-audit-enabled"
+            "method": "POST",
+            "path": "/v1/whisperblock/whisperblocks"
           },
           "gaps": [
             "no workflow proof reference"
@@ -309,63 +354,6 @@
           "requiredWork": [
             "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
             "Route the proof through an executable workflow or route-level integration test."
-          ]
-        },
-        {
-          "id": "WhisperBlockFacet.setOffchainEntropy",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/whisperblock/commands/set-offchain-entropy"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "WhisperBlockFacet.setTrustedOracle",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/whisperblock/commands/set-trusted-oracle"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
-          ]
-        },
-        {
-          "id": "WhisperBlockFacet.updateSystemParameters",
-          "kind": "function",
-          "category": "write",
-          "classification": "needs fixture",
-          "endpoint": {
-            "method": "PATCH",
-            "path": "/v1/whisperblock/commands/update-system-parameters"
-          },
-          "gaps": [
-            "no workflow proof reference",
-            "no negative-path proof reference"
-          ],
-          "requiredWork": [
-            "Add unit, workflow, and negative-path fixtures that preflight the write before mutation.",
-            "Route the proof through an executable workflow or route-level integration test.",
-            "Add explicit unauthorized, stale-state, or replay rejection coverage."
           ]
         }
       ],

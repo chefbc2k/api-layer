@@ -1,89 +1,104 @@
 # Gap Builder Plan
 
-Generated: `2026-11-04T08:01:51.215Z`
-Source gap report: `2026-11-04T08:01:48.975Z`
+Generated: `2026-11-05T07:35:53.274Z`
+Source gap report: `2026-11-05T07:35:51.829Z`
 
 ## Summary
 
-- Non-ready items in scope: `17`
-- Selected this run: `17`
+- Non-ready items in scope: `15`
+- Selected this run: `15`
+
+## PaymentFacet
+
+Reduce PaymentFacet launch blockers across 2 gap items.
+
+- `PaymentFacet.withdrawPayments` (needs fixture)
+  - Endpoint: `POST /v1/marketplace/commands/withdraw-payments`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `PaymentFacet.withdrawPaymentsWithDeadline` (needs fixture)
+  - Endpoint: `POST /v1/marketplace/commands/withdraw-payments-with-deadline`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+
+Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
 ## ProposalFacet
 
-Reduce ProposalFacet launch blockers across 1 gap item.
+Reduce ProposalFacet launch blockers across 3 gap items.
 
-- `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)` (unsafe on live network)
-  - Endpoint: `ABI-only`
-  - Required work: Add fail-closed live-network gating plus focused negative-path coverage before any live execution. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `ProposalFacet.queue` (needs fixture)
+  - Endpoint: `GET /v1/governance/queries/queue`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `ProposalFacet.state` (needs fixture)
+  - Endpoint: `GET /v1/governance/queries/state`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `ProposalFacet.VoteCast` (needs indexer proof)
+  - Endpoint: `POST /v1/governance/events/vote-cast/query`
+  - Required work: Add event-specific indexer/projection proof and replay/idempotency coverage. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+
+Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:indexer:assurance`
+
+## RightsFacet
+
+Reduce RightsFacet launch blockers across 1 gap item.
+
+- `RightsFacet.getCollaborator` (needs fixture)
+  - Endpoint: `GET /v1/licensing/queries/get-collaborator`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+
+Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`
+
+## TokenSupplyFacet
+
+Reduce TokenSupplyFacet launch blockers across 1 gap item.
+
+- `TokenSupplyFacet.burn` (needs fixture)
+  - Endpoint: `DELETE /v1/tokenomics/commands/burn`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
-## VoiceMetadataFacet
+## VestingFacet
 
-Reduce VoiceMetadataFacet launch blockers across 4 gap items.
+Reduce VestingFacet launch blockers across 2 gap items.
 
-- `VoiceMetadataFacet.setAnalysisVersion` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/set-analysis-version`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VoiceMetadataFacet.updateClassificationCategory` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/update-classification-category`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VoiceMetadataFacet.updateGeographicData` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/update-geographic-data`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VoiceMetadataFacet.updateVoiceClassifications` (needs fixture)
-  - Endpoint: `PATCH /v1/voice-assets/commands/update-voice-classifications`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `VestingFacet.getStandardVestingSchedule` (needs fixture)
+  - Endpoint: `GET /v1/tokenomics/queries/get-standard-vesting-schedule`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `VestingFacet.getVestingTotalAmount` (needs fixture)
+  - Endpoint: `GET /v1/tokenomics/queries/get-vesting-total-amount`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
 
-Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
+Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`
 
-## VotingPowerFacet
+## VoiceAssetFacet
 
-Reduce VotingPowerFacet launch blockers across 7 gap items.
+Reduce VoiceAssetFacet launch blockers across 5 gap items.
 
-- `VotingPowerFacet.setMaxLockDuration` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/set-max-lock-duration`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VotingPowerFacet.setRoleMultiplier` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/set-role-multiplier`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VotingPowerFacet.setupInitialVotingPower` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/setup-initial-voting-power`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VotingPowerFacet.setZeroLockDuration` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/set-zero-lock-duration`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VotingPowerFacet.updateLockDuration` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/update-lock-duration`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VotingPowerFacet.updateVotingPower` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/update-voting-power`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `VotingPowerFacet.updateVotingPowerBatch` (needs fixture)
-  - Endpoint: `PATCH /v1/staking/commands/update-voting-power-batch`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `VoiceAssetFacet.getVoiceAssetsByOwner` (needs fixture)
+  - Endpoint: `GET /v1/voice-assets/by-owner/:owner`
+  - Required work: Add a direct unit or workflow fixture that exercises the read with realistic state. Add or refresh local-fork/Base Sepolia verification artifact evidence for the mounted route.
+- `VoiceAssetFacet.authorizeUser` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/:voiceHash/authorization-grants`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/tokens/:tokenId/transfers/safe-with-data`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `VoiceAssetFacet.safeTransferFrom(address,address,uint256)` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/tokens/:tokenId/transfers/safe`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add explicit unauthorized, stale-state, or replay rejection coverage.
+- `VoiceAssetFacet.transferFromVoiceAsset` (needs fixture)
+  - Endpoint: `POST /v1/voice-assets/tokens/:tokenId/transfers`
+  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 
 ## WhisperBlockFacet
 
-Reduce WhisperBlockFacet launch blockers across 5 gap items.
+Reduce WhisperBlockFacet launch blockers across 1 gap item.
 
-- `WhisperBlockFacet.revokeAccess` (needs fixture)
-  - Endpoint: `DELETE /v1/whisperblock/commands/revoke-access`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `WhisperBlockFacet.setAuditEnabled` (needs fixture)
-  - Endpoint: `PATCH /v1/whisperblock/commands/set-audit-enabled`
+- `WhisperBlockFacet.registerVoiceFingerprint` (needs fixture)
+  - Endpoint: `POST /v1/whisperblock/whisperblocks`
   - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test.
-- `WhisperBlockFacet.setOffchainEntropy` (needs fixture)
-  - Endpoint: `PATCH /v1/whisperblock/commands/set-offchain-entropy`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `WhisperBlockFacet.setTrustedOracle` (needs fixture)
-  - Endpoint: `PATCH /v1/whisperblock/commands/set-trusted-oracle`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
-- `WhisperBlockFacet.updateSystemParameters` (needs fixture)
-  - Endpoint: `PATCH /v1/whisperblock/commands/update-system-parameters`
-  - Required work: Add unit, workflow, and negative-path fixtures that preflight the write before mutation. Route the proof through an executable workflow or route-level integration test. Add explicit unauthorized, stale-state, or replay rejection coverage.
 
 Verification: `pnpm run test:gap-report`, `pnpm run coverage:check`, `pnpm run test:actor-negative-paths`
 

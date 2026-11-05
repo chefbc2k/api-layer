@@ -18,6 +18,12 @@ function endpoint(method: string, route: string, operationId: string, classifica
   return { httpMethod: method, path: route, operationId, classification };
 }
 
+function cloneEntries<T extends Record<string, object>>(entries: T): T {
+  return Object.fromEntries(
+    Object.entries(entries).map(([key, value]) => [key, { ...value }]),
+  ) as T;
+}
+
 function baseInput(): Parameters<typeof buildGapReport>[0] {
   const getThing = {
     name: "getThing",
@@ -39,11 +45,14 @@ function baseInput(): Parameters<typeof buildGapReport>[0] {
     signature: "ThingSet(uint256)",
   };
   const methods = {
-    "TestFacet.getThing": endpoint("GET", "/v1/test/:id", "getThing"),
-    "TestFacet.setThing": endpoint("POST", "/v1/test", "setThing"),
+    "TestFacet.getThing": { ...endpoint("GET", "/v1/test/:id", "getThing"), signature: getThing.signature },
+    "TestFacet.setThing": { ...endpoint("POST", "/v1/test", "setThing"), signature: setThing.signature },
   };
   const events = {
-    "TestFacet.ThingSet": endpoint("POST", "/v1/test/events/thing-set/query", "thingSetEventQuery"),
+    "TestFacet.ThingSet": {
+      ...endpoint("POST", "/v1/test/events/thing-set/query", "thingSetEventQuery"),
+      signature: thingSet.signature,
+    },
   };
   return {
     manifest: {
@@ -55,17 +64,17 @@ function baseInput(): Parameters<typeof buildGapReport>[0] {
         events: [thingSet, thingSet],
       }],
     },
-    httpRegistry: { methods, events },
-    rpcRegistry: { methods, events },
-    reviewedApiSurface: { methods, events },
+    httpRegistry: { methods: cloneEntries(methods), events: cloneEntries(events) },
+    rpcRegistry: { methods: cloneEntries(methods), events: cloneEntries(events) },
+    reviewedApiSurface: { methods: cloneEntries(methods), events: cloneEntries(events) },
     tests: [
       { path: "packages/api/src/read.test.ts", content: "it('reads', () => getThing(1))" },
       {
         path: "packages/api/src/workflows/set-thing.integration.test.ts",
-        content: "it('rejects an unauthorized setThing with unchanged balance and price', () => {})",
+        content: "it('rejects an unauthorized write with unchanged balance and price', () => setThing())",
       },
-      { path: "scripts/red-team-set.test.ts", content: "it('blocks replay mutation for setThing', () => {})" },
-      { path: "packages/indexer/src/events.test.ts", content: "it('projects ThingSet', () => {})" },
+      { path: "scripts/red-team-set.test.ts", content: "it('blocks replay mutation', () => setThing())" },
+      { path: "packages/indexer/src/events.test.ts", content: "it('projects the event', () => decodeEvent('ThingSet'))" },
     ],
     verifyArtifacts: [{
       path: "verify-test-output.json",
@@ -88,6 +97,27 @@ function baseInput(): Parameters<typeof buildGapReport>[0] {
       },
     }],
     generatedAt: "2026-08-03T00:00:00.000Z",
+  };
+}
+
+function failClosedGuardArtifact(): Parameters<typeof buildGapReport>[0]["verifyArtifacts"][number] {
+  return {
+    path: "verify-control-plane-guard-output.json",
+    reports: {
+      guard: {
+        classification: "proven working",
+        finalClassification: "proven working",
+        network: "Base Sepolia live-network guard",
+        proofKind: "fail-closed-before-provider",
+        routes: ["POST /v1/test"],
+        evidence: [{
+          methodKey: "TestFacet.setThing",
+          route: "POST /v1/test",
+          status: 403,
+          result: "fail-closed before provider execution",
+        }],
+      },
+    },
   };
 }
 
@@ -138,6 +168,110 @@ describe("API test gap report", () => {
     });
   });
 
+  it.each([
+    "http://127.0.0.1:8548",
+    "http://127.42.0.9:8548",
+    "http://localhost:8548",
+    "http://rpc.localhost:8548",
+    "http://[::1]:8548",
+  ])("classifies nested loopback RPC evidence as local-fork proof (%s)", (rpcUrl) => {
+    const input = baseInput();
+    input.verifyArtifacts = [{
+      path: "verify-loopback-output.json",
+      reports: {
+        read: {
+          classification: "proven working",
+          routes: ["GET /v1/test/:id"],
+          evidence: [{ receipt: { diagnostics: { rpcUrl } } }],
+        },
+      },
+    }];
+
+    const read = buildGapReport(input).facets[0].functions[0];
+
+    expect(read.proof).toMatchObject({ localFork: true, baseSepolia: false });
+    expect(read.evidence.verifyArtifacts).toEqual([
+      expect.objectContaining({
+        artifact: "verify-loopback-output.json",
+        network: "local-fork",
+      }),
+    ]);
+  });
+
+  it("accepts exact-route fail-closed live-network guard evidence for an admin write", () => {
+    const input = baseInput();
+    input.httpRegistry.methods["TestFacet.setThing"].classification = "admin";
+    input.reviewedApiSurface.methods["TestFacet.setThing"].classification = "admin";
+    input.verifyArtifacts = [failClosedGuardArtifact()];
+
+    const report = buildGapReport(input);
+    const write = report.facets[0].functions[1];
+
+    expect(write).toMatchObject({
+      classification: "ready",
+      proof: { baseSepolia: true, localFork: false, workflow: true, negativePath: true },
+    });
+    expect(write.evidence.verifyArtifacts).toEqual([
+      expect.objectContaining({
+        artifact: "verify-control-plane-guard-output.json",
+        proofKind: "fail-closed-before-provider",
+      }),
+    ]);
+  });
+
+  it("rejects incomplete or mismatched fail-closed live-network guard evidence", () => {
+    const invalidGuardCases: Array<{
+      name: string;
+      mutate: (report: Parameters<typeof buildGapReport>[0]["verifyArtifacts"][number]["reports"][string]) => void;
+    }> = [
+      { name: "empty evidence", mutate: (report) => { report.evidence = []; } },
+      {
+        name: "wrong ABI key",
+        mutate: (report) => { report.evidence = [{ methodKey: "OtherFacet.setThing", route: "POST /v1/test", status: 403, result: "fail-closed before provider execution" }]; },
+      },
+      {
+        name: "wrong route evidence",
+        mutate: (report) => { report.evidence = [{ methodKey: "TestFacet.setThing", route: "POST /v1/other", status: 403, result: "fail-closed before provider execution" }]; },
+      },
+      {
+        name: "non-forbidden status",
+        mutate: (report) => { report.evidence = [{ methodKey: "TestFacet.setThing", route: "POST /v1/test", status: 401, result: "fail-closed before provider execution" }]; },
+      },
+      {
+        name: "wrong execution result",
+        mutate: (report) => { report.evidence = [{ methodKey: "TestFacet.setThing", route: "POST /v1/test", status: 403, result: "provider execution attempted" }]; },
+      },
+      { name: "missing live-network marker", mutate: (report) => { delete report.network; } },
+      { name: "conflicting final classification", mutate: (report) => { report.finalClassification = "blocked by setup/state"; } },
+      { name: "unknown proof kind", mutate: (report) => { report.proofKind = "asserted-without-execution"; } },
+    ];
+
+    for (const invalidCase of invalidGuardCases) {
+      const input = baseInput();
+      input.httpRegistry.methods["TestFacet.setThing"].classification = "admin";
+      input.reviewedApiSurface.methods["TestFacet.setThing"].classification = "admin";
+      const artifact = failClosedGuardArtifact();
+      invalidCase.mutate(artifact.reports.guard);
+      input.verifyArtifacts = [artifact];
+
+      const write = buildGapReport(input).facets[0].functions[1];
+
+      expect(write.proof.baseSepolia, invalidCase.name).toBe(false);
+      expect(write.classification, invalidCase.name).toBe("unsafe on live network");
+      expect(write.evidence.verifyArtifacts, invalidCase.name).toEqual([]);
+    }
+  });
+
+  it("does not attribute fail-closed guard evidence to a non-admin endpoint", () => {
+    const input = baseInput();
+    input.verifyArtifacts = [failClosedGuardArtifact()];
+
+    const write = buildGapReport(input).facets[0].functions[1];
+
+    expect(write.proof.baseSepolia).toBe(false);
+    expect(write.evidence.verifyArtifacts).toEqual([]);
+  });
+
   it("uses the required conservative gap classifications", () => {
     const input = baseInput();
     const proposalKey = "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)";
@@ -155,17 +289,31 @@ describe("API test gap report", () => {
     }];
     input.manifest.totals = { facetCount: 1, functionCount: 5, eventCount: 1 };
     const rpcMethods = {
-      "ProposalFacet.missingApi": {},
-      "ProposalFacet.adminWrite": {},
-      "ProposalFacet.plainWrite": {},
-      [proposalKey]: {},
+      "ProposalFacet.missingApi": { signature: "missingApi()" },
+      "ProposalFacet.adminWrite": { signature: "adminWrite()" },
+      "ProposalFacet.plainWrite": { signature: "plainWrite()" },
+      [proposalKey]: { signature: "propose(string,string,address[],uint256[],bytes[],uint8)" },
     };
     const httpMethods = {
-      "ProposalFacet.adminWrite": endpoint("POST", "/v1/admin", "adminWrite", "admin"),
-      "ProposalFacet.plainWrite": endpoint("POST", "/v1/plain", "plainWrite"),
+      "ProposalFacet.adminWrite": {
+        ...endpoint("POST", "/v1/admin", "adminWrite", "admin"),
+        signature: "adminWrite()",
+      },
+      "ProposalFacet.plainWrite": {
+        ...endpoint("POST", "/v1/plain", "plainWrite"),
+        signature: "plainWrite()",
+      },
     };
-    input.rpcRegistry = { methods: rpcMethods, events: { "ProposalFacet.Unprojected": {} } };
-    input.httpRegistry = { methods: httpMethods, events: { "ProposalFacet.Unprojected": endpoint("POST", "/v1/events/unprojected/query", "unprojectedEventQuery") } };
+    input.rpcRegistry = { methods: rpcMethods, events: { "ProposalFacet.Unprojected": { signature: "Unprojected()" } } };
+    input.httpRegistry = {
+      methods: httpMethods,
+      events: {
+        "ProposalFacet.Unprojected": {
+          ...endpoint("POST", "/v1/events/unprojected/query", "unprojectedEventQuery"),
+          signature: "Unprojected()",
+        },
+      },
+    };
     input.reviewedApiSurface = { methods: httpMethods, events: input.httpRegistry.events };
     input.tests = [];
     input.verifyArtifacts = [];
@@ -176,12 +324,179 @@ describe("API test gap report", () => {
     expect(byName.missingApi.classification).toBe("needs API guard");
     expect(byName.adminWrite.classification).toBe("unsafe on live network");
     expect(byName.plainWrite.classification).toBe("needs fixture");
-    expect(byName.propose.classification).toBe("unsafe on live network");
+    expect(byName.propose.classification).toBe("needs fixture");
     expect(byName.propose.apiExclusion).toContain("intentionally excluded");
+    expect(byName.propose.gaps).toContain("no executable HTTP-exclusion guard evidence");
     expect(report.facets[0].events[0]).toMatchObject({
       classification: "needs indexer proof",
       gaps: expect.arrayContaining(["no event-specific indexer test reference"]),
     });
+  });
+
+  it("treats an intentional ABI-only write as ready only with executable deny-by-absence evidence", () => {
+    const input = baseInput();
+    const proposalKey = "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)";
+    const proposal = {
+      name: "propose",
+      wrapperKey: "propose(string,string,address[],uint256[],bytes[],uint8)",
+      signature: "propose(string,string,address[],uint256[],bytes[],uint8)",
+      mutability: "nonpayable",
+      category: "write" as const,
+    };
+    input.manifest = {
+      totals: { facetCount: 1, functionCount: 1, eventCount: 0 },
+      facets: [{ facetName: "ProposalFacet", facetKey: "proposal", functions: [proposal], events: [] }],
+    };
+    input.rpcRegistry = { methods: { [proposalKey]: { signature: proposal.signature } }, events: {} };
+    input.httpRegistry = { methods: {}, events: {} };
+    input.reviewedApiSurface = { methods: {}, events: {} };
+    input.tests = [{
+      path: "packages/api/src/workflows/legacy-proposal-exclusion-safety.integration.test.ts",
+      content: `it("rejects HTTP execution for ${proposalKey} while the fork-only ABI method stays excluded", () => {})`,
+    }];
+    input.verifyArtifacts = [];
+
+    input.tests[0].path = "packages/api/src/workflows/unregistered-exclusion.integration.test.ts";
+    const unregistered = buildGapReport(input).facets[0].functions[0];
+    expect(unregistered.classification).toBe("needs fixture");
+    expect(unregistered.gaps).toContain("no executable HTTP-exclusion guard evidence");
+
+    input.tests[0].path = "packages/api/src/workflows/legacy-proposal-exclusion-safety.integration.test.ts";
+    const excluded = buildGapReport(input).facets[0].functions[0];
+    expect(excluded).toMatchObject({
+      classification: "ready",
+      endpoint: null,
+      proof: { httpRegistry: false, reviewedApiSurface: false, unit: true, workflow: true, negativePath: true },
+      gaps: [],
+    });
+
+    input.httpRegistry.methods[proposalKey] = {
+      ...endpoint("POST", "/v1/governance/commands/propose-legacy", "proposeLegacy"),
+      signature: proposal.signature,
+    };
+    const exposed = buildGapReport(input).facets[0].functions[0];
+    expect(exposed.classification).toBe("needs API guard");
+    expect(exposed.gaps).toHaveLength(1);
+    expect(exposed.gaps[0]).toContain("intentional HTTP exclusion is not enforced");
+  });
+
+  it.each([
+    {
+      name: "function with a stale signature",
+      select: (input: ReturnType<typeof baseInput>) => input.rpcRegistry.methods["TestFacet.getThing"],
+      reportItem: (report: ReturnType<typeof buildGapReport>) => report.facets[0].functions[0],
+      replacement: "getThing(address)",
+      expected: "RPC registry signature mismatch: expected getThing(uint256), found getThing(address)",
+    },
+    {
+      name: "event with no signature",
+      select: (input: ReturnType<typeof baseInput>) => input.rpcRegistry.events["TestFacet.ThingSet"],
+      reportItem: (report: ReturnType<typeof buildGapReport>) => report.facets[0].events[0],
+      replacement: undefined,
+      expected: "RPC registry signature mismatch: expected ThingSet(uint256), found no signature",
+    },
+  ])("treats an RPC registry $name as a contract gap", ({ select, reportItem, replacement, expected }) => {
+    const input = baseInput();
+    select(input).signature = replacement;
+
+    const item = reportItem(buildGapReport(input));
+
+    expect(item).toMatchObject({
+      classification: "needs contract change",
+      proof: { rpcRegistry: false },
+    });
+    expect(item.gaps).toContain(expected);
+  });
+
+  it.each([
+    {
+      name: "function with a stale signature",
+      select: (input: ReturnType<typeof baseInput>) => input.httpRegistry.methods["TestFacet.getThing"],
+      reportItem: (report: ReturnType<typeof buildGapReport>) => report.facets[0].functions[0],
+      replacement: "getThing(address)",
+      expected: "HTTP registry signature mismatch: expected getThing(uint256), found getThing(address)",
+    },
+    {
+      name: "event with no signature",
+      select: (input: ReturnType<typeof baseInput>) => input.httpRegistry.events["TestFacet.ThingSet"],
+      reportItem: (report: ReturnType<typeof buildGapReport>) => report.facets[0].events[0],
+      replacement: undefined,
+      expected: "HTTP registry signature mismatch: expected ThingSet(uint256), found no signature",
+    },
+  ])("treats an HTTP registry $name as an API guard gap", ({ select, reportItem, replacement, expected }) => {
+    const input = baseInput();
+    select(input).signature = replacement;
+
+    const item = reportItem(buildGapReport(input));
+
+    expect(item).toMatchObject({
+      classification: "needs API guard",
+      proof: { rpcRegistry: true, httpRegistry: false },
+    });
+    expect(item.gaps).toContain(expected);
+  });
+
+  it.each([
+    { name: "operation id", field: "operationId" as const, expected: "HTTP registry entry is missing an operation id" },
+    { name: "function classification", field: "classification" as const, expected: "HTTP method registry entry is missing a classification" },
+  ])("requires an HTTP registry $name", ({ field, expected }) => {
+    const input = baseInput();
+    input.httpRegistry.methods["TestFacet.getThing"][field] = undefined;
+
+    const item = buildGapReport(input).facets[0].functions[0];
+
+    expect(item).toMatchObject({
+      classification: "needs API guard",
+      proof: { rpcRegistry: true, httpRegistry: false },
+    });
+    expect(item.gaps).toContain(expected);
+  });
+
+  it.each([
+    { name: "HTTP method", field: "httpMethod" as const, replacement: "POST" },
+    { name: "path", field: "path" as const, replacement: "/v1/test/stale/:id" },
+    { name: "operation id", field: "operationId" as const, replacement: "staleGetThing" },
+    { name: "classification", field: "classification" as const, replacement: "admin" },
+  ])("treats reviewed API $name drift as an API guard gap", ({ field, replacement }) => {
+    const input = baseInput();
+    input.reviewedApiSurface.methods["TestFacet.getThing"][field] = replacement;
+
+    const item = buildGapReport(input).facets[0].functions[0];
+
+    expect(item).toMatchObject({
+      classification: "needs API guard",
+      proof: { httpRegistry: true, reviewedApiSurface: false },
+    });
+    expect(item.gaps).toContain(`reviewed API surface differs from HTTP registry for ${field}`);
+  });
+
+  it("treats reviewed event route drift as an API guard gap", () => {
+    const input = baseInput();
+    input.reviewedApiSurface.events["TestFacet.ThingSet"].path = "/v1/test/events/stale/query";
+
+    const item = buildGapReport(input).facets[0].events[0];
+
+    expect(item).toMatchObject({
+      classification: "needs API guard",
+      proof: { httpRegistry: true, reviewedApiSurface: false },
+    });
+    expect(item.gaps).toContain("reviewed API surface differs from HTTP registry for path");
+  });
+
+  it("does not claim reviewed parity without a generated HTTP entry", () => {
+    const input = baseInput();
+    delete input.httpRegistry.methods["TestFacet.getThing"];
+
+    const item = buildGapReport(input).facets[0].functions[0];
+
+    expect(item).toMatchObject({
+      classification: "needs API guard",
+      proof: { httpRegistry: false, reviewedApiSurface: false },
+    });
+    expect(item.gaps).toEqual(expect.arrayContaining([
+      "missing HTTP registry entry",
+      "reviewed API surface cannot be validated without an HTTP registry entry",
+    ]));
   });
 
   it("does not attribute identifier substrings as proof", () => {
@@ -204,6 +519,305 @@ describe("API test gap report", () => {
     expect(report.facets[0].events[0].proof.unit).toBe(false);
   });
 
+  it("requires facet-qualified evidence for duplicate function names and signatures", () => {
+    const input = baseInput();
+    const supportsInterface = {
+      name: "supportsInterface",
+      wrapperKey: "supportsInterface",
+      signature: "supportsInterface(bytes4)",
+      mutability: "view",
+      category: "read" as const,
+    };
+    input.manifest = {
+      totals: { facetCount: 2, functionCount: 2, eventCount: 0 },
+      facets: [
+        { facetName: "DiamondLoupeFacet", facetKey: "diamond-loupe", functions: [supportsInterface], events: [] },
+        { facetName: "VoiceAssetFacet", facetKey: "voice-asset", functions: [supportsInterface], events: [] },
+      ],
+    };
+    const diamondEndpoint = {
+      ...endpoint("GET", "/v1/diamond/queries/supports-interface", "supportsInterface"),
+      signature: supportsInterface.signature,
+    };
+    const voiceEndpoint = {
+      ...endpoint("GET", "/v1/voice-assets/queries/supports-interface", "supportsInterface"),
+      signature: supportsInterface.signature,
+    };
+    input.rpcRegistry = {
+      methods: {
+        "DiamondLoupeFacet.supportsInterface": { signature: supportsInterface.signature },
+        "VoiceAssetFacet.supportsInterface": { signature: supportsInterface.signature },
+      },
+      events: {},
+    };
+    input.httpRegistry = {
+      methods: {
+        "DiamondLoupeFacet.supportsInterface": diamondEndpoint,
+        "VoiceAssetFacet.supportsInterface": voiceEndpoint,
+      },
+      events: {},
+    };
+    input.reviewedApiSurface = { methods: cloneEntries(input.httpRegistry.methods), events: {} };
+    input.tests = [{
+      path: "packages/api/src/diamond-support.test.ts",
+      content: [
+        "const key = 'DiamondLoupeFacet.supportsInterface';",
+        "const signature = 'supportsInterface(bytes4)';",
+        "supportsInterface('0x01ffc9a7');",
+      ].join("\n"),
+    }];
+    input.verifyArtifacts = [];
+
+    const [diamond, voiceAsset] = buildGapReport(input).facets.flatMap((facet) => facet.functions);
+
+    expect(diamond.proof.unit).toBe(true);
+    expect(voiceAsset).toMatchObject({ classification: "needs fixture", proof: { unit: false } });
+    expect(voiceAsset.evidence.tests).toEqual([]);
+  });
+
+  it("requires qualified indexer evidence for overloaded event names and signatures", () => {
+    const input = baseInput();
+    const licenseCreated = {
+      name: "LicenseCreated",
+      wrapperKey: "LicenseCreated(bytes32,address,bytes32,uint256,uint256)",
+      signature: "LicenseCreated(bytes32,address,bytes32,uint256,uint256)",
+    };
+    input.manifest = {
+      totals: { facetCount: 2, functionCount: 0, eventCount: 2 },
+      facets: [
+        { facetName: "VoiceLicenseFacet", facetKey: "voice-license", functions: [], events: [licenseCreated] },
+        { facetName: "VoiceLicenseTemplateFacet", facetKey: "voice-license-template", functions: [], events: [licenseCreated] },
+      ],
+    };
+    const voiceKey = "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)";
+    const templateKey = "VoiceLicenseTemplateFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)";
+    const voiceEndpoint = {
+      ...endpoint("POST", "/v1/licenses/events/license-created/query", "licenseCreatedEventQuery"),
+      signature: licenseCreated.signature,
+    };
+    const templateEndpoint = {
+      ...endpoint("POST", "/v1/templates/events/license-created/query", "licenseCreatedEventQuery"),
+      signature: licenseCreated.signature,
+    };
+    input.rpcRegistry = {
+      methods: {},
+      events: { [voiceKey]: { signature: licenseCreated.signature }, [templateKey]: { signature: licenseCreated.signature } },
+    };
+    input.httpRegistry = { methods: {}, events: { [voiceKey]: voiceEndpoint, [templateKey]: templateEndpoint } };
+    input.reviewedApiSurface = { methods: {}, events: cloneEntries(input.httpRegistry.events) };
+    input.tests = [{
+      path: "packages/indexer/src/template-license-events.test.ts",
+      content: [
+        `const eventKey = '${templateKey}';`,
+        "decodeEvent('LicenseCreated');",
+        "decodeEvent('LicenseCreated(bytes32,address,bytes32,uint256,uint256)');",
+      ].join("\n"),
+    }];
+    input.verifyArtifacts = [];
+
+    const [voice, template] = buildGapReport(input).facets.flatMap((facet) => facet.events);
+
+    expect(voice).toMatchObject({ classification: "needs indexer proof", proof: { indexer: false } });
+    expect(voice.evidence.indexerTests).toEqual([]);
+    expect(template.proof.indexer).toBe(true);
+  });
+
+  it("does not attribute weak method names that appear only inside prose", () => {
+    const input = baseInput();
+    input.tests = [{
+      path: "packages/api/src/workflows/unrelated.integration.test.ts",
+      content: "it('rejects an unauthorized setThing with unchanged balance', () => {})",
+    }];
+    input.verifyArtifacts = [];
+
+    const write = buildGapReport(input).facets[0].functions[1];
+
+    expect(write.proof).toMatchObject({ unit: false, workflow: false, negativePath: false });
+  });
+
+  it("does not attribute a signature embedded at the end of another signature", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions[1] = {
+      name: "stake",
+      wrapperKey: "stake",
+      signature: "stake(uint256)",
+      mutability: "nonpayable",
+      category: "write",
+    };
+    const methods = {
+      "TestFacet.stake": { ...endpoint("POST", "/v1/stake", "stake"), signature: "stake(uint256)" },
+    };
+    input.httpRegistry = { methods, events: input.httpRegistry.events };
+    input.rpcRegistry = { methods, events: input.rpcRegistry.events };
+    input.reviewedApiSurface = { methods, events: input.reviewedApiSurface.events };
+    input.tests = [{
+      path: "packages/api/src/workflows/request-unstake.integration.test.ts",
+      content: "const signature = 'requestUnstake(uint256)';",
+    }];
+    input.verifyArtifacts = [];
+
+    expect(buildGapReport(input).facets[0].functions[1].proof.unit).toBe(false);
+  });
+
+  it("rejects longer route prefixes while allowing exact routes with query strings and fragments", () => {
+    const prefixInput = baseInput();
+    prefixInput.tests = [{
+      path: "packages/api/src/route-prefix.test.ts",
+      content: "request('/v1/test/extended'); request('/v1/test-child');",
+    }];
+    prefixInput.verifyArtifacts = [];
+
+    expect(buildGapReport(prefixInput).facets[0].functions[1].proof.unit).toBe(false);
+
+    const exactInput = baseInput();
+    exactInput.tests = [{
+      path: "packages/api/src/exact-route.test.ts",
+      content: "request('/v1/test?mode=exact'); request('/v1/test#proof');",
+    }];
+    exactInput.verifyArtifacts = [];
+
+    expect(buildGapReport(exactInput).facets[0].functions[1].proof.unit).toBe(true);
+  });
+
+  it("accepts bounded qualified keys, exact signatures, and executable weak references", () => {
+    const input = baseInput();
+    input.tests = [
+      { path: "packages/api/src/key.test.ts", content: "const key = 'TestFacet.getThing';" },
+      { path: "packages/api/src/signature.test.ts", content: "const signature = 'setThing(uint256)';" },
+      { path: "packages/api/src/identifier.test.ts", content: "setThing();" },
+      { path: "packages/api/src/member.test.ts", content: "client.setThing(); client['setThing'].staticCall();" },
+      { path: "packages/api/src/mock.test.ts", content: "expect(client.setThing).toHaveBeenCalledWith(1);" },
+      { path: "packages/indexer/src/event.test.ts", content: "decodeEvent('ThingSet');" },
+    ];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[0].evidence.tests).toEqual(["packages/api/src/key.test.ts"]);
+    expect(report.facets[0].functions[1].evidence.tests).toEqual([
+      "packages/api/src/identifier.test.ts",
+      "packages/api/src/member.test.ts",
+      "packages/api/src/mock.test.ts",
+      "packages/api/src/signature.test.ts",
+    ]);
+    expect(report.facets[0].events[0].evidence.tests).toEqual(["packages/indexer/src/event.test.ts"]);
+  });
+
+  it("does not attribute passive result or DTO member reads as protocol calls", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions = [{
+      name: "state",
+      wrapperKey: "state",
+      signature: "state(uint256)",
+      mutability: "view",
+      category: "read",
+    }];
+    input.manifest.facets[0].events = [];
+    input.manifest.totals = { facetCount: 1, functionCount: 1, eventCount: 0 };
+    const methods = {
+      "TestFacet.state": { ...endpoint("GET", "/v1/test/state", "state"), signature: "state(uint256)" },
+    };
+    input.httpRegistry = { methods, events: {} };
+    input.rpcRegistry = { methods, events: {} };
+    input.reviewedApiSurface = { methods, events: {} };
+    input.tests = [{
+      path: "packages/api/src/unrelated-state.integration.test.ts",
+      content: [
+        "expect(order.state).toBe('creating');",
+        "expect(result.operation.state.status).toBe('pending');",
+        "expect(mode).toBe('state');",
+        "await expect(store.reject()).rejects.toThrow('state failure');",
+      ].join("\n"),
+    }];
+    input.verifyArtifacts = [];
+
+    const item = buildGapReport(input).facets[0].functions[0];
+
+    expect(item).toMatchObject({
+      classification: "needs fixture",
+      proof: { unit: false, workflow: false, negativePath: false },
+    });
+    expect(item.evidence.tests).toEqual([]);
+  });
+
+  it("does not attribute incidental identifiers, object fields, or metadata literals", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions = [{
+      name: "owner",
+      wrapperKey: "owner",
+      signature: "owner()",
+      mutability: "view",
+      category: "read",
+    }];
+    input.manifest.facets[0].events = [];
+    input.manifest.totals = { facetCount: 1, functionCount: 1, eventCount: 0 };
+    const methods = {
+      "TestFacet.owner": { ...endpoint("POST", "/v1/test/owner", "owner"), signature: "owner()" },
+    };
+    input.httpRegistry = { methods, events: {} };
+    input.rpcRegistry = { methods, events: {} };
+    input.reviewedApiSurface = { methods, events: {} };
+    input.tests = [{
+      path: "packages/api/src/unrelated-owner.test.ts",
+      content: [
+        "const owner = '0x0000000000000000000000000000000000000001';",
+        "const result = { owner };",
+        "const outputs = [{ name: 'owner', type: 'address' }];",
+      ].join("\n"),
+    }];
+    input.verifyArtifacts = [];
+
+    expect(buildGapReport(input).facets[0].functions[0].proof.unit).toBe(false);
+  });
+
+  it("scopes keyed matrices to known ABI keys declared by supported key properties", () => {
+    const input = baseInput();
+    input.tests = [{
+      path: "packages/api/src/workflows/keyed.integration.test.ts",
+      content: [
+        "const cases = [",
+        "  { key: 'TestFacet.getThing' },",
+        "  { methodKey: 'TestFacet.getThing' },",
+        "  { eventKey: 'TestFacet.ThingSet' },",
+        "];",
+        "setThing();",
+      ].join("\n"),
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[0].proof.unit).toBe(true);
+    expect(report.facets[0].functions[1].proof.unit).toBe(false);
+    expect(report.facets[0].events[0].proof.unit).toBe(true);
+  });
+
+  it("does not treat the TypeScript symbol keyword as VoiceAssetFacet.symbol evidence", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions = [{
+      name: "symbol",
+      wrapperKey: "symbol",
+      signature: "symbol()",
+      mutability: "view",
+      category: "read",
+    }];
+    input.manifest.facets[0].events = [];
+    input.manifest.totals = { facetCount: 1, functionCount: 1, eventCount: 0 };
+    const methods = {
+      "TestFacet.symbol": { ...endpoint("POST", "/v1/test/symbol", "symbol"), signature: "symbol()" },
+    };
+    input.httpRegistry = { methods, events: {} };
+    input.rpcRegistry = { methods, events: {} };
+    input.reviewedApiSurface = { methods, events: {} };
+    input.tests = [{
+      path: "scripts/custom-coverage-provider.test.ts",
+      content: "type CoverageFiles = Map<string | symbol, unknown>;",
+    }];
+    input.verifyArtifacts = [];
+
+    expect(buildGapReport(input).facets[0].functions[0].proof.unit).toBe(false);
+  });
+
   it("does not attribute identifiers embedded in another route's kebab-case operation", () => {
     const input = baseInput();
     input.manifest.facets[0].functions = [{
@@ -216,14 +830,14 @@ describe("API test gap report", () => {
     input.manifest.facets[0].events = [];
     input.manifest.totals = { facetCount: 1, functionCount: 1, eventCount: 0 };
     const methods = {
-      "TestFacet.approve": endpoint("POST", "/v1/token/approve", "approve"),
+      "TestFacet.approve": { ...endpoint("POST", "/v1/token/approve", "approve"), signature: "approve()" },
     };
     input.httpRegistry = { methods, events: {} };
     input.rpcRegistry = { methods, events: {} };
     input.reviewedApiSurface = { methods, events: {} };
     input.tests = [{
       path: "packages/api/src/foreign-route.test.ts",
-      content: "POST /v1/emergency/approve-recovery rejects unauthorized callers",
+      content: "it('POST /v1/emergency/approve-recovery rejects unauthorized callers', () => {})",
     }];
     input.verifyArtifacts = [];
 
@@ -233,11 +847,75 @@ describe("API test gap report", () => {
     expect(report.facets[0].functions[0].classification).toBe("needs fixture");
   });
 
+  it("marks same-facet overloaded event route collisions as non-ready", () => {
+    const input = baseInput();
+    input.manifest.facets[0].functions = [];
+    input.manifest.facets[0].events = [
+      { name: "ThingSet", wrapperKey: "ThingSet(uint256)", signature: "ThingSet(uint256)" },
+      { name: "ThingSet", wrapperKey: "ThingSet(bytes32)", signature: "ThingSet(bytes32)" },
+    ];
+    input.manifest.totals = { facetCount: 1, functionCount: 0, eventCount: 2 };
+    const sharedRoute = "/v1/test/events/thing-set/query/test";
+    const events = {
+      "TestFacet.ThingSet(uint256)": {
+        ...endpoint("POST", sharedRoute, "thingSetUint256EventQuery"),
+        signature: "ThingSet(uint256)",
+      },
+      "TestFacet.ThingSet(bytes32)": {
+        ...endpoint("POST", sharedRoute, "thingSetBytes32EventQuery"),
+        signature: "ThingSet(bytes32)",
+      },
+    };
+    input.httpRegistry = { methods: {}, events };
+    input.rpcRegistry = { methods: {}, events };
+    input.reviewedApiSurface = { methods: {}, events };
+    input.tests = [{
+      path: "packages/indexer/src/events.test.ts",
+      content: "TestFacet.ThingSet(uint256) TestFacet.ThingSet(bytes32)",
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+    const expectedGap = `duplicate HTTP route POST ${sharedRoute} shared by event TestFacet.ThingSet(uint256), event TestFacet.ThingSet(bytes32)`;
+
+    expect(report.totals.classificationCounts).toMatchObject({ ready: 0, "needs API guard": 2 });
+    for (const item of report.facets[0].events) {
+      expect(item).toMatchObject({
+        classification: "needs API guard",
+        endpoint: { method: "POST", path: sharedRoute },
+        proof: { httpRegistry: false, reviewedApiSurface: true, unit: true, indexer: true },
+      });
+      expect(item.gaps).toContain(expectedGap);
+      expect(item.gaps).not.toContain("missing HTTP registry entry");
+    }
+  });
+
+  it("detects duplicate routes across method and event registry sections", () => {
+    const input = baseInput();
+    const sharedRoute = "/v1/test";
+    input.httpRegistry.events["TestFacet.ThingSet"] = {
+      ...endpoint("POST", sharedRoute, "thingSetEventQuery"),
+      signature: "ThingSet(uint256)",
+    };
+    input.reviewedApiSurface.events["TestFacet.ThingSet"] = endpoint("POST", sharedRoute, "thingSetEventQuery");
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+    const write = report.facets[0].functions[1];
+    const eventItem = report.facets[0].events[0];
+    const expectedGap = `duplicate HTTP route POST ${sharedRoute} shared by function TestFacet.setThing, event TestFacet.ThingSet`;
+
+    expect(write).toMatchObject({ classification: "needs API guard", proof: { httpRegistry: false } });
+    expect(eventItem).toMatchObject({ classification: "needs API guard", proof: { httpRegistry: false } });
+    expect(write.gaps).toContain(expectedGap);
+    expect(eventItem.gaps).toContain(expectedGap);
+  });
+
   it("does not treat role-oriented payment language as economic proof", () => {
     const input = baseInput();
     input.tests = [{
       path: "scripts/actor-negative-paths-lib.test.ts",
-      content: "it('locks payment and treasury price role boundaries for setThing', () => expect('missing-required-role').toBeTruthy())",
+      content: "it('locks payment and treasury price role boundaries', () => setThing())",
     }];
     input.verifyArtifacts = [];
 
@@ -252,9 +930,10 @@ describe("API test gap report", () => {
   it("does not count a matching operation identifier as its own proof keyword", () => {
     const input = baseInput();
     input.httpRegistry.methods["TestFacet.setThing"].operationId = "settlement";
+    input.reviewedApiSurface.methods["TestFacet.setThing"].operationId = "settlement";
     input.tests = [{
       path: "packages/api/src/settlement.test.ts",
-      content: "it('calls settlement', () => {})",
+      content: "it('calls the operation', () => settlement())",
     }];
     input.verifyArtifacts = [];
 
@@ -290,6 +969,11 @@ describe("API test gap report", () => {
     await Promise.all([
       writeFile(path.join(tempDir, "scripts/generate-test-roadmap.test.ts"), "getThing ThingSet"),
       writeFile(path.join(tempDir, "scripts/gap-builder-plan.test.ts"), "setThing ThingSet"),
+      writeFile(path.join(tempDir, "scripts/api-surface-lib.test.ts"), "getThing setThing ThingSet"),
+      writeFile(path.join(tempDir, "scripts/http-registry.test.ts"), "TestFacet.getThing"),
+      writeFile(path.join(tempDir, "scripts/manifest.test.ts"), "getThing(uint256)"),
+      writeFile(path.join(tempDir, "scripts/verify-local-fork-lib.test.ts"), "TestFacet.setThing"),
+      writeFile(path.join(tempDir, "scripts/verify-report.test.ts"), "POST /v1/test"),
       writeFile(path.join(tempDir, "scripts/write-invariants-lib.test.ts"), "getThing ThingSet"),
     ]);
 

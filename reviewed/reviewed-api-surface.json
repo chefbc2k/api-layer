@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-29T16:52:32.236Z",
+  "generatedAt": "2026-11-05T07:33:07.228Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
@@ -15092,7 +15092,7 @@
       "domain": "governance",
       "operationId": "operationExecutedBytes32Uint256Uint256EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/governance/events/operation-executed/query/timelock",
+      "path": "/v1/governance/events/operation-executed/query/timelock/bytes32-uint256-uint256",
       "notes": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"
     },
     "TimelockFacet.OperationExecuted(bytes32)": {
@@ -15101,7 +15101,7 @@
       "domain": "governance",
       "operationId": "operationExecutedBytes32EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/governance/events/operation-executed/query/timelock",
+      "path": "/v1/governance/events/operation-executed/query/timelock/bytes32",
       "notes": "TimelockFacet.OperationExecuted(bytes32)"
     },
     "TimelockFacet.OperationRemoved": {
@@ -15569,7 +15569,7 @@
       "domain": "licensing",
       "operationId": "licenseCreatedBytes32AddressBytes32Uint256Uint256EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/licensing/events/license-created/query/voice-license",
+      "path": "/v1/licensing/events/license-created/query/voice-license/bytes32-address-bytes32-uint256-uint256",
       "notes": "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)"
     },
     "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)": {
@@ -15578,7 +15578,7 @@
       "domain": "licensing",
       "operationId": "licenseCreatedBytes32Bytes32AddressUint256Uint256EventQuery",
       "httpMethod": "POST",
-      "path": "/v1/licensing/events/license-created/query/voice-license",
+      "path": "/v1/licensing/events/license-created/query/voice-license/bytes32-bytes32-address-uint256-uint256",
       "notes": "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)"
     },
     "VoiceLicenseFacet.LicenseEnded": {
