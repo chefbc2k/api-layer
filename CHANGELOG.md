@@ -1,5 +1,12 @@
 # Changelog: USpeaks API Layer
 
+## Actor negative-path funding boundaries - 2026-11-05
+
+- Added Coinbase quote, order, and session coverage to the canonical actor gate. Founder, admin, operator, buyer, seller, licensee, collaborator, provisioned read-only, unknown-key, and wallet-header confused-deputy requests now have explicit fail-closed evidence before chain inspection, durable storage, or provider creation.
+- Updated the schema-v3 actor report so all three non-contract funding writes explicitly record the read-only API-key boundary. Persistent evidence remains complete for 262 mounted HTTP writes, 1,813 contract actor/method cases, 777 key/signer boundary cases, 200 non-admin role denials, 3,150 stale/revoked/expired lifecycle cases, and 30 funding identity/boundary cases.
+- Verification passed 128 focused actor/funding tests, 629 canonical actor tests, 202 red-team tests, and 2,271 repository tests with 73 environment-gated skips. Lint, full build/codegen, and explicit coverage passed at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants.
+- The complete candidate remains on `codex/actor-negative-paths-20261105`; merge is deferred until unrelated overlapping changes in the checked-out `master` worktree are preserved and reconciled.
+
 ## Daily assurance branch consolidation - 2026-11-05
 
 - Recorded all 29 linked worktrees before branch movement and preserved three dirty states on `codex/autosave-20261105-daily-consolidation-root`, `codex/autosave-20261105-production-indexer-write-coverage`, and `codex/autosave-20261105-local-fork-automation`. All three autosaves were pushed without discarding user changes.

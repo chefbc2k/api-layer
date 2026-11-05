@@ -162,7 +162,7 @@ describe("funding HTTP boundary", () => {
         [identity]: {
           label: identity,
           walletAddress: wallet,
-          roles: identity === "read-only" ? ["read"] : [identity],
+          roles: identity === "read-only" ? ["read-only"] : [identity],
         },
       } : {};
       const { call, provider, store, inspectChain } = await setup({ apiKeys });

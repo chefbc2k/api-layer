@@ -52,7 +52,7 @@ describe("actor negative-path coverage", () => {
       path,
       requiredIdentity: "funding-customer",
       deniedActors: [...ACTOR_ROLES, "read-only", "unknown-key"],
-      boundaryDenials: ["missing-funding-user-id", "unknown-api-key", "wallet-binding-mismatch"],
+      boundaryDenials: ["missing-funding-user-id", "unknown-api-key", "read-only-api-key", "wallet-binding-mismatch"],
     })));
   });
 
