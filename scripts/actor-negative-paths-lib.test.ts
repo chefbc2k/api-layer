@@ -30,11 +30,11 @@ describe("actor negative-path coverage", () => {
       actorMethodCaseCount: 1_813,
       apiBoundaryCaseCount: 777,
       adminApiRoleCaseCount: 200,
-      additionalHttpWriteCount: 1,
-      totalMountedHttpWriteCount: 260,
+      additionalHttpWriteCount: 3,
+      totalMountedHttpWriteCount: 262,
       additionalHttpDomainCount: 1,
       totalMountedHttpDomainCount: 14,
-      additionalHttpBoundaryCaseCount: 10,
+      additionalHttpBoundaryCaseCount: 30,
     });
     expect(report.methods.map((method) => method.method)).toEqual(
       Object.keys(reviewed.methods).filter((key) => surface.methods[key]).sort((left, right) => left.localeCompare(right)),
@@ -47,13 +47,13 @@ describe("actor negative-path coverage", () => {
   it("tracks role-only, read-only, unknown, and wallet-mismatch denials for non-contract writes", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
 
-    expect(report.additionalHttpWrites).toEqual([expect.objectContaining({
+    expect(report.additionalHttpWrites).toEqual(["/v1/funding/quotes", "/v1/funding/orders", "/v1/funding/sessions"].map(path => expect.objectContaining({
       method: "POST",
-      path: "/v1/funding/quotes",
+      path,
       requiredIdentity: "funding-customer",
       deniedActors: [...ACTOR_ROLES, "read-only", "unknown-key"],
       boundaryDenials: ["missing-funding-user-id", "unknown-api-key", "wallet-binding-mismatch"],
-    })]);
+    })));
   });
 
   it("records every actor-scoped denial at the admin API boundary", () => {

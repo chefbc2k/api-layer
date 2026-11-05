@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-04T08:01:48.975Z",
+  "generatedAt": "2026-11-05T08:12:09.941Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed when its source directly mentions the ABI key, identifier-bounded name or wrapper key, signature, identifier-bounded operation id, or HTTP path; identifier fragments inside a kebab-case operation do not count. Negative/economic/red-team depth additionally requires a nearby proof keyword. The gap reporter's own tests are excluded to avoid self-attribution.",
     "liveAttribution": "A successful verify domain is attributed only by an exact generated HTTP method/path match. Fork markers classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -19,6 +19,8 @@
       "packages/api/src/funding/checkout.test.ts",
       "packages/api/src/funding/funding.test.ts",
       "packages/api/src/funding/postgres.integration.test.ts",
+      "packages/api/src/funding/processor.test.ts",
+      "packages/api/src/funding/readiness.test.ts",
       "packages/api/src/funding/webhook.test.ts",
       "packages/api/src/modules/access-control/primitives/access-control-reads.test.ts",
       "packages/api/src/modules/governance/primitives/proposal-reads.test.ts",
@@ -205,7 +207,7 @@
       "workflow": 415,
       "localFork": 119,
       "baseSepolia": 95,
-      "negativePath": 415,
+      "negativePath": 416,
       "economic": 210,
       "redTeam": 212,
       "indexer": 218
@@ -13308,6 +13310,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/cancel-marketplace-listing.test.ts",
               "packages/api/src/workflows/create-dataset-and-list-for-sale.integration.test.ts",
               "packages/api/src/workflows/create-dataset-and-list-for-sale.test.ts",
@@ -13345,6 +13348,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "scripts/base-sepolia-operator-setup.main.test.ts"
@@ -16085,6 +16089,7 @@
               "scripts/base-sepolia-operator-setup.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/transaction-request-privacy.test.ts",
               "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -17934,6 +17939,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
               "packages/api/src/workflows/marketplace-payment-helpers.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
@@ -17958,6 +17964,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/inspect-revenue-posture.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
@@ -25802,7 +25809,7 @@
           "mutability": null,
           "endpoint": {
             "method": "POST",
-            "path": "/v1/governance/events/operation-executed/query/timelock"
+            "path": "/v1/governance/events/operation-executed/query/timelock/bytes32-uint256-uint256"
           },
           "apiExclusion": null,
           "proof": {
@@ -25857,7 +25864,7 @@
           "mutability": null,
           "endpoint": {
             "method": "POST",
-            "path": "/v1/governance/events/operation-executed/query/timelock"
+            "path": "/v1/governance/events/operation-executed/query/timelock/bytes32"
           },
           "apiExclusion": null,
           "proof": {
@@ -27388,7 +27395,7 @@
         "proofDepth": {
           "minimumLevel": "adversarial",
           "maximumLevel": "indexer",
-          "averageScore": 4.32,
+          "averageScore": 4.36,
           "maximumScore": 8
         }
       },
@@ -27434,6 +27441,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
@@ -27453,6 +27461,7 @@
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
@@ -27464,6 +27473,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/commercialize-voice-asset.test.ts",
               "packages/api/src/workflows/purchase-marketplace-asset.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
@@ -27593,6 +27603,7 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
@@ -27613,6 +27624,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
               "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
@@ -27780,14 +27792,14 @@
             "workflow": false,
             "localFork": false,
             "baseSepolia": false,
-            "negativePath": false,
+            "negativePath": true,
             "economic": true,
             "redTeam": false,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 2,
+            "score": 3,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -27796,12 +27808,16 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts"
             ],
             "workflowTests": [],
-            "negativePathTests": [],
+            "negativePathTests": [
+              "packages/api/src/funding/readiness.test.ts"
+            ],
             "economicTests": [
-              "packages/api/src/app.contract-integration.test.ts"
+              "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts"
             ],
             "redTeamTests": [],
             "indexerTests": [],
@@ -33589,6 +33605,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/funding/funding.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/funding/webhook.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
@@ -33673,6 +33690,7 @@
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/funding/webhook.test.ts",
               "packages/api/src/shared/alchemy-diagnostics.test.ts",
               "packages/api/src/shared/cdp-smart-wallet.test.ts",
@@ -33718,6 +33736,7 @@
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/funding/readiness.test.ts",
               "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
               "packages/api/src/workflows/reward-campaign.integration.test.ts",
               "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
@@ -38506,7 +38525,7 @@
           "mutability": null,
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/events/license-created/query/voice-license"
+            "path": "/v1/licensing/events/license-created/query/voice-license/bytes32-bytes32-address-uint256-uint256"
           },
           "apiExclusion": null,
           "proof": {
@@ -38534,7 +38553,6 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],
@@ -38565,7 +38583,7 @@
           "mutability": null,
           "endpoint": {
             "method": "POST",
-            "path": "/v1/licensing/events/license-created/query/voice-license"
+            "path": "/v1/licensing/events/license-created/query/voice-license/bytes32-address-bytes32-uint256-uint256"
           },
           "apiExclusion": null,
           "proof": {
@@ -38593,7 +38611,6 @@
           ],
           "evidence": {
             "tests": [
-              "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/collaborator-license-lifecycle.test.ts",
               "packages/indexer/src/event-assurance.test.ts"
             ],

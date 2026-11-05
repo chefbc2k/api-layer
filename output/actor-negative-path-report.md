@@ -1,11 +1,11 @@
 # Actor and Signer Negative-Path Report
 
-Generated: 2026-11-04T08:01:51.669Z
+Generated: 2026-11-05T08:12:14.155Z
 
 - ABI write methods: 260
 - Mounted contract write endpoints: 259
-- Additional stateful HTTP write endpoints: 1
-- Total mounted HTTP write endpoints: 260
+- Additional stateful HTTP write endpoints: 3
+- Total mounted HTTP write endpoints: 262
 - Contract write domains: 13
 - Additional stateful HTTP domains: 1
 - Total mounted HTTP write domains: 14
@@ -13,7 +13,7 @@ Generated: 2026-11-04T08:01:51.669Z
 - API boundary cases: 777
 - Admin API-role denial cases: 200
 - Stale/revoked/expired role cases: 3150
-- Additional HTTP boundary cases: 10
+- Additional HTTP boundary cases: 30
 
 Every mounted contract write endpoint is covered for founder, admin, operator, buyer, seller, licensee, and collaborator fixtures. Unknown keys and read-only keys are denied at the API boundary. Direct signer/wallet mismatches are denied before contract submission. All admin-classified writes reject buyer, seller, licensee, and collaborator API roles before decoding or provider access while founder, admin, and operator identities continue to contract authorization preflight. Missing, stale, revoked, expired, ownership-mismatched, self-mismatched, and protocol-contract-mismatched actors are rejected by the common contract static-call preflight before transaction persistence or submission. The additional funding quote write requires a separately provisioned funding customer identity and exact wallet binding; contract roles, read-only keys, unknown keys, and confused-deputy wallet headers cannot reach provider or storage access. The intentionally excluded legacy proposal overload remains ABI-only and is listed separately in the JSON artifact.
 
@@ -40,6 +40,8 @@ Every mounted contract write endpoint is covered for founder, admin, operator, b
 | Method | Path | Required identity | Denied identities |
 | --- | --- | --- | --- |
 | POST | /v1/funding/quotes | funding-customer | founder, admin, operator, buyer, seller, licensee, collaborator, read-only, unknown-key |
+| POST | /v1/funding/orders | funding-customer | founder, admin, operator, buyer, seller, licensee, collaborator, read-only, unknown-key |
+| POST | /v1/funding/sessions | funding-customer | founder, admin, operator, buyer, seller, licensee, collaborator, read-only, unknown-key |
 
 ## Protected capabilities
 

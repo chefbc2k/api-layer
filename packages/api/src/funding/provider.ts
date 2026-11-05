@@ -18,6 +18,7 @@ export const quoteSchema = z.object({ order: z.object({
 }) });
 export type CoinbaseQuote = z.infer<typeof quoteSchema>["order"];
 export const providerOrderSchema = quoteSchema.shape.order.extend({
+  updatedAt: z.string().datetime().optional(), txHash: z.string().refine(value => value === "" || value === "0x" || /^0x[0-9a-fA-F]{64}$/.test(value)).optional().transform(value => value && value.length === 66 ? value : undefined),
   orderId: z.string().uuid(), partnerUserRef: z.string(),
   status: z.enum(["ONRAMP_ORDER_STATUS_PENDING_AUTH", "ONRAMP_ORDER_STATUS_PENDING_PAYMENT", "ONRAMP_ORDER_STATUS_PROCESSING", "ONRAMP_ORDER_STATUS_COMPLETED", "ONRAMP_ORDER_STATUS_FAILED"]),
 });
@@ -72,9 +73,16 @@ export class CoinbaseFundingProvider {
   }
 
   async createOrder(input: Record<string, unknown>): Promise<z.infer<typeof createdOrderSchema>> {
-    return await this.request("api.cdp.coinbase.com", "/platform/v2/onramp/orders", createdOrderSchema, undefined, {
+    const result = await this.request("api.cdp.coinbase.com", "/platform/v2/onramp/orders", createdOrderSchema, undefined, {
       ...input, isQuote: false, destinationNetwork: "base", purchaseCurrency: "USDC", paymentCurrency: "USD",
     }) as z.infer<typeof createdOrderSchema>;
+    if (this.config.mode === "sandbox") {
+      const url = new URL(result.paymentLink.url);
+      if (input.paymentMethod === "GUEST_CHECKOUT_APPLE_PAY") url.searchParams.set("useApplePaySandbox", "true");
+      if (input.paymentMethod === "GUEST_CHECKOUT_GOOGLE_PAY") url.searchParams.set("useGooglePaySandbox", "true");
+      result.paymentLink.url = url.toString();
+    }
+    return result;
   }
 
   async getOrder(id: string): Promise<CoinbaseOrder> {

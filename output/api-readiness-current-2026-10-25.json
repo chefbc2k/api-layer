@@ -1,0 +1,77 @@
+{
+  "reviewDate": "2026-10-25",
+  "generatedAt": "2026-10-25T22:52:34.738052+00:00",
+  "overallProductionReadinessPercent": null,
+  "reason": "No agreed weighted release rubric or production deployment/settlement evidence; route parity and static classifications are not release certification.",
+  "acceptedFundingUnits": 13,
+  "fundingBaselineUnits": 20,
+  "acceptedFundingPercent": 65,
+  "fundingCandidateWork": [
+    "C10/C14 polling, subscription health and legacy ambiguity recovery",
+    "C15 receipt settlement",
+    "C17 bounded approvals",
+    "C18 signed purchase handoff"
+  ],
+  "fundingProductionEnabled": false,
+  "writeReceiptIndexerEvidence": {
+    "owner": "separate write-proof automation",
+    "workstreamBaselineReported": {
+      "proven": 109,
+      "remaining": 151,
+      "total": 260
+    },
+    "observedDefaultArtifact": {
+      "source": "verify-local-fork-indexer-output.json",
+      "generatedAt": "2026-10-09T08:11:04.687Z",
+      "proven": 107,
+      "remaining": 153,
+      "total": 260
+    },
+    "reconciled": false,
+    "note": "Different historical artifacts; funding automation does not claim progress or overwrite receipt proof ownership."
+  },
+  "openReleaseDependencies": [
+    "C10/C14 recovery/polling/subscription health",
+    "C15 exact USDC settlement",
+    "C17 bounded approvals and C18 purchase handoff",
+    "C19 actual provider checkout/fork settlement acceptance",
+    "F01 consuming frontend integration",
+    "CDP app-domain/capability validation and webhook subscription secret",
+    "Deployment persistence and operational evidence",
+    "Remaining exact-method receipt/indexer proofs owned by separate automation"
+  ],
+  "validation": {
+    "source": "output/coinbase-usdc/2026-11-04-verification.json",
+    "actualProviderSandboxExecuted": false,
+    "deployed": false
+  },
+  "updatedDate": "2026-11-04",
+  "frontendAcceptance": {
+    "id": "F01",
+    "status": "open-repository-unconfirmed",
+    "accepted": 0,
+    "total": 1
+  },
+  "startingOpenFundingAndFrontend": 11,
+  "minimumCompletedThisRun": 3,
+  "completedThisRun": [
+    "C12",
+    "C13",
+    "C16"
+  ],
+  "remainingFundingAndFrontend": [
+    "C10",
+    "C14",
+    "C15",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "transactionRequestPrivacy": {
+    "status": "complete per separate owner ledger",
+    "source": "output/transaction-request-privacy-readiness.json",
+    "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
+  }
+}

@@ -13,6 +13,29 @@
 - Expanded the deterministic economic selection to 26 suites and passed `318/318` tests across escrow, marketplace payments, rewards, vesting, token supply, staking/delegation, treasury movement, and emergency withdrawals. TypeScript, lint, full build/codegen, and coverage passed at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants.
 - Reconfirmed the deployed vesting defect on an isolated Base Sepolia fork: release accounting advances without beneficiary liquid-token credit. The payment-split/treasury scenario still requires direct `TREASURY_SIGNER_ROLE` storage seeding and timed out before distribution on a dedicated retry; `PaymentFacet` still lacks approval readback/event evidence.
 - The full suite reached 2,093 passing tests with 68 environment-gated skips before one indexer replay case timed out; that exact case passed alone in 110 ms. This workstream remains blocked and unmerged pending protocol fixes, supported treasury signer provisioning, payment approval observability, and stable fork/indexer runners.
+## Daily assurance branch consolidation - 2026-11-05
+
+- Recorded all 29 linked worktrees before branch movement and preserved three dirty states on `codex/autosave-20261105-daily-consolidation-root`, `codex/autosave-20261105-production-indexer-write-coverage`, and `codex/autosave-20261105-local-fork-automation`. All three autosaves were pushed without discarding user changes.
+- Fetched and pruned `origin`, confirmed `master` remains production, and audited 305 local plus 78 remote `codex/*` refs and the remaining Dependabot ref. The audit deduplicated 121 unmerged tips; 112 remain conflict-only against the consolidated production tree.
+- Merged `codex/red-team-harness-20261104` and the proof-ledger ancestor `codex/production-indexer-write-coverage-20261104` with `--no-ff`. The first merge carries the private transaction-request red-team corpus and the prior local write-invariant revalidation; the second preserves the November 4 production-indexer run ledger without importing its failing 265-write generated-surface autosave.
+- Regenerated the canonical gap, plan, and actor reports. Actor evidence now covers 262 mounted HTTP writes (259 contract-backed plus funding quotes, orders, and sessions) and 30 additional HTTP boundary cases. Negative-path attribution increased from 415 to 416 while the planner remains at 17 non-ready items.
+- Verification passed `pnpm run coverage:check` at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants; `pnpm test` at 2,269 active tests with 73 environment-gated skips; report/planner tests at 20/20; actor-negative-path tests at 588/588; and indexer assurance at 268 active tests with 6 PostgreSQL skips.
+- Live proof commands remained environment-blocked: Base Sepolia rejected the trace-capability request with HTTP 401/filter settings, and the local-fork receipt proof lacked RPC and diamond-address inputs. Neither command changed an artifact.
+- Remaining clean passengers are deliberately unmerged: the local-fork autosave fails one eventless-write expectation, the 265-write indexer autosave fails five indexer assertions, and the staking-pause proof tip fails one receipt-producer assertion. The historical Base Sepolia timestamp-only tip and tracked `node_modules` symlinks remain excluded; the other 112 distinct tips require conflict resolution on their owning workstreams.
+
+## Write-invariant metadata revalidation - 2026-11-05
+
+- Rebuilt the canonical deployment-filtered ABI inventory on `codex/write-invariant-metadata-20261105` and confirmed that all 260 mounted writes across 31 facets still carry required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata.
+- Confirmed fail-closed missing/stale-key, ABI-drift, incomplete-section, stale-reference, and indexer-consistency validation. The focused invariant suite passed 7/7, the authoring sync was byte-stable, and canonical code generation plus explicit coverage checks passed at 492 wrapper functions, 218 event occurrences, 492 HTTP methods, and 260/260 write invariants.
+- Discarded only an ignored 265-write generated-registry residue from the unmerged production-indexer autosave; the reviewed catalog and timestamp-normalized registry retained their established hashes, and no unmounted overload or selector metadata entered production.
+
+## Coinbase event processing and readiness candidate - 2026-11-04
+
+- Continued the preserved Coinbase batch on the latest default branch, retained transaction-request privacy changes, and assigned funding migration 0009 to avoid the existing 0008 migration.
+- Added durable asynchronous event processing with concurrent claims, retries/quarantine, canonical Headless refresh, typed hosted observations and ordered late-completion handling. Added live authenticated customer balance/allowance/listing/gas readiness and explicit sponsorship blockers.
+- Carried sandbox safety, quote-price ceiling, write authorization and funding actor inventory forward from the older candidate. Fixed BigInt test-title formatting and stale actor inventory expectations. Added real PostgreSQL worker/restart proofs and disposable Anvil readiness proof without transfers.
+- Final backend gates passed: 2,262 regression tests, 31 PostgreSQL proofs, 588 actor checks, 181 red-team checks, typecheck/lint/build, surface checks and measured coverage (95.75% statements). C12/C13/C16 accepted: 13/20 (65%). Real non-payable quote probe returned HTTP 400 related to the test domain; provider checkout/settlement acceptance remains open.
+- Restored missing daily accounting for interrupted October 26–November 3 runs: no new units were accepted or pushed during those gaps. F01 remains separately open pending confirmation/access to the consuming frontend. Final gates and acceptance are recorded in the funding build log.
 
 ## [0.1.408] - 2026-11-04
 
@@ -22,12 +45,14 @@
 - **Live Admin Guard Evidence Restored:** Restored the env-gated verification writer for the 35-route control-plane safety matrix and regenerated `verify-control-plane-guard-output.json`. The exact-route artifact proves fail-closed Base Sepolia guard behavior before provider execution and closes 27 selected live-safety gaps without sending a transaction.
 - **Gap Backlog Reduced:** Regenerated the JSON and Markdown gap report and plan. Ready items increased from `654` to `693`; non-ready items fell from `56` to `17`, comprising `16` fixture gaps and one intentionally HTTP-excluded legacy proposal overload.
 - **Write-Invariant Metadata Revalidated:** Reaudited the synchronized production tree and confirmed that all `260` ABI write methods across `31` facets retain required actor/role, precondition, post-state readback, emitted-event, balance-effect, replay, live-network-safety, and indexer-expectation metadata. Missing/stale method, ABI-drift, incomplete-section, stale-reference, and indexer-consistency checks remain fail closed.
+- **Private Request Red-Team Candidate:** Added the owner-scoped transaction-request suite to both canonical adversarial commands. Credential case/composite/whitespace/prototype mutations, owner and signer namespace changes, and malformed UUID path encodings now prove fail-closed authentication, collision-resistant owner binding, and zero storage access before validation while preserving explicitly provisioned key rotation.
 
 ### Verified
 
 - **Focused Safety Suites Passed:** The VoiceAsset and dataset/licensing matrices passed `60/60` cases, and the artifact-producing control-plane suite passed `3/3` cases.
 - **Required Gates Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `576/576` across `17` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - **Invariant Gates Passed:** `pnpm run test:write-invariants` passed `7/7`; authoring sync was byte-stable, the dedicated generator passed at `260/260`, and explicit `pnpm run coverage:check` reconfirmed `492` wrapper functions, `218` events, `492` HTTP methods, and complete invariant coverage.
+- **Red-Team Candidate Blocked From Merge:** Focused private-request (`19/19`), deterministic red-team (`188/188`), guarded local-fork (`232/232`, all `6/6` deployed probes), TypeScript, and lint gates passed. The current production baseline then failed four full-suite inventory assertions after `2,230` passing tests and failed explicit wrapper coverage for newly surfaced selectors and overloads, so the candidate remains isolated pending canonical wrapper/invariant regeneration and a green full gate.
 
 ## Daily assurance branch consolidation - 2026-11-04
 
