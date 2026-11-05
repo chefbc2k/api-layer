@@ -51,6 +51,7 @@ export function createTokenomicsPrimitiveRouter(context: ApiExecutionContext): R
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "initializeToken")!, controller["initializeToken"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "isFullyVested")!, controller["isFullyVested"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "isVestingActive")!, controller["isVestingActive"]);
+  registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "name")!, controller["name"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "pauseCampaign")!, controller["pauseCampaign"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "releaseStandardVesting")!, controller["releaseStandardVesting"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "releaseStandardVestingFor")!, controller["releaseStandardVestingFor"]);
@@ -69,6 +70,7 @@ export function createTokenomicsPrimitiveRouter(context: ApiExecutionContext): R
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "supplyIsMintingFinished")!, controller["supplyIsMintingFinished"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "supplyMintTokens")!, controller["supplyMintTokens"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "supplySetMaximum")!, controller["supplySetMaximum"]);
+  registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "symbol")!, controller["symbol"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "thresholdBurnExcess")!, controller["thresholdBurnExcess"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "thresholdBurnTokens")!, controller["thresholdBurnTokens"]);
   registerRoute(router, tokenomicsMethodDefinitions.find((definition) => definition.operationId === "thresholdBurnTokensFrom")!, controller["thresholdBurnTokensFrom"]);

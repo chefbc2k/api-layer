@@ -1,6 +1,8 @@
 import {
   approveUpgradeRequestSchemas,
   diamondCutRequestSchemas,
+  diamondCutIsImmutableSelectorReservedRequestSchemas,
+  diamondLoupeIsImmutableSelectorReservedRequestSchemas,
   executeUpgradeRequestSchemas,
   facetAddressRequestSchemas,
   facetAddressesRequestSchemas,
@@ -15,7 +17,6 @@ import {
   getUpgradeDelayRequestSchemas,
   getUpgradeThresholdRequestSchemas,
   initUpgradeControllerRequestSchemas,
-  isImmutableSelectorReservedRequestSchemas,
   isTrustedInitSelectorRequestSchemas,
   isTrustedInitSelectorPolicyEnabledRequestSchemas,
   isUpgradeApprovedRequestSchemas,
@@ -46,6 +47,12 @@ export type ApproveUpgradeBody = import("zod").infer<typeof approveUpgradeReques
 export type DiamondCutPath = import("zod").infer<typeof diamondCutRequestSchemas.path>;
 export type DiamondCutQuery = import("zod").infer<typeof diamondCutRequestSchemas.query>;
 export type DiamondCutBody = import("zod").infer<typeof diamondCutRequestSchemas.body>;
+export type DiamondCutIsImmutableSelectorReservedPath = import("zod").infer<typeof diamondCutIsImmutableSelectorReservedRequestSchemas.path>;
+export type DiamondCutIsImmutableSelectorReservedQuery = import("zod").infer<typeof diamondCutIsImmutableSelectorReservedRequestSchemas.query>;
+export type DiamondCutIsImmutableSelectorReservedBody = import("zod").infer<typeof diamondCutIsImmutableSelectorReservedRequestSchemas.body>;
+export type DiamondLoupeIsImmutableSelectorReservedPath = import("zod").infer<typeof diamondLoupeIsImmutableSelectorReservedRequestSchemas.path>;
+export type DiamondLoupeIsImmutableSelectorReservedQuery = import("zod").infer<typeof diamondLoupeIsImmutableSelectorReservedRequestSchemas.query>;
+export type DiamondLoupeIsImmutableSelectorReservedBody = import("zod").infer<typeof diamondLoupeIsImmutableSelectorReservedRequestSchemas.body>;
 export type ExecuteUpgradePath = import("zod").infer<typeof executeUpgradeRequestSchemas.path>;
 export type ExecuteUpgradeQuery = import("zod").infer<typeof executeUpgradeRequestSchemas.query>;
 export type ExecuteUpgradeBody = import("zod").infer<typeof executeUpgradeRequestSchemas.body>;
@@ -88,9 +95,6 @@ export type GetUpgradeThresholdBody = import("zod").infer<typeof getUpgradeThres
 export type InitUpgradeControllerPath = import("zod").infer<typeof initUpgradeControllerRequestSchemas.path>;
 export type InitUpgradeControllerQuery = import("zod").infer<typeof initUpgradeControllerRequestSchemas.query>;
 export type InitUpgradeControllerBody = import("zod").infer<typeof initUpgradeControllerRequestSchemas.body>;
-export type IsImmutableSelectorReservedPath = import("zod").infer<typeof isImmutableSelectorReservedRequestSchemas.path>;
-export type IsImmutableSelectorReservedQuery = import("zod").infer<typeof isImmutableSelectorReservedRequestSchemas.query>;
-export type IsImmutableSelectorReservedBody = import("zod").infer<typeof isImmutableSelectorReservedRequestSchemas.body>;
 export type IsTrustedInitSelectorPath = import("zod").infer<typeof isTrustedInitSelectorRequestSchemas.path>;
 export type IsTrustedInitSelectorQuery = import("zod").infer<typeof isTrustedInitSelectorRequestSchemas.query>;
 export type IsTrustedInitSelectorBody = import("zod").infer<typeof isTrustedInitSelectorRequestSchemas.body>;

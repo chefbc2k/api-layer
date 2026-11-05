@@ -453,6 +453,46 @@ export const datasetsMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "VoiceDatasetFacet.getSelectors",
+    "facetName": "VoiceDatasetFacet",
+    "wrapperKey": "getSelectors",
+    "domain": "datasets",
+    "resource": "datasets",
+    "classification": "query",
+    "httpMethod": "POST",
+    "path": "/v1/datasets/queries/get-selectors",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "array"
+    },
+    "operationId": "getSelectors",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "VoiceDatasetFacet.getSelectors",
+    "methodName": "getSelectors",
+    "signature": "getSelectors()",
+    "category": "read",
+    "mutability": "pure",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes4[]",
+        "internalType": "bytes4[]"
+      }
+    ]
+  },
+  {
     "key": "VoiceDatasetFacet.getTotalDatasets",
     "facetName": "VoiceDatasetFacet",
     "wrapperKey": "getTotalDatasets",

@@ -3336,9 +3336,9 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "PaymentFacet.withdrawPayments",
+    "key": "PaymentFacet.withdrawPayments()",
     "facetName": "PaymentFacet",
-    "wrapperKey": "withdrawPayments",
+    "wrapperKey": "withdrawPayments()",
     "domain": "marketplace",
     "resource": "payments",
     "classification": "action",
@@ -3354,7 +3354,7 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "operationId": "withdrawPayments",
     "rateLimitKind": "write",
     "supportsGasless": false,
-    "notes": "PaymentFacet.withdrawPayments",
+    "notes": "PaymentFacet.withdrawPayments()",
     "methodName": "withdrawPayments",
     "signature": "withdrawPayments()",
     "category": "write",
@@ -3370,14 +3370,166 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
-    "key": "PaymentFacet.withdrawPaymentsWithDeadline",
+    "key": "PaymentFacet.withdrawPayments(address,uint256)",
     "facetName": "PaymentFacet",
-    "wrapperKey": "withdrawPaymentsWithDeadline",
+    "wrapperKey": "withdrawPayments(address,uint256)",
     "domain": "marketplace",
     "resource": "payments",
     "classification": "action",
     "httpMethod": "POST",
-    "path": "/v1/marketplace/commands/withdraw-payments-with-deadline",
+    "path": "/v1/marketplace/commands/withdraw-payments-address-uint256",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "token",
+          "source": "body",
+          "field": "token"
+        },
+        {
+          "name": "amount",
+          "source": "body",
+          "field": "amount"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "withdrawPaymentsAddressUint256",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "PaymentFacet.withdrawPayments(address,uint256)",
+    "methodName": "withdrawPayments",
+    "signature": "withdrawPayments(address,uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
+    "facetName": "PaymentFacet",
+    "wrapperKey": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
+    "domain": "marketplace",
+    "resource": "payments",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-address-uint256-uint256-uint8-bytes32-bytes32",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "token",
+          "source": "body",
+          "field": "token"
+        },
+        {
+          "name": "amount",
+          "source": "body",
+          "field": "amount"
+        },
+        {
+          "name": "deadline",
+          "source": "body",
+          "field": "deadline"
+        },
+        {
+          "name": "v",
+          "source": "body",
+          "field": "v"
+        },
+        {
+          "name": "r",
+          "source": "body",
+          "field": "r"
+        },
+        {
+          "name": "s",
+          "source": "body",
+          "field": "s"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
+    "methodName": "withdrawPaymentsWithDeadline",
+    "signature": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "deadline",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "v",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "r",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "s",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "PaymentFacet.withdrawPaymentsWithDeadline(uint256)",
+    "facetName": "PaymentFacet",
+    "wrapperKey": "withdrawPaymentsWithDeadline(uint256)",
+    "domain": "marketplace",
+    "resource": "payments",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-uint256",
     "inputShape": {
       "kind": "body",
       "bindings": [
@@ -3391,10 +3543,10 @@ export const marketplaceMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "void"
     },
-    "operationId": "withdrawPaymentsWithDeadline",
+    "operationId": "withdrawPaymentsWithDeadlineUint256",
     "rateLimitKind": "write",
     "supportsGasless": false,
-    "notes": "PaymentFacet.withdrawPaymentsWithDeadline",
+    "notes": "PaymentFacet.withdrawPaymentsWithDeadline(uint256)",
     "methodName": "withdrawPaymentsWithDeadline",
     "signature": "withdrawPaymentsWithDeadline(uint256)",
     "category": "write",

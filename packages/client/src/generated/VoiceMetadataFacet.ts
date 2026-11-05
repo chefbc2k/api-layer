@@ -7,6 +7,7 @@ export function createVoiceMetadataFacetWrapper(context: FacetWrapperContext) {
     read: {
     getBasicAcousticFeatures: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getBasicAcousticFeatures", args, false, 3600),
     getGeographicData: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getGeographicData", args, false, 3600),
+    getSelectors: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getSelectors", args, false, null),
     getVoiceCategories: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getVoiceCategories", args, false, 5),
     getVoiceClassifications: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "getVoiceClassifications", args, false, 3600),
     searchVoicesByClassification: (...args: unknown[]) => invokeRead(context, "VoiceMetadataFacet", "searchVoicesByClassification", args, false, 5),

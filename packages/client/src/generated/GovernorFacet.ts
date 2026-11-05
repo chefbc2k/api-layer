@@ -5,6 +5,7 @@ export function createGovernorFacetWrapper(context: FacetWrapperContext) {
   return {
     facetName: "GovernorFacet" as const,
     read: {
+    GOVERNANCE_PROPOSER_ROLE: (...args: unknown[]) => invokeRead(context, "GovernorFacet", "GOVERNANCE_PROPOSER_ROLE", args, false, null),
     getRoleMultiplier: (...args: unknown[]) => invokeRead(context, "GovernorFacet", "getRoleMultiplier", args, false, 600),
     getVotingConfig: (...args: unknown[]) => invokeRead(context, "GovernorFacet", "getVotingConfig", args, false, 600),
     },

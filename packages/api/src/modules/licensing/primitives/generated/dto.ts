@@ -5,6 +5,7 @@ import {
   createLicenseWithMarketplaceRequestSchemas,
   createRightsGroupRequestSchemas,
   createTemplateRequestSchemas,
+  facetFunctionSelectorsRequestSchemas,
   getCategoryContractsRequestSchemas,
   getCollaboratorRequestSchemas,
   getCreatorTemplatesRequestSchemas,
@@ -16,6 +17,7 @@ import {
   getRightCategoryRequestSchemas,
   getRightContractRequestSchemas,
   getRightsGroupRequestSchemas,
+  getSelectorsRequestSchemas,
   getTemplateRequestSchemas,
   getUsageCountRequestSchemas,
   getUserRightsRequestSchemas,
@@ -24,6 +26,7 @@ import {
   isTemplateActiveRequestSchemas,
   isUsageRefUsedRequestSchemas,
   recordLicensedUsageRequestSchemas,
+  recordUsageRequestSchemas,
   registerRightContractRequestSchemas,
   removeCollaboratorRequestSchemas,
   revokeLicenseRequestSchemas,
@@ -77,6 +80,9 @@ export type CreateRightsGroupBody = import("zod").infer<typeof createRightsGroup
 export type CreateTemplatePath = import("zod").infer<typeof createTemplateRequestSchemas.path>;
 export type CreateTemplateQuery = import("zod").infer<typeof createTemplateRequestSchemas.query>;
 export type CreateTemplateBody = import("zod").infer<typeof createTemplateRequestSchemas.body>;
+export type FacetFunctionSelectorsPath = import("zod").infer<typeof facetFunctionSelectorsRequestSchemas.path>;
+export type FacetFunctionSelectorsQuery = import("zod").infer<typeof facetFunctionSelectorsRequestSchemas.query>;
+export type FacetFunctionSelectorsBody = import("zod").infer<typeof facetFunctionSelectorsRequestSchemas.body>;
 export type GetCategoryContractsPath = import("zod").infer<typeof getCategoryContractsRequestSchemas.path>;
 export type GetCategoryContractsQuery = import("zod").infer<typeof getCategoryContractsRequestSchemas.query>;
 export type GetCategoryContractsBody = import("zod").infer<typeof getCategoryContractsRequestSchemas.body>;
@@ -110,6 +116,9 @@ export type GetRightContractBody = import("zod").infer<typeof getRightContractRe
 export type GetRightsGroupPath = import("zod").infer<typeof getRightsGroupRequestSchemas.path>;
 export type GetRightsGroupQuery = import("zod").infer<typeof getRightsGroupRequestSchemas.query>;
 export type GetRightsGroupBody = import("zod").infer<typeof getRightsGroupRequestSchemas.body>;
+export type GetSelectorsPath = import("zod").infer<typeof getSelectorsRequestSchemas.path>;
+export type GetSelectorsQuery = import("zod").infer<typeof getSelectorsRequestSchemas.query>;
+export type GetSelectorsBody = import("zod").infer<typeof getSelectorsRequestSchemas.body>;
 export type GetTemplatePath = import("zod").infer<typeof getTemplateRequestSchemas.path>;
 export type GetTemplateQuery = import("zod").infer<typeof getTemplateRequestSchemas.query>;
 export type GetTemplateBody = import("zod").infer<typeof getTemplateRequestSchemas.body>;
@@ -134,6 +143,9 @@ export type IsUsageRefUsedBody = import("zod").infer<typeof isUsageRefUsedReques
 export type RecordLicensedUsagePath = import("zod").infer<typeof recordLicensedUsageRequestSchemas.path>;
 export type RecordLicensedUsageQuery = import("zod").infer<typeof recordLicensedUsageRequestSchemas.query>;
 export type RecordLicensedUsageBody = import("zod").infer<typeof recordLicensedUsageRequestSchemas.body>;
+export type RecordUsagePath = import("zod").infer<typeof recordUsageRequestSchemas.path>;
+export type RecordUsageQuery = import("zod").infer<typeof recordUsageRequestSchemas.query>;
+export type RecordUsageBody = import("zod").infer<typeof recordUsageRequestSchemas.body>;
 export type RegisterRightContractPath = import("zod").infer<typeof registerRightContractRequestSchemas.path>;
 export type RegisterRightContractQuery = import("zod").infer<typeof registerRightContractRequestSchemas.query>;
 export type RegisterRightContractBody = import("zod").infer<typeof registerRightContractRequestSchemas.body>;

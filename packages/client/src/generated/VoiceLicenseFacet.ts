@@ -5,6 +5,7 @@ export function createVoiceLicenseFacetWrapper(context: FacetWrapperContext) {
   return {
     facetName: "VoiceLicenseFacet" as const,
     read: {
+    facetFunctionSelectors: (...args: unknown[]) => invokeRead(context, "VoiceLicenseFacet", "facetFunctionSelectors", args, false, null),
     getLicense: (...args: unknown[]) => invokeRead(context, "VoiceLicenseFacet", "getLicense", args, false, 30),
     getLicenseHistory: (...args: unknown[]) => invokeRead(context, "VoiceLicenseFacet", "getLicenseHistory", args, false, 30),
     getLicenseTerms: (...args: unknown[]) => invokeRead(context, "VoiceLicenseFacet", "getLicenseTerms", args, false, 30),
@@ -19,6 +20,7 @@ export function createVoiceLicenseFacetWrapper(context: FacetWrapperContext) {
     createLicenseWithMarketplace: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "createLicenseWithMarketplace", args),
     issueLicense: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "issueLicense", args),
     recordLicensedUsage: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "recordLicensedUsage", args),
+    recordUsage: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "recordUsage", args),
     revokeLicense: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "revokeLicense", args),
     transferLicense: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "transferLicense", args),
     updateLicenseTerms: (...args: unknown[]) => invokeWrite(context, "VoiceLicenseFacet", "updateLicenseTerms", args),

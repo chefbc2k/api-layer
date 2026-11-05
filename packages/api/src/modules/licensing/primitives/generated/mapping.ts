@@ -1269,6 +1269,46 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "VoiceLicenseFacet.facetFunctionSelectors",
+    "facetName": "VoiceLicenseFacet",
+    "wrapperKey": "facetFunctionSelectors",
+    "domain": "licensing",
+    "resource": "licenses",
+    "classification": "query",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/queries/facet-function-selectors",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "array"
+    },
+    "operationId": "facetFunctionSelectors",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "VoiceLicenseFacet.facetFunctionSelectors",
+    "methodName": "facetFunctionSelectors",
+    "signature": "facetFunctionSelectors()",
+    "category": "read",
+    "mutability": "pure",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "selectors",
+        "type": "bytes4[]",
+        "internalType": "bytes4[]"
+      }
+    ]
+  },
+  {
     "key": "VoiceLicenseFacet.getLicense",
     "facetName": "VoiceLicenseFacet",
     "wrapperKey": "getLicense",
@@ -1897,6 +1937,62 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
     "notes": "VoiceLicenseFacet.recordLicensedUsage",
     "methodName": "recordLicensedUsage",
     "signature": "recordLicensedUsage(bytes32,bytes32)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "voiceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "usageRef",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "VoiceLicenseFacet.recordUsage",
+    "facetName": "VoiceLicenseFacet",
+    "wrapperKey": "recordUsage",
+    "domain": "licensing",
+    "resource": "licenses",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/commands/record-usage",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "voiceHash",
+          "source": "body",
+          "field": "voiceHash"
+        },
+        {
+          "name": "usageRef",
+          "source": "body",
+          "field": "usageRef"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "recordUsage",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "VoiceLicenseFacet.recordUsage",
+    "methodName": "recordUsage",
+    "signature": "recordUsage(bytes32,bytes32)",
     "category": "write",
     "mutability": "nonpayable",
     "liveRequired": false,
@@ -2575,6 +2671,46 @@ export const licensingMethodDefinitions: HttpMethodDefinition[] = [
         "name": "",
         "type": "bytes32[]",
         "internalType": "bytes32[]"
+      }
+    ]
+  },
+  {
+    "key": "VoiceLicenseTemplateFacet.getSelectors",
+    "facetName": "VoiceLicenseTemplateFacet",
+    "wrapperKey": "getSelectors",
+    "domain": "licensing",
+    "resource": "license-templates",
+    "classification": "query",
+    "httpMethod": "POST",
+    "path": "/v1/licensing/queries/get-selectors",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "array"
+    },
+    "operationId": "getSelectors",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "VoiceLicenseTemplateFacet.getSelectors",
+    "methodName": "getSelectors",
+    "signature": "getSelectors()",
+    "category": "read",
+    "mutability": "pure",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "selectors",
+        "type": "bytes4[]",
+        "internalType": "bytes4[]"
       }
     ]
   },

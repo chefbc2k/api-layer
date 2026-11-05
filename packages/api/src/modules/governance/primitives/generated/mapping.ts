@@ -118,6 +118,46 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "GovernorFacet.GOVERNANCE_PROPOSER_ROLE",
+    "facetName": "GovernorFacet",
+    "wrapperKey": "GOVERNANCE_PROPOSER_ROLE",
+    "domain": "governance",
+    "resource": "governance",
+    "classification": "query",
+    "httpMethod": "POST",
+    "path": "/v1/governance/queries/governance-proposer-role/governor-governance-proposer-role",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "governorGovernanceProposerRole",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "GovernorFacet.GOVERNANCE_PROPOSER_ROLE",
+    "methodName": "GOVERNANCE_PROPOSER_ROLE",
+    "signature": "GOVERNANCE_PROPOSER_ROLE()",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  },
+  {
     "key": "GovernorFacet.setDefaultGasLimit",
     "facetName": "GovernorFacet",
     "wrapperKey": "setDefaultGasLimit",
@@ -414,6 +454,52 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "ProposalFacet.cancel",
+    "facetName": "ProposalFacet",
+    "wrapperKey": "cancel",
+    "domain": "governance",
+    "resource": "proposals",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/governance/queries/cancel",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "proposalId",
+          "source": "query",
+          "field": "proposalId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "proposalCancel",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "ProposalFacet.cancel",
+    "methodName": "cancel",
+    "signature": "cancel(uint256)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "proposalId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "ProposalFacet.cancelProposal",
     "facetName": "ProposalFacet",
     "wrapperKey": "cancelProposal",
@@ -458,6 +544,92 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
+  },
+  {
+    "key": "ProposalFacet.execute",
+    "facetName": "ProposalFacet",
+    "wrapperKey": "execute",
+    "domain": "governance",
+    "resource": "proposals",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/governance/queries/execute",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "proposalId",
+          "source": "query",
+          "field": "proposalId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "proposalExecute",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "ProposalFacet.execute",
+    "methodName": "execute",
+    "signature": "execute(uint256)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "proposalId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "key": "ProposalFacet.EXECUTOR_ROLE",
+    "facetName": "ProposalFacet",
+    "wrapperKey": "EXECUTOR_ROLE",
+    "domain": "governance",
+    "resource": "proposals",
+    "classification": "query",
+    "httpMethod": "POST",
+    "path": "/v1/governance/queries/executor-role/proposal-executor-role",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "proposalExecutorRole",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "ProposalFacet.EXECUTOR_ROLE",
+    "methodName": "EXECUTOR_ROLE",
+    "signature": "EXECUTOR_ROLE()",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
   },
   {
     "key": "ProposalFacet.getActiveProposals",
@@ -823,7 +995,7 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "resource": "proposals",
     "classification": "query",
     "httpMethod": "POST",
-    "path": "/v1/governance/queries/governance-proposer-role",
+    "path": "/v1/governance/queries/governance-proposer-role/proposal-governance-proposer-role",
     "inputShape": {
       "kind": "none",
       "bindings": []
@@ -831,7 +1003,7 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "scalar"
     },
-    "operationId": "governanceProposerRole",
+    "operationId": "proposalGovernanceProposerRole",
     "rateLimitKind": "read",
     "supportsGasless": false,
     "notes": "ProposalFacet.GOVERNANCE_PROPOSER_ROLE",
@@ -1665,7 +1837,7 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "void"
     },
-    "operationId": "cancel",
+    "operationId": "timelockCancel",
     "rateLimitKind": "write",
     "supportsGasless": false,
     "notes": "TimelockFacet.cancel",
@@ -1771,7 +1943,7 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "void"
     },
-    "operationId": "execute",
+    "operationId": "timelockExecute",
     "rateLimitKind": "write",
     "supportsGasless": false,
     "notes": "TimelockFacet.execute",
@@ -1833,7 +2005,7 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "resource": "timelock-operations",
     "classification": "query",
     "httpMethod": "POST",
-    "path": "/v1/governance/queries/executor-role",
+    "path": "/v1/governance/queries/executor-role/timelock-executor-role",
     "inputShape": {
       "kind": "none",
       "bindings": []
@@ -1841,7 +2013,7 @@ export const governanceMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "scalar"
     },
-    "operationId": "executorRole",
+    "operationId": "timelockExecutorRole",
     "rateLimitKind": "read",
     "supportsGasless": false,
     "notes": "TimelockFacet.EXECUTOR_ROLE",

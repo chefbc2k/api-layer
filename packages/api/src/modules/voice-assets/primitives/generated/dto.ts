@@ -3,9 +3,11 @@ import {
   addDatasetsRequestSchemas,
   addInheritanceRequirementRequestSchemas,
   addVoiceAssetsRequestSchemas,
+  approveRequestSchemas,
   approveInheritanceRequestSchemas,
   approveVoiceAssetRequestSchemas,
   authorizeUserRequestSchemas,
+  balanceOfRequestSchemas,
   createLegacyPlanRequestSchemas,
   customizeRoyaltyRateRequestSchemas,
   delegateRightsRequestSchemas,
@@ -18,6 +20,7 @@ import {
   getLegacyPlanRequestSchemas,
   getMaxRoyaltyRateRequestSchemas,
   getRoyaltyHistoryRequestSchemas,
+  getSelectorsRequestSchemas,
   getTokenIdRequestSchemas,
   getUserVoicesRequestSchemas,
   getVoiceAssetRequestSchemas,
@@ -58,6 +61,7 @@ import {
   supportsInterfaceRequestSchemas,
   symbolRequestSchemas,
   tokenUriRequestSchemas,
+  transferFromRequestSchemas,
   transferFromVoiceAssetRequestSchemas,
   unlockVoiceAssetRequestSchemas,
   updateBasicAcousticFeaturesRequestSchemas,
@@ -108,6 +112,9 @@ export type AddInheritanceRequirementBody = import("zod").infer<typeof addInheri
 export type AddVoiceAssetsPath = import("zod").infer<typeof addVoiceAssetsRequestSchemas.path>;
 export type AddVoiceAssetsQuery = import("zod").infer<typeof addVoiceAssetsRequestSchemas.query>;
 export type AddVoiceAssetsBody = import("zod").infer<typeof addVoiceAssetsRequestSchemas.body>;
+export type ApprovePath = import("zod").infer<typeof approveRequestSchemas.path>;
+export type ApproveQuery = import("zod").infer<typeof approveRequestSchemas.query>;
+export type ApproveBody = import("zod").infer<typeof approveRequestSchemas.body>;
 export type ApproveInheritancePath = import("zod").infer<typeof approveInheritanceRequestSchemas.path>;
 export type ApproveInheritanceQuery = import("zod").infer<typeof approveInheritanceRequestSchemas.query>;
 export type ApproveInheritanceBody = import("zod").infer<typeof approveInheritanceRequestSchemas.body>;
@@ -117,6 +124,9 @@ export type ApproveVoiceAssetBody = import("zod").infer<typeof approveVoiceAsset
 export type AuthorizeUserPath = import("zod").infer<typeof authorizeUserRequestSchemas.path>;
 export type AuthorizeUserQuery = import("zod").infer<typeof authorizeUserRequestSchemas.query>;
 export type AuthorizeUserBody = import("zod").infer<typeof authorizeUserRequestSchemas.body>;
+export type BalanceOfPath = import("zod").infer<typeof balanceOfRequestSchemas.path>;
+export type BalanceOfQuery = import("zod").infer<typeof balanceOfRequestSchemas.query>;
+export type BalanceOfBody = import("zod").infer<typeof balanceOfRequestSchemas.body>;
 export type CreateLegacyPlanPath = import("zod").infer<typeof createLegacyPlanRequestSchemas.path>;
 export type CreateLegacyPlanQuery = import("zod").infer<typeof createLegacyPlanRequestSchemas.query>;
 export type CreateLegacyPlanBody = import("zod").infer<typeof createLegacyPlanRequestSchemas.body>;
@@ -153,6 +163,9 @@ export type GetMaxRoyaltyRateBody = import("zod").infer<typeof getMaxRoyaltyRate
 export type GetRoyaltyHistoryPath = import("zod").infer<typeof getRoyaltyHistoryRequestSchemas.path>;
 export type GetRoyaltyHistoryQuery = import("zod").infer<typeof getRoyaltyHistoryRequestSchemas.query>;
 export type GetRoyaltyHistoryBody = import("zod").infer<typeof getRoyaltyHistoryRequestSchemas.body>;
+export type GetSelectorsPath = import("zod").infer<typeof getSelectorsRequestSchemas.path>;
+export type GetSelectorsQuery = import("zod").infer<typeof getSelectorsRequestSchemas.query>;
+export type GetSelectorsBody = import("zod").infer<typeof getSelectorsRequestSchemas.body>;
 export type GetTokenIdPath = import("zod").infer<typeof getTokenIdRequestSchemas.path>;
 export type GetTokenIdQuery = import("zod").infer<typeof getTokenIdRequestSchemas.query>;
 export type GetTokenIdBody = import("zod").infer<typeof getTokenIdRequestSchemas.body>;
@@ -273,6 +286,9 @@ export type SymbolBody = import("zod").infer<typeof symbolRequestSchemas.body>;
 export type TokenUriPath = import("zod").infer<typeof tokenUriRequestSchemas.path>;
 export type TokenUriQuery = import("zod").infer<typeof tokenUriRequestSchemas.query>;
 export type TokenUriBody = import("zod").infer<typeof tokenUriRequestSchemas.body>;
+export type TransferFromPath = import("zod").infer<typeof transferFromRequestSchemas.path>;
+export type TransferFromQuery = import("zod").infer<typeof transferFromRequestSchemas.query>;
+export type TransferFromBody = import("zod").infer<typeof transferFromRequestSchemas.body>;
 export type TransferFromVoiceAssetPath = import("zod").infer<typeof transferFromVoiceAssetRequestSchemas.path>;
 export type TransferFromVoiceAssetQuery = import("zod").infer<typeof transferFromVoiceAssetRequestSchemas.query>;
 export type TransferFromVoiceAssetBody = import("zod").infer<typeof transferFromVoiceAssetRequestSchemas.body>;

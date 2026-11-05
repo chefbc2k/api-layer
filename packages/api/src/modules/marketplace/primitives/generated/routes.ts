@@ -61,7 +61,9 @@ export function createMarketplacePrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "updateTreasuryAddress")!, controller["updateTreasuryAddress"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "updateUnionTreasuryAddress")!, controller["updateUnionTreasuryAddress"]);
   registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "withdrawPayments")!, controller["withdrawPayments"]);
-  registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "withdrawPaymentsWithDeadline")!, controller["withdrawPaymentsWithDeadline"]);
+  registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "withdrawPaymentsAddressUint256")!, controller["withdrawPaymentsAddressUint256"]);
+  registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32")!, controller["withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32"]);
+  registerRoute(router, marketplaceMethodDefinitions.find((definition) => definition.operationId === "withdrawPaymentsWithDeadlineUint256")!, controller["withdrawPaymentsWithDeadlineUint256"]);
   registerRoute(router, marketplaceEventDefinitions.find((definition) => definition.operationId === "assetListedEventQuery")!, controller["assetListedEventQuery"]);
   registerRoute(router, marketplaceEventDefinitions.find((definition) => definition.operationId === "assetPurchasedEventQuery")!, controller["assetPurchasedEventQuery"]);
   registerRoute(router, marketplaceEventDefinitions.find((definition) => definition.operationId === "assetReleasedEventQuery")!, controller["assetReleasedEventQuery"]);

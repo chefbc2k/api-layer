@@ -4,6 +4,8 @@ import { createDiamondAdminPrimitiveService } from "./service.js";
 import {
   approveUpgradeRequestSchemas,
   diamondCutRequestSchemas,
+  diamondCutIsImmutableSelectorReservedRequestSchemas,
+  diamondLoupeIsImmutableSelectorReservedRequestSchemas,
   executeUpgradeRequestSchemas,
   facetAddressRequestSchemas,
   facetAddressesRequestSchemas,
@@ -18,7 +20,6 @@ import {
   getUpgradeDelayRequestSchemas,
   getUpgradeThresholdRequestSchemas,
   initUpgradeControllerRequestSchemas,
-  isImmutableSelectorReservedRequestSchemas,
   isTrustedInitSelectorRequestSchemas,
   isTrustedInitSelectorPolicyEnabledRequestSchemas,
   isUpgradeApprovedRequestSchemas,
@@ -49,6 +50,8 @@ export function createDiamondAdminPrimitiveController(context: ApiExecutionConte
   return {
     approveUpgrade: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!, approveUpgradeRequestSchemas, service.approveUpgrade),
     diamondCut: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!, diamondCutRequestSchemas, service.diamondCut),
+    diamondCutIsImmutableSelectorReserved: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCutIsImmutableSelectorReserved")!, diamondCutIsImmutableSelectorReservedRequestSchemas, service.diamondCutIsImmutableSelectorReserved),
+    diamondLoupeIsImmutableSelectorReserved: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondLoupeIsImmutableSelectorReserved")!, diamondLoupeIsImmutableSelectorReservedRequestSchemas, service.diamondLoupeIsImmutableSelectorReserved),
     executeUpgrade: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!, executeUpgradeRequestSchemas, service.executeUpgrade),
     facetAddress: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!, facetAddressRequestSchemas, service.facetAddress),
     facetAddresses: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!, facetAddressesRequestSchemas, service.facetAddresses),
@@ -63,7 +66,6 @@ export function createDiamondAdminPrimitiveController(context: ApiExecutionConte
     getUpgradeDelay: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeDelay")!, getUpgradeDelayRequestSchemas, service.getUpgradeDelay),
     getUpgradeThreshold: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeThreshold")!, getUpgradeThresholdRequestSchemas, service.getUpgradeThreshold),
     initUpgradeController: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "initUpgradeController")!, initUpgradeControllerRequestSchemas, service.initUpgradeController),
-    isImmutableSelectorReserved: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isImmutableSelectorReserved")!, isImmutableSelectorReservedRequestSchemas, service.isImmutableSelectorReserved),
     isTrustedInitSelector: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelector")!, isTrustedInitSelectorRequestSchemas, service.isTrustedInitSelector),
     isTrustedInitSelectorPolicyEnabled: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelectorPolicyEnabled")!, isTrustedInitSelectorPolicyEnabledRequestSchemas, service.isTrustedInitSelectorPolicyEnabled),
     isUpgradeApproved: createMethodRequestHandler(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!, isUpgradeApprovedRequestSchemas, service.isUpgradeApproved),

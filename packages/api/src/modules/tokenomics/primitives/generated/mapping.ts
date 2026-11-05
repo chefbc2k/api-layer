@@ -2205,6 +2205,46 @@ export const tokenomicsMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "TokenSupplyFacet.name",
+    "facetName": "TokenSupplyFacet",
+    "wrapperKey": "name",
+    "domain": "tokenomics",
+    "resource": "token-supply",
+    "classification": "read",
+    "httpMethod": "POST",
+    "path": "/v1/tokenomics/queries/name",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "name",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "TokenSupplyFacet.name",
+    "methodName": "name",
+    "signature": "name()",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
+  },
+  {
     "key": "TokenSupplyFacet.supplyFinishMinting",
     "facetName": "TokenSupplyFacet",
     "wrapperKey": "supplyFinishMinting",
@@ -2421,6 +2461,46 @@ export const tokenomicsMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
+  },
+  {
+    "key": "TokenSupplyFacet.symbol",
+    "facetName": "TokenSupplyFacet",
+    "wrapperKey": "symbol",
+    "domain": "tokenomics",
+    "resource": "token-supply",
+    "classification": "read",
+    "httpMethod": "POST",
+    "path": "/v1/tokenomics/queries/symbol",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "symbol",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "TokenSupplyFacet.symbol",
+    "methodName": "symbol",
+    "signature": "symbol()",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "string",
+        "internalType": "string"
+      }
+    ]
   },
   {
     "key": "TokenSupplyFacet.tokenAllowance",

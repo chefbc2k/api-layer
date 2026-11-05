@@ -44,8 +44,10 @@ export function createPaymentFacetWrapper(context: FacetWrapperContext) {
     updateFeeConfiguration: (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "updateFeeConfiguration", args),
     updateTreasuryAddress: (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "updateTreasuryAddress", args),
     updateUnionTreasuryAddress: (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "updateUnionTreasuryAddress", args),
-    withdrawPayments: (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "withdrawPayments", args),
-    withdrawPaymentsWithDeadline: (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "withdrawPaymentsWithDeadline", args),
+    "withdrawPayments(address,uint256)": (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "withdrawPayments(address,uint256)", args),
+    "withdrawPayments()": (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "withdrawPayments()", args),
+    "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)": (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)", args),
+    "withdrawPaymentsWithDeadline(uint256)": (...args: unknown[]) => invokeWrite(context, "PaymentFacet", "withdrawPaymentsWithDeadline(uint256)", args),
     },
     events: {
     BuybackAccumulatorUpdated: { query: (fromBlock?: bigint | number, toBlock?: bigint | number | "latest") => queryEvent(context, "PaymentFacet", "BuybackAccumulatorUpdated", fromBlock, toBlock) },

@@ -6,6 +6,7 @@ export function createVoiceLicenseTemplateFacetWrapper(context: FacetWrapperCont
     facetName: "VoiceLicenseTemplateFacet" as const,
     read: {
     getCreatorTemplates: (...args: unknown[]) => invokeRead(context, "VoiceLicenseTemplateFacet", "getCreatorTemplates", args, false, 5),
+    getSelectors: (...args: unknown[]) => invokeRead(context, "VoiceLicenseTemplateFacet", "getSelectors", args, false, null),
     getTemplate: (...args: unknown[]) => invokeRead(context, "VoiceLicenseTemplateFacet", "getTemplate", args, false, 5),
     isTemplateActive: (...args: unknown[]) => invokeRead(context, "VoiceLicenseTemplateFacet", "isTemplateActive", args, false, 5),
     },

@@ -337,6 +337,58 @@ export const stakingMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "DelegationFacet.getDelegatedVotingPower",
+    "facetName": "DelegationFacet",
+    "wrapperKey": "getDelegatedVotingPower",
+    "domain": "staking",
+    "resource": "delegations",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/staking/queries/get-delegated-voting-power/delegation-get-delegated-voting-power",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "account",
+          "source": "query",
+          "field": "account"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "delegationGetDelegatedVotingPower",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "DelegationFacet.getDelegatedVotingPower",
+    "methodName": "getDelegatedVotingPower",
+    "signature": "getDelegatedVotingPower(address)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
     "key": "DelegationFacet.getPriorVotes",
     "facetName": "DelegationFacet",
     "wrapperKey": "getPriorVotes",
@@ -3081,7 +3133,7 @@ export const stakingMethodDefinitions: HttpMethodDefinition[] = [
     "resource": "voting-power",
     "classification": "read",
     "httpMethod": "GET",
-    "path": "/v1/staking/queries/get-delegated-voting-power",
+    "path": "/v1/staking/queries/get-delegated-voting-power/voting-power-get-delegated-voting-power",
     "inputShape": {
       "kind": "query",
       "bindings": [
@@ -3095,7 +3147,7 @@ export const stakingMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "scalar"
     },
-    "operationId": "getDelegatedVotingPower",
+    "operationId": "votingPowerGetDelegatedVotingPower",
     "rateLimitKind": "read",
     "supportsGasless": false,
     "notes": "VotingPowerFacet.getDelegatedVotingPower",

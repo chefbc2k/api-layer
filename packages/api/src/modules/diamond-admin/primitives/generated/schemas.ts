@@ -3,6 +3,8 @@ import { diamondAdminEventDefinitions, diamondAdminMethodDefinitions } from "./m
 
 export const approveUpgradeRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!);
 export const diamondCutRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!);
+export const diamondCutIsImmutableSelectorReservedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCutIsImmutableSelectorReserved")!);
+export const diamondLoupeIsImmutableSelectorReservedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondLoupeIsImmutableSelectorReserved")!);
 export const executeUpgradeRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!);
 export const facetAddressRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!);
 export const facetAddressesRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!);
@@ -17,7 +19,6 @@ export const getUpgradeControlStatusRequestSchemas = buildMethodRequestSchemas(d
 export const getUpgradeDelayRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeDelay")!);
 export const getUpgradeThresholdRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeThreshold")!);
 export const initUpgradeControllerRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "initUpgradeController")!);
-export const isImmutableSelectorReservedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isImmutableSelectorReserved")!);
 export const isTrustedInitSelectorRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelector")!);
 export const isTrustedInitSelectorPolicyEnabledRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelectorPolicyEnabled")!);
 export const isUpgradeApprovedRequestSchemas = buildMethodRequestSchemas(diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!);

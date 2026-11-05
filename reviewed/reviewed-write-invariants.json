@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewedAt": "2026-09-15",
+  "reviewedAt": "2026-11-04",
   "methods": {
     "AccessControlFacet.configureRole": {
       "abiSignature": "configureRole(bytes32,(uint256,uint256,uint256,uint256,uint256,bytes32,bool,bool,bool,bool))",
@@ -9164,7 +9164,7 @@
         "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
-    "PaymentFacet.withdrawPayments": {
+    "PaymentFacet.withdrawPayments()": {
       "abiSignature": "withdrawPayments()",
       "requiredActor": {
         "kind": "self",
@@ -9190,17 +9190,15 @@
         "checks": [
           {
             "method": "PaymentFacet.getPendingPayments",
-            "assertion": "PaymentFacet.getPendingPayments reflects the receipt-confirmed PaymentFacet.withdrawPayments transition for the affected identifiers and actor."
+            "assertion": "PaymentFacet.getPendingPayments reflects the receipt-confirmed PaymentFacet.withdrawPayments() transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "PaymentFacet.USDCPaymentWithdrawn"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed ABI exposes no method-specific event for withdrawPayments; receipt and state readbacks are authoritative."
       },
       "balanceEffects": {
         "mode": "tracked",
@@ -9229,19 +9227,14 @@
         "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "PaymentFacet.USDCPaymentWithdrawn"
-        ],
-        "projections": [
-          "payment_flows:ledger",
-          "payment_withdrawals:ledger"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
       }
     },
-    "PaymentFacet.withdrawPaymentsWithDeadline": {
-      "abiSignature": "withdrawPaymentsWithDeadline(uint256)",
+    "PaymentFacet.withdrawPayments(address,uint256)": {
+      "abiSignature": "withdrawPayments(address,uint256)",
       "requiredActor": {
         "kind": "self",
         "roles": [],
@@ -9251,6 +9244,94 @@
         {
           "kind": "authorization",
           "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        },
+        {
+          "kind": "argument",
+          "description": "All required address inputs are non-zero, distinct where required, and authorized for their declared relationship."
+        },
+        {
+          "kind": "argument",
+          "description": "Numeric amounts, rates, shares, thresholds, and durations remain within the contract-defined non-zero and upper bounds."
+        },
+        {
+          "kind": "funding",
+          "description": "Required balances, allowances, escrow, caps, and protocol liquidity are sufficient before submission."
+        },
+        {
+          "kind": "protocol-state",
+          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+        }
+      ],
+      "postStateReadbacks": {
+        "mode": "required",
+        "checks": [
+          {
+            "method": "PaymentFacet.getPendingPayments",
+            "assertion": "PaymentFacet.getPendingPayments reflects the receipt-confirmed PaymentFacet.withdrawPayments(address,uint256) transition for the affected identifiers and actor."
+          }
+        ],
+        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+      },
+      "emittedEvents": {
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed ABI exposes no method-specific event for withdrawPayments; receipt and state readbacks are authoritative."
+      },
+      "balanceEffects": {
+        "mode": "tracked",
+        "effects": [
+          {
+            "asset": "erc20",
+            "direction": "unlock",
+            "accounts": [
+              "caller",
+              "affected owner or beneficiary",
+              "protocol custody/treasury when applicable"
+            ],
+            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
+          }
+        ],
+        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+      },
+      "replayConstraints": {
+        "mode": "state-transition",
+        "keyFields": [
+          "token",
+          "amount"
+        ],
+        "assertion": "A second submission must observe the advanced lifecycle state and cannot repeat one-time ownership, value, or entitlement effects."
+      },
+      "liveNetworkSafety": {
+        "classification": "safe-with-fixture",
+        "requiresExplicitOptIn": true,
+        "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
+      },
+      "indexerExpectations": {
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
+      }
+    },
+    "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)": {
+      "abiSignature": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
+      "requiredActor": {
+        "kind": "self",
+        "roles": [],
+        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+      },
+      "preconditions": [
+        {
+          "kind": "authorization",
+          "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        },
+        {
+          "kind": "argument",
+          "description": "All required address inputs are non-zero, distinct where required, and authorized for their declared relationship."
+        },
+        {
+          "kind": "argument",
+          "description": "Numeric amounts, rates, shares, thresholds, and durations remain within the contract-defined non-zero and upper bounds."
         },
         {
           "kind": "timing",
@@ -9270,17 +9351,15 @@
         "checks": [
           {
             "method": "PaymentFacet.getPendingPayments",
-            "assertion": "PaymentFacet.getPendingPayments reflects the receipt-confirmed PaymentFacet.withdrawPaymentsWithDeadline transition for the affected identifiers and actor."
+            "assertion": "PaymentFacet.getPendingPayments reflects the receipt-confirmed PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32) transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "PaymentFacet.USDCPaymentWithdrawn"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed ABI exposes no method-specific event for withdrawPaymentsWithDeadline; receipt and state readbacks are authoritative."
       },
       "balanceEffects": {
         "mode": "tracked",
@@ -9311,15 +9390,85 @@
         "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
       },
       "indexerExpectations": {
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
+      }
+    },
+    "PaymentFacet.withdrawPaymentsWithDeadline(uint256)": {
+      "abiSignature": "withdrawPaymentsWithDeadline(uint256)",
+      "requiredActor": {
+        "kind": "self",
+        "roles": [],
+        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+      },
+      "preconditions": [
+        {
+          "kind": "authorization",
+          "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        },
+        {
+          "kind": "timing",
+          "description": "The supplied time boundary is valid at the mined block and has not expired or bypassed a required delay."
+        },
+        {
+          "kind": "funding",
+          "description": "Required balances, allowances, escrow, caps, and protocol liquidity are sufficient before submission."
+        },
+        {
+          "kind": "protocol-state",
+          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+        }
+      ],
+      "postStateReadbacks": {
         "mode": "required",
-        "events": [
-          "PaymentFacet.USDCPaymentWithdrawn"
+        "checks": [
+          {
+            "method": "PaymentFacet.getPendingPayments",
+            "assertion": "PaymentFacet.getPendingPayments reflects the receipt-confirmed PaymentFacet.withdrawPaymentsWithDeadline(uint256) transition for the affected identifiers and actor."
+          }
         ],
-        "projections": [
-          "payment_flows:ledger",
-          "payment_withdrawals:ledger"
+        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+      },
+      "emittedEvents": {
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed ABI exposes no method-specific event for withdrawPaymentsWithDeadline; receipt and state readbacks are authoritative."
+      },
+      "balanceEffects": {
+        "mode": "tracked",
+        "effects": [
+          {
+            "asset": "erc20",
+            "direction": "unlock",
+            "accounts": [
+              "caller",
+              "affected owner or beneficiary",
+              "protocol custody/treasury when applicable"
+            ],
+            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
+          }
         ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+      },
+      "replayConstraints": {
+        "mode": "nonce-and-deadline",
+        "keyFields": [
+          "deadline"
+        ],
+        "assertion": "A signature, nonce, commitment, or deadline can authorize only its intended payload and cannot be reused after consumption or expiry."
+      },
+      "liveNetworkSafety": {
+        "classification": "safe-with-fixture",
+        "requiresExplicitOptIn": true,
+        "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
+      },
+      "indexerExpectations": {
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
       }
     },
     "ProposalFacet.cancelProposal": {
@@ -14486,6 +14635,86 @@
         "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
       }
     },
+    "VoiceAssetFacet.approve": {
+      "abiSignature": "approve(address,uint256)",
+      "requiredActor": {
+        "kind": "self",
+        "roles": [],
+        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+      },
+      "preconditions": [
+        {
+          "kind": "authorization",
+          "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        },
+        {
+          "kind": "argument",
+          "description": "All required address inputs are non-zero, distinct where required, and authorized for their declared relationship."
+        },
+        {
+          "kind": "protocol-state",
+          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+        }
+      ],
+      "postStateReadbacks": {
+        "mode": "required",
+        "checks": [
+          {
+            "method": "VoiceAssetFacet.getApproved",
+            "assertion": "VoiceAssetFacet.getApproved reflects the receipt-confirmed VoiceAssetFacet.approve transition for the affected identifiers and actor."
+          }
+        ],
+        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+      },
+      "emittedEvents": {
+        "mode": "one-of",
+        "events": [
+          "VoiceAssetFacet.Approval",
+          "VoiceAssetFacet.ApprovalForAll"
+        ],
+        "rationale": "The successful path must emit the applicable canonical event variant."
+      },
+      "balanceEffects": {
+        "mode": "tracked",
+        "effects": [
+          {
+            "asset": "erc721",
+            "direction": "transfer",
+            "accounts": [
+              "caller",
+              "affected owner or beneficiary",
+              "protocol custody/treasury when applicable"
+            ],
+            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
+          }
+        ],
+        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+      },
+      "replayConstraints": {
+        "mode": "repeatable",
+        "keyFields": [
+          "to",
+          "tokenId"
+        ],
+        "assertion": "Repeated calls are allowed only when each call independently satisfies authorization and state guards; each receipt must reconcile its own effects."
+      },
+      "liveNetworkSafety": {
+        "classification": "safe-with-fixture",
+        "requiresExplicitOptIn": true,
+        "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
+      },
+      "indexerExpectations": {
+        "mode": "required",
+        "events": [
+          "VoiceAssetFacet.Approval",
+          "VoiceAssetFacet.ApprovalForAll"
+        ],
+        "projections": [
+          "voice_assets:current"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+      }
+    },
     "VoiceAssetFacet.approveVoiceAsset": {
       "abiSignature": "approveVoiceAsset(address,uint256)",
       "requiredActor": {
@@ -15735,6 +15964,85 @@
         "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
       }
     },
+    "VoiceAssetFacet.transferFrom": {
+      "abiSignature": "transferFrom(address,address,uint256)",
+      "requiredActor": {
+        "kind": "self",
+        "roles": [],
+        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+      },
+      "preconditions": [
+        {
+          "kind": "authorization",
+          "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        },
+        {
+          "kind": "argument",
+          "description": "All required address inputs are non-zero, distinct where required, and authorized for their declared relationship."
+        },
+        {
+          "kind": "protocol-state",
+          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+        }
+      ],
+      "postStateReadbacks": {
+        "mode": "required",
+        "checks": [
+          {
+            "method": "VoiceAssetFacet.getApproved",
+            "assertion": "VoiceAssetFacet.getApproved reflects the receipt-confirmed VoiceAssetFacet.transferFrom transition for the affected identifiers and actor."
+          }
+        ],
+        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+      },
+      "emittedEvents": {
+        "mode": "all",
+        "events": [
+          "VoiceAssetFacet.Transfer"
+        ],
+        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+      },
+      "balanceEffects": {
+        "mode": "tracked",
+        "effects": [
+          {
+            "asset": "erc721",
+            "direction": "transfer",
+            "accounts": [
+              "caller",
+              "affected owner or beneficiary",
+              "protocol custody/treasury when applicable"
+            ],
+            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
+          }
+        ],
+        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+      },
+      "replayConstraints": {
+        "mode": "state-transition",
+        "keyFields": [
+          "from",
+          "to",
+          "tokenId"
+        ],
+        "assertion": "A second submission must observe the advanced lifecycle state and cannot repeat one-time ownership, value, or entitlement effects."
+      },
+      "liveNetworkSafety": {
+        "classification": "safe-with-fixture",
+        "requiresExplicitOptIn": true,
+        "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
+      },
+      "indexerExpectations": {
+        "mode": "required",
+        "events": [
+          "VoiceAssetFacet.Transfer"
+        ],
+        "projections": [
+          "voice_assets:current"
+        ],
+        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+      }
+    },
     "VoiceAssetFacet.transferFromVoiceAsset": {
       "abiSignature": "transferFromVoiceAsset(address,address,uint256)",
       "requiredActor": {
@@ -16808,6 +17116,65 @@
           "voice_licenses:current"
         ],
         "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+      }
+    },
+    "VoiceLicenseFacet.recordUsage": {
+      "abiSignature": "recordUsage(bytes32,bytes32)",
+      "requiredActor": {
+        "kind": "owner-or-approved",
+        "roles": [
+          "RESOURCE_OWNER",
+          "APPROVED_OPERATOR"
+        ],
+        "description": "The affected resource owner or an explicitly approved operator must authorize the write."
+      },
+      "preconditions": [
+        {
+          "kind": "authorization",
+          "description": "The affected resource owner or an explicitly approved operator must authorize the write."
+        },
+        {
+          "kind": "protocol-state",
+          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+        }
+      ],
+      "postStateReadbacks": {
+        "mode": "required",
+        "checks": [
+          {
+            "method": "VoiceLicenseFacet.isUsageRefUsed",
+            "assertion": "VoiceLicenseFacet.isUsageRefUsed reflects the receipt-confirmed VoiceLicenseFacet.recordUsage transition for the affected identifiers and actor."
+          }
+        ],
+        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+      },
+      "emittedEvents": {
+        "mode": "none",
+        "events": [],
+        "rationale": "The reviewed ABI exposes no method-specific event for recordUsage; receipt and state readbacks are authoritative."
+      },
+      "balanceEffects": {
+        "mode": "none",
+        "effects": [],
+        "rationale": "This write changes protocol configuration or lifecycle state without moving an asset balance."
+      },
+      "replayConstraints": {
+        "mode": "unique-reference",
+        "keyFields": [
+          "usageRef"
+        ],
+        "assertion": "The operation/reference identifier is consumed or advanced exactly once; duplicate submission cannot repeat side effects."
+      },
+      "liveNetworkSafety": {
+        "classification": "safe-with-fixture",
+        "requiresExplicitOptIn": true,
+        "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
+      },
+      "indexerExpectations": {
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
       }
     },
     "VoiceLicenseFacet.revokeLicense": {

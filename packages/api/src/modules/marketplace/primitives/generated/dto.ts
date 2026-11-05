@@ -52,7 +52,9 @@ import {
   updateTreasuryAddressRequestSchemas,
   updateUnionTreasuryAddressRequestSchemas,
   withdrawPaymentsRequestSchemas,
-  withdrawPaymentsWithDeadlineRequestSchemas,
+  withdrawPaymentsAddressUint256RequestSchemas,
+  withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas,
+  withdrawPaymentsWithDeadlineUint256RequestSchemas,
   assetListedEventQueryRequestSchema,
   assetPurchasedEventQueryRequestSchema,
   assetReleasedEventQueryRequestSchema,
@@ -243,9 +245,15 @@ export type UpdateUnionTreasuryAddressBody = import("zod").infer<typeof updateUn
 export type WithdrawPaymentsPath = import("zod").infer<typeof withdrawPaymentsRequestSchemas.path>;
 export type WithdrawPaymentsQuery = import("zod").infer<typeof withdrawPaymentsRequestSchemas.query>;
 export type WithdrawPaymentsBody = import("zod").infer<typeof withdrawPaymentsRequestSchemas.body>;
-export type WithdrawPaymentsWithDeadlinePath = import("zod").infer<typeof withdrawPaymentsWithDeadlineRequestSchemas.path>;
-export type WithdrawPaymentsWithDeadlineQuery = import("zod").infer<typeof withdrawPaymentsWithDeadlineRequestSchemas.query>;
-export type WithdrawPaymentsWithDeadlineBody = import("zod").infer<typeof withdrawPaymentsWithDeadlineRequestSchemas.body>;
+export type WithdrawPaymentsAddressUint256Path = import("zod").infer<typeof withdrawPaymentsAddressUint256RequestSchemas.path>;
+export type WithdrawPaymentsAddressUint256Query = import("zod").infer<typeof withdrawPaymentsAddressUint256RequestSchemas.query>;
+export type WithdrawPaymentsAddressUint256Body = import("zod").infer<typeof withdrawPaymentsAddressUint256RequestSchemas.body>;
+export type WithdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32Path = import("zod").infer<typeof withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas.path>;
+export type WithdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32Query = import("zod").infer<typeof withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas.query>;
+export type WithdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32Body = import("zod").infer<typeof withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32RequestSchemas.body>;
+export type WithdrawPaymentsWithDeadlineUint256Path = import("zod").infer<typeof withdrawPaymentsWithDeadlineUint256RequestSchemas.path>;
+export type WithdrawPaymentsWithDeadlineUint256Query = import("zod").infer<typeof withdrawPaymentsWithDeadlineUint256RequestSchemas.query>;
+export type WithdrawPaymentsWithDeadlineUint256Body = import("zod").infer<typeof withdrawPaymentsWithDeadlineUint256RequestSchemas.body>;
 export type AssetListedEventQueryBody = import("zod").infer<typeof assetListedEventQueryRequestSchema.body>;
 export type AssetPurchasedEventQueryBody = import("zod").infer<typeof assetPurchasedEventQueryRequestSchema.body>;
 export type AssetReleasedEventQueryBody = import("zod").infer<typeof assetReleasedEventQueryRequestSchema.body>;

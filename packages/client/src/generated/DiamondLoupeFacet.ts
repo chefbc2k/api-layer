@@ -9,6 +9,7 @@ export function createDiamondLoupeFacetWrapper(context: FacetWrapperContext) {
     facetAddresses: (...args: unknown[]) => invokeRead(context, "DiamondLoupeFacet", "facetAddresses", args, false, 5),
     facetFunctionSelectors: (...args: unknown[]) => invokeRead(context, "DiamondLoupeFacet", "facetFunctionSelectors", args, false, 5),
     facets: (...args: unknown[]) => invokeRead(context, "DiamondLoupeFacet", "facets", args, false, 5),
+    isImmutableSelectorReserved: (...args: unknown[]) => invokeRead(context, "DiamondLoupeFacet", "isImmutableSelectorReserved", args, false, null),
     supportsInterface: (...args: unknown[]) => invokeRead(context, "DiamondLoupeFacet", "supportsInterface", args, false, null),
     },
     write: {

@@ -186,7 +186,7 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     "resource": "diamond-admin",
     "classification": "query",
     "httpMethod": "GET",
-    "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved",
+    "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-cut-is-immutable-selector-reserved",
     "inputShape": {
       "kind": "query",
       "bindings": [
@@ -200,7 +200,7 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
     "outputShape": {
       "kind": "scalar"
     },
-    "operationId": "isImmutableSelectorReserved",
+    "operationId": "diamondCutIsImmutableSelectorReserved",
     "rateLimitKind": "read",
     "supportsGasless": false,
     "notes": "DiamondCutFacet.isImmutableSelectorReserved",
@@ -722,6 +722,58 @@ export const diamondAdminMethodDefinitions: HttpMethodDefinition[] = [
             "internalType": "bytes4[]"
           }
         ]
+      }
+    ]
+  },
+  {
+    "key": "DiamondLoupeFacet.isImmutableSelectorReserved",
+    "facetName": "DiamondLoupeFacet",
+    "wrapperKey": "isImmutableSelectorReserved",
+    "domain": "diamond-admin",
+    "resource": "diamond-admin",
+    "classification": "query",
+    "httpMethod": "GET",
+    "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-loupe-is-immutable-selector-reserved",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "selector",
+          "source": "query",
+          "field": "selector"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "diamondLoupeIsImmutableSelectorReserved",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "DiamondLoupeFacet.isImmutableSelectorReserved",
+    "methodName": "isImmutableSelectorReserved",
+    "signature": "isImmutableSelectorReserved(bytes4)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "selector",
+        "type": "bytes4",
+        "internalType": "bytes4"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
       }
     ]
   },

@@ -1154,6 +1154,62 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
     "outputs": []
   },
   {
+    "key": "VoiceAssetFacet.approve",
+    "facetName": "VoiceAssetFacet",
+    "wrapperKey": "approve",
+    "domain": "voice-assets",
+    "resource": "voice-assets",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/approve",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "to",
+          "source": "body",
+          "field": "to"
+        },
+        {
+          "name": "tokenId",
+          "source": "body",
+          "field": "tokenId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "approve",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "VoiceAssetFacet.approve",
+    "methodName": "approve",
+    "signature": "approve(address,uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "VoiceAssetFacet.approveVoiceAsset",
     "facetName": "VoiceAssetFacet",
     "wrapperKey": "approveVoiceAsset",
@@ -1264,6 +1320,58 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
       }
     ],
     "outputs": []
+  },
+  {
+    "key": "VoiceAssetFacet.balanceOf",
+    "facetName": "VoiceAssetFacet",
+    "wrapperKey": "balanceOf",
+    "domain": "voice-assets",
+    "resource": "voice-assets",
+    "classification": "read",
+    "httpMethod": "GET",
+    "path": "/v1/voice-assets/queries/balance-of",
+    "inputShape": {
+      "kind": "query",
+      "bindings": [
+        {
+          "name": "owner",
+          "source": "query",
+          "field": "owner"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "scalar"
+    },
+    "operationId": "balanceOf",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "VoiceAssetFacet.balanceOf",
+    "methodName": "balanceOf",
+    "signature": "balanceOf(address)",
+    "category": "read",
+    "mutability": "view",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
   },
   {
     "key": "VoiceAssetFacet.customizeRoyaltyRate",
@@ -3219,6 +3327,72 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
     ]
   },
   {
+    "key": "VoiceAssetFacet.transferFrom",
+    "facetName": "VoiceAssetFacet",
+    "wrapperKey": "transferFrom",
+    "domain": "voice-assets",
+    "resource": "voice-assets",
+    "classification": "action",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/commands/transfer-from",
+    "inputShape": {
+      "kind": "body",
+      "bindings": [
+        {
+          "name": "from",
+          "source": "body",
+          "field": "from"
+        },
+        {
+          "name": "to",
+          "source": "body",
+          "field": "to"
+        },
+        {
+          "name": "tokenId",
+          "source": "body",
+          "field": "tokenId"
+        }
+      ]
+    },
+    "outputShape": {
+      "kind": "void"
+    },
+    "operationId": "transferFrom",
+    "rateLimitKind": "write",
+    "supportsGasless": false,
+    "notes": "VoiceAssetFacet.transferFrom",
+    "methodName": "transferFrom",
+    "signature": "transferFrom(address,address,uint256)",
+    "category": "write",
+    "mutability": "nonpayable",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [
+      {
+        "name": "from",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "tokenId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": []
+  },
+  {
     "key": "VoiceAssetFacet.transferFromVoiceAsset",
     "facetName": "VoiceAssetFacet",
     "wrapperKey": "transferFromVoiceAsset",
@@ -3631,6 +3805,46 @@ export const voiceAssetsMethodDefinitions: HttpMethodDefinition[] = [
             "internalType": "string"
           }
         ]
+      }
+    ]
+  },
+  {
+    "key": "VoiceMetadataFacet.getSelectors",
+    "facetName": "VoiceMetadataFacet",
+    "wrapperKey": "getSelectors",
+    "domain": "voice-assets",
+    "resource": "metadata",
+    "classification": "query",
+    "httpMethod": "POST",
+    "path": "/v1/voice-assets/queries/get-selectors",
+    "inputShape": {
+      "kind": "none",
+      "bindings": []
+    },
+    "outputShape": {
+      "kind": "array"
+    },
+    "operationId": "getSelectors",
+    "rateLimitKind": "read",
+    "supportsGasless": false,
+    "notes": "VoiceMetadataFacet.getSelectors",
+    "methodName": "getSelectors",
+    "signature": "getSelectors()",
+    "category": "read",
+    "mutability": "pure",
+    "liveRequired": false,
+    "cacheClass": "none",
+    "cacheTtlSeconds": null,
+    "executionSources": [
+      "live"
+    ],
+    "gaslessModes": [],
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "selectors",
+        "type": "bytes4[]",
+        "internalType": "bytes4[]"
       }
     ]
   },

@@ -10,6 +10,8 @@ export function createDiamondAdminPrimitiveRouter(context: ApiExecutionContext):
   const controller = createDiamondAdminPrimitiveController(context);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!, controller["approveUpgrade"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!, controller["diamondCut"]);
+  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCutIsImmutableSelectorReserved")!, controller["diamondCutIsImmutableSelectorReserved"]);
+  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondLoupeIsImmutableSelectorReserved")!, controller["diamondLoupeIsImmutableSelectorReserved"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!, controller["executeUpgrade"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!, controller["facetAddress"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!, controller["facetAddresses"]);
@@ -24,7 +26,6 @@ export function createDiamondAdminPrimitiveRouter(context: ApiExecutionContext):
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeDelay")!, controller["getUpgradeDelay"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeThreshold")!, controller["getUpgradeThreshold"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "initUpgradeController")!, controller["initUpgradeController"]);
-  registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isImmutableSelectorReserved")!, controller["isImmutableSelectorReserved"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelector")!, controller["isTrustedInitSelector"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelectorPolicyEnabled")!, controller["isTrustedInitSelectorPolicyEnabled"]);
   registerRoute(router, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!, controller["isUpgradeApproved"]);

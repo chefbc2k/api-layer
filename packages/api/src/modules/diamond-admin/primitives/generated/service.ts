@@ -7,6 +7,8 @@ export function createDiamondAdminPrimitiveService(context: ApiExecutionContext)
   return {
     approveUpgrade: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "approveUpgrade")!, request),
     diamondCut: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCut")!, request),
+    diamondCutIsImmutableSelectorReserved: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondCutIsImmutableSelectorReserved")!, request),
+    diamondLoupeIsImmutableSelectorReserved: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "diamondLoupeIsImmutableSelectorReserved")!, request),
     executeUpgrade: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "executeUpgrade")!, request),
     facetAddress: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddress")!, request),
     facetAddresses: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "facetAddresses")!, request),
@@ -21,7 +23,6 @@ export function createDiamondAdminPrimitiveService(context: ApiExecutionContext)
     getUpgradeDelay: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeDelay")!, request),
     getUpgradeThreshold: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "getUpgradeThreshold")!, request),
     initUpgradeController: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "initUpgradeController")!, request),
-    isImmutableSelectorReserved: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isImmutableSelectorReserved")!, request),
     isTrustedInitSelector: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelector")!, request),
     isTrustedInitSelectorPolicyEnabled: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isTrustedInitSelectorPolicyEnabled")!, request),
     isUpgradeApproved: (request: PrimitiveInvocationRequest) => executeHttpMethodDefinition(context, diamondAdminMethodDefinitions.find((definition) => definition.operationId === "isUpgradeApproved")!, request),

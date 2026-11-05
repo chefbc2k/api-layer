@@ -5,6 +5,7 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
   return {
     facetName: "VoiceAssetFacet" as const,
     read: {
+    balanceOf: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "balanceOf", args, false, null),
     getApproved: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "getApproved", args, true, null),
     getDefaultPlatformFee: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "getDefaultPlatformFee", args, true, null),
     getDefaultRoyaltyRate: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "getDefaultRoyaltyRate", args, false, 5),
@@ -30,6 +31,7 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
     voiceAssetSymbol: (...args: unknown[]) => invokeRead(context, "VoiceAssetFacet", "voiceAssetSymbol", args, false, 600),
     },
     write: {
+    approve: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "approve", args),
     approveVoiceAsset: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "approveVoiceAsset", args),
     authorizeUser: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "authorizeUser", args),
     customizeRoyaltyRate: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "customizeRoyaltyRate", args),
@@ -47,6 +49,7 @@ export function createVoiceAssetFacetWrapper(context: FacetWrapperContext) {
     setDefaultPlatformFee: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "setDefaultPlatformFee", args),
     setDefaultRoyaltyRate: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "setDefaultRoyaltyRate", args),
     setRegistrationPaused: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "setRegistrationPaused", args),
+    transferFrom: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "transferFrom", args),
     transferFromVoiceAsset: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "transferFromVoiceAsset", args),
     unlockVoiceAsset: (...args: unknown[]) => invokeWrite(context, "VoiceAssetFacet", "unlockVoiceAsset", args),
     },

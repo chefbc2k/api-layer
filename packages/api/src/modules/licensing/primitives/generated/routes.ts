@@ -14,6 +14,7 @@ export function createLicensingPrimitiveRouter(context: ApiExecutionContext): Ro
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createLicenseWithMarketplace")!, controller["createLicenseWithMarketplace"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createRightsGroup")!, controller["createRightsGroup"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "createTemplate")!, controller["createTemplate"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "facetFunctionSelectors")!, controller["facetFunctionSelectors"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getCategoryContracts")!, controller["getCategoryContracts"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getCollaborator")!, controller["getCollaborator"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getCreatorTemplates")!, controller["getCreatorTemplates"]);
@@ -25,6 +26,7 @@ export function createLicensingPrimitiveRouter(context: ApiExecutionContext): Ro
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getRightCategory")!, controller["getRightCategory"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getRightContract")!, controller["getRightContract"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getRightsGroup")!, controller["getRightsGroup"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!, controller["getSelectors"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getTemplate")!, controller["getTemplate"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getUsageCount")!, controller["getUsageCount"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "getUserRights")!, controller["getUserRights"]);
@@ -33,6 +35,7 @@ export function createLicensingPrimitiveRouter(context: ApiExecutionContext): Ro
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "isTemplateActive")!, controller["isTemplateActive"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "isUsageRefUsed")!, controller["isUsageRefUsed"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "recordLicensedUsage")!, controller["recordLicensedUsage"]);
+  registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "recordUsage")!, controller["recordUsage"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "registerRightContract")!, controller["registerRightContract"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "removeCollaborator")!, controller["removeCollaborator"]);
   registerRoute(router, licensingMethodDefinitions.find((definition) => definition.operationId === "revokeLicense")!, controller["revokeLicense"]);

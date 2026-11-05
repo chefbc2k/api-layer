@@ -15,13 +15,13 @@ export function createStakingPrimitiveRouter(context: ApiExecutionContext): Rout
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "delegate")!, controller["delegate"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "delegateBySig")!, controller["delegateBySig"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "delegates")!, controller["delegates"]);
+  registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "delegationGetDelegatedVotingPower")!, controller["delegationGetDelegatedVotingPower"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "delegationTypehash")!, controller["delegationTypehash"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "domainTypehash")!, controller["domainTypehash"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "executeUnstake")!, controller["executeUnstake"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "fundRewardPool")!, controller["fundRewardPool"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "getCurrentVotes")!, controller["getCurrentVotes"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "getDegradedModeConfig")!, controller["getDegradedModeConfig"]);
-  registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "getDelegatedVotingPower")!, controller["getDelegatedVotingPower"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "getEchoScoreOracleV3")!, controller["getEchoScoreOracleV3"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "getEffectiveApy")!, controller["getEffectiveApy"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "getLatestCheckpoint")!, controller["getLatestCheckpoint"]);
@@ -74,6 +74,7 @@ export function createStakingPrimitiveRouter(context: ApiExecutionContext): Rout
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateScore")!, controller["updateScore"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPower")!, controller["updateVotingPower"]);
   registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "updateVotingPowerBatch")!, controller["updateVotingPowerBatch"]);
+  registerRoute(router, stakingMethodDefinitions.find((definition) => definition.operationId === "votingPowerGetDelegatedVotingPower")!, controller["votingPowerGetDelegatedVotingPower"]);
   registerRoute(router, stakingEventDefinitions.find((definition) => definition.operationId === "delegateChangedAddressAddressAddressEventQuery")!, controller["delegateChangedAddressAddressAddressEventQuery"]);
   registerRoute(router, stakingEventDefinitions.find((definition) => definition.operationId === "delegateVotesChangedAddressUint256Uint256EventQuery")!, controller["delegateVotesChangedAddressUint256Uint256EventQuery"]);
   registerRoute(router, stakingEventDefinitions.find((definition) => definition.operationId === "delegationVotingPowerUpdatedEventQuery")!, controller["delegationVotingPowerUpdatedEventQuery"]);

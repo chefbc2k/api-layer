@@ -12,9 +12,11 @@ export function createVoiceAssetsPrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "addDatasets")!, controller["addDatasets"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "addInheritanceRequirement")!, controller["addInheritanceRequirement"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "addVoiceAssets")!, controller["addVoiceAssets"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "approve")!, controller["approve"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "approveInheritance")!, controller["approveInheritance"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "approveVoiceAsset")!, controller["approveVoiceAsset"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "authorizeUser")!, controller["authorizeUser"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "balanceOf")!, controller["balanceOf"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "createLegacyPlan")!, controller["createLegacyPlan"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "customizeRoyaltyRate")!, controller["customizeRoyaltyRate"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "delegateRights")!, controller["delegateRights"]);
@@ -27,6 +29,7 @@ export function createVoiceAssetsPrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getLegacyPlan")!, controller["getLegacyPlan"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getMaxRoyaltyRate")!, controller["getMaxRoyaltyRate"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getRoyaltyHistory")!, controller["getRoyaltyHistory"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getSelectors")!, controller["getSelectors"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getTokenId")!, controller["getTokenId"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getUserVoices")!, controller["getUserVoices"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "getVoiceAsset")!, controller["getVoiceAsset"]);
@@ -67,6 +70,7 @@ export function createVoiceAssetsPrimitiveRouter(context: ApiExecutionContext): 
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "supportsInterface")!, controller["supportsInterface"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "symbol")!, controller["symbol"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "tokenUri")!, controller["tokenUri"]);
+  registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "transferFrom")!, controller["transferFrom"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "transferFromVoiceAsset")!, controller["transferFromVoiceAsset"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "unlockVoiceAsset")!, controller["unlockVoiceAsset"]);
   registerRoute(router, voiceAssetsMethodDefinitions.find((definition) => definition.operationId === "updateBasicAcousticFeatures")!, controller["updateBasicAcousticFeatures"]);

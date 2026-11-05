@@ -42,6 +42,7 @@ import {
   initializeTokenRequestSchemas,
   isFullyVestedRequestSchemas,
   isVestingActiveRequestSchemas,
+  nameRequestSchemas,
   pauseCampaignRequestSchemas,
   releaseStandardVestingRequestSchemas,
   releaseStandardVestingForRequestSchemas,
@@ -60,6 +61,7 @@ import {
   supplyIsMintingFinishedRequestSchemas,
   supplyMintTokensRequestSchemas,
   supplySetMaximumRequestSchemas,
+  symbolRequestSchemas,
   thresholdBurnExcessRequestSchemas,
   thresholdBurnTokensRequestSchemas,
   thresholdBurnTokensFromRequestSchemas,
@@ -240,6 +242,9 @@ export type IsFullyVestedBody = import("zod").infer<typeof isFullyVestedRequestS
 export type IsVestingActivePath = import("zod").infer<typeof isVestingActiveRequestSchemas.path>;
 export type IsVestingActiveQuery = import("zod").infer<typeof isVestingActiveRequestSchemas.query>;
 export type IsVestingActiveBody = import("zod").infer<typeof isVestingActiveRequestSchemas.body>;
+export type NamePath = import("zod").infer<typeof nameRequestSchemas.path>;
+export type NameQuery = import("zod").infer<typeof nameRequestSchemas.query>;
+export type NameBody = import("zod").infer<typeof nameRequestSchemas.body>;
 export type PauseCampaignPath = import("zod").infer<typeof pauseCampaignRequestSchemas.path>;
 export type PauseCampaignQuery = import("zod").infer<typeof pauseCampaignRequestSchemas.query>;
 export type PauseCampaignBody = import("zod").infer<typeof pauseCampaignRequestSchemas.body>;
@@ -294,6 +299,9 @@ export type SupplyMintTokensBody = import("zod").infer<typeof supplyMintTokensRe
 export type SupplySetMaximumPath = import("zod").infer<typeof supplySetMaximumRequestSchemas.path>;
 export type SupplySetMaximumQuery = import("zod").infer<typeof supplySetMaximumRequestSchemas.query>;
 export type SupplySetMaximumBody = import("zod").infer<typeof supplySetMaximumRequestSchemas.body>;
+export type SymbolPath = import("zod").infer<typeof symbolRequestSchemas.path>;
+export type SymbolQuery = import("zod").infer<typeof symbolRequestSchemas.query>;
+export type SymbolBody = import("zod").infer<typeof symbolRequestSchemas.body>;
 export type ThresholdBurnExcessPath = import("zod").infer<typeof thresholdBurnExcessRequestSchemas.path>;
 export type ThresholdBurnExcessQuery = import("zod").infer<typeof thresholdBurnExcessRequestSchemas.query>;
 export type ThresholdBurnExcessBody = import("zod").infer<typeof thresholdBurnExcessRequestSchemas.body>;

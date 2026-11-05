@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-29T16:52:32.236Z",
+  "generatedAt": "2026-11-04T09:07:56.562Z",
   "methods": {
     "AccessControlFacet.configureRole": {
       "facetName": "AccessControlFacet",
@@ -1333,6 +1333,32 @@
       "supportsGasless": false,
       "notes": "DelegationFacet.getCurrentVotes"
     },
+    "DelegationFacet.getDelegatedVotingPower": {
+      "facetName": "DelegationFacet",
+      "wrapperKey": "getDelegatedVotingPower",
+      "domain": "staking",
+      "resource": "delegations",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/staking/queries/get-delegated-voting-power/delegation-get-delegated-voting-power",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "account",
+            "source": "query",
+            "field": "account"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "delegationGetDelegatedVotingPower",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "DelegationFacet.getDelegatedVotingPower"
+    },
     "DelegationFacet.getPriorVotes": {
       "facetName": "DelegationFacet",
       "wrapperKey": "getPriorVotes",
@@ -1531,7 +1557,7 @@
       "resource": "diamond-admin",
       "classification": "query",
       "httpMethod": "GET",
-      "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved",
+      "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-cut-is-immutable-selector-reserved",
       "inputShape": {
         "kind": "query",
         "bindings": [
@@ -1545,7 +1571,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "isImmutableSelectorReserved",
+      "operationId": "diamondCutIsImmutableSelectorReserved",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "DiamondCutFacet.isImmutableSelectorReserved"
@@ -1796,6 +1822,32 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "DiamondLoupeFacet.facets"
+    },
+    "DiamondLoupeFacet.isImmutableSelectorReserved": {
+      "facetName": "DiamondLoupeFacet",
+      "wrapperKey": "isImmutableSelectorReserved",
+      "domain": "diamond-admin",
+      "resource": "diamond-admin",
+      "classification": "query",
+      "httpMethod": "GET",
+      "path": "/v1/diamond-admin/queries/is-immutable-selector-reserved/diamond-loupe-is-immutable-selector-reserved",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "selector",
+            "source": "query",
+            "field": "selector"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "diamondLoupeIsImmutableSelectorReserved",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "DiamondLoupeFacet.isImmutableSelectorReserved"
     },
     "DiamondLoupeFacet.supportsInterface": {
       "facetName": "DiamondLoupeFacet",
@@ -3272,6 +3324,26 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "GovernorFacet.getVotingConfig"
+    },
+    "GovernorFacet.GOVERNANCE_PROPOSER_ROLE": {
+      "facetName": "GovernorFacet",
+      "wrapperKey": "GOVERNANCE_PROPOSER_ROLE",
+      "domain": "governance",
+      "resource": "governance",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/governance/queries/governance-proposer-role/governor-governance-proposer-role",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "governorGovernanceProposerRole",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "GovernorFacet.GOVERNANCE_PROPOSER_ROLE"
     },
     "GovernorFacet.setDefaultGasLimit": {
       "facetName": "GovernorFacet",
@@ -6046,9 +6118,9 @@
       "supportsGasless": false,
       "notes": "PaymentFacet.updateUnionTreasuryAddress"
     },
-    "PaymentFacet.withdrawPayments": {
+    "PaymentFacet.withdrawPayments()": {
       "facetName": "PaymentFacet",
-      "wrapperKey": "withdrawPayments",
+      "wrapperKey": "withdrawPayments()",
       "domain": "marketplace",
       "resource": "payments",
       "classification": "action",
@@ -6064,16 +6136,98 @@
       "operationId": "withdrawPayments",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "PaymentFacet.withdrawPayments"
+      "notes": "PaymentFacet.withdrawPayments()"
     },
-    "PaymentFacet.withdrawPaymentsWithDeadline": {
+    "PaymentFacet.withdrawPayments(address,uint256)": {
       "facetName": "PaymentFacet",
-      "wrapperKey": "withdrawPaymentsWithDeadline",
+      "wrapperKey": "withdrawPayments(address,uint256)",
       "domain": "marketplace",
       "resource": "payments",
       "classification": "action",
       "httpMethod": "POST",
-      "path": "/v1/marketplace/commands/withdraw-payments-with-deadline",
+      "path": "/v1/marketplace/commands/withdraw-payments-address-uint256",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "token",
+            "source": "body",
+            "field": "token"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "withdrawPaymentsAddressUint256",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "PaymentFacet.withdrawPayments(address,uint256)"
+    },
+    "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)": {
+      "facetName": "PaymentFacet",
+      "wrapperKey": "withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)",
+      "domain": "marketplace",
+      "resource": "payments",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-address-uint256-uint256-uint8-bytes32-bytes32",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "token",
+            "source": "body",
+            "field": "token"
+          },
+          {
+            "name": "amount",
+            "source": "body",
+            "field": "amount"
+          },
+          {
+            "name": "deadline",
+            "source": "body",
+            "field": "deadline"
+          },
+          {
+            "name": "v",
+            "source": "body",
+            "field": "v"
+          },
+          {
+            "name": "r",
+            "source": "body",
+            "field": "r"
+          },
+          {
+            "name": "s",
+            "source": "body",
+            "field": "s"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "withdrawPaymentsWithDeadlineAddressUint256Uint256Uint8Bytes32Bytes32",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "PaymentFacet.withdrawPaymentsWithDeadline(address,uint256,uint256,uint8,bytes32,bytes32)"
+    },
+    "PaymentFacet.withdrawPaymentsWithDeadline(uint256)": {
+      "facetName": "PaymentFacet",
+      "wrapperKey": "withdrawPaymentsWithDeadline(uint256)",
+      "domain": "marketplace",
+      "resource": "payments",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/marketplace/commands/withdraw-payments-with-deadline-uint256",
       "inputShape": {
         "kind": "body",
         "bindings": [
@@ -6087,10 +6241,36 @@
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "withdrawPaymentsWithDeadline",
+      "operationId": "withdrawPaymentsWithDeadlineUint256",
       "rateLimitKind": "write",
       "supportsGasless": false,
-      "notes": "PaymentFacet.withdrawPaymentsWithDeadline"
+      "notes": "PaymentFacet.withdrawPaymentsWithDeadline(uint256)"
+    },
+    "ProposalFacet.cancel": {
+      "facetName": "ProposalFacet",
+      "wrapperKey": "cancel",
+      "domain": "governance",
+      "resource": "proposals",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/governance/queries/cancel",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "proposalId",
+            "source": "query",
+            "field": "proposalId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "proposalCancel",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "ProposalFacet.cancel"
     },
     "ProposalFacet.cancelProposal": {
       "facetName": "ProposalFacet",
@@ -6117,6 +6297,52 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "ProposalFacet.cancelProposal"
+    },
+    "ProposalFacet.execute": {
+      "facetName": "ProposalFacet",
+      "wrapperKey": "execute",
+      "domain": "governance",
+      "resource": "proposals",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/governance/queries/execute",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "proposalId",
+            "source": "query",
+            "field": "proposalId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "proposalExecute",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "ProposalFacet.execute"
+    },
+    "ProposalFacet.EXECUTOR_ROLE": {
+      "facetName": "ProposalFacet",
+      "wrapperKey": "EXECUTOR_ROLE",
+      "domain": "governance",
+      "resource": "proposals",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/governance/queries/executor-role/proposal-executor-role",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "proposalExecutorRole",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "ProposalFacet.EXECUTOR_ROLE"
     },
     "ProposalFacet.getActiveProposals": {
       "facetName": "ProposalFacet",
@@ -6228,7 +6454,7 @@
       "resource": "proposals",
       "classification": "query",
       "httpMethod": "POST",
-      "path": "/v1/governance/queries/governance-proposer-role",
+      "path": "/v1/governance/queries/governance-proposer-role/proposal-governance-proposer-role",
       "inputShape": {
         "kind": "none",
         "bindings": []
@@ -6236,7 +6462,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "governanceProposerRole",
+      "operationId": "proposalGovernanceProposerRole",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "ProposalFacet.GOVERNANCE_PROPOSER_ROLE"
@@ -7770,7 +7996,7 @@
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "cancel",
+      "operationId": "timelockCancel",
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "TimelockFacet.cancel"
@@ -7826,7 +8052,7 @@
       "outputShape": {
         "kind": "void"
       },
-      "operationId": "execute",
+      "operationId": "timelockExecute",
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "TimelockFacet.execute"
@@ -7838,7 +8064,7 @@
       "resource": "timelock-operations",
       "classification": "query",
       "httpMethod": "POST",
-      "path": "/v1/governance/queries/executor-role",
+      "path": "/v1/governance/queries/executor-role/timelock-executor-role",
       "inputShape": {
         "kind": "none",
         "bindings": []
@@ -7846,7 +8072,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "executorRole",
+      "operationId": "timelockExecutorRole",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "TimelockFacet.EXECUTOR_ROLE"
@@ -8742,6 +8968,26 @@
       "supportsGasless": false,
       "notes": "TokenSupplyFacet.initializeToken"
     },
+    "TokenSupplyFacet.name": {
+      "facetName": "TokenSupplyFacet",
+      "wrapperKey": "name",
+      "domain": "tokenomics",
+      "resource": "token-supply",
+      "classification": "read",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/name",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "name",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "TokenSupplyFacet.name"
+    },
     "TokenSupplyFacet.supplyFinishMinting": {
       "facetName": "TokenSupplyFacet",
       "wrapperKey": "supplyFinishMinting",
@@ -8858,6 +9104,26 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "TokenSupplyFacet.supplySetMaximum"
+    },
+    "TokenSupplyFacet.symbol": {
+      "facetName": "TokenSupplyFacet",
+      "wrapperKey": "symbol",
+      "domain": "tokenomics",
+      "resource": "token-supply",
+      "classification": "read",
+      "httpMethod": "POST",
+      "path": "/v1/tokenomics/queries/symbol",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "symbol",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "TokenSupplyFacet.symbol"
     },
     "TokenSupplyFacet.tokenAllowance": {
       "facetName": "TokenSupplyFacet",
@@ -10331,6 +10597,37 @@
       "supportsGasless": false,
       "notes": "VestingFacet.veSupportsInterface"
     },
+    "VoiceAssetFacet.approve": {
+      "facetName": "VoiceAssetFacet",
+      "wrapperKey": "approve",
+      "domain": "voice-assets",
+      "resource": "voice-assets",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/approve",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "to",
+            "source": "body",
+            "field": "to"
+          },
+          {
+            "name": "tokenId",
+            "source": "body",
+            "field": "tokenId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "approve",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceAssetFacet.approve"
+    },
     "VoiceAssetFacet.approveVoiceAsset": {
       "facetName": "VoiceAssetFacet",
       "wrapperKey": "approveVoiceAsset",
@@ -10392,6 +10689,32 @@
       "rateLimitKind": "write",
       "supportsGasless": false,
       "notes": "VoiceAssetFacet.authorizeUser"
+    },
+    "VoiceAssetFacet.balanceOf": {
+      "facetName": "VoiceAssetFacet",
+      "wrapperKey": "balanceOf",
+      "domain": "voice-assets",
+      "resource": "voice-assets",
+      "classification": "read",
+      "httpMethod": "GET",
+      "path": "/v1/voice-assets/queries/balance-of",
+      "inputShape": {
+        "kind": "query",
+        "bindings": [
+          {
+            "name": "owner",
+            "source": "query",
+            "field": "owner"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "scalar"
+      },
+      "operationId": "balanceOf",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VoiceAssetFacet.balanceOf"
     },
     "VoiceAssetFacet.customizeRoyaltyRate": {
       "facetName": "VoiceAssetFacet",
@@ -11372,6 +11695,42 @@
       "supportsGasless": false,
       "notes": "VoiceAssetFacet.tokenURI"
     },
+    "VoiceAssetFacet.transferFrom": {
+      "facetName": "VoiceAssetFacet",
+      "wrapperKey": "transferFrom",
+      "domain": "voice-assets",
+      "resource": "voice-assets",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/commands/transfer-from",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "from",
+            "source": "body",
+            "field": "from"
+          },
+          {
+            "name": "to",
+            "source": "body",
+            "field": "to"
+          },
+          {
+            "name": "tokenId",
+            "source": "body",
+            "field": "tokenId"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "transferFrom",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceAssetFacet.transferFrom"
+    },
     "VoiceAssetFacet.transferFromVoiceAsset": {
       "facetName": "VoiceAssetFacet",
       "wrapperKey": "transferFromVoiceAsset",
@@ -11706,6 +12065,26 @@
       "supportsGasless": false,
       "notes": "VoiceDatasetFacet.getMaxAssetsPerDataset"
     },
+    "VoiceDatasetFacet.getSelectors": {
+      "facetName": "VoiceDatasetFacet",
+      "wrapperKey": "getSelectors",
+      "domain": "datasets",
+      "resource": "datasets",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/datasets/queries/get-selectors",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "array"
+      },
+      "operationId": "getSelectors",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VoiceDatasetFacet.getSelectors"
+    },
     "VoiceDatasetFacet.getTotalDatasets": {
       "facetName": "VoiceDatasetFacet",
       "wrapperKey": "getTotalDatasets",
@@ -12025,6 +12404,26 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseFacet.createLicenseWithMarketplace"
     },
+    "VoiceLicenseFacet.facetFunctionSelectors": {
+      "facetName": "VoiceLicenseFacet",
+      "wrapperKey": "facetFunctionSelectors",
+      "domain": "licensing",
+      "resource": "licenses",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/queries/facet-function-selectors",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "array"
+      },
+      "operationId": "facetFunctionSelectors",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseFacet.facetFunctionSelectors"
+    },
     "VoiceLicenseFacet.getLicense": {
       "facetName": "VoiceLicenseFacet",
       "wrapperKey": "getLicense",
@@ -12294,6 +12693,37 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseFacet.recordLicensedUsage"
     },
+    "VoiceLicenseFacet.recordUsage": {
+      "facetName": "VoiceLicenseFacet",
+      "wrapperKey": "recordUsage",
+      "domain": "licensing",
+      "resource": "licenses",
+      "classification": "action",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/commands/record-usage",
+      "inputShape": {
+        "kind": "body",
+        "bindings": [
+          {
+            "name": "voiceHash",
+            "source": "body",
+            "field": "voiceHash"
+          },
+          {
+            "name": "usageRef",
+            "source": "body",
+            "field": "usageRef"
+          }
+        ]
+      },
+      "outputShape": {
+        "kind": "void"
+      },
+      "operationId": "recordUsage",
+      "rateLimitKind": "write",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseFacet.recordUsage"
+    },
     "VoiceLicenseFacet.revokeLicense": {
       "facetName": "VoiceLicenseFacet",
       "wrapperKey": "revokeLicense",
@@ -12561,6 +12991,26 @@
       "supportsGasless": false,
       "notes": "VoiceLicenseTemplateFacet.getCreatorTemplates"
     },
+    "VoiceLicenseTemplateFacet.getSelectors": {
+      "facetName": "VoiceLicenseTemplateFacet",
+      "wrapperKey": "getSelectors",
+      "domain": "licensing",
+      "resource": "license-templates",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/licensing/queries/get-selectors",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "array"
+      },
+      "operationId": "getSelectors",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VoiceLicenseTemplateFacet.getSelectors"
+    },
     "VoiceLicenseTemplateFacet.getTemplate": {
       "facetName": "VoiceLicenseTemplateFacet",
       "wrapperKey": "getTemplate",
@@ -12726,6 +13176,26 @@
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "VoiceMetadataFacet.getGeographicData"
+    },
+    "VoiceMetadataFacet.getSelectors": {
+      "facetName": "VoiceMetadataFacet",
+      "wrapperKey": "getSelectors",
+      "domain": "voice-assets",
+      "resource": "metadata",
+      "classification": "query",
+      "httpMethod": "POST",
+      "path": "/v1/voice-assets/queries/get-selectors",
+      "inputShape": {
+        "kind": "none",
+        "bindings": []
+      },
+      "outputShape": {
+        "kind": "array"
+      },
+      "operationId": "getSelectors",
+      "rateLimitKind": "read",
+      "supportsGasless": false,
+      "notes": "VoiceMetadataFacet.getSelectors"
     },
     "VoiceMetadataFacet.getVoiceCategories": {
       "facetName": "VoiceMetadataFacet",
@@ -13064,7 +13534,7 @@
       "resource": "voting-power",
       "classification": "read",
       "httpMethod": "GET",
-      "path": "/v1/staking/queries/get-delegated-voting-power",
+      "path": "/v1/staking/queries/get-delegated-voting-power/voting-power-get-delegated-voting-power",
       "inputShape": {
         "kind": "query",
         "bindings": [
@@ -13078,7 +13548,7 @@
       "outputShape": {
         "kind": "scalar"
       },
-      "operationId": "getDelegatedVotingPower",
+      "operationId": "votingPowerGetDelegatedVotingPower",
       "rateLimitKind": "read",
       "supportsGasless": false,
       "notes": "VotingPowerFacet.getDelegatedVotingPower"
