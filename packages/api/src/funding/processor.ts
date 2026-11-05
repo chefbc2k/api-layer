@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import { z } from "zod";
-import { providerOrderSchema, type CoinbaseFundingProvider } from "./provider.js";
+import { providerOrderSchema, type CoinbaseFundingProvider, type CoinbaseOrder } from "./provider.js";
 import { decimalUnits } from "./config.js";
 
 const prefix = "ONRAMP_ORDER_STATUS_";
@@ -9,10 +9,26 @@ const ranks: Record<string, number> = { PENDING_AUTH: 0, PENDING_PAYMENT: 1, PRO
 export function chooseStatus(previous: string | null, next: string, previousAt: Date | null, nextAt: Date): string | null {
   const old = previous?.replace(prefix, ""); const value = next.replace(prefix, "");
   if (!(value in ranks)) throw new Error("unsupported_status");
+  if (old && !(old in ranks)) throw new Error("unsupported_status");
   if (old === "COMPLETED") return null;
   if (previousAt && nextAt < previousAt) return null;
   if (old && ranks[value] < ranks[old]) return null;
   return next;
+}
+export function assertObservationTimestamp(observedAt: Date, receivedAt: Date): void {
+  const observed = observedAt.getTime(), received = receivedAt.getTime();
+  if (!Number.isFinite(observed) || !Number.isFinite(received) || observed > received + 5 * 60_000) throw new Error("invalid_timestamp");
+}
+export function assertHeadlessOrderValue(order: CoinbaseOrder, amountKind: unknown, requestAmount: unknown): void {
+  try {
+    if ((amountKind !== "payment" && amountKind !== "purchase") || typeof requestAmount !== "string") throw new Error();
+    const total = decimalUnits(order.paymentTotal, 6), subtotal = decimalUnits(order.paymentSubtotal, 6);
+    const purchase = decimalUnits(order.purchaseAmount, 6);
+    const fees = order.fees.reduce((sum, fee) => sum + decimalUnits(fee.amount, 6), 0n);
+    const expected = decimalUnits(requestAmount, 6);
+    if (total <= 0n || subtotal <= 0n || purchase <= 0n || expected <= 0n || total !== subtotal + fees
+      || (amountKind === "payment" ? total : purchase) !== expected) throw new Error();
+  } catch { throw new Error("invalid_amount"); }
 }
 const types = new Set(["onramp.transaction.created", "onramp.transaction.updated", "onramp.transaction.success", "onramp.transaction.failed"]);
 const transaction = z.object({ transactionId: z.string().uuid(), partnerUserRef: z.string(), walletAddress: z.string(),
@@ -39,8 +55,9 @@ export class FundingProcessor {
         const orderId = z.string().uuid().optional().parse(event.orderId);
         const ref = z.string().min(1).parse(event.partnerUserRef);
         // Old stable per-user references cannot safely identify an unknown checkout.
-        const attempts = await client.query(`SELECT * FROM funding_attempts WHERE
-          (provider_order_id=$1 AND $1 IS NOT NULL) OR provider_user_ref=$2 FOR UPDATE`, [orderId ?? null, ref]);
+        const attempts = await client.query(`SELECT a.*,q.request_amount::text AS quote_request_amount,q.amount_kind AS quote_amount_kind
+          FROM funding_attempts a LEFT JOIN funding_quotes q ON q.id=a.quote_id WHERE
+          (a.provider_order_id=$1 AND $1 IS NOT NULL) OR a.provider_user_ref=$2 FOR UPDATE OF a`, [orderId ?? null, ref]);
         if (attempts.rowCount !== 1) throw new Error("unmatched_attempt");
         const attempt = attempts.rows[0];
         const expectedRef = attempt.provider_user_ref ?? `${attempt.sandbox ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${attempt.user_id}`).digest("hex").slice(0,32)}`;
@@ -50,7 +67,7 @@ export class FundingProcessor {
           if (attempt.kind !== "headless" || (attempt.provider_order_id && attempt.provider_order_id !== orderId)) throw new Error("identity_mismatch");
           const current = providerOrderSchema.parse(await this.provider.getOrder(orderId));
           if (current.orderId !== orderId || current.partnerUserRef !== expectedRef || current.destinationAddress.toLowerCase() !== attempt.wallet_address || !current.updatedAt) throw new Error("identity_mismatch");
-          decimalUnits(current.purchaseAmount,6);
+          assertHeadlessOrderValue(current, attempt.quote_amount_kind, attempt.quote_request_amount);
           status=current.status; at=new Date(current.updatedAt); txHash=current.txHash;
         } else {
           if (attempt.kind !== "hosted") throw new Error("identity_mismatch");
@@ -62,6 +79,7 @@ export class FundingProcessor {
           txHash=current.txHash && /^0x[0-9a-fA-F]{64}$/.test(current.txHash) ? current.txHash : undefined;
           transactionId=current.transactionId;
         }
+        assertObservationTimestamp(at, new Date(row.received_at));
         const chosen = chooseStatus(attempt.provider_status,status,attempt.provider_updated_at,at);
         if (chosen) await this.observe(client, attempt.id, chosen, at, orderId, transactionId, txHash);
         await client.query("UPDATE funding_webhook_inbox SET processed_at=now(), attempts=attempts+1,last_error=NULL WHERE event_id=$1", [row.event_id]);
@@ -70,7 +88,7 @@ export class FundingProcessor {
         await client.query("ROLLBACK TO SAVEPOINT event_processing");
         const attempts=Number(row.attempts)+1;
         // Fixed categories only: provider errors and payloads must never enter logs/error fields.
-        const category=error instanceof Error && ["unsupported_event","unmatched_attempt","identity_mismatch","invalid_amount"].includes(error.message) ? error.message : "processing_failed";
+        const category=error instanceof Error && ["unsupported_event","unmatched_attempt","identity_mismatch","invalid_amount","invalid_timestamp"].includes(error.message) ? error.message : "processing_failed";
         await client.query(`UPDATE funding_webhook_inbox SET attempts=$2,last_error=$3,
           next_attempt_at=now()+($4::text||' seconds')::interval, quarantined_at=CASE WHEN $2>=8 THEN now() ELSE NULL END WHERE event_id=$1`,
         [row.event_id,attempts,category,Math.min(3600,2**attempts)]);

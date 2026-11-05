@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Red-Team Harness Automation Run — 2026-11-05
+
+- Started `codex/red-team-harness-20261105` from local production `master` `90a62e2` after fetching `origin`; fetched `origin/master` `a9657c3` is an ancestor of that baseline. The unrelated dirty primary assurance checkout remained untouched, and the clean isolated red-team worktree was reused.
+- Added funding lifecycle and readiness suites to both canonical adversarial commands. The processor corpus mutates incoming and persisted lifecycle states, timestamps, requested purchase/payment amounts, provider totals, fee conservation, and amount kinds. Unknown states fail closed, observations more than five minutes ahead of durable receipt time cannot pin the state machine, and canonical Headless refreshes must conserve positive subtotal-plus-fee value and still equal the server-owned quote before inbox completion or attempt mutation.
+- Hardened readiness against stale and internally inconsistent RPC reads. The inspected block must match the requested height, carry a hash, be no more than five minutes old or thirty seconds ahead, and retain the same hash after the pinned balance, allowance, listing, bytecode, and gas-input reads. Stale, future, mismatched-height, and reorged snapshots cannot return a ready-to-sign result or reach gas simulation.
+- Verification passed: focused processor/readiness mutations (`30/30`), disposable PostgreSQL worker/indexer/privacy proofs (`31/31`) including atomic rollback then recovery from a mutated canonical order, `pnpm run test:redteam` (`230/230`), and guarded `pnpm run redteam:local-fork` (`274/274` across `17` files with all `6/6` deployed-fork probes active). The repository suite passed `2,284` active tests with `73` environment-gated skips; TypeScript, lint, full deployment-filtered build/codegen, and explicit `pnpm run coverage:check` passed at `492` wrapper functions, `218` event occurrences, `492` HTTP methods, and `260/260` write invariants. Generator-only reviewed-surface timestamp churn was restored.
+- **Merge decision:** the funding state/RPC red-team slice is 100% complete and verified for merge into `master`. No implementation or test blocker remains; merge must preserve the unrelated dirty primary checkout.
+
 ## Daily Branch Consolidation — 2026-11-05
 
 - Inventoried all 29 linked worktrees before movement. Three dirty states were committed and pushed on dated autosave branches: the primary assurance-gap work, the current production-indexer generated-surface work, and local-fork execution work. No user changes were discarded, and every worktree was clean before branch assessment began.

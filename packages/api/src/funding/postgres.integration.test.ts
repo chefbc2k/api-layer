@@ -207,8 +207,13 @@ describe.skipIf(!database)("funding event processing", () => {
     let calls=0;
     const worker=new FundingProcessor(pool,{getOrder:async(id)=>{calls++;expect(id).toBe(orderId);return {
       orderId,partnerUserRef:attempt.provider_user_ref!,status:"ONRAMP_ORDER_STATUS_COMPLETED",updatedAt:"2026-10-27T01:00:00Z",
-      destinationAddress:wallet,destinationNetwork:"base",purchaseCurrency:"USDC",purchaseAmount:"10",paymentCurrency:"USD",paymentTotal:"10",paymentSubtotal:"10",fees:[]};}});
-    expect(await worker.runOne()).toBe("processed");expect(calls).toBe(1);
+      destinationAddress:wallet,destinationNetwork:"base",purchaseCurrency:"USDC",purchaseAmount:calls===1?"9.999999":"10",
+      paymentCurrency:"USD",paymentTotal:"10",paymentSubtotal:"10",fees:[]};}});
+    expect(await worker.runOne()).toBe("retry");
+    expect((await store.getAttempt(attempt.id,"headless_worker"))?.state).toBe("creating");
+    expect((await pool.query("SELECT processed_at,last_error FROM funding_webhook_inbox WHERE event_id='headless_event'")).rows[0]).toEqual({processed_at:null,last_error:"invalid_amount"});
+    await pool.query("UPDATE funding_webhook_inbox SET next_attempt_at=now() WHERE event_id='headless_event'");
+    expect(await worker.runOne()).toBe("processed");expect(calls).toBe(2);
     const saved=await store.getAttempt(attempt.id,"headless_worker");expect(saved?.provider_status).toBe("ONRAMP_ORDER_STATUS_COMPLETED");expect(saved?.provider_order_id).toBe(orderId);
     expect(await worker.runOne()).toBe("idle");
   });
