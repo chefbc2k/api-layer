@@ -6,6 +6,7 @@ import {
   buildOperationId,
   classifyMethod,
   domainByFacet,
+  ensureUniqueEventPaths,
   keyForEvent,
   keyForMethod,
   loadAbiRegistry,
@@ -894,6 +895,42 @@ describe("api surface helpers", () => {
       beta: 2,
       gamma: 3,
     });
+  });
+
+  it("derives distinct routes for same-facet event overloads and cross-facet event names", () => {
+    const events = ensureUniqueEventPaths({
+      "TimelockFacet.OperationExecuted(bytes32)": buildEventSurface(event({
+        facetName: "TimelockFacet",
+        wrapperKey: "OperationExecuted(bytes32)",
+        eventName: "OperationExecuted",
+      })),
+      "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)": buildEventSurface(event({
+        facetName: "TimelockFacet",
+        wrapperKey: "OperationExecuted(bytes32,uint256,uint256)",
+        eventName: "OperationExecuted",
+      })),
+      "VoiceLicenseFacet.LicenseCreated(bytes32)": buildEventSurface(event({
+        facetName: "VoiceLicenseFacet",
+        wrapperKey: "LicenseCreated(bytes32)",
+        eventName: "LicenseCreated",
+      })),
+      "VoiceLicenseTemplateFacet.LicenseCreated(bytes32)": buildEventSurface(event({
+        facetName: "VoiceLicenseTemplateFacet",
+        wrapperKey: "LicenseCreated(bytes32)",
+        eventName: "LicenseCreated",
+      })),
+    });
+
+    expect(events["TimelockFacet.OperationExecuted(bytes32)"].path)
+      .toBe("/v1/governance/events/operation-executed/query/timelock/bytes32");
+    expect(events["TimelockFacet.OperationExecuted(bytes32,uint256,uint256)"].path)
+      .toBe("/v1/governance/events/operation-executed/query/timelock/bytes32-uint256-uint256");
+    expect(events["VoiceLicenseFacet.LicenseCreated(bytes32)"].path)
+      .toBe("/v1/licensing/events/license-created/query/voice-license");
+    expect(events["VoiceLicenseTemplateFacet.LicenseCreated(bytes32)"].path)
+      .toBe("/v1/licensing/events/license-created/query/voice-license-template");
+    expect(new Set(Object.values(events).map((entry) => `${entry.httpMethod} ${entry.path}`)).size)
+      .toBe(Object.keys(events).length);
   });
 
   it("throws for unmapped method or event facets", () => {

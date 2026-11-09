@@ -67,6 +67,16 @@ const recipientAccount = "0x00000000000000000000000000000000000000cc";
 
 const tokenSupplyAndVestingCases = [
   {
+    key: "TokenSupplyFacet.burn",
+    negativePath: "reject stale, replayed, or unauthorized token burn before mutation",
+    signature: "burn(uint256)",
+    method: "DELETE",
+    path: "/v1/tokenomics/commands/burn",
+    body: { amount: "250" },
+    runtimeArgs: [250n],
+    preview: null,
+  },
+  {
     key: "TokenSupplyFacet.transferFrom",
     negativePath: "reject unauthorized or stale allowance transfer before mutation",
     signature: "transferFrom(address,address,uint256)",

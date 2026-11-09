@@ -7,6 +7,37 @@
 - Required readiness to use a fresh, height-consistent RPC block and to recheck its hash after pinned listing, balance, allowance, bytecode, and gas-input reads. Stale, future, mismatched-height, and reorged snapshots cannot produce a ready-to-sign response.
 - Verification passed 30 focused mutations, 31 disposable PostgreSQL proofs, 230 deterministic red-team cases, 274 guarded local-fork cases with all six deployed probes active, and 2,284 active repository tests with 73 gated skips. TypeScript, lint, deployment-filtered build/codegen, and explicit coverage checks passed at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants.
 
+## [0.1.413] - 2026-11-05
+
+### Changed
+
+- **Conservative Gap Attribution Restored:** Reinstated AST-aware executable test references, unique facet/signature attribution, registry signature and reviewed-surface identity validation, exact route boundaries, keyed-matrix scoping, verify-artifact outcome validation, and inventory-helper exclusions. The hardened baseline exposed `95` non-ready items instead of accepting passive DTO fields, prose, ambiguous overloads, or stale registry metadata as behavioral proof.
+- **Full Forty-Item Batch Implemented:** Added grouped mounted-route matrices for the selected Timelock, VoiceLicense, AccessControl, CommunityRewards, Delegation, Emergency, Escrow, LegacyExecution, and Legacy gaps. The matrices prove ABI decoding, contract preflight before persistence/submission, read-only denial before provider access, and stale/replay/unauthorized rejection without mutation.
+- **Overloaded Event Routes Fail Closed:** Event surface generation now resolves cross-facet collisions first, adds deterministic overload suffixes when same-facet events still collide, and rejects any unresolved duplicate route. Timelock `OperationExecuted` and VoiceLicense `LicenseCreated` overloads now have four distinct reviewed/generated endpoints.
+- **Follow-Up Read, Write, And Indexer Gaps Closed:** Added ABI-native Proposal, Rights, Vesting, and VoiceAsset read fixtures; mounted safety coverage for Payment withdrawals, token burn, WhisperBlock fingerprint registration, and four VoiceAsset authorization/transfer writes; and exact projection/idempotency assurance for MultiSig, Proposal, and VoiceLicense events.
+- **Gap Backlog Eliminated:** Regenerated all four report and plan artifacts. Ready items increased from the hardened `615` baseline to `710`; non-ready items fell from `95` to `0`, and the follow-up plan is empty.
+
+### Verified
+
+- **Required Gap Gates Passed:** `pnpm run test:gap-report` passed `41/41`, `pnpm run test:gap-builder` passed `12/12`, and the grouped focused route/read suites passed all targeted cases.
+- **Actor And Indexer Gates Passed:** `pnpm run test:actor-negative-paths` passed `886/886` across `26` files. `pnpm run test:indexer:assurance` passed `272` tests with `6` PostgreSQL cases gated by environment.
+- **Coverage And Quality Gates Passed:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants. The API TypeScript build and full ESLint suite passed.
+
+## [0.1.409] - 2026-11-05
+
+### Changed
+
+- **Seventeen Planned Gaps Closed:** Added grouped mounted-route safety matrices for four `VoiceMetadataFacet`, seven `VotingPowerFacet`, and five `WhisperBlockFacet` writes. The `16` routes now prove decoded ABI arguments, contract static-call preflight before persistence and submission, read-only denial before provider access, and stale/replay/unauthorized rejection without mutation.
+- **Legacy Proposal Exclusion Fails Closed:** Added an executable deny-by-absence guard for `ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)`. The gap reporter now treats the intentional ABI-only overload as ready only while generated and reviewed HTTP surfaces omit it and the registered guard exists; accidental exposure becomes `needs API guard`, and a missing guard becomes `needs fixture`.
+- **Empty-Backlog Planning Is Deterministic:** Isolated the gap-builder persistence test from the repository's mutable report so reaching zero gaps no longer breaks the planner gate.
+- **Gap Backlog Eliminated:** Regenerated the JSON and Markdown gap report and plan. Ready items increased from `693` to `710`, non-ready items fell from `17` to `0`, and the follow-up plan is empty.
+
+### Verified
+
+- **Focused Safety And Reporter Suites Passed:** The four new workflow suites plus the gap-reporter regression passed `58/58` tests.
+- **Required Gates Passed:** `pnpm run test:gap-report` passed `9/9`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `637/637` across `21` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Build And Static Checks Passed:** The API TypeScript build and focused ESLint passed.
+
 ## Daily assurance branch consolidation - 2026-11-05
 
 - Recorded all 29 linked worktrees before branch movement and preserved three dirty states on `codex/autosave-20261105-daily-consolidation-root`, `codex/autosave-20261105-production-indexer-write-coverage`, and `codex/autosave-20261105-local-fork-automation`. All three autosaves were pushed without discarding user changes.
