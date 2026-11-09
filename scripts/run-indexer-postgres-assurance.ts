@@ -50,9 +50,7 @@ async function main(): Promise<void> {
     started = true;
 
     const databaseArgs = ["-h", "127.0.0.1", "-p", String(port), "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1"];
-    await run(psql, [...databaseArgs, "-c", "create role anon; create role authenticated; create role service_role; create schema auth;"]);
-    await run(psql, [...databaseArgs, "-c", "create function auth.uid() returns uuid language sql stable as 'select null::uuid';"]);
-    await run(psql, [...databaseArgs, "-c", "create function auth.jwt() returns json language sql stable as 'select json_build_object();';"]);
+    await run(psql, [...databaseArgs, "-f", "db/bootstrap/standalone-postgres.sql"]);
     for (let pass = 0; pass < 2; pass += 1) {
       await run(psql, [
         ...databaseArgs,
