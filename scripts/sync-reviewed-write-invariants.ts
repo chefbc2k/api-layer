@@ -75,6 +75,7 @@ const eventNamesByMethodKey: Record<string, string[]> = {
   "EmergencyFacet.extendPausedUntil": ["PauseExtended"],
   "EmergencyFacet.startRecovery": ["RecoveryStarted"],
   "EmergencyFacet.emergencyStop": ["EmergencyStateChanged"],
+  "EmergencyFacet.setEmergencyTimeout": [],
   "EmergencyFacet.triggerEmergency": ["EmergencyStateChanged"],
   "EmergencyWithdrawalFacet.setRecipientWhitelist": ["RecipientWhitelisted"],
   "LegacyFacet.addBeneficiary": ["BeneficiaryUpdated"],

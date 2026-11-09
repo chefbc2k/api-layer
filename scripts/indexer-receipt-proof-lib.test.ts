@@ -95,7 +95,7 @@ describe("local-fork receipt-to-indexer proof", () => {
 
   it("accepts an eventless write receipt without inventing a projection", () => {
     const write = [...buildWriteSelectorMap().values()]
-      .find(({ methodKey }) => methodKey === "VoiceDatasetFacet.setMaxAssetsPerDataset")!;
+      .find(({ methodKey }) => methodKey === "EmergencyFacet.setEmergencyTimeout")!;
     expect(write.definition.invariants.emittedEvents).toMatchObject({ mode: "none", events: [] });
     expect(write.definition.invariants.indexerExpectations).toMatchObject({ mode: "none", events: [], projections: [] });
 

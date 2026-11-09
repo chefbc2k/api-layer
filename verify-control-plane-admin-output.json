@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T19:48:49.108Z",
+  "generatedAt": "2026-11-04T17:16:39.510Z",
   "summary": "proven working",
   "reports": {
     "control-plane-admin-writes": {
@@ -24,21 +24,21 @@
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0xc6855063e6666c7967ad422acad61624de9dbafe9f8bbd4cdf8fe642d01165a4",
+          "txHash": "0x8912a56cb4b4dc8cee47bfe0dd1ff90539b3e74772a8a90385eb25dd6ec7a8a0",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x60dcd69492760c26d31949f282d0bff0dfa9fc6345fe9a34c3749259a06cdf2a",
+          "txHash": "0x80457763c5ef00026dd057b90374d0bb38e9d8425a1720b2f8f4c21ccb94b0c4",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x0a85529f19e4448e71bca3f481ee453863944ff39ef0d7e5471acf5850b61e25",
+          "txHash": "0x267ea0db716c51c49192027cfb3440d6b55bb4aa9d452a3ecc00de4efabe257a",
           "receiptStatus": 1
         },
         {
@@ -59,7 +59,7 @@
           "route": "POST /v1/emergency/admin/set-recipient-whitelist",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0xcae15dafac62bcfd412a53d83ea5ca2bb251e389551e379e50e8fe5803bf86fe",
+          "txHash": "0x5b2a1832eb4281179faa3cbf57e22d4452f84a87b31abe232321dc5f5271801a",
           "receiptStatus": 1
         },
         {
