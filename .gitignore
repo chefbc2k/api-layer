@@ -10,3 +10,5 @@ generated/manifests/
 .runtime/
 pnpm-lock.yaml
 *.log
+.vercel
+.env*
