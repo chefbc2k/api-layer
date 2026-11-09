@@ -85,24 +85,34 @@ describe("checkout HTTP and idempotency", () => {
       deputy: { label: "mismatched deputy", fundingUserId: user, walletAddress: "0x00000000000000000000000000000000000000bb" },
     }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
     const app = express(); app.use(express.json());
-    app.use(createFundingRouter(context, { config, inspectChain: async () => ({ chainId: 84532, token: BASE_SEPOLIA_USDC }), checkout: { provider, store } }));
+    const inspectChain = vi.fn().mockResolvedValue({ chainId: 84532, token: BASE_SEPOLIA_USDC });
+    app.use(createFundingRouter(context, { config, inspectChain, checkout: { provider, store } }));
     const server = app.listen(0); servers.push(server); await new Promise<void>(resolve => server.once("listening", resolve));
     const port = (server.address() as import("node:net").AddressInfo).port;
     async function call(path: string, body?: unknown, headers: Record<string,string> = {}) {
       const response = await fetch(`http://127.0.0.1:${port}/v1/funding/${path}`, { method: body === undefined ? "GET" : "POST", headers: { "x-api-key": "buyer", "content-type": "application/json", "idempotency-key": "request_0001", ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
       return { status: response.status, body: await response.json() };
     }
-    return { call, provider, store, context, getAttempt: () => attempt };
+    return { call, provider, store, inspectChain, context, getAttempt: () => attempt };
   }
   it.each(["founder", "admin", "operator", "buyer", "seller", "licensee", "collaborator"])("denies role-only %s on both checkout writes", async role => {
-    const { context, call, provider, store } = await setup(); context.apiKeys.buyer.roles=[role]; delete context.apiKeys.buyer.fundingUserId;
+    const { context, call, provider, store, inspectChain } = await setup(); context.apiKeys.buyer.roles=[role]; delete context.apiKeys.buyer.fundingUserId;
     expect((await call("orders",{quoteId})).status).toBe(403); expect((await call("sessions",{})).status).toBe(403);
-    expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
+    expect(inspectChain).not.toHaveBeenCalled(); expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
   });
   it.each(["orders", "sessions"])("denies %s for a bound read-only key before any create", async path => {
-    const { context, call, provider, store } = await setup(); context.apiKeys.buyer.roles=["read-only"];
+    const { context, call, provider, store, inspectChain } = await setup(); context.apiKeys.buyer.roles=["read-only"];
     expect((await call(path,path==="orders"?{quoteId}:{})).status).toBe(403);
-    expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
+    expect(inspectChain).not.toHaveBeenCalled(); expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
+  });
+  it.each(["orders", "sessions"])("denies %s for unknown keys and mismatched wallet headers before any create", async path => {
+    const { call, provider, store, inspectChain } = await setup();
+    const body = path === "orders" ? { quoteId } : {};
+    expect((await call(path, body, { "x-api-key": "unknown-key" })).status).toBe(401);
+    expect((await call(path, body, { "x-wallet-address": "0x00000000000000000000000000000000000000bb" })).status).toBe(403);
+    expect(inspectChain).not.toHaveBeenCalled();
+    expect(store.findAttempt).not.toHaveBeenCalled(); expect(store.beginAttempt).not.toHaveBeenCalled();
+    expect(provider.createOrder).not.toHaveBeenCalled(); expect(provider.createSession).not.toHaveBeenCalled();
   });
   it("creates an embedded order with no client contact attestations and encrypts reusable tokens", async () => {
     const { call, provider, getAttempt } = await setup();

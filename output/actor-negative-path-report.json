@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "generatedAt": "2026-11-05T08:12:14.155Z",
+  "generatedAt": "2026-11-05T14:00:42.562Z",
   "totals": {
     "abiWriteMethodCount": 260,
     "writeMethodCount": 259,
@@ -47,6 +47,7 @@
       "boundaryDenials": [
         "missing-funding-user-id",
         "unknown-api-key",
+        "read-only-api-key",
         "wallet-binding-mismatch"
       ]
     },
@@ -69,6 +70,7 @@
       "boundaryDenials": [
         "missing-funding-user-id",
         "unknown-api-key",
+        "read-only-api-key",
         "wallet-binding-mismatch"
       ]
     },
@@ -91,6 +93,7 @@
       "boundaryDenials": [
         "missing-funding-user-id",
         "unknown-api-key",
+        "read-only-api-key",
         "wallet-binding-mismatch"
       ]
     }

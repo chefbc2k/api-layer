@@ -37,6 +37,12 @@
 - **Focused Safety And Reporter Suites Passed:** The four new workflow suites plus the gap-reporter regression passed `58/58` tests.
 - **Required Gates Passed:** `pnpm run test:gap-report` passed `9/9`, `pnpm run test:gap-builder` passed `12/12`, `pnpm run test:actor-negative-paths` passed `637/637` across `21` files, and `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
 - **Build And Static Checks Passed:** The API TypeScript build and focused ESLint passed.
+## Actor negative-path funding boundaries - 2026-11-05
+
+- Added Coinbase quote, order, and session coverage to the canonical actor gate. Founder, admin, operator, buyer, seller, licensee, collaborator, provisioned read-only, unknown-key, and wallet-header confused-deputy requests now have explicit fail-closed evidence before chain inspection, durable storage, or provider creation.
+- Updated the schema-v3 actor report so all three non-contract funding writes explicitly record the read-only API-key boundary. Persistent evidence remains complete for 262 mounted HTTP writes, 1,813 contract actor/method cases, 777 key/signer boundary cases, 200 non-admin role denials, 3,150 stale/revoked/expired lifecycle cases, and 30 funding identity/boundary cases.
+- Verification passed 128 focused actor/funding tests, 629 canonical actor tests, 202 red-team tests, and 2,271 repository tests with 73 environment-gated skips. Lint, full build/codegen, and explicit coverage passed at 492 wrapper functions, 218 events, 492 HTTP methods, and 260/260 write invariants.
+- The complete candidate remains on `codex/actor-negative-paths-20261105`; merge is deferred until unrelated overlapping changes in the checked-out `master` worktree are preserved and reconciled.
 
 ## Daily assurance branch consolidation - 2026-11-05
 
