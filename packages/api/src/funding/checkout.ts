@@ -26,7 +26,7 @@ const statuses: Record<string, string> = {
 function publicAttempt(attempt: FundingAttempt) {
   return { id: attempt.id, kind: attempt.kind, sandbox: attempt.sandbox, createdAt: attempt.created_at.toISOString(),
     status: attempt.state === "ready" ? (statuses[attempt.provider_status ?? ""] ?? "checkout_created") : "outcome_unknown",
-    settlementStatus: "unverified", providerOrderId: attempt.provider_order_id };
+    settlementStatus: "unverified", providerTransactionId: attempt.provider_transaction_id ?? null, providerOrderId: attempt.provider_order_id };
 }
 
 export function createCheckoutRouter(context: ApiExecutionContext, config: FundingConfig,

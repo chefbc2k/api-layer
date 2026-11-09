@@ -9,6 +9,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase reconciliation and recovery - 2026-11-09 AM
+
+- Added durable polling recovery for ambiguous creates and canonical status refresh, with exact owner/value checks, complete paginated scans, cursor/retry persistence and explicit escalation for unknowable legacy outcomes.
+- Added read-only webhook subscription monitoring and internal worker diagnostics/backoff. No provider subscription or monetary write was enabled. Added migration 0010; existing production Neon rollout requires applying that migration before feature enablement.
+- Added provider-boundary tests and 29 real PostgreSQL reconciliation cases, including concurrency/restart, partial pages, collisions, timeouts and health. Recorded missed November 5–8 targets honestly and updated the ongoing schedule to 08:00/20:00. Final acceptance and delivery evidence are in the funding build log.
+
 ## Funding state and RPC red-team hardening - 2026-11-05
 
 - Added processor and readiness mutation suites to both canonical red-team commands. Unknown persisted/incoming states and provider observations more than five minutes ahead of durable receipt time now fail closed instead of advancing or pinning the lifecycle state machine.

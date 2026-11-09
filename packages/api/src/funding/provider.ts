@@ -23,6 +23,19 @@ export const providerOrderSchema = quoteSchema.shape.order.extend({
   status: z.enum(["ONRAMP_ORDER_STATUS_PENDING_AUTH", "ONRAMP_ORDER_STATUS_PENDING_PAYMENT", "ONRAMP_ORDER_STATUS_PROCESSING", "ONRAMP_ORDER_STATUS_COMPLETED", "ONRAMP_ORDER_STATUS_FAILED"]),
 });
 export type CoinbaseOrder = z.infer<typeof providerOrderSchema>;
+export const fundingTransactionSchema = z.object({
+  transaction_id: z.string().uuid(), partner_user_ref: z.string(), wallet_address: z.string(),
+  purchase_currency: z.string(), purchase_network: z.string(),
+  purchase_amount: z.object({currency:z.string(),value:z.string()}),
+  payment_total: z.object({currency:z.string(),value:z.string()}),
+  created_at:z.string().datetime(), completed_at:z.string().datetime().optional(),
+  status:z.enum(["ONRAMP_TRANSACTION_STATUS_CREATED","ONRAMP_TRANSACTION_STATUS_IN_PROGRESS","ONRAMP_TRANSACTION_STATUS_SUCCESS","ONRAMP_TRANSACTION_STATUS_FAILED"]),
+  tx_hash:z.string().optional(),
+});
+export type FundingTransaction = z.infer<typeof fundingTransactionSchema>;
+export const fundingTransactionPageSchema = z.object({transactions:z.array(fundingTransactionSchema).max(100), next_page_key:z.string().max(4096).optional()});
+const subscriptionSchema=z.object({subscriptionId:z.string(),isEnabled:z.boolean(),eventTypes:z.array(z.string()),target:z.object({url:z.string().url(),method:z.string().optional()})});
+
 const checkoutUrl = z.string().url().refine(value => {
   const url = new URL(value);
   return url.protocol === "https:" && url.hostname === "pay.coinbase.com" && !url.port && !url.username && !url.password;
@@ -89,6 +102,18 @@ export class CoinbaseFundingProvider {
     z.string().uuid().parse(id);
     const result = await this.request("api.cdp.coinbase.com", `/platform/v2/onramp/orders/${id}`, z.object({ order: providerOrderSchema })) as { order: CoinbaseOrder };
     return result.order;
+  }
+
+  async transactions(ref:string, pageKey?:string):Promise<z.infer<typeof fundingTransactionPageSchema>> {
+    z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/).parse(ref);
+    const query=new URLSearchParams({pageSize:"100"});
+    if(pageKey) query.set("pageKey",z.string().max(4096).parse(pageKey));
+    return await this.request("api.developer.coinbase.com",`/onramp/v1/buy/user/${encodeURIComponent(ref)}/transactions`,fundingTransactionPageSchema,query) as z.infer<typeof fundingTransactionPageSchema>;
+  }
+
+  async subscription(id:string):Promise<z.infer<typeof subscriptionSchema>> {
+    z.string().uuid().parse(id);
+    return await this.request("api.cdp.coinbase.com",`/platform/v2/data/webhooks/subscriptions/${id}`,subscriptionSchema) as z.infer<typeof subscriptionSchema>;
   }
 
   async createSession(input: Record<string, unknown>): Promise<{ session: { onrampUrl: string } }> {

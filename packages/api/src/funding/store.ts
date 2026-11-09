@@ -13,6 +13,7 @@ export type FundingAttempt = {
   id: string; user_id: string; kind: "headless" | "hosted"; fingerprint: string;
   wallet_address: string; chain_id: string; sandbox: boolean; state: "creating" | "uncertain" | "ready";
   provider_user_ref?: string | null; provider_updated_at?: Date | null;
+  provider_transaction_id?: string | null; reconcile_error?: string | null;
   provider_order_id: string | null; provider_status: string | null; checkout_ciphertext: string | null;
   checkout_expires_at: Date | null; created_at: Date;
 };
