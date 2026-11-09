@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-09",
+  "slot": "08:00 America/Chicago",
+  "before": 13,
+  "after": 15,
+  "baseline": 20,
+  "acceptedPercent": 75,
+  "startingOpenIncludingF01": 8,
+  "minimumRequired": 2,
+  "attempted": [
+    "C10",
+    "C14"
+  ],
+  "completed": [
+    "C10",
+    "C14"
+  ],
+  "attemptedPercentOfOriginal": 10,
+  "completedPercentOfOriginal": 10,
+  "completedPercentOfStartingOpen": 25,
+  "sourceCommit": "5e5af8d",
+  "baseCommit": "8fc8f66abfadaf1d744cbad68b1996bf5d03114e",
+  "gates": {
+    "test": {
+      "passed": 2737,
+      "skipped": 102,
+      "failed": 0,
+      "passedFiles": 181,
+      "skippedFiles": 6
+    },
+    "postgres": {
+      "passed": 60,
+      "reconciliation": 29,
+      "funding": 21,
+      "indexer": 6,
+      "privacy": 4,
+      "migrationsAppliedTwice": true
+    },
+    "actorsPassed": 1009,
+    "redteamPassed": 232,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "surface": {
+      "functions": 492,
+      "eventOccurrences": 218,
+      "writeInvariants": 260
+    },
+    "coverage": {
+      "lines": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      },
+      "statements": {
+        "total": 2,
+        "covered": 2,
+        "skipped": 0,
+        "pct": 100
+      },
+      "functions": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branches": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": "Unknown"
+      }
+    }
+  },
+  "productionEnabledByThisRun": false,
+  "providerSandboxAccepted": false,
+  "settlementAccepted": false,
+  "productionMigrationApplied": false,
+  "requiredProductionMigration": "0010_funding_reconciliation.sql",
+  "legacyUnknownIncidents": "unresolved; provider identity confirmation required, never auto-unlocked",
+  "remoteBuildTestCIConfigured": false,
+  "remaining": [
+    "C15",
+    "C17",
+    "C18",
+    "C19",
+    "C20",
+    "F01"
+  ]
+}

@@ -13,7 +13,7 @@
 
 - Added durable polling recovery for ambiguous creates and canonical status refresh, with exact owner/value checks, complete paginated scans, cursor/retry persistence and explicit escalation for unknowable legacy outcomes.
 - Added read-only webhook subscription monitoring and internal worker diagnostics/backoff. No provider subscription or monetary write was enabled. Added migration 0010; existing production Neon rollout requires applying that migration before feature enablement.
-- Added provider-boundary tests and 29 real PostgreSQL reconciliation cases, including concurrency/restart, partial pages, collisions, timeouts and health. Recorded missed November 5–8 targets honestly and updated the ongoing schedule to 08:00/20:00. Final acceptance and delivery evidence are in the funding build log.
+- Final gates passed: 2,737 regression tests, 60 disposable PostgreSQL checks (29 new reconciliation cases), 1,009 actor checks, 232 red-team checks, typecheck/lint/build, surface checks and measured coverage (94.51% statements). C10/C14 accepted: 15/20 (75%); F01 remains separately open. Recorded missed November 5–8 targets honestly and updated the schedule to 08:00/20:00. Legacy ambiguity is escalated, not guessed; production rollout/provider/settlement acceptance remain open.
 
 ## Funding state and RPC red-team hardening - 2026-11-05
 

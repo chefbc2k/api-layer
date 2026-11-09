@@ -3,21 +3,22 @@
   "generatedAt": "2026-10-25T22:52:34.738052+00:00",
   "overallProductionReadinessPercent": null,
   "reason": "No agreed weighted release rubric or production deployment/settlement evidence; route parity and static classifications are not release certification.",
-  "acceptedFundingUnits": 13,
+  "acceptedFundingUnits": 15,
   "fundingBaselineUnits": 20,
-  "acceptedFundingPercent": 65,
+  "acceptedFundingPercent": 75,
   "fundingCandidateWork": [
-    "C10/C14 polling, subscription health and legacy ambiguity recovery",
-    "C15 receipt settlement",
+    "C15 exact receipt settlement",
     "C17 bounded approvals",
-    "C18 signed purchase handoff"
+    "C18 explicit purchase handoff",
+    "C19 provider/fork acceptance",
+    "C20 release acceptance"
   ],
   "fundingProductionEnabled": false,
   "writeReceiptIndexerEvidence": {
     "owner": "separate write-proof automation",
     "workstreamBaselineReported": {
-      "proven": 109,
-      "remaining": 151,
+      "proven": 113,
+      "remaining": 147,
       "total": 260
     },
     "observedDefaultArtifact": {
@@ -31,37 +32,33 @@
     "note": "Different historical artifacts; funding automation does not claim progress or overwrite receipt proof ownership."
   },
   "openReleaseDependencies": [
-    "C10/C14 recovery/polling/subscription health",
     "C15 exact USDC settlement",
-    "C17 bounded approvals and C18 purchase handoff",
-    "C19 actual provider checkout/fork settlement acceptance",
-    "F01 consuming frontend integration",
-    "CDP app-domain/capability validation and webhook subscription secret",
-    "Deployment persistence and operational evidence",
-    "Remaining exact-method receipt/indexer proofs owned by separate automation"
+    "C17 bounded approvals and C18 explicit purchase",
+    "C19 actual provider/fork acceptance",
+    "C20 release rollout and F01 frontend integration",
+    "CDP app-domain/capability confirmation and actual subscription secret",
+    "Apply reviewed funding migration 0010 to existing Neon before reconciliation enablement",
+    "Remaining exact-method proofs owned by the separate workstream"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-04-verification.json",
+    "source": "output/coinbase-usdc/2026-11-09-am-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false
   },
-  "updatedDate": "2026-11-04",
+  "updatedDate": "2026-11-09",
   "frontendAcceptance": {
     "id": "F01",
     "status": "open-repository-unconfirmed",
     "accepted": 0,
     "total": 1
   },
-  "startingOpenFundingAndFrontend": 11,
-  "minimumCompletedThisRun": 3,
+  "startingOpenFundingAndFrontend": 8,
+  "minimumCompletedThisRun": 2,
   "completedThisRun": [
-    "C12",
-    "C13",
-    "C16"
+    "C10",
+    "C14"
   ],
   "remainingFundingAndFrontend": [
-    "C10",
-    "C14",
     "C15",
     "C17",
     "C18",
@@ -73,5 +70,12 @@
     "status": "complete per separate owner ledger",
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
+  },
+  "runSlot": "08:00 America/Chicago",
+  "deploymentDatabase": {
+    "provisioned": true,
+    "source": "output/database-migration-2026-11-08.json",
+    "pendingMigration": "0010_funding_reconciliation.sql",
+    "productionMigrationAppliedByThisRun": false
   }
 }
