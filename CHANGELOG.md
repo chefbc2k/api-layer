@@ -1,3 +1,12 @@
+## 2026-11-08 — Production PostgreSQL and verified branch consolidation
+
+- Provisioned free-plan Neon `api-layer-production` through the Vercel CLI, connected it to the API production project, and stored `SUPABASE_DB_URL` as a sensitive pooled connection. Applied standalone compatibility prerequisites and migrations 0001–0009 atomically; verified migration 0008 owner storage and private-table grants. Added durable checksummed migration history and a credential-free deployment receipt.
+- Preserved the dirty primary assurance snapshot and reconciled funding actor, fork nonce, rights/staking/token, upgrade event and metadata-sync branches. Retained current coverage tests over their obsolete ancestor. Historical report-only branches and exactly reverse-patch-equivalent implementation branches retain ancestry without replacing newer evidence.
+- Repaired the timeout eventless metadata attached to the wrong emergency method; contract source confirms setEmergencyTimeout changes storage without emitting an event. Restored emergencyStop evidence, corrected the inventory, and passed receipt/indexer regression coverage.
+- Disposable PostgreSQL now runs the standalone bootstrap twice and all migrations twice. Checks passed: full regression 2,730 active tests with 73 gated skips; PostgreSQL 31; focused reconciliation 305; guarded local-fork red team; TypeScript; lint; full deployment-filtered build; explicit 492-wrapper/218-event/492-route/260-write coverage. Coverage passed at 95.75% statements, 94.29% branches, 97.12% functions, 96.12% lines.
+- Updated existing Coinbase heartbeat to 08:00/20:00 America/Chicago, the proof backlog job for the reported 147 remaining methods, and economic-invariant priorities for accounting/payout, treasury, pause, finance, reconciliation, purchase and provider blockers. All 16 active jobs remain active; 15 cron jobs use Luna/low, while heartbeat model settings are inherited and not configurable through the automation tool.
+- Full branch consolidation is still incomplete: 21 of 78 initial maximal tips were integrated or reconciled, 57 require source/conflict recovery. The exact audit and continuation instructions are persisted. Checked-in proof evidence still says 107/260; the reported 113/260 must be reconciled before crediting 147 remaining. No production API deployment or Coinbase launch acceptance is claimed.
+
 # Changelog: USpeaks API Layer
 
 ## Funding state and RPC red-team hardening - 2026-11-05

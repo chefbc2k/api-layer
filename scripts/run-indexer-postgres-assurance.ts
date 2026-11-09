@@ -50,7 +50,7 @@ async function main(): Promise<void> {
     started = true;
 
     const databaseArgs = ["-h", "127.0.0.1", "-p", String(port), "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1"];
-    await run(psql, [...databaseArgs, "-f", "db/bootstrap/standalone-postgres.sql"]);
+    await run(psql, [...databaseArgs, "-f", "db/bootstrap/standalone-postgres.sql", "-f", "db/bootstrap/standalone-postgres.sql"]);
     for (let pass = 0; pass < 2; pass += 1) {
       await run(psql, [
         ...databaseArgs,

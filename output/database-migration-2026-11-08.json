@@ -1,0 +1,27 @@
+{
+  "resource": "api-layer-production",
+  "database": "neondb",
+  "migrations": [
+    "0001_initial.sql",
+    "0002_hardening.sql",
+    "0003_indexer_block_journal.sql",
+    "0004_reward_campaign_projections.sql",
+    "0005_funding_quotes.sql",
+    "0006_funding_attempts.sql",
+    "0007_funding_webhook_inbox.sql",
+    "0008_transaction_request_owner.sql",
+    "0009_funding_processing.sql"
+  ],
+  "ownerColumn": [
+    {
+      "column_name": "owner_hash"
+    }
+  ],
+  "permissions": [
+    {
+      "anon_can_read": false,
+      "authenticated_can_read": false,
+      "service_can_read": true
+    }
+  ]
+}

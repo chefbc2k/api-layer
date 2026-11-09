@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-06T03:58:56.611Z",
+  "generatedAt": "2026-11-09T02:52:46.585Z",
   "methodology": {
     "testAttribution": "A protocol test is attributed by a bounded facet-qualified ABI key, an exact generated HTTP path (optionally followed by a query or fragment), or a unique signature/name/wrapper/operation id used as an invoked function, invoked member, mock-invocation assertion target, invoked computed member, or non-assertion call argument. Ambiguous cross-facet names and overloaded signatures require qualified evidence. Passive result and DTO member reads, assertion values, incidental variable names, object fields, prose, and metadata literals do not count. Tests that declare known ABI keys in key, methodKey, or eventKey properties are scoped to those keys. Negative/economic/red-team depth additionally requires a nearby proof keyword. Inventory-only reporter, registry, API-surface, verification-report, and fixture-planner tests are excluded to avoid self-attribution.",
     "liveAttribution": "A proven verify domain is attributed only by an exact generated HTTP method/path match. Evidence may be successful route execution or an explicit fail-closed-before-provider live-network guard outcome. Guard outcomes count only for admin endpoints with route-scoped 403 evidence naming the exact ABI key and Base Sepolia guard context. Fork markers and nested loopback RPC URLs classify local-fork proof; other tracked verify artifacts classify Base Sepolia proof.",
@@ -116,6 +116,7 @@
       "packages/api/src/workflows/rights-aware-commercialize-voice-asset.test.ts",
       "packages/api/src/workflows/rights-licensing-helpers.test.ts",
       "packages/api/src/workflows/rights-licensing.integration.test.ts",
+      "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
       "packages/api/src/workflows/selected-gap-read-fixtures.test.ts",
       "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
       "packages/api/src/workflows/stake-and-delegate.integration.test.ts",
@@ -181,6 +182,7 @@
       "scripts/red-team-reward-campaign.test.ts",
       "scripts/run-test-coverage.test.ts",
       "scripts/show-validated-baseline.test.ts",
+      "scripts/sync-reviewed-metadata.test.ts",
       "scripts/transient-rpc-retry.test.ts",
       "scripts/utils.test.ts",
       "scripts/verify-governance-workflows.test.ts",
@@ -217,7 +219,7 @@
       "baseSepolia": 84,
       "negativePath": 347,
       "economic": 194,
-      "redTeam": 266,
+      "redTeam": 272,
       "indexer": 218
     },
     "classificationCounts": {
@@ -3157,7 +3159,8 @@
             "tests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts",
               "scripts/indexer-receipt-proof-lib.test.ts",
-              "scripts/red-team-reward-campaign.test.ts"
+              "scripts/red-team-reward-campaign.test.ts",
+              "scripts/sync-reviewed-metadata.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/claim-reward-campaign.test.ts"
@@ -4024,7 +4027,8 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/indexer/src/event-assurance.test.ts",
-              "packages/indexer/src/postgres.integration.test.ts"
+              "packages/indexer/src/postgres.integration.test.ts",
+              "scripts/sync-reviewed-metadata.test.ts"
             ],
             "workflowTests": [
               "packages/indexer/src/postgres.integration.test.ts"
@@ -8392,13 +8396,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
-              "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
+              "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
             ],
             "negativePathTests": [
-              "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
+              "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+              "scripts/indexer-receipt-proof-lib.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [],
@@ -13086,7 +13092,8 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts",
-              "scripts/indexer-receipt-proof-lib.test.ts"
+              "scripts/indexer-receipt-proof-lib.test.ts",
+              "scripts/sync-reviewed-metadata.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts"
@@ -20629,7 +20636,7 @@
         "proofDepth": {
           "minimumLevel": "unit",
           "maximumLevel": "indexer",
-          "averageScore": 2.29,
+          "averageScore": 2.57,
           "maximumScore": 8
         }
       },
@@ -20660,12 +20667,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -20674,16 +20681,21 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -20714,12 +20726,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -20728,16 +20740,21 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21068,12 +21085,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -21082,16 +21099,21 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21136,16 +21158,20 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -21178,12 +21204,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -21192,16 +21218,21 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21232,12 +21263,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -21246,16 +21277,21 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21342,12 +21378,12 @@
             "baseSepolia": false,
             "negativePath": true,
             "economic": false,
-            "redTeam": false,
+            "redTeam": true,
             "indexer": false
           },
           "proofDepth": {
             "level": "adversarial",
-            "score": 3,
+            "score": 4,
             "maximumScore": 8
           },
           "classification": "ready",
@@ -21356,16 +21392,21 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
-            "redTeamTests": [],
+            "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts"
+            ],
             "indexerTests": [],
             "verifyArtifacts": []
           }
@@ -21410,16 +21451,20 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -21809,18 +21854,22 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -21874,20 +21923,24 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
               "packages/client/src/runtime/method-policy.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -21941,19 +21994,23 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22007,18 +22064,22 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22594,16 +22655,20 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22650,16 +22715,20 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22758,18 +22827,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22815,12 +22888,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
@@ -22828,6 +22904,7 @@
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22882,18 +22959,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22940,18 +23021,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -22998,18 +23083,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -26274,12 +26363,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "economicTests": [
@@ -26287,6 +26379,7 @@
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -26333,18 +26426,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -26445,18 +26542,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -26503,18 +26604,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -26668,13 +26773,16 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
@@ -26683,6 +26791,7 @@
             ],
             "redTeamTests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -26729,18 +26838,22 @@
           ],
           "evidence": {
             "tests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -27070,12 +27183,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "economicTests": [
@@ -27083,6 +27199,7 @@
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -27264,12 +27381,15 @@
           "evidence": {
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "workflowTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "negativePathTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "economicTests": [
@@ -27277,6 +27397,7 @@
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "redTeamTests": [
+              "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
               "packages/api/src/workflows/token-supply-vesting-command-safety.integration.test.ts"
             ],
             "indexerTests": [],
@@ -34788,8 +34909,7 @@
             "tests": [
               "packages/api/src/app.contract-integration.test.ts",
               "packages/api/src/workflows/dataset-license-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "scripts/indexer-receipt-proof-lib.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "workflowTests": [
               "packages/api/src/workflows/dataset-license-command-safety.integration.test.ts",
@@ -34797,8 +34917,7 @@
             ],
             "negativePathTests": [
               "packages/api/src/workflows/dataset-license-command-safety.integration.test.ts",
-              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
-              "scripts/indexer-receipt-proof-lib.test.ts"
+              "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"
             ],
             "economicTests": [
               "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts"

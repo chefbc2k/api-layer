@@ -1,0 +1,2284 @@
+{
+  "date": "2026-11-08",
+  "initialMaximalTips": 78,
+  "integratedOrSupersededTips": 21,
+  "remainingMaximalTips": 57,
+  "branches": [
+    {
+      "commit": "81ddf13586db8eaa89563522127b8a6413be26ff",
+      "refs": [
+        "refs/heads/codex/actor-negative-paths-20261104"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "package.json",
+        "packages/api/src/funding/checkout.test.ts",
+        "packages/api/src/funding/checkout.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/funding/routes.ts",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/generate-actor-negative-path-report.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/checkout.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/routes.ts",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.ts"
+      ]
+    },
+    {
+      "commit": "ed299668015aed41d7517c3a7f9e4b58a200fa47",
+      "refs": [
+        "refs/heads/codex/actor-negative-paths-20261105"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "package.json",
+        "packages/api/src/funding/checkout.test.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/generate-actor-negative-path-report.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in package.json"
+      ]
+    },
+    {
+      "commit": "4153f961e73245321ce0fc11809fe88589ecdd4d",
+      "refs": [
+        "refs/heads/codex/api-assurance-event-indexer-proof-20260922",
+        "refs/heads/codex/api-assurance-indexer-proof-20260927",
+        "refs/remotes/origin/codex/api-assurance-event-indexer-proof-20260922"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "packages/api/src/app.contract-integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/run-local-fork-indexer-proof.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/run-local-fork-indexer-proof.ts"
+      ]
+    },
+    {
+      "commit": "dcbba7320b839a5e90b1f2df3dd2fbc9c2b21492",
+      "refs": [
+        "refs/heads/codex/api-assurance-event-indexer-proof-20261026"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_READINESS_INVENTORY_2026-10-18.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "docs/VERCEL_CONTAINER_DEPLOYMENT_REVIEW.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "output/api-readiness-review-2026-10-18.json",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/modules/licensing/primitives/generated/mapping.ts",
+        "packages/api/src/modules/voice-assets/primitives/voice-asset-reads.test.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts",
+        "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+        "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+        "packages/api/src/workflows/rewards-delegation-vesting-command-safety.integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/selected-gap-read-fixtures.test.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-asset-authorization-transfer-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
+        "packages/client/src/runtime/read-gap-fixtures.test.ts",
+        "packages/indexer/src/event-assurance.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/gap-builder-plan.ts",
+        "scripts/generate-actor-negative-path-report.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/run-local-fork-assurance.ts",
+        "scripts/run-local-fork-indexer-proof.ts",
+        "scripts/seed-api-surface.ts",
+        "scripts/verify-layer1-remaining.ts",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "verify-control-plane-guard-output.json",
+        "verify-local-fork-indexer-output.json",
+        "verify-marketplace-purchase-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "c6c09a3053fb2ca3fde30aa1d1b9940e44b3864b",
+      "refs": [
+        "refs/heads/codex/api-assurance-gap-completion-20260922",
+        "refs/remotes/origin/codex/api-assurance-gap-completion-20260922"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "scripts/promote-base-sepolia-scenarios.test.ts",
+        "scripts/promote-base-sepolia-scenarios.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md"
+      ]
+    },
+    {
+      "commit": "aa6df709db2411fd180d9dfdf4753d1198dbc0cc",
+      "refs": [
+        "refs/heads/codex/api-assurance-gap-completion-20261008"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/workflows/escrow-governor-command-safety.integration.test.ts"
+      ]
+    },
+    {
+      "commit": "d28cafd0f8d95b81a2da155eb6cf8f580e0e7c9f",
+      "refs": [
+        "refs/heads/codex/api-assurance-gap-completion-20261014",
+        "refs/heads/codex/api-assurance-gap-completion-20261015"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "verify-control-plane-admin-output.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-admin-output.json"
+      ]
+    },
+    {
+      "commit": "e30ad5f69cf509ed73109a0f401212321147a98c",
+      "refs": [
+        "refs/heads/codex/autosave-20260909-unresolved-master-merge",
+        "refs/remotes/origin/codex/autosave-20260909-unresolved-master-merge"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "packages/api/src/app.contract-integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "reviewed/reviewed-write-invariants.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "dbab70ea6e63b91b4dd7200e470041e8a93732ba",
+      "refs": [
+        "refs/heads/codex/autosave-20260915-api-assurance-conflict-state",
+        "refs/remotes/origin/codex/autosave-20260915-api-assurance-conflict-state"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/indexer-trace-capability.json",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/indexer-trace-capability.json",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "abdcf6a1376083ab1be1b7041763f12e6dc9cb50",
+      "refs": [
+        "refs/heads/codex/autosave-20260915-local-fork-review",
+        "refs/remotes/origin/codex/autosave-20260915-local-fork-review"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "48040570162b721e2809683f8249c18b79dc51bd",
+      "refs": [
+        "refs/heads/codex/autosave-20260927-abi-gap-report",
+        "refs/remotes/origin/codex/autosave-20260927-abi-gap-report"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md"
+      ]
+    },
+    {
+      "commit": "5a5641c18fd11346fcd04bb677ca48affa315693",
+      "refs": [
+        "refs/heads/codex/autosave-20260928-base-sepolia-promotion",
+        "refs/remotes/origin/codex/autosave-20260928-base-sepolia-promotion"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "docs/LAUNCH_IMPLEMENTATION_GAPS.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/app.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/gap-builder-plan.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/promote-base-sepolia-scenarios.test.ts",
+        "scripts/promote-base-sepolia-scenarios.ts",
+        "scripts/red-team-access-control-workflow.test.ts",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (add/add): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (add/add): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.ts",
+        "CONFLICT (add/add): Merge conflict in scripts/gap-builder-plan.test.ts",
+        "CONFLICT (add/add): Merge conflict in scripts/gap-builder-plan.ts"
+      ]
+    },
+    {
+      "commit": "313cb543fe6d38cdf5e1e85ec768b9b12e8d3557",
+      "refs": [
+        "refs/heads/codex/autosave-20261001-economic-invariants",
+        "refs/heads/codex/economic-invariants"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/workflows/claim-reward-campaign.test.ts",
+        "packages/api/src/workflows/claim-reward-campaign.ts",
+        "packages/api/src/workflows/economic-invariants.test.ts",
+        "packages/api/src/workflows/economic-invariants.ts",
+        "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
+        "packages/api/src/workflows/emergency-withdrawal-sequence.ts",
+        "packages/api/src/workflows/index.ts",
+        "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+        "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+        "packages/api/src/workflows/release-beneficiary-vesting.ts",
+        "packages/api/src/workflows/release-escrowed-asset.test.ts",
+        "packages/api/src/workflows/release-escrowed-asset.ts",
+        "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+        "packages/api/src/workflows/revoke-beneficiary-vesting.ts",
+        "packages/api/src/workflows/reward-campaign.integration.test.ts",
+        "packages/api/src/workflows/stake-and-delegate.test.ts",
+        "packages/api/src/workflows/stake-and-delegate.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.ts",
+        "packages/api/src/workflows/treasury-revenue-operations.test.ts",
+        "packages/api/src/workflows/treasury-revenue-operations.ts",
+        "packages/api/src/workflows/vesting-helpers.test.ts",
+        "packages/api/src/workflows/vesting-helpers.ts",
+        "packages/api/src/workflows/vesting.integration.test.ts",
+        "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
+        "packages/api/src/workflows/withdraw-marketplace-payments.ts",
+        "scripts/red-team-reward-campaign.test.ts",
+        "scripts/run-test-coverage.test.ts",
+        "scripts/run-test-coverage.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in scripts/red-team-reward-campaign.test.ts"
+      ]
+    },
+    {
+      "commit": "197c19fd3d72b8a18d1166b5c6ad71cd23a179dd",
+      "refs": [
+        "refs/heads/codex/autosave-20261004-abi-gap-report",
+        "refs/remotes/origin/codex/autosave-20261004-abi-gap-report"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md"
+      ]
+    },
+    {
+      "commit": "71aeb9f078b2cf87445f212b2b7401112f8b1ce6",
+      "refs": [
+        "refs/heads/codex/autosave-20261008-actor-negative-paths",
+        "refs/remotes/origin/codex/autosave-20261008-actor-negative-paths"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "packages/api/src/shared/auth.test.ts",
+        "packages/api/src/shared/auth.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/generate-actor-negative-path-report.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in packages/api/src/shared/execution-context.ts",
+        "CONFLICT (content): Merge conflict in scripts/generate-actor-negative-path-report.ts"
+      ]
+    },
+    {
+      "commit": "8e9fbf76370155319c0eccfd6983b39e5208b960",
+      "refs": [
+        "refs/heads/codex/autosave-20261008-base-sepolia-promotion-1004",
+        "refs/remotes/origin/codex/autosave-20261008-base-sepolia-promotion-1004"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": []
+    },
+    {
+      "commit": "c592511c1a4b3d07b4535e1571abff352ffa1ba1",
+      "refs": [
+        "refs/heads/codex/autosave-20261008-base-sepolia-promotion-1005",
+        "refs/remotes/origin/codex/autosave-20261008-base-sepolia-promotion-1005"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md"
+      ]
+    },
+    {
+      "commit": "0eca0ddc207c624f44392342bd42fa54f1eff4bd",
+      "refs": [
+        "refs/heads/codex/autosave-20261008-event-indexer-proof",
+        "refs/remotes/origin/codex/autosave-20261008-event-indexer-proof"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "reviewed/reviewed-api-surface.json",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/run-local-fork-indexer-proof.ts",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in verify-local-fork-indexer-output.json"
+      ]
+    },
+    {
+      "commit": "46cc8ed3814a42be52e5834fb7cf7b837345fca6",
+      "refs": [
+        "refs/heads/codex/autosave-20261008-local-fork-automation",
+        "refs/remotes/origin/codex/autosave-20261008-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "reviewed/reviewed-api-surface.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in verify-local-fork-indexer-output.json"
+      ]
+    },
+    {
+      "commit": "0e9239e84a75000ef06a4242220ba4f296f819c7",
+      "refs": [
+        "refs/heads/codex/autosave-20261008-write-invariants",
+        "refs/remotes/origin/codex/autosave-20261008-write-invariants"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "packages/api/node_modules",
+        "packages/client/node_modules",
+        "packages/indexer/node_modules",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/sync-reviewed-write-invariants.ts",
+        "scripts/write-invariants-lib.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/write-invariants-lib.test.ts"
+      ]
+    },
+    {
+      "commit": "b13ff6e4c059c40d83a7821e90ef7220436911a2",
+      "refs": [
+        "refs/heads/codex/autosave-20261011-abi-gap-report"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "3a8b2e5c777c43568de9247cb9e12350a2db9da7",
+      "refs": [
+        "refs/heads/codex/autosave-20261011-abi-gap-report-20261005"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md"
+      ]
+    },
+    {
+      "commit": "b14f4832e8e52f6c53550a4a66eed43a3ffcc191",
+      "refs": [
+        "refs/heads/codex/autosave-20261011-write-invariants-20261008"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "packages/api/node_modules",
+        "packages/client/node_modules",
+        "packages/indexer/node_modules"
+      ],
+      "initialConflicts": []
+    },
+    {
+      "commit": "dae22489f81278a3f7d6cede49657a61b4d2c097",
+      "refs": [
+        "refs/heads/codex/autosave-20261013-actor-negative-paths",
+        "refs/remotes/origin/codex/autosave-20261013-actor-negative-paths"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "40f765e6719b77b928faee2a318e3852a0b71140",
+      "refs": [
+        "refs/heads/codex/autosave-20261013-local-fork-automation",
+        "refs/remotes/origin/codex/autosave-20261013-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "08bbd6edd397d4894f62e72fddf426fc535a2811",
+      "refs": [
+        "refs/heads/codex/autosave-20261013-local-fork-automation-root",
+        "refs/remotes/origin/codex/autosave-20261013-local-fork-automation-root"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        ".vercel/README.txt",
+        ".vercel/project.json",
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "verify-control-plane-admin-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-admin-output.json"
+      ]
+    },
+    {
+      "commit": "872dd3e305a893583d7a0ccf34b81f60d763da05",
+      "refs": [
+        "refs/heads/codex/autosave-20261014-abi-gap-report"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "e538ed3ed7a0acf681594e376ab40c2ee738125d",
+      "refs": [
+        "refs/heads/codex/autosave-20261014-api-assurance-gap-completion"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "verify-control-plane-admin-output.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-admin-output.json"
+      ]
+    },
+    {
+      "commit": "53085a13ab80c6094a488834d93d434881cd99b4",
+      "refs": [
+        "refs/heads/codex/autosave-20261016-base-sepolia-conflict-preserved"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "reviewed/reviewed-api-surface.json",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "1b2039e6956425e00d82316be5e8d352eac37ab5",
+      "refs": [
+        "refs/heads/codex/autosave-20261017-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "reviewed/reviewed-api-surface.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "2022b6379bd1243a0c370e8324656345d0a04db5",
+      "refs": [
+        "refs/heads/codex/autosave-20261018-local-fork-automation",
+        "refs/remotes/origin/codex/autosave-20261018-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "bcb1ddc078e57b85bd58c3437c47dd0cfc1693e7",
+      "refs": [
+        "refs/heads/codex/autosave-20261021-daily-consolidation-primary"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+        "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "packages/api/src/workflows/staking-token-supply-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting-license-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-asset-dataset-command-safety.integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/seed-api-surface.ts",
+        "verify-control-plane-guard-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "34a75fa1b9ce5b72501102e26fb41b82d5a358e9",
+      "refs": [
+        "refs/heads/codex/autosave-20261021-event-indexer-proof"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "packages/api/node_modules",
+        "packages/client/node_modules",
+        "packages/indexer/node_modules",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "67373b79f9d5c92769522770d06ecab62b99e9fc",
+      "refs": [
+        "refs/heads/codex/autosave-20261021-production-worktree"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md"
+      ]
+    },
+    {
+      "commit": "d82bb03918908d40db215857a9e0566e5a8733c2",
+      "refs": [
+        "refs/heads/codex/autosave-20261022-abi-gap-report"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "3f0e1a224746700045502e04055e20257ef03e74",
+      "refs": [
+        "refs/heads/codex/autosave-20261022-api-assurance-event-indexer-proof"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_READINESS_INVENTORY_2026-10-18.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "docs/COINBASE_USDC_AND_API_READINESS_REVIEW.md",
+        "docs/COINBASE_USDC_BUILD_LOG.md",
+        "docs/VERCEL_CONTAINER_DEPLOYMENT_REVIEW.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "output/api-readiness-review-2026-10-18.json",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/modules/licensing/primitives/generated/mapping.ts",
+        "packages/api/src/shared/auth.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "packages/api/src/workflows/claim-reward-campaign.test.ts",
+        "packages/api/src/workflows/claim-reward-campaign.ts",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/economic-invariants.test.ts",
+        "packages/api/src/workflows/economic-invariants.ts",
+        "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
+        "packages/api/src/workflows/emergency-withdrawal-sequence.ts",
+        "packages/api/src/workflows/index.ts",
+        "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+        "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+        "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+        "packages/api/src/workflows/release-beneficiary-vesting.ts",
+        "packages/api/src/workflows/release-escrowed-asset.test.ts",
+        "packages/api/src/workflows/release-escrowed-asset.ts",
+        "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+        "packages/api/src/workflows/revoke-beneficiary-vesting.ts",
+        "packages/api/src/workflows/reward-campaign.integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/stake-and-delegate.test.ts",
+        "packages/api/src/workflows/stake-and-delegate.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.ts",
+        "packages/api/src/workflows/treasury-revenue-operations.test.ts",
+        "packages/api/src/workflows/treasury-revenue-operations.ts",
+        "packages/api/src/workflows/vesting-helpers.test.ts",
+        "packages/api/src/workflows/vesting-helpers.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
+        "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
+        "packages/api/src/workflows/withdraw-marketplace-payments.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/gap-builder-plan.ts",
+        "scripts/generate-actor-negative-path-report.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/red-team-auth-boundaries.test.ts",
+        "scripts/red-team-harness-lib.test.ts",
+        "scripts/red-team-harness-lib.ts",
+        "scripts/red-team-local-fork.test.ts",
+        "scripts/red-team-reward-campaign.test.ts",
+        "scripts/run-local-fork-indexer-proof.ts",
+        "scripts/run-test-coverage.test.ts",
+        "scripts/run-test-coverage.ts",
+        "scripts/seed-api-surface.ts",
+        "scripts/verify-layer1-remaining.ts",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "verify-control-plane-guard-output.json",
+        "verify-local-fork-indexer-output.json",
+        "verify-marketplace-purchase-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (add/add): Merge conflict in docs/COINBASE_USDC_BUILD_LOG.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/generate-actor-negative-path-report.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.ts",
+        "CONFLICT (add/add): Merge conflict in scripts/red-team-auth-boundaries.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "23d204bc11e936d8355ee507f7ab10611e59d265",
+      "refs": [
+        "refs/heads/codex/autosave-20261022-api-assurance-gap-completion"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "packages/api/node_modules",
+        "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "packages/client/node_modules",
+        "packages/indexer/node_modules",
+        "reviewed/reviewed-api-surface.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "36c85d77bdb9c5bfb9edd800527f7a3ec9b7cd9f",
+      "refs": [
+        "refs/heads/codex/autosave-20261022-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "7aedc40a83f4dd550114d32ea1f18b0d9e90e4cb",
+      "refs": [
+        "refs/heads/codex/autosave-20261023-production-worktree"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/modules/voice-assets/primitives/voice-asset-reads.test.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+        "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "packages/api/src/workflows/staking-token-supply-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting-license-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-asset-dataset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-command-safety.integration.test.ts",
+        "packages/api/src/workflows/whisperblock-command-safety.integration.test.ts",
+        "packages/indexer/src/event-assurance.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/gap-builder-plan.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/seed-api-surface.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "verify-control-plane-guard-output.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "68abf8abfc814431c3f3544185e06b814a1d9af3",
+      "refs": [
+        "refs/heads/codex/autosave-20261024-api-assurance-gap-generated-reports"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_READINESS_INVENTORY_2026-10-18.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "docs/COINBASE_USDC_AND_API_READINESS_REVIEW.md",
+        "docs/COINBASE_USDC_BUILD_LOG.md",
+        "docs/VERCEL_CONTAINER_DEPLOYMENT_REVIEW.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "output/api-readiness-review-2026-10-18.json",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/modules/licensing/primitives/generated/mapping.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/gap-builder-plan.ts",
+        "scripts/generate-actor-negative-path-report.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/run-local-fork-indexer-proof.ts",
+        "scripts/seed-api-surface.ts",
+        "scripts/verify-layer1-remaining.ts",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "verify-control-plane-guard-output.json",
+        "verify-local-fork-indexer-output.json",
+        "verify-marketplace-purchase-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (add/add): Merge conflict in docs/COINBASE_USDC_BUILD_LOG.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/generate-actor-negative-path-report.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "61e4a3c683c7c2aec93e69f47e7247db95e6d195",
+      "refs": [
+        "refs/heads/codex/autosave-20261024-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in packages/api/src/shared/execution-context.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "389b619ec060f9e3160246845a93f0b4f7dc6288",
+      "refs": [
+        "refs/heads/codex/autosave-20261025-base-sepolia-promotion-conflicted"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "7818b148cf6725579b0aa4ef865b535a2e2aa9e1",
+      "refs": [
+        "refs/heads/codex/autosave-20261025-coinbase-usdc"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "db/migrations/0006_funding_attempts.sql",
+        "packages/api/src/funding/checkout-crypto.ts",
+        "packages/api/src/funding/checkout.test.ts",
+        "packages/api/src/funding/checkout.ts",
+        "packages/api/src/funding/config.ts",
+        "packages/api/src/funding/provider.ts",
+        "packages/api/src/funding/routes.ts",
+        "packages/api/src/funding/store.ts",
+        "scripts/run-indexer-postgres-assurance.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/checkout.test.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/checkout.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/provider.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/routes.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/store.ts",
+        "CONFLICT (content): Merge conflict in scripts/run-indexer-postgres-assurance.ts"
+      ]
+    },
+    {
+      "commit": "b43bdcb26b97b85c070a49fce9ac6ddb3af9c2c4",
+      "refs": [
+        "refs/heads/codex/autosave-20261026-concurrent-checkout-test",
+        "refs/remotes/origin/codex/autosave-20261026-concurrent-checkout-test"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "packages/api/src/funding/checkout.test.ts",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/checkout.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "c8f0f099ee673f10a8a06507225370a00369a28e",
+      "refs": [
+        "refs/heads/codex/autosave-20261026-daily-consolidation-primary",
+        "refs/remotes/origin/codex/autosave-20261026-daily-consolidation-primary"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md"
+      ]
+    },
+    {
+      "commit": "fbfc686d4aa7847780b8e84e38858e0ed46abf13",
+      "refs": [
+        "refs/heads/codex/autosave-20261026-local-fork-automation",
+        "refs/remotes/origin/codex/autosave-20261026-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "reviewed/reviewed-api-surface.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "823fdcaba61a629b042ae633b5fd557e41d9661d",
+      "refs": [
+        "refs/heads/codex/autosave-20261027-actor-negative-paths",
+        "refs/remotes/origin/codex/autosave-20261027-actor-negative-paths"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "packages/api/src/funding/checkout.test.ts",
+        "packages/api/src/funding/checkout.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/funding/routes.ts",
+        "packages/api/src/funding/webhook.test.ts",
+        "packages/api/src/shared/execution-context.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/checkout.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/checkout.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/funding.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/routes.ts"
+      ]
+    },
+    {
+      "commit": "b4cf76b7ff6bffeca21dab0459b6377af9a369d2",
+      "refs": [
+        "refs/heads/codex/autosave-20261027-gap-completion-daily",
+        "refs/remotes/origin/codex/autosave-20261027-gap-completion-daily"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "generated",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "scripts/seed-api-surface.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts"
+      ]
+    },
+    {
+      "commit": "385a8e1d28c508542ddebacdd2d7bbeb95dd5437",
+      "refs": [
+        "refs/heads/codex/autosave-20261027-local-fork-automation",
+        "refs/remotes/origin/codex/autosave-20261027-local-fork-automation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "36cceffbb4785112a4a857a6ed20bace4ff3cdf7",
+      "refs": [
+        "refs/heads/codex/autosave-20261027-transaction-request-privacy",
+        "refs/remotes/origin/codex/autosave-20261027-transaction-request-privacy"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "README.md",
+        "db/migrations/0008_transaction_request_owner.sql",
+        "docs/API_READINESS_CURRENT_2026-10-26.md",
+        "docs/API_TRANSACTION_REQUEST_PRIVACY_BUILD_LOG.md",
+        "packages/api/src/app.behavior.test.ts",
+        "packages/api/src/app.routes.test.ts",
+        "packages/api/src/app.ts",
+        "packages/api/src/shared/auth.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "packages/api/src/shared/request-owner.ts",
+        "packages/api/src/shared/tx-store.postgres.integration.test.ts",
+        "packages/api/src/shared/tx-store.test.ts",
+        "packages/api/src/shared/tx-store.ts",
+        "packages/api/src/transaction-request-privacy.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/run-indexer-postgres-assurance.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (add/add): Merge conflict in docs/API_READINESS_CURRENT_2026-10-26.md",
+        "CONFLICT (add/add): Merge conflict in docs/API_TRANSACTION_REQUEST_PRIVACY_BUILD_LOG.md",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/transaction-request-privacy.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/run-indexer-postgres-assurance.ts"
+      ]
+    },
+    {
+      "commit": "b1b25f3452fe78f224050a0305e2057545048499",
+      "refs": [
+        "refs/heads/codex/autosave-20261028-coinbase-usdc",
+        "refs/remotes/origin/codex/autosave-20261028-coinbase-usdc"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "db/migrations/0008_funding_processing.sql",
+        "docs/API_READINESS_CURRENT_2026-10-25.md",
+        "output/api-readiness-current-2026-10-25.json",
+        "package.json",
+        "packages/api/src/funding/checkout.test.ts",
+        "packages/api/src/funding/checkout.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/funding/postgres.integration.test.ts",
+        "packages/api/src/funding/processor.test.ts",
+        "packages/api/src/funding/processor.ts",
+        "packages/api/src/funding/provider.ts",
+        "packages/api/src/funding/readiness.test.ts",
+        "packages/api/src/funding/readiness.ts",
+        "packages/api/src/funding/routes.ts",
+        "packages/api/src/funding/store.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/run-funding-worker.ts",
+        "scripts/run-indexer-postgres-assurance.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (add/add): Merge conflict in docs/API_READINESS_CURRENT_2026-10-25.md",
+        "CONFLICT (add/add): Merge conflict in output/api-readiness-current-2026-10-25.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/checkout.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/funding.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/postgres.integration.test.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/processor.test.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/processor.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/readiness.test.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/readiness.ts",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.ts",
+        "CONFLICT (content): Merge conflict in scripts/run-indexer-postgres-assurance.ts"
+      ]
+    },
+    {
+      "commit": "65dfa22091fb98be2600e256a50d29590b70904a",
+      "refs": [
+        "refs/heads/codex/autosave-20261028-production-indexer-write-coverage",
+        "refs/remotes/origin/codex/autosave-20261028-production-indexer-write-coverage"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "db/migrations/0006_funding_orders.sql",
+        "docs/API_READINESS_CURRENT_2026-10-25.md",
+        "docs/API_READINESS_INVENTORY_2026-10-18.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "docs/COINBASE_FUNDING_API.md",
+        "docs/COINBASE_USDC_BUILD_LOG.md",
+        "docs/VERCEL_CONTAINER_DEPLOYMENT_REVIEW.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "output/api-readiness-current-2026-10-25.json",
+        "output/api-readiness-review-2026-10-18.json",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "output/production-indexer-write-coverage-run-ledger-2026-10-28.json",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/app.test.ts",
+        "packages/api/src/funding/config.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/funding/order-routes.ts",
+        "packages/api/src/funding/orders.test.ts",
+        "packages/api/src/funding/postgres.integration.test.ts",
+        "packages/api/src/funding/provider.ts",
+        "packages/api/src/funding/routes.ts",
+        "packages/api/src/funding/store.ts",
+        "packages/api/src/funding/validation.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/modules/governance/primitives/proposal-reads.test.ts",
+        "packages/api/src/modules/licensing/primitives/generated/mapping.ts",
+        "packages/api/src/modules/voice-assets/primitives/voice-asset-reads.test.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts",
+        "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+        "packages/api/src/workflows/proposal-command-safety.integration.test.ts",
+        "packages/api/src/workflows/rewards-delegation-vesting-command-safety.integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/selected-gap-read-fixtures.test.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-asset-authorization-transfer-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-asset-license-whisperblock-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-whisperblock-command-safety.integration.test.ts",
+        "packages/client/src/runtime/read-gap-fixtures.test.ts",
+        "packages/indexer/src/event-assurance.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "reviewed/reviewed-method-policy.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/gap-builder-plan.ts",
+        "scripts/generate-actor-negative-path-report.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/run-indexer-postgres-assurance.ts",
+        "scripts/run-local-fork-assurance.ts",
+        "scripts/run-local-fork-indexer-proof.ts",
+        "scripts/seed-api-surface.ts",
+        "scripts/verify-layer1-remaining.ts",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "verify-control-plane-guard-output.json",
+        "verify-local-fork-indexer-output.json",
+        "verify-marketplace-purchase-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (add/add): Merge conflict in docs/API_READINESS_CURRENT_2026-10-25.md",
+        "CONFLICT (content): Merge conflict in docs/COINBASE_FUNDING_API.md",
+        "CONFLICT (content): Merge conflict in docs/COINBASE_USDC_BUILD_LOG.md",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (add/add): Merge conflict in output/api-readiness-current-2026-10-25.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/config.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/postgres.integration.test.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/routes.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/store.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.ts",
+        "CONFLICT (content): Merge conflict in scripts/run-indexer-postgres-assurance.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/verify-local-fork-lib.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "7b777570e9e592c2b05e850c45015fca2b773271",
+      "refs": [
+        "refs/heads/codex/autosave-20261029-abi-gap-report-revalidation"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "2eb706de1675e9c13e82bc0548e674d816d2ac80",
+      "refs": [
+        "refs/heads/codex/autosave-20261029-actor-negative-paths"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "package.json",
+        "packages/api/src/funding/checkout.test.ts",
+        "packages/api/src/funding/checkout.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/funding/routes.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/generate-actor-negative-path-report.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.json",
+        "CONFLICT (content): Merge conflict in output/actor-negative-path-report.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/checkout.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/funding/routes.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.test.ts",
+        "CONFLICT (content): Merge conflict in scripts/actor-negative-paths-lib.ts"
+      ]
+    },
+    {
+      "commit": "f2f397f43e9ca0109e78aa426e3dc650004fa3fa",
+      "refs": [
+        "refs/heads/codex/autosave-20261029-api-assurance-gap-completion-late"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/workflows/control-plane-admin-safety.integration.test.ts",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "packages/api/src/workflows/vesting-voice-asset-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-whisperblock-command-safety.integration.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/check-http-api-coverage.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/http-method-exclusions.ts",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/run-local-fork-indexer-proof.ts",
+        "scripts/seed-api-surface.test.ts",
+        "scripts/seed-api-surface.ts",
+        "scripts/verify-proposal-contract-only.test.ts",
+        "scripts/verify-proposal-contract-only.ts",
+        "verify-control-plane-guard-output.json",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json",
+        "CONFLICT (content): Merge conflict in scripts/indexer-receipt-proof-lib.ts",
+        "CONFLICT (content): Merge conflict in scripts/run-local-fork-indexer-proof.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-guard-output.json"
+      ]
+    },
+    {
+      "commit": "867131ed53871658890a686c5fb78c145fdbcd64",
+      "refs": [
+        "refs/heads/codex/autosave-20261104-event-indexer-proof"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/indexer/src/event-assurance.test.ts",
+        "reviewed/reviewed-write-invariants.json",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/indexer-receipt-proof-lib.ts",
+        "scripts/sync-reviewed-write-invariants.ts",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "verify-local-fork-indexer-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "36af96dcbe9b7fa365be8d873fc4fffbbc1a058c",
+      "refs": [
+        "refs/heads/codex/autosave-20261104-red-team-harness",
+        "refs/remotes/origin/codex/autosave-20261104-red-team-harness"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "package.json",
+        "packages/api/src/transaction-request-privacy.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in package.json"
+      ]
+    },
+    {
+      "commit": "6541bb4f1e592ddae4d3f06f4ff083923b0eb611",
+      "refs": [
+        "refs/heads/codex/autosave-20261105-daily-consolidation-root",
+        "refs/remotes/origin/codex/autosave-20261105-daily-consolidation-root"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/licensing/primitives/generated/mapping.ts",
+        "packages/api/src/modules/voice-assets/primitives/voice-asset-reads.test.ts",
+        "packages/api/src/workflows/access-emergency-governance-command-safety.integration.test.ts",
+        "packages/api/src/workflows/legacy-marketplace-command-safety.integration.test.ts",
+        "packages/api/src/workflows/legacy-ownership-timelock-command-safety.integration.test.ts",
+        "packages/api/src/workflows/legacy-proposal-exclusion-safety.integration.test.ts",
+        "packages/api/src/workflows/rewards-delegation-vesting-command-safety.integration.test.ts",
+        "packages/api/src/workflows/selected-gap-read-fixtures.test.ts",
+        "packages/api/src/workflows/voice-dataset-license-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voice-metadata-command-safety.integration.test.ts",
+        "packages/api/src/workflows/voting-power-command-safety.integration.test.ts",
+        "packages/api/src/workflows/whisperblock-command-safety.integration.test.ts",
+        "packages/indexer/src/event-assurance.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/api-surface-lib.test.ts",
+        "scripts/api-surface-lib.ts",
+        "scripts/gap-builder-plan.test.ts",
+        "scripts/generate-test-roadmap.test.ts",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/seed-api-surface.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json"
+      ]
+    },
+    {
+      "commit": "5ee7c0a1b6745f52999c7bfe3f893ef1e8c46cd9",
+      "refs": [
+        "refs/heads/codex/autosave-20261105-local-fork-automation",
+        "refs/remotes/origin/codex/autosave-20261105-local-fork-automation"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "reviewed/reviewed-api-surface.json",
+        "reviewed/reviewed-write-invariants.json",
+        "scripts/indexer-receipt-proof-lib.test.ts",
+        "scripts/sync-reviewed-write-invariants.ts",
+        "verify-control-plane-admin-output.json"
+      ],
+      "initialConflicts": []
+    },
+    {
+      "commit": "17d2cb851433b43f8f3d7cf387dbfd4f63d02a72",
+      "refs": [
+        "refs/heads/codex/autosave-20261105-production-indexer-write-coverage",
+        "refs/remotes/origin/codex/autosave-20261105-production-indexer-write-coverage"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "packages/api/src/modules/datasets/primitives/generated/controller.ts",
+        "packages/api/src/modules/datasets/primitives/generated/dto.ts",
+        "packages/api/src/modules/datasets/primitives/generated/mapping.ts",
+        "packages/api/src/modules/datasets/primitives/generated/routes.ts",
+        "packages/api/src/modules/datasets/primitives/generated/schemas.ts",
+        "packages/api/src/modules/datasets/primitives/generated/service.ts",
+        "packages/api/src/modules/diamond-admin/primitives/generated/controller.ts",
+        "packages/api/src/modules/diamond-admin/primitives/generated/dto.ts",
+        "packages/api/src/modules/diamond-admin/primitives/generated/mapping.ts",
+        "packages/api/src/modules/diamond-admin/primitives/generated/routes.ts",
+        "packages/api/src/modules/diamond-admin/primitives/generated/schemas.ts",
+        "packages/api/src/modules/diamond-admin/primitives/generated/service.ts",
+        "packages/api/src/modules/governance/primitives/generated/controller.ts",
+        "packages/api/src/modules/governance/primitives/generated/dto.ts",
+        "packages/api/src/modules/governance/primitives/generated/mapping.ts",
+        "packages/api/src/modules/governance/primitives/generated/routes.ts",
+        "packages/api/src/modules/governance/primitives/generated/schemas.ts",
+        "packages/api/src/modules/governance/primitives/generated/service.ts",
+        "packages/api/src/modules/licensing/primitives/generated/controller.ts",
+        "packages/api/src/modules/licensing/primitives/generated/dto.ts",
+        "packages/api/src/modules/licensing/primitives/generated/mapping.ts",
+        "packages/api/src/modules/licensing/primitives/generated/routes.ts",
+        "packages/api/src/modules/licensing/primitives/generated/schemas.ts",
+        "packages/api/src/modules/licensing/primitives/generated/service.ts",
+        "packages/api/src/modules/marketplace/primitives/generated/controller.ts",
+        "packages/api/src/modules/marketplace/primitives/generated/dto.ts",
+        "packages/api/src/modules/marketplace/primitives/generated/mapping.ts",
+        "packages/api/src/modules/marketplace/primitives/generated/routes.ts",
+        "packages/api/src/modules/marketplace/primitives/generated/schemas.ts",
+        "packages/api/src/modules/marketplace/primitives/generated/service.ts",
+        "packages/api/src/modules/staking/primitives/generated/controller.ts",
+        "packages/api/src/modules/staking/primitives/generated/dto.ts",
+        "packages/api/src/modules/staking/primitives/generated/mapping.ts",
+        "packages/api/src/modules/staking/primitives/generated/routes.ts",
+        "packages/api/src/modules/staking/primitives/generated/schemas.ts",
+        "packages/api/src/modules/staking/primitives/generated/service.ts",
+        "packages/api/src/modules/tokenomics/primitives/generated/controller.ts",
+        "packages/api/src/modules/tokenomics/primitives/generated/dto.ts",
+        "packages/api/src/modules/tokenomics/primitives/generated/mapping.ts",
+        "packages/api/src/modules/tokenomics/primitives/generated/routes.ts",
+        "packages/api/src/modules/tokenomics/primitives/generated/schemas.ts",
+        "packages/api/src/modules/tokenomics/primitives/generated/service.ts",
+        "packages/api/src/modules/voice-assets/primitives/generated/controller.ts",
+        "packages/api/src/modules/voice-assets/primitives/generated/dto.ts",
+        "packages/api/src/modules/voice-assets/primitives/generated/mapping.ts",
+        "packages/api/src/modules/voice-assets/primitives/generated/routes.ts",
+        "packages/api/src/modules/voice-assets/primitives/generated/schemas.ts",
+        "packages/api/src/modules/voice-assets/primitives/generated/service.ts",
+        "packages/client/src/generated/DelegationFacet.ts",
+        "packages/client/src/generated/DiamondLoupeFacet.ts",
+        "packages/client/src/generated/GovernorFacet.ts",
+        "packages/client/src/generated/PaymentFacet.ts",
+        "packages/client/src/generated/ProposalFacet.ts",
+        "packages/client/src/generated/TokenSupplyFacet.ts",
+        "packages/client/src/generated/VoiceAssetFacet.ts",
+        "packages/client/src/generated/VoiceDatasetFacet.ts",
+        "packages/client/src/generated/VoiceLicenseFacet.ts",
+        "packages/client/src/generated/VoiceLicenseTemplateFacet.ts",
+        "packages/client/src/generated/VoiceMetadataFacet.ts",
+        "reviewed/reviewed-api-surface.json",
+        "reviewed/reviewed-method-policy.json",
+        "reviewed/reviewed-write-invariants.json"
+      ],
+      "initialConflicts": []
+    },
+    {
+      "commit": "e72e2dfe017942b417ab8e5126ff63b5091e6bc5",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20260811"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "package.json",
+        "scripts/promote-base-sepolia-scenarios.test.ts",
+        "scripts/promote-base-sepolia-scenarios.ts",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (add/add): Merge conflict in verify-base-sepolia-promotion-output.json"
+      ]
+    },
+    {
+      "commit": "1072fde3a5e8b3b8cfd601b7b0d6a6b9e567d423",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20260825"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "package.json",
+        "scripts/promote-base-sepolia-scenarios.test.ts",
+        "scripts/promote-base-sepolia-scenarios.ts",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (add/add): Merge conflict in verify-base-sepolia-promotion-output.json"
+      ]
+    },
+    {
+      "commit": "a4e9fbb440537715cd1b6c84137e98c6f7ded222",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20260828"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "package.json",
+        "scripts/promote-base-sepolia-scenarios.test.ts",
+        "scripts/promote-base-sepolia-scenarios.ts",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (add/add): Merge conflict in verify-base-sepolia-promotion-output.json"
+      ]
+    },
+    {
+      "commit": "b0ae916cafb6dd23f0953b1f049ffd8e7b0b7c80",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20260915"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "f42a28a9498873bbca4576f0905ee0f4e250b425",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20261025"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/actor-negative-path-report.json",
+        "output/actor-negative-path-report.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/shared/auth.ts",
+        "packages/api/src/shared/execution-context.test.ts",
+        "packages/api/src/shared/execution-context.ts",
+        "packages/api/src/workflows/claim-reward-campaign.test.ts",
+        "packages/api/src/workflows/claim-reward-campaign.ts",
+        "packages/api/src/workflows/economic-invariants.test.ts",
+        "packages/api/src/workflows/economic-invariants.ts",
+        "packages/api/src/workflows/emergency-withdrawal-sequence.test.ts",
+        "packages/api/src/workflows/emergency-withdrawal-sequence.ts",
+        "packages/api/src/workflows/index.ts",
+        "packages/api/src/workflows/marketplace-purchase.integration.test.ts",
+        "packages/api/src/workflows/release-beneficiary-vesting.test.ts",
+        "packages/api/src/workflows/release-beneficiary-vesting.ts",
+        "packages/api/src/workflows/release-escrowed-asset.test.ts",
+        "packages/api/src/workflows/release-escrowed-asset.ts",
+        "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts",
+        "packages/api/src/workflows/revoke-beneficiary-vesting.ts",
+        "packages/api/src/workflows/reward-campaign.integration.test.ts",
+        "packages/api/src/workflows/selected-gap-write-safety.integration.test.ts",
+        "packages/api/src/workflows/stake-and-delegate.test.ts",
+        "packages/api/src/workflows/stake-and-delegate.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.test.ts",
+        "packages/api/src/workflows/treasury-multisig-withdrawal.ts",
+        "packages/api/src/workflows/treasury-revenue-operations.test.ts",
+        "packages/api/src/workflows/treasury-revenue-operations.ts",
+        "packages/api/src/workflows/vesting-helpers.test.ts",
+        "packages/api/src/workflows/vesting-helpers.ts",
+        "packages/api/src/workflows/vesting.integration.test.ts",
+        "packages/api/src/workflows/withdraw-marketplace-payments.test.ts",
+        "packages/api/src/workflows/withdraw-marketplace-payments.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/actor-negative-paths-lib.test.ts",
+        "scripts/actor-negative-paths-lib.ts",
+        "scripts/generate-actor-negative-path-report.ts",
+        "scripts/red-team-auth-boundaries.test.ts",
+        "scripts/red-team-harness-lib.test.ts",
+        "scripts/red-team-harness-lib.ts",
+        "scripts/red-team-local-fork.test.ts",
+        "scripts/red-team-reward-campaign.test.ts",
+        "scripts/run-test-coverage.test.ts",
+        "scripts/run-test-coverage.ts",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "a6fee6e0c75f92cc6ffd3f7fb8229a8a6a03aecc",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20261028"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "712aa3467f5169b0f2ae777943012486d500576a",
+      "refs": [
+        "refs/heads/codex/base-sepolia-promotion-20261029"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "verify-base-sepolia-promotion-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "b0c9ad9b93717deb5a05a428a9caafa1947f778a",
+      "refs": [
+        "refs/heads/codex/coinbase-usdc-20261023-recovery"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        ".gitignore",
+        "CHANGELOG.md",
+        "db/migrations/0005_funding_quotes.sql",
+        "docs/COINBASE_FUNDING_API.md",
+        "docs/COINBASE_USDC_AND_API_READINESS_REVIEW.md",
+        "docs/COINBASE_USDC_BUILD_LOG.md",
+        "output/coinbase-usdc/2026-10-23-verification.json",
+        "packages/api/src/app.ts",
+        "packages/api/src/funding/config.ts",
+        "packages/api/src/funding/funding.test.ts",
+        "packages/api/src/funding/postgres.integration.test.ts",
+        "packages/api/src/funding/provider.ts",
+        "packages/api/src/funding/routes.ts",
+        "packages/api/src/funding/store.ts",
+        "packages/api/src/shared/auth.ts",
+        "scripts/alchemy-debug-lib.test.ts",
+        "scripts/run-indexer-postgres-assurance.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (add/add): Merge conflict in docs/COINBASE_FUNDING_API.md",
+        "CONFLICT (add/add): Merge conflict in docs/COINBASE_USDC_BUILD_LOG.md",
+        "CONFLICT (add/add): Merge conflict in output/coinbase-usdc/2026-10-23-verification.json",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/config.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/funding.test.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/postgres.integration.test.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/provider.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/routes.ts",
+        "CONFLICT (add/add): Merge conflict in packages/api/src/funding/store.ts",
+        "CONFLICT (content): Merge conflict in packages/api/src/shared/auth.ts",
+        "CONFLICT (content): Merge conflict in scripts/run-indexer-postgres-assurance.ts"
+      ]
+    },
+    {
+      "commit": "e5800b5f975f8baba34662510233b1a115a40b64",
+      "refs": [
+        "refs/heads/codex/cover-percent-gap-plan-boundaries",
+        "refs/remotes/origin/codex/cover-percent-gap-plan-boundaries"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "packages/indexer/src/event-assurance.test.ts",
+        "reviewed/reviewed-api-surface.json",
+        "scripts/gap-builder-plan.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in packages/indexer/src/event-assurance.test.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "053aaed7f86a0f907acc1d3e51631e5a42bb45f2",
+      "refs": [
+        "refs/heads/codex/economic-invariants-20261012"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+      ]
+    },
+    {
+      "commit": "3c96389f962f9923c5c497f467dff1b9ae98d03c",
+      "refs": [
+        "refs/heads/codex/indexer-withdraw-deadline-20261011",
+        "refs/remotes/origin/codex/indexer-withdraw-deadline-20261011"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        ".dockerignore",
+        ".gitignore",
+        "CHANGELOG.md",
+        "Dockerfile.vercel",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "packages/api/src/app.contract-integration.test.ts",
+        "packages/api/src/workflows/open-gap-fixture-closure.test.ts",
+        "packages/api/src/workflows/payment-command-safety.integration.test.ts",
+        "scripts/verify-local-fork-lib.test.ts",
+        "scripts/verify-local-fork-lib.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts",
+        "vercel.json",
+        "verify-control-plane-admin-output.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in packages/api/src/app.contract-integration.test.ts",
+        "CONFLICT (add/add): Merge conflict in verify-control-plane-admin-output.json"
+      ]
+    },
+    {
+      "commit": "b4665c26e4c500571e0aee60fb341be4ef419b0d",
+      "refs": [
+        "refs/heads/codex/red-team-harness"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md"
+      ]
+    },
+    {
+      "commit": "dca8440aa780ee485cdf9f3a43e0f9b4fe424eea",
+      "refs": [
+        "refs/heads/codex/red-team-harness-20261005"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "scripts/red-team-harness-lib.test.ts",
+        "scripts/red-team-harness-lib.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md"
+      ]
+    },
+    {
+      "commit": "498c5eb466048efa4325bbe3bd6b7c4d2b53bf5b",
+      "refs": [
+        "refs/heads/codex/test-gap-coverage-runner",
+        "refs/remotes/origin/codex/test-gap-coverage-runner"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "scripts/vitest-config.test.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (add/add): Merge conflict in scripts/vitest-config.test.ts"
+      ]
+    },
+    {
+      "commit": "a25c0ff3e0d260f512a588a82695131881f0b0b8",
+      "refs": [
+        "refs/heads/codex/test-marketplace-withdrawal-gaps",
+        "refs/remotes/origin/codex/test-marketplace-withdrawal-gaps"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "output/gap-builder-plan.json",
+        "output/gap-builder-plan.md",
+        "package.json",
+        "packages/api/src/workflows/rights-staking-token-command-safety.integration.test.ts",
+        "scripts/verify-marketplace-purchase-live.test.ts",
+        "scripts/verify-marketplace-purchase-live.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.json",
+        "CONFLICT (content): Merge conflict in output/api-test-gap-report.md",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.json",
+        "CONFLICT (content): Merge conflict in output/gap-builder-plan.md",
+        "CONFLICT (content): Merge conflict in package.json"
+      ]
+    },
+    {
+      "commit": "5e4962f389d09f78b5744893a2bc0f5edd301904",
+      "refs": [
+        "refs/heads/codex/test-reward-metadata-sync",
+        "refs/remotes/origin/codex/test-reward-metadata-sync"
+      ],
+      "status": "integrated_or_superseded",
+      "paths": [
+        "CHANGELOG.md",
+        "scripts/sync-reviewed-event-projections.ts",
+        "scripts/sync-reviewed-metadata.test.ts",
+        "scripts/sync-reviewed-write-invariants.ts"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in CHANGELOG.md",
+        "CONFLICT (content): Merge conflict in scripts/sync-reviewed-write-invariants.ts"
+      ]
+    },
+    {
+      "commit": "e8dc0fcfcc7b1008fdb59e45521b1b9199534487",
+      "refs": [
+        "refs/remotes/origin/codex/refactor-api-into-layered-domains"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "README.md",
+        "packages/api/src/shared/execution-context.ts",
+        "packages/api/src/shared/route-factory.ts",
+        "packages/client/src/runtime/config.ts",
+        "reviewed/reviewed-api-surface.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in packages/client/src/runtime/config.ts",
+        "CONFLICT (content): Merge conflict in reviewed/reviewed-api-surface.json"
+      ]
+    },
+    {
+      "commit": "1bda0ee1dfdbf225cfb6d613dc35d23fc4cffd24",
+      "refs": [
+        "refs/remotes/origin/dependabot/npm_and_yarn/npm_and_yarn-4825ac1e2e"
+      ],
+      "status": "requires_reconciliation",
+      "paths": [
+        "package.json"
+      ],
+      "initialConflicts": [
+        "CONFLICT (content): Merge conflict in package.json"
+      ]
+    }
+  ]
+}

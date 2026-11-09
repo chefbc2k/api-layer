@@ -1,6 +1,6 @@
 # API Test Gap Report
 
-Generated: `2026-11-06T03:58:56.611Z`
+Generated: `2026-11-09T02:52:46.585Z`
 
 This report is an evidence inventory, not a claim that generated parity alone proves protocol safety. Test attribution is static and conservative; inspect the linked evidence arrays in the JSON artifact before promoting an item.
 
@@ -32,7 +32,7 @@ This report is an evidence inventory, not a claim that generated parity alone pr
 | baseSepolia | 84 |
 | negativePath | 347 |
 | economic | 194 |
-| redTeam | 266 |
+| redTeam | 272 |
 | indexer | 218 |
 
 ## Methodology
@@ -666,26 +666,26 @@ Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an a
 
 ## RightsFacet
 
-Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.29/8`.
+Facet classification: **ready**. Proof depth spans `unit` to `indexer` with an average score of `2.57/8`.
 
 ### Functions
 
 | Function | Kind | Unit | Workflow | Fork | Sepolia | Negative | Economic | Red-team | Depth | Classification |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `addCollaborator` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `createRightsGroup` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `addCollaborator` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `createRightsGroup` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `getCategoryContracts` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getCollaborator` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getRightCategory` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getRightContract` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getRightsGroup` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
 | `getUserRights` | read | yes | — | — | — | — | — | — | unit 1/8 | ready |
-| `grantRight` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `grantRight` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `registerRightContract` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
-| `removeCollaborator` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
-| `revokeRight` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `removeCollaborator` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
+| `revokeRight` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `rightIdExists` | read | yes | — | — | yes | — | — | — | live 2/8 | ready |
-| `updateCollaboratorShare` | write | yes | yes | — | — | yes | — | — | adversarial 3/8 | ready |
+| `updateCollaboratorShare` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 | `updateRightContract` | write | yes | yes | — | — | yes | — | yes | adversarial 4/8 | ready |
 
 ### Events
