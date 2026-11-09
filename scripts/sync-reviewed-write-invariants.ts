@@ -428,13 +428,22 @@ export function deriveWriteInvariant(key: string, method: AbiMethod, registry: A
   };
 }
 
-const projectionOnlyMethodKeys = new Set([
+export const projectionOnlyMethodKeys = new Set([
   "CommunityRewardsFacet.claim",
   "CommunityRewardsFacet.createCampaign",
   "CommunityRewardsFacet.pauseCampaign",
   "CommunityRewardsFacet.setMerkleRoot",
   "CommunityRewardsFacet.unpauseCampaign",
 ]);
+
+export function mergeProjectionOnlyInvariant(
+  key: string,
+  current: WriteInvariant | undefined,
+  derived: WriteInvariant,
+): WriteInvariant {
+  if (!current || !projectionOnlyMethodKeys.has(key)) return current ?? derived;
+  return { ...current, indexerExpectations: derived.indexerExpectations };
+}
 
 export function syncReviewedWriteInvariants(
   registry: AbiRegistry,
@@ -452,8 +461,8 @@ export function syncReviewedWriteInvariants(
       const current = existing.methods[key];
       const derived = deriveWriteInvariant(key, method, registry);
       if (options.regenerateAll || !current) return [key, derived];
-      if (options.projectionOnly && projectionOnlyMethodKeys.has(key)) {
-        return [key, { ...current, indexerExpectations: derived.indexerExpectations }];
+      if (options.projectionOnly) {
+        return [key, mergeProjectionOnlyInvariant(key, current, derived)];
       }
       return [key, current];
     }));

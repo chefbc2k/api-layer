@@ -1,4 +1,5 @@
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { domainByFacet } from "./api-surface-lib.js";
 import { readJson, writeJson } from "./utils.js";
@@ -28,7 +29,7 @@ type ReviewedEventProjectionFile = {
 
 const reviewedEventProjectionPath = path.resolve("reviewed", "reviewed-event-projections.json");
 
-const managedProjectionDefaults: Record<string, ReviewedEventProjectionFile["events"][string]> = {
+export const managedProjectionDefaults: Record<string, ReviewedEventProjectionFile["events"][string]> = {
   "CommunityRewardsFacet.CampaignCapConfig": {
     domain: "tokenomics",
     projectionMode: "current",
@@ -66,13 +67,19 @@ const managedProjectionDefaults: Record<string, ReviewedEventProjectionFile["eve
   },
 };
 
+export function mergeManagedProjectionDefaults(
+  events: ReviewedEventProjectionFile["events"],
+): ReviewedEventProjectionFile["events"] {
+  return { ...events, ...managedProjectionDefaults };
+}
+
 async function main(): Promise<void> {
   const manifest = await readJson<Manifest>(path.join("generated", "manifests", "contract-manifest.json"));
   const existing = await readJson<ReviewedEventProjectionFile>(reviewedEventProjectionPath);
 
   const next: ReviewedEventProjectionFile = {
     version: 1,
-    events: { ...existing.events, ...managedProjectionDefaults },
+    events: mergeManagedProjectionDefaults(existing.events),
   };
 
   let added = 0;
@@ -104,7 +111,9 @@ async function main(): Promise<void> {
   console.log(`synced reviewed event projections (added ${added})`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
