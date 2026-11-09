@@ -587,6 +587,14 @@
 
 - **Reporter And Planner Suites Passed:** `pnpm run test:gap-report` passed `8/8`, `pnpm run test:gap-builder` passed `12/12`, and the full repository suite passed `1,539` active tests across `146` files with `40` gated skips.
 - **Quality And Coverage Gates Passed:** TypeScript, lint, full build/codegen, and explicit surface coverage passed at `492` functions, `218` events, `492` HTTP methods, and `260/260` write invariants. Measured coverage passed at `97.65%` statements, `96.88%` branches, `98.51%` functions, and `97.68%` lines.
+- **Upgrade Controller Event Partials Are Fully Resolved:** Added event-specific production decode, `upgrade_requests` projection, conflict-safe replay, and current-row invalidation assurance for all six Upgrade Controller events: `UpgradeApproved`, `UpgradeControlEnforcementSet`, `UpgradeControlFrozen`, `UpgradeControllerInitialized`, `UpgradeExecuted`, and `UpgradeProposed`.
+- **Persistent Non-Ready Gaps Fall By Six:** Regenerated the API gap report and 40-item planner artifacts. Ready items increase from `378` to `384`, indexer-proof gaps fall from `99` to `93`, and total non-ready items decrease from `332` to `326`. The Upgrade Controller event-proof cluster advances from `0/6` to `6/6` ready, clearing 100% of that selected partial cluster.
+
+### Verified
+
+- **Indexer And Gap Suites Passed:** The canonical indexer assurance suite passed `175` active tests with `6` PostgreSQL-gated skips, including all `6/6` new Upgrade Controller event cases. The canonical gap-report suite passed `8/8`.
+- **API And Wrapper Inventories Remain Complete:** `pnpm run coverage:check` confirmed `492` wrapper functions, `218` events, `492` HTTP methods, and `260/260` write invariants.
+- **Measured Coverage Gate Passed:** `pnpm run test:coverage` passed at `97.63%` statements, `96.86%` branches, `98.43%` functions, and `97.68%` lines. API routes and client runtime remain at `100%`; the repository-wide gap remains concentrated in operational scripts and explicitly gated runtime paths.
 
 ## [0.1.371] - 2026-10-04
 
