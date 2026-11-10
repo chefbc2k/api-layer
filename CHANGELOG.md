@@ -9,6 +9,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase settlement and bounded approvals - 2026-11-09 PM
+
+- Added finalized native USDC receipt verification and an immutable, unique receipt identity ledger; completed provider observations hydrate exact expected units and transaction hashes until verification. Sandbox evidence remains `test_verified`. Migration 0011 and explicit read-only settlement worker enablement are required; no production migration or monetary action occurred.
+- Added an authenticated bound-wallet approval preparation endpoint with explicit price cap/consent, exact-price allowance, confirmed zero-reset flow, gas checks and unsigned customer signer handoff. No server signing, purchase consent or unlimited grant is implied.
+- Disposable PostgreSQL/native-USDC fork proof passed 66 checks, including real local signatures and unchanged native token code. Actor/red-team/indexer/typecheck/lint/build/surface gates passed; full regression passed 2,759 with 108 environment gates. Coverage passed at 93.92% statements; C15/C17 accepted, backend now 17/20 (85%). C18 purchase, actual Coinbase acceptance, release and consuming frontend remain open.
+
 ## Coinbase reconciliation and recovery - 2026-11-09 AM
 
 - Added durable polling recovery for ambiguous creates and canonical status refresh, with exact owner/value checks, complete paginated scans, cursor/retry persistence and explicit escalation for unknowable legacy outcomes.

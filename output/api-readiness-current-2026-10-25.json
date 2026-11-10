@@ -3,14 +3,12 @@
   "generatedAt": "2026-10-25T22:52:34.738052+00:00",
   "overallProductionReadinessPercent": null,
   "reason": "No agreed weighted release rubric or production deployment/settlement evidence; route parity and static classifications are not release certification.",
-  "acceptedFundingUnits": 15,
+  "acceptedFundingUnits": 17,
   "fundingBaselineUnits": 20,
-  "acceptedFundingPercent": 75,
+  "acceptedFundingPercent": 85,
   "fundingCandidateWork": [
-    "C15 exact receipt settlement",
-    "C17 bounded approvals",
     "C18 explicit purchase handoff",
-    "C19 provider/fork acceptance",
+    "C19 actual provider/fork acceptance",
     "C20 release acceptance"
   ],
   "fundingProductionEnabled": false,
@@ -32,16 +30,15 @@
     "note": "Different historical artifacts; funding automation does not claim progress or overwrite receipt proof ownership."
   },
   "openReleaseDependencies": [
-    "C15 exact USDC settlement",
-    "C17 bounded approvals and C18 explicit purchase",
+    "C18 explicit purchase",
     "C19 actual provider/fork acceptance",
     "C20 release rollout and F01 frontend integration",
     "CDP app-domain/capability confirmation and actual subscription secret",
-    "Apply reviewed funding migration 0010 to existing Neon before reconciliation enablement",
+    "Apply reviewed funding migrations 0010 and 0011 to existing Neon before reconciliation enablement",
     "Remaining exact-method proofs owned by the separate workstream"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-09-am-verification.json",
+    "source": "output/coinbase-usdc/2026-11-09-pm-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false
   },
@@ -52,15 +49,13 @@
     "accepted": 0,
     "total": 1
   },
-  "startingOpenFundingAndFrontend": 8,
+  "startingOpenFundingAndFrontend": 6,
   "minimumCompletedThisRun": 2,
   "completedThisRun": [
-    "C10",
-    "C14"
+    "C15",
+    "C17"
   ],
   "remainingFundingAndFrontend": [
-    "C15",
-    "C17",
     "C18",
     "C19",
     "C20",
@@ -71,11 +66,11 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "08:00 America/Chicago",
+  "runSlot": "20:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
-    "pendingMigration": "0010_funding_reconciliation.sql",
+    "pendingMigration": "0010_funding_reconciliation.sql and 0011_funding_settlement.sql",
     "productionMigrationAppliedByThisRun": false
   }
 }

@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-09",
+  "slot": "20:00 America/Chicago",
+  "before": 15,
+  "after": 17,
+  "baseline": 20,
+  "acceptedPercent": 85,
+  "startingOpenIncludingF01": 6,
+  "minimumRequired": 2,
+  "attempted": [
+    "C15",
+    "C17"
+  ],
+  "completed": [
+    "C15",
+    "C17"
+  ],
+  "attemptedPercentOfOriginal": 10,
+  "completedPercentOfOriginal": 10,
+  "completedPercentOfStartingOpen": 33.333333333333336,
+  "sourceCommit": "922a975a661a83653c73984e469c294cc4275e9c",
+  "baseCommit": "1d0fc512a53c016f49962e87d8b0c58687569d5a",
+  "gates": {
+    "test": {
+      "passed": 2759,
+      "skipped": 108,
+      "failed": 0,
+      "passedFiles": 183,
+      "skippedFiles": 8
+    },
+    "postgresAndNativeFork": {
+      "passed": 66,
+      "skipped": 0,
+      "failed": 0,
+      "migrationsAppliedTwice": true
+    },
+    "actorsPassed": 1019,
+    "redteamPassed": 254,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6720,
+        "covered": 6349,
+        "skipped": 0,
+        "pct": 94.47
+      },
+      "statements": {
+        "total": 7155,
+        "covered": 6720,
+        "skipped": 0,
+        "pct": 93.92
+      },
+      "functions": {
+        "total": 1618,
+        "covered": 1564,
+        "skipped": 0,
+        "pct": 96.66
+      },
+      "branches": {
+        "total": 6205,
+        "covered": 5696,
+        "skipped": 0,
+        "pct": 91.79
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "nativeForkArtifact": "output/coinbase-usdc/2026-11-09-pm-fork.json",
+  "providerSandboxAccepted": false,
+  "productionEnabledByThisRun": false,
+  "productionTransfers": 0,
+  "productionMigrationApplied": false,
+  "requiredProductionMigrations": [
+    "0010_funding_reconciliation.sql",
+    "0011_funding_settlement.sql"
+  ],
+  "remoteBuildTestCIConfigured": false,
+  "remaining": [
+    "C18",
+    "C19",
+    "C20",
+    "F01"
+  ]
+}
