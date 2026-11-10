@@ -9,6 +9,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase funded purchase handoff - 2026-11-10 AM
+
+- Added customer-consented purchase preparation with verified funding linkage, fresh listing/price/seller/escrow ownership, exact allowance and simulated gas checks. The customer signs the unsigned transaction; the API never invokes a governance relay or buys automatically after checkout.
+- Added private durable purchase intents and finalized receipt confirmation, validating signed payload, exact purchase event/native USDC debit and NFT ownership, unique transaction attribution, replay and late confirmations. Migration 0012 is a production rollout prerequisite, not applied by this batch.
+- Disposable PostgreSQL/native-USDC HTTP purchase proof passed all 69 checks; marketplace is a declared fixture, not actual provider/deployed marketplace acceptance. Regression passed 2,774 tests with 111 environment gates; actor/red-team checks passed 1,034/269. Signing constraints disclose the existing contract's missing atomic seller/deadline fields. Final acceptance/coverage receipt follows in the build log.
+
 ## Coinbase settlement and bounded approvals - 2026-11-09 PM
 
 - Added finalized native USDC receipt verification and an immutable, unique receipt identity ledger; completed provider observations hydrate exact expected units and transaction hashes until verification. Sandbox evidence remains `test_verified`. Migration 0011 and explicit read-only settlement worker enablement are required; no production migration or monetary action occurred.

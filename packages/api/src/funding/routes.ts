@@ -1,3 +1,4 @@
+import {createPurchaseRouter} from "./purchase.js";
 import {createApprovalRouter} from "./approval.js";
 import { createReadinessRouter } from "./readiness.js";
 import { createHash } from "node:crypto";
@@ -140,6 +141,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
   router.post("/v1/funding/quotes", handle(true));
   router.use(createReadinessRouter(context));
   router.use(createApprovalRouter(context));
+  router.use(createPurchaseRouter(context,new Pool({connectionString:config.databaseUrl,max:2,idleTimeoutMillis:10000,allowExitOnIdle:true}),config.mode!=="live"));
   router.use(createCheckoutRouter(context, config, inspectChain, dependencies.checkout));
   return router;
 }

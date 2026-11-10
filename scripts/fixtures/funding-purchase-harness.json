@@ -1,0 +1,283 @@
+{
+  "compiler": "0.4.26+commit.4563c3fc.Emscripten.clang",
+  "sourceSha256": "570127193cc9f8d322a32a51ab914728dbab03fb0374a412aa92d3873224a86d",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "active",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "seller",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getListing",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getUsdcToken",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "getOriginalOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "isInEscrow",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "paymentPaused",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "assetOwner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "price",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "next",
+          "type": "uint256"
+        }
+      ],
+      "name": "changePrice",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "purchaseAsset",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "isPaused",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "name": "initialSeller",
+          "type": "address"
+        },
+        {
+          "name": "initialPrice",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "seller",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "buyer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "AssetPurchased",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x60806040526004805460ff1916600117905534801561001d57600080fd5b5060405160608061052183398101604090815281516020830151919092015160008054600160a060020a03948516600160a060020a03199182161790915560018054949093169381169390931790915560035560028054909116301790556104978061008a6000396000f3006080604052600436106100c45763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166302fb0c5e81146100c957806308551a53146100f2578063107a274a146101235780633b44390a146101865780634eeba5be1461019b578063510c3903146101b35780636352211e146101cb57806382165bbf146101e35780639ac9940f146101f8578063a035b1fe1461020d578063a2b40d1914610234578063a457e1c01461024e578063b187bd26146101e3575b600080fd5b3480156100d557600080fd5b506100de610266565b604080519115158252519081900360200190f35b3480156100fe57600080fd5b5061010761026f565b60408051600160a060020a039092168252519081900360200190f35b34801561012f57600080fd5b5061013b60043561027e565b60408051988952600160a060020a039097166020890152878701959095526060870193909352608086019190915260a085015260c0840152151560e083015251908190036101000190f35b34801561019257600080fd5b506101076102a8565b3480156101a757600080fd5b506101076004356102b7565b3480156101bf57600080fd5b506100de6004356102c7565b3480156101d757600080fd5b506101076004356102d1565b3480156101ef57600080fd5b506100de6102e1565b34801561020457600080fd5b506101076102e6565b34801561021957600080fd5b506102226102f5565b60408051918252519081900360200190f35b34801561024057600080fd5b5061024c6004356102fb565b005b34801561025a57600080fd5b5061024c600435610317565b60045460ff1681565b600154600160a060020a031681565b6001546003546004549293600160a060020a0390921692909160009182918291829160ff90911690565b600054600160a060020a031681565b50600154600160a060020a031690565b5060045460ff1690565b50600254600160a060020a031690565b600090565b600254600160a060020a031681565b60035481565b600154600160a060020a0316331461031257600080fd5b600355565b60045460ff1680156103345750600154600160a060020a03163314155b151561033f57600080fd5b60008054600154600354604080517f23b872dd000000000000000000000000000000000000000000000000000000008152336004820152600160a060020a03938416602482015260448101929092525191909216926323b872dd92606480820193602093909283900390910190829087803b1580156103bd57600080fd5b505af11580156103d1573d6000803e3d6000fd5b505050506040513d60208110156103e757600080fd5b505115156103f457600080fd5b6004805460ff191690556002805473ffffffffffffffffffffffffffffffffffffffff1916339081179091556001546003546040805191825251600160a060020a03929092169184917f26f1a462b7fc1cbfaf87a0e804d3c0afd7c0a20e19d3d8ce3135c1155f9b736f919081900360200190a4505600a165627a7a72305820b68078cf4b58d6b0f23a97f7f7775a069d610a9b203ec3f2582c9143743d42d80029"
+}

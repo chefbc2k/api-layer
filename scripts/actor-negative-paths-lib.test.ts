@@ -30,11 +30,11 @@ describe("actor negative-path coverage", () => {
       actorMethodCaseCount: 1_813,
       apiBoundaryCaseCount: 777,
       adminApiRoleCaseCount: 200,
-      additionalHttpWriteCount: 4,
-      totalMountedHttpWriteCount: 263,
+      additionalHttpWriteCount: 6,
+      totalMountedHttpWriteCount: 265,
       additionalHttpDomainCount: 1,
       totalMountedHttpDomainCount: 14,
-      additionalHttpBoundaryCaseCount: 40,
+      additionalHttpBoundaryCaseCount: 60,
     });
     expect(report.methods.map((method) => method.method)).toEqual(
       Object.keys(reviewed.methods).filter((key) => surface.methods[key]).sort((left, right) => left.localeCompare(right)),
@@ -47,7 +47,7 @@ describe("actor negative-path coverage", () => {
   it("tracks role-only, read-only, unknown, and wallet-mismatch denials for non-contract writes", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
 
-    expect(report.additionalHttpWrites).toEqual(["/v1/funding/quotes", "/v1/funding/orders", "/v1/funding/sessions", "/v1/funding/approval-requests"].map(path => expect.objectContaining({
+    expect(report.additionalHttpWrites).toEqual(["/v1/funding/quotes", "/v1/funding/orders", "/v1/funding/sessions", "/v1/funding/approval-requests", "/v1/funding/purchase-requests", "/v1/funding/purchase-requests/:id/receipt"].map(path => expect.objectContaining({
       method: "POST",
       path,
       requiredIdentity: "funding-customer",

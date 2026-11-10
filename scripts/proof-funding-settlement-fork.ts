@@ -1,13 +1,18 @@
+import express from "express";
+import {createPurchaseRouter} from "../packages/api/src/funding/purchase.js";
+import {loadApiKeys} from "../packages/api/src/shared/auth.js";
+import {RateLimiter} from "../packages/api/src/shared/rate-limit.js";
+import type {ApiExecutionContext} from "../packages/api/src/shared/execution-context.js";
 import {Pool} from "pg";
-import {randomUUID} from "node:crypto";
+import {randomUUID,createHash} from "node:crypto";
 import {FundingStore} from "../packages/api/src/funding/store.js";
 import {FundingSettlementProcessor} from "../packages/api/src/funding/settlement.js";
 import {openSync,closeSync} from "node:fs";
 import {spawn} from "node:child_process";
 import {createServer} from "node:net";
-import {mkdir,writeFile} from "node:fs/promises";
+import {mkdir,writeFile,readFile} from "node:fs/promises";
 import path from "node:path";
-import {Contract,Interface,JsonRpcProvider,JsonRpcSigner,Wallet,keccak256} from "ethers";
+import {Contract,Interface,JsonRpcProvider,JsonRpcSigner,Wallet,ContractFactory,keccak256} from "ethers";
 import {verifyUsdcReceipt} from "../packages/api/src/funding/settlement.js";
 import {prepareUsdcApproval} from "../packages/api/src/funding/approval.js";
 import {BASE_SEPOLIA_USDC} from "../packages/api/src/funding/config.js";
@@ -70,7 +75,7 @@ async function main() {
     if(BigInt(await token.allowance(recipient,diamond))!==0n)throw new Error("Reset not confirmed");
     const afterReset=await prepareUsdcApproval(rpc,84532,diamond,recipient,body);const finalApprovalHash=await sign(afterReset);
     if(BigInt(await token.allowance(recipient,diamond))!==amount || BigInt(await token.balanceOf(recipient))!==amount) throw new Error("Approval changed custody or bound");
-    let databaseProof:unknown=null;
+    let databaseProof:unknown=null,purchaseProof:unknown=null;
     if(process.env.API_LAYER_FUNDING_TEST_DB_URL){
       phase="database";const databaseUrl=new URL(process.env.API_LAYER_FUNDING_TEST_DB_URL);
       if(!["127.0.0.1","localhost"].includes(databaseUrl.hostname))throw new Error("Disposable local database required");
@@ -83,10 +88,37 @@ async function main() {
         const persisted=(await pool.query("SELECT amount_units::text AS amount,tx_hash,log_index FROM funding_settlements WHERE attempt_id=$1",[attempt.id])).rows[0];
         if(persisted.amount!==amount.toString() || persisted.tx_hash!==send.hash.toLowerCase())throw new Error("Native receipt identity mismatch");
         databaseProof={status:result,replay:await processor.runOne(),amountUnits:persisted.amount,logIndex:persisted.log_index};
+        phase="purchase";
+        const fixture=JSON.parse(await readFile("scripts/fixtures/funding-purchase-harness.json","utf8"));
+        if(createHash("sha256").update(await readFile("scripts/fixtures/FundingPurchaseHarness.sol")).digest("hex")!==fixture.sourceSha256)throw new Error("Purchase fixture source changed");
+        const market=await new ContractFactory(fixture.abi,fixture.bytecode,distributor).deploy(BASE_SEPOLIA_USDC,await distributor.getAddress(),amount);await market.waitForDeployment();const marketAddress=await market.getAddress();
+        await (await buyerToken.approve(marketAddress,amount)).wait();
+        const apiKeys=loadApiKeys({API_LAYER_KEYS_JSON:JSON.stringify({buyer:{label:"buyer",roles:["buyer"],fundingUserId:userId,walletAddress:recipient},reader:{label:"reader",roles:["read-only"],fundingUserId:userId,walletAddress:recipient},other:{label:"other",roles:["buyer"],fundingUserId:"other",walletAddress:recipient}})});
+        const context={config:{chainId:84532,diamondAddress:marketAddress},apiKeys,rateLimiter:new RateLimiter(),providerRouter:{withProvider:async(_kind:string,_method:string,action:(p:JsonRpcProvider)=>unknown)=>action(rpc)}} as unknown as ApiExecutionContext;
+        const app=express();app.use(express.json());app.use(createPurchaseRouter(context,pool,true));const server=app.listen(0,"127.0.0.1");await new Promise<void>(resolve=>server.once("listening",resolve));
+        try{
+          const base=`http://127.0.0.1:${(server.address() as {port:number}).port}/v1/funding/purchase-requests`;
+          const call=(url:string,key:string,body:unknown)=>fetch(url,{method:"POST",headers:{"content-type":"application/json","x-api-key":key},body:JSON.stringify(body)});
+          const body={fundingAttemptId:attempt.id,tokenId:"1",expectedPriceUsdcUnits:amount.toString(),expectedSeller:await distributor.getAddress(),authorizePurchase:true};
+          if((await call(base,"reader",body)).status!==403 || (await call(base,"other",body)).status!==409)throw new Error("Purchase ownership/authentication boundary failed");
+          await (await new Contract(marketAddress,fixture.abi,distributor).changePrice(amount+1n)).wait();
+          if((await call(base,"buyer",body)).status!==409)throw new Error("Changed price accepted");
+          await (await new Contract(marketAddress,fixture.abi,distributor).changePrice(amount)).wait();
+          const preparedResponse=await call(base,"buyer",body);if(preparedResponse.status!==200)throw new Error("Purchase preparation failed");const prepared=await preparedResponse.json() as {requestId:string;transaction:{to:string;data:string;gas:string;value:string;chainId:string}};
+          const tx=prepared.transaction;const purchase=await buyer.sendTransaction({to:tx.to,data:tx.data,gasLimit:BigInt(tx.gas),value:BigInt(tx.value),chainId:BigInt(tx.chainId)});await purchase.wait();await rpc.send("anvil_mine",["0x80","0x0"]);
+          const receiptUrl=base+"/"+prepared.requestId+"/receipt";
+          if((await call(receiptUrl,"other",{txHash:purchase.hash})).status!==404)throw new Error("Private purchase receipt leaked");
+          const confirmedResponse=await call(receiptUrl,"buyer",{txHash:purchase.hash});if(confirmedResponse.status!==200)throw new Error("Purchase confirmation failed");const confirmed=await confirmedResponse.json();
+          if((await call(receiptUrl,"buyer",{txHash:purchase.hash})).status!==200)throw new Error("Purchase replay failed");
+          if(BigInt(await token.balanceOf(recipient))!==0n || String(await new Contract(marketAddress,fixture.abi,rpc).ownerOf(1)).toLowerCase()!==recipient.toLowerCase())throw new Error("Actual purchase debit/ownership mismatch");
+          purchaseProof={...confirmed,marketplaceFixture:true,fixtureSourceSha256:fixture.sourceSha256,buyerSigned:true,priceChangeRejected:true,privateLookupVerified:true,replayVerified:true};
+        }finally{server.closeAllConnections();await new Promise<void>(resolve=>server.close(()=>resolve()));}
+
       }finally{await pool.end();}
     }
+    if(keccak256(await rpc.getCode(BASE_SEPOLIA_USDC))!==keccak256(sourceCode))throw new Error("Native token code changed");
     const output=path.resolve(process.argv[2] ?? "output/coinbase-usdc/funding-settlement-approval-fork.json");await mkdir(path.dirname(output),{recursive:true});
-    await writeFile(output,JSON.stringify({environment:"disposable-Base-Sepolia-fork",sourceChainId:84532,forkBlock,nativeUsdc:BASE_SEPOLIA_USDC,nativeUsdcProxyCodeHash:keccak256(sourceCode),nativeUsdcCodeReplaced:false,listingFixture:true,providerSandbox:false,productionTransfers:0,databaseProof,sandboxSettlementStatus:"test_verified",settlement,wrongAmountRejected,approvalHash,resetHash,finalApprovalHash,approvedUnits:amount.toString(),recipientBalanceUnits:(await token.balanceOf(recipient)).toString()},null,2)+"\n");
+    await writeFile(output,JSON.stringify({environment:"disposable-Base-Sepolia-fork",sourceChainId:84532,forkBlock,nativeUsdc:BASE_SEPOLIA_USDC,nativeUsdcProxyCodeHash:keccak256(sourceCode),nativeUsdcCodeReplaced:false,listingFixture:true,providerSandbox:false,productionTransfers:0,databaseProof,purchaseProof,sandboxSettlementStatus:"test_verified",settlement,wrongAmountRejected,approvalHash,resetHash,finalApprovalHash,approvedUnits:amount.toString(),recipientBalanceUnits:(await token.balanceOf(recipient)).toString()},null,2)+"\n");
     process.stdout.write("Native USDC fork proof passed: finalized transfer, exact bounded approval, confirmed zero reset; local writes only.\n");
   }finally{rpc.destroy();node.kill("SIGTERM");}
 }
