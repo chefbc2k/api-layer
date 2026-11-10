@@ -3,12 +3,11 @@
   "generatedAt": "2026-10-25T22:52:34.738052+00:00",
   "overallProductionReadinessPercent": null,
   "reason": "No agreed weighted release rubric or production deployment/settlement evidence; route parity and static classifications are not release certification.",
-  "acceptedFundingUnits": 17,
+  "acceptedFundingUnits": 18,
   "fundingBaselineUnits": 20,
-  "acceptedFundingPercent": 85,
+  "acceptedFundingPercent": 90,
   "fundingCandidateWork": [
-    "C18 explicit purchase handoff",
-    "C19 actual provider/fork acceptance",
+    "C19 actual provider/deployed marketplace/indexer acceptance",
     "C20 release acceptance"
   ],
   "fundingProductionEnabled": false,
@@ -30,33 +29,30 @@
     "note": "Different historical artifacts; funding automation does not claim progress or overwrite receipt proof ownership."
   },
   "openReleaseDependencies": [
-    "C18 explicit purchase",
     "C19 actual provider/fork acceptance",
     "C20 release rollout and F01 frontend integration",
     "CDP app-domain/capability confirmation and actual subscription secret",
-    "Apply reviewed funding migrations 0010 and 0011 to existing Neon before reconciliation enablement",
+    "Apply reviewed funding migrations 0010 through 0012 to existing Neon before reconciliation enablement",
     "Remaining exact-method proofs owned by the separate workstream"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-09-pm-verification.json",
+    "source": "output/coinbase-usdc/2026-11-10-am-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false
   },
-  "updatedDate": "2026-11-09",
+  "updatedDate": "2026-11-10",
   "frontendAcceptance": {
     "id": "F01",
     "status": "open-repository-unconfirmed",
     "accepted": 0,
     "total": 1
   },
-  "startingOpenFundingAndFrontend": 6,
-  "minimumCompletedThisRun": 2,
+  "startingOpenFundingAndFrontend": 4,
+  "minimumCompletedThisRun": 1,
   "completedThisRun": [
-    "C15",
-    "C17"
+    "C18"
   ],
   "remainingFundingAndFrontend": [
-    "C18",
     "C19",
     "C20",
     "F01"
@@ -66,11 +62,17 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "20:00 America/Chicago",
+  "runSlot": "08:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
-    "pendingMigration": "0010_funding_reconciliation.sql and 0011_funding_settlement.sql",
+    "pendingMigration": "0010_funding_reconciliation.sql through 0012_funding_purchase_requests.sql",
     "productionMigrationAppliedByThisRun": false
+  },
+  "customerPurchaseSigningConstraints": {
+    "calldataBindsTokenId": true,
+    "sellerAndDeadlineEnforcedOnchain": false,
+    "exactAllowanceCapsSpendWhileUnchanged": true,
+    "signerMustRevalidateBeforeSigning": true
   }
 }

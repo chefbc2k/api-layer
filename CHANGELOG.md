@@ -13,7 +13,7 @@
 
 - Added customer-consented purchase preparation with verified funding linkage, fresh listing/price/seller/escrow ownership, exact allowance and simulated gas checks. The customer signs the unsigned transaction; the API never invokes a governance relay or buys automatically after checkout.
 - Added private durable purchase intents and finalized receipt confirmation, validating signed payload, exact purchase event/native USDC debit and NFT ownership, unique transaction attribution, replay and late confirmations. Migration 0012 is a production rollout prerequisite, not applied by this batch.
-- Disposable PostgreSQL/native-USDC HTTP purchase proof passed all 69 checks; marketplace is a declared fixture, not actual provider/deployed marketplace acceptance. Regression passed 2,774 tests with 111 environment gates; actor/red-team checks passed 1,034/269. Signing constraints disclose the existing contract's missing atomic seller/deadline fields. Final acceptance/coverage receipt follows in the build log.
+- Disposable PostgreSQL/native-USDC HTTP purchase proof passed all 69 checks; marketplace is a declared fixture, not actual provider/deployed marketplace acceptance. Regression passed 2,774 tests with 111 environment gates; actor/red-team checks passed 1,034/269. Signing constraints disclose the existing contract's missing atomic seller/deadline fields. Final quality/coverage gates passed (93.44% statements). C18 backend handoff accepted: 18/20 (90%); C19/C20/F01 remain open.
 
 ## Coinbase settlement and bounded approvals - 2026-11-09 PM
 

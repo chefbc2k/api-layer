@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-10",
+  "slot": "08:00 America/Chicago",
+  "before": 17,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 4,
+  "minimumRequired": 1,
+  "attempted": [
+    "C18"
+  ],
+  "completed": [
+    "C18"
+  ],
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 5,
+  "completedPercentOfStartingOpen": 25,
+  "sourceCommit": "5cb91204d6f2e27d314a91005e7d98782f9f59b5",
+  "baseCommit": "178e465a4132d6087c0c0ec0d5ac591f753ada61",
+  "gates": {
+    "test": {
+      "passed": 2774,
+      "skipped": 111,
+      "failed": 0,
+      "passedFiles": 184,
+      "skippedFiles": 9
+    },
+    "postgresAndNativeFork": {
+      "passed": 69,
+      "skipped": 0,
+      "failed": 0,
+      "migrationsAppliedTwice": true,
+      "purchase": 3
+    },
+    "actorsPassed": 1034,
+    "redteamPassed": 269,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6783,
+        "covered": 6386,
+        "skipped": 0,
+        "pct": 94.14
+      },
+      "statements": {
+        "total": 7245,
+        "covered": 6770,
+        "skipped": 0,
+        "pct": 93.44
+      },
+      "functions": {
+        "total": 1629,
+        "covered": 1572,
+        "skipped": 0,
+        "pct": 96.5
+      },
+      "branches": {
+        "total": 6295,
+        "covered": 5756,
+        "skipped": 0,
+        "pct": 91.43
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "nativeForkArtifact": "output/coinbase-usdc/2026-11-10-am-fork.json",
+  "marketplaceFixture": true,
+  "actualProviderSandboxExecuted": false,
+  "actualDeployedMarketplaceAcceptance": false,
+  "productionEnabledByThisRun": false,
+  "productionTransfers": 0,
+  "productionMigrationApplied": false,
+  "requiredProductionMigrations": [
+    "0010_funding_reconciliation.sql",
+    "0011_funding_settlement.sql",
+    "0012_funding_purchase_requests.sql"
+  ],
+  "remoteBuildTestCIConfigured": false,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "signingLimitations": [
+    "purchaseAsset calldata binds token ID only",
+    "seller/deadline checks require signer revalidation, not onchain enforcement",
+    "exact allowance caps spend only while unchanged"
+  ]
+}
