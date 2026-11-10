@@ -64,10 +64,11 @@ async function main(): Promise<void> {
         "-f", "db/migrations/0008_transaction_request_owner.sql",
         "-f", "db/migrations/0009_funding_processing.sql",
         "-f", "db/migrations/0010_funding_reconciliation.sql",
+        "-f", "db/migrations/0011_funding_settlement.sql",
       ]);
     }
 
-    const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "packages/api/src/funding/postgres.integration.test.ts", "packages/api/src/funding/reconciliation.postgres.integration.test.ts", "packages/api/src/shared/tx-store.postgres.integration.test.ts", "--maxWorkers", "1"], {
+    const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "packages/api/src/funding/postgres.integration.test.ts", "packages/api/src/funding/reconciliation.postgres.integration.test.ts", "packages/api/src/funding/settlement.postgres.integration.test.ts", "packages/api/src/funding/fork.postgres.integration.test.ts", "packages/api/src/shared/tx-store.postgres.integration.test.ts", "--maxWorkers", "1"], {
       env: {
         ...process.env,
         API_LAYER_TX_REQUEST_TEST_DB_URL: `postgresql://postgres@127.0.0.1:${port}/postgres`,

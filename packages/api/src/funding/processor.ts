@@ -62,13 +62,13 @@ export class FundingProcessor {
         const attempt = attempts.rows[0];
         const expectedRef = attempt.provider_user_ref ?? `${attempt.sandbox ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${attempt.user_id}`).digest("hex").slice(0,32)}`;
         if (ref !== expectedRef) throw new Error("identity_mismatch");
-        let status: string, at: Date, txHash: string | undefined, transactionId: string | undefined;
+        let status: string, at: Date, txHash: string | undefined, transactionId: string | undefined,expectedUnits:bigint;
         if (orderId) {
           if (attempt.kind !== "headless" || (attempt.provider_order_id && attempt.provider_order_id !== orderId)) throw new Error("identity_mismatch");
           const current = providerOrderSchema.parse(await this.provider.getOrder(orderId));
           if (current.orderId !== orderId || current.partnerUserRef !== expectedRef || current.destinationAddress.toLowerCase() !== attempt.wallet_address || !current.updatedAt) throw new Error("identity_mismatch");
           assertHeadlessOrderValue(current, attempt.quote_amount_kind, attempt.quote_request_amount);
-          status=current.status; at=new Date(current.updatedAt); txHash=current.txHash;
+          status=current.status; at=new Date(current.updatedAt); txHash=current.txHash; expectedUnits=decimalUnits(current.purchaseAmount,6);
         } else {
           if (attempt.kind !== "hosted") throw new Error("identity_mismatch");
           const current = transaction.parse(event);
@@ -77,11 +77,13 @@ export class FundingProcessor {
           status=prefix+({ ONRAMP_TRANSACTION_STATUS_CREATED:"PENDING_PAYMENT", ONRAMP_TRANSACTION_STATUS_IN_PROGRESS:"PROCESSING", ONRAMP_TRANSACTION_STATUS_SUCCESS:"COMPLETED", ONRAMP_TRANSACTION_STATUS_FAILED:"FAILED" }[current.status]);
           at=new Date(current.completedAt && !current.completedAt.startsWith("0001-") ? current.completedAt : current.createdAt);
           txHash=current.txHash && /^0x[0-9a-fA-F]{64}$/.test(current.txHash) ? current.txHash : undefined;
-          transactionId=current.transactionId;
+          transactionId=current.transactionId;expectedUnits=decimalUnits(current.purchaseAmount.value,6);
         }
-        assertObservationTimestamp(at, new Date(row.received_at));
+        assertObservationTimestamp(at, orderId ? new Date() : new Date(row.received_at));
+        if(attempt.settlement_status!=="unverified" && attempt.expected_usdc_units && BigInt(attempt.expected_usdc_units)!==expectedUnits) throw new Error("invalid_amount");
+        if(attempt.settlement_status!=="unverified" && attempt.provider_tx_hash && txHash && attempt.provider_tx_hash.toLowerCase()!==txHash.toLowerCase()) throw new Error("identity_mismatch");
         const chosen = chooseStatus(attempt.provider_status,status,attempt.provider_updated_at,at);
-        if (chosen) await this.observe(client, attempt.id, chosen, at, orderId, transactionId, txHash);
+        if (chosen || (attempt.provider_status===status && status==="ONRAMP_ORDER_STATUS_COMPLETED")) await this.observe(client, attempt.id, chosen ?? status, at, orderId, transactionId, txHash,expectedUnits.toString());
         await client.query("UPDATE funding_webhook_inbox SET processed_at=now(), attempts=attempts+1,last_error=NULL WHERE event_id=$1", [row.event_id]);
         await client.query("COMMIT"); return "processed";
       } catch (error) {
@@ -97,9 +99,9 @@ export class FundingProcessor {
     } catch (error) { await client.query("ROLLBACK").catch(()=>undefined); throw error; }
     finally { client.release(); }
   }
-  private async observe(client: PoolClient, id: string, status: string, at: Date, orderId?: string, transactionId?: string, txHash?: string) {
+  private async observe(client: PoolClient, id: string, status: string, at: Date, orderId?: string, transactionId?: string, txHash?: string,expectedUnits?: string) {
     await client.query(`UPDATE funding_attempts SET provider_status=$2,provider_updated_at=$3,
       provider_order_id=coalesce(provider_order_id,$4),provider_transaction_id=coalesce(provider_transaction_id,$5),
-      provider_tx_hash=coalesce($6,provider_tx_hash),state='ready',updated_at=now() WHERE id=$1`, [id,status,at,orderId ?? null,transactionId ?? null,txHash ?? null]);
+      provider_tx_hash=$6,expected_usdc_units=coalesce($7,expected_usdc_units),state='ready',updated_at=now() WHERE id=$1`, [id,status,at,orderId ?? null,transactionId ?? null,txHash ?? null,expectedUnits ?? null]);
   }
 }

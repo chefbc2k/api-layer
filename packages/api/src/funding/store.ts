@@ -13,6 +13,7 @@ export type FundingAttempt = {
   id: string; user_id: string; kind: "headless" | "hosted"; fingerprint: string;
   wallet_address: string; chain_id: string; sandbox: boolean; state: "creating" | "uncertain" | "ready";
   provider_user_ref?: string | null; provider_updated_at?: Date | null;
+  settlement_status?: "unverified" | "verified" | "test_verified"; expected_usdc_units?: string | null;
   provider_transaction_id?: string | null; reconcile_error?: string | null;
   provider_order_id: string | null; provider_status: string | null; checkout_ciphertext: string | null;
   checkout_expires_at: Date | null; created_at: Date;
@@ -69,10 +70,10 @@ export class FundingStore {
     }
   }
 
-  async completeAttempt(id: string, userId: string, ciphertext: string, expiresAt: Date, orderId?: string, status?: string): Promise<FundingAttempt> {
+  async completeAttempt(id: string, userId: string, ciphertext: string, expiresAt: Date, orderId?: string, status?: string, expectedUnits?: string): Promise<FundingAttempt> {
     const result = await this.pool.query<FundingAttempt>(`UPDATE funding_attempts SET state='ready', checkout_ciphertext=$3,
-      checkout_expires_at=$4, provider_order_id=$5, provider_status=$6, updated_at=now()
-      WHERE id=$1 AND user_id=$2 AND state IN ('creating','uncertain') RETURNING *`, [id, userId, ciphertext, expiresAt, orderId ?? null, status ?? null]);
+      checkout_expires_at=$4, provider_order_id=$5, provider_status=$6, expected_usdc_units=coalesce($7,expected_usdc_units), updated_at=now()
+      WHERE id=$1 AND user_id=$2 AND state IN ('creating','uncertain') RETURNING *`, [id, userId, ciphertext, expiresAt, orderId ?? null, status ?? null, expectedUnits ?? null]);
     if (!result.rows[0]) throw new Error("Funding attempt could not be completed");
     return result.rows[0];
   }

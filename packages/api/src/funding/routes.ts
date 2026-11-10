@@ -1,3 +1,4 @@
+import {createApprovalRouter} from "./approval.js";
 import { createReadinessRouter } from "./readiness.js";
 import { createHash } from "node:crypto";
 import { Contract, getAddress, ZeroAddress } from "ethers";
@@ -138,6 +139,7 @@ export function createFundingRouter(context: ApiExecutionContext, dependencies: 
   router.get("/v1/funding/options", handle(false));
   router.post("/v1/funding/quotes", handle(true));
   router.use(createReadinessRouter(context));
+  router.use(createApprovalRouter(context));
   router.use(createCheckoutRouter(context, config, inspectChain, dependencies.checkout));
   return router;
 }

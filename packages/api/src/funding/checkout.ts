@@ -26,7 +26,7 @@ const statuses: Record<string, string> = {
 function publicAttempt(attempt: FundingAttempt) {
   return { id: attempt.id, kind: attempt.kind, sandbox: attempt.sandbox, createdAt: attempt.created_at.toISOString(),
     status: attempt.state === "ready" ? (statuses[attempt.provider_status ?? ""] ?? "checkout_created") : "outcome_unknown",
-    settlementStatus: "unverified", providerTransactionId: attempt.provider_transaction_id ?? null, providerOrderId: attempt.provider_order_id };
+    settlementStatus: attempt.settlement_status ?? "unverified", providerTransactionId: attempt.provider_transaction_id ?? null, providerOrderId: attempt.provider_order_id };
 }
 
 export function createCheckoutRouter(context: ApiExecutionContext, config: FundingConfig,
@@ -84,7 +84,7 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
     if (!reservation.created) { respond(reservation.attempt, response); return; }
     const attempt = reservation.attempt;
     const partnerUserRef = attempt.provider_user_ref ?? `${config.mode === "sandbox" ? "sandbox-" : ""}${createHash("sha256").update(`uspeaks:${actor.userId}`).digest("hex").slice(0,32)}`;
-    let checkoutUrl: string, reusableToken: string | undefined, orderId: string | undefined, status: string | undefined;
+    let checkoutUrl: string, reusableToken: string | undefined, orderId: string | undefined, status: string | undefined, expectedUnits: string | undefined;
     try {
       if (kind === "headless" && quote) {
         const created = await provider.createOrder({ destinationAddress: actor.wallet, partnerUserRef, partnerOrderRef: attempt.id,
@@ -94,13 +94,13 @@ export function createCheckoutRouter(context: ApiExecutionContext, config: Fundi
         if (decimalUnits(created.order.paymentTotal,6) > decimalUnits(quote.quote.paymentTotal,6)) throw new Error("Price increased; new quote required");
         if (created.order.partnerUserRef !== partnerUserRef) throw new Error("Provider customer mismatch");
         checkoutUrl = created.paymentLink.url; reusableToken = created.userAuthToken;
-        orderId = created.order.orderId; status = created.order.status;
+        orderId = created.order.orderId; status = created.order.status; expectedUnits=decimalUnits(created.order.purchaseAmount,6).toString();
       } else {
         const created = await provider.createSession({ destinationAddress: actor.wallet, partnerUserRef, redirectUrl: config.redirectUrl, clientIp: request.ip });
         checkoutUrl = created.session.onrampUrl;
       }
       const ciphertext = sealCheckout({ checkoutUrl, reusableToken }, key, actor.userId, attempt.id);
-      const saved = await store.completeAttempt(attempt.id, actor.userId, ciphertext, new Date(Date.now() + 5 * 60_000), orderId, status);
+      const saved = await store.completeAttempt(attempt.id, actor.userId, ciphertext, new Date(Date.now() + 5 * 60_000), orderId, status, expectedUnits);
       respond(saved, response);
     } catch {
       // Never reissue an ambiguous create. Even a failed status write leaves the durable creating reservation locked.

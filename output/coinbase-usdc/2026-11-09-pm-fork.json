@@ -1,0 +1,35 @@
+{
+  "environment": "disposable-Base-Sepolia-fork",
+  "sourceChainId": 84532,
+  "forkBlock": 56778419,
+  "nativeUsdc": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+  "nativeUsdcProxyCodeHash": "0xedc5281a85c0efecd49999a1ef668390c59b88702f2d4a07029d7f5d63059d6c",
+  "nativeUsdcCodeReplaced": false,
+  "listingFixture": true,
+  "providerSandbox": false,
+  "productionTransfers": 0,
+  "databaseProof": {
+    "status": "test_verified",
+    "replay": "idle",
+    "amountUnits": "10000001",
+    "logIndex": 0
+  },
+  "sandboxSettlementStatus": "test_verified",
+  "settlement": {
+    "chainId": 84532,
+    "txHash": "0x1cf1692f32a7090d73cf54152f706b399434422ea49012d162096f59d03e48bd",
+    "logIndex": 0,
+    "blockNumber": 56778422,
+    "blockHash": "0x6c5ebfe2711cab71ae521c35a591d520422f3fee936bad9eb88744d1849dc3d4",
+    "tokenAddress": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+    "recipient": "0xa8c489da9f657387dd9b8083b8a6012669619220",
+    "amountUnits": "10000001",
+    "finalizedBlockNumber": 56778486
+  },
+  "wrongAmountRejected": true,
+  "approvalHash": "0x26bc45550629953f2026875c3f4d9080bf71b65bd006a49ebce2a8a9f1efda3b",
+  "resetHash": "0x0418b465f785d7503a4efcb19e82993b3b25a2737f4733b4d8e24d255c089505",
+  "finalApprovalHash": "0x870cf7eaeeaf4bb3090e12007ec1e350657c2ecff15b463f6ffbe4cf08cb9bee",
+  "approvedUnits": "10000001",
+  "recipientBalanceUnits": "10000001"
+}

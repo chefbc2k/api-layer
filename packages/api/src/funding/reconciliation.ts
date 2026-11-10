@@ -38,7 +38,7 @@ export class FundingReconciler {
       await client.query("BEGIN");
       const result=await client.query(`SELECT a.*,q.amount_kind AS quote_amount_kind,q.request_amount::text AS quote_request_amount
         FROM funding_attempts a LEFT JOIN funding_quotes q ON q.id=a.quote_id
-        WHERE a.reconcile_next_at<=now() AND a.provider_status IS DISTINCT FROM 'ONRAMP_ORDER_STATUS_COMPLETED'
+        WHERE a.reconcile_next_at<=now() AND (a.provider_status IS DISTINCT FROM 'ONRAMP_ORDER_STATUS_COMPLETED' OR a.settlement_status='unverified')
         ORDER BY a.reconcile_next_at,a.id FOR UPDATE OF a SKIP LOCKED LIMIT 1`);
       const attempt=result.rows[0];
       if(!attempt) {await client.query("COMMIT");return "idle";}
@@ -46,12 +46,12 @@ export class FundingReconciler {
       try {
         const legacyRef=`${attempt.sandbox?"sandbox-":""}${createHash("sha256").update(`uspeaks:${attempt.user_id}`).digest("hex").slice(0,32)}`;
         const ref=attempt.provider_user_ref ?? legacyRef;
-        let status:string,at:Date,transactionId:string|null=null,txHash:string|null=null;
+        let status:string,at:Date,transactionId:string|null=null,txHash:string|null=null,expectedUnits:bigint;
         if(attempt.provider_order_id) {
           const order=providerOrderSchema.parse(await this.provider.getOrder(attempt.provider_order_id));
           if(order.orderId!==attempt.provider_order_id || order.partnerUserRef!==ref || order.destinationAddress.toLowerCase()!==attempt.wallet_address || !order.updatedAt) throw new Error("identity_mismatch");
           assertHeadlessOrderValue(order,attempt.quote_amount_kind,attempt.quote_request_amount);
-          status=order.status;at=new Date(order.updatedAt);txHash=order.txHash ?? null;
+          status=order.status;at=new Date(order.updatedAt);txHash=order.txHash ?? null;expectedUnits=decimalUnits(order.purchaseAmount,6);
         } else {
           if(!attempt.provider_user_ref) throw new Error("legacy_identity_required");
           const page=fundingTransactionPageSchema.parse(await this.provider.transactions(ref,attempt.reconcile_page_key ?? undefined));
@@ -86,16 +86,18 @@ export class FundingReconciler {
             await client.query("COMMIT");return overdue?"attention":"waiting";
           }
           if(attempt.provider_transaction_id && attempt.provider_transaction_id!==item.transaction_id) throw new Error("identity_mismatch");
-          transactionId=item.transaction_id;
+          transactionId=item.transaction_id;expectedUnits=decimalUnits(item.purchase_amount.value,6);
           status="ONRAMP_ORDER_STATUS_"+({ONRAMP_TRANSACTION_STATUS_CREATED:"PENDING_PAYMENT",ONRAMP_TRANSACTION_STATUS_IN_PROGRESS:"PROCESSING",ONRAMP_TRANSACTION_STATUS_SUCCESS:"COMPLETED",ONRAMP_TRANSACTION_STATUS_FAILED:"FAILED"}[item.status]);
           at=new Date(item.completed_at && !item.completed_at.startsWith("0001-") ? item.completed_at : item.created_at);
           txHash=item.tx_hash && /^0x[0-9a-fA-F]{64}$/.test(item.tx_hash)?item.tx_hash:null;
         }
         assertObservationTimestamp(at,new Date());
+        if(attempt.settlement_status!=="unverified" && attempt.expected_usdc_units && BigInt(attempt.expected_usdc_units)!==expectedUnits) throw new Error("invalid_amount");
+        if(attempt.settlement_status!=="unverified" && attempt.provider_tx_hash && txHash && attempt.provider_tx_hash.toLowerCase()!==txHash.toLowerCase()) throw new Error("identity_mismatch");
         const chosen=chooseStatus(attempt.provider_status,status,attempt.provider_updated_at,at);
-        if(chosen) await client.query(`UPDATE funding_attempts SET provider_status=$2,provider_updated_at=$3,
-          provider_transaction_id=coalesce(provider_transaction_id,$4),provider_tx_hash=coalesce($5,provider_tx_hash),
-          state='ready',updated_at=now() WHERE id=$1`,[attempt.id,chosen,at,transactionId,txHash]);
+        if(chosen || (attempt.provider_status===status && status==="ONRAMP_ORDER_STATUS_COMPLETED")) await client.query(`UPDATE funding_attempts SET provider_status=$2,provider_updated_at=$3,
+          provider_transaction_id=coalesce(provider_transaction_id,$4),provider_tx_hash=$5,
+          expected_usdc_units=$6,state='ready',updated_at=now() WHERE id=$1`,[attempt.id,chosen ?? status,at,transactionId,txHash,expectedUnits.toString()]);
         await client.query(`UPDATE funding_attempts SET reconcile_attempts=0,reconcile_error=NULL,reconcile_page_key=NULL,
           reconcile_seen_keys='[]',reconcile_candidates='[]',reconcile_next_at=now()+interval '60 seconds' WHERE id=$1`,[attempt.id]);
         await client.query("COMMIT");return "updated";

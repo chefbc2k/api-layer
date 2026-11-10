@@ -108,11 +108,11 @@ describe.skipIf(!database)("durable funding reconciliation",()=>{
     expect(await worker.runOne()).toBe("attention");expect(provider.transactions).not.toHaveBeenCalled();
     expect((await pool.query("SELECT reconcile_error FROM funding_attempts WHERE id=$1",[attempt.id])).rows[0].reconcile_error).toBe("legacy_identity_required");
   });
-  it("permits late completion after failure, then never polls it back to pending",async()=>{
+  it("permits late completion after failure, then never regresses it while awaiting settlement",async()=>{
     const {attempt,input,transaction,provider,worker}=await fixture();provider.transactions.mockResolvedValueOnce({transactions:[{...transaction,status:"ONRAMP_TRANSACTION_STATUS_FAILED"}]});
     expect(await worker.runOne()).toBe("updated");await due(attempt.id);
     provider.transactions.mockResolvedValueOnce({transactions:[{...transaction,status:"ONRAMP_TRANSACTION_STATUS_SUCCESS",completed_at:new Date().toISOString()}]});
-    expect(await worker.runOne()).toBe("updated");await due(attempt.id);expect(await worker.runOne()).toBe("idle");
+    expect(await worker.runOne()).toBe("updated");await due(attempt.id);expect(await worker.runOne()).toBe("updated");
     expect((await store.getAttempt(attempt.id,input.userId))?.provider_status).toBe("ONRAMP_ORDER_STATUS_COMPLETED");
   });
   it("releases claims after a lost worker connection and permits a new worker to recover",async()=>{
