@@ -63,7 +63,8 @@
     "scenario:api": "pnpm run sync:scenarios && tsx scenario-adapter/src/run-api-mode.ts",
     "scenario:api:base-sepolia": "pnpm run sync:scenarios && tsx scripts/run-base-sepolia-api-scenario.ts",
     "scenario:gate": "pnpm run sync:scenarios && tsx ops/scenario-gate.ts",
-    "ops:orchestrate": "tsx ops/orchestrate.ts"
+    "ops:orchestrate": "tsx ops/orchestrate.ts",
+    "funding:release:inspect": "tsx scripts/funding-release-readiness.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

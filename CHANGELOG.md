@@ -9,6 +9,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase release verification - 2026-11-10 PM
+
+- Added an executable read-only database rollout inspector for exact migration checksums, RLS/browser/service grants and valid unique settlement/purchase identities, with sanitized output and explicit non-certification of production launch.
+- Verified the existing deployment database without writes: migrations 0010–0012 and corresponding tables are absent; recorded prior checksums and inspected permissions match. Added concrete release/rollback instructions preserving encryption, ambiguous attempts, inbox, immutable receipts and late confirmations.
+- Fixed initial test dependency resolution by keeping PostgreSQL inspection in the owning API package and the CLI/filesystem logic in scripts; removed unsupported import.meta usage from the CommonJS API build. Focused and disposable database/fork checks pass. Final repository gates and attempted-versus-completed accounting follow in the build log. C19/C20/F01 remain open; this verification work is not an accepted unit.
+
 ## Coinbase funded purchase handoff - 2026-11-10 AM
 
 - Added customer-consented purchase preparation with verified funding linkage, fresh listing/price/seller/escrow ownership, exact allowance and simulated gas checks. The customer signs the unsigned transaction; the API never invokes a governance relay or buys automatically after checkout.

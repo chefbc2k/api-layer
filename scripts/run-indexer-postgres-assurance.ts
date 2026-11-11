@@ -69,7 +69,7 @@ async function main(): Promise<void> {
       ]);
     }
 
-    const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "packages/api/src/funding/postgres.integration.test.ts", "packages/api/src/funding/reconciliation.postgres.integration.test.ts", "packages/api/src/funding/settlement.postgres.integration.test.ts", "packages/api/src/funding/fork.postgres.integration.test.ts", "packages/api/src/funding/purchase.postgres.integration.test.ts", "packages/api/src/shared/tx-store.postgres.integration.test.ts", "--maxWorkers", "1"], {
+    const test = await run("pnpm", ["exec", "vitest", "run", "packages/indexer/src/postgres.integration.test.ts", "packages/api/src/funding/postgres.integration.test.ts", "packages/api/src/funding/reconciliation.postgres.integration.test.ts", "packages/api/src/funding/settlement.postgres.integration.test.ts", "packages/api/src/funding/fork.postgres.integration.test.ts", "packages/api/src/funding/purchase.postgres.integration.test.ts", "packages/api/src/shared/tx-store.postgres.integration.test.ts", "scripts/funding-release-readiness.postgres.integration.test.ts", "--maxWorkers", "1"], {
       env: {
         ...process.env,
         API_LAYER_TX_REQUEST_TEST_DB_URL: `postgresql://postgres@127.0.0.1:${port}/postgres`,

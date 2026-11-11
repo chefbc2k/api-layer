@@ -1,0 +1,36 @@
+{
+  "generatedAt": "2026-11-11T02:02:23.907Z",
+  "purpose": "read-only funding database rollout inspection",
+  "database": {
+    "status": "incomplete",
+    "readOnly": true,
+    "missingMigrations": [
+      "0010_funding_reconciliation.sql",
+      "0011_funding_settlement.sql",
+      "0012_funding_purchase_requests.sql"
+    ],
+    "checksumMismatches": [],
+    "missingTables": [
+      "funding_subscription_health",
+      "funding_settlements",
+      "funding_purchase_requests"
+    ],
+    "unsafeBrowserGrants": [],
+    "missingServiceGrants": [],
+    "rlsDisabled": [],
+    "missingUniqueIdentities": [
+      "funding_settlements",
+      "funding_purchase_requests"
+    ]
+  },
+  "configured": {
+    "cdpServerCredentials": false,
+    "webhookSubscriptionId": false,
+    "webhookSecret": false,
+    "fundingEnabled": false,
+    "checkoutEnabled": false
+  },
+  "productionReleaseAccepted": false,
+  "externalAcceptance": "Review actual provider, frontend, deployed marketplace/indexer and exact-commit CI evidence separately; this command cannot authorize launch.",
+  "productionWrites": 0
+}
