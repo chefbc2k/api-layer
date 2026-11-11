@@ -33,7 +33,8 @@
     "C20 release rollout and F01 frontend integration (confirm candidate repo)",
     "CDP app-domain/capability confirmation and actual subscription secret",
     "Apply reviewed funding migrations 0010 through 0012 to existing Neon before reconciliation enablement",
-    "Remaining exact-method proofs owned by the separate workstream"
+    "Remaining exact-method proofs owned by the separate workstream",
+    "Patch and verify production proxy-addr critical advisory and remaining dependency findings before release"
   ],
   "validation": {
     "source": "output/coinbase-usdc/2026-11-11-am-verification.json",
@@ -103,5 +104,12 @@
     "artifactRun": "output/coinbase-usdc/2026-11-11-am-ci-run.json",
     "coverage": "output/coinbase-usdc/2026-11-11-am-ci-coverage.json",
     "nativeFork": "output/coinbase-usdc/2026-11-11-am-ci-fork.json"
+  },
+  "dependencySecurity": {
+    "productionAudit": "output/coinbase-usdc/2026-11-11-am-production-dependencies.json",
+    "productionCritical": 1,
+    "productionHigh": 26,
+    "githubCriticalAlerts": "output/coinbase-usdc/2026-11-11-am-critical-dependencies.json",
+    "releaseBlocker": true
   }
 }

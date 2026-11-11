@@ -105,7 +105,14 @@
   "blockers": [
     "User confirmation of intended frontend candidate is pending",
     "Actual approved provider/domain/subscription and sandbox/deployed marketplace/indexer acceptance incomplete",
-    "Production migrations 0010-0012 and release rollout acceptance incomplete"
+    "Production migrations 0010-0012 and release rollout acceptance incomplete",
+    "Dependency audit: production proxy-addr critical and 26 high findings; functional CI is not security acceptance"
   ],
-  "receiptPolicy": "Documentation/evidence-only receipt follows tested source and uses [skip ci] to avoid repeating identical full suites; receipt itself has no new successful CI run"
+  "receiptPolicy": "Documentation/evidence-only receipt follows tested source and uses [skip ci] to avoid repeating identical full suites; receipt itself has no new successful CI run",
+  "productionDependencyAudit": {
+    "source": "output/coinbase-usdc/2026-11-11-am-production-dependencies.json",
+    "exitCode": 1,
+    "critical": 1,
+    "high": 26
+  }
 }

@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-11",
+  "command": "pnpm audit --prod --registry=https://registry.npmjs.org --json",
+  "exitCode": 1,
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 3,
+      "moderate": 39,
+      "high": 26,
+      "critical": 1
+    },
+    "dependencies": 298,
+    "devDependencies": 0,
+    "optionalDependencies": 0,
+    "totalDependencies": 298
+  },
+  "critical": [
+    {
+      "package": "proxy-addr",
+      "severity": "critical",
+      "title": "proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet",
+      "url": "https://github.com/advisories/GHSA-jqcg-44mw-7w3h",
+      "patchedVersions": ">=2.0.8"
+    }
+  ],
+  "releaseAccepted": false,
+  "note": "Measured production dependency findings; functional CI does not establish dependency security or production readiness."
+}
