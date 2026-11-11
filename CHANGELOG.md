@@ -9,6 +9,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase release CI integration - 2026-11-11 AM
+
+- Added a GitHub Actions quality workflow covering regression/coverage, ordered TypeScript/lint/build, API surface, actor/red-team/indexer and disposable PostgreSQL/native-USDC fork checks. It has no production/provider secrets and never deploys or enables funding.
+- Committed the pnpm lock for frozen installs and a provenance-labelled deployment selector snapshot for independent API code generation. Snapshot/CI evidence does not certify live deployment, Coinbase approval or frontend readiness.
+- Validation and exact-SHA CI result follow in the durable build log. C19/C20/F01 remain open until their actual full acceptance is satisfied.
+
 ## Coinbase release verification - 2026-11-10 PM
 
 - Added an executable read-only database rollout inspector for exact migration checksums, RLS/browser/service grants and valid unique settlement/purchase identities, with sanitized output and explicit non-certification of production launch.

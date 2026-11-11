@@ -1,0 +1,75 @@
+name: API quality
+on:
+  push:
+    branches: [master, 'codex/coinbase-usdc-*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: api-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      API_LAYER_DEPLOYMENT_MANIFEST: reviewed/ci-deployment-selectors.json
+      API_LAYER_FUNDING_ENABLED: 'false'
+      API_LAYER_FUNDING_CHECKOUT_ENABLED: 'false'
+      API_LAYER_FUNDING_WEBHOOK_ENABLED: 'false'
+      API_LAYER_ALLOW_LIVE_ADMIN_WRITES: 'false'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10.30.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 26.0.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: foundry-rs/foundry-toolchain@dba66c27052e63476d886f22216e119ba7e615bf # v1
+        with:
+          version: v1.5.1
+      - name: Locate disposable service binaries
+        run: |
+          echo "$(pg_config --bindir)" >> "$GITHUB_PATH"
+          echo "ANVIL_BIN=$(command -v anvil)" >> "$GITHUB_ENV"
+      - name: Bootstrap generated sources from pinned selectors
+        run: pnpm run codegen
+      - name: TypeScript
+        run: pnpm exec tsc -b
+      - name: Lint
+        run: pnpm run lint
+      - name: Build
+        run: pnpm run build
+      - name: Regression
+        run: pnpm test
+      - name: Coverage
+        run: pnpm run test:coverage
+      - name: API surface
+        run: pnpm run coverage:check
+      - name: Actor boundaries
+        run: pnpm run test:actor-negative-paths
+      - name: Red team
+        run: pnpm run test:redteam
+      - name: Indexer assurance
+        run: pnpm run test:indexer:assurance
+      - name: Disposable PostgreSQL and native USDC fork
+        env:
+          API_LAYER_FUNDING_RUN_FORK_PROOF: 'true'
+        run: pnpm run test:indexer:postgres
+      - name: Preserve measured evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: api-quality-${{ github.sha }}
+          retention-days: 14
+          if-no-files-found: warn
+          include-hidden-files: true
+          path: |
+            coverage/coverage-summary.json
+            .runtime/funding-fork-proof.json

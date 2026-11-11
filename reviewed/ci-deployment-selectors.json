@@ -1,0 +1,1971 @@
+{
+  "purpose": "Pinned selector snapshot for isolated API CI code generation; not live deployment verification",
+  "source": "CONTRACTS/artifacts/release-readiness/deployment-manifest.json",
+  "sourceSha256": "57017fcc9125235479fb9d98042e66ef70f5fe1a06a23f3580a5065d27ae5bd6",
+  "sourceGeneratedAt": "2026-03-12T18:21:54.321Z",
+  "chainId": 84532,
+  "blockNumber": 38785713,
+  "diamond": "0xa14088acbf0639ef1c3655768a3001e6b8dc9669",
+  "selectorToFacet": [
+    {
+      "selector": "0x00d54fa5",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x01e8f789",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0x01ebeb7e",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x021da69c",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x02c7acfb",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x057bb9cf",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0x0676f661",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x0690c3dc",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x06981395",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x06a36aee",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x06f3f9e6",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0x06fdde03",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x07bd0265",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x081812fc",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x095ea7b3",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x09d55d9a",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x09f3b7d0",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x0a5a63fb",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0x0b895578",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x0c566d79",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x0c725e99",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x0cd689f5",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x0cea2bda",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x0d26c53b",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x0d68475e",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x0d7f39cf",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x0e584cfe",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0x0e5c3e19",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x107a274a",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0x10bd852d",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0x113647bb",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x119c1c23",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x11a048a5",
+      "facetName": "LegacyViewFacet"
+    },
+    {
+      "selector": "0x11afa115",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x120aa877",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x120f8fcb",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x136fb024",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0x1374b22d",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x13bc9f20",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x13dd015f",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x14a2b400",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x14aa497f",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x14cd5a55",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x150b7a02",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0x15b31bbb",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x1620a0c5",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0x1676ed1f",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x16c38b3c",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x18160ddd",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x18712c21",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x18aeb803",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0x19741bf8",
+      "facetName": "LegacyExecutionFacet"
+    },
+    {
+      "selector": "0x1ab9469d",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x1af8e976",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x1b2dc54d",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x1bd641ef",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x1d583e0d",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x1d95ba97",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x1e4e0091",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x1e565477",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x1e82cd85",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x1f1c0144",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x1f4f9486",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x1f931c1c",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0x2002d7ea",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x2045142f",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x20606b70",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0x20c4f08c",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x21040fc3",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x21098c29",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x220cadbe",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x226a9196",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x22969c18",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x22d407bf",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x22f153db",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x23095721",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x23452b9c",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x234b0e2c",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x237dd9c6",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x23b872dd",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x23d3564c",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x248a9ca3",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x24b468fa",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0x25136173",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x25200f05",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x25ba10b5",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x25d81aab",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x25ded8b6",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x26892acd",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x273181b5",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x279412c5",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x27b83e95",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x28394095",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x29164fec",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x2926dc0b",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x293dcc34",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x29e6a964",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x2a55205a",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x2a7df4e4",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x2a9e68cd",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x2ac09708",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x2b26e033",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x2b458a5e",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x2b52d8c3",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x2b7aa7ba",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x2b8e7662",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x2bca8391",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x2c009fa2",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0x2c26b166",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x2c3f02f8",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0x2c5b3b7c",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x2cd0068d",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x2d63f693",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x2f8104d2",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x305a67a8",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0x30846711",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x31119e2e",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x313ce567",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x32ea6cbc",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x32f87240",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0x36609a97",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x36c26d6b",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x372500ab",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x37ec0e5a",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x38770c8e",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x388890d0",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x38f1be48",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x396daaf8",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x3a46b1a8",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x3a976d8f",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x3b44390a",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x3b74b491",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x3bcb1b12",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x3c26835b",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x3ca01f85",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x3ccccbee",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x3cf80e6c",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x3d04a80c",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0x3d402f1b",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x3dd892ad",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x3dfb9fc8",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0x3e4f49e6",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x3ed9bc86",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x3f335f3d",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x3f4ba83a",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0x409d12d6",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x40a2e60a",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x419fd1ee",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x42842e0e",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x42966c68",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x43a19a65",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x46291bfb",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x465e0c17",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x46acffad",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x476056e3",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x481ab8e5",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x48b4cd1f",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x4a43d6df",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x4b01c84c",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x4b503f0b",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x4ba0ab39",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x4c12716a",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x4c495d99",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x4c72da00",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x4d41636f",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x4e01b34a",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x4eeba5be",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0x4f051973",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x4f062c5a",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x4f995e65",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x50cab732",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x510c3903",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0x512b994f",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x518eea47",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x51bfc050",
+      "facetName": "LegacyViewFacet"
+    },
+    {
+      "selector": "0x51ffef11",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x52ef6b2c",
+      "facetName": "DiamondLoupeFacet"
+    },
+    {
+      "selector": "0x531b6f5d",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x535548cd",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x544ffc9c",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x54b547a5",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x54dd1da4",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x5584c4f9",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x5598f8cc",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x55ce036b",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x569ed941",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x57ad6279",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0x584b153e",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x587cde1e",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0x593aa283",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x595f0847",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x5ac06c39",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x5ae6fba4",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x5bb4cbad",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x5c19a95c",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0x5d886f22",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x5ee2f0c1",
+      "facetName": "BurnThresholdFacet"
+    },
+    {
+      "selector": "0x5fa9d5f4",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x6103d70b",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x613107e6",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x6236e365",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x62633ad9",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x62eed8ca",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x6352211e",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x63a599a4",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x63d61a19",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0x64a6c194",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x660a0696",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x67884095",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x68bb3920",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x6bbc0e4c",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x6bcf40e6",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x6be41274",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x6c02a931",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x6c2afb29",
+      "facetName": "LegacyViewFacet"
+    },
+    {
+      "selector": "0x6d70f7ae",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x6da25a54",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x6e437414",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x703905db",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x70a08231",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x712fbf8e",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x715f3458",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x71cdf2bb",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x720bd865",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x721c3c64",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0x7241d3c0",
+      "facetName": "BurnThresholdFacet"
+    },
+    {
+      "selector": "0x7274e30d",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0x727c6c5a",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x73a8ce8b",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x746db152",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x747c1255",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x748384da",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x74eb9d81",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x75fca2a5",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x762a79c6",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x763246e5",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x7730fd72",
+      "facetName": "LegacyViewFacet"
+    },
+    {
+      "selector": "0x7754054e",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x7819fe41",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x782d6fe1",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0x78767645",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0x79ba5097",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x79cc6790",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x7a0ed627",
+      "facetName": "DiamondLoupeFacet"
+    },
+    {
+      "selector": "0x7a104b2c",
+      "facetName": "BurnThresholdFacet"
+    },
+    {
+      "selector": "0x7ad45a76",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x7ae1f62a",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0x7b2d6db3",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x7b61c320",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x7dc43744",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x7f45a16d",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0x7f787d0a",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x7f9e244c",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x7fe72f21",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x8094baf8",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x812646af",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0x813ae22d",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0x81d22d26",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x81fd9e57",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x82165bbf",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x8250abcb",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x841e4561",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x8456cb59",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0x84a2e829",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x85fb8449",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x86198cd5",
+      "facetName": "LegacyExecutionFacet"
+    },
+    {
+      "selector": "0x862455c3",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x8667e657",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x8677cebe",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x871209c8",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x87812653",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x87f811fb",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x88167f2d",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0x886c0d38",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x88f46342",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0x8a461967",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x8a99d586",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x8b7cdbd5",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0x8bb9c5bf",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x8bc9e73e",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x8caf3711",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x8d53b208",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x8da5cb5b",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0x8dedf009",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0x8e360502",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x8f61f4f5",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0x9065f623",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x90c0f462",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0x90d524cc",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0x9103edbf",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x91d14854",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x91e58a20",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0x930bb7dd",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x930faaf6",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x93c032db",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x93c87f03",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x9464ecbe",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0x953769c9",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x9562a35f",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0x9563e984",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x956db465",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x9578615e",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0x95929109",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0x95d89b41",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0x961974ba",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0x9757739b",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0x982d821b",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0x98503b26",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0x9870d7fe",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0x9a5b0a8c",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0x9a79018e",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0x9aafdba9",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0x9b9ceac9",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0x9be346bf",
+      "facetName": "BurnThresholdFacet"
+    },
+    {
+      "selector": "0x9c72ae66",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0x9d985e5f",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0x9eff06bd",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xa02a84c6",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xa0f8d2f6",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0xa14e2cbe",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0xa22cb465",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xa270e9f0",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xa3246ad3",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xa434e813",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xa43e8894",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0xa457e1c0",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0xa54e0605",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xa66bf92a",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0xa694fc3a",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xa6bc0cb0",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xa6cb3575",
+      "facetName": "LegacyExecutionFacet"
+    },
+    {
+      "selector": "0xa6cf90e4",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xa6dbc986",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xa74713ab",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0xa7b830d5",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xa89d777b",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xa9059cbb",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0xa9eb895c",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0xab3de49b",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xabb382b5",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xac70ea51",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xac8a584a",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xad5cb2e1",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xadc710b8",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0xadd472b4",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0xadf51527",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xadfca15e",
+      "facetName": "DiamondLoupeFacet"
+    },
+    {
+      "selector": "0xae0b51df",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0xae57a77b",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0xaf3232bf",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xaf421a2d",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xaf5bdcb6",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0xafb15b90",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0xb02930a3",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0xb17252d6",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0xb187bd26",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0xb2037dc6",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xb22bd298",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0xb2422136",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xb3397a58",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xb3898b61",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xb3bfbda7",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0xb4a38893",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xb4b5ea57",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0xb4eea971",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0xb5e936ab",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xb61d27f6",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xb63bd529",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0xb8663fd0",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0xb88d4fde",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xb991a928",
+      "facetName": "RightsFacet"
+    },
+    {
+      "selector": "0xb9c2aa43",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0xbb4d4436",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xbb601798",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xbb6e39aa",
+      "facetName": "BurnThresholdFacet"
+    },
+    {
+      "selector": "0xbbf2358e",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0xbdc98b6c",
+      "facetName": "LegacyExecutionFacet"
+    },
+    {
+      "selector": "0xbe5b9b60",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xbe9136f7",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xbfe61df4",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0xc01f9e37",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xc1dd6084",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xc1e6f304",
+      "facetName": "DiamondCutFacet"
+    },
+    {
+      "selector": "0xc2cd7eac",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0xc3453153",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xc3cda520",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0xc435e40e",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0xc4604943",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0xc6427474",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xc642c9c9",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0xc6737063",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xc700ff2a",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0xc7f1a1f5",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0xc87b56dd",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xc9793d49",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xc9b965e8",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0xc9cb65e1",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xcbaf2fa7",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xcc12ee00",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0xcc72547b",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0xcdffacc6",
+      "facetName": "DiamondLoupeFacet"
+    },
+    {
+      "selector": "0xcfdbf254",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xd0c8c7b1",
+      "facetName": "TimewaveGiftFacet"
+    },
+    {
+      "selector": "0xd12a2318",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0xd14519d2",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xd237c54e",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0xd2862fb2",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0xd2de9c0b",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xd2f65591",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xd3a37e58",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xd43c54b8",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0xd45c4435",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0xd4745d9b",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xd47b272a",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xd5895c5a",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xd5b17742",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0xd6fab9c2",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xd8eb8082",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xd90b2d57",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xd9155820",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0xd9dbe418",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xdc1af4bb",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xdd16392f",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xdd62ed3e",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0xddf0b009",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xde13278c",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xde99347a",
+      "facetName": "CommunityRewardsFacet"
+    },
+    {
+      "selector": "0xdef78049",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xdf882fdd",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0xdff5dc08",
+      "facetName": "UpgradeControllerFacet"
+    },
+    {
+      "selector": "0xe0024604",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xe012080a",
+      "facetName": "VoiceLicenseTemplateFacet"
+    },
+    {
+      "selector": "0xe0a8f6f5",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xe183efb0",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0xe230e357",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xe23a9a52",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xe30c3978",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0xe32bb67b",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0xe42c08f2",
+      "facetName": "TokenSupplyFacet"
+    },
+    {
+      "selector": "0xe42e718b",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xe58378bb",
+      "facetName": "WhisperBlockFacet"
+    },
+    {
+      "selector": "0xe60ecfcd",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xe6689224",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xe708be9f",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xe777cf79",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xe7a324dc",
+      "facetName": "DelegationFacet"
+    },
+    {
+      "selector": "0xe81a04b4",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xe83973f9",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xe9667bbc",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0xe9741106",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0xe985e9c5",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xeb6a415a",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xeb9019d4",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xecccf285",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0xee004221",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0xee85f5fe",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xeec65de2",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xef00ef43",
+      "facetName": "GovernorFacet"
+    },
+    {
+      "selector": "0xef646800",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xefd9532f",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0xf035a272",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xf27a0c92",
+      "facetName": "TimelockFacet"
+    },
+    {
+      "selector": "0xf288a2e2",
+      "facetName": "ProposalFacet"
+    },
+    {
+      "selector": "0xf28e4383",
+      "facetName": "LegacyFacet"
+    },
+    {
+      "selector": "0xf2dac3c6",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xf2fde38b",
+      "facetName": "OwnershipFacet"
+    },
+    {
+      "selector": "0xf34e0b4f",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xf455dccb",
+      "facetName": "BurnThresholdFacet"
+    },
+    {
+      "selector": "0xf47687ad",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xf60c5512",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xf6177016",
+      "facetName": "VoiceLicenseFacet"
+    },
+    {
+      "selector": "0xf62ebb98",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0xf6ed2017",
+      "facetName": "StakingFacet"
+    },
+    {
+      "selector": "0xf6f8e090",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xf76851bc",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xf773d0c1",
+      "facetName": "VoiceDatasetFacet"
+    },
+    {
+      "selector": "0xf786b958",
+      "facetName": "VotingPowerFacet"
+    },
+    {
+      "selector": "0xf7929a35",
+      "facetName": "PaymentFacet"
+    },
+    {
+      "selector": "0xf7d015e2",
+      "facetName": "EchoScoreFacetV3"
+    },
+    {
+      "selector": "0xf8833439",
+      "facetName": "MultiSigFacet"
+    },
+    {
+      "selector": "0xf90e0996",
+      "facetName": "EmergencyWithdrawalFacet"
+    },
+    {
+      "selector": "0xf9a44fe7",
+      "facetName": "AccessControlFacet"
+    },
+    {
+      "selector": "0xfa25125f",
+      "facetName": "EscrowFacet"
+    },
+    {
+      "selector": "0xfc75b780",
+      "facetName": "MarketplaceFacet"
+    },
+    {
+      "selector": "0xfd59ff68",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xfd84a3bd",
+      "facetName": "VoiceMetadataFacet"
+    },
+    {
+      "selector": "0xfdd950c1",
+      "facetName": "VoiceAssetFacet"
+    },
+    {
+      "selector": "0xfddd4837",
+      "facetName": "EmergencyFacet"
+    },
+    {
+      "selector": "0xffdd68b2",
+      "facetName": "VestingFacet"
+    },
+    {
+      "selector": "0xfff617b9",
+      "facetName": "CommunityRewardsFacet"
+    }
+  ]
+}
