@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -46,7 +46,16 @@ async function main(): Promise<void> {
   try {
     await run(initdb, ["-D", data, "-A", "trust", "-U", "postgres", "--no-locale"]);
     await mkdir(path.join(root, "socket"));
-    await run(pgCtl, ["-D", data, "-o", `-p ${port} -h 127.0.0.1`, "-l", log, "start"]);
+    // Debian defaults to a privileged /var/run socket directory; this cluster owns its socket.
+    const socket=path.join(root,"socket");
+    const quotedSocket="'"+socket.replaceAll("'", "'\\''")+"'";
+    try {
+      await run(pgCtl, ["-D", data, "-o", `-p ${port} -h 127.0.0.1 -k ${quotedSocket}`, "-l", log, "start"]);
+    } catch(error) {
+      // This is only our freshly initialized disposable server, never a deployed database.
+      process.stderr.write(await readFile(log,"utf8").catch(()=>"Disposable PostgreSQL startup log unavailable\n"));
+      throw error;
+    }
     started = true;
 
     const databaseArgs = ["-h", "127.0.0.1", "-p", String(port), "-U", "postgres", "-d", "postgres", "-v", "ON_ERROR_STOP=1"];

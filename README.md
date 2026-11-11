@@ -26,6 +26,12 @@ pnpm run codegen
 pnpm run build
 ```
 
+## Continuous integration
+
+`.github/workflows/api-quality.yml` runs on `master`, Coinbase work branches and pull requests. It installs the committed pnpm lock with `--frozen-lockfile`, generates from checked-in ABIs and `reviewed/ci-deployment-selectors.json`, then runs the quality/test/coverage and disposable PostgreSQL/native-USDC fork gates. It uses no deployment/provider secrets and leaves production funding disabled. The selector snapshot records its source hash and historical block; it is a build input, not live contract verification. Update it only from the reviewed deployment manifest alongside the ABI/policy review.
+
+For an isolated local build, set `API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json` and run `pnpm run build`. Actual provider, consuming frontend, deployed marketplace/indexer and release acceptance remain separate. Inspect the exact commit's GitHub run and uploaded aggregate coverage/fork evidence; a workflow file, successful push or skipped live suite is not release certification.
+
 ## Environment
 
 The API runtime reads the repo [`.env`](/Users/chef/Public/api-layer/.env) directly. The deployed proof path is bound to the values already verified there:

@@ -1,0 +1,19 @@
+{
+  "observedDate": "2026-11-11",
+  "repository": "chefbc2k/uspeaks_mapbased_marketplace",
+  "commit": "49b34aefa2a36d94449b424a7571d64660ddaae4",
+  "sourceAccessAvailable": true,
+  "intendedApiConsumerConfirmed": false,
+  "observedStack": [
+    "Next.js",
+    "Supabase",
+    "Stripe",
+    "LicenseNFT",
+    "RoyaltyRegistry",
+    "MarketplaceSettlementHook"
+  ],
+  "apiLayerDiamondOrUsdcReferenceFound": false,
+  "actionRequired": "Confirm this candidate is the intended consumer or identify the correct frontend repository",
+  "frontendAcceptance": "F01 open",
+  "sourceChangesMade": false
+}

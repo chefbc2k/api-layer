@@ -46,6 +46,10 @@ jobs:
         run: pnpm run lint
       - name: Build
         run: pnpm run build
+      - name: Disposable PostgreSQL and native USDC fork
+        env:
+          API_LAYER_FUNDING_RUN_FORK_PROOF: 'true'
+        run: pnpm run test:indexer:postgres
       - name: Regression
         run: pnpm test
       - name: Coverage
@@ -58,10 +62,6 @@ jobs:
         run: pnpm run test:redteam
       - name: Indexer assurance
         run: pnpm run test:indexer:assurance
-      - name: Disposable PostgreSQL and native USDC fork
-        env:
-          API_LAYER_FUNDING_RUN_FORK_PROOF: 'true'
-        run: pnpm run test:indexer:postgres
       - name: Preserve measured evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
