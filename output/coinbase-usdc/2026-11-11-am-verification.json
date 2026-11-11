@@ -1,0 +1,111 @@
+{
+  "date": "2026-11-11",
+  "slot": "08:00 America/Chicago",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "shortfall": 1,
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "completedPercentOfStartingOpen": 0,
+  "sourceCommit": "6d80d66b3934cbf28d15079202fd0768cd1b4844",
+  "baseCommit": "a11f59a37f3d0dae7b2835d58e04d46a8e7708fb",
+  "gates": {
+    "test": {
+      "passed": 2777,
+      "skipped": 114,
+      "failed": 0,
+      "passedFiles": 185,
+      "skippedFiles": 10
+    },
+    "postgresAndNativeFork": {
+      "passed": 72,
+      "skipped": 0,
+      "failed": 0,
+      "migrationsAppliedTwice": true
+    },
+    "actorsPassed": 1034,
+    "redteamPassed": 269,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6842,
+        "covered": 6406,
+        "skipped": 0,
+        "pct": 93.62
+      },
+      "statements": {
+        "total": 7319,
+        "covered": 6792,
+        "skipped": 0,
+        "pct": 92.79
+      },
+      "functions": {
+        "total": 1640,
+        "covered": 1577,
+        "skipped": 0,
+        "pct": 96.15
+      },
+      "branches": {
+        "total": 6332,
+        "covered": 5762,
+        "skipped": 0,
+        "pct": 90.99
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "cleanCheckout": {
+    "archiveSha": "34c971c26be269c876f665edb3de20e2415d9824",
+    "frozenInstall": true,
+    "standaloneSnapshotBuild": true,
+    "postgresNativeForkPassed": 72
+  },
+  "remoteCI": {
+    "workflow": ".github/workflows/api-quality.yml",
+    "sourceSha": "6d80d66b3934cbf28d15079202fd0768cd1b4844",
+    "run": "https://github.com/chefbc2k/api-layer/actions/runs/43035874548",
+    "conclusion": "success",
+    "initialFailedRun": "https://github.com/chefbc2k/api-layer/actions/runs/43034414588",
+    "failureFixed": "Disposable PostgreSQL now uses its owned temporary Unix socket directory",
+    "runArtifact": "output/coinbase-usdc/2026-11-11-am-ci-run.json",
+    "coverageArtifact": "output/coinbase-usdc/2026-11-11-am-ci-coverage.json",
+    "nativeForkArtifact": "output/coinbase-usdc/2026-11-11-am-ci-fork.json"
+  },
+  "actualProviderSandboxExecuted": false,
+  "actualDeployedMarketplaceAcceptance": false,
+  "productionEnabledByThisRun": false,
+  "productionWrites": 0,
+  "productionMigrationApplied": false,
+  "frontendDiscovery": "output/coinbase-usdc/2026-11-11-am-frontend-discovery.json",
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "blockers": [
+    "User confirmation of intended frontend candidate is pending",
+    "Actual approved provider/domain/subscription and sandbox/deployed marketplace/indexer acceptance incomplete",
+    "Production migrations 0010-0012 and release rollout acceptance incomplete"
+  ],
+  "receiptPolicy": "Documentation/evidence-only receipt follows tested source and uses [skip ci] to avoid repeating identical full suites; receipt itself has no new successful CI run"
+}

@@ -13,7 +13,7 @@
 
 - Added a GitHub Actions quality workflow covering regression/coverage, ordered TypeScript/lint/build, API surface, actor/red-team/indexer and disposable PostgreSQL/native-USDC fork checks. It has no production/provider secrets and never deploys or enables funding.
 - Committed the pnpm lock for frozen installs and a provenance-labelled deployment selector snapshot for independent API code generation. Snapshot/CI evidence does not certify live deployment, Coinbase approval or frontend readiness.
-- Validation and exact-SHA CI result follow in the durable build log. C19/C20/F01 remain open until their actual full acceptance is satisfied.
+- Clean frozen install/build and all local gates passed. After fixing the Ubuntu PostgreSQL socket path, exact-SHA GitHub run 43035874548 passed every gate: 2,777 regression, 72 PostgreSQL/fork, actor/red-team/indexer and quality/coverage. Downloaded measured evidence is checked in. Attempted C20, completed zero whole units; 18/20 (90%) unchanged and one-unit target missed. Found an accessible frontend candidate and requested confirmation before modifying its distinct Stripe/contracts flow. C19/C20/F01 remain open until their actual full acceptance is satisfied.
 
 ## Coinbase release verification - 2026-11-10 PM
 

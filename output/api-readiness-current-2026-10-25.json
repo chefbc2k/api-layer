@@ -30,22 +30,25 @@
   },
   "openReleaseDependencies": [
     "C19 actual provider/fork acceptance",
-    "C20 release rollout and F01 frontend integration",
+    "C20 release rollout and F01 frontend integration (confirm candidate repo)",
     "CDP app-domain/capability confirmation and actual subscription secret",
     "Apply reviewed funding migrations 0010 through 0012 to existing Neon before reconciliation enablement",
     "Remaining exact-method proofs owned by the separate workstream"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-10-pm-verification.json",
+    "source": "output/coinbase-usdc/2026-11-11-am-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false
   },
-  "updatedDate": "2026-11-10",
+  "updatedDate": "2026-11-11",
   "frontendAcceptance": {
     "id": "F01",
-    "status": "open-repository-unconfirmed",
+    "status": "open-candidate-confirmation-needed",
     "accepted": 0,
-    "total": 1
+    "total": 1,
+    "candidate": "chefbc2k/uspeaks_mapbased_marketplace",
+    "candidateAccessAvailable": true,
+    "candidateApiConsumerConfirmed": false
   },
   "startingOpenFundingAndFrontend": 3,
   "minimumCompletedThisRun": 1,
@@ -60,7 +63,7 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "20:00 America/Chicago",
+  "runSlot": "08:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
@@ -85,7 +88,20 @@
   ],
   "lastRunCompletionShortfall": 1,
   "releasePartialWork": [
-    "Read-only checksummed database/RLS/grant/unique-identity inspector",
-    "Concrete rollout/rollback runbook; no C20 acceptance"
-  ]
+    "Frozen lock/pinned-selector build plus GitHub API quality workflow",
+    "Read-only database inspector and rollout/rollback runbook"
+  ],
+  "releaseCI": {
+    "configured": true,
+    "workflow": ".github/workflows/api-quality.yml",
+    "sourceSha": "6d80d66b3934cbf28d15079202fd0768cd1b4844",
+    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43035874548",
+    "observedStatus": "completed",
+    "previousRun": "https://github.com/chefbc2k/api-layer/actions/runs/43034414588",
+    "previousConclusion": "failure: disposable PostgreSQL startup; corrected owned socket",
+    "conclusion": "success",
+    "artifactRun": "output/coinbase-usdc/2026-11-11-am-ci-run.json",
+    "coverage": "output/coinbase-usdc/2026-11-11-am-ci-coverage.json",
+    "nativeFork": "output/coinbase-usdc/2026-11-11-am-ci-fork.json"
+  }
 }
