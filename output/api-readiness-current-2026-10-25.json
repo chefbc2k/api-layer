@@ -36,7 +36,7 @@
     "Remaining exact-method proofs owned by the separate workstream"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-10-am-verification.json",
+    "source": "output/coinbase-usdc/2026-11-10-pm-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false
   },
@@ -47,11 +47,9 @@
     "accepted": 0,
     "total": 1
   },
-  "startingOpenFundingAndFrontend": 4,
+  "startingOpenFundingAndFrontend": 3,
   "minimumCompletedThisRun": 1,
-  "completedThisRun": [
-    "C18"
-  ],
+  "completedThisRun": [],
   "remainingFundingAndFrontend": [
     "C19",
     "C20",
@@ -62,17 +60,32 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "08:00 America/Chicago",
+  "runSlot": "20:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
     "pendingMigration": "0010_funding_reconciliation.sql through 0012_funding_purchase_requests.sql",
-    "productionMigrationAppliedByThisRun": false
+    "productionMigrationAppliedByThisRun": false,
+    "inspectionSource": "output/coinbase-usdc/2026-11-10-pm-database-inspection.json",
+    "inspectionReadOnly": true,
+    "missingMigrationsVerified": [
+      "0010_funding_reconciliation.sql",
+      "0011_funding_settlement.sql",
+      "0012_funding_purchase_requests.sql"
+    ]
   },
   "customerPurchaseSigningConstraints": {
     "calldataBindsTokenId": true,
     "sellerAndDeadlineEnforcedOnchain": false,
     "exactAllowanceCapsSpendWhileUnchanged": true,
     "signerMustRevalidateBeforeSigning": true
-  }
+  },
+  "lastRunAttempted": [
+    "C20"
+  ],
+  "lastRunCompletionShortfall": 1,
+  "releasePartialWork": [
+    "Read-only checksummed database/RLS/grant/unique-identity inspector",
+    "Concrete rollout/rollback runbook; no C20 acceptance"
+  ]
 }

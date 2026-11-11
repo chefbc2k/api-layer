@@ -13,7 +13,7 @@
 
 - Added an executable read-only database rollout inspector for exact migration checksums, RLS/browser/service grants and valid unique settlement/purchase identities, with sanitized output and explicit non-certification of production launch.
 - Verified the existing deployment database without writes: migrations 0010–0012 and corresponding tables are absent; recorded prior checksums and inspected permissions match. Added concrete release/rollback instructions preserving encryption, ambiguous attempts, inbox, immutable receipts and late confirmations.
-- Fixed initial test dependency resolution by keeping PostgreSQL inspection in the owning API package and the CLI/filesystem logic in scripts; removed unsupported import.meta usage from the CommonJS API build. Focused and disposable database/fork checks pass. Final repository gates and attempted-versus-completed accounting follow in the build log. C19/C20/F01 remain open; this verification work is not an accepted unit.
+- Fixed initial test dependency resolution by keeping PostgreSQL inspection in the owning API package and the CLI/filesystem logic in scripts; removed unsupported import.meta usage from the CommonJS API build. Final gates passed: 2,777 regression tests, 72 disposable PostgreSQL/fork checks, typecheck/lint/build/surface and measured coverage (92.79% statements). Attempted C20, completed zero; 18/20 (90%) unchanged, one-unit target missed. C19/C20/F01 remain open; this verification work is not an accepted unit.
 
 ## Coinbase funded purchase handoff - 2026-11-10 AM
 

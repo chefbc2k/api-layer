@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-10",
+  "slot": "20:00 America/Chicago",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "shortfall": 1,
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "completedPercentOfStartingOpen": 0,
+  "sourceCommit": "e5bba743df44efe04a2dc8c661b0c7ccaf8238b4",
+  "baseCommit": "53e131d9cd5e534d68742c52f7bac5b04c63322c",
+  "gates": {
+    "test": {
+      "passed": 2777,
+      "skipped": 114,
+      "failed": 0,
+      "passedFiles": 185,
+      "skippedFiles": 10
+    },
+    "postgresAndNativeFork": {
+      "passed": 72,
+      "skipped": 0,
+      "failed": 0,
+      "migrationsAppliedTwice": true,
+      "releaseInspection": 3
+    },
+    "actorsPassed": 1034,
+    "redteamPassed": 269,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6842,
+        "covered": 6406,
+        "skipped": 0,
+        "pct": 93.62
+      },
+      "statements": {
+        "total": 7319,
+        "covered": 6792,
+        "skipped": 0,
+        "pct": 92.79
+      },
+      "functions": {
+        "total": 1640,
+        "covered": 1577,
+        "skipped": 0,
+        "pct": 96.15
+      },
+      "branches": {
+        "total": 6332,
+        "covered": 5762,
+        "skipped": 0,
+        "pct": 90.99
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "productionDatabaseInspection": "output/coinbase-usdc/2026-11-10-pm-database-inspection.json",
+  "productionDatabaseStatus": "incomplete",
+  "productionDatabaseReadOnly": true,
+  "productionWrites": 0,
+  "actualProviderSandboxExecuted": false,
+  "actualDeployedMarketplaceAcceptance": false,
+  "productionEnabledByThisRun": false,
+  "productionMigrationApplied": false,
+  "remoteBuildTestCIConfigured": false,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "blockers": [
+    "Actual approved consumer frontend repository/access unconfirmed",
+    "Correct CDP product domain/capability/subscription and actual provider acceptance still needed",
+    "Production migrations 0010-0012, configured CI/exact-commit and integrated deployment acceptance incomplete"
+  ],
+  "scope": "Partial release inspector/runbook delivered; no acceptance unit earned"
+}
