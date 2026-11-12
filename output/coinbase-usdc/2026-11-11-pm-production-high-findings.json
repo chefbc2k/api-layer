@@ -1,0 +1,114 @@
+{
+  "productionAuditExitCode": 1,
+  "highFindings": [
+    {
+      "package": "path-to-regexp",
+      "severity": "high",
+      "patchedVersions": ">=8.4.0",
+      "advisory": "https://github.com/advisories/GHSA-j3q9-mxjg-w52f"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.15.1",
+      "advisory": "https://github.com/advisories/GHSA-pmwg-cvhr-8vh7"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.15.1",
+      "advisory": "https://github.com/advisories/GHSA-pf86-5x62-jrwf"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.15.1",
+      "advisory": "https://github.com/advisories/GHSA-6chq-wfr3-2hj9"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.15.2",
+      "advisory": "https://github.com/advisories/GHSA-q8qp-cvcw-x6jj"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.16.0",
+      "advisory": "https://github.com/advisories/GHSA-hfxv-24rg-xrqf"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.16.0",
+      "advisory": "https://github.com/advisories/GHSA-777c-7fjr-54vf"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.16.0",
+      "advisory": "https://github.com/advisories/GHSA-p92q-9vqr-4j8v"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.16.0",
+      "advisory": "https://github.com/advisories/GHSA-j5f8-grm9-p9fc"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.15.2",
+      "advisory": "https://github.com/advisories/GHSA-3g43-6gmg-66jw"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.16.0",
+      "advisory": "https://github.com/advisories/GHSA-35jp-ww65-95wh"
+    },
+    {
+      "package": "form-data",
+      "severity": "high",
+      "patchedVersions": ">=4.0.6",
+      "advisory": "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx"
+    },
+    {
+      "package": "ws",
+      "severity": "high",
+      "patchedVersions": ">=8.21.0",
+      "advisory": "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+    },
+    {
+      "package": "ws",
+      "severity": "high",
+      "patchedVersions": ">=7.5.11",
+      "advisory": "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.20.0",
+      "advisory": "https://github.com/advisories/GHSA-3pq3-5fj3-cg6v"
+    },
+    {
+      "package": "axios",
+      "severity": "high",
+      "patchedVersions": ">=1.20.0",
+      "advisory": "https://github.com/advisories/GHSA-542g-h47m-68v8"
+    },
+    {
+      "package": "zod",
+      "severity": "high",
+      "patchedVersions": ">=4.6.6",
+      "advisory": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5"
+    },
+    {
+      "package": "body-parser",
+      "severity": "high",
+      "patchedVersions": ">=2.4.0",
+      "advisory": "https://github.com/advisories/GHSA-27r3-jxmh-p828"
+    }
+  ],
+  "releaseAccepted": false
+}

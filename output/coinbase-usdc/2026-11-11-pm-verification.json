@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-11",
+  "slot": "20:00 America/Chicago",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "shortfall": 1,
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "completedPercentOfStartingOpen": 0,
+  "sourceCommit": "b69ad48d30b45395394816271acc393bd1d6ee92",
+  "baseCommit": "e07408f28af4fa60ee42de8dbd553ea2f43df0ef",
+  "gates": {
+    "test": {
+      "passed": 2781,
+      "skipped": 114,
+      "failed": 0,
+      "passedFiles": 186,
+      "skippedFiles": 10
+    },
+    "postgresAndNativeFork": {
+      "passed": 72,
+      "skipped": 0,
+      "failed": 0,
+      "migrationsAppliedTwice": true
+    },
+    "actorsPassed": 1034,
+    "redteamPassed": 273,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6842,
+        "covered": 6406,
+        "skipped": 0,
+        "pct": 93.62
+      },
+      "statements": {
+        "total": 7319,
+        "covered": 6792,
+        "skipped": 0,
+        "pct": 92.79
+      },
+      "functions": {
+        "total": 1640,
+        "covered": 1577,
+        "skipped": 0,
+        "pct": 96.15
+      },
+      "branches": {
+        "total": 6332,
+        "covered": 5762,
+        "skipped": 0,
+        "pct": 90.99
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "allScopeCriticalAudit": {
+      "exitCode": 0,
+      "critical": 0
+    }
+  },
+  "fullProductionAudit": {
+    "exitCode": 1,
+    "critical": 0,
+    "high": 25,
+    "moderate": 38,
+    "low": 3,
+    "releaseAccepted": false,
+    "source": "output/coinbase-usdc/2026-11-11-pm-dependency-audit.json"
+  },
+  "remoteCI": {
+    "sourceSha": "b69ad48d30b45395394816271acc393bd1d6ee92",
+    "run": "https://github.com/chefbc2k/api-layer/actions/runs/43139632056",
+    "conclusion": "success",
+    "runArtifact": "output/coinbase-usdc/2026-11-11-pm-ci-run.json",
+    "coverageArtifact": "output/coinbase-usdc/2026-11-11-pm-ci-coverage.json",
+    "auditArtifact": "output/coinbase-usdc/2026-11-11-pm-ci-audit.json",
+    "nativeForkArtifact": "output/coinbase-usdc/2026-11-11-pm-ci-fork.json"
+  },
+  "proxyRegression": "output/coinbase-usdc/2026-11-11-pm-proxy-regression.json",
+  "actualProviderSandboxExecuted": false,
+  "actualDeployedMarketplaceAcceptance": false,
+  "productionEnabledByThisRun": false,
+  "productionWrites": 0,
+  "productionMigrationApplied": false,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "blockers": [
+    "25 production high dependency findings remain",
+    "Intended frontend candidate confirmation pending",
+    "Actual CDP approval/domain/subscription and provider/deployed marketplace/indexer acceptance incomplete",
+    "Production migrations 0010-0012 and release rollout acceptance incomplete"
+  ],
+  "receiptPolicy": "Only documentation/evidence changes follow passing source; [skip ci] avoids rerunning identical full suites. No receipt-SHA CI pass is claimed."
+}
