@@ -38,6 +38,10 @@ jobs:
         run: |
           echo "$(pg_config --bindir)" >> "$GITHUB_PATH"
           echo "ANVIL_BIN=$(command -v anvil)" >> "$GITHUB_ENV"
+      - name: Critical dependency audit
+        run: |
+          mkdir -p .runtime
+          pnpm audit --registry=https://registry.npmjs.org --audit-level critical --json > .runtime/dependency-audit.json
       - name: Bootstrap generated sources from pinned selectors
         run: pnpm run codegen
       - name: TypeScript
@@ -71,5 +75,6 @@ jobs:
           if-no-files-found: warn
           include-hidden-files: true
           path: |
+            .runtime/dependency-audit.json
             coverage/coverage-summary.json
             .runtime/funding-fork-proof.json

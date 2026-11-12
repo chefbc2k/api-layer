@@ -1,0 +1,11 @@
+{
+  "advisory": "GHSA-jqcg-44mw-7w3h",
+  "transport": "loopback HTTP only",
+  "configuredTrustSubnet": "::ffff:10.0.0.0/8",
+  "forgedForwardedIp": "203.0.113.9",
+  "vulnerableDependencyObservedIp": "203.0.113.9",
+  "patchedDependencyObservedIp": "127.0.0.1",
+  "productionTraffic": false,
+  "vulnerableVersion": "2.0.7",
+  "patchedVersion": "2.0.8"
+}

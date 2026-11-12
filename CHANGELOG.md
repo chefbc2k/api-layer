@@ -9,6 +9,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase release critical dependency fixes - 2026-11-11 PM
+
+- Patched runtime proxy-addr to 2.0.8 and added an actual Express forwarded-IP spoof regression. A loopback reproduction succeeds against the old dependency and is rejected by the patched graph; correctly trusted mapped peers still work.
+- Aligned Vitest/coverage packages at 3.2.6 and scoped the patched Tinypool 2.1.2 override to that exact Vitest dependency. Installed a separate worktree dependency tree, preserving the primary checkout and other automations.
+- All-scope critical audit now passes with zero critical findings; production audit remains failing with 25 high, 38 moderate and three low findings. Added a CI critical-audit gate and measured artifact. Full local/remote compatibility evidence follows in the build log; this is not full release/security acceptance or a new C20 completion.
+
 ## Coinbase release CI integration - 2026-11-11 AM
 
 - After lockfile indexing, inspected actual dependency findings: official production audit fails with one critical proxy-addr advisory and 26 high findings; development Vitest/tinypool also have critical GitHub alerts. These are explicit release blockers despite passing functional CI. Sanitized evidence and next patch/test actions are recorded; no production release is accepted.

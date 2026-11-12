@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-11",
+  "slot": "20:00 America/Chicago",
+  "allScopesCriticalGate": {
+    "command": "pnpm audit --registry=https://registry.npmjs.org --audit-level critical --json",
+    "exitCode": 0,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 4,
+        "moderate": 54,
+        "high": 39,
+        "critical": 0
+      },
+      "dependencies": 656,
+      "devDependencies": 0,
+      "optionalDependencies": 0,
+      "totalDependencies": 656
+    }
+  },
+  "productionAudit": {
+    "command": "pnpm audit --prod --registry=https://registry.npmjs.org --json",
+    "exitCode": 1,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 3,
+        "moderate": 38,
+        "high": 25,
+        "critical": 0
+      },
+      "dependencies": 297,
+      "devDependencies": 0,
+      "optionalDependencies": 0,
+      "totalDependencies": 297
+    }
+  },
+  "patchedVersions": {
+    "proxy-addr": "2.0.8",
+    "vitest": "3.2.6",
+    "@vitest/coverage-istanbul": "3.2.6",
+    "@vitest/coverage-v8": "3.2.6",
+    "vitestScopedTinypool": "2.1.2"
+  },
+  "productionSecurityAccepted": false,
+  "remainingHighFindingsAreReleaseBlockers": true
+}
