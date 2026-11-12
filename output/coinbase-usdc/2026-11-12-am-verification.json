@@ -1,0 +1,118 @@
+{
+  "date": "2026-11-12",
+  "slot": "08:00 America/Chicago",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "shortfall": 1,
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "completedPercentOfStartingOpen": 0,
+  "sourceCommit": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+  "baseCommit": "1869e3e1de84a7b664c92426f0f089ef6aa26d2e",
+  "gates": {
+    "test": {
+      "passed": 2785,
+      "skipped": 114,
+      "failed": 0,
+      "passedFiles": 187,
+      "skippedFiles": 10
+    },
+    "postgresAndNativeFork": {
+      "passed": 72,
+      "skipped": 0,
+      "failed": 0,
+      "migrationsAppliedTwice": true
+    },
+    "actorsPassed": 1034,
+    "redteamPassed": 277,
+    "indexer": {
+      "passed": 272,
+      "databaseGatesSeparatelyExecuted": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "coverageCheck": 0,
+    "coverage": {
+      "lines": {
+        "total": 6842,
+        "covered": 6406,
+        "skipped": 0,
+        "pct": 93.62
+      },
+      "statements": {
+        "total": 7319,
+        "covered": 6792,
+        "skipped": 0,
+        "pct": 92.79
+      },
+      "functions": {
+        "total": 1640,
+        "covered": 1577,
+        "skipped": 0,
+        "pct": 96.15
+      },
+      "branches": {
+        "total": 6332,
+        "covered": 5762,
+        "skipped": 0,
+        "pct": 90.99
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    },
+    "allScopeCriticalAudit": {
+      "exitCode": 0,
+      "critical": 0
+    }
+  },
+  "productionAudit": {
+    "exitCode": 1,
+    "critical": 0,
+    "high": 1,
+    "moderate": 9,
+    "low": 1,
+    "source": "output/coinbase-usdc/2026-11-12-am-production-audit.json",
+    "releaseAccepted": false,
+    "remainingPath": "@coinbase/cdp-sdk>zod@3.25.76"
+  },
+  "upstreamSdkMetadata": "output/coinbase-usdc/2026-11-12-am-sdk-zod-metadata.json",
+  "remoteCI": {
+    "sourceSha": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+    "run": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
+    "conclusion": "success",
+    "runArtifact": "output/coinbase-usdc/2026-11-12-am-ci-run.json",
+    "coverageArtifact": "output/coinbase-usdc/2026-11-12-am-ci-coverage.json",
+    "auditArtifact": "output/coinbase-usdc/2026-11-12-am-ci-audit.json",
+    "nativeForkArtifact": "output/coinbase-usdc/2026-11-12-am-ci-fork.json"
+  },
+  "actualProviderSandboxExecuted": false,
+  "actualDeployedMarketplaceAcceptance": false,
+  "productionEnabledByThisRun": false,
+  "productionWrites": 0,
+  "productionMigrationApplied": false,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "blockers": [
+    "Remaining SDK Zod 3 high finding requires compatible upstream fix or separately validated migration/backport",
+    "Intended frontend candidate confirmation pending",
+    "Actual provider/domain/subscription and deployed marketplace/indexer acceptance incomplete",
+    "Production migration state/rollout and release acceptance incomplete (last actual schema inspection November 10 PM)"
+  ],
+  "receiptPolicy": "Only documentation/evidence changes follow the passing source; [skip ci] avoids duplicate full suites. Receipt itself has no new CI pass."
+}

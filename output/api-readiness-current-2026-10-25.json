@@ -34,14 +34,14 @@
     "CDP app-domain/capability confirmation and actual subscription secret",
     "Apply reviewed funding migrations 0010 through 0012 to existing Neon before reconciliation enablement",
     "Remaining exact-method proofs owned by the separate workstream",
-    "Resolve remaining production high dependency findings before release; current critical audit is zero"
+    "Resolve remaining SDK Zod 3 high finding using a compatible patched upstream release or separately validated migration/backport"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-11-pm-verification.json",
+    "source": "output/coinbase-usdc/2026-11-12-am-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false
   },
-  "updatedDate": "2026-11-11",
+  "updatedDate": "2026-11-12",
   "frontendAcceptance": {
     "id": "F01",
     "status": "open-candidate-confirmation-needed",
@@ -64,7 +64,7 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "20:00 America/Chicago",
+  "runSlot": "08:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
@@ -95,24 +95,25 @@
   "releaseCI": {
     "configured": true,
     "workflow": ".github/workflows/api-quality.yml",
-    "sourceSha": "b69ad48d30b45395394816271acc393bd1d6ee92",
-    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43139632056",
+    "sourceSha": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
     "observedStatus": "completed",
     "previousRun": "https://github.com/chefbc2k/api-layer/actions/runs/43034414588",
     "previousConclusion": "failure: disposable PostgreSQL startup; corrected owned socket",
-    "artifactRun": "output/coinbase-usdc/2026-11-11-pm-ci-run.json",
-    "coverage": "output/coinbase-usdc/2026-11-11-pm-ci-coverage.json",
-    "nativeFork": "output/coinbase-usdc/2026-11-11-pm-ci-fork.json",
-    "conclusion": "success",
-    "criticalAudit": "output/coinbase-usdc/2026-11-11-pm-ci-audit.json"
+    "artifactRun": "output/coinbase-usdc/2026-11-12-am-ci-run.json",
+    "coverage": "output/coinbase-usdc/2026-11-12-am-ci-coverage.json",
+    "nativeFork": "output/coinbase-usdc/2026-11-12-am-ci-fork.json",
+    "criticalAudit": "output/coinbase-usdc/2026-11-12-am-ci-audit.json",
+    "conclusion": "success"
   },
   "dependencySecurity": {
-    "productionAudit": "output/coinbase-usdc/2026-11-11-pm-dependency-audit.json",
+    "productionAudit": "output/coinbase-usdc/2026-11-12-am-production-audit.json",
     "allScopeCritical": 0,
     "productionCritical": 0,
-    "productionHigh": 25,
-    "remainingHighFindings": "output/coinbase-usdc/2026-11-11-pm-production-high-findings.json",
+    "productionHigh": 1,
+    "remainingHighFindings": "output/coinbase-usdc/2026-11-12-am-production-audit.json",
     "releaseBlocker": true,
-    "baselineGithubCriticalAlerts": "output/coinbase-usdc/2026-11-11-am-critical-dependencies.json"
+    "baselineGithubCriticalAlerts": "output/coinbase-usdc/2026-11-11-am-critical-dependencies.json",
+    "upstreamSdkMetadata": "output/coinbase-usdc/2026-11-12-am-sdk-zod-metadata.json"
   }
 }

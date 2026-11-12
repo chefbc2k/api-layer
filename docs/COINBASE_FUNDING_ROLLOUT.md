@@ -38,3 +38,7 @@ Resume only after the fault is repaired and relevant failure-path and full relea
 ## Patched test-tool compatibility
 
 The root Vitest/coverage packages are pinned together at 3.2.6. A narrow pnpm override selects Tinypool 2.1.2 only beneath that Vitest version because its default 1.x range remains vulnerable. The Node 26 toolchain and full local/remote suites must validate this pairing; keep the critical audit gate when changing it. Do not silently carry the override to unrelated consumers or replace a test-tool update with an untested major override. Runtime proxy-addr resolves to 2.0.8; real Express trust-proxy tests cover the forwarded-IP spoof boundary. Production high findings remain separately tracked and block full release acceptance.
+
+## Scoped HTTP dependency resolutions
+
+The November 12 graph uses patched same-major Axios/body-parser/form-data/path-to-regexp/ws resolutions plus direct Zod 4.6.7. Overrides are version-scoped and must be reviewed against their parent ranges and real transport tests when changed. Full local and remote gates validate the current graph; no SDK public-version/endpoint contract changed. The remaining production high advisory is the SDK's Zod 3.25.76 dependency. Current stable SDK metadata still requires Zod 3. A compatible patched upstream release or a separately validated SDK migration/backport is required; a global Zod 3-to-4 override, ignored advisory or green critical-only gate is not full security/release acceptance.

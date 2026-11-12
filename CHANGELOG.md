@@ -13,7 +13,7 @@
 
 - Updated direct Zod 4 consumers to the patched 4.6.7 floor. Added version-scoped, same-major overrides for Axios 1.20.0, body-parser 2.4.0, form-data 4.0.6, path-to-regexp 8.4.0 and ws 7.5.11/8.22.2, retaining the existing Coinbase SDK API version.
 - Production high audit findings dropped from 25 to one; critical remains zero. The remaining high finding is Coinbase SDK's Zod 3 dependency, which also remains in the latest stable SDK metadata. No untested Zod 3-to-4 major override was applied.
-- Added actual SDK HTTP-client/HTTP2 DNS-control and compressed-body/raw-webhook regressions. Full local/remote quality evidence follows in the build log. C19/C20/F01 remain open; dependency remediation is not full release acceptance.
+- Added actual SDK HTTP-client/HTTP2 DNS-control and compressed-body/raw-webhook regressions. Full local and exact-SHA GitHub CI passed: 2,785 regression tests, 72 PostgreSQL/fork checks and every quality/coverage/actor/red-team/indexer gate. Production high findings remain one (SDK Zod 3); full production audit still exits 1. Backend acceptance stays 18/20 (90%), one-unit target missed. C19/C20/F01 remain open; dependency remediation is not full release acceptance.
 
 ## Coinbase release critical dependency fixes - 2026-11-11 PM
 
