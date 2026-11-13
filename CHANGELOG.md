@@ -9,6 +9,11 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase acceptance recheck and guide correction - 2026-11-12 PM
+
+- Corrected obsolete pending-work statements in the funding guide to match implemented reconciliation, settlement and purchase handoff. Backend remains 18/20 (90%); C19/C20/F01 are open, zero units completed against minimum one. Documentation is not acceptance progress.
+- Rechecked current stable SDK metadata and official production audit: SDK Zod 3 high remains, zero critical/one high/nine moderate/one low. Frontend confirmation and actual provider/integrated release evidence remain pending. Source/lock/tests are unchanged; prior exact-source successful CI is retained as historical evidence, with no duplicate full-suite run or production operation.
+
 ## Coinbase release high dependency fixes - 2026-11-12 AM
 
 - Updated direct Zod 4 consumers to the patched 4.6.7 floor. Added version-scoped, same-major overrides for Axios 1.20.0, body-parser 2.4.0, form-data 4.0.6, path-to-regexp 8.4.0 and ws 7.5.11/8.22.2, retaining the existing Coinbase SDK API version.

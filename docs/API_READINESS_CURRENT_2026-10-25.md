@@ -1,4 +1,4 @@
-# API production readiness ledger — updated November 12, 2026 (AM)
+# API production readiness ledger — updated November 12, 2026 (PM)
 
 Overall production readiness is not established. The historical filename is retained as the shared ledger named by the automations.
 
@@ -27,3 +27,5 @@ Do not derive a weighted overall production percentage from 710 static classific
 Frontend discovery: the accessible candidate at commit `49b34ae` has no reference to the current diamond/API/USDC flow. Its deployed v0 project alone does not identify it as this API consumer. A confirmation question is pending; F01 stays open and no candidate source was changed. See `output/coinbase-usdc/2026-11-11-am-frontend-discovery.json`.
 
 Dependency status after AM fixes: all-scope critical gate passes with zero critical findings. Full production audit still exits 1: one high (Coinbase SDK's Zod 3.25.76), nine moderate and one low. Official stable SDK metadata still requires Zod 3; forcing a major replacement into unverified SDK internals is not accepted remediation. A compatible patched upstream release or separately validated SDK migration/backport is required. The direct API/client/indexer Zod 4 dependencies are patched. See `output/coinbase-usdc/2026-11-12-am-production-audit.json`, `2026-11-12-am-critical-audit.json` and `2026-11-12-am-sdk-zod-metadata.json`. CI's critical threshold does not mark remaining high/moderate findings accepted.
+
+November 12 PM (run 29): no new whole-unit acceptance; C19/C20/F01 remain open, minimum one missed by one. Rechecked stable SDK metadata and official production audit: the same SDK Zod 3 high remains (zero critical, one high, nine moderate, one low). Corrected obsolete pending-work statements in the funding guide. Connected inventory remains unchanged and the frontend question is pending. Source/lock/tests are unchanged; full suites were not repeated. Prior passing source-SHA CI was re-observed as successful, not claimed as a new PM run. Evidence: `output/coinbase-usdc/2026-11-12-pm-verification.json`. No provider probe, production DB operation, deployment or feature enablement.
