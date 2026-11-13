@@ -37,13 +37,13 @@
     "Resolve remaining SDK Zod 3 high finding using a compatible patched upstream release or separately validated migration/backport"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-12-pm-verification.json",
+    "source": "output/coinbase-usdc/2026-11-13-am-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false,
     "newTestRuns": [],
     "priorVerifiedSource": "efd39ea0548d18b13b6c8bfd54448e26a928709a"
   },
-  "updatedDate": "2026-11-12",
+  "updatedDate": "2026-11-13",
   "frontendAcceptance": {
     "id": "F01",
     "status": "open-candidate-confirmation-needed",
@@ -66,7 +66,7 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "20:00 America/Chicago",
+  "runSlot": "08:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
@@ -117,6 +117,6 @@
     "releaseBlocker": true,
     "baselineGithubCriticalAlerts": "output/coinbase-usdc/2026-11-11-am-critical-dependencies.json",
     "upstreamSdkMetadata": "output/coinbase-usdc/2026-11-12-am-sdk-zod-metadata.json",
-    "latestObservation": "output/coinbase-usdc/2026-11-12-pm-verification.json"
+    "latestObservation": "output/coinbase-usdc/2026-11-13-am-verification.json"
   }
 }

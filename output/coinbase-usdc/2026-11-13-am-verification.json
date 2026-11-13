@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-13",
+  "slot": "08:00 America/Chicago",
+  "run": 30,
+  "baseCommit": "bfb0bfa981bba6582bdc478ed6b9dbb225f1764f",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "shortfall": 1,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "newTestRuns": [],
+  "priorVerifiedSource": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+  "priorCI": {
+    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
+    "status": "completed",
+    "conclusion": "success",
+    "recheckedThisRun": true
+  },
+  "validationPolicy": "Documentation/evidence only; no repeated identical full suites without code change. Prior test results are historical, not new runs.",
+  "blockers": [
+    "C19: approved CDP domain/embedded capability, actual subscription secret/client context and real sandbox acceptance; then integrated deployed marketplace/indexer proof",
+    "F01: confirm actual consuming frontend (accessible candidate chefbc2k/uspeaks_mapbased_marketplace unconfirmed) and implement wallet/checkout/signing integration",
+    "C20: provider/frontend/integrated release acceptance, reviewed migrations/rollout, remaining SDK Zod high (latest stable still requires Zod 3); compatible upstream fix or separately validated migration/backport needed"
+  ],
+  "productionWrites": 0,
+  "actualProviderSandboxExecuted": false,
+  "productionEnabledByThisRun": false,
+  "automationRemainsActive": true,
+  "documentationChanges": "Daily blocked-run log, changelog and readiness evidence only; no application/lock/test change.",
+  "productionAudit": {
+    "command": "pnpm audit --prod --registry=https://registry.npmjs.org --json",
+    "exitCode": 1,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 1,
+        "moderate": 9,
+        "high": 1,
+        "critical": 0
+      },
+      "dependencies": 301,
+      "devDependencies": 0,
+      "optionalDependencies": 0,
+      "totalDependencies": 301
+    },
+    "remainingHighOrCritical": [
+      {
+        "package": "zod",
+        "severity": "high",
+        "patchedVersions": ">=4.6.6",
+        "advisory": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+        "findings": [
+          {
+            "version": "3.25.76",
+            "paths": [
+              "packages__api>@coinbase/cdp-sdk>zod"
+            ]
+          }
+        ]
+      }
+    ],
+    "releaseAccepted": false
+  },
+  "upstreamSdk": {
+    "version": "1.62.0",
+    "dependencies.zod": "^3.25.76"
+  }
+}
