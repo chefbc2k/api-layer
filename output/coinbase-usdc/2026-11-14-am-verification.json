@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-14",
+  "slot": "08:00 America/Chicago",
+  "run": 32,
+  "baseCommit": "a78b3958fb70ebe540942ae0c87ea8e769996897",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "shortfall": 1,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "sdkMetadata": {
+    "command": "pnpm view @coinbase/cdp-sdk version dependencies.zod --json --registry=https://registry.npmjs.org",
+    "exitCode": 0,
+    "result": {
+      "version": "1.62.0",
+      "dependencies.zod": "^3.25.76"
+    }
+  },
+  "productionAudit": {
+    "command": "pnpm audit --prod --registry=https://registry.npmjs.org --json",
+    "exitCode": 1,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 1,
+        "moderate": 9,
+        "high": 1,
+        "critical": 0
+      },
+      "dependencies": 301,
+      "devDependencies": 0,
+      "optionalDependencies": 0,
+      "totalDependencies": 301
+    },
+    "remainingHighOrCritical": [
+      {
+        "package": "zod",
+        "severity": "high",
+        "patchedVersions": ">=4.6.6",
+        "advisory": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+        "findings": [
+          {
+            "version": "3.25.76",
+            "paths": [
+              "packages__api>@coinbase/cdp-sdk>zod"
+            ]
+          }
+        ]
+      }
+    ],
+    "releaseAccepted": false
+  },
+  "newTestRuns": [],
+  "applicationSourceChanged": false,
+  "priorVerifiedSource": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+  "priorCI": {
+    "url": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
+    "status": "completed",
+    "conclusion": "success",
+    "reobservedThisRun": true
+  },
+  "projectInventoryChanged": false,
+  "frontendConfirmed": false,
+  "blockers": [
+    "C19: approved provider app domain/embedded capability, subscription secret/client context, actual sandbox acceptance and integrated deployed marketplace/indexer proof",
+    "F01: confirm intended consuming frontend (accessible candidate chefbc2k/uspeaks_mapbased_marketplace unconfirmed), then implement and verify customer wallet/payment/approval/purchase signing",
+    "C20: integrated release prerequisites, reviewed migration/rollout verification and compatible SDK/Zod security remediation or separately validated migration/backport"
+  ],
+  "productionWrites": 0,
+  "actualProviderSandboxExecuted": false,
+  "productionEnabledByThisRun": false,
+  "automationRemainsActive": true,
+  "validationNote": "No duplicate identical suites for unchanged source/lock/tests. Prior test/CI results are historical, not new runs; no logging/research credited as acceptance."
+}
