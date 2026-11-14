@@ -1,4 +1,4 @@
-# API production readiness ledger — updated November 13, 2026 (AM)
+# API production readiness ledger — updated November 13, 2026 (PM)
 
 Overall production readiness is not established. The historical filename is retained as the shared ledger named by the automations.
 
@@ -31,3 +31,5 @@ Dependency status after AM fixes: all-scope critical gate passes with zero criti
 November 12 PM (run 29): no new whole-unit acceptance; C19/C20/F01 remain open, minimum one missed by one. Rechecked stable SDK metadata and official production audit: the same SDK Zod 3 high remains (zero critical, one high, nine moderate, one low). Corrected obsolete pending-work statements in the funding guide. Connected inventory remains unchanged and the frontend question is pending. Source/lock/tests are unchanged; full suites were not repeated. Prior passing source-SHA CI was re-observed as successful, not claimed as a new PM run. Evidence: `output/coinbase-usdc/2026-11-12-pm-verification.json`. No provider probe, production DB operation, deployment or feature enablement.
 
 November 13 AM (run 30): starting/ending C19/C20/F01 remain three open, minimum one, completed zero, shortfall one. Backend remains 18/20 (90%). Official production audit exits 1 with zero critical/one high/nine moderate/one low; stable SDK 1.62.0 still requires Zod ^3.25.76. Frontend confirmation and actual provider/deployed acceptance remain pending; no new project source identified. No application/lock/tests changed and no duplicate full suites run. Prior exact-source CI success remains historical evidence. See `output/coinbase-usdc/2026-11-13-am-verification.json`; no production/provider probe, write, deployment or enablement.
+
+November 13 PM (run 31): unchanged three open items, minimum one, zero completions, shortfall one; backend 18/20 (90%). Latest stable SDK still requires Zod 3 and connected project inventory remains unchanged. Last actual production audit is the AM failure, not a fresh PM audit. No code change or duplicate full-suite run; prior exact-source CI success re-observed, not new test evidence. Provider, confirmed frontend and integrated release prerequisites remain open. Checkpoint: `output/coinbase-usdc/2026-11-13-pm-verification.json`. Automation remains active; production untouched.

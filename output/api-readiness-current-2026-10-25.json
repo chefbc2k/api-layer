@@ -37,7 +37,7 @@
     "Resolve remaining SDK Zod 3 high finding using a compatible patched upstream release or separately validated migration/backport"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-13-am-verification.json",
+    "source": "output/coinbase-usdc/2026-11-13-pm-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false,
     "newTestRuns": [],
@@ -66,7 +66,7 @@
     "source": "output/transaction-request-privacy-readiness.json",
     "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
   },
-  "runSlot": "08:00 America/Chicago",
+  "runSlot": "20:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",

@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-13",
+  "slot": "20:00 America/Chicago",
+  "run": 31,
+  "baseCommit": "18b53e51c23d225daf833f0f4b5dde03993727ef",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "shortfall": 1,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "upstreamSdk": {
+    "version": "1.62.0",
+    "dependencies.zod": "^3.25.76"
+  },
+  "sdkMetadataCommand": {
+    "command": "pnpm view @coinbase/cdp-sdk version dependencies.zod --json --registry=https://registry.npmjs.org",
+    "exitCode": 0
+  },
+  "projectInventoryChanged": false,
+  "frontendConfirmationReceived": false,
+  "newTestRuns": [],
+  "fullSuitesRepeated": false,
+  "reason": "Application, lock, migrations and tests unchanged. All whole remaining acceptance items require pending external/integrated evidence; do not count logs/research as implementation.",
+  "lastActualProductionAudit": {
+    "source": "output/coinbase-usdc/2026-11-13-am-verification.json",
+    "exitCode": 1,
+    "critical": 0,
+    "high": 1,
+    "moderate": 9,
+    "low": 1,
+    "rerunThisSlot": false
+  },
+  "priorVerifiedSource": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+  "priorCI": {
+    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
+    "status": "completed",
+    "conclusion": "success",
+    "recheckedThisRun": true
+  },
+  "blockers": [
+    "C19: approved domain/embedded provider capability, subscription secret/client context, actual Coinbase sandbox acceptance, integrated deployed marketplace/indexer proof",
+    "F01: identify/confirm intended consuming frontend (candidate chefbc2k/uspeaks_mapbased_marketplace unconfirmed) and implement verified wallet/checkout/signing integration",
+    "C20: integrated release prerequisites, reviewed migration/rollout verification, compatible upstream SDK/Zod remediation or separately validated migration/backport"
+  ],
+  "productionWrites": 0,
+  "actualProviderSandboxExecuted": false,
+  "productionEnabledByThisRun": false,
+  "automationRemainsActive": true
+}
