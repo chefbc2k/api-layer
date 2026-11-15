@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-14",
+  "slot": "20:00 America/Chicago",
+  "run": 33,
+  "baseCommit": "7b2afeaa40cdb619df7e221b4e86c737c2b141a4",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenIncludingF01": 3,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "shortfall": 1,
+  "remaining": [
+    "C19",
+    "C20",
+    "F01"
+  ],
+  "sdkMetadata": {
+    "version": "1.62.0",
+    "dependencies.zod": "^3.25.76"
+  },
+  "sdkMetadataCommandExit": 0,
+  "localConfigurationPresence": {
+    "CDP_API_KEY_ID": true,
+    "CDP_API_KEY_SECRET": true,
+    "API_LAYER_FUNDING_ORIGINS_JSON": false,
+    "API_LAYER_FUNDING_WEBHOOK_SUBSCRIPTION_ID": false,
+    "API_LAYER_FUNDING_WEBHOOK_SECRET": false,
+    "API_LAYER_FUNDING_WEBHOOK_URL": false,
+    "API_LAYER_FUNDING_REDIRECT_URL": false
+  },
+  "configurationScope": "Process environment plus primary .env presence only; no values emitted, no provider approval inferred and no production deployment export fetched.",
+  "projectInventoryChanged": false,
+  "frontendConfirmed": false,
+  "newTestRuns": [],
+  "lastActualProductionAudit": {
+    "source": "output/coinbase-usdc/2026-11-14-am-verification.json",
+    "exitCode": 1,
+    "critical": 0,
+    "high": 1,
+    "moderate": 9,
+    "low": 1,
+    "rerunThisSlot": false
+  },
+  "priorVerifiedSource": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
+  "priorCI": {
+    "url": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
+    "status": "completed",
+    "conclusion": "success",
+    "reobservedThisRun": true
+  },
+  "blockers": [
+    "C19: approved provider app domain/embedded capability, actual subscription secret/client context, sandbox acceptance and integrated deployed marketplace/indexer proof",
+    "F01: identify/confirm consuming frontend (candidate chefbc2k/uspeaks_mapbased_marketplace still unconfirmed), then implement and verify customer wallet/checkout/approval/purchase signing",
+    "C20: integrated release requirements, reviewed migration/rollout and compatible SDK/Zod remediation or separately validated migration/backport"
+  ],
+  "productionWrites": 0,
+  "actualProviderSandboxExecuted": false,
+  "productionEnabledByThisRun": false,
+  "automationRemainsActive": true,
+  "validationNote": "Unchanged source/lock/tests; no duplicate full suites. No research/config presence/logging counted as completed acceptance."
+}

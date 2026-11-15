@@ -1,4 +1,4 @@
-# API production readiness ledger — updated November 14, 2026 (AM)
+# API production readiness ledger — updated November 14, 2026 (PM)
 
 Overall production readiness is not established. The historical filename is retained as the shared ledger named by the automations.
 
@@ -35,3 +35,5 @@ November 13 AM (run 30): starting/ending C19/C20/F01 remain three open, minimum 
 November 13 PM (run 31): unchanged three open items, minimum one, zero completions, shortfall one; backend 18/20 (90%). Latest stable SDK still requires Zod 3 and connected project inventory remains unchanged. Last actual production audit is the AM failure, not a fresh PM audit. No code change or duplicate full-suite run; prior exact-source CI success re-observed, not new test evidence. Provider, confirmed frontend and integrated release prerequisites remain open. Checkpoint: `output/coinbase-usdc/2026-11-13-pm-verification.json`. Automation remains active; production untouched.
 
 November 14 AM (run 32): unchanged 18/20 backend acceptance (90%), C19/C20/F01 open, minimum one, completed zero, shortfall one. Fresh official production audit exits 1 (zero critical/one high/nine moderate/one low); stable SDK 1.62.0 still requires Zod ^3.25.76. Connected project inventory and external prerequisites unchanged; no confirmed consumer or actual provider acceptance. No source/lock/test changes or duplicate full suites. Prior exact-source CI remains passing historical evidence. Checkpoint `output/coinbase-usdc/2026-11-14-am-verification.json`; automation active, production untouched.
+
+November 14 PM (run 33): unchanged 18/20 (90%), C19/C20/F01 open, zero completions against minimum one. Stable SDK/project inventory unchanged. Local process/primary .env presence check confirms CDP server credentials present, but funding origin/redirect and webhook ID/secret/URL absent; no values emitted or provider approval inferred. Actual deployment configuration was not exported. Last actual production audit remains the AM failure. No application/lock/test change, duplicate full suite or production operation. Prior exact-source CI remains historical evidence. Checkpoint `output/coinbase-usdc/2026-11-14-pm-verification.json`; automation active.
