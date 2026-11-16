@@ -1,3 +1,8 @@
+## 2026-11-15 — Resolve Vercel native Express detection
+
+- The first hosted Preview build completed normal package compilation but rejected the indirect factory-only root entrypoint. Added a direct Express adapter that mounts the existing API and a root dependency on the same already-locked Express 5.2.1. Preserved all unrelated dependency snapshots.
+- Frozen install, 30 affected entrypoint/API/privacy regressions, TypeScript, lint and full pinned-selector workspace build pass for the corrected adapter. The earlier full suite remains 2,786 passed / 114 gated skips; it is not relabeled as a new full-suite run. Redeploying to the same existing Preview project with funding/admin write flags disabled.
+
 ## 2026-11-15 — Vercel Express deployment entrypoint
 
 - Added root `app.ts` exporting the existing Express API without a separate listener, plus Vercel Express/frozen-install configuration using the same pinned deployment selectors as CI. Added explicit upload exclusions for private env files, runtime state, dependencies and old output.

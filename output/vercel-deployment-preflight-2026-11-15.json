@@ -36,5 +36,14 @@
   "deploymentVerifiedByPreflight": false,
   "productionDeployed": false,
   "databaseMigrationsApplied": false,
-  "newScheduledWorkers": false
+  "newScheduledWorkers": false,
+  "hostedDetectionCorrection": {
+    "initialPreview": "https://api-layer-rhkhuyyh3-brandons-projects-890ec0a0.vercel.app",
+    "initialState": "error",
+    "initialReason": "Hosted Express detector requires the root entrypoint to import express directly",
+    "change": "Direct root Express adapter mounts the existing API app; add the already-locked Express 5.2.1 as a root dependency",
+    "unchangedOtherLockSnapshots": true,
+    "targetedAdapterAppPrivacyTestsPassed": 30,
+    "fullRegressionEvidenceNote": "2786/114 is the full initial-adapter run; final adapter correction reran 30 affected tests and type/lint/build. Exact-revision CI is inspected separately."
+  }
 }
