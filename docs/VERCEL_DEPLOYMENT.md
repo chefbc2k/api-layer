@@ -2,7 +2,7 @@
 
 This repository deploys to the existing `api-layer` project in `brandons-projects-890ec0a0`. `app.ts` directly imports Express so Vercel can detect the entrypoint, and mounts the same API factory used by the CLI without opening its own listener. The root Express dependency uses the already-locked 5.2.1 version; other dependency snapshots are preserved. Vercel handles HTTP invocation and routes; the API retains its raw webhook ordering, authentication, private request ownership checks and existing endpoints.
 
-`vercel.json` selects the Express framework, uses the frozen pnpm lockfile and runs the normal build with the same `reviewed/ci-deployment-selectors.json` pinned contract inventory as CI. The generated ABI/client/manifests are build artifacts, not a substitute for real contract acceptance. `.vercelignore` excludes local environment files, dependencies, runtime state and old compiled output. Deploy from a clean checkout of the intended committed source.
+`vercel.json` selects the Express framework, uses the frozen pnpm lockfile and runs the normal build with the same `reviewed/ci-deployment-selectors.json` pinned contract inventory as CI. The root TypeScript solution inherits ES2022 runtime settings and disables declaration emission for function compilation. `pnpm run typecheck:vercel` checks the actual entrypoint import graph and is also a CI gate. The generated ABI/client/manifests are build artifacts, not a substitute for real contract acceptance. `.vercelignore` excludes local environment files, dependencies, runtime state and old compiled output. Deploy from a clean checkout of the intended committed source.
 
 ## Preview deployment
 

@@ -45,5 +45,12 @@
     "unchangedOtherLockSnapshots": true,
     "targetedAdapterAppPrivacyTestsPassed": 30,
     "fullRegressionEvidenceNote": "2786/114 is the full initial-adapter run; final adapter correction reran 30 affected tests and type/lint/build. Exact-revision CI is inspected separately."
+  },
+  "hostedTypeScriptCorrection": {
+    "failedPreview": "https://api-layer-bc9b8zpr9-brandons-projects-890ec0a0.vercel.app",
+    "reason": "Hosted function compiler used root solution without API ES2022 defaults",
+    "fix": "Root config inherits shared ES2022 settings without declaration emission; dedicated entrypoint import-graph typecheck added to CI",
+    "functionGraphTypecheck": "passed",
+    "workspaceTypesLintBuild": "passed"
   }
 }

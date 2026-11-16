@@ -46,6 +46,8 @@ jobs:
         run: pnpm run codegen
       - name: TypeScript
         run: pnpm exec tsc -b
+      - name: Vercel entrypoint types
+        run: pnpm run typecheck:vercel
       - name: Lint
         run: pnpm run lint
       - name: Build

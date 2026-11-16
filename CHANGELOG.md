@@ -1,3 +1,8 @@
+## 2026-11-15 — Align Vercel function compilation with API TypeScript
+
+- The second hosted attempt detected Express but failed the standalone function typecheck on ES2022 `Object.hasOwn`: the root solution lacked the shared API compiler settings. Root config now inherits those settings and disables declaration output for function compilation.
+- Added `typecheck:vercel` and a dedicated no-emit entrypoint import-graph config to the CI quality workflow, so hosted-only compiler drift is checked before deployment. The actual function graph, workspace TypeScript, lint and full pinned-selector build pass locally. No application auth/contract/funding behavior or dependency snapshots changed.
+
 ## 2026-11-15 — Resolve Vercel native Express detection
 
 - The first hosted Preview build completed normal package compilation but rejected the indirect factory-only root entrypoint. Added a direct Express adapter that mounts the existing API and a root dependency on the same already-locked Express 5.2.1. Preserved all unrelated dependency snapshots.

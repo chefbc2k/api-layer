@@ -64,7 +64,8 @@
     "scenario:api:base-sepolia": "pnpm run sync:scenarios && tsx scripts/run-base-sepolia-api-scenario.ts",
     "scenario:gate": "pnpm run sync:scenarios && tsx ops/scenario-gate.ts",
     "ops:orchestrate": "tsx ops/orchestrate.ts",
-    "funding:release:inspect": "tsx scripts/funding-release-readiness.ts"
+    "funding:release:inspect": "tsx scripts/funding-release-readiness.ts",
+    "typecheck:vercel": "tsc -p tsconfig.vercel.json"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
