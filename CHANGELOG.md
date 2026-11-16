@@ -1,3 +1,8 @@
+## 2026-11-15 — Validate the native Vercel function build before upload
+
+- Reproduced the hosted emit failure with the actual Vercel builder: its compiler deletes direct declaration/composite overrides before resolving inherited workspace options. The root function config now has explicit runtime ES2022 and Fetch/Response types without inheriting declaration/composite settings; package build configs are unchanged.
+- Extended the CI entrypoint check to normalize Vercel-style compiler settings and validate actual in-memory runtime emit, retaining semantic and portable-export checks. Actual `vercel build` now passes locally through function compilation/packaging and workspace build. No runtime financial/auth/contract behavior changed.
+
 ## 2026-11-15 — Verify portable Vercel entrypoint declarations
 
 - Vercel's third build reached declaration generation and rejected the inferred Express app type through pnpm's internal type path. Added an explicit `express.Express` export type and extended the existing CI entrypoint gate with the actual root declaration diagnostics. This is type-only; middleware/auth/runtime behavior is unchanged.

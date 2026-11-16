@@ -59,5 +59,18 @@
     "semanticAndDeclarationDiagnostics": "passed",
     "entrypointSmokeRegression": "passed",
     "runtimeBehaviorChanged": false
+  },
+  "nativeVercelBuild": {
+    "result": "passed",
+    "command": "vercel build --yes --scope brandons-projects-890ec0a0",
+    "functionCompilationAndPackaging": true,
+    "fix": "Explicit root runtime compiler settings without inherited composite/declaration settings, plus standard Fetch/Response types",
+    "workspaceBuild": "passed",
+    "typecheckGate": "semantic/declaration diagnostics and Vercel-style native emit passed",
+    "previousHostedFailure": {
+      "url": "https://api-layer-i3gp3ikph-brandons-projects-890ec0a0.vercel.app",
+      "state": "error",
+      "reason": "Inherited declaration/composite options survive Vercel compiler option normalization and suppress emit"
+    }
   }
 }
