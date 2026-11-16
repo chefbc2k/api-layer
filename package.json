@@ -65,7 +65,7 @@
     "scenario:gate": "pnpm run sync:scenarios && tsx ops/scenario-gate.ts",
     "ops:orchestrate": "tsx ops/orchestrate.ts",
     "funding:release:inspect": "tsx scripts/funding-release-readiness.ts",
-    "typecheck:vercel": "tsc -p tsconfig.vercel.json"
+    "typecheck:vercel": "tsc -p tsconfig.vercel.json && node scripts/check-vercel-entrypoint-declarations.cjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

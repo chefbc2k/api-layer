@@ -1,3 +1,8 @@
+## 2026-11-15 — Verify portable Vercel entrypoint declarations
+
+- Vercel's third build reached declaration generation and rejected the inferred Express app type through pnpm's internal type path. Added an explicit `express.Express` export type and extended the existing CI entrypoint gate with the actual root declaration diagnostics. This is type-only; middleware/auth/runtime behavior is unchanged.
+- Actual semantic/declaration diagnostics and the listener/health/private-auth regression pass locally; redeployment uses the same project, Preview target and disabled funding/admin-write flags.
+
 ## 2026-11-15 — Align Vercel function compilation with API TypeScript
 
 - The second hosted attempt detected Express but failed the standalone function typecheck on ES2022 `Object.hasOwn`: the root solution lacked the shared API compiler settings. Root config now inherits those settings and disables declaration output for function compilation.

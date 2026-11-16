@@ -52,5 +52,12 @@
     "fix": "Root config inherits shared ES2022 settings without declaration emission; dedicated entrypoint import-graph typecheck added to CI",
     "functionGraphTypecheck": "passed",
     "workspaceTypesLintBuild": "passed"
+  },
+  "portableEntryDeclaration": {
+    "failedPreview": "https://api-layer-rnltgodln-brandons-projects-890ec0a0.vercel.app",
+    "fix": "Explicit express.Express app annotation; actual entrypoint declaration diagnostics added to existing CI gate",
+    "semanticAndDeclarationDiagnostics": "passed",
+    "entrypointSmokeRegression": "passed",
+    "runtimeBehaviorChanged": false
   }
 }
