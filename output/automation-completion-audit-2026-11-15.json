@@ -1,0 +1,2049 @@
+{
+  "auditDate": "2026-11-15",
+  "timezone": "America/Chicago",
+  "remoteDefaultCommitObserved": "e7dab3b4639ea971a6d7c5d42cc205f31ebc3b65",
+  "scope": "17 repo-linked Codex automations plus active local Paperclip companies; other repos not source-audited",
+  "automations": [
+    {
+      "id": "api-assurance-actor-negative-paths",
+      "name": "API Assurance: Actor Negative Paths",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-local-fork-automation",
+      "name": "API Assurance: Local Fork Automation",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "coinbase-usdc-daily-build-10-days",
+      "name": "Coinbase USDC funding and frontend completion",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-red-team-harness",
+      "name": "API Assurance: Red Team Harness",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-base-sepolia-promotion",
+      "name": "API Assurance: Base Sepolia Promotion",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-daily-branch-consolidation",
+      "name": "API Assurance: Daily Branch Consolidation",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-production-indexer-write-coverage",
+      "name": "API Assurance: Production Indexer Write Coverage",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-economic-invariants",
+      "name": "API Assurance: Economic Invariants",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "office-2-0-gap-checker",
+      "name": "Office 2.0 Gap Checker",
+      "status": "PAUSED"
+    },
+    {
+      "id": "api-assurance-report-driven-gap-completion",
+      "name": "API Assurance: Report-Driven Gap Completion",
+      "status": "PAUSED"
+    },
+    {
+      "id": "api-assurance-event-indexer-proof",
+      "name": "API Assurance: Event Indexer Proof",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "contracts-api",
+      "name": "Contracts api",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "api-assurance-abi-gap-report",
+      "name": "API Assurance: ABI Gap Report",
+      "status": "PAUSED"
+    },
+    {
+      "id": "api-assurance-write-invariants",
+      "name": "API Assurance: Write Invariants",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "test-gap-detection",
+      "name": "Test gap detection",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "office-2-0-gap-builder",
+      "name": "Office 2.0 Gap Builder",
+      "status": "PAUSED"
+    }
+  ],
+  "staticQueue": {
+    "nonReady": 0,
+    "selected": 0,
+    "byClassification": {
+      "ready": 710,
+      "needs fixture": 0,
+      "unsafe on live network": 0,
+      "needs contract change": 0,
+      "needs API guard": 0,
+      "needs indexer proof": 0
+    }
+  },
+  "strongestLocalExactMethodProof": {
+    "path": "/Users/chef/Public/api-layer-write-invariants-20261012/verify-local-fork-indexer-output.json",
+    "sha256": "ec39d41ef185226bd289940235d2d71e833c64716d9d35cba5f8c2a08c36480d",
+    "generatedAt": "2026-11-05T16:02:30.434Z",
+    "totals": {
+      "artifactTransactionHashes": 567,
+      "includedArtifacts": 8,
+      "skippedArtifacts": 0,
+      "indexedReceipts": 567,
+      "provenWriteMethods": 113,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 147,
+      "rawEvents": 868,
+      "projectionRows": 566
+    },
+    "historicalInventoryPercent": 43.46,
+    "artifactStructureFailures": [],
+    "missingKeysAgainstPrimary260WriteInventory": [
+      "AccessControlFacet.setPaused",
+      "BurnThresholdFacet.thresholdBurnExcess",
+      "BurnThresholdFacet.thresholdBurnTokens",
+      "BurnThresholdFacet.thresholdBurnTokensFrom",
+      "DelegationFacet.delegateBySig",
+      "DelegationFacet.updateDelegatedVotingPower",
+      "DelegationFacet.updateDelegatedVotingPowerBatch",
+      "DiamondCutFacet.diamondCut",
+      "DiamondCutFacet.setTrustedInitCodehash",
+      "DiamondCutFacet.setTrustedInitContract",
+      "DiamondCutFacet.setTrustedInitSelector",
+      "EchoScoreFacetV3.batchUpdateScores",
+      "EchoScoreFacetV3.pauseEchoScoreV3",
+      "EchoScoreFacetV3.setEchoScoreOracleV3",
+      "EchoScoreFacetV3.setOracleFutureDriftConfig",
+      "EchoScoreFacetV3.setOracleQuorumSigners",
+      "EchoScoreFacetV3.setOracleStalenessConfig",
+      "EchoScoreFacetV3.unpauseEchoScoreV3",
+      "EchoScoreFacetV3.updateScore",
+      "EmergencyFacet.approveRecovery",
+      "EmergencyFacet.completeRecovery",
+      "EmergencyFacet.executeRecoveryAction",
+      "EmergencyFacet.executeRecoveryStep",
+      "EmergencyFacet.setEmergencyTimeout",
+      "EmergencyFacet.setResumeDelay",
+      "EmergencyFacet.startRecovery",
+      "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+      "EmergencyWithdrawalFacet.executeWithdrawal",
+      "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+      "EmergencyWithdrawalFacet.setRecipientWhitelist",
+      "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+      "EscrowFacet.escrowAsset",
+      "EscrowFacet.onERC721Received",
+      "EscrowFacet.releaseAsset",
+      "EscrowFacet.updateAssetState",
+      "GovernorFacet.setDefaultGasLimit",
+      "GovernorFacet.setTrustedTarget",
+      "GovernorFacet.updateProposalThreshold",
+      "GovernorFacet.updateQuorumNumerator",
+      "GovernorFacet.updateVotingDelay",
+      "GovernorFacet.updateVotingPeriod",
+      "LegacyExecutionFacet.approveInheritance",
+      "LegacyExecutionFacet.delegateRights",
+      "LegacyExecutionFacet.executeInheritance",
+      "LegacyExecutionFacet.initiateInheritance",
+      "LegacyFacet.addBeneficiary",
+      "LegacyFacet.addDatasets",
+      "LegacyFacet.addInheritanceRequirement",
+      "LegacyFacet.addVoiceAssets",
+      "LegacyFacet.createLegacyPlan",
+      "LegacyFacet.setBeneficiaryRelationship",
+      "LegacyFacet.setInheritanceConditions",
+      "LegacyFacet.setMaxBeneficiaries",
+      "LegacyFacet.setMinTimelockPeriod",
+      "LegacyFacet.updateBeneficiary",
+      "MultiSigFacet.addOperationType",
+      "MultiSigFacet.addOperator",
+      "MultiSigFacet.approveOperation",
+      "MultiSigFacet.cancelOperation",
+      "MultiSigFacet.execute",
+      "MultiSigFacet.executeOperation",
+      "MultiSigFacet.muSetPaused",
+      "MultiSigFacet.proposeOperation",
+      "MultiSigFacet.removeOperator",
+      "MultiSigFacet.setOperationConfig",
+      "MultiSigFacet.submitTransaction",
+      "OwnershipFacet.acceptOwnership",
+      "OwnershipFacet.cancelOwnershipTransfer",
+      "OwnershipFacet.proposeOwnershipTransfer",
+      "OwnershipFacet.setApprovedOwnerTarget",
+      "OwnershipFacet.setOwnershipPolicyEnforced",
+      "OwnershipFacet.transferOwnership",
+      "PaymentFacet.approveMultisigWithdrawal",
+      "PaymentFacet.commitDistribution",
+      "PaymentFacet.commitWithdraw",
+      "PaymentFacet.distributePayment",
+      "PaymentFacet.distributePaymentFrom",
+      "PaymentFacet.distributePaymentFromWithDeadline",
+      "PaymentFacet.distributePaymentWithDeadline",
+      "PaymentFacet.executeMultisigWithdrawal",
+      "PaymentFacet.executeQuarterlyBuyback",
+      "PaymentFacet.revealDistribution",
+      "PaymentFacet.revealDistributionStruct",
+      "PaymentFacet.revealWithdraw",
+      "PaymentFacet.setBuybackConfig",
+      "PaymentFacet.setBuybackConfigStruct",
+      "PaymentFacet.setMevProtectionConfig",
+      "PaymentFacet.setStakingConfig",
+      "PaymentFacet.setUsdcToken",
+      "ProposalFacet.cancelProposal",
+      "ProposalFacet.prExecute",
+      "ProposalFacet.prQueue",
+      "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+      "ProposalFacet.setProposalTypeConfig",
+      "RightsFacet.addCollaborator",
+      "RightsFacet.createRightsGroup",
+      "RightsFacet.grantRight",
+      "RightsFacet.registerRightContract",
+      "RightsFacet.removeCollaborator",
+      "RightsFacet.revokeRight",
+      "RightsFacet.updateCollaboratorShare",
+      "RightsFacet.updateRightContract",
+      "StakingFacet.initStaking",
+      "StakingFacet.initStakingWithToken",
+      "StakingFacet.queueTierConfigUpdate",
+      "StakingFacet.setDegradedModeConfig",
+      "StakingFacet.setEchoScoreBoost",
+      "TimelockFacet.updateMinDelay",
+      "TimewaveGiftFacet.batchReleaseTwaveVesting",
+      "TimewaveGiftFacet.createUsdcVestingSchedule",
+      "TimewaveGiftFacet.releaseTwaveVesting",
+      "TimewaveGiftFacet.releaseTwaveVestingFor",
+      "TimewaveGiftFacet.revokeTwaveVesting",
+      "TimewaveGiftFacet.transferTwaveVesting",
+      "TokenSupplyFacet.burn",
+      "TokenSupplyFacet.burnFrom",
+      "TokenSupplyFacet.initializeToken",
+      "TokenSupplyFacet.supplyFinishMinting",
+      "TokenSupplyFacet.supplyMintTokens",
+      "TokenSupplyFacet.supplySetMaximum",
+      "UpgradeControllerFacet.approveUpgrade",
+      "UpgradeControllerFacet.executeUpgrade",
+      "UpgradeControllerFacet.freezeUpgradeControl",
+      "UpgradeControllerFacet.initUpgradeController",
+      "UpgradeControllerFacet.proposeDiamondCut",
+      "UpgradeControllerFacet.setUpgradeControlEnforced",
+      "VestingFacet.createCexVesting",
+      "VestingFacet.createDevFundVesting",
+      "VestingFacet.createFounderVesting",
+      "VestingFacet.createPublicVesting",
+      "VestingFacet.createTeamVesting",
+      "VestingFacet.releaseStandardVesting",
+      "VestingFacet.releaseStandardVestingFor",
+      "VestingFacet.releaseTokensFor",
+      "VestingFacet.releaseVestedTokens",
+      "VestingFacet.revokeVestingSchedule",
+      "VestingFacet.setMinimumVestingDuration",
+      "VestingFacet.transferVestingSchedule",
+      "VoiceAssetFacet.recordRoyaltyPayment",
+      "VoiceAssetFacet.recordRoyaltyPaymentFrom",
+      "VoiceAssetFacet.recordUsageFrom",
+      "VoiceAssetFacet.registerVoiceAssetForCaller",
+      "VoiceLicenseFacet.createLicenseWithMarketplace",
+      "VoiceLicenseFacet.issueLicense",
+      "VoiceLicenseFacet.transferLicense",
+      "VoiceLicenseFacet.updateLicenseTerms",
+      "VoiceLicenseFacet.withdrawLicenseRevenue"
+    ],
+    "unknownProofKeysAgainstPrimaryInventory": [],
+    "freshChainOrDatabaseExecutionPerformed": false,
+    "defaultArtifactProven": 107,
+    "defaultDeliveryComplete": false,
+    "inventoryCaveat": "Unmerged source generation also reports 265 writes; reconcile mounted deployment inventory before changing denominator."
+  },
+  "funding": {
+    "backendAccepted": 18,
+    "backendTotal": 20,
+    "backendPercent": 90,
+    "frontendAccepted": 0,
+    "frontendTotal": 1,
+    "remaining": [
+      "C19 actual provider and deployed marketplace/indexer acceptance",
+      "C20 release acceptance incl SDK/Zod security remediation and migrations/rollout",
+      "F01 consuming frontend confirmation and integration"
+    ],
+    "sourceLog": "/Users/chef/.codex/worktrees/coinbase-usdc-20261019/api-layer/docs/COINBASE_USDC_BUILD_LOG.md"
+  },
+  "paperclip": [
+    {
+      "name": "Molt Motion",
+      "id": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+      "prefix": "MOL",
+      "counts": {
+        "blocked": 75,
+        "done": 159,
+        "in_review": 2,
+        "cancelled": 3
+      },
+      "agents": {
+        "idle": 1,
+        "error": 33,
+        "running": 2
+      },
+      "projects": [
+        {
+          "id": "6970d4f4-f61a-41b7-8fe9-9cfe598b9449",
+          "name": "Platform testing",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 1,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "102f8d6d-ae0f-40f6-919a-792e2b102b15",
+          "name": "Platform orginals programing schedule",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 2,
+          "ticketCompletionPercent": 50.0,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "MOL-6",
+              "title": "Execution Plan: Programming model",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "62b31a97-f189-43dc-bec5-2e7879ad78e8",
+          "name": "Platform Orignals Programing",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 1,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "fe6b126f-82dc-4e46-9dd9-c7518bfc9e08",
+          "name": "Multi personalities for audio mini series",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 1,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "bce67ec3-1f1f-4eb7-a072-0e08e8ea0756",
+          "name": "Progress Over Perfection:",
+          "status": "backlog",
+          "done": 4,
+          "nonCancelled": 6,
+          "ticketCompletionPercent": 66.7,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "MOL-77",
+              "title": "Add observability + rollout metrics for multi-perspective quality and approval throughput",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-145",
+              "title": "safe guard",
+              "status": "in_review"
+            }
+          ]
+        },
+        {
+          "id": "32599cad-3116-481d-bf59-a68845d23a2e",
+          "name": "Creator growth / brand distribution",
+          "status": "backlog",
+          "done": 7,
+          "nonCancelled": 7,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "19615f74-8b67-4ed4-a16b-1c6da186df43",
+          "name": "Tokenization architecture",
+          "status": "backlog",
+          "done": 3,
+          "nonCancelled": 3,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "836f6c58-12ae-4023-8a56-96c3ad200e1c",
+          "name": "Programming model",
+          "status": "backlog",
+          "done": 2,
+          "nonCancelled": 2,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "2624d210-7f0c-488a-ae67-5bd88a5cb5db",
+          "name": "Issue 1: Agent Commentary Layer for Audio Series",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 1,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "0aed9764-13a6-46b2-aa42-c1e2f91d7965",
+          "name": "Genre-Based Voice Routing for Audio Production",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 1,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "8119a2c0-5d39-46ff-b22f-569660669abc",
+          "name": "Multi-Perspective Storytelling Support for Audio Miniseries",
+          "status": "in_progress",
+          "done": 4,
+          "nonCancelled": 4,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "e586f5c4-f8e9-48e5-8105-8696b633588d",
+          "name": "Platform goal",
+          "status": "in_progress",
+          "done": 12,
+          "nonCancelled": 18,
+          "ticketCompletionPercent": 66.7,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "MOL-136",
+              "title": "Benchmark current stack vs Google Veo 3 and alternatives by genre",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-148",
+              "title": "Synthesize validation results and prepare approval-ready sign-off",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-140",
+              "title": "Benchmark qualitative output quality + temporal coherence by genre",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-143",
+              "title": "Benchmark editability and stitching friction in post-production",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-147",
+              "title": "Capture video outputs and screenshots for no-regression proof",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-141",
+              "title": "Benchmark render latency, reliability, and throughput per provider",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "4153247c-bda3-43a9-be29-c1ad44575076",
+          "name": "Enhance podcast",
+          "status": "in_progress",
+          "done": 11,
+          "nonCancelled": 15,
+          "ticketCompletionPercent": 73.3,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "MOL-83",
+              "title": "Run platform testing gate and release readiness review",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-97",
+              "title": "Define podcast enhancement metrics + instrumentation checklist",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-151",
+              "title": "Provision PostHog production read access for analytics validation",
+              "status": "blocked"
+            },
+            {
+              "identifier": "MOL-84",
+              "title": "Publish post-launch analytics readout for podcast enhancement",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "5d99805c-6cdf-4c24-bc51-b095b3ebb098",
+          "name": "Script feedback and optimization",
+          "status": "planned",
+          "done": 1,
+          "nonCancelled": 2,
+          "ticketCompletionPercent": 50.0,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "MOL-157",
+              "title": "Execution kickoff: Script feedback and optimization",
+              "status": "blocked"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dexterous Robotics Hand Lab",
+      "id": "c473b673-70a6-4eb4-b6c6-2bf0babaf635",
+      "prefix": "DEX",
+      "counts": {},
+      "agents": {
+        "error": 3,
+        "idle": 1
+      },
+      "projects": []
+    },
+    {
+      "name": "Ops Corp",
+      "id": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+      "prefix": "OPS",
+      "counts": {
+        "blocked": 340,
+        "done": 198,
+        "todo": 2,
+        "in_review": 8,
+        "cancelled": 2
+      },
+      "agents": {
+        "error": 7
+      },
+      "projects": [
+        {
+          "id": "f5e78265-3dd0-4554-af94-28961b0f40ec",
+          "name": "Moltmotion Voting & Monitoring",
+          "status": "backlog",
+          "done": 6,
+          "nonCancelled": 9,
+          "ticketCompletionPercent": 66.7,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "OPS-4",
+              "title": "Migrate cron: Moltmotion - Voting Loop (Offset)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-44",
+              "title": "Escalation: Investigate stalled OPS-4 execution lock",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-30",
+              "title": "Unblock Moltmotion cron migrations: attach repo + configure MOLTMOTION_API_KEY",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "b4456944-092e-465e-addc-94620e5b6a5e",
+          "name": "Moltmotion Content Production",
+          "status": "backlog",
+          "done": 33,
+          "nonCancelled": 145,
+          "ticketCompletionPercent": 22.8,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "OPS-305",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-310",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-308",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-287",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-32",
+              "title": "Implement Paperclip job: Moltmotion Vote Check & Submit",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-262",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-170",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-226",
+              "title": "Resolve OPS-222 stranded recovery action (adapter_failed)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-201",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-188",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-180",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-174",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-165",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-155",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-147",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-140",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-131",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-101",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-94",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-93",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-92",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-89",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-88",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-87",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-86",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-85",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-84",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-83",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-82",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-81",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-78",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-73",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-71",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-70",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-69",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-68",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-67",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-66",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-65",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-64",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-63",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-62",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-61",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-60",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-90",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-59",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-58",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-57",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-56",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-55",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-54",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-53",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-52",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-116",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-109",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-103",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-102",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-100",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-72",
+              "title": "Unblock Moltmotion Writing Loop: restore execution credits or pause routine",
+              "status": "in_review"
+            },
+            {
+              "identifier": "OPS-232",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-344",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-343",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-228",
+              "title": "Triage superseded pending interactions on OPS-32",
+              "status": "in_review"
+            },
+            {
+              "identifier": "OPS-334",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-331",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-333",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-329",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-224",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-231",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-229",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-234",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-274",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-273",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-261",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-276",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-271",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-269",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-268",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-265",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-283",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-257",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-327",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-254",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-259",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-281",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-256",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-279",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-325",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-322",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-323",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-252",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-251",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-171",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-246",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-278",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-320",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-318",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-317",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-244",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-315",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-249",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-237",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-241",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-239",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-236",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-242",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-339",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-338",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-336",
+              "title": "Moltmotion Writing Loop",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-167",
+              "title": "Review silent active run for Research Ops Agent",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-150",
+              "title": "Review silent active run for Research Ops Agent",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-159",
+              "title": "Review silent active run for Research Ops Agent",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "9d04d254-d8b5-477e-968a-06c7e69d7e70",
+          "name": "Growth & Distribution Automation",
+          "status": "backlog",
+          "done": 10,
+          "nonCancelled": 20,
+          "ticketCompletionPercent": 50.0,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "OPS-42",
+              "title": "Implement Paperclip job: X Post - Q&A Thread (Sat)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-41",
+              "title": "Implement Paperclip job: X Post - Media Post (Fri)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-40",
+              "title": "Implement Paperclip job: X Post - Reply Loops (Thu)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-39",
+              "title": "Implement Paperclip job: X Post - Short Text + Link (Wed)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-38",
+              "title": "Implement Paperclip job: X Post - Poll (Tue)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-37",
+              "title": "Implement Paperclip job: X Post - Insight Thread (Mon)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-36",
+              "title": "Implement Paperclip job: Cinematic Prompts - Afternoon",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-35",
+              "title": "Implement Paperclip job: Growth Action Brief - Afternoon",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-43",
+              "title": "Implement Paperclip job: X Post - Best-of Recap (Sun)",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-34",
+              "title": "Implement Paperclip job: Growth Action Brief - Morning",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "8c958bb0-4da8-431f-afa4-3d6842c70561",
+          "name": "Intelligence & Research Pipelines",
+          "status": "backlog",
+          "done": 86,
+          "nonCancelled": 239,
+          "ticketCompletionPercent": 36.0,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "OPS-550",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-549",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-548",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-547",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-546",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-545",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-544",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-543",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-542",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-541",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-540",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-539",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-538",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-537",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-536",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-535",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-534",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-533",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-532",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-531",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-530",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-529",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-528",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-527",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-526",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-525",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-524",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-523",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-522",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-521",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-520",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-519",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-518",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-517",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-516",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-515",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-514",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-513",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-512",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-511",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-510",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-509",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-508",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-507",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-506",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-505",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-504",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-503",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-502",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-501",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-500",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-499",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-498",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-497",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-496",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-495",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-494",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-493",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-492",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-491",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-490",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-489",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-488",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-487",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-486",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-485",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-484",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-483",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-482",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-481",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-480",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-479",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-478",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-477",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-476",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-475",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-474",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-473",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-472",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-471",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-470",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-469",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-468",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-467",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-466",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-465",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-464",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-463",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-462",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-461",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-460",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-459",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-458",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-457",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-456",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-455",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-454",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-453",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-452",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-451",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-450",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-449",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-448",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-288",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-398",
+              "title": "Review silent active run for Research Ops Agent",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-392",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-391",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-390",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-366",
+              "title": "Audit historical blocked Swarm Scout run backlog",
+              "status": "todo"
+            },
+            {
+              "identifier": "OPS-364",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-363",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-362",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-361",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-360",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-359",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-358",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-357",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-356",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-355",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-354",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-353",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-352",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-351",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-350",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-332",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-335",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-330",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-225",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-230",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-282",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-275",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-272",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-270",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-267",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-260",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-255",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-280",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-253",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-326",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-324",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-321",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-319",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-250",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-245",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-277",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-243",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-240",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-238",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-340",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-337",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-235",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-263",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            },
+            {
+              "identifier": "OPS-233",
+              "title": "Swarm Scout Run",
+              "status": "blocked"
+            }
+          ]
+        },
+        {
+          "id": "034a68bb-fde2-4eca-866b-aed3e5a04083",
+          "name": "Reliability, Backups & Standups",
+          "status": "backlog",
+          "done": 7,
+          "nonCancelled": 7,
+          "ticketCompletionPercent": 100.0,
+          "productCompletionVerified": false,
+          "openIssues": []
+        },
+        {
+          "id": "6a105394-1416-4dfb-b42b-bca5c2442dd4",
+          "name": "Migration Control Tower",
+          "status": "backlog",
+          "done": 2,
+          "nonCancelled": 5,
+          "ticketCompletionPercent": 40.0,
+          "productCompletionVerified": false,
+          "openIssues": [
+            {
+              "identifier": "OPS-2",
+              "title": "Cron Migration Wave Plan",
+              "status": "in_review"
+            },
+            {
+              "identifier": "OPS-129",
+              "title": "Follow up board response for OPS-2 confirmation interaction",
+              "status": "in_review"
+            },
+            {
+              "identifier": "OPS-29",
+              "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+              "status": "blocked"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "paperclipRoutines": [
+    {
+      "title": "Swarm Scout Run",
+      "status": "active",
+      "id": "3705c1fb-0e6c-4bc0-87b9-ed9ab95d729e",
+      "latestIssue": {
+        "id": "54ede9e1-c3df-48b8-a385-3311666fce18",
+        "identifier": "OPS-550",
+        "title": "Swarm Scout Run",
+        "status": "blocked",
+        "priority": "medium",
+        "updatedAt": "2026-11-16T00:00:12.010Z"
+      }
+    },
+    {
+      "title": "Moltmotion Writing Loop",
+      "status": "paused",
+      "id": "3c157012-1fbf-4c2d-8fed-0c337d54d5b6",
+      "latestIssue": {
+        "id": "b331e92f-1e3d-4597-8837-593a73d025f3",
+        "identifier": "OPS-344",
+        "title": "Moltmotion Writing Loop",
+        "status": "blocked",
+        "priority": "high",
+        "updatedAt": "2026-07-02T15:25:59.810Z"
+      }
+    }
+  ],
+  "localWorktrees": 83,
+  "unmergedLocalBranchesAgainstOriginMaster": 134,
+  "sourceTestsRerun": false
+}

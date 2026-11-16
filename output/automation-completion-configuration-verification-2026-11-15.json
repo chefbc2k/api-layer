@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "result": "passed",
+  "schedulerDefinitionsCompared": 18,
+  "active": 13,
+  "paused": 5,
+  "newHeartbeats": 2,
+  "updatedExistingActiveOwners": 11,
+  "acceptanceItems": 38,
+  "paperclipProjects": 20,
+  "fixedMissingMethodKeys": 147,
+  "frozenBranches": 134,
+  "frozenWorktrees": 83,
+  "checks": [
+    "live scheduler snapshot equality",
+    "active stop and external-blocker rules",
+    "unique acceptance ownership",
+    "dependency reference validity and acyclic graph",
+    "all project baseline identities",
+    "method/branch/worktree denominator preservation",
+    "timestamp-only report edits against current default",
+    "JSON syntax",
+    "git diff --check",
+    "all 12 existing updated jobs preserve schedule/model/reasoning/target/environment/notification settings"
+  ],
+  "applicationSourceChanged": false,
+  "applicationTestsRerun": false,
+  "remainingWorkAcceptedByConfiguration": false,
+  "preservedExistingSchedulerSettingsCompared": 12
+}

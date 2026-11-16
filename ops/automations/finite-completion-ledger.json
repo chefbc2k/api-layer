@@ -1,0 +1,4277 @@
+{
+  "schemaVersion": 1,
+  "createdOn": "2026-11-15",
+  "timezone": "America/Chicago",
+  "releaseBaselineCommit": "e7dab3b4639ea971a6d7c5d42cc205f31ebc3b65",
+  "releaseCandidateCommit": null,
+  "percentagePolicy": "Only evidence-accepted items count; nested fixed method/project criteria retain their original denominators. Ticket closure is not product acceptance. Do not average heterogeneous criteria into production readiness.",
+  "allowedItemStatuses": [
+    "open",
+    "in_progress",
+    "waiting_dependency",
+    "blocked_external",
+    "accepted"
+  ],
+  "terminalAutomationStates": {
+    "complete": "Pause scheduler after all owned items accepted and verified delivery.",
+    "waiting_external": "Pause with open items and exact owner/action; resume only on changed prerequisite.",
+    "waiting_dependency": "Pause with open items; dependency coordinator resumes existing owner after prerequisite delivery."
+  },
+  "scopePolicy": "Freeze baseline membership and record any necessary scope correction explicitly; unrelated new features and recurring outage copies do not silently expand the scope.",
+  "snapshotLocalBranchCount": 134,
+  "snapshotWorktreeCount": 83,
+  "items": [
+    {
+      "id": "API-01",
+      "ownerAutomationId": "api-assurance-write-invariants",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Reconciled mounted ABI inventory, exact overload metadata and reproducible canonical codegen, invariant tests, surface gates and default delivery.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-02",
+      "ownerAutomationId": "api-assurance-actor-negative-paths",
+      "status": "open",
+      "dependsOn": [
+        "API-01"
+      ],
+      "acceptance": "Current complete actor/key/signer/role-lifecycle matrix and passing actor/API/coverage gates with default delivery.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-03",
+      "ownerAutomationId": "api-assurance-red-team-harness",
+      "status": "open",
+      "dependsOn": [
+        "API-01"
+      ],
+      "acceptance": "Current adversarial corpus and guarded actual-loopback/workflow proofs plus applicable gates and default delivery.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-04",
+      "ownerAutomationId": "api-assurance-local-fork-automation",
+      "status": "open",
+      "dependsOn": [
+        "API-01"
+      ],
+      "acceptance": "Configured deterministic existing runner, green aggregate receipt/event/post-state/gap artifacts and runner gates with default delivery.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-05",
+      "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
+      "status": "open",
+      "dependsOn": [
+        "API-01"
+      ],
+      "acceptance": "Reconcile and deliver stronger proof artifact, then full exact-method execution/post-state/PostgreSQL/replay evidence for every fixed mounted key; contract-only exceptions need explicit reviewed policy.",
+      "baseline": {
+        "localAcceptedMethods": 113,
+        "mountedMethods": 260,
+        "openMethodKeys": [
+          "AccessControlFacet.setPaused",
+          "BurnThresholdFacet.thresholdBurnExcess",
+          "BurnThresholdFacet.thresholdBurnTokens",
+          "BurnThresholdFacet.thresholdBurnTokensFrom",
+          "DelegationFacet.delegateBySig",
+          "DelegationFacet.updateDelegatedVotingPower",
+          "DelegationFacet.updateDelegatedVotingPowerBatch",
+          "DiamondCutFacet.diamondCut",
+          "DiamondCutFacet.setTrustedInitCodehash",
+          "DiamondCutFacet.setTrustedInitContract",
+          "DiamondCutFacet.setTrustedInitSelector",
+          "EchoScoreFacetV3.batchUpdateScores",
+          "EchoScoreFacetV3.pauseEchoScoreV3",
+          "EchoScoreFacetV3.setEchoScoreOracleV3",
+          "EchoScoreFacetV3.setOracleFutureDriftConfig",
+          "EchoScoreFacetV3.setOracleQuorumSigners",
+          "EchoScoreFacetV3.setOracleStalenessConfig",
+          "EchoScoreFacetV3.unpauseEchoScoreV3",
+          "EchoScoreFacetV3.updateScore",
+          "EmergencyFacet.approveRecovery",
+          "EmergencyFacet.completeRecovery",
+          "EmergencyFacet.executeRecoveryAction",
+          "EmergencyFacet.executeRecoveryStep",
+          "EmergencyFacet.setEmergencyTimeout",
+          "EmergencyFacet.setResumeDelay",
+          "EmergencyFacet.startRecovery",
+          "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+          "EmergencyWithdrawalFacet.executeWithdrawal",
+          "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+          "EmergencyWithdrawalFacet.setRecipientWhitelist",
+          "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+          "EscrowFacet.escrowAsset",
+          "EscrowFacet.onERC721Received",
+          "EscrowFacet.releaseAsset",
+          "EscrowFacet.updateAssetState",
+          "GovernorFacet.setDefaultGasLimit",
+          "GovernorFacet.setTrustedTarget",
+          "GovernorFacet.updateProposalThreshold",
+          "GovernorFacet.updateQuorumNumerator",
+          "GovernorFacet.updateVotingDelay",
+          "GovernorFacet.updateVotingPeriod",
+          "LegacyExecutionFacet.approveInheritance",
+          "LegacyExecutionFacet.delegateRights",
+          "LegacyExecutionFacet.executeInheritance",
+          "LegacyExecutionFacet.initiateInheritance",
+          "LegacyFacet.addBeneficiary",
+          "LegacyFacet.addDatasets",
+          "LegacyFacet.addInheritanceRequirement",
+          "LegacyFacet.addVoiceAssets",
+          "LegacyFacet.createLegacyPlan",
+          "LegacyFacet.setBeneficiaryRelationship",
+          "LegacyFacet.setInheritanceConditions",
+          "LegacyFacet.setMaxBeneficiaries",
+          "LegacyFacet.setMinTimelockPeriod",
+          "LegacyFacet.updateBeneficiary",
+          "MultiSigFacet.addOperationType",
+          "MultiSigFacet.addOperator",
+          "MultiSigFacet.approveOperation",
+          "MultiSigFacet.cancelOperation",
+          "MultiSigFacet.execute",
+          "MultiSigFacet.executeOperation",
+          "MultiSigFacet.muSetPaused",
+          "MultiSigFacet.proposeOperation",
+          "MultiSigFacet.removeOperator",
+          "MultiSigFacet.setOperationConfig",
+          "MultiSigFacet.submitTransaction",
+          "OwnershipFacet.acceptOwnership",
+          "OwnershipFacet.cancelOwnershipTransfer",
+          "OwnershipFacet.proposeOwnershipTransfer",
+          "OwnershipFacet.setApprovedOwnerTarget",
+          "OwnershipFacet.setOwnershipPolicyEnforced",
+          "OwnershipFacet.transferOwnership",
+          "PaymentFacet.approveMultisigWithdrawal",
+          "PaymentFacet.commitDistribution",
+          "PaymentFacet.commitWithdraw",
+          "PaymentFacet.distributePayment",
+          "PaymentFacet.distributePaymentFrom",
+          "PaymentFacet.distributePaymentFromWithDeadline",
+          "PaymentFacet.distributePaymentWithDeadline",
+          "PaymentFacet.executeMultisigWithdrawal",
+          "PaymentFacet.executeQuarterlyBuyback",
+          "PaymentFacet.revealDistribution",
+          "PaymentFacet.revealDistributionStruct",
+          "PaymentFacet.revealWithdraw",
+          "PaymentFacet.setBuybackConfig",
+          "PaymentFacet.setBuybackConfigStruct",
+          "PaymentFacet.setMevProtectionConfig",
+          "PaymentFacet.setStakingConfig",
+          "PaymentFacet.setUsdcToken",
+          "ProposalFacet.cancelProposal",
+          "ProposalFacet.prExecute",
+          "ProposalFacet.prQueue",
+          "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+          "ProposalFacet.setProposalTypeConfig",
+          "RightsFacet.addCollaborator",
+          "RightsFacet.createRightsGroup",
+          "RightsFacet.grantRight",
+          "RightsFacet.registerRightContract",
+          "RightsFacet.removeCollaborator",
+          "RightsFacet.revokeRight",
+          "RightsFacet.updateCollaboratorShare",
+          "RightsFacet.updateRightContract",
+          "StakingFacet.initStaking",
+          "StakingFacet.initStakingWithToken",
+          "StakingFacet.queueTierConfigUpdate",
+          "StakingFacet.setDegradedModeConfig",
+          "StakingFacet.setEchoScoreBoost",
+          "TimelockFacet.updateMinDelay",
+          "TimewaveGiftFacet.batchReleaseTwaveVesting",
+          "TimewaveGiftFacet.createUsdcVestingSchedule",
+          "TimewaveGiftFacet.releaseTwaveVesting",
+          "TimewaveGiftFacet.releaseTwaveVestingFor",
+          "TimewaveGiftFacet.revokeTwaveVesting",
+          "TimewaveGiftFacet.transferTwaveVesting",
+          "TokenSupplyFacet.burn",
+          "TokenSupplyFacet.burnFrom",
+          "TokenSupplyFacet.initializeToken",
+          "TokenSupplyFacet.supplyFinishMinting",
+          "TokenSupplyFacet.supplyMintTokens",
+          "TokenSupplyFacet.supplySetMaximum",
+          "UpgradeControllerFacet.approveUpgrade",
+          "UpgradeControllerFacet.executeUpgrade",
+          "UpgradeControllerFacet.freezeUpgradeControl",
+          "UpgradeControllerFacet.initUpgradeController",
+          "UpgradeControllerFacet.proposeDiamondCut",
+          "UpgradeControllerFacet.setUpgradeControlEnforced",
+          "VestingFacet.createCexVesting",
+          "VestingFacet.createDevFundVesting",
+          "VestingFacet.createFounderVesting",
+          "VestingFacet.createPublicVesting",
+          "VestingFacet.createTeamVesting",
+          "VestingFacet.releaseStandardVesting",
+          "VestingFacet.releaseStandardVestingFor",
+          "VestingFacet.releaseTokensFor",
+          "VestingFacet.releaseVestedTokens",
+          "VestingFacet.revokeVestingSchedule",
+          "VestingFacet.setMinimumVestingDuration",
+          "VestingFacet.transferVestingSchedule",
+          "VoiceAssetFacet.recordRoyaltyPayment",
+          "VoiceAssetFacet.recordRoyaltyPaymentFrom",
+          "VoiceAssetFacet.recordUsageFrom",
+          "VoiceAssetFacet.registerVoiceAssetForCaller",
+          "VoiceLicenseFacet.createLicenseWithMarketplace",
+          "VoiceLicenseFacet.issueLicense",
+          "VoiceLicenseFacet.transferLicense",
+          "VoiceLicenseFacet.updateLicenseTerms",
+          "VoiceLicenseFacet.withdrawLicenseRevenue"
+        ],
+        "defaultAcceptedMethods": 107,
+        "inventoryReconciliationRequired": true
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-06",
+      "ownerAutomationId": "api-assurance-economic-invariants",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Freeze concrete economic blocker/method subcriteria, then prove actual beneficiary credit, supported treasury roles, approval observability and named economic consequences with real fork/PostgreSQL/replay evidence; funding/provider portions reference their owners.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-07",
+      "ownerAutomationId": "api-assurance-base-sepolia-promotion",
+      "status": "open",
+      "dependsOn": [
+        "API-01",
+        "API-04"
+      ],
+      "acceptance": "Both marketplace and governance safe Base Sepolia scenarios accepted with configured deliberate live readiness, tx/block/actor/delta/events and default delivery.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "API-08",
+      "ownerAutomationId": "contracts-api",
+      "status": "open",
+      "dependsOn": [
+        "API-01",
+        "API-02",
+        "API-03",
+        "API-04",
+        "API-05",
+        "API-06",
+        "API-07",
+        "C19",
+        "C20",
+        "F01",
+        "PRIV-ROLLOUT",
+        "TEST-01",
+        "DELIVERY-01"
+      ],
+      "acceptance": "Freeze complete release rubric and candidate source interval; confirm all API/release/privacy criteria and literal existing coverage requirement with evidence, no unexplained exceptions or false release claims.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "DELIVERY-01",
+      "ownerAutomationId": "api-assurance-daily-branch-consolidation",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Every frozen branch/worktree candidate disposition recorded and all approved passengers verified/delivered, with unrelated dirty user work preserved.",
+      "baseline": {
+        "branches": [
+          {
+            "name": "codex/abi-gap-report-20261025",
+            "commit": "3012c100463875a728f3fa4793388e39e0bcdd14",
+            "disposition": null
+          },
+          {
+            "name": "codex/actor-negative-paths-20260926",
+            "commit": "08aa029aa417a2df4c1650ae17be4c01b1ceab1c",
+            "disposition": null
+          },
+          {
+            "name": "codex/actor-negative-paths-20261104",
+            "commit": "81ddf13586db8eaa89563522127b8a6413be26ff",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-event-indexer-proof-20260922",
+            "commit": "4153f961e73245321ce0fc11809fe88589ecdd4d",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-event-indexer-proof-20261021",
+            "commit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-event-indexer-proof-20261026",
+            "commit": "dcbba7320b839a5e90b1f2df3dd2fbc9c2b21492",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-event-indexer-proof-20261028",
+            "commit": "7a6f4b8e2231670addfb3b9b9427b003757ef3db",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20260922",
+            "commit": "c6c09a3053fb2ca3fde30aa1d1b9940e44b3864b",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261008",
+            "commit": "aa6df709db2411fd180d9dfdf4753d1198dbc0cc",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261014",
+            "commit": "d28cafd0f8d95b81a2da155eb6cf8f580e0e7c9f",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261015",
+            "commit": "d28cafd0f8d95b81a2da155eb6cf8f580e0e7c9f",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261016",
+            "commit": "28376f7e77ecb2a8c17289f7deb7f7510d1b1df5",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261017",
+            "commit": "74ab0b542d44eb605072d4217e68429c18c67f9c",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261019",
+            "commit": "efd1c8f6f2d4c0298c0e7d6c29a9d07a12b562c2",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261020",
+            "commit": "6ebdb8e9a32bb500aa869c8721ce667d10802981",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261023",
+            "commit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261024",
+            "commit": "35e67183d2d66d1a4cc1d81f2d0844812f1d4ced",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261025",
+            "commit": "bd0856924b362cbf8be8a630179e70f6e36e2029",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261027",
+            "commit": "568fb8e8f094892ba2c4193e14bf58af6a06367d",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-gap-completion-20261028",
+            "commit": "134b44bb90bdff11f7466c7727af8603c730a2e7",
+            "disposition": null
+          },
+          {
+            "name": "codex/api-assurance-indexer-proof-20260927",
+            "commit": "4153f961e73245321ce0fc11809fe88589ecdd4d",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20260909-unresolved-master-merge",
+            "commit": "e30ad5f69cf509ed73109a0f401212321147a98c",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20260915-api-assurance-conflict-state",
+            "commit": "dbab70ea6e63b91b4dd7200e470041e8a93732ba",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20260915-local-fork-review",
+            "commit": "abdcf6a1376083ab1be1b7041763f12e6dc9cb50",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20260928-base-sepolia-promotion",
+            "commit": "5a5641c18fd11346fcd04bb677ca48affa315693",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261001-economic-invariants",
+            "commit": "313cb543fe6d38cdf5e1e85ec768b9b12e8d3557",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261008-actor-negative-paths",
+            "commit": "71aeb9f078b2cf87445f212b2b7401112f8b1ce6",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261008-event-indexer-proof",
+            "commit": "0eca0ddc207c624f44392342bd42fa54f1eff4bd",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261008-local-fork-automation",
+            "commit": "46cc8ed3814a42be52e5834fb7cf7b837345fca6",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261008-write-invariants",
+            "commit": "0e9239e84a75000ef06a4242220ba4f296f819c7",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261011-abi-gap-report",
+            "commit": "b13ff6e4c059c40d83a7821e90ef7220436911a2",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261011-write-invariants-20261008",
+            "commit": "b14f4832e8e52f6c53550a4a66eed43a3ffcc191",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261013-actor-negative-paths",
+            "commit": "dae22489f81278a3f7d6cede49657a61b4d2c097",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261013-base-sepolia-promotion",
+            "commit": "c88bfcf109e6575c17ff007b73b4f75dabe23430",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261013-local-fork-automation",
+            "commit": "40f765e6719b77b928faee2a318e3852a0b71140",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261013-local-fork-automation-root",
+            "commit": "08bbd6edd397d4894f62e72fddf426fc535a2811",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261014-abi-gap-report",
+            "commit": "872dd3e305a893583d7a0ccf34b81f60d763da05",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261014-api-assurance-gap-completion",
+            "commit": "e538ed3ed7a0acf681594e376ab40c2ee738125d",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261016-api-assurance-gap-completion",
+            "commit": "5b9170ee8b9c0eae07f68f2b4f74484b9d47db9c",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261016-base-sepolia-conflict-preserved",
+            "commit": "53085a13ab80c6094a488834d93d434881cd99b4",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261017-api-assurance-gap-completion",
+            "commit": "74ab0b542d44eb605072d4217e68429c18c67f9c",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261017-local-fork-automation",
+            "commit": "1b2039e6956425e00d82316be5e8d352eac37ab5",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261018-api-assurance-gap-completion",
+            "commit": "7a9e4f323d7bc8fd7414ba5d189b81666928966e",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261018-api-assurance-gap-completion-2",
+            "commit": "efd1c8f6f2d4c0298c0e7d6c29a9d07a12b562c2",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261018-local-fork-automation",
+            "commit": "2022b6379bd1243a0c370e8324656345d0a04db5",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261019-api-assurance-gap-completion-2",
+            "commit": "6ebdb8e9a32bb500aa869c8721ce667d10802981",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261019-preflight-recovered",
+            "commit": "efd1c8f6f2d4c0298c0e7d6c29a9d07a12b562c2",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261020-api-assurance-gap-completion",
+            "commit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261020-daily-consolidation-primary",
+            "commit": "769c2d5dcefd24fd84efdd9ae8bdac026a7da771",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261021-coinbase-usdc",
+            "commit": "c46f44a5149ee8fad30719ebfca693339322f100",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261021-daily-consolidation-primary",
+            "commit": "bcb1ddc078e57b85bd58c3437c47dd0cfc1693e7",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261021-event-indexer-proof",
+            "commit": "34a75fa1b9ce5b72501102e26fb41b82d5a358e9",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-abi-gap-report",
+            "commit": "d82bb03918908d40db215857a9e0566e5a8733c2",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-api-assurance-event-indexer-proof",
+            "commit": "3f0e1a224746700045502e04055e20257ef03e74",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-api-assurance-gap-completion",
+            "commit": "23d204bc11e936d8355ee507f7ab10611e59d265",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-coinbase-usdc",
+            "commit": "da253366520b95068c0f88ec89882ed10b4858ea",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-local-fork-automation",
+            "commit": "36c85d77bdb9c5bfb9edd800527f7a3ec9b7cd9f",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-production-worktree",
+            "commit": "d5b69c397dbae937c4979080e58ff69eea3a1faa",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261022-production-worktree-2",
+            "commit": "40fd3ea53e7585fb0054bc616a03b62437e2eb42",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261023-production-worktree",
+            "commit": "7aedc40a83f4dd550114d32ea1f18b0d9e90e4cb",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261024-api-assurance-gap-completion",
+            "commit": "1cbd89bd04c8ae7533ce7529f7a4e69b860bae13",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261024-api-assurance-gap-generated-reports",
+            "commit": "68abf8abfc814431c3f3544185e06b814a1d9af3",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261024-local-fork-automation",
+            "commit": "61e4a3c683c7c2aec93e69f47e7247db95e6d195",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261025-api-assurance-gap-completion",
+            "commit": "8ea77e4581a018902e84c74bfc636dfdc3a7be81",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261025-api-assurance-gap-completion-conflicted",
+            "commit": "5c5611592df918b44e68f7bec15751564db9f567",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261025-coinbase-usdc",
+            "commit": "7818b148cf6725579b0aa4ef865b535a2e2aa9e1",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261026-api-assurance-gap-completion",
+            "commit": "3c1f50bd8eb560b17d29c826ad635cd1ee0bd7a0",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261026-concurrent-checkout-test",
+            "commit": "b43bdcb26b97b85c070a49fce9ac6ddb3af9c2c4",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261026-local-fork-automation",
+            "commit": "fbfc686d4aa7847780b8e84e38858e0ed46abf13",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261027-actor-negative-paths",
+            "commit": "823fdcaba61a629b042ae633b5fd557e41d9661d",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261027-gap-completion-daily",
+            "commit": "b4cf76b7ff6bffeca21dab0459b6377af9a369d2",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261027-local-fork-automation",
+            "commit": "385a8e1d28c508542ddebacdd2d7bbeb95dd5437",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261027-transaction-request-privacy",
+            "commit": "36cceffbb4785112a4a857a6ed20bace4ff3cdf7",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261028-api-assurance-gap-completion",
+            "commit": "134b44bb90bdff11f7466c7727af8603c730a2e7",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261028-api-assurance-gap-completion-late",
+            "commit": "bfdc89e80bf13f0e0235ceb9c98741c1a1c71e58",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261028-coinbase-usdc",
+            "commit": "b1b25f3452fe78f224050a0305e2057545048499",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261028-production-indexer-write-coverage",
+            "commit": "65dfa22091fb98be2600e256a50d29590b70904a",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261029-abi-gap-report-revalidation",
+            "commit": "7b777570e9e592c2b05e850c45015fca2b773271",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261029-actor-negative-paths",
+            "commit": "2eb706de1675e9c13e82bc0548e674d816d2ac80",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261029-api-assurance-gap-completion-late",
+            "commit": "f2f397f43e9ca0109e78aa426e3dc650004fa3fa",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261029-event-indexer-proof",
+            "commit": "be95e0f2db9c257303662ece3f7dbdfd37598b60",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261104-event-indexer-proof",
+            "commit": "867131ed53871658890a686c5fb78c145fdbcd64",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261104-red-team-harness",
+            "commit": "36af96dcbe9b7fa365be8d873fc4fffbbc1a058c",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261105-daily-consolidation-root",
+            "commit": "6541bb4f1e592ddae4d3f06f4ff083923b0eb611",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261105-production-indexer-write-coverage",
+            "commit": "17d2cb851433b43f8f3d7cf387dbfd4f63d02a72",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261109-root-assurance",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/autosave-20261114-root-assurance",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion",
+            "commit": "7c080bb7d91d1018bdb668126dd98faed1a79a7a",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion-20260811",
+            "commit": "e72e2dfe017942b417ab8e5126ff63b5091e6bc5",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion-20260818",
+            "commit": "7225d512fbd80bb5f611aaf981b2cb2db17e4a5b",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion-20260825",
+            "commit": "1072fde3a5e8b3b8cfd601b7b0d6a6b9e567d423",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion-20260927",
+            "commit": "30a770f06eda59c2997908184851a359b92624e3",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion-20261010",
+            "commit": "603a65bee04327a1605dde1bcfaf190c2dd16bf8",
+            "disposition": null
+          },
+          {
+            "name": "codex/base-sepolia-promotion-20261025",
+            "commit": "f42a28a9498873bbca4576f0905ee0f4e250b425",
+            "disposition": null
+          },
+          {
+            "name": "codex/coinbase-usdc-20261021",
+            "commit": "c46f44a5149ee8fad30719ebfca693339322f100",
+            "disposition": null
+          },
+          {
+            "name": "codex/coinbase-usdc-20261023-recovery",
+            "commit": "b0c9ad9b93717deb5a05a428a9caafa1947f778a",
+            "disposition": null
+          },
+          {
+            "name": "codex/contracts-api-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/contracts-api-20261115",
+            "commit": "c6a5334b88ad5dcd07508d15769879f5adef14b0",
+            "disposition": null
+          },
+          {
+            "name": "codex/economic-invariants",
+            "commit": "313cb543fe6d38cdf5e1e85ec768b9b12e8d3557",
+            "disposition": null
+          },
+          {
+            "name": "codex/economic-invariants-20261012",
+            "commit": "754ade06a27fb58c4211f181fb8e9b5e8003eff2",
+            "disposition": null
+          },
+          {
+            "name": "codex/indexer-withdraw-deadline-20261011",
+            "commit": "3c96389f962f9923c5c497f467dff1b9ae98d03c",
+            "disposition": null
+          },
+          {
+            "name": "codex/local-fork-automation-20261004",
+            "commit": "572b0491837bf1e11bac2ee0e8d5650fc0f5310d",
+            "disposition": null
+          },
+          {
+            "name": "codex/local-fork-automation-20261014",
+            "commit": "ba7af7ecebd70c3c15d582a47b10d9920bf1bf23",
+            "disposition": null
+          },
+          {
+            "name": "codex/local-fork-automation-20261020",
+            "commit": "b3e3da4336721e9e21c40736d327889eb306e71c",
+            "disposition": null
+          },
+          {
+            "name": "codex/local-fork-automation-20261024",
+            "commit": "ebb3b9aa9e4e3af32c1b24c3bfad74acf1f8a15e",
+            "disposition": null
+          },
+          {
+            "name": "codex/local-fork-automation-20261026",
+            "commit": "63f051a5f743d584bde906b954318af101cc5e66",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261109",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261110-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261110-run2",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261110-run3",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261111-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261111-run2",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261111-run3",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261112",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261112-next",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-build-20261112-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-builder-20261113",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-builder-20261113-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-builder-20261114",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-builder-20261114-fresh",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-builder-20261115",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-builder-20261115-run",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261109",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261111",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261112",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261113",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261114",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-20261114-run2",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/office-gap-check-rerun-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          },
+          {
+            "name": "codex/production-indexer-write-coverage-20261028",
+            "commit": "3c1f50bd8eb560b17d29c826ad635cd1ee0bd7a0",
+            "disposition": null
+          },
+          {
+            "name": "codex/test-gap-20261115",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "disposition": null
+          },
+          {
+            "name": "codex/test-gap-detection-20261112",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "disposition": null
+          }
+        ],
+        "worktrees": [
+          {
+            "path": "/Users/chef/Public/api-layer",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/autosave-20261114-root-assurance",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-assurance-gap-20261115",
+            "commit": "99f61893231b07fcdfa2d3582fbf43e6ca122984",
+            "branch": "refs/heads/codex/api-assurance-gap-completion-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-base-sepolia-promotion-20261115",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/base-sepolia-promotion-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-economic-invariants-20261115",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/economic-invariants-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-event-proof-20261115",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/api-event-indexer-proof-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-layer-gap-20261115",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/test-gap-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-layer-office-gap",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-layer-office-gap-20261112-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-layer-office-gap-20261113",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/api-local-fork-automation-20261115/master",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/local-fork-automation-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/contracts-api-20261115",
+            "commit": "c6a5334b88ad5dcd07508d15769879f5adef14b0",
+            "branch": "refs/heads/codex/contracts-api-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-builder-20261114",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/office-gap-builder-20261114",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-builder-20261114-fresh",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/office-gap-builder-20261114-fresh",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-builder-20261115",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/office-gap-builder-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-check-20261114",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/office-gap-check-20261114",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-check-20261114-current",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-check-20261114-run2",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/office-gap-check-20261114-run2",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-check-20261115",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/office-gap-run-20261115",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/red-team-harness-20261115",
+            "commit": "1b1e0700edcd53d0ed9d51aa383d2ce47d57a9ca",
+            "branch": "refs/heads/codex/red-team-harness-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/private/tmp/test-gap-detection-20261112",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/test-gap-detection-20261112",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/abi-gap-report-20261028/api-layer",
+            "commit": "7b777570e9e592c2b05e850c45015fca2b773271",
+            "branch": "refs/heads/codex/autosave-20261029-abi-gap-report-revalidation",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-20261109",
+            "commit": "1d0fc512a53c016f49962e87d8b0c58687569d5a",
+            "branch": "refs/heads/codex/api-assurance-20261109",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-20261110",
+            "commit": "178e465a4132d6087c0c0ec0d5ac591f753ada61",
+            "branch": "refs/heads/codex/api-assurance-gap-completion-20261110",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-20261111",
+            "commit": "e07408f28af4fa60ee42de8dbd553ea2f43df0ef",
+            "branch": "refs/heads/codex/api-assurance-gap-completion-20261111",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-20261113",
+            "commit": "bfb0bfa981bba6582bdc478ed6b9dbb225f1764f",
+            "branch": "refs/heads/codex/api-assurance-gap-completion-20261113",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-20261114",
+            "commit": "7b2afeaa40cdb619df7e221b4e86c737c2b141a4",
+            "branch": "refs/heads/codex/api-assurance-20261114",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-abi-gap-report-20261025",
+            "commit": "3012c100463875a728f3fa4793388e39e0bcdd14",
+            "branch": "refs/heads/codex/abi-gap-report-20261025",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-abi-gap-report-20261027",
+            "commit": "0b0ae9cebb057aa5246b542d63ce4d5ae1425020",
+            "branch": "refs/heads/codex/autosave-20261028-abi-gap-report",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-actor-negative-paths-20261111",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/actor-negative-paths-20261111",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-event-indexer-proof-20261026",
+            "commit": "dcbba7320b839a5e90b1f2df3dd2fbc9c2b21492",
+            "branch": "refs/heads/codex/api-assurance-event-indexer-proof-20261026",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-gap-20261022/api-layer",
+            "commit": "43c0bfbb420e9b5355bbd13daae7541cd7873834",
+            "branch": "refs/heads/codex/autosave-20261023-api-assurance-gap",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-gap-20261023/api-layer",
+            "commit": "68abf8abfc814431c3f3544185e06b814a1d9af3",
+            "branch": "refs/heads/codex/autosave-20261024-api-assurance-gap-generated-reports",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-assurance-gap-completion-20261026-daily",
+            "commit": "b4cf76b7ff6bffeca21dab0459b6377af9a369d2",
+            "branch": "refs/heads/codex/autosave-20261027-gap-completion-daily",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-consolidation-20261108",
+            "commit": "8fc8f66abfadaf1d744cbad68b1996bf5d03114e",
+            "branch": "refs/heads/codex/consolidation-20261108",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/api-write-invariants-20261113",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/write-invariant-metadata-20261113",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/coinbase-usdc-20261019/api-layer",
+            "commit": "e7dab3b4639ea971a6d7c5d42cc205f31ebc3b65",
+            "branch": "refs/heads/codex/coinbase-usdc-20261115",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/contracts-api-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/contracts-api-20261110",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261109",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261109",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261110",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261110-run",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110-run2",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261110-run2",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110-run3",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261110-run3",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261111-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261111-run",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261111-run2",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261111-run2",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261111-run3",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261111-run3",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261112",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261112",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261112-next",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261112-next",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-build-20261112-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-build-20261112-run",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-builder-20261113",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-builder-20261113",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-builder-20261113-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-builder-20261113-run",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-builder-20261115-run",
+            "commit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
+            "branch": "refs/heads/codex/office-gap-builder-20261115-run",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261108",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261109",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-check-20261109",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261110",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-check-20261110",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261110-final",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261110-rerun",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-check-rerun-20261110",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261111",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-check-20261111",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261112",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-check-20261112",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261113",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": "refs/heads/codex/office-gap-check-20261113",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/office-gap-check-20261113-run",
+            "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+            "branch": null,
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261026/api-layer",
+            "commit": "65dfa22091fb98be2600e256a50d29590b70904a",
+            "branch": "refs/heads/codex/autosave-20261028-production-indexer-write-coverage",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261027/api-layer",
+            "commit": "3abb8ba274e4c87881d63eb1c0c59fea373627df",
+            "branch": "refs/heads/codex/production-indexer-write-coverage-20261027",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261029/api-layer",
+            "commit": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
+            "branch": "refs/heads/codex/production-indexer-write-coverage-20261029",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261104/api-layer",
+            "commit": "17d2cb851433b43f8f3d7cf387dbfd4f63d02a72",
+            "branch": "refs/heads/codex/autosave-20261105-production-indexer-write-coverage",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261105/api-layer",
+            "commit": "a9657c39a4c824789d02ba2706a9c1d6155d043b",
+            "branch": "refs/heads/codex/production-indexer-write-coverage-20261105",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/red-team-harness-20261026/api-layer",
+            "commit": "403a3de6688e877be7a2a5148eb2eb73f3c52acd",
+            "branch": "refs/heads/codex/red-team-harness-20261105",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/red-team-harness-20261113",
+            "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+            "branch": "refs/heads/codex/red-team-harness-20261113",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/.codex/worktrees/transaction-request-privacy-20261026/api-layer",
+            "commit": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
+            "branch": "refs/heads/codex/transaction-request-privacy-20261028",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-abi-gap-report-20261012",
+            "commit": "78735038ba782d93ecaf46142e829e57c8ddd361",
+            "branch": "refs/heads/codex/abi-gap-report-20261011",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-abi-gap-report-20261013",
+            "commit": "872dd3e305a893583d7a0ccf34b81f60d763da05",
+            "branch": "refs/heads/codex/autosave-20261014-abi-gap-report",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-abi-gap-report-20261021",
+            "commit": "d82bb03918908d40db215857a9e0566e5a8733c2",
+            "branch": "refs/heads/codex/autosave-20261022-abi-gap-report",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-abi-gap-report-20261023",
+            "commit": "3a1ddc850322854e69a71d507616d5748130a983",
+            "branch": "refs/heads/codex/abi-gap-report-20261023",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-actor-negative-paths-20261012",
+            "commit": "ed299668015aed41d7517c3a7f9e4b58a200fa47",
+            "branch": "refs/heads/codex/actor-negative-paths-20261105",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-api-assurance-gap-completion-20261020",
+            "commit": "3f0e1a224746700045502e04055e20257ef03e74",
+            "branch": "refs/heads/codex/autosave-20261022-api-assurance-event-indexer-proof",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-api-assurance-gap-completion-20261021",
+            "commit": "23d204bc11e936d8355ee507f7ab10611e59d265",
+            "branch": "refs/heads/codex/autosave-20261022-api-assurance-gap-completion",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-base-sepolia-promotion-20261010",
+            "commit": "c88bfcf109e6575c17ff007b73b4f75dabe23430",
+            "branch": "refs/heads/codex/autosave-20261013-base-sepolia-promotion",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-base-sepolia-promotion-20261015",
+            "commit": "712aa3467f5169b0f2ae777943012486d500576a",
+            "branch": "refs/heads/codex/base-sepolia-promotion-20261029",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-economic-invariants-20261012",
+            "commit": "754ade06a27fb58c4211f181fb8e9b5e8003eff2",
+            "branch": "refs/heads/codex/economic-invariants-20261012",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-event-indexer-proof-20261012",
+            "commit": "34a75fa1b9ce5b72501102e26fb41b82d5a358e9",
+            "branch": "refs/heads/codex/autosave-20261021-event-indexer-proof",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-local-fork-automation",
+            "commit": "90a62e2ab8d401eddd9f2e015b542881ce22377d",
+            "branch": "refs/heads/codex/local-fork-automation-20261105",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-red-team-harness-20261011",
+            "commit": "c40cc2fcdd2e3fa74eb56d84795e00564dcc4f81",
+            "branch": "refs/heads/codex/red-team-harness-20261025",
+            "disposition": null
+          },
+          {
+            "path": "/Users/chef/Public/api-layer-write-invariants-20261012",
+            "commit": "867131ed53871658890a686c5fb78c145fdbcd64",
+            "branch": "refs/heads/codex/autosave-20261104-event-indexer-proof",
+            "disposition": null
+          }
+        ],
+        "unrelatedDirtyWorkMustBePreserved": true
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "TEST-01",
+      "ownerAutomationId": "test-gap-detection",
+      "status": "open",
+      "dependsOn": [
+        "API-01"
+      ],
+      "acceptance": "No unresolved meaningful behavior-test gap within the frozen release source interval; source/test delivery verified.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "C19",
+      "ownerAutomationId": "coinbase-usdc-daily-build-10-days",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Actual approved-provider sandbox and deployed marketplace/indexer acceptance, including failure paths, not fixtures alone.",
+      "baseline": {
+        "acceptedBackendUnits": 18,
+        "originalBackendDenominator": 20,
+        "frontendSeparate": true
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "C20",
+      "ownerAutomationId": "coinbase-usdc-daily-build-10-days",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Compatible SDK/Zod security remediation and reviewed integrated release/migration/rollout acceptance. Production execution requires actual authorization/access.",
+      "baseline": {
+        "acceptedBackendUnits": 18,
+        "originalBackendDenominator": 20,
+        "frontendSeparate": true
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "F01",
+      "ownerAutomationId": "coinbase-usdc-daily-build-10-days",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Confirmed actual consuming frontend implements and verifies customer wallet/checkout/approval/purchase flow without server keys in browser.",
+      "baseline": {
+        "acceptedBackendUnits": 18,
+        "originalBackendDenominator": 20,
+        "frontendSeparate": true
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PRIV-ROLLOUT",
+      "ownerAutomationId": "contracts-api",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Prepare migration 0008-before-secured-binary rollout and verify authorized deployment/access/owner isolation plus rollback. Source acceptance already complete; actual production execution remains separate and must not be invented.",
+      "baseline": {
+        "sourceAcceptanceComplete": true,
+        "deploymentVerified": false
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-RUNTIME",
+      "ownerAutomationId": "paperclip-runtime-recovery-and-finite-stopping-controls",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Identify actual live checkout; restore supported configured executable/adapter paths and valid authorized runtime; verify a real isolated worker run without secrets or invented provider approval.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-STOP",
+      "ownerAutomationId": "paperclip-runtime-recovery-and-finite-stopping-controls",
+      "status": "open",
+      "dependsOn": [
+        "PC-RUNTIME"
+      ],
+      "acceptance": "Test and deliver suppression of recurring issue creation on canonical blockage and terminal project/campaign state; retain intentional operational services and verify no duplicate issue creation.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-01",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "6970d4f4-f61a-41b7-8fe9-9cfe598b9449",
+        "projectName": "Platform testing",
+        "doneTickets": 1,
+        "nonCancelledTickets": 1,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-02",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "102f8d6d-ae0f-40f6-919a-792e2b102b15",
+        "projectName": "Platform orginals programing schedule",
+        "doneTickets": 1,
+        "nonCancelledTickets": 2,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "MOL-6",
+            "title": "Execution Plan: Programming model",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-03",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "62b31a97-f189-43dc-bec5-2e7879ad78e8",
+        "projectName": "Platform Orignals Programing",
+        "doneTickets": 1,
+        "nonCancelledTickets": 1,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-04",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "fe6b126f-82dc-4e46-9dd9-c7518bfc9e08",
+        "projectName": "Multi personalities for audio mini series",
+        "doneTickets": 1,
+        "nonCancelledTickets": 1,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-05",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "bce67ec3-1f1f-4eb7-a072-0e08e8ea0756",
+        "projectName": "Progress Over Perfection:",
+        "doneTickets": 4,
+        "nonCancelledTickets": 6,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "MOL-77",
+            "title": "Add observability + rollout metrics for multi-perspective quality and approval throughput",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-145",
+            "title": "safe guard",
+            "status": "in_review"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-06",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "32599cad-3116-481d-bf59-a68845d23a2e",
+        "projectName": "Creator growth / brand distribution",
+        "doneTickets": 7,
+        "nonCancelledTickets": 7,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-07",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "19615f74-8b67-4ed4-a16b-1c6da186df43",
+        "projectName": "Tokenization architecture",
+        "doneTickets": 3,
+        "nonCancelledTickets": 3,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-08",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "836f6c58-12ae-4023-8a56-96c3ad200e1c",
+        "projectName": "Programming model",
+        "doneTickets": 2,
+        "nonCancelledTickets": 2,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-09",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "2624d210-7f0c-488a-ae67-5bd88a5cb5db",
+        "projectName": "Issue 1: Agent Commentary Layer for Audio Series",
+        "doneTickets": 1,
+        "nonCancelledTickets": 1,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-10",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "0aed9764-13a6-46b2-aa42-c1e2f91d7965",
+        "projectName": "Genre-Based Voice Routing for Audio Production",
+        "doneTickets": 1,
+        "nonCancelledTickets": 1,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-11",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "8119a2c0-5d39-46ff-b22f-569660669abc",
+        "projectName": "Multi-Perspective Storytelling Support for Audio Miniseries",
+        "doneTickets": 4,
+        "nonCancelledTickets": 4,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-12",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "e586f5c4-f8e9-48e5-8105-8696b633588d",
+        "projectName": "Platform goal",
+        "doneTickets": 12,
+        "nonCancelledTickets": 18,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "MOL-136",
+            "title": "Benchmark current stack vs Google Veo 3 and alternatives by genre",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-148",
+            "title": "Synthesize validation results and prepare approval-ready sign-off",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-140",
+            "title": "Benchmark qualitative output quality + temporal coherence by genre",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-143",
+            "title": "Benchmark editability and stitching friction in post-production",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-147",
+            "title": "Capture video outputs and screenshots for no-regression proof",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-141",
+            "title": "Benchmark render latency, reliability, and throughput per provider",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-13",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "4153247c-bda3-43a9-be29-c1ad44575076",
+        "projectName": "Enhance podcast",
+        "doneTickets": 11,
+        "nonCancelledTickets": 15,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "MOL-83",
+            "title": "Run platform testing gate and release readiness review",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-97",
+            "title": "Define podcast enhancement metrics + instrumentation checklist",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-151",
+            "title": "Provision PostHog production read access for analytics validation",
+            "status": "blocked"
+          },
+          {
+            "identifier": "MOL-84",
+            "title": "Publish post-launch analytics readout for podcast enhancement",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-14",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Molt Motion",
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "projectId": "5d99805c-6cdf-4c24-bc51-b095b3ebb098",
+        "projectName": "Script feedback and optimization",
+        "doneTickets": 1,
+        "nonCancelledTickets": 2,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "MOL-157",
+            "title": "Execution kickoff: Script feedback and optimization",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-15",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Ops Corp",
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "projectId": "f5e78265-3dd0-4554-af94-28961b0f40ec",
+        "projectName": "Moltmotion Voting & Monitoring",
+        "doneTickets": 6,
+        "nonCancelledTickets": 9,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "OPS-4",
+            "title": "Migrate cron: Moltmotion - Voting Loop (Offset)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-44",
+            "title": "Escalation: Investigate stalled OPS-4 execution lock",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-30",
+            "title": "Unblock Moltmotion cron migrations: attach repo + configure MOLTMOTION_API_KEY",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-16",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Ops Corp",
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "projectId": "b4456944-092e-465e-addc-94620e5b6a5e",
+        "projectName": "Moltmotion Content Production",
+        "doneTickets": 33,
+        "nonCancelledTickets": 145,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "OPS-305",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-310",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-308",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-287",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-32",
+            "title": "Implement Paperclip job: Moltmotion Vote Check & Submit",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-262",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-170",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-226",
+            "title": "Resolve OPS-222 stranded recovery action (adapter_failed)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-201",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-188",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-180",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-174",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-165",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-155",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-147",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-140",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-131",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-101",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-94",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-93",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-92",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-89",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-88",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-87",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-86",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-85",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-84",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-83",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-82",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-81",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-78",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-73",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-71",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-70",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-69",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-68",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-67",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-66",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-65",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-64",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-63",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-62",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-61",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-60",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-90",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-59",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-58",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-57",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-56",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-55",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-54",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-53",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-52",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-116",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-109",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-103",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-102",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-100",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-72",
+            "title": "Unblock Moltmotion Writing Loop: restore execution credits or pause routine",
+            "status": "in_review"
+          },
+          {
+            "identifier": "OPS-232",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-344",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-343",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-228",
+            "title": "Triage superseded pending interactions on OPS-32",
+            "status": "in_review"
+          },
+          {
+            "identifier": "OPS-334",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-331",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-333",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-329",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-224",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-231",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-229",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-234",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-274",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-273",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-261",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-276",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-271",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-269",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-268",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-265",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-283",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-257",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-327",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-254",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-259",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-281",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-256",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-279",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-325",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-322",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-323",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-252",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-251",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-171",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-246",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-278",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-320",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-318",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-317",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-244",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-315",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-249",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-237",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-241",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-239",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-236",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-242",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-339",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-338",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-336",
+            "title": "Moltmotion Writing Loop",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-167",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-150",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-159",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-17",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Ops Corp",
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "projectId": "9d04d254-d8b5-477e-968a-06c7e69d7e70",
+        "projectName": "Growth & Distribution Automation",
+        "doneTickets": 10,
+        "nonCancelledTickets": 20,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "OPS-42",
+            "title": "Implement Paperclip job: X Post - Q&A Thread (Sat)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-41",
+            "title": "Implement Paperclip job: X Post - Media Post (Fri)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-40",
+            "title": "Implement Paperclip job: X Post - Reply Loops (Thu)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-39",
+            "title": "Implement Paperclip job: X Post - Short Text + Link (Wed)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-38",
+            "title": "Implement Paperclip job: X Post - Poll (Tue)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-37",
+            "title": "Implement Paperclip job: X Post - Insight Thread (Mon)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-36",
+            "title": "Implement Paperclip job: Cinematic Prompts - Afternoon",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-35",
+            "title": "Implement Paperclip job: Growth Action Brief - Afternoon",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-43",
+            "title": "Implement Paperclip job: X Post - Best-of Recap (Sun)",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-34",
+            "title": "Implement Paperclip job: Growth Action Brief - Morning",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-18",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Ops Corp",
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "projectId": "8c958bb0-4da8-431f-afa4-3d6842c70561",
+        "projectName": "Intelligence & Research Pipelines",
+        "doneTickets": 86,
+        "nonCancelledTickets": 239,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "OPS-550",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-549",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-548",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-547",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-546",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-545",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-544",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-543",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-542",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-541",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-540",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-539",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-538",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-537",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-536",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-535",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-534",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-533",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-532",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-531",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-530",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-529",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-528",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-527",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-526",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-525",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-524",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-523",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-522",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-521",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-520",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-519",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-518",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-517",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-516",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-515",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-514",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-513",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-512",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-511",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-510",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-509",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-508",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-507",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-506",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-505",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-504",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-503",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-502",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-501",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-500",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-499",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-498",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-497",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-496",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-495",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-494",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-493",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-492",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-491",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-490",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-489",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-488",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-487",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-486",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-485",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-484",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-483",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-482",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-481",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-480",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-479",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-478",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-477",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-476",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-475",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-474",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-473",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-472",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-471",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-470",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-469",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-468",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-467",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-466",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-465",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-464",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-463",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-462",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-461",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-460",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-459",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-458",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-457",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-456",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-455",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-454",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-453",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-452",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-451",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-450",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-449",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-448",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-288",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-398",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-392",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-391",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-390",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-366",
+            "title": "Audit historical blocked Swarm Scout run backlog",
+            "status": "todo"
+          },
+          {
+            "identifier": "OPS-364",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-363",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-362",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-361",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-360",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-359",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-358",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-357",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-356",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-355",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-354",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-353",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-352",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-351",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-350",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-332",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-335",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-330",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-225",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-230",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-282",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-275",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-272",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-270",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-267",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-260",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-255",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-280",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-253",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-326",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-324",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-321",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-319",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-250",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-245",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-277",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-243",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-240",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-238",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-340",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-337",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-235",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-263",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          },
+          {
+            "identifier": "OPS-233",
+            "title": "Swarm Scout Run",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-19",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Ops Corp",
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "projectId": "034a68bb-fde2-4eca-866b-aed3e5a04083",
+        "projectName": "Reliability, Backups & Standups",
+        "doneTickets": 7,
+        "nonCancelledTickets": 7,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": []
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-PROJECT-20",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
+      "baseline": {
+        "company": "Ops Corp",
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "projectId": "6a105394-1416-4dfb-b42b-bca5c2442dd4",
+        "projectName": "Migration Control Tower",
+        "doneTickets": 2,
+        "nonCancelledTickets": 5,
+        "ticketPercentIsNotProductAcceptance": true,
+        "openIssues": [
+          {
+            "identifier": "OPS-2",
+            "title": "Cron Migration Wave Plan",
+            "status": "in_review"
+          },
+          {
+            "identifier": "OPS-129",
+            "title": "Follow up board response for OPS-2 confirmation interaction",
+            "status": "in_review"
+          },
+          {
+            "identifier": "OPS-29",
+            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "status": "blocked"
+          }
+        ]
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "PC-UNPROJECTED",
+      "ownerAutomationId": "paperclip-project-acceptance-and-completion",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Adjudicate frozen unprojected open issues and unique cross-project dependencies; classify historical failed runs with canonical replacements and preserved real deliverables. Robotics requires user-defined acceptance scope; record unavailable baseline as waiting_external, not 100% completion.",
+      "baseline": {
+        "issues": [
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-239",
+            "title": "Review silent active run for Analytics Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-238",
+            "title": "Review silent active run for Blockchain Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-237",
+            "title": "Review silent active run for Analytics Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-193",
+            "title": "Review silent active run for Trust & Safety Specialist",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-189",
+            "title": "Review silent active run for Creator Partnerships Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-188",
+            "title": "Review silent active run for Execution Project Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-194",
+            "title": "Review silent active run for GitHub Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-192",
+            "title": "Review silent active run for Content Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-191",
+            "title": "Review silent active run for Post Production Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-190",
+            "title": "Review silent active run for  Engineering Project Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-187",
+            "title": "Review silent active run for Platform DevOps Lead",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-186",
+            "title": "Review silent active run for COO",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-185",
+            "title": "Review silent active run for Head of Growth",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-184",
+            "title": "Review silent active run for General Counsel",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-182",
+            "title": "Review silent active run for CTO",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-183",
+            "title": "Review silent active run for Podcast PRODUCER",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-181",
+            "title": "Review silent active run for GitHub Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-180",
+            "title": "Review silent active run for Smart Contract Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-179",
+            "title": "Review silent active run for Applied AI Engineer",
+            "status": "in_review"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-234",
+            "title": "Review productivity for MOL-203",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-233",
+            "title": "Review productivity for MOL-200",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-232",
+            "title": "Review productivity for MOL-201",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-231",
+            "title": "Review productivity for MOL-204",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-230",
+            "title": "Review productivity for MOL-198",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-212",
+            "title": "Review silent active run for Head of Growth",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-236",
+            "title": "Review productivity for MOL-196",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-211",
+            "title": "Review silent active run for COO",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-229",
+            "title": "Review productivity for MOL-219",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-228",
+            "title": "Review silent active run for GitHub Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-210",
+            "title": "Review silent active run for Head of Content",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-213",
+            "title": "Review silent active run for Creative Producer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-235",
+            "title": "Review productivity for MOL-216",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-227",
+            "title": "Review silent active run for Blockchain Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-209",
+            "title": "Review silent active run for CTO",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-225",
+            "title": "Review silent active run for Analytics Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-206",
+            "title": "Review silent active run for Content Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-218",
+            "title": "Review silent active run for Platform Operations Lead",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-208",
+            "title": "Review silent active run for Head of Product",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-226",
+            "title": "Review silent active run for Smart Contract Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-224",
+            "title": "Review silent active run for Applied AI Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-205",
+            "title": "Review silent active run for Audio Producer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-217",
+            "title": "Review silent active run for Trust & Safety Specialist",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-197",
+            "title": "Review silent active run for General Counsel",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-215",
+            "title": "Review silent active run for Security Engineer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-221",
+            "title": "Review silent active run for Podcast PRODUCER",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-222",
+            "title": "Review silent active run for Community Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-202",
+            "title": "Review silent active run for Video Producer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-196",
+            "title": "Review silent active run for PostHog Insights Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-223",
+            "title": "Review silent active run for Research",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-214",
+            "title": "Review silent active run for Head of Marketing ",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-207",
+            "title": "Review silent active run for Founder",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-199",
+            "title": "Review silent active run for Product Designer",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-220",
+            "title": "Review silent active run for Frontend Engineering Lead",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-216",
+            "title": "Review silent active run for Creator Support Specialist",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-201",
+            "title": "Review silent active run for Post Production Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-203",
+            "title": "Review silent active run for Execution Project Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-200",
+            "title": "Review silent active run for Creator Partnerships Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-204",
+            "title": "Review silent active run for Platform DevOps Lead",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-219",
+            "title": "Review silent active run for Backend Engineering Lead",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-198",
+            "title": "Review silent active run for Data Analyst",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-195",
+            "title": "Review productivity for MOL-193",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-51",
+            "title": "Production workflow: Audio QC, edits, and publish readiness",
+            "status": "blocked"
+          },
+          {
+            "company": "Molt Motion",
+            "identifier": "MOL-59",
+            "title": "Add observability, lineage invariants, and launch-readiness checks",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-117",
+            "title": "Recover stale Ops Orchestrator run e3c83707 and validate heartbeat output",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-187",
+            "title": "Implement blockedByIssueIds read parity (OPS-182)",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-293",
+            "title": "Fix inconsistent interaction cancel persistence on OPS-30",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-106",
+            "title": "Review silent active run for Voting Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-264",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-266",
+            "title": "Fix Codex model config for Moltmotion writing loop",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-113",
+            "title": "Recover stale Reliability Ops Agent run b3e123ab and validate heartbeat output",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-446",
+            "title": "Clarify or fix blockedByIssueIds read contract",
+            "status": "todo"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-135",
+            "title": "Research Ops self-heartbeat and output-path proof",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-307",
+            "title": "Resolve legacy pending interaction on OPS-108",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-115",
+            "title": "Respond to OPS-108 routing confirmation",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-306",
+            "title": "Investigate inbox-lite omission for assigned in_review issues",
+            "status": "in_review"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-108",
+            "title": "Execute canonical OPS-4 routing decision",
+            "status": "in_review"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-189",
+            "title": "Route privileged assignment for OPS-187",
+            "status": "in_review"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-419",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-105",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-104",
+            "title": "Review silent active run for Ops Orchestrator",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-173",
+            "title": "Review silent active run for Voting Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-328",
+            "title": "Review silent active run for Voting Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-112",
+            "title": "Recover stale Voting Ops Agent run 57d5a7af and validate heartbeat output",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-168",
+            "title": "Review silent active run for Ops Orchestrator",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-313",
+            "title": "Platform: remediate OPS-30 interaction cancel persistence/routing inconsistency",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-110",
+            "title": "Recover stale Voting Ops Agent run 57d5a7af and validate heartbeat output",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-195",
+            "title": "Retire superseded interactions after OPS-182 canonical approval",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-191",
+            "title": "Investigate checkout gating on in_review blocker-gated issues",
+            "status": "in_review"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-432",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-428",
+            "title": "Review silent active run for Content Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-427",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-426",
+            "title": "Review silent active run for Content Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-425",
+            "title": "Review silent active run for Ops Orchestrator",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-424",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-423",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-422",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-421",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-415",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-405",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-118",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-139",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-144",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-153",
+            "title": "Review silent active run for Content Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-146",
+            "title": "Review silent active run for Content Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-178",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-166",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-152",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-183",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-176",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-184",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-192",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-119",
+            "title": "Review silent active run for Ops Orchestrator",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-123",
+            "title": "Review silent active run for Content Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-134",
+            "title": "Review silent active run for Ops Orchestrator",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-137",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-126",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-124",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-193",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-196",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-181",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-169",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-156",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-138",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-149",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-133",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-122",
+            "title": "Review silent active run for Ops Orchestrator",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-157",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-120",
+            "title": "Review silent active run for Reliability Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-125",
+            "title": "Review silent active run for CEO",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-145",
+            "title": "Review silent active run for Research Ops Agent",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-182",
+            "title": "Investigate blockedByIssueIds null return on blocked issues",
+            "status": "blocked"
+          },
+          {
+            "company": "Ops Corp",
+            "identifier": "OPS-154",
+            "title": "Review silent active run for Operations Manager",
+            "status": "blocked"
+          }
+        ],
+        "roboticsTrackedIssues": 0,
+        "roboticsScopeConfirmed": false
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "COORD-01",
+      "ownerAutomationId": "contracts-api",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Coordinate all frozen API and Paperclip owners, resume dependency-paused owners only on changed delivered evidence, and verify schedules reach complete or explicitly waiting_external terminal dispositions. Residual blocked items remain open; API-08 alone does not complete coordination.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    }
+  ]
+}
