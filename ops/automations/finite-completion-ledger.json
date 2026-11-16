@@ -10,44 +10,73 @@
     "in_progress",
     "waiting_dependency",
     "blocked_external",
-    "accepted"
+    "accepted",
+    "excluded_scope"
   ],
   "terminalAutomationStates": {
     "complete": "Pause scheduler after all owned items accepted and verified delivery.",
     "waiting_external": "Pause with open items and exact owner/action; resume only on changed prerequisite.",
     "waiting_dependency": "Pause with open items; dependency coordinator resumes existing owner after prerequisite delivery."
   },
-  "scopePolicy": "Freeze baseline membership and record any necessary scope correction explicitly; unrelated new features and recurring outage copies do not silently expand the scope.",
+  "scopePolicy": "API-layer repository and its own contract/API integration only. Do not execute work in other source repositories or Paperclip companies. F01 and PC-* are excluded_scope, never acceptance prerequisites or accepted completion. No non-API job may be resumed.",
   "snapshotLocalBranchCount": 134,
   "snapshotWorktreeCount": 83,
   "items": [
     {
       "id": "API-01",
       "ownerAutomationId": "api-assurance-write-invariants",
-      "status": "open",
+      "status": "accepted",
       "dependsOn": [],
       "acceptance": "Reconciled mounted ABI inventory, exact overload metadata and reproducible canonical codegen, invariant tests, surface gates and default delivery.",
       "baseline": null,
-      "evidence": [],
-      "deliveredCommit": null,
-      "blocker": null
+      "evidence": [
+        {
+          "sourceCommit": "3e75b84765bb541ddda159151f6cdecd913cca14",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/43797771150",
+          "result": "success",
+          "checks": [
+            "pinned canonical codegen",
+            "7 invariant tests",
+            "260/260 write invariants",
+            "1034 actor checks",
+            "full type/lint/build/regression/coverage"
+          ]
+        }
+      ],
+      "deliveredCommit": "3e75b84765bb541ddda159151f6cdecd913cca14",
+      "blocker": null,
+      "completionNote": "Current CI verifies completed buildout scope. Standalone daily job paused; affected checks remain mandatory in CI and implementation gates."
     },
     {
       "id": "API-02",
       "ownerAutomationId": "api-assurance-actor-negative-paths",
-      "status": "open",
+      "status": "accepted",
       "dependsOn": [
         "API-01"
       ],
       "acceptance": "Current complete actor/key/signer/role-lifecycle matrix and passing actor/API/coverage gates with default delivery.",
       "baseline": null,
-      "evidence": [],
-      "deliveredCommit": null,
-      "blocker": null
+      "evidence": [
+        {
+          "sourceCommit": "3e75b84765bb541ddda159151f6cdecd913cca14",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/43797771150",
+          "result": "success",
+          "checks": [
+            "pinned canonical codegen",
+            "7 invariant tests",
+            "260/260 write invariants",
+            "1034 actor checks",
+            "full type/lint/build/regression/coverage"
+          ]
+        }
+      ],
+      "deliveredCommit": "3e75b84765bb541ddda159151f6cdecd913cca14",
+      "blocker": null,
+      "completionNote": "Current CI verifies completed buildout scope. Standalone daily job paused; affected checks remain mandatory in CI and implementation gates."
     },
     {
       "id": "API-03",
-      "ownerAutomationId": "api-assurance-red-team-harness",
+      "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
       "status": "open",
       "dependsOn": [
         "API-01"
@@ -56,11 +85,12 @@
       "baseline": null,
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "handoffNote": "Standalone tooling buildout job paused as consolidated. Required actual guarded-fork/full-runner release evidence remains OPEN here; deterministic CI does not claim that evidence."
     },
     {
       "id": "API-04",
-      "ownerAutomationId": "api-assurance-local-fork-automation",
+      "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
       "status": "open",
       "dependsOn": [
         "API-01"
@@ -69,7 +99,8 @@
       "baseline": null,
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "handoffNote": "Standalone tooling buildout job paused as consolidated. Required actual guarded-fork/full-runner release evidence remains OPEN here; deterministic CI does not claim that evidence."
     },
     {
       "id": "API-05",
@@ -277,12 +308,11 @@
         "API-07",
         "C19",
         "C20",
-        "F01",
         "PRIV-ROLLOUT",
         "TEST-01",
         "DELIVERY-01"
       ],
-      "acceptance": "Freeze complete release rubric and candidate source interval; confirm all API/release/privacy criteria and literal existing coverage requirement with evidence, no unexplained exceptions or false release claims.",
+      "acceptance": "Verify frozen API-only release criteria and original coverage requirement, with actual backend privacy/release acceptance and evidence. Do not wait for excluded frontend/company work; do not manufacture production proof.",
       "baseline": null,
       "evidence": [],
       "deliveredCommit": null,
@@ -1517,9 +1547,39 @@
       "blocker": null
     },
     {
+      "id": "PRIV-ROLLOUT",
+      "ownerAutomationId": "contracts-api",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Migration 0008 is already applied per November 8 database receipt; inspect recorded checksums/permissions rather than reapplying blindly. Verify secured API deployment and owner-isolated runtime behavior plus rollback after actual rollout authorization/access. Production runtime remains unverified.",
+      "baseline": {
+        "sourceAcceptanceComplete": true,
+        "deploymentVerified": false,
+        "migration0008Applied": true,
+        "migrationEvidence": "output/database-migration-2026-11-08.json",
+        "productionRuntimeVerified": false
+      },
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    },
+    {
+      "id": "COORD-01",
+      "ownerAutomationId": "contracts-api",
+      "status": "open",
+      "dependsOn": [],
+      "acceptance": "Coordinate only API-01 through API-08, C19/C20, PRIV-ROLLOUT, TEST-01 and DELIVERY-01; resume unfinished API owners only on changed prerequisite evidence. Keep completed/consolidated/non-API jobs paused and stop when API scope is complete or externally blocked.",
+      "baseline": null,
+      "evidence": [],
+      "deliveredCommit": null,
+      "blocker": null
+    }
+  ],
+  "excludedItems": [
+    {
       "id": "F01",
       "ownerAutomationId": "coinbase-usdc-daily-build-10-days",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Confirmed actual consuming frontend implements and verifies customer wallet/checkout/approval/purchase flow without server keys in browser.",
       "baseline": {
@@ -1529,37 +1589,25 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
-    },
-    {
-      "id": "PRIV-ROLLOUT",
-      "ownerAutomationId": "contracts-api",
-      "status": "open",
-      "dependsOn": [],
-      "acceptance": "Prepare migration 0008-before-secured-binary rollout and verify authorized deployment/access/owner isolation plus rollback. Source acceptance already complete; actual production execution remains separate and must not be invented.",
-      "baseline": {
-        "sourceAcceptanceComplete": true,
-        "deploymentVerified": false
-      },
-      "evidence": [],
-      "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-RUNTIME",
       "ownerAutomationId": "paperclip-runtime-recovery-and-finite-stopping-controls",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Identify actual live checkout; restore supported configured executable/adapter paths and valid authorized runtime; verify a real isolated worker run without secrets or invented provider approval.",
       "baseline": null,
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-STOP",
       "ownerAutomationId": "paperclip-runtime-recovery-and-finite-stopping-controls",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [
         "PC-RUNTIME"
       ],
@@ -1567,12 +1615,13 @@
       "baseline": null,
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-01",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1587,12 +1636,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-02",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1613,12 +1663,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-03",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1633,12 +1684,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-04",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1653,12 +1705,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-05",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1684,12 +1737,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-06",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1704,12 +1758,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-07",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1724,12 +1779,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-08",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1744,12 +1800,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-09",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1764,12 +1821,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-10",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1784,12 +1842,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-11",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1804,12 +1863,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-12",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1855,12 +1915,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-13",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1896,12 +1957,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-14",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1922,12 +1984,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-15",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -1958,12 +2021,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-16",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -2539,12 +2603,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-17",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -2610,12 +2675,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-18",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -3396,12 +3462,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-19",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -3416,12 +3483,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-PROJECT-20",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Verify actual requested product/project deliverables, cross-project dependencies, relevant source/release gates and required approval; reconcile project status or implement concrete owned remaining work. See corresponding per-project audit row.",
       "baseline": {
@@ -3452,12 +3520,13 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     },
     {
       "id": "PC-UNPROJECTED",
       "ownerAutomationId": "paperclip-project-acceptance-and-completion",
-      "status": "open",
+      "status": "excluded_scope",
       "dependsOn": [],
       "acceptance": "Adjudicate frozen unprojected open issues and unique cross-project dependencies; classify historical failed runs with canonical replacements and preserved real deliverables. Robotics requires user-defined acceptance scope; record unavailable baseline as waiting_external, not 100% completion.",
       "baseline": {
@@ -4260,18 +4329,9 @@
       },
       "evidence": [],
       "deliveredCommit": null,
-      "blocker": null
-    },
-    {
-      "id": "COORD-01",
-      "ownerAutomationId": "contracts-api",
-      "status": "open",
-      "dependsOn": [],
-      "acceptance": "Coordinate all frozen API and Paperclip owners, resume dependency-paused owners only on changed delivered evidence, and verify schedules reach complete or explicitly waiting_external terminal dispositions. Residual blocked items remain open; API-08 alone does not complete coordination.",
-      "baseline": null,
-      "evidence": [],
-      "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "scopeDecision": "User clarified that only contract/API-layer work is authorized. Outside frontend/company work is excluded, not accepted or completed, and its automation must stay paused."
     }
-  ]
+  ],
+  "scopeRoot": "/Users/chef/Public/api-layer"
 }

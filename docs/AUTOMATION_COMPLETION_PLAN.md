@@ -1,60 +1,50 @@
-# Finite automation completion plan
+# API-only automation completion plan
 
-Configured November 15, 2026, following the user's request to automate the remaining audit work and commit the changes to the main/default branch. This repository's actual default branch is `master`; no separate `main` branch is created.
+The user's scope clarification supersedes the earlier cross-repository completion plan: **only `/Users/chef/Public/api-layer` and its own contract/API integration may have active automation**. No Paperclip/MOLTSTUDIOS/robotics/project execution or consuming frontend implementation is authorized. F01 is excluded scope, not completed; preserve the original C01–C20 backend denominator.
 
-## Applied scheduler configuration
+## Applied state
 
-Two new chat-attached heartbeat automations were created:
+- **7 API jobs active; 9 API jobs paused.** All other Codex automations are paused.
+- Both newly created Paperclip heartbeat jobs are paused. Their companies/projects are not completion prerequisites.
+- The separate Paperclip scheduler is also stopped: three active companies paused, all 47 workers paused via the supported endpoint (which cancels their active runs), and Swarm Scout paused. Writing Loop was already paused. No tasks/projects were deleted or marked done, and no non-API implementation was performed.
+- No further automation creation or non-API resumption is authorized by this plan. API coordination may resume only unfinished API owners waiting on a changed dependency; completed and consolidated jobs stay paused.
 
-- **Paperclip runtime recovery and finite stopping controls** — daily at **6:30 AM America/Chicago**. Owns PC-RUNTIME and PC-STOP: repair the actual runtime/adapter launch path and implement tested blockage/terminal dispatch controls.
-- **Paperclip project acceptance and completion** — daily at **10:30 AM America/Chicago**. Owns the 20 frozen project acceptances and PC-UNPROJECTED: complete dependency-ready implementation, validate real deliverables, reconcile historical outage tasks and close only evidence-accepted finite scope.
+## API jobs that can stop
 
-Eleven existing active API jobs were updated in place. Their schedules, model/reasoning choices, target projects/threads and notification preferences were preserved. They now use finite ownership, dependency evidence, completion and external-blocker pause rules. The original funding acceptance denominator, detailed tests and proof standard are retained. The former broad `contracts-api`, branch consolidation and test-gap prompts now define bounded release coordination, reviewed delivery and a frozen regression range.
+| Job | State / reason |
+| --- | --- |
+| ABI Gap Report | Paused: report-generator buildout complete |
+| Report-Driven Gap Completion | Paused: static queue has zero non-ready items |
+| Office Gap Checker | Paused: repeats the same completed static queue |
+| Office Gap Builder | Paused: no static batch remains |
+| Event Indexer Proof | Paused: duplicate backlog handed to exact-method owner |
+| Write Invariants | Paused: completed buildout revalidated on default source; pinned generation, 7 invariant tests and 260/260 invariant gate passed |
+| Actor Negative Paths | Paused: completed buildout revalidated; 1,034 actor checks and current full gates passed |
+| Red Team Harness | Paused: tooling buildout already delivered; remaining guarded real-fork release validation is consolidated into the proof owner, not declared complete |
+| Local Fork Automation | Paused: runner already exists; remaining full-runner release acceptance is consolidated into the proof owner, not declared complete |
 
-The duplicate **Event Indexer Proof** automation was paused as superseded; the **Production Indexer Write Coverage** owner now owns its stronger local 113/260 proof artifact and all remaining method keys. This is a handoff, not completed proof. The four previously completed static generator/queue automations remain paused. Overall: **13 active completion jobs, 5 paused repo-linked jobs**, including the two new Paperclip jobs. Older paused Paperclip routing jobs were not reactivated.
+Current verification is actual GitHub [API quality run 43797771150](https://github.com/chefbc2k/api-layer/actions/runs/43797771150) for delivered default source `3e75b84765bb541ddda159151f6cdecd913cca14`. It completed successfully with pinned canonical generation, TypeScript, lint, build, PostgreSQL/native-USDC fork, 2,785 regression tests, measured coverage, surface checks, 1,034 actor checks, 277 red-team checks and 272 active indexer checks. Skipped live/fork cases are not new acceptance. CI's deterministic red-team/native-funding proofs do not claim the outstanding full protocol fork-runner or every exact-method receipt proof.
 
-Live scheduler definitions are exported in `ops/automations/finite-completion-configuration.json`. This is a reviewable configuration snapshot, not an installer: editing it alone does not change the Codex scheduler. Changes must go through the automation tool. No secrets, provider tokens or environment-file contents are included.
+## Seven remaining active jobs
 
-## Ownership and acceptance
-
-`ops/automations/finite-completion-ledger.json` is the shared acceptance ledger. Every item has one owner, explicit acceptance, dependencies, baseline, evidence, delivered commit and blocker fields. All unverified completion-plan items begin open; historical source completion and project ticket percentages remain baseline evidence only. Each project row links by immutable project ID to the audit's concrete remaining actions.
-
-| Acceptance | Owner | Finish condition |
+| Job | Owned API scope | Stopping point |
 | --- | --- | --- |
-| API-01 | Write Invariants | Mounted deployment inventory/overloads reconciled; clean generation and metadata gates delivered |
-| API-02 | Actor Negative Paths | Complete current actor/key/signer/lifecycle matrix, gates and delivery |
-| API-03 | Red Team Harness | Current adversarial and real-loopback acceptance, gates and delivery |
-| API-04 | Local Fork Automation | Existing runner's deterministic full aggregate accepted and delivered |
-| API-05 | Production Indexer Write Coverage | Stronger local evidence reconciled; all frozen exact-method proof keys accepted with PostgreSQL/replay and delivery |
-| API-06 | Economic Invariants | Fixed economic blocker/method checklist accepted with actual beneficiary/state/balance consequences |
-| API-07 | Base Sepolia Promotion | Marketplace and governance safe testnet proofs both accepted |
-| API-08, PRIV-ROLLOUT, COORD-01 | Release completion coordinator (`contracts-api`) | Frozen release rubric and actual authorized rollout acceptance verified; all API/Paperclip dependency handoffs and terminal schedule states reconciled |
-| C19, C20, F01 | Existing Coinbase funding owner | Actual provider/deployed acceptance, security/release criteria, and confirmed consuming frontend complete |
-| TEST-01 | Regression gap completion | Meaningful uncovered behavior resolved for the frozen release commit interval |
-| DELIVERY-01 | Bounded delivery owner | Frozen branch/worktree dispositions and approved passenger delivery verified, without arbitrary autosaves |
-| PC-RUNTIME, PC-STOP | New runtime/stopping-controls owner | Valid actual runtime and tested blocked/terminal dispatch suppression delivered |
-| PC-PROJECT-01…20, PC-UNPROJECTED | New project acceptance owner | Actual finite deliverables accepted, historical failures adjudicated and statuses reconciled; undefined scope remains open |
+| Production Indexer Write Coverage | API-03, API-04, API-05: actual fork/runner validation and exact-method receipt/indexer proof | Reconcile local 113/260 vs default 107/260, then accept every fixed mounted-method key with actual receipt, meaningful post-state, real PostgreSQL and replay; deliver artifacts |
+| Economic Invariants | API-06: concrete API/contract economic blockers | Accept fixed method/blocker checklist with actual beneficiary/state/balance consequences; outside company-finance concepts do not add scope |
+| Base Sepolia Promotion | API-07: safe API marketplace and governance scenarios | Both real gated scenarios accepted with tx/block/delta/event evidence and delivery |
+| Coinbase backend completion | C19, C20 only | Finish backend provider/deployed acceptance and security/release criteria; C01–C18 remain 18/20 accepted (90%); frontend F01 is excluded |
+| API release completion coordinator | API-08, PRIV-ROLLOUT, COORD-01 | Verify API-only release/deployment criteria and permitted dependency handoffs; never resume outside or completed jobs |
+| API assurance bounded delivery | DELIVERY-01 | Evidence-backed disposition of 134 frozen branch tips/83 worktrees; deliver only approved API passengers without arbitrary autosaves |
+| API release regression gap completion | TEST-01 | Close meaningful test gaps within the frozen API release interval; unrelated future work does not expand scope |
 
-## Run and stopping protocol
+## Ledger and stop rules
 
-1. Fetch the actual remote default and read the latest shared ledger and owning-repo instructions. Inspect all relevant worktree states; use a clean isolated checkout and pinned dependencies. Do not treat missing dependencies/config in a new worktree as a reason to restart delivered implementation.
-2. Work only owned items. Freeze concrete method/blocker membership before computing a percentage. Implement a dependency-ready slice and run meaningful affected tests plus required repo gates. No static-only or mocked acceptance for a real execution requirement.
-3. Update only owned item fields from the latest default ledger; merge concurrent owner changes rather than overwriting stale JSON. Record source SHA, artifacts, exact commands/pass/fail/skip, remaining count, blockers and delivered commit. Commit verified scoped changes to the actual owning repo, then integrate without force-push and verify remote ref/CI. Source in other repositories belongs in those repositories; the API ledger contains the cross-repo delivery references.
-4. If all owned acceptance and delivery are verified, set those items accepted, **pause the automation through the automation tool**, and report completion once.
-5. If all remaining work needs external credentials, provider/account approval, intended frontend confirmation, production authorization or an undefined user scope, record **blocked_external** with exact owner/action and pause **waiting_external**. Items remain open. Resume only when the prerequisite changes; a paused blocked job is not a completed project.
-6. When waiting only on an owned dependency, persist **waiting_dependency** and pause. The completion coordinator may resume the existing owner after newly delivered prerequisite evidence; it preserves the owner's other scheduler settings. This prevents unchanged blocked polling.
-7. A pause failure is a real actionable failure. Report it and retain the incomplete ledger state. Never claim a stop merely because the prompt says to stop.
+`ops/automations/finite-completion-ledger.json` now contains **14 API acceptance items**. API-01/API-02 are accepted with the exact-source CI receipt. API-03/API-04 stay open under the existing proof owner. The 24 removed PC/frontend items remain preserved under `excludedItems` with `excluded_scope`; exclusions are not earned completion and are not prerequisites. Do not average heterogeneous ticket/method/unit counts into a production-readiness percentage.
 
-Public posting, email/Slack, real payments/transfers, service deployments and production migrations are not silently authorized by creating these schedules. Jobs must finish independent implementation and prepare concrete reviewable rollout artifacts, then identify the exact missing authorization or external action. No fake approvals or broad migrations to meet a quota.
+Read the latest actual default branch and owning instructions before edits, preserve unrelated worktrees, use pinned dependencies and explicit deployment selection, and update only owned ledger fields from current source. Source and commits belong to this repo and its isolated worktrees. Never blindly replace concurrent JSON owner updates. Validate meaningful affected tests and all required gates; unavailable integrations remain blockers. Safely deliver scoped changes to the actual default `master`, verify remote refs and real CI, and retain exact proof/source/command/result/commit evidence.
 
-## Paperclip scope and dependencies
+When all owned acceptance and delivery pass, pause the automation through the automation tool with reason complete. If every residual item needs external action and no independent API implementation remains, keep items open as blocked_external, record exact prerequisite/owner/action once, and pause waiting_external. For dependency-only waiting, pause waiting_dependency; the API coordinator may resume the same unfinished API owner when prerequisite evidence changes. A failed scheduler pause must be reported, not described as a successful stop. Do not repeatedly commit unchanged blocker checkpoints.
 
-Use the Paperclip skill for control-plane operations and source-repo instructions for domain fixes. Discover the actual live checkout before modifying runtime paths; a project path can be stale. Use the API and appropriate identity/run audit headers, never direct database mutation. Required factual task assignments/status/progress comments are authorized by this completion workflow; no external communication/publication is implied.
+The backend can require approved provider/domain/webhook configuration, test funds or reviewed runtime/deployment settings. Prepare concrete reviewable rollout, verification and rollback artifacts; do not invent acceptance, perform production schema changes, enable real-value operations or publish/deploy outside actual authorization. Migration 0008 is already recorded applied in `output/database-migration-2026-11-08.json`; production runtime privacy verification remains distinct and must not blindly reapply the schema.
 
-The runtime owner should temporarily pause Swarm Scout while its canonical execution prerequisite is broken, preserving all issue history. Writing Loop is already paused and must stay paused until its own acceptance is ready. Confirm a real isolated worker run, add tested unresolved-dependency/terminal dispatch rules, and distinguish ongoing backup/health operations from finite migration/build tasks. The project owner can implement source changes independently while runtime recovery proceeds; runtime-dependent execution waits for PC-RUNTIME.
-
-Twenty project baselines, their open issue identifiers and unprojected open issue membership are frozen in the ledger. Cross-project work and duplicates must resolve against actual source/evidence; PRD ticket closure is not product delivery. Do not replay hundreds of outage copies or invent scope for the empty robotics company. Any new necessary dependency must be added explicitly with its reason and owner, without rewriting historical denominators.
-
-## Verification of this configuration change
-
-No application runtime source was changed. Validation covers actual scheduler definitions, retained schedules/targets/model/notification fields, unique ownership, dependency references/cycles, all 20 project IDs, JSON syntax, generated report timestamp-only diffs and whitespace. This configuration does not claim any remaining API or Paperclip acceptance has passed. The earlier audit is a historical snapshot; the applied plan and exported configuration supersede its scheduling recommendations.
+`ops/automations/finite-completion-configuration.json` exports current API scheduler settings plus the paused non-API inventory. Editing this snapshot does not apply scheduler changes; use the automation tool. `output/api-only-automation-review-2026-11-15.json` records the applied scope/pause receipt. The earlier audit and configuration verification are historical snapshots; this plan supersedes their broader scheduling scope.

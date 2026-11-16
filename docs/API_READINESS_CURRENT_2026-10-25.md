@@ -1,11 +1,14 @@
 # API production readiness ledger — updated November 15, 2026 (PM)
 
+> API-only scope clarification (November 15): scheduled work is restricted to this repository's contract/API layer. F01 consuming frontend and all Paperclip/company work are excluded_scope, not completed, and cannot block backend automation shutdown. C01–C18 remain accepted at 18/20 (90%); only C19/C20 remain in the backend funding scope. Historical run entries below retain their original frontend-inclusive counts. Migration 0008 is already applied per the November 8 database receipt; production runtime isolation/deployment remains separate. Current scheduler state and ownership are in `docs/AUTOMATION_COMPLETION_PLAN.md`.
+
+
 Overall production readiness is not established. The historical filename is retained as the shared ledger named by the automations.
 
 | Workstream | Current evidence | Acceptance boundary |
 | --- | --- | --- |
 | Coinbase backend funding | 18/20 accepted (90%): C01–C18 | Local backend gates and real PostgreSQL/local-EVM proofs; no production checkout or settlement launch |
-| Consuming frontend F01 | 0/1; open | Accessible candidate `chefbc2k/uspeaks_mapbased_marketplace` uses Stripe/separate contracts; user confirmation of intended consumer pending |
+| Consuming frontend F01 | excluded_scope; 0/1 accepted | Accessible candidate `chefbc2k/uspeaks_mapbased_marketplace` uses Stripe/separate contracts; user confirmation of intended consumer pending |
 | Transaction-request privacy | Complete per separate owner ledger | See `output/transaction-request-privacy-readiness.json`; deployment still needs migration 0008 |
 | Exact-method write proof | Separately owned; baseline reported 113/260, 147 remaining | Checked-in default artifact is older (October 9: 107/260, 153 remaining); reconcile through its owner, not funding attribution |
 | Generated route coverage | 492 functions, 218 event occurrences, 260 write invariants | Static/surface assurance is not production certification |

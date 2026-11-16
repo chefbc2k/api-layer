@@ -1,3 +1,11 @@
+## 2026-11-15 — Restrict all scheduled work to the API layer
+
+- Corrected the prior scope: paused both newly created Paperclip Codex jobs; verified every non-API Codex automation is paused. Paused three Paperclip companies, 47 workers (cancelling active runs through the supported pause endpoint) and the active Swarm Scout routine; existing Writing Loop remains paused. No non-API task/project was deleted, completed or implemented.
+- Paused completed invariant/actor buildout jobs using successful exact-source GitHub run 43797771150. Paused standalone red-team/fork buildout and handed their still-open runtime release acceptance to the existing exact-method proof owner. Seven API jobs remain active, nine paused.
+- Removed Paperclip and consuming frontend F01 from active API acceptance and coordinator resumption authority; preserved 24 exclusions as excluded_scope, not completed. Backend funding remains 18/20 (90%), with C19/C20 open. Added explicit API-only guards to every remaining active job.
+- Updated applied configuration/ledger, corrected the completion plan and funding-log scope, and recorded the global scheduler/Paperclip pause receipt. Migration 0008's November 8 application is acknowledged; production runtime acceptance remains separate.
+- Verified live scheduler/snapshot equality, no active non-API schedule, seven active API owners, 14 API ledger items, accepted-source CI evidence and preserved schedule/model/target/notification fields. No application source changed.
+
 ## 2026-11-15 — Finite completion automations and default-branch delivery
 
 - Created two scheduled chat heartbeats for Paperclip runtime/stopping-control recovery (06:30 Chicago) and evidence-backed completion of all 20 project scopes (10:30 Chicago). Updated 11 existing API owners in place with finite acceptance and complete/dependency/external-blocker pause rules; preserved schedules, models, targets and notification preferences.

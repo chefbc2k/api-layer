@@ -30,7 +30,7 @@
   },
   "openReleaseDependencies": [
     "C19 actual provider/fork acceptance",
-    "C20 release rollout and F01 frontend integration (confirm candidate repo)",
+    "C20 backend release rollout",
     "CDP app-domain/capability confirmation and actual subscription secret",
     "Apply reviewed funding migrations 0010 through 0012 to existing Neon before reconciliation enablement",
     "Remaining exact-method proofs owned by the separate workstream",
@@ -46,12 +46,13 @@
   "updatedDate": "2026-11-15",
   "frontendAcceptance": {
     "id": "F01",
-    "status": "open-candidate-confirmation-needed",
+    "status": "excluded_scope",
     "accepted": 0,
     "total": 1,
     "candidate": "chefbc2k/uspeaks_mapbased_marketplace",
     "candidateAccessAvailable": true,
-    "candidateApiConsumerConfirmed": false
+    "candidateApiConsumerConfirmed": false,
+    "excludedReason": "User limited automation to contract/API work in this repository"
   },
   "startingOpenFundingAndFrontend": 3,
   "minimumCompletedThisRun": 1,
@@ -64,7 +65,10 @@
   "transactionRequestPrivacy": {
     "status": "complete per separate owner ledger",
     "source": "output/transaction-request-privacy-readiness.json",
-    "deploymentMigrationRequired": "0008_transaction_request_owner.sql"
+    "deploymentMigrationRequired": null,
+    "migration0008Applied": true,
+    "migrationEvidence": "output/database-migration-2026-11-08.json",
+    "productionRuntimeVerified": false
   },
   "runSlot": "20:00 America/Chicago",
   "deploymentDatabase": {
@@ -118,5 +122,23 @@
     "baselineGithubCriticalAlerts": "output/coinbase-usdc/2026-11-11-am-critical-dependencies.json",
     "upstreamSdkMetadata": "output/coinbase-usdc/2026-11-12-am-sdk-zod-metadata.json",
     "latestObservation": "output/coinbase-usdc/2026-11-15-am-verification.json"
+  },
+  "scopeClarification": {
+    "scopeRoot": "/Users/chef/Public/api-layer",
+    "apiOnly": true,
+    "excludedAcceptanceIds": [
+      "F01",
+      "PC-*"
+    ],
+    "remainingBackendAcceptance": [
+      "C19",
+      "C20"
+    ],
+    "backendOpenCount": 2,
+    "backendAccepted": 18,
+    "backendDenominator": 20,
+    "historicalRunCountersIncludeFrontend": true,
+    "historicalCountersNotNewAcceptance": true,
+    "note": "Prior run counters retain historical meaning. Exclusion of frontend/company work is a scope decision, not earned completion. No outside repository automation may run."
   }
 }

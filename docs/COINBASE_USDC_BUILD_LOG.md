@@ -1,5 +1,10 @@
 # Coinbase/USDC daily build log
 
+## API-only scope correction — November 15, 2026
+
+The user clarified that scheduled completion is limited to this repository's contract/API layer. C01–C20 retain the original backend denominator: C01–C18 accepted (18/20, 90%); C19/C20 remain open. F01 consuming frontend implementation is excluded_scope, not accepted, and is no longer a blocker to backend-automation completion. Do not edit or schedule work in a consuming frontend or Paperclip/company repository. Older F01 instructions below are historical and superseded. Genuine backend provider/client-context prerequisites remain honest external blockers; finish independent backend/security work and pause waiting_external when no independent work remains.
+
+
 ## Execution agreement
 
 - Scope: implement the Coinbase/USDC funding specification in `docs/COINBASE_USDC_AND_API_READINESS_REVIEW.md`. Container hosting was disregarded by the user and is not part of this buildout. The separate 152-method ABI assurance backlog remains with the existing assurance workstreams.

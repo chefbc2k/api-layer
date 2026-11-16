@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "scopeRoot": "/Users/chef/Public/api-layer",
+  "apiActive": [
+    {
+      "id": "api-assurance-base-sepolia-promotion",
+      "name": "API Assurance: Base Sepolia Promotion"
+    },
+    {
+      "id": "api-assurance-daily-branch-consolidation",
+      "name": "API assurance bounded delivery"
+    },
+    {
+      "id": "api-assurance-economic-invariants",
+      "name": "API Assurance: Economic Invariants"
+    },
+    {
+      "id": "api-assurance-production-indexer-write-coverage",
+      "name": "API Assurance: Production Indexer Write Coverage"
+    },
+    {
+      "id": "coinbase-usdc-daily-build-10-days",
+      "name": "Coinbase USDC funding and frontend completion"
+    },
+    {
+      "id": "contracts-api",
+      "name": "API release completion coordinator"
+    },
+    {
+      "id": "test-gap-detection",
+      "name": "API release regression gap completion"
+    }
+  ],
+  "apiPaused": [
+    {
+      "id": "api-assurance-abi-gap-report",
+      "name": "API Assurance: ABI Gap Report"
+    },
+    {
+      "id": "api-assurance-actor-negative-paths",
+      "name": "API Assurance: Actor Negative Paths"
+    },
+    {
+      "id": "api-assurance-event-indexer-proof",
+      "name": "API Assurance: Event Indexer Proof"
+    },
+    {
+      "id": "api-assurance-local-fork-automation",
+      "name": "API Assurance: Local Fork Automation"
+    },
+    {
+      "id": "api-assurance-red-team-harness",
+      "name": "API Assurance: Red Team Harness"
+    },
+    {
+      "id": "api-assurance-report-driven-gap-completion",
+      "name": "API Assurance: Report-Driven Gap Completion"
+    },
+    {
+      "id": "api-assurance-write-invariants",
+      "name": "API Assurance: Write Invariants"
+    },
+    {
+      "id": "office-2-0-gap-builder",
+      "name": "Office 2.0 Gap Builder"
+    },
+    {
+      "id": "office-2-0-gap-checker",
+      "name": "Office 2.0 Gap Checker"
+    }
+  ],
+  "nonApiCodexInventory": [
+    {
+      "id": "daily-feature-idea-proposals",
+      "status": "PAUSED"
+    },
+    {
+      "id": "daily-improvement-agent-prompt",
+      "status": "PAUSED"
+    },
+    {
+      "id": "mandtory",
+      "status": "PAUSED"
+    },
+    {
+      "id": "md-swarm",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-daily-git-deploy-and-skill-maintenance",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-feature-execution-daily",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-feature-planning-daily",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-moonshot-feature-brainstorming-daily",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-platform-operating-daily-log",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-studio",
+      "status": "PAUSED"
+    },
+    {
+      "id": "molt-x-onboarding-story-creation-daily",
+      "status": "PAUSED"
+    },
+    {
+      "id": "paperclip-project-acceptance-and-completion",
+      "status": "PAUSED"
+    },
+    {
+      "id": "paperclip-runtime-recovery-and-finite-stopping-controls",
+      "status": "PAUSED"
+    },
+    {
+      "id": "paperclip-tasks",
+      "status": "PAUSED"
+    },
+    {
+      "id": "skill-progression-map",
+      "status": "PAUSED"
+    },
+    {
+      "id": "tv-guide-page-build-out",
+      "status": "PAUSED"
+    },
+    {
+      "id": "update-agents-md",
+      "status": "PAUSED"
+    },
+    {
+      "id": "update-agents-md-2",
+      "status": "PAUSED"
+    },
+    {
+      "id": "weekly-release-notes",
+      "status": "PAUSED"
+    },
+    {
+      "id": "x-search-first-time-artist",
+      "status": "PAUSED"
+    },
+    {
+      "id": "x-search-for-contract-issues",
+      "status": "PAUSED"
+    }
+  ],
+  "completedNow": [
+    "api-assurance-write-invariants",
+    "api-assurance-actor-negative-paths"
+  ],
+  "consolidatedNow": [
+    "api-assurance-red-team-harness",
+    "api-assurance-local-fork-automation"
+  ],
+  "excludedItemsNotAccepted": [
+    "F01",
+    "PC-RUNTIME",
+    "PC-STOP",
+    "PC-PROJECT-01",
+    "PC-PROJECT-02",
+    "PC-PROJECT-03",
+    "PC-PROJECT-04",
+    "PC-PROJECT-05",
+    "PC-PROJECT-06",
+    "PC-PROJECT-07",
+    "PC-PROJECT-08",
+    "PC-PROJECT-09",
+    "PC-PROJECT-10",
+    "PC-PROJECT-11",
+    "PC-PROJECT-12",
+    "PC-PROJECT-13",
+    "PC-PROJECT-14",
+    "PC-PROJECT-15",
+    "PC-PROJECT-16",
+    "PC-PROJECT-17",
+    "PC-PROJECT-18",
+    "PC-PROJECT-19",
+    "PC-PROJECT-20",
+    "PC-UNPROJECTED"
+  ],
+  "ci": {
+    "sourceCommit": "3e75b84765bb541ddda159151f6cdecd913cca14",
+    "url": "https://github.com/chefbc2k/api-layer/actions/runs/43797771150",
+    "result": "success"
+  },
+  "paperclipPauseReceipt": {
+    "actions": [
+      {
+        "kind": "company",
+        "id": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "cdbbaadc-f986-49ce-beff-4d3189f47d47",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "9c947778-ad2a-4d34-a64e-cac98d00ad57",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "82dff086-de19-485a-8c8f-5d1048190d47",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "18aa6763-857f-47ae-8a68-121872f0b9c5",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "01f3163b-823b-46bb-88b4-950e61a13f87",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "640dd9d6-c602-4db6-b2a5-8bd943e4235e",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "726006a2-b374-4586-91fe-a6419e4a0d99",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "fa6c950d-48e3-4e32-a6c3-c13bf9fe3d1e",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "55c72be6-3fd4-4616-996d-0d11628c6c6d",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "f40c1be1-e2a4-4c66-9e35-44c731d5ac95",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "593bb914-ebeb-4f2e-9c3a-904b6fd5f55b",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "b1073330-4f5c-41db-bc29-9c35c931aa59",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "3e07429b-4722-423c-9d30-f829026faeef",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "39ab261f-0ec5-4fcc-bc31-834725515163",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "3edd9eab-3653-4d19-9b21-8c20393f732e",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "03854969-68ad-4272-87c5-c4ea7738920b",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "e97ffb75-ef9e-4360-8e0e-f4f4e8735d10",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "28d4b4fb-96ad-4035-a59b-c3599eb8ea62",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "9b471ea7-75fb-4fbd-af05-95e67de9e8d2",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "3d0526e6-e6e8-4ed2-b61b-0d385928253b",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "4966e8a6-8b6b-4592-a071-1a136eff06ab",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "301e922f-93fb-4726-a392-e275dc0c4c36",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "83243df3-95f0-4a10-abde-e82d9be08aa2",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "629d63ec-8bcd-4afa-98e8-fa6ee68d6df4",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "fc23835c-5b8f-4a04-8897-4fe5dde2013a",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "fc143baa-8a4d-4077-ac46-bdeaccaa99a6",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "964f4fde-d5c6-43a8-965c-c120d1383ac3",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "8c295db5-018f-4af4-82b3-09aa26e69fc7",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "db14f9ea-beda-4738-9974-813dc3d71d0a",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "3341bea4-fda5-46f0-8563-c6687e60aaed",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "c0376468-69bb-4c53-94e2-2d082054d211",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "ffb30881-d2a4-4826-945e-d220810b750d",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "173febba-1cc7-415e-ac5f-ad34fb2c94c9",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "66c08fc0-c906-4c59-8693-4149498f47b0",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "11a979b3-9e5e-450d-93bb-24969eba31f3",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "e572df9d-ac58-4b6b-aaa3-4821bae9223d",
+        "status": "paused"
+      },
+      {
+        "kind": "company",
+        "id": "c473b673-70a6-4eb4-b6c6-2bf0babaf635",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "49ab359a-9655-4376-82d2-2d7ddd987bca",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "044aaa70-ae8c-4ca5-9a19-57a0d22b14a8",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "9ebe7041-a421-4497-a7e2-8a82478127ca",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "9de122d2-e620-46e1-99a2-ccd21823fe82",
+        "status": "paused"
+      },
+      {
+        "kind": "company",
+        "id": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "status": "paused"
+      },
+      {
+        "kind": "routine",
+        "id": "3705c1fb-0e6c-4bc0-87b9-ed9ab95d729e",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "01182608-e8b3-4a25-a895-1d31f61b9f9e",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "522fcbb6-c3e6-47b1-bed7-e3f3859c03b5",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "09562316-7074-4127-a0c8-01ef4c67d2d6",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "4856ecf0-90b8-4e6f-bc95-d106107ee34c",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "d7a6b555-82d3-4e44-9e82-411938cfd38c",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "b9f23bc8-fc61-4dab-bb32-c07d0704c290",
+        "status": "paused"
+      },
+      {
+        "kind": "agent",
+        "id": "21d0e5b6-925a-43ed-8e71-9a60623e32b6",
+        "status": "paused"
+      }
+    ],
+    "verified": [
+      {
+        "companyId": "cf511d52-4be5-4111-8b7a-d0e11b3dcac7",
+        "companyName": "Molt Motion",
+        "agentStatuses": {
+          "paused": 36
+        },
+        "routineStatuses": []
+      },
+      {
+        "companyId": "c473b673-70a6-4eb4-b6c6-2bf0babaf635",
+        "companyName": "Dexterous Robotics Hand Lab",
+        "agentStatuses": {
+          "paused": 4
+        },
+        "routineStatuses": []
+      },
+      {
+        "companyId": "f4b8a28d-445e-4e92-9284-c9c7974c2a56",
+        "companyName": "Ops Corp",
+        "agentStatuses": {
+          "paused": 7
+        },
+        "routineStatuses": [
+          {
+            "id": "3705c1fb-0e6c-4bc0-87b9-ed9ab95d729e",
+            "title": "Swarm Scout Run",
+            "status": "paused"
+          },
+          {
+            "id": "3c157012-1fbf-4c2d-8fed-0c337d54d5b6",
+            "title": "Moltmotion Writing Loop",
+            "status": "paused"
+          }
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "result": "passed",
+    "apiOnlyActive": 7,
+    "apiPaused": 9,
+    "nonApiCodexPaused": 21,
+    "apiLedgerItems": 14,
+    "excludedItemsNotAccepted": 24,
+    "settingsPreservedAcrossAllCodexJobs": 37,
+    "allPaperclipWorkersPaused": true,
+    "allPaperclipLiveRuns": 0,
+    "paperclip": [
+      {
+        "company": "Molt Motion",
+        "status": "paused",
+        "pausedAgents": 36,
+        "activeRoutines": 0,
+        "liveRuns": 0
+      },
+      {
+        "company": "Dexterous Robotics Hand Lab",
+        "status": "paused",
+        "pausedAgents": 4,
+        "activeRoutines": 0,
+        "liveRuns": 0
+      },
+      {
+        "company": "Ops Corp",
+        "status": "paused",
+        "pausedAgents": 7,
+        "activeRoutines": 0,
+        "liveRuns": 0
+      }
+    ],
+    "checks": [
+      "live scheduler snapshot equality",
+      "no active outside scope",
+      "active scope guard",
+      "API-only ledger ownership and acyclic dependencies",
+      "unaccepted fork/runner evidence preserved",
+      "all previous schedules/models/targets/notifications preserved",
+      "Paperclip live state and no live runs",
+      "JSON syntax",
+      "git diff --check"
+    ],
+    "applicationTestsRerun": false
+  }
+}
