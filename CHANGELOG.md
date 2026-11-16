@@ -1,3 +1,10 @@
+## 2026-11-15 — Vercel Express deployment entrypoint
+
+- Added root `app.ts` exporting the existing Express API without a separate listener, plus Vercel Express/frozen-install configuration using the same pinned deployment selectors as CI. Added explicit upload exclusions for private env files, runtime state, dependencies and old output.
+- Added a real local entrypoint regression proving no listener opens on import, health returns the configured chain, and private transaction requests still reject missing API keys. No API route/auth/funding behavior is replaced by the adapter.
+- Prepared the existing `api-layer` Vercel project's Preview deployment; funding/checkout/webhooks and live admin writes remain disabled. No production deployment, schema migration, worker schedule or outside-repo automation is introduced.
+- Verification passed: canonical codegen and 260/260 write invariants, TypeScript build, lint, full workspace build, entrypoint smoke regression, and full suite 2,786 passed / 114 explicitly gated skips. Vercel dry-run recognizes Express and excludes private `.env` files. Preparation receipt: `output/vercel-deployment-preflight-2026-11-15.json`; usage: `docs/VERCEL_DEPLOYMENT.md`. Vercel build status is checked separately after upload, not inferred from these local gates.
+
 ## 2026-11-15 — Restrict all scheduled work to the API layer
 
 - Corrected the prior scope: paused both newly created Paperclip Codex jobs; verified every non-API Codex automation is paused. Paused three Paperclip companies, 47 workers (cancelling active runs through the supported pause endpoint) and the active Swarm Scout routine; existing Writing Loop remains paused. No non-API task/project was deleted, completed or implemented.

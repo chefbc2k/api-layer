@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "project": "api-layer",
+  "team": "brandons-projects-890ec0a0",
+  "projectId": "prj_m4XEbbPjZlD7HX4Wn785o6kyApDI",
+  "target": "preview",
+  "sourceBaseline": "5fcecb9",
+  "localVerification": {
+    "codegen": "passed",
+    "mountedWriteInvariants": "260/260",
+    "typescript": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "regression": {
+      "passed": 2786,
+      "gatedSkipped": 114,
+      "failed": 0
+    },
+    "entrypoint": {
+      "noListenerOnImport": true,
+      "localHealth200": true,
+      "privateRequestWithoutKey401": true
+    }
+  },
+  "vercelDryRun": {
+    "framework": "express",
+    "privateEnvironmentFilesExcluded": true
+  },
+  "runtimeOverrides": {
+    "API_LAYER_ALLOW_LIVE_ADMIN_WRITES": "false",
+    "API_LAYER_FUNDING_ENABLED": "false",
+    "API_LAYER_FUNDING_CHECKOUT_ENABLED": "false",
+    "API_LAYER_FUNDING_WEBHOOK_ENABLED": "false"
+  },
+  "deploymentVerifiedByPreflight": false,
+  "productionDeployed": false,
+  "databaseMigrationsApplied": false,
+  "newScheduledWorkers": false
+}

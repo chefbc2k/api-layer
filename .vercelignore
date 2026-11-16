@@ -1,0 +1,15 @@
+.env
+.env.*
+**/.env
+**/.env.*
+.git
+.vercel
+node_modules
+**/node_modules
+.runtime
+.tmp
+coverage
+dist
+**/dist
+.npm
+Library
