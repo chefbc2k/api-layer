@@ -13,6 +13,11 @@ overrides:
   ws@>=7.0.0 <7.5.11: 7.5.11
   ws@>=8.0.0 <8.22.2: 8.22.2
 
+patchedDependencies:
+  zod@3.25.76:
+    hash: 79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774
+    path: patches/zod@3.25.76.patch
+
 importers:
 
   .:
@@ -3234,14 +3239,14 @@ snapshots:
       '@solana-program/token': 0.9.0(@solana/kit@5.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6))
       '@solana/kit': 5.5.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)
-      abitype: 1.0.6(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.0.6(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774))
       axios: 1.20.0
       axios-retry: 4.5.0(axios@1.20.0)
       jose: 6.2.1
       md5: 2.3.0
       uncrypto: 0.1.3
-      viem: 2.47.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76)
-      zod: 3.25.76
+      viem: 2.47.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774))
+      zod: 3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -4653,15 +4658,15 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  abitype@1.0.6(typescript@5.9.3)(zod@3.25.76):
+  abitype@1.0.6(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)):
     optionalDependencies:
       typescript: 5.9.3
-      zod: 3.25.76
+      zod: 3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)
 
-  abitype@1.2.3(typescript@5.9.3)(zod@3.25.76):
+  abitype@1.2.3(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)):
     optionalDependencies:
       typescript: 5.9.3
-      zod: 3.25.76
+      zod: 3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)
 
   accepts@2.0.0:
     dependencies:
@@ -5767,7 +5772,7 @@ snapshots:
       type-check: 0.4.0
       word-wrap: 1.2.5
 
-  ox@0.14.0(typescript@5.9.3)(zod@3.25.76):
+  ox@0.14.0(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -5775,7 +5780,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774))
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
@@ -6278,15 +6283,15 @@ snapshots:
 
   vary@1.1.2: {}
 
-  viem@2.47.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76):
+  viem@2.47.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@6.0.6)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774)):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774))
       isows: 1.0.7(ws@8.22.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))
-      ox: 0.14.0(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.14.0(typescript@5.9.3)(zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774))
       ws: 8.22.2(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     optionalDependencies:
       typescript: 5.9.3
@@ -6460,6 +6465,6 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod@3.25.76: {}
+  zod@3.25.76(patch_hash=79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774): {}
 
   zod@4.6.7: {}

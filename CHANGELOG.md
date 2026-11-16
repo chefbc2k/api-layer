@@ -60,6 +60,12 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase backend bounded-collection security backport - 2026-11-16 AM
+
+- Added a checksummed pnpm backport for SDK Zod 3 and bundled Zod 4/classic/mini ESM/CommonJS collection bounds. Oversized arrays/maps/sets reject before traversal, retaining bound errors and rewrite order. Controlled 500-element reproductions drop from 501 issues to one; no major override, version spoofing or ignored advisory.
+- Added 13 actual dependency/SDK regressions to red-team gates. Local regression 2,799 passed/114 gated; PostgreSQL/native-USDC fork 72 passed/zero skipped; actor 1,034, red-team 290, indexer 272 plus six DB cases and all coverage/type/lint/build/surface gates passed. Exact-source CI pending. Version-based production audit still fails on one high; this is not full security/release acceptance.
+- API-only scope preserves 18/20 (90%), C19/C20 open, minimum one, zero whole completions (shortfall one). F01 excluded_scope, not accepted or a backend prerequisite. Exact residual provider/security/release actions recorded; no production operations or outside source work.
+
 ## Coinbase blocked acceptance checkpoint - 2026-11-15 PM
 
 - Logged run 35: unchanged 18/20 (90%), C19/C20/F01 open, zero completions against minimum one. SDK metadata/project inventory unchanged; provider/frontend/integrated release and dependency remediation remain pending.

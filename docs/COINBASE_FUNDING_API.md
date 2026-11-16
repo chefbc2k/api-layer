@@ -1,6 +1,6 @@
 # Coinbase funding API
 
-The backend implements C01–C18, including pricing, checkout, private status/history, authenticated webhooks, durable processing and recovery, exact settlement, bounded approval preparation and customer-signed purchase handoff. Backend acceptance is 18/20 (90%); C19 actual provider/deployed integration, C20 release acceptance and the separate consuming frontend F01 remain open. Funding and checkout are disabled by default. Provider completion never means verified settlement. See the [current readiness ledger](API_READINESS_CURRENT_2026-10-25.md) for the acceptance boundary.
+The backend implements C01–C18, including pricing, checkout, private status/history, authenticated webhooks, durable processing and recovery, exact settlement, bounded approval preparation and customer-signed purchase handoff. Backend acceptance is 18/20 (90%); C19 actual provider/deployed integration, C20 release acceptance remain open. F01 consuming frontend implementation is excluded_scope under the API-only clarification; it is not accepted or a backend completion prerequisite. Funding and checkout are disabled by default. Provider completion never means verified settlement. See the [current readiness ledger](API_READINESS_CURRENT_2026-10-25.md) for the acceptance boundary.
 
 ## Server configuration
 

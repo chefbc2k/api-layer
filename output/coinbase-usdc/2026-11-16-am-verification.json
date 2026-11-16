@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-16",
+  "run": 36,
+  "slot": "08:00 America/Chicago",
+  "baseCommit": "74f8da9762125d858b7d37c0e13a3bd2c09f6c8b",
+  "scope": "C01-C20 backend only; F01 excluded_scope, not accepted or prerequisite",
+  "before": 18,
+  "after": 18,
+  "baseline": 20,
+  "acceptedPercent": 90,
+  "startingOpenBackend": 2,
+  "minimumRequired": 1,
+  "attempted": [
+    "C20"
+  ],
+  "completed": [],
+  "attemptedPercentOfOriginal": 5,
+  "completedPercentOfOriginal": 0,
+  "shortfall": 1,
+  "remaining": [
+    "C19",
+    "C20"
+  ],
+  "patch": {
+    "path": "patches/zod@3.25.76.patch",
+    "sha256": "79641ec3a80c4fe26cec278b121a78211f4f6dd7b6eca6ae98bc74d4553dd774",
+    "packageVersionUnchanged": "3.25.76",
+    "compiledValidationModuleShipped": false,
+    "focusedTestsPassed": 13,
+    "reproduction": "output/coinbase-usdc/2026-11-16-am-zod-reproduction.json"
+  },
+  "gates": {
+    "regression": {
+      "passed": 2799,
+      "skipped": 114,
+      "failed": 0
+    },
+    "postgresAndNativeFork": {
+      "passed": 72,
+      "skipped": 0,
+      "failed": 0
+    },
+    "actorsPassed": 1034,
+    "redteamPassed": 290,
+    "indexer": {
+      "passed": 272,
+      "databaseCasesSeparatelyPassed": 6
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "build": 0,
+    "typecheckVercel": 0,
+    "coverageCheck": 0,
+    "coverageCommandExit": 0,
+    "frozenInstallExit": 0,
+    "coverage": {
+      "lines": {
+        "total": 6842,
+        "covered": 6406,
+        "skipped": 0,
+        "pct": 93.62
+      },
+      "statements": {
+        "total": 7319,
+        "covered": 6792,
+        "skipped": 0,
+        "pct": 92.79
+      },
+      "functions": {
+        "total": 1639,
+        "covered": 1576,
+        "skipped": 0,
+        "pct": 96.15
+      },
+      "branches": {
+        "total": 6332,
+        "covered": 5762,
+        "skipped": 0,
+        "pct": 90.99
+      },
+      "branchesTrue": {
+        "total": 0,
+        "covered": 0,
+        "skipped": 0,
+        "pct": 100
+      }
+    }
+  },
+  "productionAudit": {
+    "command": "pnpm audit --prod --registry=https://registry.npmjs.org --json",
+    "exitCode": 1,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 1,
+        "moderate": 9,
+        "high": 1,
+        "critical": 0
+      },
+      "dependencies": 301,
+      "devDependencies": 0,
+      "optionalDependencies": 0,
+      "totalDependencies": 301
+    },
+    "highOrCritical": [
+      {
+        "package": "zod",
+        "severity": "high",
+        "patchedVersions": ">=4.6.6",
+        "advisory": "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+        "findings": [
+          {
+            "version": "3.25.76",
+            "paths": [
+              "packages__api>@coinbase/cdp-sdk>zod"
+            ]
+          }
+        ]
+      }
+    ],
+    "backportDoesNotClearVersionBasedAdvisory": true,
+    "releaseAccepted": false
+  },
+  "criticalAudit": {
+    "exitCode": 0,
+    "metadata": {
+      "vulnerabilities": {
+        "info": 0,
+        "low": 2,
+        "moderate": 25,
+        "high": 15,
+        "critical": 0
+      },
+      "dependencies": 660,
+      "devDependencies": 0,
+      "optionalDependencies": 0,
+      "totalDependencies": 660
+    }
+  },
+  "actualProviderSandboxExecuted": false,
+  "localConfigPresence": {
+    "CDP_API_KEY_ID": true,
+    "CDP_API_KEY_SECRET": true,
+    "API_LAYER_FUNDING_ORIGINS_JSON": false,
+    "API_LAYER_FUNDING_REDIRECT_URL": false,
+    "API_LAYER_FUNDING_WEBHOOK_SUBSCRIPTION_ID": false,
+    "API_LAYER_FUNDING_WEBHOOK_SECRET": false,
+    "API_LAYER_FUNDING_WEBHOOK_URL": false
+  },
+  "productionWrites": 0,
+  "productionEnabledByThisRun": false,
+  "remoteCI": {
+    "status": "not-started",
+    "note": "Source CI will be observed after scoped branch push, not a pass."
+  },
+  "plannedAutomationState": "waiting_external after verified source delivery; not yet paused",
+  "blockers": [
+    {
+      "unit": "C19",
+      "owner": "CDP project/account administrator and API acceptance operator",
+      "action": "Supply approved sandbox app domain/embedded capability, origins/redirect, webhook subscription ID/secret/URL and approved test-client context; run actual non-monetary provider/deployed marketplace-indexer acceptance with safe test funds."
+    },
+    {
+      "unit": "C20",
+      "owner": "API security/release owner and API release completion coordinator",
+      "action": "Review checksummed tested backport and still-reported advisory without masking/ignoring it, or provide verified compatible upstream remediation. Supply authorized migration/runtime/release environment and integrated backend acceptance evidence; production execution stays a separate authorized operation."
+    }
+  ]
+}

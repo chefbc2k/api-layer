@@ -1,0 +1,290 @@
+diff --git a/src/v3/types.ts b/src/v3/types.ts
+index b10e84f1beb1dacdae5e01c42a223974b9e20b73..0dc1051fdf0fc833e2ce245fd738c16104c4f601 100644
+--- a/src/v3/types.ts
++++ b/src/v3/types.ts
+@@ -2264,6 +2264,7 @@ export class ZodArray<T extends ZodTypeAny, Cardinality extends ArrayCardinality
+           message: def.exactLength.message,
+         });
+         status.dirty();
++        if (tooBig) return INVALID;
+       }
+     }
+ 
+@@ -2291,7 +2292,7 @@ export class ZodArray<T extends ZodTypeAny, Cardinality extends ArrayCardinality
+           exact: false,
+           message: def.maxLength.message,
+         });
+-        status.dirty();
++        return INVALID;
+       }
+     }
+ 
+@@ -3723,7 +3724,7 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
+           exact: false,
+           message: def.maxSize.message,
+         });
+-        status.dirty();
++        return INVALID;
+       }
+     }
+ 
+diff --git a/src/v4/core/schemas.ts b/src/v4/core/schemas.ts
+index ce16838549a39ff2522a1b6eea2b8994265f1b0f..d03b96c3fd6b7ffcd9f6dcdef9fae6d572aa7680 100644
+--- a/src/v4/core/schemas.ts
++++ b/src/v4/core/schemas.ts
+@@ -203,7 +203,8 @@ export const $ZodType: core.$constructor<$ZodType> = /*@__PURE__*/ core.$constru
+       checks: checks.$ZodCheck<never>[],
+       ctx?: ParseContextInternal | undefined
+     ): util.MaybeAsync<ParsePayload> => {
+-      let isAborted = util.aborted(payload);
++      if ((payload as any)[sizeCapRejected]) return payload;
++            let isAborted = util.aborted(payload);
+ 
+       let asyncResult!: Promise<unknown> | undefined;
+       for (const ch of checks) {
+@@ -1507,6 +1508,27 @@ export interface $ZodArrayInternals<T extends SomeType = $ZodType> extends _$Zod
+ 
+ export interface $ZodArray<T extends SomeType = $ZodType> extends $ZodType<any, any, $ZodArrayInternals<T>> {}
+ 
++const sizeCapRejected = Symbol("sizeCapRejected");
++// Security backport: reject leading upper size constraints before container traversal.
++function rejectOversizedContainer(payload: any, def: any, size: number, ctx: any) {
++    if (ctx?.skipChecks || ctx?.direction === "backward") return false;
++    for (const check of def.checks ?? []) {
++        const rule = check._zod.def;
++        if (!["min_length", "max_length", "length_equals", "min_size", "max_size", "size_equals"].includes(rule.check)) break;
++        const maximum = rule.maximum ?? rule.length ?? rule.size;
++        if (typeof maximum !== "number" || size <= maximum) continue;
++        if (rule.when && !rule.when(payload)) continue;
++        const previous = payload.issues.length;
++        check._zod.check(payload);
++        if (payload.issues.length > previous) {
++            payload.issues[previous].continue = false;
++            (payload as any)[sizeCapRejected] = true;
++            return true;
++        }
++    }
++    return false;
++}
++
+ function handleArrayResult(result: ParsePayload<any>, final: ParsePayload<any[]>, index: number) {
+   if (result.issues.length) {
+     final.issues.push(...util.prefixIssues(index, result.issues));
+@@ -1530,7 +1552,8 @@ export const $ZodArray: core.$constructor<$ZodArray> = /*@__PURE__*/ core.$const
+       return payload;
+     }
+ 
+-    payload.value = Array(input.length);
++    if (rejectOversizedContainer(payload, def, input.length, ctx)) return payload;
++        payload.value = Array(input.length);
+     const proms: Promise<any>[] = [];
+     for (let i = 0; i < input.length; i++) {
+       const item = input[i];
+@@ -2578,7 +2601,8 @@ export const $ZodMap: core.$constructor<$ZodMap> = /*@__PURE__*/ core.$construct
+       return payload;
+     }
+ 
+-    const proms: Promise<any>[] = [];
++    if (rejectOversizedContainer(payload, def, input.size, ctx)) return payload;
++        const proms: Promise<any>[] = [];
+     payload.value = new Map();
+ 
+     for (const [key, value] of input) {
+@@ -2679,7 +2703,8 @@ export const $ZodSet: core.$constructor<$ZodSet> = /*@__PURE__*/ core.$construct
+       return payload;
+     }
+ 
+-    const proms: Promise<any>[] = [];
++    if (rejectOversizedContainer(payload, def, input.size, ctx)) return payload;
++        const proms: Promise<any>[] = [];
+     payload.value = new Set();
+     for (const item of input) {
+       const result = def.valueType._zod.run({ value: item, issues: [] }, ctx);
+diff --git a/v3/types.cjs b/v3/types.cjs
+index 11ed4dfc4745f9af1f1501874576b78b77d294ef..7624bc3581485d953c461127fe1e8df021565f37 100644
+--- a/v3/types.cjs
++++ b/v3/types.cjs
+@@ -1791,6 +1791,7 @@ class ZodArray extends ZodType {
+                     message: def.exactLength.message,
+                 });
+                 status.dirty();
++                if (tooBig) return parseUtil_js_1.INVALID;
+             }
+         }
+         if (def.minLength !== null) {
+@@ -1816,7 +1817,7 @@ class ZodArray extends ZodType {
+                     exact: false,
+                     message: def.maxLength.message,
+                 });
+-                status.dirty();
++                return parseUtil_js_1.INVALID;
+             }
+         }
+         if (ctx.common.async) {
+@@ -2843,7 +2844,7 @@ class ZodSet extends ZodType {
+                     exact: false,
+                     message: def.maxSize.message,
+                 });
+-                status.dirty();
++                return parseUtil_js_1.INVALID;
+             }
+         }
+         const valueType = this._def.valueType;
+diff --git a/v3/types.js b/v3/types.js
+index 40b11c0f01b2af54e0ed48e198607bd8836d9a63..084b3dffcee64b2df7d22f0dd36b5dfabe9bb99b 100644
+--- a/v3/types.js
++++ b/v3/types.js
+@@ -1770,6 +1770,7 @@ export class ZodArray extends ZodType {
+                     message: def.exactLength.message,
+                 });
+                 status.dirty();
++                if (tooBig) return INVALID;
+             }
+         }
+         if (def.minLength !== null) {
+@@ -1795,7 +1796,7 @@ export class ZodArray extends ZodType {
+                     exact: false,
+                     message: def.maxLength.message,
+                 });
+-                status.dirty();
++                return INVALID;
+             }
+         }
+         if (ctx.common.async) {
+@@ -2814,7 +2815,7 @@ export class ZodSet extends ZodType {
+                     exact: false,
+                     message: def.maxSize.message,
+                 });
+-                status.dirty();
++                return INVALID;
+             }
+         }
+         const valueType = this._def.valueType;
+diff --git a/v4/core/schemas.cjs b/v4/core/schemas.cjs
+index 7c77d2b5af031e086d535f4b2e1898cec17eda29..7736540e3c5d5c532687397577fb07001c0104d0 100644
+--- a/v4/core/schemas.cjs
++++ b/v4/core/schemas.cjs
+@@ -62,6 +62,7 @@ exports.$ZodType = core.$constructor("$ZodType", (inst, def) => {
+     }
+     else {
+         const runChecks = (payload, checks, ctx) => {
++            if (payload[sizeCapRejected]) return payload;
+             let isAborted = util.aborted(payload);
+             let asyncResult;
+             for (const ch of checks) {
+@@ -644,6 +645,27 @@ exports.$ZodDate = core.$constructor("$ZodDate", (inst, def) => {
+         return payload;
+     };
+ });
++const sizeCapRejected = Symbol("sizeCapRejected");
++// Security backport: reject leading upper size constraints before container traversal.
++function rejectOversizedContainer(payload, def, size, ctx) {
++    if (ctx?.skipChecks || ctx?.direction === "backward") return false;
++    for (const check of def.checks ?? []) {
++        const rule = check._zod.def;
++        if (!["min_length", "max_length", "length_equals", "min_size", "max_size", "size_equals"].includes(rule.check)) break;
++        const maximum = rule.maximum ?? rule.length ?? rule.size;
++        if (typeof maximum !== "number" || size <= maximum) continue;
++        if (rule.when && !rule.when(payload)) continue;
++        const previous = payload.issues.length;
++        check._zod.check(payload);
++        if (payload.issues.length > previous) {
++            payload.issues[previous].continue = false;
++            payload[sizeCapRejected] = true;
++            return true;
++        }
++    }
++    return false;
++}
++
+ function handleArrayResult(result, final, index) {
+     if (result.issues.length) {
+         final.issues.push(...util.prefixIssues(index, result.issues));
+@@ -663,6 +685,7 @@ exports.$ZodArray = core.$constructor("$ZodArray", (inst, def) => {
+             });
+             return payload;
+         }
++        if (rejectOversizedContainer(payload, def, input.length, ctx)) return payload;
+         payload.value = Array(input.length);
+         const proms = [];
+         for (let i = 0; i < input.length; i++) {
+@@ -1286,6 +1309,7 @@ exports.$ZodMap = core.$constructor("$ZodMap", (inst, def) => {
+             });
+             return payload;
+         }
++        if (rejectOversizedContainer(payload, def, input.size, ctx)) return payload;
+         const proms = [];
+         payload.value = new Map();
+         for (const [key, value] of input) {
+@@ -1350,6 +1374,7 @@ exports.$ZodSet = core.$constructor("$ZodSet", (inst, def) => {
+             });
+             return payload;
+         }
++        if (rejectOversizedContainer(payload, def, input.size, ctx)) return payload;
+         const proms = [];
+         payload.value = new Set();
+         for (const item of input) {
+diff --git a/v4/core/schemas.js b/v4/core/schemas.js
+index 692ce1fc2d0e138b51b5af2bafe0e2b4a279c0bc..54538c0878f76987794c1aa1ce40ef1dea0db6c4 100644
+--- a/v4/core/schemas.js
++++ b/v4/core/schemas.js
+@@ -32,6 +32,7 @@ export const $ZodType = /*@__PURE__*/ core.$constructor("$ZodType", (inst, def)
+     }
+     else {
+         const runChecks = (payload, checks, ctx) => {
++            if (payload[sizeCapRejected]) return payload;
+             let isAborted = util.aborted(payload);
+             let asyncResult;
+             for (const ch of checks) {
+@@ -613,6 +614,27 @@ export const $ZodDate = /*@__PURE__*/ core.$constructor("$ZodDate", (inst, def)
+         return payload;
+     };
+ });
++const sizeCapRejected = Symbol("sizeCapRejected");
++// Security backport: reject leading upper size constraints before container traversal.
++function rejectOversizedContainer(payload, def, size, ctx) {
++    if (ctx?.skipChecks || ctx?.direction === "backward") return false;
++    for (const check of def.checks ?? []) {
++        const rule = check._zod.def;
++        if (!["min_length", "max_length", "length_equals", "min_size", "max_size", "size_equals"].includes(rule.check)) break;
++        const maximum = rule.maximum ?? rule.length ?? rule.size;
++        if (typeof maximum !== "number" || size <= maximum) continue;
++        if (rule.when && !rule.when(payload)) continue;
++        const previous = payload.issues.length;
++        check._zod.check(payload);
++        if (payload.issues.length > previous) {
++            payload.issues[previous].continue = false;
++            payload[sizeCapRejected] = true;
++            return true;
++        }
++    }
++    return false;
++}
++
+ function handleArrayResult(result, final, index) {
+     if (result.issues.length) {
+         final.issues.push(...util.prefixIssues(index, result.issues));
+@@ -632,6 +654,7 @@ export const $ZodArray = /*@__PURE__*/ core.$constructor("$ZodArray", (inst, def
+             });
+             return payload;
+         }
++        if (rejectOversizedContainer(payload, def, input.length, ctx)) return payload;
+         payload.value = Array(input.length);
+         const proms = [];
+         for (let i = 0; i < input.length; i++) {
+@@ -1255,6 +1278,7 @@ export const $ZodMap = /*@__PURE__*/ core.$constructor("$ZodMap", (inst, def) =>
+             });
+             return payload;
+         }
++        if (rejectOversizedContainer(payload, def, input.size, ctx)) return payload;
+         const proms = [];
+         payload.value = new Map();
+         for (const [key, value] of input) {
+@@ -1319,6 +1343,7 @@ export const $ZodSet = /*@__PURE__*/ core.$constructor("$ZodSet", (inst, def) =>
+             });
+             return payload;
+         }
++        if (rejectOversizedContainer(payload, def, input.size, ctx)) return payload;
+         const proms = [];
+         payload.value = new Set();
+         for (const item of input) {
