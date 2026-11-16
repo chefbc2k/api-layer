@@ -9,6 +9,11 @@
 
 # Changelog: USpeaks API Layer
 
+## Coinbase blocked acceptance checkpoint - 2026-11-15 PM
+
+- Logged run 35: unchanged 18/20 (90%), C19/C20/F01 open, zero completions against minimum one. SDK metadata/project inventory unchanged; provider/frontend/integrated release and dependency remediation remain pending.
+- Evidence/logs only; no source/lock/test changes, duplicate full suites or production operations. Prior CI and AM audit are historical results, not new acceptance.
+
 ## Coinbase blocked acceptance checkpoint - 2026-11-15 AM
 
 - Logged run 34: 18/20 (90%) backend acceptance; C19/C20/F01 open, zero completions against minimum one. Fresh production audit still fails on SDK Zod high; candidate frontend HEAD and project inventory unchanged.

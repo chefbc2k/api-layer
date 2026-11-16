@@ -1,4 +1,4 @@
-# API production readiness ledger — updated November 15, 2026 (AM)
+# API production readiness ledger — updated November 15, 2026 (PM)
 
 Overall production readiness is not established. The historical filename is retained as the shared ledger named by the automations.
 
@@ -39,3 +39,5 @@ November 14 AM (run 32): unchanged 18/20 backend acceptance (90%), C19/C20/F01 o
 November 14 PM (run 33): unchanged 18/20 (90%), C19/C20/F01 open, zero completions against minimum one. Stable SDK/project inventory unchanged. Local process/primary .env presence check confirms CDP server credentials present, but funding origin/redirect and webhook ID/secret/URL absent; no values emitted or provider approval inferred. Actual deployment configuration was not exported. Last actual production audit remains the AM failure. No application/lock/test change, duplicate full suite or production operation. Prior exact-source CI remains historical evidence. Checkpoint `output/coinbase-usdc/2026-11-14-pm-verification.json`; automation active.
 
 November 15 AM (run 34): unchanged 18/20 (90%), C19/C20/F01 open, minimum one, zero completed, shortfall one. Fresh production audit exits 1 with zero critical/one high/nine moderate/one low; stable SDK still uses Zod 3. Candidate frontend HEAD remains `49b34ae`, with confirmation pending; project inventory unchanged. No source/lock/test change, duplicate full suite or production operation. Prior exact-source CI remains historical evidence; checkpoint `output/coinbase-usdc/2026-11-15-am-verification.json`. Automation remains active.
+
+November 15 PM (run 35): unchanged 18/20 (90%), C19/C20/F01 open, minimum one, zero completed, shortfall one. Stable SDK and project inventory unchanged; last actual production audit is this morning’s failure, not a new PM audit. No source/lock/test change, duplicate full suite or production operation. Prior exact-source CI remains historical evidence. Checkpoint `output/coinbase-usdc/2026-11-15-pm-verification.json`; external prerequisites remain open and automation active.
