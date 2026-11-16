@@ -21,7 +21,7 @@
     },
     {
       "id": "coinbase-usdc-daily-build-10-days",
-      "name": "Coinbase USDC funding and frontend completion"
+      "name": "API Coinbase USDC backend completion"
     },
     {
       "id": "contracts-api",
@@ -498,7 +498,6 @@
     "nonApiCodexPaused": 21,
     "apiLedgerItems": 14,
     "excludedItemsNotAccepted": 24,
-    "settingsPreservedAcrossAllCodexJobs": 37,
     "allPaperclipWorkersPaused": true,
     "allPaperclipLiveRuns": 0,
     "paperclip": [
@@ -535,6 +534,12 @@
       "JSON syntax",
       "git diff --check"
     ],
-    "applicationTestsRerun": false
+    "applicationTestsRerun": false,
+    "schedulesModelsTargetsNotificationsPreservedAcross": 37,
+    "intentionalNameChange": {
+      "id": "coinbase-usdc-daily-build-10-days",
+      "name": "API Coinbase USDC backend completion",
+      "reason": "Remove excluded frontend work from visible job label"
+    }
   }
 }
