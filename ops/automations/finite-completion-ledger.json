@@ -1519,7 +1519,7 @@
     {
       "id": "C19",
       "ownerAutomationId": "coinbase-usdc-daily-build-10-days",
-      "status": "open",
+      "status": "blocked_external",
       "dependsOn": [],
       "acceptance": "Actual approved-provider sandbox and deployed marketplace/indexer acceptance, including failure paths, not fixtures alone.",
       "baseline": {
@@ -1527,14 +1527,30 @@
         "originalBackendDenominator": 20,
         "frontendSeparate": true
       },
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+          "artifact": "output/coinbase-usdc/2026-11-16-am-verification.json",
+          "result": "Verified backend security increment and exact-source full local/GitHub CI; whole unit remains blocked_external, not accepted",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807"
+        }
+      ],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": {
+        "unit": "C19",
+        "owner": "CDP project/account administrator and API acceptance operator",
+        "action": "Supply approved sandbox app domain/embedded capability, origins/redirect, webhook subscription ID/secret/URL and approved test-client context; run actual non-monetary provider/deployed marketplace-indexer acceptance with safe test funds."
+      },
+      "automationDisposition": {
+        "state": "waiting_external",
+        "schedulerPauseVerified": false,
+        "resumeOnlyOn": "Changed approved-provider/test environment or security/release prerequisite evidence; F01 excluded_scope never resumes this backend job."
+      }
     },
     {
       "id": "C20",
       "ownerAutomationId": "coinbase-usdc-daily-build-10-days",
-      "status": "open",
+      "status": "blocked_external",
       "dependsOn": [],
       "acceptance": "Compatible SDK/Zod security remediation and reviewed integrated release/migration/rollout acceptance. Production execution requires actual authorization/access.",
       "baseline": {
@@ -1542,9 +1558,25 @@
         "originalBackendDenominator": 20,
         "frontendSeparate": true
       },
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+          "artifact": "output/coinbase-usdc/2026-11-16-am-verification.json",
+          "result": "Verified backend security increment and exact-source full local/GitHub CI; whole unit remains blocked_external, not accepted",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807"
+        }
+      ],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": {
+        "unit": "C20",
+        "owner": "API security/release owner and API release completion coordinator",
+        "action": "Review checksummed tested backport and still-reported advisory without masking/ignoring it, or provide verified compatible upstream remediation. Supply authorized migration/runtime/release environment and integrated backend acceptance evidence; production execution stays a separate authorized operation."
+      },
+      "automationDisposition": {
+        "state": "waiting_external",
+        "schedulerPauseVerified": false,
+        "resumeOnlyOn": "Changed approved-provider/test environment or security/release prerequisite evidence; F01 excluded_scope never resumes this backend job."
+      }
     },
     {
       "id": "PRIV-ROLLOUT",

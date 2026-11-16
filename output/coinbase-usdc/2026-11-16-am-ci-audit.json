@@ -1,0 +1,413 @@
+{
+  "actions": [
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115543,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1120311,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1123898,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1130591,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1130734,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240103,
+          "path": ".>@vitest/coverage-istanbul>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240103,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240107,
+          "path": ".>@vitest/coverage-istanbul>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240107,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240111,
+          "path": ".>@vitest/coverage-istanbul>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240111,
+          "path": ".>c8>test-exclude>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "brace-expansion",
+      "target": "5.0.13",
+      "depth": 5
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115551,
+          "path": ".>typescript-eslint>@typescript-eslint/typescript-estree>tinyglobby>picomatch",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1115554,
+          "path": ".>typescript-eslint>@typescript-eslint/typescript-estree>tinyglobby>picomatch",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "picomatch",
+      "target": "4.0.7",
+      "depth": 5
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1115806,
+          "path": ".>@typechain/ethers-v6>lodash",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1244437,
+          "path": ".>@typechain/ethers-v6>lodash",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "lodash",
+      "target": "4.18.1",
+      "depth": 3
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1119441,
+          "path": "packages__api>@coinbase/cdp-sdk>@solana/web3.js>rpc-websockets>uuid",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "uuid",
+      "target": "11.1.1",
+      "depth": 5
+    },
+    {
+      "action": "update",
+      "resolves": [
+        {
+          "id": 1119502,
+          "path": ".>express>qs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1158506,
+          "path": ".>express>qs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1158507,
+          "path": ".>express>qs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1243687,
+          "path": ".>express>qs",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "module": "qs",
+      "target": "6.17.1",
+      "depth": 3
+    },
+    {
+      "action": "review",
+      "module": "elliptic",
+      "resolves": [
+        {
+          "id": 1112030,
+          "path": "packages__api>alchemy-sdk>@ethersproject/abstract-provider>@ethersproject/transactions>@ethersproject/signing-key>elliptic",
+          "dev": false,
+          "bundled": false,
+          "optional": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "brace-expansion",
+      "resolves": [
+        {
+          "id": 1115540,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1123897,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1130588,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1130737,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240100,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240104,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1240108,
+          "path": ".>typechain>glob>minimatch>brace-expansion",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "uuid",
+      "resolves": [
+        {
+          "id": 1119441,
+          "path": "packages__api>@coinbase/cdp-sdk>@solana/web3.js>jayson>uuid",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "esbuild",
+      "resolves": [
+        {
+          "id": 1120680,
+          "path": ".>tsx>esbuild",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "stream-json",
+      "resolves": [
+        {
+          "id": 1164823,
+          "path": "packages__api>@coinbase/cdp-sdk>@solana/web3.js>jayson>stream-json",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1241262,
+          "path": "packages__api>@coinbase/cdp-sdk>@solana/web3.js>jayson>stream-json",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1241263,
+          "path": "packages__api>@coinbase/cdp-sdk>@solana/web3.js>jayson>stream-json",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "vitest",
+      "resolves": [
+        {
+          "id": 1193683,
+          "path": ".>vitest",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "@vitest/mocker",
+      "resolves": [
+        {
+          "id": 1193684,
+          "path": ".>vitest>@vitest/mocker",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1242767,
+          "path": ".>vitest>@vitest/mocker",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "zod",
+      "resolves": [
+        {
+          "id": 1243066,
+          "path": "packages__api>@coinbase/cdp-sdk>zod",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "glob",
+      "resolves": [
+        {
+          "id": 1244013,
+          "path": ".>@vitest/coverage-istanbul>test-exclude>glob",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1244013,
+          "path": ".>c8>test-exclude>glob",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    },
+    {
+      "action": "review",
+      "module": "minimatch",
+      "resolves": [
+        {
+          "id": 1244623,
+          "path": ".>@vitest/coverage-istanbul>test-exclude>glob>minimatch",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1244623,
+          "path": ".>@vitest/coverage-istanbul>test-exclude>minimatch",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "id": 1244623,
+          "path": ".>c8>test-exclude>minimatch",
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ]
+    }
+  ],
+  "advisories": {},
+  "muted": [],
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 2,
+      "moderate": 25,
+      "high": 15,
+      "critical": 0
+    },
+    "dependencies": 660,
+    "devDependencies": 0,
+    "optionalDependencies": 0,
+    "totalDependencies": 660
+  }
+}

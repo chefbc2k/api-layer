@@ -1,0 +1,54 @@
+{
+  "environment": "disposable-Base-Sepolia-fork",
+  "sourceChainId": 84532,
+  "forkBlock": 59583427,
+  "nativeUsdc": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+  "nativeUsdcProxyCodeHash": "0xedc5281a85c0efecd49999a1ef668390c59b88702f2d4a07029d7f5d63059d6c",
+  "nativeUsdcCodeReplaced": false,
+  "listingFixture": true,
+  "providerSandbox": false,
+  "productionTransfers": 0,
+  "databaseProof": {
+    "status": "test_verified",
+    "replay": "idle",
+    "amountUnits": "10000001",
+    "logIndex": 0
+  },
+  "purchaseProof": {
+    "requestId": "3dbe3b46-d946-4396-82b8-d1cebfb318c1",
+    "status": "test_confirmed",
+    "late": false,
+    "proof": {
+      "txHash": "0x086c96a17b8cb01e0fe7b4fc8dd8f3248d26c10b29a8ee3f9d63fece19578221",
+      "blockNumber": 59583568,
+      "blockHash": "0x2ae09594e9145551524afe2a06cb5308ff0cd83461254b7fff119952fa6e4009",
+      "priceUsdcUnits": "10000001",
+      "owner": "0x7e1de842a78Ea76f212cefABF569664B71A30cBe",
+      "finalizedBlockNumber": 59583632
+    },
+    "marketplaceFixture": true,
+    "fixtureSourceSha256": "570127193cc9f8d322a32a51ab914728dbab03fb0374a412aa92d3873224a86d",
+    "buyerSigned": true,
+    "priceChangeRejected": true,
+    "privateLookupVerified": true,
+    "replayVerified": true
+  },
+  "sandboxSettlementStatus": "test_verified",
+  "settlement": {
+    "chainId": 84532,
+    "txHash": "0x9206843cbf9c478a4bf8aa52bdac469c982749a61c30544427d8df5cb4578149",
+    "logIndex": 0,
+    "blockNumber": 59583430,
+    "blockHash": "0xf3845346a4f9bf617ae5a7c936bca7b99f8451569669935624664dbec2ee2e94",
+    "tokenAddress": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+    "recipient": "0x7e1de842a78ea76f212cefabf569664b71a30cbe",
+    "amountUnits": "10000001",
+    "finalizedBlockNumber": 59583494
+  },
+  "wrongAmountRejected": true,
+  "approvalHash": "0xcbdcf3ca2c6fb2cc5feb282bbc10fa5e135886ed065b69214f08dad51c916bb7",
+  "resetHash": "0xcd27f9bc898c4622b39e2efc13c69283fff9e7012905f75ffd47918b35e4376f",
+  "finalApprovalHash": "0x3f222e6ed1296c4b719cfaf3ea9f27e5e829444a19f0611d66cc5043653b22c8",
+  "approvedUnits": "10000001",
+  "recipientBalanceUnits": "0"
+}

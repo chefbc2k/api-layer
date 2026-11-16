@@ -29,21 +29,23 @@
     "note": "Different historical artifacts; funding automation does not claim progress or overwrite receipt proof ownership."
   },
   "openReleaseDependencies": [
-    "C19 actual provider/fork acceptance",
-    "C20 backend release rollout",
-    "CDP app-domain/capability confirmation and actual subscription secret",
-    "Apply reviewed funding migrations 0010 through 0012 to existing Neon before reconciliation enablement",
-    "Remaining exact-method proofs owned by the separate workstream",
-    "Resolve remaining SDK Zod 3 high finding using a compatible patched upstream release or separately validated migration/backport"
+    "C19 approved provider sandbox/domain/webhook/test-client inputs and deployed API marketplace/indexer proof",
+    "C20 security review of checksummed tested backport and remaining advisory or compatible upstream replacement, plus reviewed authorized migration/runtime/release evidence",
+    "Separate exact-method proofs retain their own owner; no funding credit"
   ],
   "validation": {
-    "source": "output/coinbase-usdc/2026-11-15-pm-verification.json",
+    "source": "output/coinbase-usdc/2026-11-16-am-verification.json",
     "actualProviderSandboxExecuted": false,
     "deployed": false,
-    "newTestRuns": [],
-    "priorVerifiedSource": "efd39ea0548d18b13b6c8bfd54448e26a928709a"
+    "newTestRuns": [
+      "regression:2799 passed/114 gated",
+      "PG/native-fork:72 passed/zero skipped",
+      "13 SDK backport tests",
+      "all quality/coverage/actor/red-team/indexer gates"
+    ],
+    "priorVerifiedSource": "9daadafc021b8f9c102308cd044e1b5dfdefa671"
   },
-  "updatedDate": "2026-11-15",
+  "updatedDate": "2026-11-16",
   "frontendAcceptance": {
     "id": "F01",
     "status": "excluded_scope",
@@ -54,13 +56,12 @@
     "candidateApiConsumerConfirmed": false,
     "excludedReason": "User limited automation to contract/API work in this repository"
   },
-  "startingOpenFundingAndFrontend": 3,
+  "startingOpenFundingAndFrontend": 2,
   "minimumCompletedThisRun": 1,
   "completedThisRun": [],
   "remainingFundingAndFrontend": [
     "C19",
-    "C20",
-    "F01"
+    "C20"
   ],
   "transactionRequestPrivacy": {
     "status": "complete per separate owner ledger",
@@ -70,7 +71,7 @@
     "migrationEvidence": "output/database-migration-2026-11-08.json",
     "productionRuntimeVerified": false
   },
-  "runSlot": "20:00 America/Chicago",
+  "runSlot": "08:00 America/Chicago",
   "deploymentDatabase": {
     "provisioned": true,
     "source": "output/database-migration-2026-11-08.json",
@@ -101,27 +102,33 @@
   "releaseCI": {
     "configured": true,
     "workflow": ".github/workflows/api-quality.yml",
-    "sourceSha": "efd39ea0548d18b13b6c8bfd54448e26a928709a",
-    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43235287828",
+    "sourceSha": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+    "runUrl": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807",
     "observedStatus": "completed",
     "previousRun": "https://github.com/chefbc2k/api-layer/actions/runs/43034414588",
     "previousConclusion": "failure: disposable PostgreSQL startup; corrected owned socket",
-    "artifactRun": "output/coinbase-usdc/2026-11-12-am-ci-run.json",
-    "coverage": "output/coinbase-usdc/2026-11-12-am-ci-coverage.json",
-    "nativeFork": "output/coinbase-usdc/2026-11-12-am-ci-fork.json",
-    "criticalAudit": "output/coinbase-usdc/2026-11-12-am-ci-audit.json",
+    "artifactRun": "output/coinbase-usdc/2026-11-16-am-ci-run.json",
+    "coverage": "output/coinbase-usdc/2026-11-16-am-ci-coverage.json",
+    "nativeFork": "output/coinbase-usdc/2026-11-16-am-ci-fork.json",
+    "criticalAudit": "output/coinbase-usdc/2026-11-16-am-ci-audit.json",
     "conclusion": "success"
   },
   "dependencySecurity": {
-    "productionAudit": "output/coinbase-usdc/2026-11-12-am-production-audit.json",
+    "productionAudit": "output/coinbase-usdc/2026-11-16-am-verification.json",
     "allScopeCritical": 0,
     "productionCritical": 0,
     "productionHigh": 1,
-    "remainingHighFindings": "output/coinbase-usdc/2026-11-12-am-production-audit.json",
+    "remainingHighFindings": "output/coinbase-usdc/2026-11-16-am-verification.json",
     "releaseBlocker": true,
     "baselineGithubCriticalAlerts": "output/coinbase-usdc/2026-11-11-am-critical-dependencies.json",
     "upstreamSdkMetadata": "output/coinbase-usdc/2026-11-12-am-sdk-zod-metadata.json",
-    "latestObservation": "output/coinbase-usdc/2026-11-15-am-verification.json"
+    "latestObservation": "output/coinbase-usdc/2026-11-16-am-verification.json",
+    "backport": {
+      "sourceSha": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+      "path": "patches/zod@3.25.76.patch",
+      "testsPassed": 13,
+      "versionBasedFindingStillOpen": true
+    }
   },
   "scopeClarification": {
     "scopeRoot": "/Users/chef/Public/api-layer",
@@ -140,5 +147,27 @@
     "historicalRunCountersIncludeFrontend": true,
     "historicalCountersNotNewAcceptance": true,
     "note": "Prior run counters retain historical meaning. Exclusion of frontend/company work is a scope decision, not earned completion. No outside repository automation may run."
+  },
+  "remainingBackendAcceptance": [
+    "C19",
+    "C20"
+  ],
+  "backendAcceptanceDisposition": {
+    "C19": "blocked_external",
+    "C20": "blocked_external",
+    "automationState": "waiting_external",
+    "pauseVerified": false,
+    "actions": [
+      {
+        "unit": "C19",
+        "owner": "CDP project/account administrator and API acceptance operator",
+        "action": "Supply approved sandbox app domain/embedded capability, origins/redirect, webhook subscription ID/secret/URL and approved test-client context; run actual non-monetary provider/deployed marketplace-indexer acceptance with safe test funds."
+      },
+      {
+        "unit": "C20",
+        "owner": "API security/release owner and API release completion coordinator",
+        "action": "Review checksummed tested backport and still-reported advisory without masking/ignoring it, or provide verified compatible upstream remediation. Supply authorized migration/runtime/release environment and integrated backend acceptance evidence; production execution stays a separate authorized operation."
+      }
+    ]
   }
 }
