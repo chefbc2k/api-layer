@@ -156,7 +156,7 @@
     "C19": "blocked_external",
     "C20": "blocked_external",
     "automationState": "waiting_external",
-    "pauseVerified": false,
+    "pauseVerified": true,
     "actions": [
       {
         "unit": "C19",
@@ -168,6 +168,7 @@
         "owner": "API security/release owner and API release completion coordinator",
         "action": "Review checksummed tested backport and still-reported advisory without masking/ignoring it, or provide verified compatible upstream remediation. Supply authorized migration/runtime/release environment and integrated backend acceptance evidence; production execution stays a separate authorized operation."
       }
-    ]
+    ],
+    "pauseReceipt": "output/coinbase-usdc/2026-11-16-am-pause-receipt.json"
   }
 }

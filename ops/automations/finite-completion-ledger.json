@@ -1535,7 +1535,7 @@
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807"
         }
       ],
-      "deliveredCommit": null,
+      "deliveredCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
       "blocker": {
         "unit": "C19",
         "owner": "CDP project/account administrator and API acceptance operator",
@@ -1543,8 +1543,10 @@
       },
       "automationDisposition": {
         "state": "waiting_external",
-        "schedulerPauseVerified": false,
-        "resumeOnlyOn": "Changed approved-provider/test environment or security/release prerequisite evidence; F01 excluded_scope never resumes this backend job."
+        "schedulerPauseVerified": true,
+        "resumeOnlyOn": "Changed approved-provider/test environment or security/release prerequisite evidence; F01 excluded_scope never resumes this backend job.",
+        "schedulerStatus": "PAUSED",
+        "pauseReceipt": "output/coinbase-usdc/2026-11-16-am-pause-receipt.json"
       }
     },
     {
@@ -1566,7 +1568,7 @@
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807"
         }
       ],
-      "deliveredCommit": null,
+      "deliveredCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
       "blocker": {
         "unit": "C20",
         "owner": "API security/release owner and API release completion coordinator",
@@ -1574,8 +1576,10 @@
       },
       "automationDisposition": {
         "state": "waiting_external",
-        "schedulerPauseVerified": false,
-        "resumeOnlyOn": "Changed approved-provider/test environment or security/release prerequisite evidence; F01 excluded_scope never resumes this backend job."
+        "schedulerPauseVerified": true,
+        "resumeOnlyOn": "Changed approved-provider/test environment or security/release prerequisite evidence; F01 excluded_scope never resumes this backend job.",
+        "schedulerStatus": "PAUSED",
+        "pauseReceipt": "output/coinbase-usdc/2026-11-16-am-pause-receipt.json"
       }
     },
     {

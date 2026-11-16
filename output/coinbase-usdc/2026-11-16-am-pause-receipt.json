@@ -1,0 +1,12 @@
+{
+  "automationId": "coinbase-usdc-daily-build-10-days",
+  "status": "PAUSED",
+  "reason": "waiting_external",
+  "verifiedFrom": "automation_update result plus persisted automation.toml",
+  "schedulePreserved": true,
+  "promptPreserved": true,
+  "notificationPreferencesPreserved": true,
+  "targetPreserved": true,
+  "rrule": "RRULE:FREQ=DAILY;BYHOUR=8,20;BYMINUTE=0;BYSECOND=0",
+  "resumeOnlyOn": "Changed approved-provider/test environment, security remediation/review or authorized API release prerequisite evidence. Never resume for F01 or unchanged routine checkpoints."
+}

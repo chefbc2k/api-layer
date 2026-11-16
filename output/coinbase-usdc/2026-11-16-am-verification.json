@@ -160,7 +160,6 @@
     "nativeForkArtifact": "output/coinbase-usdc/2026-11-16-am-ci-fork.json",
     "criticalAuditArtifact": "output/coinbase-usdc/2026-11-16-am-ci-audit.json"
   },
-  "plannedAutomationState": "waiting_external after verified default delivery; scheduler not yet paused",
   "blockers": [
     {
       "unit": "C19",
@@ -173,5 +172,30 @@
       "action": "Review checksummed tested backport and still-reported advisory without masking/ignoring it, or provide verified compatible upstream remediation. Supply authorized migration/runtime/release environment and integrated backend acceptance evidence; production execution stays a separate authorized operation."
     }
   ],
-  "sourceCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671"
+  "sourceCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+  "automation": {
+    "automationId": "coinbase-usdc-daily-build-10-days",
+    "status": "PAUSED",
+    "reason": "waiting_external",
+    "verifiedFrom": "automation_update result plus persisted automation.toml",
+    "schedulePreserved": true,
+    "promptPreserved": true,
+    "notificationPreferencesPreserved": true,
+    "targetPreserved": true,
+    "rrule": "RRULE:FREQ=DAILY;BYHOUR=8,20;BYMINUTE=0;BYSECOND=0",
+    "resumeOnlyOn": "Changed approved-provider/test environment, security remediation/review or authorized API release prerequisite evidence. Never resume for F01 or unchanged routine checkpoints."
+  },
+  "delivery": {
+    "verifiedDefaultCommit": "d19db6139b522ee222c1e8ec7bfa5859c2221365",
+    "sourceCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+    "pushedRefs": [
+      "refs/heads/master",
+      "refs/heads/codex/coinbase-usdc-20261116"
+    ],
+    "refsVerified": true,
+    "receiptCIChecks": 0,
+    "receiptWorkflowRuns": 0,
+    "receiptIsNewCIPass": false,
+    "finalReceiptPolicy": "Final descendants only docs/owned ledger/evidence, [skip ci], refs verified after push; source CI is the actual pass."
+  }
 }
