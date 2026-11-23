@@ -120,6 +120,29 @@
           "sourceCommit": "49c5acbc2f51c5ee21fff0070c9b79951718ca67",
           "url": "https://github.com/chefbc2k/api-layer/commit/49c5acbc2f51c5ee21fff0070c9b79951718ca67",
           "result": "The licensing-corrected aggregate finished. The licensing proof matched the created transaction in its mounted HTTP 200 event query. The aggregate still failed its HTTP contract stage after both attempts hit cross-scenario rate limits and retained 18 independent safe-read gaps. The separately tracked limiter-isolated run remains pending."
+        },
+        {
+          "sourceCommit": "49c5acbc2f51c5ee21fff0070c9b79951718ca67",
+          "url": "https://github.com/chefbc2k/api-layer/blob/49c5acbc2f51c5ee21fff0070c9b79951718ca67/packages/api/src/app.contract-integration.test.ts",
+          "result": "The licensing-corrected aggregate reached the HTTP suite. Its first attempt passed 34 cases and hit HTTP 429 on the ordinary funding and voice-asset setup calls in two independent cases. The suite shares one API instance whose in-memory write counters previously carried over between cases. The follow-up starts each local fork scenario with an independent in-memory limiter at the same production thresholds. A full aggregate on the updated test harness is required.",
+          "checks": [
+            "pnpm exec tsc -b: passed",
+            "pnpm exec eslint packages/api/src/app.contract-integration.test.ts: passed",
+            "pnpm exec vitest run packages/api/src/shared/rate-limit.test.ts packages/api/src/app.contract-integration.test.ts --maxWorkers 1: 7 rate-limiter tests passed and 36 contract cases skipped without a fork"
+          ]
+        },
+        {
+          "sourceCommit": "db69326fe8b594a782450f1a54ed3b55eb0058d1",
+          "url": "https://github.com/chefbc2k/api-layer/commit/db69326fe8b594a782450f1a54ed3b55eb0058d1",
+          "result": "All 36 HTTP contract integration cases passed on the disposable fork with per-scenario in-memory rate-limit state. The independent control-plane case also passed. Aggregate acceptance remains pending the remaining stages and gap review.",
+          "checks": [
+            "pnpm run verify:local-fork --output .runtime/fork-proof-isolated/report.json --continue-on-gap: HTTP contract stage 36 passed, control-plane case 1 passed"
+          ]
+        },
+        {
+          "sourceCommit": "db69326fe8b594a782450f1a54ed3b55eb0058d1",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45113701239",
+          "result": "The limiter-isolation branch passed all API quality CI stages. The integrated control-plane readback change passed typecheck, lint and the targeted fork and PostgreSQL replay checks separately."
         }
       ],
       "deliveredCommit": null,

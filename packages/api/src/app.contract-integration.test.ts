@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
-import { afterAll, beforeAll, describe, expect, it, type TestContext } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, type TestContext } from "vitest";
 import { Contract, JsonRpcProvider, Wallet, ethers, id } from "ethers";
 
 import { createApiServer, type ApiServer } from "./app.js";
@@ -29,6 +29,8 @@ import {
 import { facetRegistry } from "../../client/src/generated/index.js";
 import { resolveRuntimeConfig, verifyNetwork } from "../../../scripts/alchemy-debug-lib.js";
 import { requireVoiceLicenseCreatedEventRoute } from "../../../scripts/verify-layer1-helpers.js";
+import type { ApiExecutionContext } from "./shared/execution-context.js";
+import { RateLimiter } from "./shared/rate-limit.js";
 import {
   assertConservedDeltas,
   assertExactAmountDelta,
@@ -549,6 +551,7 @@ async function waitForStableApiResponse(
 
 describeLive("HTTP API contract integration", () => {
   let server: ReturnType<ApiServer["listen"]>;
+  let apiExecutionContext: ApiExecutionContext;
   let port = 0;
   let provider: JsonRpcProvider;
   let founderWallet: Wallet;
@@ -962,10 +965,20 @@ describeLive("HTTP API contract integration", () => {
     votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
     communityRewardsFacet = new Contract(diamondAddress, facetRegistry.CommunityRewardsFacet.abi, provider) as unknown as CommunityRewardsFacet;
 
-    server = createApiServer({ port: 0 }).listen();
+    const api = createApiServer({ port: 0 });
+    apiExecutionContext = api.app.get("apiExecutionContext") as ApiExecutionContext;
+    server = api.listen();
     const address = server.address();
     port = typeof address === "object" && address ? address.port : 8787;
   }, 600_000);
+
+  beforeEach(() => {
+    const usesRedis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+    if (isLoopbackRpcUrl(activeRpcUrl) && !usesRedis) {
+      // Independent fork scenarios share chain fixtures, but each has its own request budget.
+      apiExecutionContext.rateLimiter = new RateLimiter();
+    }
+  });
 
   afterAll(async () => {
     const receiptArtifactPath = process.env.API_LAYER_CONTRACT_RECEIPT_ARTIFACT;
@@ -5576,13 +5589,27 @@ describeLive("HTTP API contract integration", () => {
       { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
     ])) return;
 
-    const adminProofs: Array<{ route: string; actor: string; status: number; txHash: string; receiptStatus: number }> = [];
+    type AdminReadback = {
+      getter: string;
+      read: () => Promise<unknown>;
+      expected: unknown;
+    };
+    const adminProofs: Array<{
+      route: string;
+      actor: string;
+      status: number;
+      txHash: string;
+      receiptStatus: number;
+      readback?: { getter: string; before: unknown; after: unknown; changed: boolean };
+    }> = [];
     const submitAdminWrite = async (
       routePath: string,
       body: Record<string, unknown>,
       contract: Contract,
       expectedEvent?: string,
+      readback?: AdminReadback,
     ) => {
+      const before = readback ? normalize(await readback.read()) : undefined;
       const apiKey = adminProofs.length < 4
         ? "control-plane-proof-a-key"
         : "control-plane-proof-b-key";
@@ -5607,12 +5634,22 @@ describeLive("HTTP API contract integration", () => {
       if (expectedEvent) {
         expect(eventNames, routePath).toContain(expectedEvent);
       }
+      const after = readback ? normalize(await readback.read()) : undefined;
+      if (readback) {
+        expect(after, readback.getter).toEqual(readback.expected);
+      }
       adminProofs.push({
         route: `POST ${routePath}`,
         actor: apiKey,
         status: response.status,
         txHash,
         receiptStatus: receipt!.status,
+        readback: readback ? {
+          getter: readback.getter,
+          before,
+          after,
+          changed: !isDeepStrictEqual(before, after),
+        } : undefined,
       });
       return { txHash, receipt: receipt!, eventNames };
     };
@@ -5632,27 +5669,42 @@ describeLive("HTTP API contract integration", () => {
       { initContract: trustedInitContract, selector: trustedInitSelector, trusted: true },
       diamondCutFacet,
       "TrustedInitSelectorSet",
+      {
+        getter: "isTrustedInitSelector",
+        read: () => diamondCutFacet.isTrustedInitSelector(trustedInitContract, trustedInitSelector),
+        expected: true,
+      },
     );
     expect(await diamondCutFacet.isTrustedInitSelectorPolicyEnabled(trustedInitContract)).toBe(true);
-    expect(await diamondCutFacet.isTrustedInitSelector(trustedInitContract, trustedInitSelector)).toBe(true);
 
     await submitAdminWrite(
       "/v1/diamond-admin/admin/set-trusted-init-codehash",
       { initContract: trustedInitContract, expectedCodehash: trustedInitCodehash },
       diamondCutFacet,
       "TrustedInitCodehashSet",
+      {
+        getter: "getTrustedInitCodehash",
+        read: () => diamondCutFacet.getTrustedInitCodehash(trustedInitContract),
+        expected: trustedInitCodehash,
+      },
     );
-    expect(await diamondCutFacet.getTrustedInitCodehash(trustedInitContract)).toBe(trustedInitCodehash);
 
     await submitAdminWrite(
       "/v1/emergency/admin/set-resume-delay",
       { newDelay: "1801" },
       emergencyFacet as unknown as Contract,
     );
+    const nextEmergencyTimeout = await emergencyFacet.getEmergencyTimeout() === 7201n ? "7202" : "7201";
     await submitAdminWrite(
       "/v1/emergency/admin/set-emergency-timeout",
-      { newTimeout: "7201" },
+      { newTimeout: nextEmergencyTimeout },
       emergencyFacet as unknown as Contract,
+      undefined,
+      {
+        getter: "getEmergencyTimeout",
+        read: () => emergencyFacet.getEmergencyTimeout(),
+        expected: nextEmergencyTimeout,
+      },
     );
 
     const whitelistedRecipient = Wallet.createRandom().address;
@@ -5661,8 +5713,12 @@ describeLive("HTTP API contract integration", () => {
       { recipient: whitelistedRecipient, whitelisted: true },
       emergencyWithdrawalFacet,
       "RecipientWhitelisted",
+      {
+        getter: "isRecipientWhitelisted",
+        read: () => emergencyWithdrawalFacet.isRecipientWhitelisted(whitelistedRecipient),
+        expected: true,
+      },
     );
-    expect(await emergencyWithdrawalFacet.isRecipientWhitelisted(whitelistedRecipient)).toBe(true);
 
     const withdrawalConfig = {
       delay: "3601",
@@ -5699,10 +5755,15 @@ describeLive("HTTP API contract integration", () => {
       { enforced: true },
       upgradeControllerFacet,
       "UpgradeControlEnforcementSet",
+      {
+        getter: "getUpgradeControlStatus",
+        read: async () => {
+          const { initialized, enforced } = await upgradeControllerFacet.getUpgradeControlStatus();
+          return { initialized, enforced };
+        },
+        expected: { initialized: true, enforced: true },
+      },
     );
-    const upgradeStatus = await upgradeControllerFacet.getUpgradeControlStatus();
-    expect(upgradeStatus.initialized).toBe(true);
-    expect(upgradeStatus.enforced).toBe(true);
 
     const proofArtifactPath = process.env.API_LAYER_CONTROL_PLANE_PROOF_ARTIFACT;
     if (proofArtifactPath) {
