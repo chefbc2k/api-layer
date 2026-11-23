@@ -502,6 +502,17 @@
             "functions": 96.15,
             "lines": 93.62
           }
+        },
+        {
+          "sourceCommit": "49c5acbc2f51c5ee21fff0070c9b79951718ca67",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45110141131",
+          "result": "GitHub CI passed typecheck, lint, build, disposable PostgreSQL/native USDC and regression. Coverage stopped on the Vercel smoke test's five-second deadline. The follow-up gives the instrumented cold import its own bounded setup hook and keeps the listener, health and authentication assertions.",
+          "checks": [
+            "pnpm exec tsc -p tsconfig.json --noEmit: passed",
+            "pnpm run lint: passed",
+            "API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run build: passed",
+            "Replayed coverage shard non-workflow-03 using the repository's coverageVitestArgs, buildCoverageEnv and discovered file list: 423 passed, 59 environment-gated skips with the smoke test passing"
+          ]
         }
       ],
       "deliveredCommit": null,
