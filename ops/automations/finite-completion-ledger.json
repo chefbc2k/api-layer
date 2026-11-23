@@ -1905,7 +1905,7 @@
     {
       "id": "PRIV-ROLLOUT",
       "ownerAutomationId": "contracts-api",
-      "status": "open",
+      "status": "blocked_external",
       "dependsOn": [],
       "acceptance": "Migration 0008 is already applied per November 8 database receipt; inspect recorded checksums/permissions rather than reapplying blindly. Verify secured API deployment and owner-isolated runtime behavior plus rollback after actual rollout authorization/access. Production runtime remains unverified.",
       "baseline": {
@@ -1915,9 +1915,25 @@
         "migrationEvidence": "output/database-migration-2026-11-08.json",
         "productionRuntimeVerified": false
       },
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45108051977",
+          "result": "The privacy source delivery commit is in remote master. All 19 current-source privacy route tests passed. The historical database receipt records migration 0008, the owner_hash column, and service-only read grants. Production deployment and owner-isolated runtime evidence remain open.",
+          "sourceDeliveryCommit": "d064acffb157ce47447b699923e4e0b8c3104b73",
+          "sourceEvidenceArtifact": "output/transaction-request-privacy-readiness.json",
+          "migrationEvidenceArtifact": "output/database-migration-2026-11-08.json",
+          "migrationSourceSha256": "c64ca6d002d518d13f08c6914f529db5600583bb2c68480dae9abb91ebba6e63",
+          "checks": [
+            "pnpm exec vitest run packages/api/src/transaction-request-privacy.test.ts --maxWorkers 1: 19 passed"
+          ]
+        }
+      ],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": {
+        "owner": "API deployment owner and production database owner",
+        "action": "Provide the authorized deployed API origin and exact deployed revision, approved two-principal test identities with an owner-scoped test request ID, a current read-only migration/grants attestation, and the approved rollback target. Verify owner success, isolation from the other principal, ownerless legacy behavior, private-response cache policy and rollback readiness without reapplying migration 0008."
+      }
     },
     {
       "id": "COORD-01",
