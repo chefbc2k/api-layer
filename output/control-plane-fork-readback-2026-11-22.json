@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-22",
+  "sourceCommit": "c4667dea3d56aa1013109abbe6c7f2ed421ac2e6",
+  "sourceUrl": "https://github.com/chefbc2k/api-layer/commit/c4667dea3d56aa1013109abbe6c7f2ed421ac2e6",
+  "network": {
+    "mode": "disposable loopback fork",
+    "chainId": 84532,
+    "upstreamBlock": 62422222
+  },
+  "sourceSha256": {
+    "httpStateReadbacks": "baae188a5dda4816ef3f070b81168f420a2130b9cb9a4a6d7fa99b01c1916a27",
+    "postgresReplay": "265ef0247b9996d43ac7e5406a889e2263bd83b61a695d66cf46026187bb6f16"
+  },
+  "checks": [
+    "pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t 'proves eight control-plane admin writes through mounted HTTP routes on a local fork' --maxWorkers 1: 1 passed, 35 unrelated cases skipped",
+    "pnpm run proof:indexer:local-fork-receipts with this scenario's receipt artifact on the same fork: 8 receipts indexed in PostgreSQL, replay unchanged"
+  ],
+  "freshIndexerTotals": {
+    "artifactTransactionHashes": 8,
+    "includedArtifacts": 1,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 8,
+    "provenWriteMethods": 8,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 252,
+    "rawEvents": 6,
+    "projectionRows": 3
+  },
+  "methodsWithObservedStateChange": [
+    "DiamondCutFacet.setTrustedInitSelector",
+    "DiamondCutFacet.setTrustedInitCodehash",
+    "EmergencyFacet.setEmergencyTimeout",
+    "EmergencyWithdrawalFacet.setRecipientWhitelist"
+  ],
+  "writes": [
+    {
+      "methodKey": "DiamondCutFacet.setTrustedInitContract",
+      "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+      "txHash": "0x15d7af72b38386acf7f68ede2a6e8fa26b2cfd73ced93fcfe254ba2aaf0e9d21",
+      "blockNumber": 62422223,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [
+        "DiamondCutFacet.TrustedInitContractSet"
+      ],
+      "projectedTables": [],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": null
+    },
+    {
+      "methodKey": "DiamondCutFacet.setTrustedInitSelector",
+      "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+      "txHash": "0xaaaa875445ecd64985b5ada799b20971e5f6b3a5301fc9f8c2bfa4115ea074f3",
+      "blockNumber": 62422224,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [
+        "DiamondCutFacet.TrustedInitSelectorSet"
+      ],
+      "projectedTables": [],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": {
+        "getter": "isTrustedInitSelector",
+        "before": false,
+        "after": true,
+        "changed": true
+      }
+    },
+    {
+      "methodKey": "DiamondCutFacet.setTrustedInitCodehash",
+      "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+      "txHash": "0xd33f63f92365a5781ac50534488ac4e37861941f9c40ccbf7e69496374f1af71",
+      "blockNumber": 62422225,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [
+        "DiamondCutFacet.TrustedInitCodehashSet"
+      ],
+      "projectedTables": [],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": {
+        "getter": "getTrustedInitCodehash",
+        "before": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "after": "0xe4091c5c0c1bb8155d82657ffb06806d8a1d6bad4991649e52ba0d97bf87f903",
+        "changed": true
+      }
+    },
+    {
+      "methodKey": "EmergencyFacet.setResumeDelay",
+      "route": "POST /v1/emergency/admin/set-resume-delay",
+      "txHash": "0xfe824ae8ff1191157bc970a1e02d702dd281558d8d46df4c19de71a9e4c7444e",
+      "blockNumber": 62422226,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [],
+      "projectedTables": [],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": null
+    },
+    {
+      "methodKey": "EmergencyFacet.setEmergencyTimeout",
+      "route": "POST /v1/emergency/admin/set-emergency-timeout",
+      "txHash": "0xa06952f6077ada0e4877ca54d8865efbf40308bc1b42f8e293cce8c7fc76b5ee",
+      "blockNumber": 62422227,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [],
+      "projectedTables": [],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": {
+        "getter": "getEmergencyTimeout",
+        "before": "86400",
+        "after": "7201",
+        "changed": true
+      }
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.setRecipientWhitelist",
+      "route": "POST /v1/emergency/admin/set-recipient-whitelist",
+      "txHash": "0xd64910c74a04e25631be0db75d1cd96cf4c68bd6fd2af3cc68292133a18145ba",
+      "blockNumber": 62422228,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [
+        "EmergencyWithdrawalFacet.RecipientWhitelisted"
+      ],
+      "projectedTables": [
+        "emergency_withdrawals"
+      ],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": {
+        "getter": "isRecipientWhitelisted",
+        "before": false,
+        "after": true,
+        "changed": true
+      }
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+      "route": "POST /v1/emergency/admin/update-withdrawal-config",
+      "txHash": "0x0a08edb35450f94cf0dd5b3d3a8affa0de3a54c49de0856a125271bbd4d8db02",
+      "blockNumber": 62422229,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [
+        "EmergencyWithdrawalFacet.WithdrawalConfigUpdated"
+      ],
+      "projectedTables": [
+        "emergency_withdrawals"
+      ],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": null
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.setUpgradeControlEnforced",
+      "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
+      "txHash": "0x042eb708af8a97443ee284b747ca208c47f8614e7b8aabfaf359c3c46981ac99",
+      "blockNumber": 62422230,
+      "apiStatus": 202,
+      "receiptStatus": 1,
+      "indexedEventKeys": [
+        "UpgradeControllerFacet.UpgradeControlEnforcementSet"
+      ],
+      "projectedTables": [
+        "upgrade_requests"
+      ],
+      "postgresBlockJournalRows": 1,
+      "replayUnchanged": true,
+      "readback": {
+        "getter": "getUpgradeControlStatus",
+        "before": {
+          "initialized": true,
+          "enforced": true
+        },
+        "after": {
+          "initialized": true,
+          "enforced": true
+        },
+        "changed": false
+      }
+    }
+  ],
+  "limits": [
+    "The upgrade enforcement getter returned the required configuration both before and after execution. This receipt records an idempotent case.",
+    "Three methods have no direct state readback in this run.",
+    "The source is on a verification branch. The canonical method count remains unchanged until evidence and code are delivered and reviewed."
+  ]
+}
