@@ -14,6 +14,7 @@ import {
   fixtureValue,
   proofFixtureOverrides,
   selectAbiFunction,
+  verifiedLicensingReads,
   type AbiFunction,
   type EndpointDefinition,
   type LocalForkFixture,
@@ -96,8 +97,30 @@ async function main(): Promise<void> {
 
   try {
     const campaignId = await discoverCampaignId(port, readApiKeys[0]);
+    const licensing = (proofArtifacts.remaining as {
+      reports?: { licensing?: { licensingReadEvidence?: { txHash?: unknown } } };
+    } | undefined)?.reports?.licensing?.licensingReadEvidence;
+    const licensingReceipt = isLoopbackRpcUrl(config.cbdpRpcUrl)
+      && typeof licensing?.txHash === "string" && /^0x[0-9a-f]{64}$/iu.test(licensing.txHash)
+      ? await provider.getTransactionReceipt(licensing.txHash).catch(() => null)
+      : null;
+    const earlierReads = verifiedLicensingReads(licensing, licensingReceipt);
     for (const [methodKey, endpoint] of Object.entries(reviewed.methods).sort(([left], [right]) => left.localeCompare(right))) {
       if (endpoint.rateLimitKind !== "read") {
+        continue;
+      }
+      const earlier = earlierReads.find((read) =>
+        read.methodKey === methodKey && endpoint.httpMethod === "GET" && read.route.split("?", 1)[0] === endpoint.path);
+      if (earlier) {
+        // The licensing lifecycle executed this read before revoking the fixture.
+        probes.push({
+          methodKey,
+          route: `GET ${earlier.route}`,
+          status: earlier.status,
+          payload: earlier.payload,
+          source: "licensing lifecycle",
+          fixtureTransactionHash: licensingReceipt?.hash,
+        });
         continue;
       }
       const abi = JSON.parse(

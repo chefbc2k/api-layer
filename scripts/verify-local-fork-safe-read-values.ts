@@ -29,6 +29,12 @@ export type ProofArtifacts = {
   governance?: unknown;
 };
 
+export type LicensingReadEvidence = {
+  txHash: string;
+  blockHash: string;
+  reads: Array<{ methodKey: string; route: string; status: number; payload: unknown }>;
+};
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -61,6 +67,26 @@ function stringValue(value: unknown): string | null {
 function addressFromTopic(value: unknown): string | null {
   const topic = stringValue(value);
   return topic && /^0x[0-9a-fA-F]{64}$/u.test(topic) ? `0x${topic.slice(-40)}` : null;
+}
+
+export function verifiedLicensingReads(
+  evidence: unknown,
+  receipt: { hash: string; blockHash: string; status: number | null } | null,
+): LicensingReadEvidence["reads"] {
+  const report = asRecord(evidence);
+  if (!report || !receipt || receipt.status !== 1 || receipt.hash !== report.txHash || receipt.blockHash !== report.blockHash) {
+    return [];
+  }
+  return Array.isArray(report.reads) ? report.reads.flatMap((value) => {
+    const read = asRecord(value);
+    if (
+      !read || typeof read.methodKey !== "string" || !read.methodKey.startsWith("VoiceLicenseFacet.")
+      || typeof read.route !== "string" || read.status !== 200 || read.payload == null
+    ) {
+      return [];
+    }
+    return [{ methodKey: read.methodKey, route: read.route, status: read.status, payload: read.payload }];
+  }) : [];
 }
 
 export function proofFixtureOverrides(methodKey: string, artifacts: ProofArtifacts): FixtureOverrides {

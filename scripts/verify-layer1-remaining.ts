@@ -10,6 +10,7 @@ import { resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-li
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
 import { isDatasetTotalValidAfterBurn, requireVoiceLicenseCreatedEventRoute } from "./verify-layer1-helpers.js";
 import { buildVerifyReportOutput, getOutputPath, type DomainClassification, writeVerifyReportOutput } from "./verify-report.js";
+import type { LicensingReadEvidence } from "./verify-local-fork-safe-read-values.js";
 
 type ApiCallOptions = {
   apiKey?: string;
@@ -38,6 +39,7 @@ type DomainReport = {
   actors: string[];
   executionResult: string;
   evidence: RouteEvidence[];
+  licensingReadEvidence?: LicensingReadEvidence;
   finalClassification: DomainClassification;
 };
 
@@ -1223,11 +1225,13 @@ async function verifyLicensing(input: {
   }
   const createLicenseTxHash = extractTxHash(createLicenseResponse.payload)!;
   const createLicenseReceipt = await waitForSuccessfulReceipt(provider, createLicenseTxHash, "create license");
+  const licenseQuery = `voiceHash=${encodeURIComponent(voiceHash)}&licensee=${encodeURIComponent(licensee.address)}`;
+  const licenseReadRoute = `/v1/licensing/queries/get-license?${licenseQuery}`;
   const licenseReadResponse = await waitFor(
     () => apiCall(
       port,
       "GET",
-      `/v1/licensing/queries/get-license?voiceHash=${encodeURIComponent(voiceHash)}&licensee=${encodeURIComponent(licensee.address)}`,
+      licenseReadRoute,
       { apiKey: "read-key" },
     ),
     (response) => response.status === 200,
@@ -1275,10 +1279,11 @@ async function verifyLicensing(input: {
     `/v1/licensing/queries/get-license-history?voiceHash=${encodeURIComponent(voiceHash)}`,
     { apiKey: "read-key" },
   );
+  const termsRoute = `/v1/licensing/queries/get-license-terms?voiceHash=${encodeURIComponent(voiceHash)}`;
   const termsResponse = await apiCall(
     port,
     "GET",
-    `/v1/licensing/queries/get-license-terms?voiceHash=${encodeURIComponent(voiceHash)}`,
+    termsRoute,
     { apiKey: "licensee-key" },
   );
   const validateResponse = await apiCall(port, "POST", "/v1/licensing/queries/validate-license", {
@@ -1324,10 +1329,11 @@ async function verifyLicensing(input: {
     (response) => response.status === 200 && response.payload === true,
     "usage-ref used",
   );
+  const usageCountRoute = `/v1/licensing/queries/get-usage-count?${licenseQuery}`;
   const usageCountResponse = await apiCall(
     port,
     "GET",
-    `/v1/licensing/queries/get-usage-count?voiceHash=${encodeURIComponent(voiceHash)}&licensee=${encodeURIComponent(licensee.address)}`,
+    usageCountRoute,
     { apiKey: "read-key" },
   );
   const usageEvents = await apiCall(port, "POST", "/v1/licensing/events/license-used/query", {
@@ -1417,6 +1423,15 @@ async function verifyLicensing(input: {
     actors: ["licensing-owner-key", "licensee-key", "read-key"],
     executionResult: "template lifecycle, direct license lifecycle, actor-scoped license reads, and usage/revoke flows completed through mounted licensing routes",
     evidence,
+    licensingReadEvidence: {
+      txHash: createLicenseTxHash,
+      blockHash: createLicenseReceipt.blockHash,
+      reads: [
+        { methodKey: "VoiceLicenseFacet.getLicense", route: licenseReadRoute, ...licenseReadResponse },
+        { methodKey: "VoiceLicenseFacet.getLicenseTerms", route: termsRoute, ...termsResponse },
+        { methodKey: "VoiceLicenseFacet.getUsageCount", route: usageCountRoute, ...usageCountResponse },
+      ],
+    },
     finalClassification: "proven working",
   };
 }

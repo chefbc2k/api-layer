@@ -596,6 +596,28 @@ describeLive("HTTP API contract integration", () => {
   let activeRpcUrl = "";
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
   const confirmedTransactionHashes = new Set<string>();
+  let rolledBackReceiptObservations = 0;
+
+  async function captureReceiptSnapshot() {
+    return {
+      id: String(await provider.send("evm_snapshot", [])),
+      priorHashes: new Set(confirmedTransactionHashes),
+    };
+  }
+
+  async function restoreReceiptSnapshot(snapshot: Awaited<ReturnType<typeof captureReceiptSnapshot>>): Promise<boolean> {
+    const restored = await provider.send("evm_revert", [snapshot.id]);
+    if (restored !== true) return false;
+
+    // The indexer can ingest only receipts that remain on the active fork.
+    for (const hash of confirmedTransactionHashes) {
+      if (!snapshot.priorHashes.has(hash)) {
+        confirmedTransactionHashes.delete(hash);
+        rolledBackReceiptObservations += 1;
+      }
+    }
+    return true;
+  }
 
   async function nativeTransferSpendable(wallet: Wallet) {
     const [balance, feeData] = await Promise.all([
@@ -990,6 +1012,7 @@ describeLive("HTTP API contract integration", () => {
         generatedAt: new Date().toISOString(),
         summary: "proven working",
         status: "proven working",
+        rolledBackReceiptObservations,
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
       }, null, 2)}\n`);
     }
@@ -1981,7 +2004,7 @@ describeLive("HTTP API contract integration", () => {
       { address: marketplaceBuyerWallet.address, minimumWei: ethers.parseEther("0.000006") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     try {
       const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
         body: {
@@ -2097,7 +2120,7 @@ describeLive("HTTP API contract integration", () => {
         payee: BigInt(await paymentToken.balanceOf(founderAddress)),
       });
     } finally {
-      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+      expect(await restoreReceiptSnapshot(snapshot)).toBe(true);
     }
   }, 300_000);
 
@@ -2115,7 +2138,7 @@ describeLive("HTTP API contract integration", () => {
       { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000006") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     let proofCompleted = false;
     try {
       const feeManagerRole = id("FEE_MANAGER_ROLE");
@@ -2485,7 +2508,7 @@ describeLive("HTTP API contract integration", () => {
       assertNoEconomicSideEffects("treasurySweep.repeat.balances", balancesAfterMultisig, await readPayeeBalances());
       proofCompleted = true;
     } finally {
-      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
       if (proofCompleted) {
         expect(reverted).toBe(true);
       }
@@ -3395,7 +3418,7 @@ describeLive("HTTP API contract integration", () => {
       { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.000004") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     try {
       const minterRole = id("MINTER_ROLE");
       if (!(await accessControl.hasRole(minterRole, founderAddress))) {
@@ -3554,7 +3577,7 @@ describeLive("HTTP API contract integration", () => {
           totalSupply: await tokenSupplyFacet.totalSupply(),
         });
     } finally {
-      expect(await provider.send("evm_revert", [snapshotId])).toBe(true);
+      expect(await restoreReceiptSnapshot(snapshot)).toBe(true);
     }
   }, 300_000);
 
@@ -3568,7 +3591,7 @@ describeLive("HTTP API contract integration", () => {
       { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     let proofCompleted = false;
     try {
       const timelockRole = id("TIMELOCK_ROLE");
@@ -3697,7 +3720,7 @@ describeLive("HTTP API contract integration", () => {
       });
       proofCompleted = true;
     } finally {
-      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
       if (proofCompleted) {
         expect(reverted).toBe(true);
       }
@@ -3713,7 +3736,7 @@ describeLive("HTTP API contract integration", () => {
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     let proofCompleted = false;
     try {
       const initialStakerBalance = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
@@ -3997,7 +4020,7 @@ describeLive("HTTP API contract integration", () => {
       });
       proofCompleted = true;
     } finally {
-      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
       if (proofCompleted) {
         expect(reverted).toBe(true);
       }
@@ -4014,7 +4037,7 @@ describeLive("HTTP API contract integration", () => {
       { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     let proofCompleted = false;
     try {
       for (const role of [id("EMERGENCY_ADMIN_ROLE"), id("FEE_MANAGER_ROLE")]) {
@@ -4122,7 +4145,7 @@ describeLive("HTTP API contract integration", () => {
       });
       proofCompleted = true;
     } finally {
-      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
       if (proofCompleted) {
         expect(reverted).toBe(true);
       }
@@ -4140,7 +4163,7 @@ describeLive("HTTP API contract integration", () => {
       { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00001") },
     ])) return;
 
-    const snapshotId = await provider.send("evm_snapshot", []);
+    const snapshot = await captureReceiptSnapshot();
     let proofCompleted = false;
     try {
       const timelockRole = id("TIMELOCK_ROLE");
@@ -4352,7 +4375,7 @@ describeLive("HTTP API contract integration", () => {
       );
       proofCompleted = true;
     } finally {
-      const reverted = await provider.send("evm_revert", [snapshotId]).catch(() => false);
+      const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
       if (proofCompleted) {
         expect(reverted).toBe(true);
       }

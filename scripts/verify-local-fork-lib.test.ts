@@ -14,7 +14,7 @@ import {
   summarizeReviewedSurface,
   type ProofStage,
 } from "./verify-local-fork-lib.js";
-import { classifySafeReadGap, fixtureValue, proofFixtureOverrides } from "./verify-local-fork-safe-read-values.js";
+import { classifySafeReadGap, fixtureValue, proofFixtureOverrides, verifiedLicensingReads } from "./verify-local-fork-safe-read-values.js";
 
 const tempDirs: string[] = [];
 
@@ -383,5 +383,30 @@ describe("safe-read fixture values", () => {
       licensee: `0x${"12".repeat(20)}`,
     });
     expect(fixtureValue({ name: "proposalId", type: "uint256" }, fixture, 99, 123, { proposalId: "77" })).toBe("77");
+  });
+
+  it("credits successful license reads only when the fixture receipt is on the active fork", () => {
+    const txHash = `0x${"ab".repeat(32)}`;
+    const blockHash = `0x${"cd".repeat(32)}`;
+    const receipt = { hash: txHash, blockHash, status: 1 };
+    const successful = {
+      methodKey: "VoiceLicenseFacet.getUsageCount",
+      route: "/v1/licensing/queries/get-usage-count?voiceHash=fixture&licensee=actor",
+      status: 200,
+      payload: "1",
+    };
+    const report = {
+      txHash,
+      blockHash,
+      reads: [
+        successful,
+        { ...successful, methodKey: "VoiceLicenseFacet.getLicense", status: 500 },
+        { ...successful, methodKey: "VoiceLicenseFacet.getLicenseTerms", payload: null },
+      ],
+    };
+    expect(verifiedLicensingReads(report, receipt)).toEqual([successful]);
+    expect(verifiedLicensingReads(report, null)).toEqual([]);
+    expect(verifiedLicensingReads(report, { ...receipt, blockHash: txHash })).toEqual([]);
+    expect(verifiedLicensingReads(report, { ...receipt, status: 0 })).toEqual([]);
   });
 });
