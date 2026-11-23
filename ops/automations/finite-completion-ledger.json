@@ -190,6 +190,78 @@
             "VoiceLicenseFacet.getLicenseTerms",
             "VoiceLicenseFacet.getUsageCount"
           ]
+        },
+        {
+          "sourceCommit": "323321e5d9eba093943ef4d572302ba04c04ce14",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45115031229",
+          "result": "The snapshot-cleanup and active licensing read changes passed all API quality CI stages on their verification branch. Their focused same-fork receipt and lifecycle evidence is recorded above."
+        },
+        {
+          "sourceCommit": "85defa0a59705093b0fb08648d7ad5b3998d498c",
+          "url": "https://github.com/chefbc2k/api-layer/commit/85defa0a59705093b0fb08648d7ad5b3998d498c",
+          "result": "Verified an existing non-revoked vesting schedule with a positive total. All nine previously blocked vesting routes returned HTTP 200 on a disposable fork. A reduced-fixture read sweep also reported no vesting gaps. The readback fixture improvement is separate from the outstanding beneficiary payout deficit.",
+          "checks": [
+            "TypeScript, focused ESLint and 16 local fork proof tests passed.",
+            "All 9 previously blocked mounted vesting GET routes returned HTTP 200 with payloads.",
+            "The 446-probe read-only sweep on a reduced fixture set reported zero VestingFacet gaps."
+          ],
+          "readSweepSha256": "f85d07a55b230adc83a1e29700a7c16cc9cebb6293f991d7b0b6f3daab2109df",
+          "verifiedVestingReadChecks": [
+            {
+              "methodKey": "VestingFacet.getSellableAmount",
+              "route": "GET /v1/tokenomics/queries/get-sellable-amount",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getStandardVestedAmount",
+              "route": "GET /v1/tokenomics/queries/get-standard-vested-amount",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getStandardVestingReleasable",
+              "route": "GET /v1/tokenomics/queries/get-standard-vesting-releasable",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getStandardVestingSchedule",
+              "route": "GET /v1/tokenomics/queries/get-standard-vesting-schedule",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getVestingDetails",
+              "route": "GET /v1/tokenomics/queries/get-vesting-details",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getVestingReleasableAmount",
+              "route": "GET /v1/tokenomics/queries/get-vesting-releasable-amount",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getVestingTotalAmount",
+              "route": "GET /v1/tokenomics/queries/get-vesting-total-amount",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.getVestingType",
+              "route": "GET /v1/tokenomics/queries/get-vesting-type",
+              "status": 200,
+              "hasPayload": true
+            },
+            {
+              "methodKey": "VestingFacet.veGetVestingSchedule",
+              "route": "GET /v1/tokenomics/queries/ve-get-vesting-schedule",
+              "status": 200,
+              "hasPayload": true
+            }
+          ]
         }
       ],
       "deliveredCommit": null,
