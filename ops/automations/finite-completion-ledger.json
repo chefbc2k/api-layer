@@ -143,6 +143,37 @@
           "sourceCommit": "db69326fe8b594a782450f1a54ed3b55eb0058d1",
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/45113701239",
           "result": "The limiter-isolation branch passed all API quality CI stages. The integrated control-plane readback change passed typecheck, lint and the targeted fork and PostgreSQL replay checks separately."
+        },
+        {
+          "sourceCommit": "db69326fe8b594a782450f1a54ed3b55eb0058d1",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45113701239",
+          "result": "The limiter-isolated disposable fork run completed. The HTTP suite passed all 36 cases, ten of eleven stages passed, and 430 of 446 safe reads and events passed. PostgreSQL ingestion failed on an unavailable transaction that only the HTTP producer listed. Sixteen fixture gaps and the indexer stage remain open.",
+          "aggregateReportSha256": "7f9b17a1e7525bc1e6cb2150c50b3f4e5a2ba48ddd34c0a47fa7cf7518bdf196",
+          "safeReadTotals": {
+            "reviewedReadCount": 232,
+            "reviewedEventCount": 214,
+            "attempted": 446,
+            "passed": 430,
+            "gaps": 16
+          },
+          "safeReadFixtureGaps": [
+            "ProposalFacet.queue",
+            "RightsFacet.getRightsGroup",
+            "UpgradeControllerFacet.getUpgrade",
+            "UpgradeControllerFacet.isUpgradeApproved",
+            "VestingFacet.getSellableAmount",
+            "VestingFacet.getStandardVestedAmount",
+            "VestingFacet.getStandardVestingReleasable",
+            "VestingFacet.getStandardVestingSchedule",
+            "VestingFacet.getVestingDetails",
+            "VestingFacet.getVestingReleasableAmount",
+            "VestingFacet.getVestingTotalAmount",
+            "VestingFacet.getVestingType",
+            "VestingFacet.veGetVestingSchedule",
+            "VoiceLicenseFacet.getLicense",
+            "VoiceLicenseFacet.getLicenseTerms",
+            "VoiceLicenseFacet.getUsageCount"
+          ]
         }
       ],
       "deliveredCommit": null,
