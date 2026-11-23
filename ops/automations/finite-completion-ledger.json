@@ -109,6 +109,12 @@
             "Focused ESLint for the four changed proof files: passed",
             "Focused HTTP licensing lifecycle with the route fix on a disposable Base Sepolia fork pinned at block 62422222: 1 passed, 35 unrelated cases skipped"
           ]
+        },
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/scripts/run-local-fork-assurance.ts",
+          "artifact": "output/local-fork-aggregate-evidence-2026-11-22.json",
+          "result": "The original aggregate run completed with ten passed stages and one failed HTTP contract stage. Safe-read probes passed 428 of 446 and logged 18 gaps. The independent indexer stage passed. The corrected-source aggregate rerun is tracked separately."
         }
       ],
       "deliveredCommit": null,
@@ -290,6 +296,12 @@
             "pnpm exec vitest run scripts/indexer-receipt-proof-lib.test.ts scripts/verify-local-fork-lib.test.ts --maxWorkers 1: passed",
             "API_LAYER_FUNDING_RUN_FORK_PROOF=true pnpm run test:indexer:postgres: passed"
           ]
+        },
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/scripts/run-local-fork-indexer-proof.ts",
+          "artifact": "output/local-fork-aggregate-evidence-2026-11-22.json",
+          "result": "Fresh PostgreSQL ingestion and unchanged replay passed for 47 receipts across 37 methods, including eight keys absent from the checked-in 107-method artifact. Joined the eight receipts to their exact HTTP routes. Acceptance counts stay unchanged pending complete post-state evidence and review."
         }
       ],
       "deliveredCommit": null,

@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-22",
+  "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+  "sourceUrl": "https://github.com/chefbc2k/api-layer/commit/3114992c21bf553e86505c90a1c76e5bdc6816c7",
+  "network": {
+    "mode": "disposable loopback fork",
+    "chainId": 84532,
+    "upstream": "https://sepolia.base.org"
+  },
+  "command": "pnpm run verify:local-fork --output .runtime/release-runner/report.json --continue-on-gap",
+  "aggregateStatus": "failed",
+  "sourceArtifactSha256": {
+    "aggregate": "f2802fa62555b9967c9ba22a666b33248447030b525f3a8203b4499f3abc1ec1",
+    "indexer": "280dcd962583ad983821826e5e4302ebe3bb85f274f96d0f048b286df3c2d82a",
+    "controlPlane": "f8b42a598b9fb1d21b26c746127fec42f9a666b40ed3ec92ddc5b124314b568d"
+  },
+  "stages": [
+    {
+      "id": "generate-inventory",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "provision-fixtures",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "http-contract-proof",
+      "status": "failed",
+      "attemptCount": 2,
+      "checkpointRestores": 2
+    },
+    {
+      "id": "control-plane-admin-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "layer1-core-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "layer1-completion-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "layer1-remaining-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "marketplace-purchase-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "governance-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "event-indexer-proof",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    },
+    {
+      "id": "probe-safe-reads",
+      "status": "passed",
+      "attemptCount": 1,
+      "checkpointRestores": 0
+    }
+  ],
+  "gaps": [
+    {
+      "stageId": "http-contract-proof",
+      "classification": "runner failure",
+      "methodKey": null,
+      "route": null
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "proof gap",
+      "methodKey": "ProposalFacet.getActiveProposals",
+      "route": "POST /v1/governance/queries/get-active-proposals"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "proof gap",
+      "methodKey": "ProposalFacet.getProposalTypeConfig",
+      "route": "GET /v1/governance/queries/get-proposal-type-config"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "ProposalFacet.queue",
+      "route": "GET /v1/governance/queries/queue"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "RightsFacet.getRightsGroup",
+      "route": "GET /v1/licensing/queries/get-rights-group"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "UpgradeControllerFacet.getUpgrade",
+      "route": "GET /v1/diamond-admin/queries/get-upgrade"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "UpgradeControllerFacet.isUpgradeApproved",
+      "route": "GET /v1/diamond-admin/queries/is-upgrade-approved"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getSellableAmount",
+      "route": "GET /v1/tokenomics/queries/get-sellable-amount"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getStandardVestedAmount",
+      "route": "GET /v1/tokenomics/queries/get-standard-vested-amount"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getStandardVestingReleasable",
+      "route": "GET /v1/tokenomics/queries/get-standard-vesting-releasable"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getStandardVestingSchedule",
+      "route": "GET /v1/tokenomics/queries/get-standard-vesting-schedule"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getVestingDetails",
+      "route": "GET /v1/tokenomics/queries/get-vesting-details"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getVestingReleasableAmount",
+      "route": "GET /v1/tokenomics/queries/get-vesting-releasable-amount"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getVestingTotalAmount",
+      "route": "GET /v1/tokenomics/queries/get-vesting-total-amount"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.getVestingType",
+      "route": "GET /v1/tokenomics/queries/get-vesting-type"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VestingFacet.veGetVestingSchedule",
+      "route": "GET /v1/tokenomics/queries/ve-get-vesting-schedule"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VoiceLicenseFacet.getLicense",
+      "route": "GET /v1/licensing/queries/get-license"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VoiceLicenseFacet.getLicenseTerms",
+      "route": "GET /v1/licensing/queries/get-license-terms"
+    },
+    {
+      "stageId": "probe-safe-reads",
+      "classification": "needs fixture",
+      "methodKey": "VoiceLicenseFacet.getUsageCount",
+      "route": "GET /v1/licensing/queries/get-usage-count"
+    }
+  ],
+  "safeReadTotals": {
+    "reviewedReadCount": 232,
+    "reviewedEventCount": 214,
+    "attempted": 446,
+    "passed": 428,
+    "gaps": 18
+  },
+  "freshIndexer": {
+    "totals": {
+      "artifactTransactionHashes": 47,
+      "includedArtifacts": 6,
+      "skippedArtifacts": 0,
+      "indexedReceipts": 47,
+      "provenWriteMethods": 37,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 223,
+      "rawEvents": 75,
+      "projectionRows": 58
+    },
+    "replay": "idempotent and unchanged for all receipts and aggregate counts",
+    "additionalMethodEvidence": [
+      {
+        "methodKey": "DiamondCutFacet.setTrustedInitCodehash",
+        "txHash": "0xb44a2e585782dae1560b646bdef413523854be564f1674948fd58f430d3139bd",
+        "blockNumber": 62420673,
+        "receiptStatus": 1,
+        "expectedEventMode": "all",
+        "indexedEventKeys": [
+          "DiamondCutFacet.TrustedInitCodehashSet"
+        ],
+        "projectedTables": [],
+        "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "DiamondCutFacet.setTrustedInitContract",
+        "txHash": "0x4fb77d7917edb4900925c38d9d052f7ec1285dd24786711311300932e29fa636",
+        "blockNumber": 62420671,
+        "receiptStatus": 1,
+        "expectedEventMode": "all",
+        "indexedEventKeys": [
+          "DiamondCutFacet.TrustedInitContractSet"
+        ],
+        "projectedTables": [],
+        "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "DiamondCutFacet.setTrustedInitSelector",
+        "txHash": "0xe074d959c0fd2b805c8a426a6900af444a378fb7f5dc30449a78d968c7caea1e",
+        "blockNumber": 62420672,
+        "receiptStatus": 1,
+        "expectedEventMode": "all",
+        "indexedEventKeys": [
+          "DiamondCutFacet.TrustedInitSelectorSet"
+        ],
+        "projectedTables": [],
+        "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "EmergencyFacet.setEmergencyTimeout",
+        "txHash": "0x11abf66395363f98d17538211b6d9e3c1ce5a462fce729ded615fc1866ba9741",
+        "blockNumber": 62420675,
+        "receiptStatus": 1,
+        "expectedEventMode": "none",
+        "indexedEventKeys": [],
+        "projectedTables": [],
+        "route": "POST /v1/emergency/admin/set-emergency-timeout",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "EmergencyFacet.setResumeDelay",
+        "txHash": "0x16534c2855912571b4c0d7dcd587197292df9fb059071cd6b12539e3eb1e528d",
+        "blockNumber": 62420674,
+        "receiptStatus": 1,
+        "expectedEventMode": "none",
+        "indexedEventKeys": [],
+        "projectedTables": [],
+        "route": "POST /v1/emergency/admin/set-resume-delay",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "EmergencyWithdrawalFacet.setRecipientWhitelist",
+        "txHash": "0xfa7e6fd7e044f47e26aa194ce4b2e94900363fad00111377c2eaabea85b12272",
+        "blockNumber": 62420676,
+        "receiptStatus": 1,
+        "expectedEventMode": "all",
+        "indexedEventKeys": [
+          "EmergencyWithdrawalFacet.RecipientWhitelisted"
+        ],
+        "projectedTables": [
+          "emergency_withdrawals"
+        ],
+        "route": "POST /v1/emergency/admin/set-recipient-whitelist",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+        "txHash": "0x2a96c71bbf1f9f3ed303fa086bf65af443418e7123ba1f2eb63d3f9f9f43b65c",
+        "blockNumber": 62420677,
+        "receiptStatus": 1,
+        "expectedEventMode": "all",
+        "indexedEventKeys": [
+          "EmergencyWithdrawalFacet.WithdrawalConfigUpdated"
+        ],
+        "projectedTables": [
+          "emergency_withdrawals"
+        ],
+        "route": "POST /v1/emergency/admin/update-withdrawal-config",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      },
+      {
+        "methodKey": "UpgradeControllerFacet.setUpgradeControlEnforced",
+        "txHash": "0xdd1095b5ee79e7dd4f1b55de0354e2a0b765f1d576f9c004f04527685d1bdd6f",
+        "blockNumber": 62420678,
+        "receiptStatus": 1,
+        "expectedEventMode": "all",
+        "indexedEventKeys": [
+          "UpgradeControllerFacet.UpgradeControlEnforcementSet"
+        ],
+        "projectedTables": [
+          "upgrade_requests"
+        ],
+        "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
+        "apiStatus": 202,
+        "postgresBlockJournalRows": 1,
+        "replayUnchanged": true
+      }
+    ],
+    "checkedInMethodCount": 107
+  },
+  "limits": [
+    "The aggregate run failed its HTTP contract stage. The licensing path fix landed afterward and passed the focused licensing fork test.",
+    "The older layer1-remaining proof did not require a successful license-created query, so its licensing subcheck is unverified.",
+    "The eight additional receipts have exact mounted route joins, successful chain receipts, PostgreSQL journals and unchanged replay. Complete independent pre-state and post-state evidence for all eight methods is pending."
+  ]
+}
