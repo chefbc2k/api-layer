@@ -314,14 +314,27 @@
       ],
       "acceptance": "Verify frozen API-only release criteria and original coverage requirement, with actual backend privacy/release acceptance and evidence. Do not wait for excluded frontend/company work; do not manufacture production proof.",
       "baseline": null,
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807",
+          "artifact": "output/coinbase-usdc/2026-11-16-am-coverage.json",
+          "result": "Exact-source API quality CI passed, including regression, coverage, and disposable PostgreSQL/native USDC fork. The committed local coverage summary for this source remains below the release's 100% coverage criterion. Production runtime and release acceptance remain open.",
+          "coveragePercent": {
+            "statements": 92.79,
+            "branches": 90.99,
+            "functions": 96.15,
+            "lines": 93.62
+          }
+        }
+      ],
       "deliveredCommit": null,
       "blocker": null
     },
     {
       "id": "DELIVERY-01",
       "ownerAutomationId": "api-assurance-daily-branch-consolidation",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "acceptance": "Every frozen branch/worktree candidate disposition recorded and all approved passengers verified/delivered, with unrelated dirty user work preserved.",
       "baseline": {
@@ -369,7 +382,7 @@
           {
             "name": "codex/api-assurance-gap-completion-20261008",
             "commit": "aa6df709db2411fd180d9dfdf4753d1198dbc0cc",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/api-assurance-gap-completion-20261014",
@@ -654,7 +667,7 @@
           {
             "name": "codex/autosave-20261025-coinbase-usdc",
             "commit": "7818b148cf6725579b0aa4ef865b535a2e2aa9e1",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/autosave-20261026-api-assurance-gap-completion",
@@ -804,7 +817,7 @@
           {
             "name": "codex/coinbase-usdc-20261023-recovery",
             "commit": "b0c9ad9b93717deb5a05a428a9caafa1947f778a",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/contracts-api-20261110",
@@ -1134,7 +1147,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261109",
             "commit": "1d0fc512a53c016f49962e87d8b0c58687569d5a",
             "branch": "refs/heads/codex/api-assurance-20261109",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261110",
@@ -1146,7 +1159,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261111",
             "commit": "e07408f28af4fa60ee42de8dbd553ea2f43df0ef",
             "branch": "refs/heads/codex/api-assurance-gap-completion-20261111",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261113",
@@ -1158,7 +1171,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261114",
             "commit": "7b2afeaa40cdb619df7e221b4e86c737c2b141a4",
             "branch": "refs/heads/codex/api-assurance-20261114",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-abi-gap-report-20261025",
@@ -1170,7 +1183,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-abi-gap-report-20261027",
             "commit": "0b0ae9cebb057aa5246b542d63ce4d5ae1425020",
             "branch": "refs/heads/codex/autosave-20261028-abi-gap-report",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-actor-negative-paths-20261111",
@@ -1188,7 +1201,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-gap-20261022/api-layer",
             "commit": "43c0bfbb420e9b5355bbd13daae7541cd7873834",
             "branch": "refs/heads/codex/autosave-20261023-api-assurance-gap",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-gap-20261023/api-layer",
@@ -1206,19 +1219,19 @@
             "path": "/Users/chef/.codex/worktrees/api-consolidation-20261108",
             "commit": "8fc8f66abfadaf1d744cbad68b1996bf5d03114e",
             "branch": "refs/heads/codex/consolidation-20261108",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-write-invariants-20261113",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/write-invariant-metadata-20261113",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/coinbase-usdc-20261019/api-layer",
             "commit": "e7dab3b4639ea971a6d7c5d42cc205f31ebc3b65",
             "branch": "refs/heads/codex/coinbase-usdc-20261115",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/contracts-api-20261110",
@@ -1314,7 +1327,7 @@
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261108",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": null,
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261109",
@@ -1374,13 +1387,13 @@
             "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261027/api-layer",
             "commit": "3abb8ba274e4c87881d63eb1c0c59fea373627df",
             "branch": "refs/heads/codex/production-indexer-write-coverage-20261027",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261029/api-layer",
             "commit": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
             "branch": "refs/heads/codex/production-indexer-write-coverage-20261029",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261104/api-layer",
@@ -1398,7 +1411,7 @@
             "path": "/Users/chef/.codex/worktrees/red-team-harness-20261026/api-layer",
             "commit": "403a3de6688e877be7a2a5148eb2eb73f3c52acd",
             "branch": "refs/heads/codex/red-team-harness-20261105",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/red-team-harness-20261113",
@@ -1410,13 +1423,13 @@
             "path": "/Users/chef/.codex/worktrees/transaction-request-privacy-20261026/api-layer",
             "commit": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
             "branch": "refs/heads/codex/transaction-request-privacy-20261028",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/Public/api-layer-abi-gap-report-20261012",
             "commit": "78735038ba782d93ecaf46142e829e57c8ddd361",
             "branch": "refs/heads/codex/abi-gap-report-20261011",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/Public/api-layer-abi-gap-report-20261013",
@@ -1434,13 +1447,13 @@
             "path": "/Users/chef/Public/api-layer-abi-gap-report-20261023",
             "commit": "3a1ddc850322854e69a71d507616d5748130a983",
             "branch": "refs/heads/codex/abi-gap-report-20261023",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/Public/api-layer-actor-negative-paths-20261012",
             "commit": "ed299668015aed41d7517c3a7f9e4b58a200fa47",
             "branch": "refs/heads/codex/actor-negative-paths-20261105",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/Public/api-layer-api-assurance-gap-completion-20261020",
@@ -1488,7 +1501,7 @@
             "path": "/Users/chef/Public/api-layer-red-team-harness-20261011",
             "commit": "c40cc2fcdd2e3fa74eb56d84795e00564dcc4f81",
             "branch": "refs/heads/codex/red-team-harness-20261025",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/Public/api-layer-write-invariants-20261012",
@@ -1499,7 +1512,149 @@
         ],
         "unrelatedDirtyWorkMustBePreserved": true
       },
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "b7c1b2c7f1b27182d63afc5a098b1dc75d44eb86",
+          "url": "https://github.com/chefbc2k/api-layer/commit/b7c1b2c7f1b27182d63afc5a098b1dc75d44eb86",
+          "result": "Partial frozen inventory reconciliation. Branch dispositions require exact Git tree identity or ancestry on remote master. Worktree dispositions also require a clean registered checkout with a delivered HEAD.",
+          "checks": [
+            "git log --format=%T %H <sourceCommit>",
+            "git rev-parse <frozenCommit>^{tree}",
+            "git merge-base --is-ancestor <commit> <sourceCommit>",
+            "git --no-optional-locks -C <worktree> status --porcelain=v1 --untracked-files=normal"
+          ],
+          "resolvedBranches": [
+            {
+              "name": "codex/api-assurance-gap-completion-20261008",
+              "frozenCommit": "aa6df709db2411fd180d9dfdf4753d1198dbc0cc",
+              "defaultCommit": "b7e6fb9589e1a03446c958840a3bdfb3b24a2531",
+              "proof": "identical-git-tree"
+            },
+            {
+              "name": "codex/autosave-20261025-coinbase-usdc",
+              "frozenCommit": "7818b148cf6725579b0aa4ef865b535a2e2aa9e1",
+              "defaultCommit": "c273c87a95bf8ef65f667040cb0a3f95d51d104d",
+              "proof": "identical-git-tree"
+            },
+            {
+              "name": "codex/coinbase-usdc-20261023-recovery",
+              "frozenCommit": "b0c9ad9b93717deb5a05a428a9caafa1947f778a",
+              "defaultCommit": "83bbf8aaba002e670475fd9d0a514bd2356dcfd3",
+              "proof": "identical-git-tree"
+            }
+          ],
+          "resolvedWorktrees": [
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-20261109",
+              "frozenCommit": "1d0fc512a53c016f49962e87d8b0c58687569d5a",
+              "observedHead": "1d0fc512a53c016f49962e87d8b0c58687569d5a",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-20261111",
+              "frozenCommit": "e07408f28af4fa60ee42de8dbd553ea2f43df0ef",
+              "observedHead": "e07408f28af4fa60ee42de8dbd553ea2f43df0ef",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-20261114",
+              "frozenCommit": "7b2afeaa40cdb619df7e221b4e86c737c2b141a4",
+              "observedHead": "7b2afeaa40cdb619df7e221b4e86c737c2b141a4",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-abi-gap-report-20261027",
+              "frozenCommit": "0b0ae9cebb057aa5246b542d63ce4d5ae1425020",
+              "observedHead": "0b0ae9cebb057aa5246b542d63ce4d5ae1425020",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-gap-20261022/api-layer",
+              "frozenCommit": "43c0bfbb420e9b5355bbd13daae7541cd7873834",
+              "observedHead": "43c0bfbb420e9b5355bbd13daae7541cd7873834",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-consolidation-20261108",
+              "frozenCommit": "8fc8f66abfadaf1d744cbad68b1996bf5d03114e",
+              "observedHead": "8fc8f66abfadaf1d744cbad68b1996bf5d03114e",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-write-invariants-20261113",
+              "frozenCommit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+              "observedHead": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/coinbase-usdc-20261019/api-layer",
+              "frozenCommit": "e7dab3b4639ea971a6d7c5d42cc205f31ebc3b65",
+              "observedHead": "b7c1b2c7f1b27182d63afc5a098b1dc75d44eb86",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/office-gap-check-20261108",
+              "frozenCommit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+              "observedHead": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261027/api-layer",
+              "frozenCommit": "3abb8ba274e4c87881d63eb1c0c59fea373627df",
+              "observedHead": "3abb8ba274e4c87881d63eb1c0c59fea373627df",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261029/api-layer",
+              "frozenCommit": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
+              "observedHead": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/red-team-harness-20261026/api-layer",
+              "frozenCommit": "403a3de6688e877be7a2a5148eb2eb73f3c52acd",
+              "observedHead": "403a3de6688e877be7a2a5148eb2eb73f3c52acd",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/transaction-request-privacy-20261026/api-layer",
+              "frozenCommit": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
+              "observedHead": "a74e0b4b38805c1a4e04bbee2642b4144369e02a",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/Public/api-layer-abi-gap-report-20261012",
+              "frozenCommit": "78735038ba782d93ecaf46142e829e57c8ddd361",
+              "observedHead": "78735038ba782d93ecaf46142e829e57c8ddd361",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/Public/api-layer-abi-gap-report-20261023",
+              "frozenCommit": "3a1ddc850322854e69a71d507616d5748130a983",
+              "observedHead": "3a1ddc850322854e69a71d507616d5748130a983",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/Public/api-layer-actor-negative-paths-20261012",
+              "frozenCommit": "ed299668015aed41d7517c3a7f9e4b58a200fa47",
+              "observedHead": "ed299668015aed41d7517c3a7f9e4b58a200fa47",
+              "proof": "git-ancestry-and-clean-checkout"
+            },
+            {
+              "path": "/Users/chef/Public/api-layer-red-team-harness-20261011",
+              "frozenCommit": "c40cc2fcdd2e3fa74eb56d84795e00564dcc4f81",
+              "observedHead": "c40cc2fcdd2e3fa74eb56d84795e00564dcc4f81",
+              "proof": "git-ancestry-and-clean-checkout"
+            }
+          ],
+          "unresolvedBranches": 131,
+          "unresolvedWorktrees": {
+            "checkoutUnavailable": 6,
+            "frozenCommitOutsideDefaultHistory": 53,
+            "localChangesPreserved": 7
+          }
+        }
+      ],
       "deliveredCommit": null,
       "blocker": null
     },
