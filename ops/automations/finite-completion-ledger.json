@@ -285,13 +285,144 @@
     {
       "id": "API-06",
       "ownerAutomationId": "api-assurance-economic-invariants",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [],
       "acceptance": "Freeze concrete economic blocker/method subcriteria, then prove actual beneficiary credit, supported treasury roles, approval observability and named economic consequences with real fork/PostgreSQL/replay evidence; funding/provider portions reference their owners.",
-      "baseline": null,
-      "evidence": [],
+      "baseline": {
+        "sourceCommit": "52aa54d3bcf8ee0eae5d6f2f0651c9ee678d9560",
+        "checklist": [
+          {
+            "id": "vesting-payout-and-revoke",
+            "methodKeys": [
+              "VestingFacet.releaseStandardVesting",
+              "VestingFacet.releaseStandardVestingFor",
+              "VestingFacet.revokeVestingSchedule"
+            ],
+            "acceptance": "Before and after the exact mounted writes, prove that the released schedule amount equals the liquid beneficiary credit with supply conserved, and that revocation accounts for vested and unvested amounts without duplicating credit.",
+            "status": "open"
+          },
+          {
+            "id": "treasury-role-and-multisig",
+            "methodKeys": [
+              "AccessControlFacet.grantRole",
+              "PaymentFacet.approveMultisigWithdrawal",
+              "PaymentFacet.executeMultisigWithdrawal"
+            ],
+            "acceptance": "Use the deployed role admin and supported grant path to provision distinct test signers. Confirm approval increments using a supported contract read or event and zero token movement during approvals. Verify threshold execution reduces treasury liability and custody and credits the recipient by exactly the same amount.",
+            "status": "open"
+          },
+          {
+            "id": "marketplace-withdrawal-and-splits",
+            "methodKeys": [
+              "MarketplaceFacet.purchaseAsset",
+              "PaymentFacet.withdrawPayments",
+              "PaymentFacet.withdrawPaymentsWithDeadline"
+            ],
+            "acceptance": "Prove a funded purchase creates the expected recipient liabilities with deterministic rounding. Withdrawals and sweeps must reduce liability and protocol custody by exactly the beneficiary credit, with failed or repeated operations leaving the accounting unchanged.",
+            "status": "open"
+          },
+          {
+            "id": "escrow-release",
+            "methodKeys": [
+              "EscrowFacet.escrowAsset",
+              "EscrowFacet.releaseAsset"
+            ],
+            "acceptance": "Record the escrow record and NFT owner before and after exact custody and release operations. Verify the expected owner receives the asset, the escrow changes once and the repeated release does not move it again.",
+            "status": "open"
+          },
+          {
+            "id": "campaign-reward",
+            "methodKeys": [
+              "CommunityRewardsFacet.claim"
+            ],
+            "acceptance": "For a funded campaign, prove exact credit to the eligible claimer and an equal custody debit, with the claimed state preventing a second payout.",
+            "status": "open"
+          },
+          {
+            "id": "token-supply",
+            "methodKeys": [
+              "TokenSupplyFacet.supplyMintTokens",
+              "TokenSupplyFacet.burn"
+            ],
+            "acceptance": "Prove exact balance and total supply deltas for mint and burn, with neither delta occurring for a failed operation.",
+            "status": "open"
+          },
+          {
+            "id": "staking-custody",
+            "methodKeys": [
+              "StakingFacet.stake",
+              "StakingFacet.fundRewardPool",
+              "StakingFacet.advanceEpoch",
+              "StakingFacet.claimRewards",
+              "StakingFacet.requestUnstake",
+              "StakingFacet.executeUnstake"
+            ],
+            "acceptance": "Prove funded custody, reward liabilities, claimable versus forfeited rewards, exact participant credit and principal return across the complete lifecycle.",
+            "status": "open"
+          },
+          {
+            "id": "emergency-withdrawal",
+            "methodKeys": [
+              "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+              "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+              "EmergencyWithdrawalFacet.executeWithdrawal"
+            ],
+            "acceptance": "Prove request and approval preserve balances, then confirm execution reduces custody and credits the approved recipient exactly once.",
+            "status": "open"
+          },
+          {
+            "id": "economic-pauses",
+            "methodKeys": [
+              "MarketplaceFacet.pause",
+              "MarketplaceFacet.unpause",
+              "PaymentFacet.setPaymentPaused",
+              "StakingFacet.setStakingPaused"
+            ],
+            "acceptance": "Verify deployed pause state through supported readback or events and show that gated value-moving workflows preserve balances and liabilities while paused.",
+            "status": "open"
+          }
+        ],
+        "sharedEvidenceRequirements": "For each criterion verify current-source execution on a disposable fork, contract post-state and token or custody deltas, successful receipts, expected durable PostgreSQL event or journal evidence and unchanged replay, followed by verified default delivery.",
+        "fundingAndProviderHandoff": "Use C19 and C20 for actual provider acceptance and reviewed funding release acceptance. Do not widen API-06 to company-finance work."
+      },
+      "evidence": [
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/blob/52aa54d3bcf8ee0eae5d6f2f0651c9ee678d9560/docs/API_TESTING_AND_RED_TEAM_ROADMAP.md#economic-invariants-automation-run--2026-10-16",
+          "result": "Froze nine economic criteria against the current 260-write inventory. Six focused local test files passed 26 assertions covering vesting, economic invariants and treasury workflows. The treasury role and approval read-only snapshot identified unresolved deployment prerequisites.",
+          "checks": [
+            "pnpm exec vitest run packages/api/src/workflows/economic-invariants.test.ts packages/api/src/workflows/release-beneficiary-vesting.test.ts packages/api/src/workflows/revoke-beneficiary-vesting.test.ts packages/api/src/workflows/treasury-multisig-withdrawal.test.ts packages/api/src/workflows/treasury-multisig-withdrawal.integration.test.ts packages/api/src/workflows/treasury-revenue-operations.integration.test.ts --maxWorkers 1: 26 passed",
+            "Pinned write-invariant registry: all checklist method keys validated"
+          ],
+          "treasuryReadOnlySnapshot": {
+            "chainId": 84532,
+            "rpc": "https://sepolia.base.org",
+            "blockNumber": 62422222,
+            "blockHash": "0x02fdd0c366e7ad263bb4437d8ca1784e842acb1179208bf766dbeafe68531fa7",
+            "roleAdmin": "0xe1dcbdb91df27212a29bc27177c840cf2f819ecf2187432e1fac86c2dd5dfca9",
+            "checks": [
+              "getRoleAdmin(TREASURY_SIGNER_ROLE)",
+              "hasRole(TREASURY_SIGNER_ROLE, actor)",
+              "hasRole(roleAdmin, actor)"
+            ],
+            "actorsChecked": [
+              "founder",
+              "seller",
+              "buyer"
+            ],
+            "configuredActorsWithSignerRole": 0,
+            "configuredActorsWithSignerAdminRole": 0,
+            "pinnedPaymentAbiApprovalSurface": [
+              "approveMultisigWithdrawal (write)"
+            ]
+          }
+        }
+      ],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": {
+        "owner": "Contract release owner and deployed treasury role admin",
+        "action": "Identify the authorized holder of the recorded treasury signer admin role for the verified deployment, provision two distinct test signers via supported role administration, and supply an approval-count read or approval event in the mounted Payment ABI. Supply a deployed contract version and payout proof for the vesting beneficiary-credit gap documented in the roadmap."
+      }
     },
     {
       "id": "API-07",
