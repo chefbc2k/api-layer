@@ -525,6 +525,17 @@
             "API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run build: passed",
             "Replayed coverage shard non-workflow-03 using the repository's coverageVitestArgs, buildCoverageEnv and discovered file list: 423 passed, 59 environment-gated skips with the smoke test passing"
           ]
+        },
+        {
+          "sourceCommit": "a9d67aca89741da25d097dbf0dace7f6054020a0",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45112829572",
+          "result": "Default-branch API quality CI completed successfully after separating Vercel smoke setup and HTTP deadlines. The uploaded coverage summary remains below release acceptance.",
+          "coveragePercent": {
+            "statements": 92.79,
+            "branches": 90.99,
+            "functions": 96.15,
+            "lines": 93.62
+          }
         }
       ],
       "deliveredCommit": null,
