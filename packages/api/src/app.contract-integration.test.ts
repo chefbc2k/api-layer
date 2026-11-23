@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
-import { afterAll, beforeAll, describe, expect, it, type TestContext } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, type TestContext } from "vitest";
 import { Contract, JsonRpcProvider, Wallet, ethers, id } from "ethers";
 
 import { createApiServer, type ApiServer } from "./app.js";
@@ -29,6 +29,8 @@ import {
 import { facetRegistry } from "../../client/src/generated/index.js";
 import { resolveRuntimeConfig, verifyNetwork } from "../../../scripts/alchemy-debug-lib.js";
 import { requireVoiceLicenseCreatedEventRoute } from "../../../scripts/verify-layer1-helpers.js";
+import type { ApiExecutionContext } from "./shared/execution-context.js";
+import { RateLimiter } from "./shared/rate-limit.js";
 import {
   assertConservedDeltas,
   assertExactAmountDelta,
@@ -549,6 +551,7 @@ async function waitForStableApiResponse(
 
 describeLive("HTTP API contract integration", () => {
   let server: ReturnType<ApiServer["listen"]>;
+  let apiExecutionContext: ApiExecutionContext;
   let port = 0;
   let provider: JsonRpcProvider;
   let founderWallet: Wallet;
@@ -962,10 +965,20 @@ describeLive("HTTP API contract integration", () => {
     votingPowerFacet = new Contract(diamondAddress, facetRegistry.VotingPowerFacet.abi, provider) as unknown as VotingPowerFacet;
     communityRewardsFacet = new Contract(diamondAddress, facetRegistry.CommunityRewardsFacet.abi, provider) as unknown as CommunityRewardsFacet;
 
-    server = createApiServer({ port: 0 }).listen();
+    const api = createApiServer({ port: 0 });
+    apiExecutionContext = api.app.get("apiExecutionContext") as ApiExecutionContext;
+    server = api.listen();
     const address = server.address();
     port = typeof address === "object" && address ? address.port : 8787;
   }, 600_000);
+
+  beforeEach(() => {
+    const usesRedis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+    if (isLoopbackRpcUrl(activeRpcUrl) && !usesRedis) {
+      // Independent fork scenarios share chain fixtures, but each has its own request budget.
+      apiExecutionContext.rateLimiter = new RateLimiter();
+    }
+  });
 
   afterAll(async () => {
     const receiptArtifactPath = process.env.API_LAYER_CONTRACT_RECEIPT_ARTIFACT;

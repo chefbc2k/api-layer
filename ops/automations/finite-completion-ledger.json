@@ -115,6 +115,16 @@
           "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/scripts/run-local-fork-assurance.ts",
           "artifact": "output/local-fork-aggregate-evidence-2026-11-22.json",
           "result": "The original aggregate run completed with ten passed stages and one failed HTTP contract stage. Safe-read probes passed 428 of 446 and logged 18 gaps. The independent indexer stage passed. The corrected-source aggregate rerun is tracked separately."
+        },
+        {
+          "sourceCommit": "49c5acbc2f51c5ee21fff0070c9b79951718ca67",
+          "url": "https://github.com/chefbc2k/api-layer/blob/49c5acbc2f51c5ee21fff0070c9b79951718ca67/packages/api/src/app.contract-integration.test.ts",
+          "result": "The licensing-corrected aggregate reached the HTTP suite. Its first attempt passed 34 cases and hit HTTP 429 on the ordinary funding and voice-asset setup calls in two independent cases. The suite shares one API instance whose in-memory write counters previously carried over between cases. The follow-up starts each local fork scenario with an independent in-memory limiter at the same production thresholds. A full aggregate on the updated test harness is required.",
+          "checks": [
+            "pnpm exec tsc -b: passed",
+            "pnpm exec eslint packages/api/src/app.contract-integration.test.ts: passed",
+            "pnpm exec vitest run packages/api/src/shared/rate-limit.test.ts packages/api/src/app.contract-integration.test.ts --maxWorkers 1: 7 rate-limiter tests passed and 36 contract cases skipped without a fork"
+          ]
         }
       ],
       "deliveredCommit": null,
