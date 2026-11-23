@@ -1,6 +1,11 @@
+import { id } from "ethers";
 import { describe, expect, it } from "vitest";
 
-import { isDatasetTotalValidAfterBurn, isSetupBlockedResponse } from "./verify-layer1-helpers.js";
+import {
+  isDatasetTotalValidAfterBurn,
+  isSetupBlockedResponse,
+  requireVoiceLicenseCreatedEventRoute,
+} from "./verify-layer1-helpers.js";
 
 describe("verify-layer1-helpers", () => {
   it("detects canonical setup-blocked payloads", () => {
@@ -43,5 +48,23 @@ describe("verify-layer1-helpers", () => {
     expect(isDatasetTotalValidAfterBurn(27n, 27n)).toBe(true);
     expect(isDatasetTotalValidAfterBurn(27n, 28n)).toBe(true);
     expect(isDatasetTotalValidAfterBurn(27n, 26n)).toBe(false);
+  });
+
+  it.each([
+    ["LicenseCreated(bytes32,address,bytes32,uint256,uint256)", "bytes32-address-bytes32-uint256-uint256"],
+    ["LicenseCreated(bytes32,bytes32,address,uint256,uint256)", "bytes32-bytes32-address-uint256-uint256"],
+  ])("resolves the mounted route for %s from its receipt topic", (signature, suffix) => {
+    const diamond = "0x00000000000000000000000000000000000000ab";
+    const logs = [{ address: "0x00000000000000000000000000000000000000AB", topics: [id(signature)] }];
+    expect(requireVoiceLicenseCreatedEventRoute(diamond, logs))
+      .toBe(`/v1/licensing/events/license-created/query/voice-license/${suffix}`);
+  });
+
+  it("requires the event to have been emitted by the configured diamond", () => {
+    const diamond = "0x00000000000000000000000000000000000000ab";
+    const unrelated = "0x00000000000000000000000000000000000000cd";
+    const logs = [{ address: unrelated, topics: [id("LicenseCreated(bytes32,address,bytes32,uint256,uint256)")] }];
+    expect(() => requireVoiceLicenseCreatedEventRoute(diamond, logs))
+      .toThrow("did not contain a registered VoiceLicenseFacet.LicenseCreated event");
   });
 });

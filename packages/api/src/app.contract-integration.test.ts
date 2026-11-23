@@ -28,6 +28,7 @@ import {
 } from "../../../generated/typechain/index.js";
 import { facetRegistry } from "../../client/src/generated/index.js";
 import { resolveRuntimeConfig, verifyNetwork } from "../../../scripts/alchemy-debug-lib.js";
+import { requireVoiceLicenseCreatedEventRoute } from "../../../scripts/verify-layer1-helpers.js";
 import {
   assertConservedDeltas,
   assertExactAmountDelta,
@@ -5091,11 +5092,15 @@ describeLive("HTTP API contract integration", () => {
     expect(activeTemplateHash).toBe("0x0000000000000000000000000000000000000000000000000000000000000000");
 
     const licenseCreatedReceipt = await provider.getTransactionReceipt(createLicenseTxHash);
-    const licenseCreatedEvents = await apiCall(port, "POST", "/v1/licensing/events/license-created/query/voice-license", {
+    if (!licenseCreatedReceipt) {
+      throw new Error("Missing receipt for license creation");
+    }
+    const licenseCreatedEventRoute = requireVoiceLicenseCreatedEventRoute(diamondAddress, licenseCreatedReceipt.logs);
+    const licenseCreatedEvents = await apiCall(port, "POST", licenseCreatedEventRoute, {
       apiKey: "read-key",
       body: {
-        fromBlock: String(licenseCreatedReceipt!.blockNumber),
-        toBlock: String(licenseCreatedReceipt!.blockNumber),
+        fromBlock: String(licenseCreatedReceipt.blockNumber),
+        toBlock: String(licenseCreatedReceipt.blockNumber),
       },
     });
     expect(licenseCreatedEvents.status).toBe(200);

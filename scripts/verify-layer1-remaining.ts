@@ -8,7 +8,7 @@ import { facetRegistry } from "../packages/client/src/generated/index.js";
 
 import { resolveRuntimeConfig, startLocalForkIfNeeded } from "./alchemy-debug-lib.js";
 import { ensureActiveLicenseTemplate } from "./license-template-helper.ts";
-import { isDatasetTotalValidAfterBurn } from "./verify-layer1-helpers.js";
+import { isDatasetTotalValidAfterBurn, requireVoiceLicenseCreatedEventRoute } from "./verify-layer1-helpers.js";
 import { buildVerifyReportOutput, getOutputPath, type DomainClassification, writeVerifyReportOutput } from "./verify-report.js";
 
 type ApiCallOptions = {
@@ -1235,13 +1235,21 @@ async function verifyLicensing(input: {
   );
   const directLicense = await licenseFacet.getLicense(voiceHash, licensee.address);
   const activeTemplateHash = String((licenseReadResponse.payload as JsonRecord).templateHash);
-  const licenseCreatedEvents = await apiCall(port, "POST", "/v1/licensing/events/license-created/query/voice-license", {
+  const licenseCreatedEventRoute = requireVoiceLicenseCreatedEventRoute(await licenseFacet.getAddress(), createLicenseReceipt.logs);
+  const licenseCreatedEvents = await apiCall(port, "POST", licenseCreatedEventRoute, {
     apiKey: "read-key",
     body: {
       fromBlock: String(createLicenseReceipt.blockNumber),
       toBlock: String(createLicenseReceipt.blockNumber),
     },
   });
+  if (
+    licenseCreatedEvents.status !== 200 ||
+    !Array.isArray(licenseCreatedEvents.payload) ||
+    !licenseCreatedEvents.payload.some((log) => log?.transactionHash === createLicenseTxHash)
+  ) {
+    throw new Error(`LicenseCreated query ${licenseCreatedEventRoute} did not return the expected transaction (HTTP ${licenseCreatedEvents.status})`);
+  }
   evidence.push({
     route: "POST /v1/licensing/licenses/create-license",
     actor: "licensing-owner-key",
@@ -1405,7 +1413,7 @@ async function verifyLicensing(input: {
   });
 
   return {
-    routes: [...LICENSING_ROUTES],
+    routes: [...LICENSING_ROUTES, `POST ${licenseCreatedEventRoute}`],
     actors: ["licensing-owner-key", "licensee-key", "read-key"],
     executionResult: "template lifecycle, direct license lifecycle, actor-scoped license reads, and usage/revoke flows completed through mounted licensing routes",
     evidence,

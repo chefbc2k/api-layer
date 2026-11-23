@@ -1,3 +1,7 @@
+import { id } from "ethers";
+
+import { licensingEventDefinitions } from "../packages/api/src/modules/licensing/primitives/generated/mapping.js";
+
 export type VerifyApiResponse = {
   status?: number;
   payload?: unknown;
@@ -33,4 +37,21 @@ export function isSetupBlockedResponse(value: unknown): boolean {
 
 export function isDatasetTotalValidAfterBurn(totalBefore: bigint, totalAfter: bigint): boolean {
   return totalAfter >= totalBefore;
+}
+
+export function requireVoiceLicenseCreatedEventRoute(
+  diamond: string,
+  logs: readonly { address: string; topics: readonly string[] }[],
+): string {
+  const emitter = diamond.toLowerCase();
+  const topics = new Set(logs.filter((log) => log.address.toLowerCase() === emitter).map((log) => log.topics[0]));
+  const event = licensingEventDefinitions.find((definition) =>
+    definition.facetName === "VoiceLicenseFacet"
+    && definition.eventName === "LicenseCreated"
+    && !definition.anonymous
+    && topics.has(id(definition.signature)));
+  if (!event) {
+    throw new Error("License creation receipt did not contain a registered VoiceLicenseFacet.LicenseCreated event");
+  }
+  return event.path;
 }

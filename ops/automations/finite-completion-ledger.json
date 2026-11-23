@@ -91,13 +91,26 @@
     {
       "id": "API-04",
       "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "API-01"
       ],
       "acceptance": "Configured deterministic existing runner, green aggregate receipt/event/post-state/gap artifacts and runner gates with default delivery.",
       "baseline": null,
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/scripts/run-local-fork-assurance.ts",
+          "result": "The disposable Base Sepolia fork passed generated inventory and fixture setup with zero setup blockers. The first HTTP contract pass recorded 35 passes and one failure: the license creation receipt was confirmed but the verifier queried an obsolete unqualified LicenseCreated path and received HTTP 404. The follow-up resolves the mounted route from the diamond log topic and requires the exact transaction in the response. The aggregate proof remains open.",
+          "checks": [
+            "pnpm run verify:local-fork --output .runtime/release-runner/report.json --continue-on-gap: initial HTTP contract attempt 35 passed, 1 failed",
+            "pnpm exec vitest run scripts/verify-layer1-helpers.test.ts --maxWorkers 1: 7 passed with route fix",
+            "pnpm exec tsc -b: passed with route fix",
+            "Focused ESLint for the four changed proof files: passed",
+            "Focused HTTP licensing lifecycle with the route fix on a disposable Base Sepolia fork pinned at block 62422222: 1 passed, 35 unrelated cases skipped"
+          ]
+        }
+      ],
       "deliveredCommit": null,
       "blocker": null,
       "handoffNote": "Standalone tooling buildout job paused as consolidated. Required actual guarded-fork/full-runner release evidence remains OPEN here; deterministic CI does not claim that evidence."
@@ -416,6 +429,14 @@
               "approveMultisigWithdrawal (write)"
             ]
           }
+        },
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/packages/api/src/app.contract-integration.test.ts#L4118",
+          "result": "The current-source HTTP contract run on a disposable Base Sepolia fork passed the vesting diagnostic that detects the beneficiary credit deficit and verifies revoke accounting. This confirms the reported payout blocker. The diagnostic does not satisfy the payout acceptance criterion.",
+          "checks": [
+            "HTTP API contract integration: detects the vesting release custody deficit and proves revoke accounting on an isolated fork"
+          ]
         }
       ],
       "deliveredCommit": null,
@@ -612,7 +633,7 @@
           {
             "name": "codex/autosave-20260915-local-fork-review",
             "commit": "abdcf6a1376083ab1be1b7041763f12e6dc9cb50",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/autosave-20260928-base-sepolia-promotion",
@@ -652,7 +673,7 @@
           {
             "name": "codex/autosave-20261011-write-invariants-20261008",
             "commit": "b14f4832e8e52f6c53550a4a66eed43a3ffcc191",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/autosave-20261013-actor-negative-paths",
@@ -667,7 +688,7 @@
           {
             "name": "codex/autosave-20261013-local-fork-automation",
             "commit": "40f765e6719b77b928faee2a318e3852a0b71140",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/autosave-20261013-local-fork-automation-root",
@@ -717,7 +738,7 @@
           {
             "name": "codex/autosave-20261018-local-fork-automation",
             "commit": "2022b6379bd1243a0c370e8324656345d0a04db5",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/autosave-20261019-api-assurance-gap-completion-2",
@@ -832,7 +853,7 @@
           {
             "name": "codex/autosave-20261026-concurrent-checkout-test",
             "commit": "b43bdcb26b97b85c070a49fce9ac6ddb3af9c2c4",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/autosave-20261026-local-fork-automation",
@@ -1808,6 +1829,60 @@
             "frozenCommitOutsideDefaultHistory": 53,
             "localChangesPreserved": 7
           }
+        },
+        {
+          "sourceCommit": "6adaad5ca4051e4ce444cd270312fda5ff6d4931",
+          "url": "https://github.com/chefbc2k/api-layer/commit/6adaad5ca4051e4ce444cd270312fda5ff6d4931",
+          "result": "Reconciled five additional frozen delivery branch tips using exact normalized comparison for timestamp-only differences, Git symlink modes, and equivalent verified checkout regression coverage.",
+          "checks": [
+            "Compared merge-base-to-tip paths using git diff --no-renames.",
+            "Compared reviewed API surface JSON after removing only generatedAt.",
+            "Checked Git modes and confirmed the frozen install passed in default-branch CI.",
+            "pnpm exec vitest run packages/api/src/funding/checkout.test.ts --maxWorkers 1: 41 passed on 3114992, with checkout test and runtime unchanged since that source."
+          ],
+          "resolvedBranches": [
+            {
+              "name": "codex/autosave-20260915-local-fork-review",
+              "frozenCommit": "abdcf6a1376083ab1be1b7041763f12e6dc9cb50",
+              "mergeBase": "c654db323c4cad0fa17902482f2a5b692701567b",
+              "replacement": "https://github.com/chefbc2k/api-layer/blob/c654db323c4cad0fa17902482f2a5b692701567b/reviewed/reviewed-api-surface.json",
+              "proof": "The only change is the generatedAt timestamp. The semantic content is already in the shared base.",
+              "normalizedSha256": "a9131506bf17840145ac7c00ac11521a060fef9de790dd5e9aa45342ac610612"
+            },
+            {
+              "name": "codex/autosave-20261013-local-fork-automation",
+              "frozenCommit": "40f765e6719b77b928faee2a318e3852a0b71140",
+              "mergeBase": "9240b8be8bf8b6e28485c19d30393db32370f227",
+              "replacement": "https://github.com/chefbc2k/api-layer/blob/9240b8be8bf8b6e28485c19d30393db32370f227/reviewed/reviewed-api-surface.json",
+              "proof": "The only change is the generatedAt timestamp. The semantic content is already in the shared base.",
+              "normalizedSha256": "a9131506bf17840145ac7c00ac11521a060fef9de790dd5e9aa45342ac610612"
+            },
+            {
+              "name": "codex/autosave-20261018-local-fork-automation",
+              "frozenCommit": "2022b6379bd1243a0c370e8324656345d0a04db5",
+              "mergeBase": "f82e6d0073ecbdb14f8203bfdfed64fac7582e53",
+              "replacement": "https://github.com/chefbc2k/api-layer/blob/f82e6d0073ecbdb14f8203bfdfed64fac7582e53/reviewed/reviewed-api-surface.json",
+              "proof": "The only change is the generatedAt timestamp. The semantic content is already in the shared base.",
+              "normalizedSha256": "a9131506bf17840145ac7c00ac11521a060fef9de790dd5e9aa45342ac610612"
+            },
+            {
+              "name": "codex/autosave-20261011-write-invariants-20261008",
+              "frozenCommit": "b14f4832e8e52f6c53550a4a66eed43a3ffcc191",
+              "mergeBase": "6607b8a1abdd3287c115a588b5911e52bf4ad2d8",
+              "replacement": "https://github.com/chefbc2k/api-layer/actions/runs/45108051977",
+              "proof": "The only changes add three node_modules symlinks. The pinned frozen install on default passed and recreates dependencies without committing the links."
+            },
+            {
+              "name": "codex/autosave-20261026-concurrent-checkout-test",
+              "frozenCommit": "b43bdcb26b97b85c070a49fce9ac6ddb3af9c2c4",
+              "mergeBase": "9fd8f2b9ada76c5288ccec082c95c19cab8bddcc",
+              "replacement": "https://github.com/chefbc2k/api-layer/blob/b54db7f7effec550b00988ab42fe7c43824f34a8/packages/api/src/funding/checkout.test.ts",
+              "proof": "The default test covers the same three provider refresh inconsistencies, returning HTTP 502 for order ID, destination wallet, and customer reference mismatches. The other changed file is timestamp-only.",
+              "normalizedSha256": "a9131506bf17840145ac7c00ac11521a060fef9de790dd5e9aa45342ac610612"
+            }
+          ],
+          "remainingBranches": 126,
+          "remainingWorktrees": 66
         }
       ],
       "deliveredCommit": null,
