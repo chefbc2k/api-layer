@@ -105,7 +105,7 @@
     {
       "id": "API-05",
       "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
-      "status": "open",
+      "status": "in_progress",
       "dependsOn": [
         "API-01"
       ],
@@ -265,7 +265,20 @@
         "defaultAcceptedMethods": 107,
         "inventoryReconciliationRequired": true
       },
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/commit/3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "artifact": "output/indexer-receipt-reconciliation-2026-11-22.json",
+          "result": "Reconciled and preserved six additional historical method records with ten receipts. Current generated routes, method signatures, PostgreSQL block journals and replay metadata match. Exact-method release acceptance is unchanged pending fresh execution and post-state proof.",
+          "checks": [
+            "pnpm install --frozen-lockfile: passed",
+            "API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run codegen: passed",
+            "pnpm exec vitest run scripts/indexer-receipt-proof-lib.test.ts scripts/verify-local-fork-lib.test.ts --maxWorkers 1: passed",
+            "API_LAYER_FUNDING_RUN_FORK_PROOF=true pnpm run test:indexer:postgres: passed"
+          ]
+        }
+      ],
       "deliveredCommit": null,
       "blocker": null
     },
@@ -320,6 +333,17 @@
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807",
           "artifact": "output/coinbase-usdc/2026-11-16-am-coverage.json",
           "result": "Exact-source API quality CI passed, including regression, coverage, and disposable PostgreSQL/native USDC fork. The committed local coverage summary for this source remains below the release's 100% coverage criterion. Production runtime and release acceptance remain open.",
+          "coveragePercent": {
+            "statements": 92.79,
+            "branches": 90.99,
+            "functions": 96.15,
+            "lines": 93.62
+          }
+        },
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45108051977",
+          "result": "Default-branch API quality CI passed. Coverage percentages were verified from the uploaded CI artifact and remain below the release criterion.",
           "coveragePercent": {
             "statements": 92.79,
             "branches": 90.99,
@@ -1667,7 +1691,17 @@
       ],
       "acceptance": "No unresolved meaningful behavior-test gap within the frozen release source interval; source/test delivery verified.",
       "baseline": null,
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
+          "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/scripts/vercel-entrypoint.test.ts",
+          "result": "Partial review of changes since the release baseline. Verified the existing Vercel regression covers import without starting a listener, the mounted health response, and private-request authentication. Also verified declarations and native runtime emit. The final release candidate and interval-wide gap review remain open.",
+          "checks": [
+            "pnpm exec vitest run scripts/vercel-entrypoint.test.ts --maxWorkers 1: 1 passed",
+            "pnpm run typecheck:vercel: passed"
+          ]
+        }
+      ],
       "deliveredCommit": null,
       "blocker": null
     },
