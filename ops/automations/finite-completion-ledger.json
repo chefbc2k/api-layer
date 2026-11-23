@@ -174,6 +174,22 @@
             "VoiceLicenseFacet.getLicenseTerms",
             "VoiceLicenseFacet.getUsageCount"
           ]
+        },
+        {
+          "sourceCommit": "323321e5d9eba093943ef4d572302ba04c04ce14",
+          "url": "https://github.com/chefbc2k/api-layer/commit/323321e5d9eba093943ef4d572302ba04c04ce14",
+          "result": "A focused disposable-fork run passed both the snapshot and retained-write scenarios. Three reverted receipt observations were excluded, all eight retained receipts indexed in PostgreSQL, and replay stayed unchanged. The final read sweep reused three successful license reads anchored to the creation receipt on the same fork. A separate full aggregate is still required.",
+          "checks": [
+            "TypeScript and focused ESLint passed, and 23 local proof unit tests passed.",
+            "Focused contract integration: 2 passed, 34 unrelated cases skipped.",
+            "Same-fork PostgreSQL stage: 8 retained receipts, unchanged replay.",
+            "Licensing-only lifecycle and read sweep: all 3 anchored licensing reads returned HTTP 200. The sweep lacked other aggregate fixtures and was not a full aggregate result."
+          ],
+          "verifiedLicensingReadMethodKeys": [
+            "VoiceLicenseFacet.getLicense",
+            "VoiceLicenseFacet.getLicenseTerms",
+            "VoiceLicenseFacet.getUsageCount"
+          ]
         }
       ],
       "deliveredCommit": null,
