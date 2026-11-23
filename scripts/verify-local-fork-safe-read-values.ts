@@ -1,4 +1,4 @@
-import { concat, id, zeroPadValue, ZeroAddress, ZeroHash } from "ethers";
+import { concat, id, isAddress, zeroPadValue, ZeroAddress, ZeroHash } from "ethers";
 
 export type Binding = { name: string; source: "path" | "query" | "body"; field: string };
 export type EndpointDefinition = {
@@ -34,6 +34,23 @@ export type LicensingReadEvidence = {
   blockHash: string;
   reads: Array<{ methodKey: string; route: string; status: number; payload: unknown }>;
 };
+
+export async function selectVestingBeneficiary(
+  fixture: LocalForkFixture,
+  hasStandardSchedule: (address: string) => Promise<boolean>,
+): Promise<string | null> {
+  const candidates = new Set<string>();
+  for (const role of ["transferee", "licensee", "buyer", "seller", "founder"]) {
+    const address = fixture.actors?.[role]?.address;
+    if (address && isAddress(address) && address !== ZeroAddress) {
+      candidates.add(address.toLowerCase());
+    }
+  }
+  for (const address of candidates) {
+    if (await hasStandardSchedule(address)) return address;
+  }
+  return null;
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value)

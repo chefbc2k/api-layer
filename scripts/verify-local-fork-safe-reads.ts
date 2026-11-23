@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { JsonRpcProvider } from "ethers";
+import { Contract, isError, JsonRpcProvider } from "ethers";
 
 import { createApiServer } from "../packages/api/src/app.js";
 import { loadRepoEnv } from "../packages/client/src/runtime/config.js";
@@ -14,6 +14,7 @@ import {
   fixtureValue,
   proofFixtureOverrides,
   selectAbiFunction,
+  selectVestingBeneficiary,
   verifiedLicensingReads,
   type AbiFunction,
   type EndpointDefinition,
@@ -53,6 +54,22 @@ async function discoverCampaignId(port: number, apiKey: string): Promise<string 
     if (response.status === 200) return campaignId.toString();
   }
   return null;
+}
+
+async function discoverVestingBeneficiary(provider: JsonRpcProvider, diamond: string, fixture: LocalForkFixture): Promise<string | null> {
+  const abi = JSON.parse(await readFile(path.join(rootDir, "abis", "facets", "VestingFacet.json"), "utf8"));
+  const vesting = new Contract(diamond, abi, provider);
+  return selectVestingBeneficiary(fixture, async (address) => {
+    try {
+      const details = await vesting.getVestingDetails(address);
+      if (details.revoked || BigInt(details.totalAmount) === 0n) return false;
+      await vesting.getStandardVestedAmount(address);
+      return true;
+    } catch (error) {
+      if (!isError(error, "CALL_EXCEPTION")) throw error;
+      return false;
+    }
+  });
 }
 
 async function main(): Promise<void> {
@@ -97,10 +114,17 @@ async function main(): Promise<void> {
 
   try {
     const campaignId = await discoverCampaignId(port, readApiKeys[0]);
+    const isLocalFork = isLoopbackRpcUrl(config.cbdpRpcUrl);
+    const vestingBeneficiary = isLocalFork
+      ? await discoverVestingBeneficiary(provider, config.diamondAddress, fixture).catch(() => {
+          console.warn("Could not verify an active vesting fixture. The default beneficiary probes will report any remaining gaps.");
+          return null;
+        })
+      : null;
     const licensing = (proofArtifacts.remaining as {
       reports?: { licensing?: { licensingReadEvidence?: { txHash?: unknown } } };
     } | undefined)?.reports?.licensing?.licensingReadEvidence;
-    const licensingReceipt = isLoopbackRpcUrl(config.cbdpRpcUrl)
+    const licensingReceipt = isLocalFork
       && typeof licensing?.txHash === "string" && /^0x[0-9a-f]{64}$/iu.test(licensing.txHash)
       ? await provider.getTransactionReceipt(licensing.txHash).catch(() => null)
       : null;
@@ -130,6 +154,7 @@ async function main(): Promise<void> {
       const inputs = abiFunction?.inputs ?? [];
       const overrides = proofFixtureOverrides(methodKey, proofArtifacts);
       if (methodKey.startsWith("CommunityRewardsFacet.") && campaignId) overrides.campaignId = campaignId;
+      if (methodKey.startsWith("VestingFacet.") && vestingBeneficiary) overrides.beneficiary = vestingBeneficiary;
       const values = inputs.map((input) => fixtureValue(input, fixture, blockNumber, timestamp, overrides));
       const request = buildReadRequest(endpoint, inputs, values);
       const apiKey = readApiKeys[probes.length % readApiKeys.length];
