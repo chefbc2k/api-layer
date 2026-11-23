@@ -623,6 +623,17 @@
             "functions": 96.15,
             "lines": 93.62
           }
+        },
+        {
+          "sourceCommit": "f0ce7542c3c42707eb0c00811c84da4ec2210cab",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45114538235",
+          "result": "Default-branch API quality CI passed after integrating the rate-limiter isolation and control-plane readbacks. The uploaded coverage summary remains below the release criterion.",
+          "coveragePercent": {
+            "statements": 92.79,
+            "branches": 90.99,
+            "functions": 96.15,
+            "lines": 93.62
+          }
         }
       ],
       "deliveredCommit": null,
