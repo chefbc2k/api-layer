@@ -8101,4 +8101,67 @@ describeLive("HTTP API contract integration", () => {
       await provider.send("evm_mine", []);
     }
   }, 180_000);
+
+  it("proves the oracle staleness configuration update remains indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "oracle staleness configuration receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
+    const governanceRole = id("GOVERNANCE_ROLE");
+    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const originalConfig = await oracle.getOracleStalenessConfig();
+    const originalMaxAge = BigInt(originalConfig.maxAgeSeconds);
+    const targetMaxAge = originalMaxAge + 1n;
+
+    try {
+      const update = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-staleness-config", {
+        apiKey: "founder-key",
+        body: { maxAgeSeconds: targetMaxAge.toString() },
+      });
+      expect(update.status, JSON.stringify(update.payload)).toBe(202);
+      const updateHash = extractTxHash(update.payload);
+      await expectReceipt(updateHash);
+      const updateReceipt = await provider.getTransactionReceipt(updateHash);
+      expect(updateReceipt?.status).toBe(1);
+      const updatedEvents = (updateReceipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = oracle.interface.parseLog(log);
+          return parsed?.name === "OracleStalenessConfigUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(updatedEvents).toHaveLength(1);
+      expect(BigInt(updatedEvents[0]!.args.maxAgeSeconds)).toBe(targetMaxAge);
+      const configAfterUpdate = await oracle.getOracleStalenessConfig();
+      expect(BigInt(configAfterUpdate.maxAgeSeconds)).toBe(targetMaxAge);
+
+      const readback = await apiCall(port, "POST", "/v1/staking/queries/get-oracle-staleness-config", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(readback.payload).toEqual([
+        normalize(configAfterUpdate.maxAgeSeconds),
+        normalize(configAfterUpdate.lastUpdatedAt),
+      ]);
+    } finally {
+      const currentMaxAge = BigInt((await oracle.getOracleStalenessConfig()).maxAgeSeconds);
+      if (currentMaxAge !== originalMaxAge) {
+        const restore = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-staleness-config", {
+          apiKey: "founder-key",
+          body: { maxAgeSeconds: originalMaxAge.toString() },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        await expectReceipt(extractTxHash(restore.payload));
+      }
+      expect(BigInt((await oracle.getOracleStalenessConfig()).maxAgeSeconds)).toBe(originalMaxAge);
+    }
+  }, 180_000);
+
 });
