@@ -511,6 +511,18 @@ type MarketplacePurchaseDetails = {
     configuredTokenAfter: string;
     expectedEvent: string;
   };
+  mevProtectionConfigUpdate?: {
+    status: number;
+    payload: unknown;
+    txHash: string;
+    receipt: {
+      status: unknown;
+      blockNumber: unknown;
+    };
+    configBefore: string[];
+    configAfter: string[];
+    expectedEvents: string[];
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -538,6 +550,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.purchase ? { kind: "purchase", value: normalize(args.details.purchase) } : null,
     args.details.withdrawal ? { kind: "withdrawal", value: normalize(args.details.withdrawal) } : null,
     args.details.usdcTokenUpdate ? { kind: "usdcTokenUpdate", value: normalize(args.details.usdcTokenUpdate) } : null,
+    args.details.mevProtectionConfigUpdate ? { kind: "mevProtectionConfigUpdate", value: normalize(args.details.mevProtectionConfigUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -547,6 +560,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     "marketplace-purchase": {
       routes: [
         "PATCH /v1/marketplace/commands/set-usdc-token",
+        "PATCH /v1/marketplace/commands/set-mev-protection-config",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
         "GET /v1/marketplace/queries/get-listing",
@@ -716,6 +730,7 @@ async function main() {
   const { server, port } = await startServer();
   try {
     let usdcTokenUpdate: MarketplacePurchaseDetails["usdcTokenUpdate"];
+    let mevProtectionConfigUpdate: MarketplacePurchaseDetails["mevProtectionConfigUpdate"];
     if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
       await ensureNativeBalance(
         provider,
@@ -743,7 +758,7 @@ async function main() {
       }
       const updateReceipt = await waitForReceipt(provider, updateTxHash, "fork-only USDC token update");
       const expectedEvent = "PaymentFacet.UsdcTokenUpdated";
-      const eventFound = updateReceipt.logs.some((log) => {
+      const usdcEventFound = updateReceipt.logs.some((log) => {
         try {
           return payment.interface.parseLog(log)?.name === "UsdcTokenUpdated";
         } catch {
@@ -751,7 +766,7 @@ async function main() {
         }
       });
       const configuredTokenAfter = String(await payment.getUsdcToken());
-      if (!eventFound || configuredTokenAfter.toLowerCase() !== usdcAddress.toLowerCase()) {
+      if (!usdcEventFound || configuredTokenAfter.toLowerCase() !== usdcAddress.toLowerCase()) {
         throw new Error("fork-only USDC token update missed its declared event or canonical readback");
       }
       usdcTokenUpdate = {
@@ -762,6 +777,72 @@ async function main() {
         configuredTokenBefore: usdcAddress,
         configuredTokenAfter,
         expectedEvent,
+      };
+
+      const configBeforeResult = await payment.getMevProtectionConfig();
+      const configBefore = [
+        Boolean(configBeforeResult[0]).toString(),
+        String(configBeforeResult[1]),
+        String(configBeforeResult[2]),
+        String(configBeforeResult[3]),
+        String(configBeforeResult[4]),
+      ];
+      const configBody = {
+        flashbotsEnabled: Boolean(configBeforeResult[0]),
+        flashbotsRelayAddress: String(configBeforeResult[1]),
+        minFlashbotsValue: String(configBeforeResult[2]),
+        highValueThreshold: String(configBeforeResult[3]),
+        revealTimelockBlocks: String(configBeforeResult[4]),
+      };
+      const configResponse = await apiCall(
+        port,
+        "PATCH",
+        "/v1/marketplace/commands/set-mev-protection-config",
+        {
+          apiKey: "founder-key",
+          walletAddress: founder.address,
+          body: configBody,
+        },
+      );
+      if (configResponse.status !== 202) {
+        throw new Error(`fork-only MEV protection configuration proof failed: ${JSON.stringify(configResponse.payload)}`);
+      }
+      const configTxHash = extractTxHash(configResponse.payload);
+      if (!configTxHash) {
+        throw new Error(`fork-only MEV protection configuration did not return a tx hash: ${JSON.stringify(configResponse.payload)}`);
+      }
+      const configReceipt = await waitForReceipt(provider, configTxHash, "fork-only MEV protection configuration");
+      const expectedEvents = ["BuybackConfigUpdated", "FeeConfigurationUpdated"];
+      const observedEvents = new Set(configReceipt.logs.flatMap((log) => {
+        try {
+          const parsed = payment.interface.parseLog(log);
+          return parsed ? [parsed.name] : [];
+        } catch {
+          return [];
+        }
+      }));
+      const mevEventFound = expectedEvents.some((eventName) => observedEvents.has(eventName));
+      const configAfterResult = await payment.getMevProtectionConfig();
+      const configAfter = [
+        Boolean(configAfterResult[0]).toString(),
+        String(configAfterResult[1]),
+        String(configAfterResult[2]),
+        String(configAfterResult[3]),
+        String(configAfterResult[4]),
+      ];
+      const sameConfig = configBefore.length === configAfter.length
+        && configBefore.every((value, index) => value.toLowerCase() === configAfter[index].toLowerCase());
+      if (!mevEventFound || !sameConfig) {
+        throw new Error("fork-only MEV protection configuration missed its declared event or canonical readback");
+      }
+      mevProtectionConfigUpdate = {
+        status: configResponse.status,
+        payload: configResponse.payload,
+        txHash: configTxHash,
+        receipt: { status: configReceipt.status, blockNumber: configReceipt.blockNumber },
+        configBefore,
+        configAfter,
+        expectedEvents: expectedEvents.map((eventName) => `PaymentFacet.${eventName}`),
       };
     }
 
@@ -1097,6 +1178,7 @@ async function main() {
           pendingAfter: pendingAfterWithdrawal,
         },
         ...(usdcTokenUpdate ? { usdcTokenUpdate } : {}),
+        ...(mevProtectionConfigUpdate ? { mevProtectionConfigUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,
