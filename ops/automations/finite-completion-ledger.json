@@ -342,6 +342,57 @@
             "Default master ref verified at 7269aa836f9acd1cf10764405d77f4b79a52009c.",
             "API quality workflow 45364579784: success, including typecheck, lint, build, regression, coverage, API surface, actor boundaries, red team, and indexer assurance."
           ]
+        },
+        {
+          "sourceCommit": "dd20913ddc1d03ff2c770a2a890e1af85b7d235a",
+          "url": "https://github.com/chefbc2k/api-layer/commit/dd20913ddc1d03ff2c770a2a890e1af85b7d235a",
+          "artifact": ".runtime/aggregate-evidence-recheck/report.json",
+          "aggregateReportSha256": "f23ed1e53502ae5fbdcdc2fe9711cafe20076c26215fc705a73b2ab59ebda47c",
+          "result": "Re-ran the full current-source assurance matrix on a fresh disposable Base Sepolia loopback fork pinned at block 62422222. All 12 stages passed, and safe-read evidence improved from 442/446 to 443/446 after verifying the RightsFacet group read against the created fixture. Three fixture gaps remain: ProposalFacet.queue expires before the final sweep; UpgradeControllerFacet.getUpgrade and isUpgradeApproved require an actual scheduled upgrade ID. API-04 remains in progress.",
+          "safeReadTotals": {
+            "reviewedReadCount": 232,
+            "reviewedEventCount": 214,
+            "attempted": 446,
+            "passed": 443,
+            "gaps": 3
+          },
+          "safeReadFixtureGaps": [
+            "ProposalFacet.queue",
+            "UpgradeControllerFacet.getUpgrade",
+            "UpgradeControllerFacet.isUpgradeApproved"
+          ],
+          "checks": [
+            "All 12 runner stages passed with exit 0 on the current source commit.",
+            "Disposable Base Sepolia fork served only on loopback, pinned at block 62422222, with storage caching disabled and zero persisted states.",
+            "RightsFacet.getRightsGroup returned HTTP 200 for the newly created and read-back verified fixture.",
+            "The other three reads remain explicit HTTP 500 needs-fixture gaps; no synthetic or expired identifier was counted as proof.",
+            "Focused Vitest: 21 passed; TypeScript typecheck and focused ESLint passed."
+          ]
+        },
+        {
+          "sourceCommit": "9141515f9c64297f257fa8103ab275ba14f080c8",
+          "url": "https://github.com/chefbc2k/api-layer/commit/9141515f9c64297f257fa8103ab275ba14f080c8",
+          "artifact": ".runtime/aggregate-evidence-recheck/report.json",
+          "aggregateReportSha256": "62d9d0bc44bc67dc3f1d1b6d2c5e70695b4d7d1b5e6112d33a7dfdf2e5689f15",
+          "result": "The exact-commit full assurance rerun completed all 12 stages on a fresh disposable Base Sepolia loopback fork pinned at block 62422222. Safe-read coverage improved to 445/446: the verified rights-group fixture and both upgrade reads now pass using a contract-confirmed configured signer and a real pending proposal ID. The only remaining read gap is ProposalFacet.queue, which also failed when called immediately after proposal submission. The contract expiry helper is invoked with the endBlock and current timestamp in an order that makes the check false; resolving it requires a contract fix outside this API repository's scope. API-04 remains open pending that contract change and a clean rerun.",
+          "safeReadTotals": {
+            "reviewedReadCount": 232,
+            "reviewedEventCount": 214,
+            "attempted": 446,
+            "passed": 445,
+            "gaps": 1
+          },
+          "safeReadFixtureGaps": [
+            "ProposalFacet.queue"
+          ],
+          "checks": [
+            "All 12 assurance stages passed with exit 0 on exact source commit 9141515f9c64297f257fa8103ab275ba14f080c8.",
+            "Disposable Base Sepolia fork pinned at block 62422222, loopback only, no storage caching, zero persisted states.",
+            "RightsFacet.getRightsGroup returned HTTP 200 for the created and verified asset fixture.",
+            "UpgradeControllerFacet.getUpgrade and isUpgradeApproved returned HTTP 200 for the actual ID emitted by UpgradeProposed; proposal setup signer was checked against isUpgradeSigner.",
+            "Governance lifecycle queue read immediately after proposal submission returned HTTP 500 ProposalExpired(uint256), confirming the remaining gap is not caused by final-sweep timing.",
+            "Focused Vitest: 21 passed; TypeScript typecheck, focused ESLint, and git diff --check passed."
+          ]
         }
       ],
       "deliveredCommit": null,
