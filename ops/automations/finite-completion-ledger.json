@@ -685,6 +685,17 @@
             "Cumulative indexer artifact: 880 indexed receipts, 116/260 proven write methods, 1,295 raw events, 852 projection rows; 144 method keys remain."
           ],
           "resultLimitation": "This run completed 1 of the 145 open methods (0.6897%), below the bounded owner target of 37; the wider API-05 criterion remains open."
+        },
+        {
+          "sourceCommit": "2061e9ba6af21031e61ed8ab827e2c9055f15ebb",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45400329258",
+          "artifact": "CI run 45400329258",
+          "result": "Default-branch API quality workflow passed on the commit containing the API-05 deadline-withdrawal evidence. Dependency audit, pinned-selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed. API-05 method acceptance remains open at 116/260 proven methods.",
+          "checks": [
+            "GitHub Actions workflow 45400329258 completed with conclusion success for exact head 2061e9ba6af21031e61ed8ab827e2c9055f15ebb.",
+            "Coverage, API surface, actor boundaries, red team, and indexer assurance completed successfully; no workflow steps failed."
+          ],
+          "id": "API-05-CI-45400329258"
         }
       ],
       "deliveredCommit": null,
