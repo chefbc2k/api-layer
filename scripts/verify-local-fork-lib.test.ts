@@ -137,6 +137,7 @@ describe("local-fork proof planning and reporting", () => {
       "marketplace-purchase-proof",
       "governance-proof",
       "event-indexer-proof",
+      "provision-read-fixtures",
       "probe-safe-reads",
     ]);
     expect(plan.filter((stage) => stage.destructive).length).toBeGreaterThan(0);
@@ -144,6 +145,8 @@ describe("local-fork proof planning and reporting", () => {
     expect(plan.find((stage) => stage.id === "control-plane-admin-proof")?.args[0]).toContain("control-plane-admin-receipts.json");
     expect(plan.find((stage) => stage.id === "probe-safe-reads")?.artifactPath).toContain("safe-reads.json");
     expect(plan.find((stage) => stage.id === "event-indexer-proof")?.artifactPath).toContain("event-indexer.json");
+    expect(plan.find((stage) => stage.id === "provision-read-fixtures")?.destructive).toBe(true);
+    expect(plan.find((stage) => stage.id === "provision-read-fixtures")?.requiredArtifactStatus).toBe("proven working");
   });
 
   it("executes sequentially, captures artifacts, and stops at the first failure by default", async () => {
@@ -270,6 +273,31 @@ describe("local-fork proof planning and reporting", () => {
     expect(fs.existsSync(artifactPath)).toBe(false);
   });
 
+  it("validates stage artifacts that expose a status instead of a summary", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "local-fork-status-artifact-"));
+    tempDirs.push(dir);
+    const artifactPath = path.join(dir, "proof.json");
+    const stage: ProofStage = {
+      id: "fixture",
+      description: "fixture",
+      command: "test",
+      args: [],
+      destructive: true,
+      artifactPath,
+      requiredArtifactStatus: "proven working",
+    };
+    const results = await runProofStages({
+      stages: [stage],
+      env: {},
+      continueOnGap: false,
+      execute: async () => {
+        fs.writeFileSync(artifactPath, JSON.stringify({ status: "proven working" }));
+        return { exitCode: 0, stdout: "", stderr: "" };
+      },
+    });
+    expect(results[0]).toMatchObject({ status: "passed", exitCode: 0 });
+  });
+
   it("normalizes command, artifact, and safe-read gaps", () => {
     const plan = buildLocalForkProofPlan();
     const base = plan[0];
@@ -361,6 +389,7 @@ describe("safe-read fixture values", () => {
     const voiceHash = `0x${"cd".repeat(32)}`;
     const licenseeTopic = `0x${"0".repeat(24)}${"12".repeat(20)}`;
     const artifacts = {
+      readFixtures: { status: "created", voiceHash, groupIndex: "0" },
       core: { reports: { datasets: { evidence: [
         { route: "dataset", postState: { payload: { result: "1001" } } },
         { route: "tokenA", postState: { payload: { result: "42" } } },
@@ -373,15 +402,17 @@ describe("safe-read fixture values", () => {
       }] } } },
       governance: { reports: { governance: { evidence: [{
         step: "submitProposal",
-        postState: { proposalId: "77" },
+        postState: { payload: { proposal: { proposalId: "77" }, summary: { proposalId: "77", proposalType: "2" } } },
       }] } } },
     };
-    expect(proofFixtureOverrides("ProposalFacet.state", artifacts)).toEqual({ proposalId: "77" });
+    expect(proofFixtureOverrides("ProposalFacet.state", artifacts)).toEqual({ proposalId: "77", proposalType: "2" });
     expect(proofFixtureOverrides("VoiceDatasetFacet.containsAsset", artifacts)).toEqual({ datasetId: "1001", assetId: "42" });
     expect(proofFixtureOverrides("VoiceLicenseFacet.getLicense", artifacts)).toEqual({
       voiceHash,
       licensee: `0x${"12".repeat(20)}`,
     });
+    expect(proofFixtureOverrides("ProposalFacet.getProposalTypeConfig", artifacts)).toEqual({ proposalId: "77", proposalType: "2" });
+    expect(proofFixtureOverrides("RightsFacet.getRightsGroup", artifacts)).toEqual({ voiceHash, groupIndex: "0" });
     expect(fixtureValue({ name: "proposalId", type: "uint256" }, fixture, 99, 123, { proposalId: "77" })).toBe("77");
   });
 

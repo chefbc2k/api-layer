@@ -101,6 +101,7 @@ async function main(): Promise<void> {
     core: await readOptionalArtifact("layer1-core.json"),
     remaining: await readOptionalArtifact("layer1-remaining.json"),
     governance: await readOptionalArtifact("governance.json"),
+    readFixtures: await readOptionalArtifact("read-fixtures.json"),
   };
   const provider = new JsonRpcProvider(config.cbdpRpcUrl, config.chainId);
   const latestBlock = await provider.getBlock("latest");

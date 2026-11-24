@@ -27,6 +27,7 @@ export type ProofArtifacts = {
   core?: unknown;
   remaining?: unknown;
   governance?: unknown;
+  readFixtures?: unknown;
 };
 
 export type LicensingReadEvidence = {
@@ -108,12 +109,24 @@ export function verifiedLicensingReads(
 
 export function proofFixtureOverrides(methodKey: string, artifacts: ProofArtifacts): FixtureOverrides {
   const overrides: FixtureOverrides = {};
+  if (methodKey === "RightsFacet.getRightsGroup") {
+    const group = asRecord(artifacts.readFixtures);
+    if (group?.status === "created" || group?.status === "already_present") {
+      const voiceHash = stringValue(group.voiceHash);
+      const groupIndex = stringValue(group.groupIndex);
+      if (voiceHash) overrides.voiceHash = voiceHash;
+      if (groupIndex) overrides.groupIndex = groupIndex;
+    }
+  }
   if (methodKey.startsWith("ProposalFacet.")) {
     const governanceSubmit = evidence(artifacts.governance, "governance").find((entry) => entry.step === "submitProposal");
     const coreSubmit = matchingEvidence(artifacts.core, "governance", "route", "submit");
     const proposalId = stringValue(nested(governanceSubmit, "postState", "proposalId"))
+      ?? stringValue(nested(governanceSubmit, "postState", "payload", "proposal", "proposalId"))
       ?? stringValue(nested(coreSubmit, "postState", "payload", "result"));
     if (proposalId) overrides.proposalId = proposalId;
+    const proposalType = stringValue(nested(governanceSubmit, "postState", "payload", "summary", "proposalType"));
+    if (proposalType) overrides.proposalType = proposalType;
   }
   if (methodKey.startsWith("VoiceDatasetFacet.")) {
     const dataset = matchingEvidence(artifacts.core, "datasets", "route", "dataset");
@@ -138,6 +151,12 @@ export function proofFixtureOverrides(methodKey: string, artifacts: ProofArtifac
         ?? addressFromTopic(topics[2]);
       if (voiceHash) overrides.voiceHash = voiceHash;
       if (licensee) overrides.licensee = licensee;
+    }
+    const licensee = stringValue(nested(license, "postState", "license", "licensee"));
+    if (licensee) overrides.licensee = licensee;
+    const licensePostStateVoiceHash = stringValue(nested(license, "postState", "directLicense", "voiceHash"));
+    if (licensePostStateVoiceHash && licensePostStateVoiceHash.length === 66) {
+      overrides.voiceHash = licensePostStateVoiceHash;
     }
   }
   if (methodKey.startsWith("VoiceLicenseTemplateFacet.")) {

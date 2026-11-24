@@ -22,6 +22,7 @@ export type ProofStage = {
   artifactPath?: string;
   maxAttempts?: number;
   requiredArtifactSummary?: string;
+  requiredArtifactStatus?: string;
 };
 
 export type CommandResult = {
@@ -344,6 +345,15 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
     },
     {
+      id: "provision-read-fixtures",
+      description: "create a disposable rights-group fixture for the mounted safe-read sweep",
+      command: "pnpm",
+      args: ["tsx", "scripts/provision-local-fork-read-fixtures.ts", "--output", path.join(PROOF_DIR, "read-fixtures.json")],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "read-fixtures.json"),
+      requiredArtifactStatus: "proven working",
+    },
+    {
       id: "probe-safe-reads",
       description: "execute every reviewed read and event endpoint with lifecycle fixture inputs",
       command: "pnpm",
@@ -451,16 +461,21 @@ export async function runProofStages(args: {
         }
       }
       commandResult = await execute(stage, args.env);
-      if (commandResult.exitCode === 0 && stage.requiredArtifactSummary) {
+      if (commandResult.exitCode === 0 && (stage.requiredArtifactSummary || stage.requiredArtifactStatus)) {
         const attemptArtifact = await readOptionalJson(stage.artifactPath);
-        const summary = attemptArtifact && typeof attemptArtifact === "object"
+        const record = attemptArtifact && typeof attemptArtifact === "object"
           ? (attemptArtifact as Record<string, unknown>).summary
           : null;
-        if (summary !== stage.requiredArtifactSummary) {
+        const status = attemptArtifact && typeof attemptArtifact === "object"
+          ? (attemptArtifact as Record<string, unknown>).status
+          : null;
+        const summaryMatches = !stage.requiredArtifactSummary || record === stage.requiredArtifactSummary;
+        const statusMatches = !stage.requiredArtifactStatus || status === stage.requiredArtifactStatus;
+        if (!summaryMatches || !statusMatches) {
           commandResult = {
             ...commandResult,
             exitCode: 1,
-            stderr: `${commandResult.stderr}\nproof artifact summary was ${JSON.stringify(summary)}; expected ${JSON.stringify(stage.requiredArtifactSummary)}`.trim(),
+            stderr: `${commandResult.stderr}\nproof artifact status/summary was ${JSON.stringify({ status, summary: record })}; expected ${JSON.stringify({ status: stage.requiredArtifactStatus, summary: stage.requiredArtifactSummary })}`.trim(),
           };
         }
       }
