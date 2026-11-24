@@ -2,6 +2,15 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## Production Indexer Write Coverage — 2026-11-24
+
+- Starting exact receipt/indexer coverage was `115/260` writes, leaving `145` open. Updated the existing marketplace purchase fixture to withdraw seller proceeds through `PaymentFacet.withdrawPaymentsWithDeadline(uint256)` using a future deadline derived from the current fork block timestamp.
+- The disposable Base Sepolia loopback run returned a successful receipt at block `63014572` and decoded `PaymentFacet.USDCPaymentWithdrawn(address,uint256)`. The workflow readback showed seller pending payments falling from `1830` to `0`, seller credit increasing by `1830`, custody decreasing by `1830`, and zero conservation delta.
+- Disposable PostgreSQL persisted the receipt's raw event, `payment_flows` and `payment_withdrawals` projection rows, and block-journal row. Replaying the receipt left all persisted evidence unchanged. The cumulative artifact now records `116/260` methods, `880` receipts, `1,295` raw events, and `852` projection rows, leaving `144` exact-method proofs open.
+- All `12/12` local-fork runner stages passed. The read sweep passed `445/446`; only the known `ProposalFacet.queue` expiry-validation contract gap remains. No live promotion writes were authorized or sent.
+- Durable evidence: [`output/api05-payment-deadline-proof-2026-11-24.json`](../output/api05-payment-deadline-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json). Focused verification passed: codegen with the pinned CI selector manifest, the marketplace proof tests (`16/16`), TypeScript, focused ESLint, and whitespace checks.
+- This run completed `1/145` open methods (`0.6897%`), below the bounded automation target of `37`; API-05 remains `in_progress`. Continue from the exact `144`-method remainder and report the missed batch target honestly.
+
 ## Red-Team Harness Automation Run — 2026-11-05
 
 - Started `codex/red-team-harness-20261105` from local production `master` `90a62e2` after fetching `origin`; fetched `origin/master` `a9657c3` is an ancestor of that baseline. The unrelated dirty primary assurance checkout remained untouched, and the clean isolated red-team worktree was reused.

@@ -658,6 +658,33 @@
           "catalogWriteMethods": 260,
           "remainingWriteMethods": 145,
           "aggregateReportSha256": "7faf7579a62036ddcf88ba91860323fcf50e1331bafcc267f63781115b282ca8"
+        },
+        {
+          "sourceCommit": "4b932c28e04bb02b228ce02d955363e716cabc56",
+          "url": "https://github.com/chefbc2k/api-layer/commit/4b932c28e04bb02b228ce02d955363e716cabc56",
+          "artifact": "output/api05-payment-deadline-proof-2026-11-24.json",
+          "proofArtifactSha256": "66776d6e5386af9bba7b7c9f79b918e047c6a4bf0beafec2201648fcf43ed740",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "46cc3816591e1a7076c367468ea0c3fe158b45f54ade71850bf9e9a38bf4322c",
+          "result": "One exact current-source method was added to the durable local-fork receipt/indexer proof: PaymentFacet.withdrawPaymentsWithDeadline. The complete runner passed all 12 stages with one existing ProposalFacet.queue safe-read gap; API-05 remains in progress with 144 of 260 write methods still lacking exact proof.",
+          "startingProvenCount": 115,
+          "startingOpenCount": 145,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.6897,
+          "boundedRunTarget": 37,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 116,
+          "endingOpenCount": 144,
+          "checks": [
+            "pnpm run codegen with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json: passed, 492 functions, 218 events, and 260/260 write invariants.",
+            "pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1: 16 passed.",
+            "pnpm exec tsc -p tsconfig.json --noEmit, focused ESLint, and git diff --check: passed.",
+            "The exact-source disposable Base Sepolia loopback aggregate passed all 12 runner stages; 445/446 safe-read probes passed and only the already-recorded ProposalFacet.queue contract gap remained.",
+            "The exact deadline withdrawal returned receipt status 1 and USDCPaymentWithdrawn; pending seller balance fell 1830 to 0, seller credit was +1830, custody was -1830, and conservation delta was 0.",
+            "Disposable PostgreSQL persisted one raw event, one payment_flows row, one payment_withdrawals row, and one block-journal row; receipt replay was unchanged and idempotent.",
+            "Cumulative indexer artifact: 880 indexed receipts, 116/260 proven write methods, 1,295 raw events, 852 projection rows; 144 method keys remain."
+          ],
+          "resultLimitation": "This run completed 1 of the 145 open methods (0.6897%), below the bounded owner target of 37; the wider API-05 criterion remains open."
         }
       ],
       "deliveredCommit": null,
@@ -847,6 +874,22 @@
             "RPC_URL and ALCHEMY_RPC_URL both resolve to http://127.0.0.1:8548; preflight rejects loopback as a live target.",
             "Preflight ran read-only with --preflight; no wallet transactions were submitted."
           ]
+        },
+        {
+          "sourceCommit": "4b932c28e04bb02b228ce02d955363e716cabc56",
+          "url": "https://github.com/chefbc2k/api-layer/blob/4b932c28e04bb02b228ce02d955363e716cabc56/verify-base-sepolia-promotion-output.json",
+          "artifact": "verify-base-sepolia-promotion-output.json",
+          "result": "Fresh read-only Base Sepolia preflight on 2026-11-24 remains blocked: promotion opt-in is disabled and RPC_URL/ALCHEMY_RPC_URL resolve to loopback. Identity and configured actors are present, but the live target was not checked and no scenario transactions were sent.",
+          "checks": [
+            "Readiness status blocked; explicit-live-opt-in false.",
+            "Direct live RPC and diagnostics RPC rejected because origin is http://127.0.0.1:8548.",
+            "Live target checked=false; scenario list and transaction hash list are empty."
+          ],
+          "blocker": {
+            "owner": "API release operator",
+            "action": "Provide approved direct Base Sepolia RPC_URL and ALCHEMY_RPC_URL endpoints, explicitly enable API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true, and confirm authorization for fixture-backed testnet writes; API-04 queue contract dependency also remains unresolved."
+          },
+          "artifactSha256": "25aa13c131e34b8f506e1664c1c31c770ae79d6815d442fbb05345f1fde388ae"
         }
       ],
       "deliveredCommit": null,
@@ -4412,7 +4455,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 – Low-risk cron batch (draft)",
+            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]

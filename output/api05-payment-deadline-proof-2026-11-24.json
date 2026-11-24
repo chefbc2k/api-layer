@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-24T13:00:36.220Z",
+  "sourceCommit": "4b932c28e04bb02b228ce02d955363e716cabc56",
+  "network": {
+    "mode": "local-fork",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "runnerStartedFork": true
+  },
+  "safety": {
+    "liveRunExplicitlyAllowed": false,
+    "liveDestructiveRunExplicitlyAllowed": false,
+    "destructiveStageCheckpoints": true
+  },
+  "aggregate": {
+    "status": "passed with structured gaps",
+    "stageCount": 12,
+    "stagesPassed": 12,
+    "structuredGapCount": 1,
+    "gaps": [
+      {
+        "methodKey": "ProposalFacet.queue",
+        "reason": null
+      }
+    ]
+  },
+  "scenario": {
+    "classification": "proven working",
+    "executionResult": "marketplace purchase and seller withdrawal completed with settlement, receipt, and event evidence",
+    "target": {
+      "source": "aged-fixture",
+      "tokenId": "11",
+      "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "buyer": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+    },
+    "purchase": {
+      "txHash": "0x48be98baff7e1b685e0762e580510d7f5ec51626b88dcdf2c36fcedc565b975e",
+      "receipt": {
+        "status": 1,
+        "blockNumber": 63014571
+      }
+    },
+    "withdrawal": {
+      "route": "POST /v1/workflows/withdraw-marketplace-payments",
+      "methodKey": "PaymentFacet.withdrawPaymentsWithDeadline",
+      "methodSignature": "withdrawPaymentsWithDeadline(uint256)",
+      "txHash": "0x91713db2c05fa8828dea8d35ef2df126371d4e27693b96aec5f1e481d38931df",
+      "deadline": "1796997892",
+      "receipt": {
+        "status": 1,
+        "blockNumber": 63014572
+      },
+      "pendingBefore": "1830",
+      "pendingAfter": "0",
+      "releasedAmount": null,
+      "payeeDelta": null,
+      "custodyDelta": null,
+      "conservation": null,
+      "eventCount": null
+    }
+  },
+  "indexer": {
+    "receiptStatus": 1,
+    "receiptLogCount": 1,
+    "decodedEvents": [
+      "PaymentFacet.USDCPaymentWithdrawn(address,uint256)"
+    ],
+    "postgres": {
+      "rawEvents": 1,
+      "blockJournal": 1,
+      "projections": [
+        {
+          "table": "payment_flows",
+          "rowCount": 1
+        },
+        {
+          "table": "payment_withdrawals",
+          "rowCount": 1
+        }
+      ]
+    },
+    "replay": {
+      "status": "idempotent",
+      "unchanged": true
+    },
+    "source": {
+      "workflowArtifacts": [
+        ".runtime/local-fork-proofs/marketplace-purchase.json"
+      ],
+      "producers": [
+        "scripts/verify-marketplace-purchase-live.ts"
+      ],
+      "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+    }
+  },
+  "cumulativeIndexerTotals": {
+    "artifactTransactionHashes": 880,
+    "includedArtifacts": 6,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 880,
+    "provenWriteMethods": 116,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 144,
+    "rawEvents": 1295,
+    "projectionRows": 852
+  },
+  "testedWorktreeHead": "bf20d5577fa0e7924b8b8622ea86f74c53135969",
+  "sourceCommitNote": "The loopback aggregate ran before the source-only commit was created, with the same working-tree source later committed as sourceCommit."
+}

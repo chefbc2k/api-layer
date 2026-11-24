@@ -1,3 +1,9 @@
+## 2026-11-24 — Prove deadline-bound marketplace withdrawals
+
+- Updated the marketplace purchase proof to withdraw accrued seller proceeds through the deadline-bound PaymentFacet overload, with a deadline one hour after the current local-fork block.
+- Captured a successful receipt, `USDCPaymentWithdrawn` event, seller/custody balance deltas, PostgreSQL projections, and idempotent replay in the durable API-05 proof artifact. Local-fork runner completed 12/12 stages; API-05 remains open with 144/260 write methods unproven.
+- Focused proof unit tests (16), pinned-selector codegen, TypeScript, focused lint, and the full disposable-fork aggregate passed. No live Base Sepolia scenario was run.
+
 ## 2026-11-15 — Validate the native Vercel function build before upload
 
 - Reproduced the hosted emit failure with the actual Vercel builder: its compiler deletes direct declaration/composite overrides before resolving inherited workspace options. The root function config now has explicit runtime ES2022 and Fetch/Response types without inheriting declaration/composite settings; package build configs are unchanged.
