@@ -973,6 +973,34 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45454949808",
           "ciRunId": 45454949808,
           "ciCommit": "8acd987585301fa3a18a2f075926ea611aa02e65"
+        },
+        {
+          "sourceCommit": "8eb2405f6fd5a67ab90b576df930810fc54dea47",
+          "url": "https://github.com/chefbc2k/api-layer/commit/8eb2405f6fd5a67ab90b576df930810fc54dea47",
+          "artifact": "output/api05-payment-from-deadline-proofs-2026-11-24.json",
+          "proofArtifactSha256": "78a75579f633d2b9d4018204ae016d099ed416e5e0175f15f2087d1dc82df98d",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "ccb81a87d61caa7b3d3232b24f72c2a414dbf6f12170e17f00d50c884eb7b533",
+          "result": "Added exact current-source local-fork proof for PaymentFacet.distributePaymentFrom and PaymentFacet.distributePaymentFromWithDeadline through their mounted API command routes. Both successful receipts matched the separate seller asset, payer, seller, amount, deadline where applicable, payer/custody USDC deltas, seller pending proceeds, and global/per-asset revenue readbacks. Each receipt contained five logs with two identical PaymentDistributed emissions; PostgreSQL stored five raw events and three payment_flows rows per receipt, and replay was unchanged and idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue safe-read gap. API-05 advances from 124/260 to 126/260 proven methods, leaving 134 open.",
+          "startingProvenCount": 124,
+          "startingOpenCount": 136,
+          "completedThisRun": 2,
+          "completionPercentOfStart": 1.4706,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 126,
+          "endingOpenCount": 134,
+          "checks": [
+            "pnpm exec tsc -p tsconfig.json --noEmit, focused ESLint, git diff --check, and pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1 passed (18 tests).",
+            "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork passed all 12 stages on a disposable loopback Base Sepolia fork; live and live-destructive opt-ins were false.",
+            "Safe-read sweep passed 445/446; only ProposalFacet.queue returned HTTP 500 from the known fixture gap.",
+            "PaymentFacet.distributePaymentFrom returned a status-1 receipt at block 63110729 with five logs; token 211, payer USDC 3000 to 2000, diamond custody 87595 to 88595, seller pending 1830 to 2745, global and asset revenue each increased by 1000.",
+            "PaymentFacet.distributePaymentFromWithDeadline returned a status-1 receipt at block 63110730 with five logs; token 199, valid deadline 1797017104, payer USDC 2000 to 1000, diamond custody 88595 to 89595, seller pending 2745 to 3660, global and asset revenue each increased by 1000.",
+            "Disposable PostgreSQL stored five raw_events rows and three payment_flows projections for each receipt, one indexer_blocks row per receipt, and unchanged idempotent replay. Each receipt contained duplicate PaymentDistributed logs, both preserved in the projection evidence.",
+            "Cumulative indexer: 2169 receipts, 126/260 distinct write methods, 3262 raw events, 2155 projection rows; 134 method keys remain.",
+            "Hosted API quality CI has not yet run for source commit 8eb2405f6fd5a67ab90b576df930810fc54dea47."
+          ],
+          "resultLimitation": "This run completed 2 of the 136 open methods (1.4706%), below the bounded owner target of 35; API-05 remains in_progress with 134 methods open. The duplicate PaymentDistributed emissions are recorded as observed contract behavior."
         }
       ],
       "deliveredCommit": null,
