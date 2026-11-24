@@ -877,7 +877,7 @@
         },
         {
           "sourceCommit": "4b932c28e04bb02b228ce02d955363e716cabc56",
-          "url": "https://github.com/chefbc2k/api-layer/blob/4b932c28e04bb02b228ce02d955363e716cabc56/verify-base-sepolia-promotion-output.json",
+          "url": "https://github.com/chefbc2k/api-layer/blob/b6ec709/verify-base-sepolia-promotion-output.json",
           "artifact": "verify-base-sepolia-promotion-output.json",
           "result": "Fresh read-only Base Sepolia preflight on 2026-11-24 remains blocked: promotion opt-in is disabled and RPC_URL/ALCHEMY_RPC_URL resolve to loopback. Identity and configured actors are present, but the live target was not checked and no scenario transactions were sent.",
           "checks": [
