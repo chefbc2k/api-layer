@@ -8037,14 +8037,9 @@
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "PaymentFacet.getBuybackStatus",
-            "assertion": "PaymentFacet.getBuybackStatus reflects the receipt-confirmed PaymentFacet.pauseBuybacks transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "Source review confirms PaymentFacet.getBuybackStatus omits the buybackPaused storage field; the canonical BuybackPaused event argument is the available state readback for this transition."
       },
       "emittedEvents": {
         "mode": "all",

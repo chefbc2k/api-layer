@@ -524,6 +524,18 @@ type MarketplacePurchaseDetails = {
     configAfter: string[];
     eventExpectation: string;
   };
+  buybackPauseUpdate?: {
+    status: number;
+    payload: unknown;
+    txHash: string;
+    receipt: {
+      status: unknown;
+      blockNumber: unknown;
+      logCount: number;
+    };
+    pausedEventValue: boolean;
+    postStateReadbackNote: string;
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -552,6 +564,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.withdrawal ? { kind: "withdrawal", value: normalize(args.details.withdrawal) } : null,
     args.details.usdcTokenUpdate ? { kind: "usdcTokenUpdate", value: normalize(args.details.usdcTokenUpdate) } : null,
     args.details.mevProtectionConfigUpdate ? { kind: "mevProtectionConfigUpdate", value: normalize(args.details.mevProtectionConfigUpdate) } : null,
+    args.details.buybackPauseUpdate ? { kind: "buybackPauseUpdate", value: normalize(args.details.buybackPauseUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -562,6 +575,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
       routes: [
         "PATCH /v1/marketplace/commands/set-usdc-token",
         "PATCH /v1/marketplace/commands/set-mev-protection-config",
+        "POST /v1/marketplace/commands/pause-buybacks",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
         "GET /v1/marketplace/queries/get-listing",
@@ -732,6 +746,7 @@ async function main() {
   try {
     let usdcTokenUpdate: MarketplacePurchaseDetails["usdcTokenUpdate"];
     let mevProtectionConfigUpdate: MarketplacePurchaseDetails["mevProtectionConfigUpdate"];
+    let buybackPauseUpdate: MarketplacePurchaseDetails["buybackPauseUpdate"];
     if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
       await ensureNativeBalance(
         provider,
@@ -838,6 +853,49 @@ async function main() {
         configBefore,
         configAfter,
         eventExpectation: "eventless per PaymentFacet.setMevProtectionConfig source",
+      };
+
+      const pauseResponse = await apiCall(
+        port,
+        "POST",
+        "/v1/marketplace/commands/pause-buybacks",
+        {
+          apiKey: "founder-key",
+          walletAddress: founder.address,
+          body: { paused: false },
+        },
+      );
+      if (pauseResponse.status !== 202) {
+        throw new Error(`fork-only buyback pause state proof failed: ${JSON.stringify(pauseResponse.payload)}`);
+      }
+      const pauseTxHash = extractTxHash(pauseResponse.payload);
+      if (!pauseTxHash) {
+        throw new Error(`fork-only buyback pause update did not return a tx hash: ${JSON.stringify(pauseResponse.payload)}`);
+      }
+      const pauseReceipt = await waitForReceipt(provider, pauseTxHash, "fork-only buyback pause update");
+      const pauseEvent = pauseReceipt.logs.flatMap((log) => {
+        try {
+          const parsed = payment.interface.parseLog(log);
+          return parsed?.name === "BuybackPaused" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      })[0];
+      const pausedEventValue = pauseEvent ? Boolean(pauseEvent.args.paused ?? pauseEvent.args[0]) : true;
+      if (!pauseEvent || pausedEventValue !== false) {
+        throw new Error(`fork-only buyback pause proof mismatch: ${JSON.stringify({
+          receiptLogCount: pauseReceipt.logs.length,
+          eventFound: Boolean(pauseEvent),
+          pausedEventValue,
+        })}`);
+      }
+      buybackPauseUpdate = {
+        status: pauseResponse.status,
+        payload: pauseResponse.payload,
+        txHash: pauseTxHash,
+        receipt: { status: pauseReceipt.status, blockNumber: pauseReceipt.blockNumber, logCount: pauseReceipt.logs.length },
+        pausedEventValue,
+        postStateReadbackNote: "getBuybackStatus omits buybackPaused; BuybackPaused event argument is the canonical readback",
       };
     }
 
@@ -1174,6 +1232,7 @@ async function main() {
         },
         ...(usdcTokenUpdate ? { usdcTokenUpdate } : {}),
         ...(mevProtectionConfigUpdate ? { mevProtectionConfigUpdate } : {}),
+        ...(buybackPauseUpdate ? { buybackPauseUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,
