@@ -77,16 +77,37 @@
     {
       "id": "API-03",
       "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
-      "status": "open",
+      "status": "accepted",
       "dependsOn": [
         "API-01"
       ],
       "acceptance": "Current adversarial corpus and guarded actual-loopback/workflow proofs plus applicable gates and default delivery.",
       "baseline": null,
-      "evidence": [],
-      "deliveredCommit": null,
+      "evidence": [
+        {
+          "sourceCommit": "32c13038936c78d0f9811c83c85435ac1a913ecb",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45392034598",
+          "result": "The default-branch API quality workflow passed its adversarial corpus gate, actor-boundary gate, and all other configured API quality gates.",
+          "checks": [
+            "GitHub workflow 45392034598 succeeded on default master; its Red team and Actor boundaries steps both passed.",
+            "The adversarial corpus includes malformed ABI payload mutation coverage, authentication and actor boundaries, access-control workflow ordering, reward-campaign replay/state checks, transaction request privacy, and funding/webhook checks."
+          ]
+        },
+        {
+          "sourceCommit": "f52b48ca77f24cc790f576b8e7896f8ccc0362f0",
+          "url": "https://github.com/chefbc2k/api-layer/commit/f52b48ca77f24cc790f576b8e7896f8ccc0362f0",
+          "artifact": "scripts/red-team-local-fork.test.ts",
+          "result": "The guarded red-team suite ran against a disposable Base Sepolia fork pinned at block 62422222 and served only on loopback. All six actual-fork adversarial probes passed.",
+          "checks": [
+            "The on-fork probes rejected malformed and unknown calldata, replayed transaction attempts, untrusted diamond initializer/selector collision, unauthorized emergency controls, and early timelock execution.",
+            "The suite also verified detection of stale RPC snapshots and a receipt orphaned by a replacement chain on the real local fork.",
+            "The full redteam:local-fork command was also attempted but reported 12 unrelated local environment failures in the SDK/Zod and mocked-DNS cases; those are recorded as environment-sensitive failures, not counted as a green suite. The isolated guarded on-fork suite passed 6/6, while the exact-source GitHub Red team gate passed."
+          ]
+        }
+      ],
+      "deliveredCommit": "9141515f9c64297f257fa8103ab275ba14f080c8",
       "blocker": null,
-      "handoffNote": "Standalone tooling buildout job paused as consolidated. Required actual guarded-fork/full-runner release evidence remains OPEN here; deterministic CI does not claim that evidence."
+      "handoffNote": "API-03 adversarial corpus and guarded fork proof accepted. API-04 continues separately with a single contract-level ProposalFacet.queue gap."
     },
     {
       "id": "API-04",
