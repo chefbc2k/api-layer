@@ -3,7 +3,7 @@
 - Added a dedicated local-fork test for `TokenSupplyFacet.burn` through `DELETE /v1/tokenomics/commands/burn`. The successful receipt emitted one `Transfer` event from the caller to the zero address for one unit; canonical founder balance and total-supply readbacks each decreased by exactly one.
 - PostgreSQL stored the raw event and block journal under the raw-event-only invariant; replay was unchanged and idempotent. Full local-fork assurance passed all 12 stages and 40/40 HTTP contract integration tests. Safe reads passed 445/446; `ProposalFacet.queue` remains the known fixture gap.
 - API-05 advances from 134/260 to 135/260 proven write methods, leaving 125 open. Exactly `TokenSupplyFacet.burn` was added. The existing broader burn/mint test rolls back its snapshot, so the dedicated final test retains this receipt for indexer ingestion.
-- Durable proof: [burn artifact](../output/api05-token-supply-burn-proof-2026-11-24.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). Hosted API quality CI is pending.
+- Durable proof: [burn artifact](../output/api05-token-supply-burn-proof-2026-11-24.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). API quality CI [45498024029](https://github.com/chefbc2k/api-layer/actions/runs/45498024029) passed every configured gate on `bcca038`.
 
 ## API-05 Follow-on — Delegation Signature and Refresh Proofs — 2026-11-24
 

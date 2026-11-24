@@ -1155,7 +1155,7 @@
           "ciCommit": "273ed6d7768762bf95df0dd012a26a039027a082"
         },
         {
-          "sourceCommit": null,
+          "sourceCommit": "bcca0380ba8bdfb27aea50af53b63cdb9fbed16b",
           "artifact": "output/api05-token-supply-burn-proof-2026-11-24.json",
           "proofArtifactSha256": "2efe8ad0be4037bb03cacf660c345a9abd3f033a1e18c64d1a567029b98f0100",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
@@ -1176,12 +1176,13 @@
             "TokenSupplyFacet.burn receipt 0xc0c3a62413e6ddd7cf6a8846cab0bb7619df22f86bf8fcd18a225376e8ff2552 at block 63178018 succeeded with one decoded Transfer log.",
             "PostgreSQL stored one raw event, no projection rows as required by the raw-event-only policy, and one indexer_blocks journal row; replay was unchanged and idempotent.",
             "Cumulative indexer report: 3,405 receipts, 135/260 distinct write methods, 5,165 raw events, and 3,388 projection rows; exactly TokenSupplyFacet.burn is newly added.",
-            "The existing broader burn/mint test reverts its fork snapshot; this dedicated final test retains its receipt on the active fork so the indexer can ingest and replay it."
+            "The existing broader burn/mint test reverts its fork snapshot; this dedicated final test retains its receipt on the active fork so the indexer can ingest and replay it.",
+            "GitHub Actions API quality run 45498024029 passed every configured gate on bcca0380ba8bdfb27aea50af53b63cdb9fbed16b, including dependency audit, generated-source bootstrap, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, Regression, Coverage, API surface, Actor boundaries, Red team, Indexer assurance, and measured-evidence preservation."
           ],
           "resultLimitation": "This run completed 1 of the 126 open methods (0.7937%), below the bounded target of 35; API-05 remains in_progress with 125 methods open.",
-          "ciRun": "pending",
-          "ciRunId": null,
-          "ciCommit": null
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45498024029",
+          "ciRunId": 45498024029,
+          "ciCommit": "bcca0380ba8bdfb27aea50af53b63cdb9fbed16b"
         }
       ],
       "deliveredCommit": null,
