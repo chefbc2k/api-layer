@@ -286,6 +286,33 @@
           "checks": [
             "API quality workflow completed successfully on default branch."
           ]
+        },
+        {
+          "sourceCommit": "109efdac40e9631ad15662e33ac2846580122e5a",
+          "url": "https://github.com/chefbc2k/api-layer/commit/109efdac40e9631ad15662e33ac2846580122e5a",
+          "artifact": "output/local-fork-aggregate-evidence-2026-11-24.json",
+          "aggregateReportSha256": "7faf7579a62036ddcf88ba91860323fcf50e1331bafcc267f63781115b282ca8",
+          "result": "The full current-source disposable Base Sepolia loopback runner completed all 11 stages with exit 0. Inventory, fixture setup, all 36 HTTP contract cases, control-plane admin proof, the three layer1 stages, marketplace purchase, governance proposal and vote, PostgreSQL event indexing/replay, and safe-read execution all passed. The aggregate remains open with four explicit needs-fixture safe-read gaps.",
+          "safeReadTotals": {
+            "reviewedReadCount": 232,
+            "reviewedEventCount": 214,
+            "attempted": 446,
+            "passed": 442,
+            "gaps": 4
+          },
+          "safeReadFixtureGaps": [
+            "ProposalFacet.queue",
+            "RightsFacet.getRightsGroup",
+            "UpgradeControllerFacet.getUpgrade",
+            "UpgradeControllerFacet.isUpgradeApproved"
+          ],
+          "checks": [
+            "Disposable Base Sepolia fork pinned at block 62422222, served only on loopback with no storage caching and zero persisted states.",
+            "11/11 proof stages passed on attempt 1.",
+            "Governance lifecycle submitted proposal 43 and recorded active state plus vote receipt.",
+            "All 211 included transaction receipts were indexed; PostgreSQL replay was idempotent.",
+            "Safe-read sweep passed 442/446 probes; all nine vesting reads and all three anchored licensing reads passed."
+          ]
         }
       ],
       "deliveredCommit": null,
@@ -485,6 +512,25 @@
             "EmergencyFacet.setEmergencyTimeout",
             "EmergencyWithdrawalFacet.setRecipientWhitelist"
           ]
+        },
+        {
+          "sourceCommit": "109efdac40e9631ad15662e33ac2846580122e5a",
+          "url": "https://github.com/chefbc2k/api-layer/commit/109efdac40e9631ad15662e33ac2846580122e5a",
+          "artifact": "output/local-fork-aggregate-evidence-2026-11-24.json",
+          "aggregateReportSha256": "7faf7579a62036ddcf88ba91860323fcf50e1331bafcc267f63781115b282ca8",
+          "result": "Full aggregate PostgreSQL/indexer stage passed with 211 transaction receipts across 115 write methods, 305 raw events, 199 projection rows, and idempotent replay. The current mounted inventory has 260 write methods, leaving 145 method keys without exact current-source write proof; method-level acceptance remains open.",
+          "indexerTotals": {
+            "artifactTransactionHashes": 211,
+            "includedArtifacts": 7,
+            "skippedArtifacts": 0,
+            "indexedReceipts": 211,
+            "provenWriteMethods": 115,
+            "catalogWriteMethods": 260,
+            "remainingWriteMethods": 145,
+            "rawEvents": 305,
+            "projectionRows": 199
+          },
+          "replay": "idempotent"
         }
       ],
       "deliveredCommit": null,
