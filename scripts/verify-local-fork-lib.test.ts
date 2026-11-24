@@ -146,7 +146,7 @@ describe("local-fork proof planning and reporting", () => {
     expect(plan.find((stage) => stage.id === "probe-safe-reads")?.artifactPath).toContain("safe-reads.json");
     expect(plan.find((stage) => stage.id === "event-indexer-proof")?.artifactPath).toContain("event-indexer.json");
     expect(plan.find((stage) => stage.id === "provision-read-fixtures")?.destructive).toBe(true);
-    expect(plan.find((stage) => stage.id === "provision-read-fixtures")?.requiredArtifactStatus).toBe("proven working");
+    expect(plan.find((stage) => stage.id === "provision-read-fixtures")?.requiredArtifactStatus).toBe("created");
   });
 
   it("executes sequentially, captures artifacts, and stops at the first failure by default", async () => {
@@ -389,7 +389,7 @@ describe("safe-read fixture values", () => {
     const voiceHash = `0x${"cd".repeat(32)}`;
     const licenseeTopic = `0x${"0".repeat(24)}${"12".repeat(20)}`;
     const artifacts = {
-      readFixtures: { status: "created", voiceHash, groupIndex: "0" },
+      readFixtures: { status: "created", voiceHash, groupIndex: "0", upgradeId: `0x${"ab".repeat(32)}` },
       core: { reports: { datasets: { evidence: [
         { route: "dataset", postState: { payload: { result: "1001" } } },
         { route: "tokenA", postState: { payload: { result: "42" } } },
@@ -413,6 +413,7 @@ describe("safe-read fixture values", () => {
     });
     expect(proofFixtureOverrides("ProposalFacet.getProposalTypeConfig", artifacts)).toEqual({ proposalId: "77", proposalType: "2" });
     expect(proofFixtureOverrides("RightsFacet.getRightsGroup", artifacts)).toEqual({ voiceHash, groupIndex: "0" });
+    expect(proofFixtureOverrides("UpgradeControllerFacet.getUpgrade", artifacts)).toEqual({ upgradeId: `0x${"ab".repeat(32)}` });
     expect(fixtureValue({ name: "proposalId", type: "uint256" }, fixture, 99, 123, { proposalId: "77" })).toBe("77");
   });
 

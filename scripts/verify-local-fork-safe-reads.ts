@@ -130,8 +130,34 @@ async function main(): Promise<void> {
       ? await provider.getTransactionReceipt(licensing.txHash).catch(() => null)
       : null;
     const earlierReads = verifiedLicensingReads(licensing, licensingReceipt);
+    const governanceEvidence = proofArtifacts.governance as {
+      reports?: { governance?: { evidence?: Array<Record<string, unknown>> } };
+    } | undefined;
+    const queueEvidence = governanceEvidence?.reports?.governance?.evidence;
+    const queueRead = queueEvidence?.find((entry) => entry.step === "queueRead");
+    const proposalSubmit = queueEvidence?.find((entry) => entry.step === "submitProposal");
+    const proposalTxHash = proposalSubmit?.postState && typeof proposalSubmit.postState === "object"
+      ? (proposalSubmit.postState as Record<string, unknown>).txHash
+      : null;
+    const proposalReceipt = typeof proposalTxHash === "string"
+      ? await provider.getTransactionReceipt(proposalTxHash).catch(() => null)
+      : null;
+    const queueReadVerified = queueRead?.status === 200 && proposalReceipt?.status === 1
+      && proposalSubmit?.status === 202;
     for (const [methodKey, endpoint] of Object.entries(reviewed.methods).sort(([left], [right]) => left.localeCompare(right))) {
       if (endpoint.rateLimitKind !== "read") {
+        continue;
+      }
+      if (methodKey === "ProposalFacet.queue" && queueReadVerified) {
+        const postState = queueRead?.postState as Record<string, unknown> | undefined;
+        probes.push({
+          methodKey,
+          route: `GET ${endpoint.path}?proposalId=${String(postState?.proposalId ?? "")}`,
+          status: 200,
+          payload: postState?.payload,
+          source: "governance lifecycle",
+          fixtureTransactionHash: proposalReceipt?.hash,
+        });
         continue;
       }
       const earlier = earlierReads.find((read) =>

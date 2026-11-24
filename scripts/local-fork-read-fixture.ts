@@ -20,6 +20,7 @@ export type RightsGroupFixtureInput = {
     }>;
     members: string[];
   }) => Promise<{ status: number | null; transactionHash: string; blockNumber: number }>;
+  verifiedVoiceHash?: string;
   verifyGroup: () => Promise<void>;
 };
 
@@ -65,11 +66,12 @@ export async function ensureLocalForkRightsGroupFixture(
   });
   if (receipt.status !== 1) throw new Error("rights_group_fixture_receipt_failed");
   await input.verifyGroup();
+  const voiceHash = input.verifiedVoiceHash ?? input.voiceHash;
 
   return {
     status: "created",
     methodKey: "RightsFacet.createRightsGroup",
-    voiceHash: input.voiceHash,
+    voiceHash,
     groupIndex: "0",
     transactionHash: receipt.transactionHash,
     blockNumber: receipt.blockNumber,

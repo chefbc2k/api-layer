@@ -347,6 +347,16 @@ async function runGovernanceProofOnce() {
       }),
     });
 
+    const queueRead = resolvedProposalId
+      ? await apiCall(port, "GET", `/v1/governance/queries/queue?proposalId=${encodeURIComponent(resolvedProposalId)}`, { apiKey: "read-key" })
+      : null;
+    evidence.push({
+      step: "queueRead",
+      actor: "read-key",
+      status: queueRead?.status ?? 0,
+      postState: normalize({ proposalId: resolvedProposalId, payload: queueRead?.payload ?? null }),
+    });
+
     if (submitResp.status !== 202 || !resolvedProposalId || !proposalTxHash || proposalReceiptStatus !== "1") {
       return buildGovernanceOutput({
         routes,

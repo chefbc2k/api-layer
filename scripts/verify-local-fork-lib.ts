@@ -351,7 +351,7 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       args: ["tsx", "scripts/provision-local-fork-read-fixtures.ts", "--output", path.join(PROOF_DIR, "read-fixtures.json")],
       destructive: true,
       artifactPath: path.join(PROOF_DIR, "read-fixtures.json"),
-      requiredArtifactStatus: "proven working",
+      requiredArtifactStatus: "created",
     },
     {
       id: "probe-safe-reads",

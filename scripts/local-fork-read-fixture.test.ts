@@ -36,13 +36,14 @@ describe("local-fork rights read fixture", () => {
   });
 
   it("creates and verifies a deterministic first rights-group read fixture", async () => {
-    const input = baseInput();
+    const input = { ...baseInput(), verifiedVoiceHash: `0x${"33".repeat(32)}` };
     await expect(ensureLocalForkRightsGroupFixture(input)).resolves.toMatchObject({
       status: "created",
       methodKey: "RightsFacet.createRightsGroup",
       groupIndex: "0",
       transactionHash: `0x${"22".repeat(32)}`,
       blockNumber: 42,
+      voiceHash: input.verifiedVoiceHash,
     });
     expect(input.fundSigner).toHaveBeenCalledOnce();
     expect(input.createGroup).toHaveBeenCalledWith({

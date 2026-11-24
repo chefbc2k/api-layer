@@ -112,10 +112,16 @@ export function proofFixtureOverrides(methodKey: string, artifacts: ProofArtifac
   if (methodKey === "RightsFacet.getRightsGroup") {
     const group = asRecord(artifacts.readFixtures);
     if (group?.status === "created" || group?.status === "already_present") {
-      const voiceHash = stringValue(group.voiceHash);
+      const voiceHash = stringValue(group.verifiedVoiceHash) ?? stringValue(group.voiceHash);
       const groupIndex = stringValue(group.groupIndex);
       if (voiceHash) overrides.voiceHash = voiceHash;
       if (groupIndex) overrides.groupIndex = groupIndex;
+    }
+  }
+  if (methodKey.startsWith("UpgradeControllerFacet.")) {
+    const fixture = asRecord(artifacts.readFixtures);
+    if (fixture?.status === "created" && typeof fixture.upgradeId === "string") {
+      overrides.upgradeId = fixture.upgradeId;
     }
   }
   if (methodKey.startsWith("ProposalFacet.")) {
