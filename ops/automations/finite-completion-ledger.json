@@ -777,7 +777,7 @@
           "proofArtifactSha256": "8eb15d99352c652e4d5d592ea419583dc18575fcebc22de6a13b8409bc49a23a",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "indexerArtifactSha256": "1ca59846e51facae31b320fc2aca84a56d5b6660c4981cd445f039583d07866b",
-          "result": "Added fresh exact current-source local-fork evidence for PaymentFacet.pauseBuybacks through POST /v1/marketplace/commands/pause-buybacks, strengthening the existing method proof. The successful receipt emitted BuybackPaused(false), which is canonical state evidence because getBuybackStatus omits buybackPaused. PostgreSQL indexed one raw event and one payment_flows projection with a block journal; replay was idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue expired-proposal safe-read gap. This refresh does not add a distinct method: API-05 remains at 118/260, with 142 methods open.",
+          "result": "Initial fork-only refresh for PaymentFacet.pauseBuybacks. The proof recorded a successful receipt and BuybackPaused event but made an incorrect claim that getBuybackStatus omitted the paused state; that acceptance evidence was incomplete and is superseded by the corrected event-plus-getter proof on source commit 7156f0da6832149276d01c398ceff2aa897251c0.",
           "startingProvenCount": 118,
           "startingOpenCount": 142,
           "completedThisRun": 0,
@@ -794,7 +794,36 @@
             "GitHub Actions run 45413859703 passed all workflow gates on exact head 7cdf2aa4e2d3fe1dd9a181ef730ad1c30855c441.",
             "Persistent cumulative artifact retains 1,166 unique receipts, 118 proven methods and 142 remaining; the focused seven-artifact report alone was not used to replace historical cumulative evidence."
           ],
-          "resultLimitation": "This run refreshed evidence for an already accepted method and completed 0 new distinct methods toward the bounded owner target of 37; API-05 remains open."
+          "resultLimitation": "This run refreshed evidence for an already accepted method and completed 0 new distinct methods toward the bounded owner target of 37; API-05 remains open.",
+          "supersededBy": "7156f0da6832149276d01c398ceff2aa897251c0"
+        },
+        {
+          "sourceCommit": "7156f0da6832149276d01c398ceff2aa897251c0",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45418385465",
+          "artifact": "output/api05-buyback-pause-proof-2026-11-24.json",
+          "proofArtifactSha256": "7cc6da2c564aa0bd5911f774ad7721e0cd1099f684ca3426e2495ffd3f1e2758",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "5aa0cc3d8f04e68d33e777d30dcdbc36c64c3b670647ef06c5f1e1ad42049ef1",
+          "result": "Corrected the pauseBuybacks acceptance proof to require both the BuybackPaused(false) receipt event and PaymentFacet.getBuybackStatus().paused === false. Contract source and ABI inspection confirmed the getter includes the paused field; the earlier proof incorrectly described it as omitted. Full local-fork assurance passed all 12 stages; PostgreSQL indexed the raw event and payment_flows projection and replay was idempotent. The exact method remains among the 118 accepted methods; this remediation did not add a distinct method.",
+          "startingProvenCount": 118,
+          "startingOpenCount": 142,
+          "completedThisRun": 0,
+          "completionPercentOfStart": 0,
+          "boundedRunTarget": 37,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 118,
+          "endingOpenCount": 142,
+          "checks": [
+            "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork: all 12 stages passed on a disposable loopback Base Sepolia fork; live and live-destructive opt-ins were false.",
+            "The safe-read sweep passed 445/446; only ProposalFacet.queue returned HTTP 500 with ProposalExpired(uint256).",
+            "PaymentFacet.pauseBuybacks returned a status-1 receipt at block 63046765 with one BuybackPaused(false) event; PaymentFacet.getBuybackStatus().paused read back false.",
+            "PostgreSQL recorded the exact raw event, payment_flows projection, and block journal; replay remained idempotent.",
+            "pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1: 16 passed.",
+            "Cumulative indexer: 1,314 receipts, 118/260 distinct methods, 1,937 raw events, 1,280 projection rows; 142 methods remain open.",
+            "GitHub Actions run 45418385465 passed dependency audit, pinned-selector codegen, TypeScript, Vercel types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation on exact source commit 7156f0da6832149276d01c398ceff2aa897251c0."
+          ],
+          "resultLimitation": "This correction strengthens the proof for an already counted method and closes no additional distinct-method item; API-05 remains in_progress with 142 methods open and the bounded 37-method run target unmet.",
+          "ciRun": 45418385465
         }
       ],
       "deliveredCommit": null,

@@ -2,6 +2,13 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Corrected Buyback Pause State Proof — 2026-11-24
+
+- Corrected the loopback proof for `POST /v1/marketplace/commands/pause-buybacks`: `getBuybackStatus` includes the pause state as `paused`. The earlier evidence description was inaccurate and checked only the event; source commit `7156f0da6832149276d01c398ceff2aa897251c0` now requires both `BuybackPaused(false)` and `PaymentFacet.getBuybackStatus().paused === false`.
+- The corrected disposable PostgreSQL run indexed the raw event and `payment_flows` projection, journaled its block, and replayed idempotently. Local assurance passed all 12 stages with one known safe-read fixture gap: `ProposalFacet.queue` returns HTTP 500 for an expired proposal. Live write opt-ins remained false.
+- CI run [45418385465](https://github.com/chefbc2k/api-layer/actions/runs/45418385465) passed all gates on the source commit. This remediation strengthens the existing accepted method and adds no distinct method; API-05 remains `118/260`, with `142` open. The bounded target of `37` new methods remains unmet.
+- Durable artifacts: [`output/api05-buyback-pause-proof-2026-11-24.json`](../output/api05-buyback-pause-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json).
+
 ## Production Indexer Write Coverage — 2026-11-24
 
 - Starting exact receipt/indexer coverage was `115/260` writes, leaving `145` open. Updated the existing marketplace purchase fixture to withdraw seller proceeds through `PaymentFacet.withdrawPaymentsWithDeadline(uint256)` using a future deadline derived from the current fork block timestamp.

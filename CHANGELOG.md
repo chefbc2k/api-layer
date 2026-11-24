@@ -1,3 +1,8 @@
+# 2026-11-24 — Require canonical buyback pause state readback
+
+- Corrected `pauseBuybacks(false)` verification to check both the `BuybackPaused(false)` receipt and `PaymentFacet.getBuybackStatus().paused === false`. The earlier proof incorrectly claimed that getter omitted the state.
+- Full local-fork assurance passed all 12 stages, with the documented `ProposalFacet.queue` fixture gap. PostgreSQL receipt/projection evidence and idempotent replay passed. API quality run 45418385465 passed on the corrected source commit. API-05 remains at 118/260 distinct methods; the correction adds no new method.
+
 # 2026-11-24 — Refresh fork-only buyback pause proof
 
 - Re-ran the loopback-only `pauseBuybacks(false)` API proof with a successful `BuybackPaused(false)` receipt. PostgreSQL indexed the raw event and `payment_flows` row, and replay remained idempotent.
