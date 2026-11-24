@@ -545,6 +545,13 @@ type MarketplacePurchaseDetails = {
     configAfter: string[];
     event: string;
   };
+  buybackConfigStructUpdate?: {
+    status: number;
+    txHash: string;
+    receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    configAfter: string[];
+    event: string;
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -575,6 +582,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.mevProtectionConfigUpdate ? { kind: "mevProtectionConfigUpdate", value: normalize(args.details.mevProtectionConfigUpdate) } : null,
     args.details.buybackPauseUpdate ? { kind: "buybackPauseUpdate", value: normalize(args.details.buybackPauseUpdate) } : null,
     args.details.buybackConfigUpdate ? { kind: "buybackConfigUpdate", value: normalize(args.details.buybackConfigUpdate) } : null,
+    args.details.buybackConfigStructUpdate ? { kind: "buybackConfigStructUpdate", value: normalize(args.details.buybackConfigStructUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -586,6 +594,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
         "PATCH /v1/marketplace/commands/set-usdc-token",
         "PATCH /v1/marketplace/commands/set-mev-protection-config",
         "PATCH /v1/marketplace/commands/set-buyback-config",
+        "PATCH /v1/marketplace/commands/set-buyback-config-struct",
         "POST /v1/marketplace/commands/pause-buybacks",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
@@ -950,6 +959,72 @@ async function main() {
         configBefore: buybackConfigBefore,
         configTarget: buybackConfigTarget,
         configAfter: buybackConfigAfter,
+        event: "PaymentFacet.BuybackConfigUpdated",
+      };
+
+      const buybackConfigStructResponse = await apiCall(
+        port,
+        "PATCH",
+        "/v1/marketplace/commands/set-buyback-config-struct",
+        {
+          apiKey: "founder-key",
+          walletAddress: founder.address,
+          body: {
+            config: {
+              buybackBps: buybackConfigTarget[0],
+              minMonthlyRevenue: buybackConfigTarget[1],
+              requiredMonths: buybackConfigTarget[2],
+              cadence: buybackConfigTarget[3],
+              buybackRouter: buybackConfigTarget[4],
+              uspkToken: buybackConfigTarget[5],
+              burnAddress: buybackConfigTarget[6],
+            },
+          },
+        },
+      );
+      if (buybackConfigStructResponse.status !== 202) {
+        throw new Error(`fork-only buyback config struct proof failed: ${JSON.stringify(buybackConfigStructResponse.payload)}`);
+      }
+      const buybackConfigStructTxHash = extractTxHash(buybackConfigStructResponse.payload);
+      if (!buybackConfigStructTxHash) {
+        throw new Error(`fork-only buyback config struct did not return a tx hash: ${JSON.stringify(buybackConfigStructResponse.payload)}`);
+      }
+      const buybackConfigStructReceipt = await waitForReceipt(provider, buybackConfigStructTxHash, "fork-only buyback config struct");
+      const buybackConfigStructEvent = buybackConfigStructReceipt.logs.flatMap((log) => {
+        try {
+          const parsed = payment.interface.parseLog(log);
+          return parsed?.name === "BuybackConfigUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      })[0];
+      const buybackConfigStructAfterResult = await payment.getBuybackStatus();
+      const buybackConfigStructAfter = [
+        String(buybackConfigStructAfterResult.buybackBps ?? buybackConfigStructAfterResult[0]),
+        String(buybackConfigStructAfterResult.minMonthlyRevenue ?? buybackConfigStructAfterResult[1]),
+        String(buybackConfigStructAfterResult.requiredMonths ?? buybackConfigStructAfterResult[2]),
+        String(buybackConfigStructAfterResult.cadence ?? buybackConfigStructAfterResult[3]),
+        String(buybackConfigStructAfterResult.buybackRouter ?? buybackConfigStructAfterResult[10]),
+        String(buybackConfigStructAfterResult.uspkToken ?? buybackConfigStructAfterResult[11]),
+        String(buybackConfigStructAfterResult.burnAddress ?? buybackConfigStructAfterResult[12]),
+      ];
+      const buybackConfigStructEventMatches = Boolean(buybackConfigStructEvent)
+        && buybackConfigTarget.every((value, index) => String(buybackConfigStructEvent.args[index]).toLowerCase() === value.toLowerCase());
+      const buybackConfigStructStateMatches = buybackConfigTarget.every((value, index) =>
+        value.toLowerCase() === buybackConfigStructAfter[index].toLowerCase());
+      if (!buybackConfigStructEventMatches || !buybackConfigStructStateMatches) {
+        throw new Error(`fork-only buyback config struct event/readback mismatch: ${JSON.stringify({
+          eventFound: Boolean(buybackConfigStructEvent),
+          target: buybackConfigTarget,
+          configAfter: buybackConfigStructAfter,
+          eventValues: buybackConfigStructEvent ? Array.from(buybackConfigStructEvent.args).map(String) : null,
+        })}`);
+      }
+      buybackConfigStructUpdate = {
+        status: buybackConfigStructResponse.status,
+        txHash: buybackConfigStructTxHash,
+        receipt: { status: buybackConfigStructReceipt.status, blockNumber: buybackConfigStructReceipt.blockNumber, logCount: buybackConfigStructReceipt.logs.length },
+        configAfter: buybackConfigStructAfter,
         event: "PaymentFacet.BuybackConfigUpdated",
       };
 
@@ -1336,6 +1411,7 @@ async function main() {
         ...(mevProtectionConfigUpdate ? { mevProtectionConfigUpdate } : {}),
         ...(buybackPauseUpdate ? { buybackPauseUpdate } : {}),
         ...(buybackConfigUpdate ? { buybackConfigUpdate } : {}),
+        ...(buybackConfigStructUpdate ? { buybackConfigStructUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,

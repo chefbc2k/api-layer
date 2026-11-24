@@ -227,6 +227,13 @@ describe("verify marketplace purchase live target selection", () => {
           configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
           event: "PaymentFacet.BuybackConfigUpdated",
         },
+        buybackConfigStructUpdate: {
+          status: 202,
+          txHash: "0xbuyback-config-struct",
+          receipt: { status: 1, blockNumber: 103, logCount: 1 },
+          configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
+          event: "PaymentFacet.BuybackConfigUpdated",
+        },
         postState: {
           listing: {
             tokenId: "11",
@@ -242,8 +249,8 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.summary).toBe("proven working");
     expect(output.totals).toEqual({
       domainCount: 1,
-      routeCount: 11,
-      evidenceCount: 7,
+      routeCount: 12,
+      evidenceCount: 8,
     });
     expect(output.statusCounts).toEqual({
       "proven working": 1,
@@ -261,6 +268,10 @@ describe("verify marketplace purchase live target selection", () => {
         event: "PaymentFacet.BuybackConfigUpdated",
         configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
       },
+      buybackConfigStructUpdate: {
+        event: "PaymentFacet.BuybackConfigUpdated",
+        configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
+      },
       target: {
         source: "aged-fixture",
         tokenId: "11",
@@ -270,7 +281,7 @@ describe("verify marketplace purchase live target selection", () => {
         buyer: "0xbuyer",
       },
     });
-    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(7);
+    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(8);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
       deadline: "1770003600",
