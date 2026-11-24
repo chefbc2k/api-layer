@@ -1,3 +1,8 @@
+## 2026-11-24 — Prove payer-specific payment distribution deadlines
+
+- Added loopback fork evidence for `PaymentFacet.distributePaymentFrom` and `PaymentFacet.distributePaymentFromWithDeadline` through their mounted API command routes, using separate aged seller assets and checking payer/custody balances, seller proceeds, revenue readbacks, event arguments, PostgreSQL projections, and idempotent replay. Both receipts emitted duplicate `PaymentDistributed` events, preserved in the proof artifact as observed contract behavior.
+- The full local-fork assurance passed 12 stages with the known `ProposalFacet.queue` safe-read gap (445/446). The cumulative indexer now proves 126/260 distinct write methods, with 134 open.
+
 ## 2026-11-24 — Prove direct payment distribution and indexer replay
 
 - Added exact-source loopback fork evidence for `PaymentFacet.distributePayment` through the mounted API command, checking payer/custody balances, seller proceeds, revenue readbacks, receipt events, PostgreSQL projections, and idempotent replay. The receipt exposed two identical `PaymentDistributed` logs; this observed behavior is documented in the proof artifact.

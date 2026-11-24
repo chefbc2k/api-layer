@@ -637,6 +637,24 @@ type MarketplacePurchaseDetails = {
     sellerPendingAfter: string;
     sellerPendingDelta: string;
   };
+  distributePaymentFromUpdates?: Array<{
+    methodKey: "PaymentFacet.distributePaymentFrom" | "PaymentFacet.distributePaymentFromWithDeadline";
+    route: string;
+    txHash: string;
+    receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    payer: string;
+    deadline?: string;
+    event: { tokenId: string; seller: string; caller: string; amount: string };
+    payerBalanceBefore: string;
+    payerBalanceAfter: string;
+    diamondBalanceBefore: string;
+    diamondBalanceAfter: string;
+    sellerPendingBefore: string;
+    sellerPendingAfter: string;
+    sellerPendingDelta: string;
+    revenueDelta: string;
+    assetRevenueDelta: string;
+  }>;
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -671,6 +689,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.claimCommitmentUpdates ? { kind: "claimCommitmentUpdates", value: normalize(args.details.claimCommitmentUpdates) } : null,
     args.details.stakingConfigUpdate ? { kind: "stakingConfigUpdate", value: normalize(args.details.stakingConfigUpdate) } : null,
     args.details.distributePaymentUpdate ? { kind: "distributePaymentUpdate", value: normalize(args.details.distributePaymentUpdate) } : null,
+    args.details.distributePaymentFromUpdates ? { kind: "distributePaymentFromUpdates", value: normalize(args.details.distributePaymentFromUpdates) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -862,6 +881,7 @@ async function main() {
     let buybackConfigStructUpdate: MarketplacePurchaseDetails["buybackConfigStructUpdate"];
     let claimCommitmentUpdates: MarketplacePurchaseDetails["claimCommitmentUpdates"];
     let distributePaymentUpdate: MarketplacePurchaseDetails["distributePaymentUpdate"];
+    let distributePaymentFromUpdates: MarketplacePurchaseDetails["distributePaymentFromUpdates"];
     if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
       await ensureNativeBalance(
         provider,
@@ -1415,17 +1435,18 @@ async function main() {
     }
     const listingRecordAfterAdjustment = listingBefore.payload as Record<string, unknown>;
     const price = BigInt(String(listingRecordAfterAdjustment.price));
+    const paymentBudget = isLoopbackRpcUrl(forkRuntime.rpcUrl) ? price * 4n : price;
 
     const buyerBalanceAtStart = BigInt(await erc20.balanceOf(buyer.address));
     const buyerAllowanceAtStart = BigInt(await erc20.allowance(buyer.address, config.diamondAddress));
-    if (buyerBalanceAtStart < price) {
-      if (!richestUsdcHolder || richestUsdcHolder.balance < price - buyerBalanceAtStart || richestUsdcHolder.wallet.address.toLowerCase() === buyer.address.toLowerCase()) {
-        throw new Error(`buyer lacks USDC for purchase: balance=${buyerBalanceAtStart.toString()} price=${price.toString()}`);
+    if (buyerBalanceAtStart < paymentBudget) {
+      if (!richestUsdcHolder || richestUsdcHolder.balance < paymentBudget - buyerBalanceAtStart || richestUsdcHolder.wallet.address.toLowerCase() === buyer.address.toLowerCase()) {
+        throw new Error(`buyer lacks USDC for marketplace and payment proofs: balance=${buyerBalanceAtStart.toString()} required=${paymentBudget.toString()}`);
       }
-      await (await erc20.connect(richestUsdcHolder.wallet).transfer(buyer.address, price - buyerBalanceAtStart)).wait();
+      await (await erc20.connect(richestUsdcHolder.wallet).transfer(buyer.address, paymentBudget - buyerBalanceAtStart)).wait();
     }
-    if (buyerAllowanceAtStart < price) {
-      await (await erc20.connect(buyer).approve(config.diamondAddress, price)).wait();
+    if (buyerAllowanceAtStart < paymentBudget) {
+      await (await erc20.connect(buyer).approve(config.diamondAddress, paymentBudget)).wait();
     }
     const buyerBalanceBefore = BigInt(await erc20.balanceOf(buyer.address));
     const buyerAllowanceBefore = BigInt(await erc20.allowance(buyer.address, config.diamondAddress));
@@ -1506,6 +1527,115 @@ async function main() {
         sellerPendingBefore: sellerPendingBefore.toString(), sellerPendingAfter: sellerPendingAfter.toString(),
         sellerPendingDelta: sellerPendingDelta.toString(),
       };
+
+      const usedTokenIds = new Set([tokenId, distributionTokenId]);
+      const pickSeparateSellerAsset = async (): Promise<string> => {
+        for (const voiceHash of sellerAssetHashes) {
+          const asset = await voiceAsset.getVoiceAsset(voiceHash);
+          if (Boolean(asset.isLocked) || BigInt(asset.createdAt) + 86_400n > latestTimestamp) continue;
+          const id = String(await voiceAsset.getTokenId(voiceHash));
+          if (usedTokenIds.has(id)) continue;
+          const [assetOwner, listing] = await Promise.all([
+            voiceAsset.ownerOf(BigInt(id)),
+            marketplace.getListing(BigInt(id)),
+          ]);
+          if (String(assetOwner).toLowerCase() !== target.sellerAddress.toLowerCase() || Boolean(listing.isActive)) continue;
+          usedTokenIds.add(id);
+          return id;
+        }
+        throw new Error("fork-only distributePaymentFrom proofs require two additional aged, unlocked, unlisted seller assets");
+      };
+      const runPayerDistribution = async (
+        methodKey: "PaymentFacet.distributePaymentFrom" | "PaymentFacet.distributePaymentFromWithDeadline",
+        route: string,
+        assetTokenId: string,
+        deadline?: string,
+      ) => {
+        const payer = buyer.address;
+        const payerBalanceBefore = BigInt(await erc20.balanceOf(payer));
+        const diamondBalanceBefore = BigInt(await erc20.balanceOf(config.diamondAddress));
+        const sellerPendingBefore = BigInt(await payment.getPendingPayments(target.sellerAddress));
+        const revenueBefore = Array.from(await payment.getRevenueMetrics()).map(String);
+        const assetRevenueBefore = Array.from(await payment.getAssetRevenue(BigInt(assetTokenId))).map(String);
+        const body = {
+          tokenId: assetTokenId,
+          amount: price.toString(),
+          seller: target.sellerAddress,
+          referrer: ZeroAddress,
+          isLicensePayment: false,
+          payer,
+          ...(deadline ? { deadline } : {}),
+        };
+        const response = await apiCall(port, "POST", route, { apiKey: "buyer-key", walletAddress: payer, body });
+        if (response.status !== 202) throw new Error(`${methodKey} API route failed: ${JSON.stringify(response.payload)}`);
+        const txHash = extractTxHash(response.payload);
+        if (!txHash) throw new Error(`${methodKey} API route returned no transaction hash`);
+        const receipt = await waitForReceipt(provider, txHash, `fork-only ${methodKey}`);
+        const decoded = receipt.logs.flatMap((log) => {
+          try {
+            const parsed = payment.interface.parseLog(log);
+            return parsed?.name === "PaymentDistributed" ? [parsed] : [];
+          } catch { return []; }
+        })[0];
+        const event = decoded ? {
+          tokenId: String(decoded.args.tokenId),
+          seller: String(decoded.args.seller),
+          caller: String(decoded.args.buyer),
+          amount: String(decoded.args.amount),
+        } : null;
+        const payerBalanceAfter = BigInt(await erc20.balanceOf(payer));
+        const diamondBalanceAfter = BigInt(await erc20.balanceOf(config.diamondAddress));
+        const sellerPendingAfter = BigInt(await payment.getPendingPayments(target.sellerAddress));
+        const revenueAfter = Array.from(await payment.getRevenueMetrics()).map(String);
+        const assetRevenueAfter = Array.from(await payment.getAssetRevenue(BigInt(assetTokenId))).map(String);
+        const sellerPendingDelta = sellerPendingAfter - sellerPendingBefore;
+        const revenueDelta = BigInt(revenueAfter[0]) - BigInt(revenueBefore[0]);
+        const assetRevenueDelta = BigInt(assetRevenueAfter[0]) - BigInt(assetRevenueBefore[0]);
+        if (Number(receipt.status) !== 1 || !event
+          || event.tokenId !== assetTokenId
+          || event.seller.toLowerCase() !== target.sellerAddress.toLowerCase()
+          || event.caller.toLowerCase() !== payer.toLowerCase()
+          || event.amount !== price.toString()
+          || payerBalanceBefore - payerBalanceAfter !== price
+          || diamondBalanceAfter - diamondBalanceBefore !== price
+          || sellerPendingDelta <= 0n || revenueDelta !== price || assetRevenueDelta !== price) {
+          throw new Error(`${methodKey} receipt or post-state mismatch: ${JSON.stringify({ event, receiptStatus: receipt.status, assetTokenId, payer, price: price.toString(), payerBalanceBefore: payerBalanceBefore.toString(), payerBalanceAfter: payerBalanceAfter.toString(), diamondBalanceBefore: diamondBalanceBefore.toString(), diamondBalanceAfter: diamondBalanceAfter.toString(), sellerPendingBefore: sellerPendingBefore.toString(), sellerPendingAfter: sellerPendingAfter.toString(), revenueDelta: revenueDelta.toString(), assetRevenueDelta: assetRevenueDelta.toString() })}`);
+        }
+        return {
+          methodKey,
+          route: `POST ${route}`,
+          txHash,
+          receipt: { status: receipt.status, blockNumber: receipt.blockNumber, logCount: receipt.logs.length },
+          payer,
+          ...(deadline ? { deadline } : {}),
+          event,
+          payerBalanceBefore: payerBalanceBefore.toString(),
+          payerBalanceAfter: payerBalanceAfter.toString(),
+          diamondBalanceBefore: diamondBalanceBefore.toString(),
+          diamondBalanceAfter: diamondBalanceAfter.toString(),
+          sellerPendingBefore: sellerPendingBefore.toString(),
+          sellerPendingAfter: sellerPendingAfter.toString(),
+          sellerPendingDelta: sellerPendingDelta.toString(),
+          revenueDelta: revenueDelta.toString(),
+          assetRevenueDelta: assetRevenueDelta.toString(),
+        };
+      };
+      const fromAssetTokenId = await pickSeparateSellerAsset();
+      const fromDeadlineAssetTokenId = await pickSeparateSellerAsset();
+      const validDeadline = String(latestTimestamp + 3_600n);
+      distributePaymentFromUpdates = [
+        await runPayerDistribution(
+          "PaymentFacet.distributePaymentFrom",
+          "/v1/marketplace/commands/distribute-payment-from",
+          fromAssetTokenId,
+        ),
+        await runPayerDistribution(
+          "PaymentFacet.distributePaymentFromWithDeadline",
+          "/v1/marketplace/commands/distribute-payment-from-with-deadline",
+          fromDeadlineAssetTokenId,
+          validDeadline,
+        ),
+      ];
     }
 
     const purchaseResponse = await apiCall(
@@ -1758,6 +1888,7 @@ async function main() {
         ...(claimCommitmentUpdates ? { claimCommitmentUpdates } : {}),
         ...(stakingConfigUpdate ? { stakingConfigUpdate } : {}),
         ...(distributePaymentUpdate ? { distributePaymentUpdate } : {}),
+        ...(distributePaymentFromUpdates ? { distributePaymentFromUpdates } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,
