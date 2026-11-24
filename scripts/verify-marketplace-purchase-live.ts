@@ -518,10 +518,11 @@ type MarketplacePurchaseDetails = {
     receipt: {
       status: unknown;
       blockNumber: unknown;
+      logCount: number;
     };
     configBefore: string[];
     configAfter: string[];
-    expectedEvents: string[];
+    eventExpectation: string;
   };
   postState?: {
     owner?: unknown;
@@ -812,16 +813,6 @@ async function main() {
         throw new Error(`fork-only MEV protection configuration did not return a tx hash: ${JSON.stringify(configResponse.payload)}`);
       }
       const configReceipt = await waitForReceipt(provider, configTxHash, "fork-only MEV protection configuration");
-      const expectedEvents = ["BuybackConfigUpdated", "FeeConfigurationUpdated"];
-      const observedEvents = new Set(configReceipt.logs.flatMap((log) => {
-        try {
-          const parsed = payment.interface.parseLog(log);
-          return parsed ? [parsed.name] : [];
-        } catch {
-          return [];
-        }
-      }));
-      const mevEventFound = expectedEvents.some((eventName) => observedEvents.has(eventName));
       const configAfterResult = await payment.getMevProtectionConfig();
       const configAfter = [
         Boolean(configAfterResult[0]).toString(),
@@ -832,17 +823,21 @@ async function main() {
       ];
       const sameConfig = configBefore.length === configAfter.length
         && configBefore.every((value, index) => value.toLowerCase() === configAfter[index].toLowerCase());
-      if (!mevEventFound || !sameConfig) {
-        throw new Error("fork-only MEV protection configuration missed its declared event or canonical readback");
+      if (configReceipt.logs.length !== 0 || !sameConfig) {
+        throw new Error(`fork-only MEV protection configuration proof mismatch: ${JSON.stringify({
+          receiptLogCount: configReceipt.logs.length,
+          configBefore,
+          configAfter,
+        })}`);
       }
       mevProtectionConfigUpdate = {
         status: configResponse.status,
         payload: configResponse.payload,
         txHash: configTxHash,
-        receipt: { status: configReceipt.status, blockNumber: configReceipt.blockNumber },
+        receipt: { status: configReceipt.status, blockNumber: configReceipt.blockNumber, logCount: configReceipt.logs.length },
         configBefore,
         configAfter,
-        expectedEvents: expectedEvents.map((eventName) => `PaymentFacet.${eventName}`),
+        eventExpectation: "eventless per PaymentFacet.setMevProtectionConfig source",
       };
     }
 

@@ -8559,12 +8559,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "one-of",
-        "events": [
-          "PaymentFacet.BuybackConfigUpdated",
-          "PaymentFacet.FeeConfigurationUpdated"
-        ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "mode": "none",
+        "events": [],
+        "rationale": "Source review of contracts/marketplace/facets/PaymentFacet.sol confirms setMevProtectionConfig updates the five MEV configuration storage fields and contains no event emission."
       },
       "balanceEffects": {
         "mode": "none",
@@ -8588,15 +8585,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "PaymentFacet.BuybackConfigUpdated",
-          "PaymentFacet.FeeConfigurationUpdated"
-        ],
-        "projections": [
-          "payment_flows:ledger"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "This source method emits no event; the successful receipt and block journal must be accepted without fabricating a raw-event or payment_flows projection."
       }
     },
     "PaymentFacet.setPaymentPaused": {
