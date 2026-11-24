@@ -210,6 +210,7 @@ describe("verify marketplace purchase live target selection", () => {
             },
           },
           txHash: "0xwithdraw",
+          deadline: "1770003600",
           receipt: {
             status: 1,
             blockNumber: 101,
@@ -258,6 +259,7 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.reports["marketplace-purchase"].evidence).toHaveLength(6);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
+      deadline: "1770003600",
       pendingBefore: "915",
       pendingAfter: "0",
     });

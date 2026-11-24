@@ -491,6 +491,7 @@ type MarketplacePurchaseDetails = {
     status: number;
     payload: unknown;
     txHash: string;
+    deadline: string;
     receipt: {
       status: unknown;
       blockNumber: unknown;
@@ -959,6 +960,11 @@ async function main() {
     if (pendingBeforeWithdrawal <= 0n) {
       throw new Error(`marketplace purchase did not accrue seller payments: ${target.sellerAddress}`);
     }
+    const latestBlock = await provider.getBlock("latest");
+    if (!latestBlock) {
+      throw new Error("marketplace payment withdrawal could not read the current fork block");
+    }
+    const withdrawalDeadline = String(latestBlock.timestamp + 3600);
     const withdrawalResponse = await apiCall(
       port,
       "POST",
@@ -966,7 +972,7 @@ async function main() {
       {
         apiKey: withdrawalApiKey,
         walletAddress: target.sellerAddress,
-        body: {},
+        body: { deadline: withdrawalDeadline },
       },
     );
     if (withdrawalResponse.status !== 202) {
@@ -1018,6 +1024,7 @@ async function main() {
           status: withdrawalResponse.status,
           payload: withdrawalResponse.payload,
           txHash: withdrawalTxHash,
+          deadline: withdrawalDeadline,
           receipt: {
             status: withdrawalReceipt.status,
             blockNumber: withdrawalReceipt.blockNumber,
