@@ -1,3 +1,9 @@
+# 2026-11-24 — Prove oracle staleness configuration indexing
+
+- Added exact loopback-fork proof for `EchoScoreFacetV3.setOracleStalenessConfig`; API update and restoration receipts each emitted the expected event, and the final value was restored to `86400`.
+- The full contract integration stage passed `45/45`; PostgreSQL stored raw events `268` and `269` and their block journals, and idempotent replay passed. API-05 advances to `140/260`, leaving `120` methods open.
+- The local runner retains a codegen metadata mismatch against contracts checkout `3b814442` and the known `ProposalFacet.queue` safe-read gap. Hosted API quality CI is pending.
+
 # 2026-11-24 — Record hosted CI for token supply finalization proof
 
 - Hosted API quality run [45509757772](https://github.com/chefbc2k/api-layer/actions/runs/45509757772) passed every configured gate on evidence commit `e9a76a58512cbb04bc54bbd77f593158e75f3a42`, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.

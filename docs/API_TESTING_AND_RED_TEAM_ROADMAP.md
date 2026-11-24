@@ -1718,6 +1718,13 @@ Merge readiness:
 - The prior API-package build backlog has been repaired on `master`; the merged branch now passes TypeScript, lint, full build, explicit surface coverage, focused mutation tests, guarded local-fork tests, relevant workflow/indexer suites, and repository coverage together.
 - No merge blocker remains for the red-team mutation and fuzzing section.
 
+## API-05 Follow-on — Oracle Staleness Configuration Proof — 2026-11-24
+
+- Added loopback-fork proof for `EchoScoreFacetV3.setOracleStalenessConfig` through `PATCH /v1/staking/commands/set-oracle-staleness-config`. The founder governance-role signer changed `maxAgeSeconds` from `86400` to `86401`, verified the exact event and direct/HTTP tuple readbacks, then restored `86400` through the API. Both receipts succeeded with one `OracleStalenessConfigUpdated` event.
+- PostgreSQL stored raw events `268` and `269` with their receipt block journals, no projections as required by the reviewed raw-event-only invariant, and unchanged replay was idempotent. Full contract integration passed `45/45`; all assurance stages except current-inventory generation passed, with the known `ProposalFacet.queue` safe-read gap (`445/446`).
+- API-05 advances from `139/260` to `140/260` proven methods, leaving `120` open. The local generator now detects `510` methods and `218` events in contracts checkout `3b814442`, while this branch's reviewed write-invariant metadata is stale; seven signatures are missing and two are obsolete. No contracts-repository files were changed. Hosted CI remains pending.
+- Durable proof: [`output/api05-echo-score-staleness-proof-2026-11-24.json`](../output/api05-echo-score-staleness-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json).
+
 ## API-05 Follow-on — Token Supply Finalization Proof — 2026-11-24
 
 - Added exact local-fork proof for `TokenSupplyFacet.supplyFinishMinting`; the receipt emitted `MintingFinished`, and contract plus HTTP readbacks confirmed finalization. PostgreSQL stored the raw event and block journal; replay was idempotent. The token flag fixture was restored after the proof.

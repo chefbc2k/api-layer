@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "sourceCommit": "f6b3f6cbe9c7be4b186b66a166eca22e253e8e92",
+  "methods": [
+    {
+      "methodKey": "EchoScoreFacetV3.setOracleStalenessConfig",
+      "route": "PATCH /v1/staking/commands/set-oracle-staleness-config",
+      "actor": "founder fixture signer with GOVERNANCE_ROLE",
+      "fixture": {
+        "originalMaxAgeSeconds": "86400",
+        "testMaxAgeSeconds": "86401",
+        "restoredMaxAgeSeconds": "86400"
+      },
+      "receipts": [
+        {
+          "targetMaxAgeSeconds": "86401",
+          "receipt": {
+            "transactionHash": "0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8",
+            "blockNumber": 63207569,
+            "blockHash": "0xcb75d68cc67554c1bfeb51ffdf7f1bb219e9b08f2a2ba27cb04dc41f0caba175",
+            "status": 1,
+            "logCount": 1
+          },
+          "event": {
+            "name": "OracleStalenessConfigUpdated",
+            "signature": "OracleStalenessConfigUpdated(uint256)",
+            "eventKey": "EchoScoreFacetV3.OracleStalenessConfigUpdated(uint256)",
+            "rawEventId": "268",
+            "logIndex": 0
+          },
+          "indexer": {
+            "rawEvents": 1,
+            "rawEventIds": [
+              "268"
+            ],
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63207569",
+                  "block_hash": "0xcb75d68cc67554c1bfeb51ffdf7f1bb219e9b08f2a2ba27cb04dc41f0caba175"
+                }
+              ]
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            }
+          }
+        },
+        {
+          "targetMaxAgeSeconds": "86400",
+          "receipt": {
+            "transactionHash": "0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350",
+            "blockNumber": 63207570,
+            "blockHash": "0xc743991814e6a7b53b63ead471a6a00098bd7b9e7697f15710f157de876d0e1f",
+            "status": 1,
+            "logCount": 1
+          },
+          "event": {
+            "name": "OracleStalenessConfigUpdated",
+            "signature": "OracleStalenessConfigUpdated(uint256)",
+            "eventKey": "EchoScoreFacetV3.OracleStalenessConfigUpdated(uint256)",
+            "rawEventId": "269",
+            "logIndex": 0
+          },
+          "indexer": {
+            "rawEvents": 1,
+            "rawEventIds": [
+              "269"
+            ],
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63207570",
+                  "block_hash": "0xc743991814e6a7b53b63ead471a6a00098bd7b9e7697f15710f157de876d0e1f"
+                }
+              ]
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            }
+          }
+        }
+      ],
+      "assertions": [
+        "The API accepted the founder governance-role command and both update and restore receipts succeeded with one OracleStalenessConfigUpdated event each.",
+        "The event value, canonical getOracleStalenessConfig state, and HTTP tuple readback matched the updated value.",
+        "The original 86400-second staleness limit was restored through the API after the proof."
+      ],
+      "classification": "proven working"
+    }
+  ],
+  "cumulative": {
+    "startingProvenWriteMethods": 139,
+    "endingProvenWriteMethods": 140,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 120,
+    "indexedReceipts": 4330,
+    "rawEvents": 6582,
+    "projectionRows": 4259,
+    "addedMethodKeys": [
+      "EchoScoreFacetV3.setOracleStalenessConfig"
+    ],
+    "indexerArtifactSha256": "8707795cfb17df1dbd715ff8294203fd5a57139fc59cf5d23f11bf9677aeb2d1"
+  },
+  "assurance": {
+    "runnerStatus": "failed with structured gaps",
+    "stagesPassed": 11,
+    "stagesTotal": 12,
+    "httpContractIntegrationTestsPassed": 45,
+    "safeReadPassed": 445,
+    "safeReadAttempted": 446,
+    "knownGaps": [
+      "Local codegen against contracts checkout 3b814442 inventory of 510 methods/218 events failed because reviewed write invariants lack metadata for seven new signatures and contain two stale signature keys.",
+      "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (ProposalExpired(uint256))."
+    ],
+    "runnerReportSha256": "b99162f0b04fbf6811d70ca911c8c7d8b998dd322ee0fe49a983573e2c580df1",
+    "httpContractReceiptsSha256": "5d666ee5cfb7e67af5bfafd8b6701528dcb350258f3208aa53552dbe9954c5f7",
+    "indexerStageArtifactSha256": "3971c39d7b4c5e0a0bf6546a02679833f58f5335d1d791c6f17a98c75526cc1f"
+  },
+  "resultLimitation": "This run completed 1 of 121 open methods (0.8264%), below the bounded target of 35; API-05 remains in progress with 120 methods open. The assurance runner is not green because current sibling-contract codegen metadata is out of sync and the existing ProposalFacet.queue fixture gap remains."
+}

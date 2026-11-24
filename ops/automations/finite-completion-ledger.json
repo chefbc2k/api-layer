@@ -1272,6 +1272,33 @@
           "ciRunId": 45509757772,
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45509757772",
           "ciCommit": "e9a76a58512cbb04bc54bbd77f593158e75f3a42"
+        },
+        {
+          "sourceCommit": "f6b3f6cbe9c7be4b186b66a166eca22e253e8e92",
+          "artifact": "output/api05-echo-score-staleness-proof-2026-11-24.json",
+          "proofArtifactSha256": "6520f18630ca50cbbf491337eb17d32e5a72c86844d89d7c6cd516f6c1916fef",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "8707795cfb17df1dbd715ff8294203fd5a57139fc59cf5d23f11bf9677aeb2d1",
+          "result": "Added exact-source local-fork proof for EchoScoreFacetV3.setOracleStalenessConfig through PATCH /v1/staking/commands/set-oracle-staleness-config. The founder fixture signer with GOVERNANCE_ROLE changed the oracle max age from 86400 to 86401 and restored it through the API. Both status-1 receipts emitted OracleStalenessConfigUpdated; direct and HTTP readbacks matched. PostgreSQL stored one raw event and block journal per receipt, no projection as required by the reviewed raw-event-only invariant, and unchanged replay was idempotent. Cumulative coverage advances from 139/260 to 140/260 exact methods, leaving 120 open.",
+          "startingProvenCount": 139,
+          "startingOpenCount": 121,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8264,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 140,
+          "endingOpenCount": 120,
+          "assuranceReportSha256": "b99162f0b04fbf6811d70ca911c8c7d8b998dd322ee0fe49a983573e2c580df1",
+          "checks": [
+            "Focused loopback-fork HTTP integration test passed; API update and restore each returned a status-1 receipt with the expected single OracleStalenessConfigUpdated event.",
+            "Full contract integration stage passed 45/45 tests; all 11 assurance stages other than inventory generation passed.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
+            "Indexer evidence: update receipt 0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8 at block 63207569, raw event 268; restore receipt 0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350 at block 63207570, raw event 269. Both were journaled, replayed unchanged, and classified proven working.",
+            "Final direct getter confirms original maxAgeSeconds 86400 was restored on the loopback fork.",
+            "Local codegen inventory failed against contracts checkout 3b814442: 510 current methods and 218 events do not match this branch\u2019s reviewed write-invariant metadata; seven signatures are missing and two are stale. No files in the contracts repository were modified.",
+            "Hosted API quality CI for this source update is pending."
+          ],
+          "resultLimitation": "This run completed 1 of the 121 open methods (0.8264%), below the bounded target of 35; API-05 remains in_progress with 120 methods open. The local assurance runner has two structured gaps: codegen metadata is out of sync with the current sibling contracts checkout, and ProposalFacet.queue still lacks a working safe-read fixture."
         }
       ],
       "deliveredCommit": null,
