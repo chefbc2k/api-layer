@@ -112,7 +112,7 @@
     {
       "id": "API-04",
       "ownerAutomationId": "api-assurance-production-indexer-write-coverage",
-      "status": "in_progress",
+      "status": "waiting_dependency",
       "dependsOn": [
         "API-01"
       ],
@@ -426,7 +426,10 @@
         }
       ],
       "deliveredCommit": null,
-      "blocker": null,
+      "blocker": {
+        "owner": "CONTRACTS release owner",
+        "action": "Correct the deployed ProposalFacet.queue expiry validation. The current implementation passes proposal.endBlock as the start bound and block.timestamp as the exclusive end bound, so the read reverts ProposalExpired(uint256) even immediately after proposal submission. Deliver the corrected contract deployment/ABI evidence, then rerun the API loopback aggregate; the other 445 safe reads and all 12 runner stages are proven."
+      },
       "handoffNote": "Standalone tooling buildout job paused as consolidated. Required actual guarded-fork/full-runner release evidence remains OPEN here; deterministic CI does not claim that evidence."
     },
     {
@@ -813,16 +816,45 @@
     {
       "id": "API-07",
       "ownerAutomationId": "api-assurance-base-sepolia-promotion",
-      "status": "open",
+      "status": "waiting_dependency",
       "dependsOn": [
         "API-01",
         "API-04"
       ],
       "acceptance": "Both marketplace and governance safe Base Sepolia scenarios accepted with configured deliberate live readiness, tx/block/actor/delta/events and default delivery.",
       "baseline": null,
-      "evidence": [],
+      "evidence": [
+        {
+          "sourceCommit": "9141515f9c64297f257fa8103ab275ba14f080c8",
+          "url": "https://github.com/chefbc2k/api-layer/commit/9141515f9c64297f257fa8103ab275ba14f080c8",
+          "artifact": ".runtime/aggregate-evidence-recheck/report.json",
+          "aggregateReportSha256": "62d9d0bc44bc67dc3f1d1b6d2c5e70695b4d7d1b5e6112d33a7dfdf2e5689f15",
+          "result": "Marketplace purchase and governance proposal/vote scenarios passed on the disposable Base Sepolia fork, including transaction receipts, actor, state and event evidence. This proves the scenarios against the pinned fork only; API-07's direct live Base Sepolia requirement remains open.",
+          "checks": [
+            "Marketplace purchase lifecycle passed on loopback fork at block 62422222.",
+            "Governance submit, activation and vote lifecycle passed on the same disposable fork with receipt and event indexing proof.",
+            "The aggregate did not access or write to the public Base Sepolia network."
+          ]
+        },
+        {
+          "sourceCommit": "09cfd1bd85534bf9bdfaeaef4fcbc54909240a72",
+          "url": "https://github.com/chefbc2k/api-layer/blob/09cfd1bd85534bf9bdfaeaef4fcbc54909240a72/verify-base-sepolia-promotion-output.json",
+          "artifact": "verify-base-sepolia-promotion-output.json",
+          "result": "Read-only promotion preflight confirms the configured .env is not ready for live Base Sepolia scenarios: both RPC settings resolve to loopback and explicit live promotion opt-in is disabled. No scenarios were started.",
+          "checks": [
+            "Network Base Sepolia and chain ID 84532 are configured; direct deployment address and distinct actor keys are present.",
+            "API_LAYER_BASE_SEPOLIA_PROMOTION_READY is not enabled.",
+            "RPC_URL and ALCHEMY_RPC_URL both resolve to http://127.0.0.1:8548; preflight rejects loopback as a live target.",
+            "Preflight ran read-only with --preflight; no wallet transactions were submitted."
+          ]
+        }
+      ],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": {
+        "owner": "API release operator",
+        "action": "Provide/configure approved direct Base Sepolia RPC_URL and ALCHEMY_RPC_URL endpoints and explicitly enable API_LAYER_BASE_SEPOLIA_PROMOTION_READY=true. Confirm authorization to submit the two fixture-backed testnet workflows using the configured test actors/funds; no scenario transaction has been sent. API-04's queue contract dependency must also be resolved."
+      },
+      "handoffNote": "Do not change local .env or send testnet transactions until the live endpoint, explicit promotion opt-in, and testnet-write authorization are supplied."
     },
     {
       "id": "API-08",
