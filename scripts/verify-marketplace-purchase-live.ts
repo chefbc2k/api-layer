@@ -537,6 +537,14 @@ type MarketplacePurchaseDetails = {
     pausedStateAfter: boolean;
     postStateReadback: string;
   };
+  buybackConfigUpdate?: {
+    status: number;
+    txHash: string;
+    receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    configBefore: string[];
+    configAfter: string[];
+    event: string;
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -566,6 +574,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.usdcTokenUpdate ? { kind: "usdcTokenUpdate", value: normalize(args.details.usdcTokenUpdate) } : null,
     args.details.mevProtectionConfigUpdate ? { kind: "mevProtectionConfigUpdate", value: normalize(args.details.mevProtectionConfigUpdate) } : null,
     args.details.buybackPauseUpdate ? { kind: "buybackPauseUpdate", value: normalize(args.details.buybackPauseUpdate) } : null,
+    args.details.buybackConfigUpdate ? { kind: "buybackConfigUpdate", value: normalize(args.details.buybackConfigUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -576,6 +585,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
       routes: [
         "PATCH /v1/marketplace/commands/set-usdc-token",
         "PATCH /v1/marketplace/commands/set-mev-protection-config",
+        "PATCH /v1/marketplace/commands/set-buyback-config",
         "POST /v1/marketplace/commands/pause-buybacks",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
@@ -748,6 +758,7 @@ async function main() {
     let usdcTokenUpdate: MarketplacePurchaseDetails["usdcTokenUpdate"];
     let mevProtectionConfigUpdate: MarketplacePurchaseDetails["mevProtectionConfigUpdate"];
     let buybackPauseUpdate: MarketplacePurchaseDetails["buybackPauseUpdate"];
+    let buybackConfigUpdate: MarketplacePurchaseDetails["buybackConfigUpdate"];
     if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
       await ensureNativeBalance(
         provider,
@@ -854,6 +865,92 @@ async function main() {
         configBefore,
         configAfter,
         eventExpectation: "eventless per PaymentFacet.setMevProtectionConfig source",
+      };
+
+      const buybackConfigBeforeResult = await payment.getBuybackStatus();
+      const buybackConfigBefore = [
+        String(buybackConfigBeforeResult.buybackBps ?? buybackConfigBeforeResult[0]),
+        String(buybackConfigBeforeResult.minMonthlyRevenue ?? buybackConfigBeforeResult[1]),
+        String(buybackConfigBeforeResult.requiredMonths ?? buybackConfigBeforeResult[2]),
+        String(buybackConfigBeforeResult.cadence ?? buybackConfigBeforeResult[3]),
+        String(buybackConfigBeforeResult.buybackRouter ?? buybackConfigBeforeResult[10]),
+        String(buybackConfigBeforeResult.uspkToken ?? buybackConfigBeforeResult[11]),
+        String(buybackConfigBeforeResult.burnAddress ?? buybackConfigBeforeResult[12]),
+      ];
+      const buybackConfigTarget = [
+        "0",
+        "0",
+        "1",
+        "1",
+        ZeroAddress,
+        buybackConfigBefore[5],
+        ZeroAddress,
+      ];
+      const buybackConfigResponse = await apiCall(
+        port,
+        "PATCH",
+        "/v1/marketplace/commands/set-buyback-config",
+        {
+          apiKey: "founder-key",
+          walletAddress: founder.address,
+          body: {
+            buybackBps: buybackConfigTarget[0],
+            minMonthlyRevenue: buybackConfigTarget[1],
+            requiredMonths: buybackConfigTarget[2],
+            cadence: buybackConfigTarget[3],
+            buybackRouter: buybackConfigTarget[4],
+            uspkToken: buybackConfigTarget[5],
+            burnAddress: buybackConfigTarget[6],
+          },
+        },
+      );
+      if (buybackConfigResponse.status !== 202) {
+        throw new Error(`fork-only buyback config proof failed: ${JSON.stringify(buybackConfigResponse.payload)}`);
+      }
+      const buybackConfigTxHash = extractTxHash(buybackConfigResponse.payload);
+      if (!buybackConfigTxHash) {
+        throw new Error(`fork-only buyback config did not return a tx hash: ${JSON.stringify(buybackConfigResponse.payload)}`);
+      }
+      const buybackConfigReceipt = await waitForReceipt(provider, buybackConfigTxHash, "fork-only buyback config");
+      const buybackConfigEvent = buybackConfigReceipt.logs.flatMap((log) => {
+        try {
+          const parsed = payment.interface.parseLog(log);
+          return parsed?.name === "BuybackConfigUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      })[0];
+      const buybackConfigAfterResult = await payment.getBuybackStatus();
+      const buybackConfigAfter = [
+        String(buybackConfigAfterResult.buybackBps ?? buybackConfigAfterResult[0]),
+        String(buybackConfigAfterResult.minMonthlyRevenue ?? buybackConfigAfterResult[1]),
+        String(buybackConfigAfterResult.requiredMonths ?? buybackConfigAfterResult[2]),
+        String(buybackConfigAfterResult.cadence ?? buybackConfigAfterResult[3]),
+        String(buybackConfigAfterResult.buybackRouter ?? buybackConfigAfterResult[10]),
+        String(buybackConfigAfterResult.uspkToken ?? buybackConfigAfterResult[11]),
+        String(buybackConfigAfterResult.burnAddress ?? buybackConfigAfterResult[12]),
+      ];
+      const buybackConfigMatches = buybackConfigTarget.every((value, index) =>
+        value.toLowerCase() === buybackConfigAfter[index].toLowerCase());
+      const buybackConfigEventMatches = Boolean(buybackConfigEvent)
+        && buybackConfigTarget.every((value, index) => String(buybackConfigEvent.args[index]).toLowerCase() === value.toLowerCase());
+      if (!buybackConfigEventMatches || !buybackConfigMatches) {
+        throw new Error(`fork-only buyback config event/readback mismatch: ${JSON.stringify({
+          eventFound: Boolean(buybackConfigEvent),
+          buybackConfigBefore,
+          buybackConfigTarget,
+          buybackConfigAfter,
+          buybackConfigEventValues: buybackConfigEvent ? Array.from(buybackConfigEvent.args).map(String) : null,
+        })}`);
+      }
+      buybackConfigUpdate = {
+        status: buybackConfigResponse.status,
+        txHash: buybackConfigTxHash,
+        receipt: { status: buybackConfigReceipt.status, blockNumber: buybackConfigReceipt.blockNumber, logCount: buybackConfigReceipt.logs.length },
+        configBefore: buybackConfigBefore,
+        configTarget: buybackConfigTarget,
+        configAfter: buybackConfigAfter,
+        event: "PaymentFacet.BuybackConfigUpdated",
       };
 
       const pauseResponse = await apiCall(
@@ -1238,6 +1335,7 @@ async function main() {
         ...(usdcTokenUpdate ? { usdcTokenUpdate } : {}),
         ...(mevProtectionConfigUpdate ? { mevProtectionConfigUpdate } : {}),
         ...(buybackPauseUpdate ? { buybackPauseUpdate } : {}),
+        ...(buybackConfigUpdate ? { buybackConfigUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,

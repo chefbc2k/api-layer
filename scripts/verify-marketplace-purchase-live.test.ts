@@ -218,6 +218,15 @@ describe("verify marketplace purchase live target selection", () => {
           pendingBefore: "915",
           pendingAfter: "0",
         },
+        buybackConfigUpdate: {
+          status: 202,
+          txHash: "0xbuyback-config",
+          receipt: { status: 1, blockNumber: 102, logCount: 1 },
+          configBefore: ["0", "0", "0", "0", "0x0", "0x0", "0x0"],
+          configTarget: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
+          configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
+          event: "PaymentFacet.BuybackConfigUpdated",
+        },
         postState: {
           listing: {
             tokenId: "11",
@@ -233,8 +242,8 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.summary).toBe("proven working");
     expect(output.totals).toEqual({
       domainCount: 1,
-      routeCount: 10,
-      evidenceCount: 6,
+      routeCount: 11,
+      evidenceCount: 7,
     });
     expect(output.statusCounts).toEqual({
       "proven working": 1,
@@ -247,6 +256,11 @@ describe("verify marketplace purchase live target selection", () => {
       result: "proven working",
       executionResult: "purchase completed",
       actors: ["seller-key", "buyer-key", "read-key"],
+      routes: expect.arrayContaining(["PATCH /v1/marketplace/commands/set-buyback-config"]),
+      buybackConfigUpdate: {
+        event: "PaymentFacet.BuybackConfigUpdated",
+        configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
+      },
       target: {
         source: "aged-fixture",
         tokenId: "11",
@@ -256,7 +270,7 @@ describe("verify marketplace purchase live target selection", () => {
         buyer: "0xbuyer",
       },
     });
-    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(6);
+    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(7);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
       deadline: "1770003600",

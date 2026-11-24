@@ -8359,16 +8359,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.setBuybackConfig."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.setBuybackConfig."
         },
         {
           "kind": "argument",
@@ -8446,16 +8444,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "GOVERNANCE_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.setBuybackConfigStruct."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold GOVERNANCE_ROLE for PaymentFacet.setBuybackConfigStruct."
         },
         {
           "kind": "protocol-state",
