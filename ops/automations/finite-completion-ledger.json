@@ -262,6 +262,22 @@
               "hasPayload": true
             }
           ]
+        },
+        {
+          "sourceCommit": "85defa0a59705093b0fb08648d7ad5b3998d498c",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45115927738",
+          "result": "The vesting read-fixture improvement passed all API quality CI stages on its branch. This validates CI for the code change; its disposable-fork read sweep remains reduced-fixture evidence and does not close API-04.",
+          "checks": [
+            "API quality workflow: dependency audit, pinned-selector codegen, typecheck, lint, build, disposable PostgreSQL and fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance all passed."
+          ]
+        },
+        {
+          "sourceCommit": "03b07fe2e757bcd1a0cbcd83b865006a15510f4b",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45115973359",
+          "result": "Integrated fork-evidence cleanup and licensing read changes passed the default-branch API quality workflow. This is verified default delivery and CI, while the full aggregate still has open fixture, governance-activation, PostgreSQL/indexer, and payout acceptance work.",
+          "checks": [
+            "API quality workflow: dependency audit, pinned-selector codegen, typecheck, lint, build, disposable PostgreSQL and fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance all passed."
+          ]
         }
       ],
       "deliveredCommit": null,
