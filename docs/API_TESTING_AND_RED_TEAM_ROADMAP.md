@@ -2,6 +2,13 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Buyback Configuration Proof — 2026-11-24
+
+- Added a loopback-only call to `PATCH /v1/marketplace/commands/set-buyback-config` using a valid disabled target: zero buyback basis points, zero monthly minimum, one required month, cadence 1, and zero addresses. The receipt succeeded at block `63055602`, emitted `PaymentFacet.BuybackConfigUpdated`, and all seven event arguments matched `PaymentFacet.getBuybackStatus` readback.
+- The reviewed invariant now requires `GOVERNANCE_ROLE`, matching PaymentFacet source, and describes the setter's actual input validation and no-balance effects. Disposable PostgreSQL indexed the raw event and `payment_flows` projection, journaled the block, and replayed idempotently. The full local-fork run passed 12/12 stages; only the known `ProposalFacet.queue` safe-read gap remains.
+- Source commit `cd5a87daddc74eaf2d11bba055e000ca31dfd440` adds one distinct accepted method: API-05 advances from `118/260` to `119/260`, leaving `141` open. This run completed `1/142` open methods (`0.7042%`), below the bounded target of `37`. CI run [45424068498](https://github.com/chefbc2k/api-layer/actions/runs/45424068498) passed all gates.
+- Durable proof: [`output/api05-buyback-config-proof-2026-11-24.json`](../output/api05-buyback-config-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json). An initial attempt to replay the invalid fixture config reverted with `BuybackConfigInvalid`; the accepted proof uses a valid disabled target.
+
 ## API-05 Follow-on — Corrected Buyback Pause State Proof — 2026-11-24
 
 - Corrected the loopback proof for `POST /v1/marketplace/commands/pause-buybacks`: `getBuybackStatus` includes the pause state as `paused`. The earlier evidence description was inaccurate and checked only the event; source commit `7156f0da6832149276d01c398ceff2aa897251c0` now requires both `BuybackPaused(false)` and `PaymentFacet.getBuybackStatus().paused === false`.

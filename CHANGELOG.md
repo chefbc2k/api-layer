@@ -1,3 +1,8 @@
+# 2026-11-24 — Prove buyback configuration write on local fork
+
+- Added a fork-only `setBuybackConfig` request using a valid disabled configuration. The receipt emitted `BuybackConfigUpdated`; all seven values matched the canonical getter, and PostgreSQL projection plus idempotent replay passed.
+- Corrected both buyback configuration write invariants to the contract's `GOVERNANCE_ROLE` authorization and actual no-balance effects. Local assurance passed all 12 stages with the known queue fixture gap. API-05 advances to 119/260 methods with 141 open. Hosted API quality run 45424068498 passed on the exact source commit.
+
 # 2026-11-24 — Require canonical buyback pause state readback
 
 - Corrected `pauseBuybacks(false)` verification to check both the `BuybackPaused(false)` receipt and `PaymentFacet.getBuybackStatus().paused === false`. The earlier proof incorrectly claimed that getter omitted the state.
