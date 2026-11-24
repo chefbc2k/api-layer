@@ -1718,6 +1718,12 @@ Merge readiness:
 - The prior API-package build backlog has been repaired on `master`; the merged branch now passes TypeScript, lint, full build, explicit surface coverage, focused mutation tests, guarded local-fork tests, relevant workflow/indexer suites, and repository coverage together.
 - No merge blocker remains for the red-team mutation and fuzzing section.
 
+## API-05 Follow-on — Token Supply Finalization Proof — 2026-11-24
+
+- Added exact local-fork proof for `TokenSupplyFacet.supplyFinishMinting`; the receipt emitted `MintingFinished`, and contract plus HTTP readbacks confirmed finalization. PostgreSQL stored the raw event and block journal; replay was idempotent. The token flag fixture was restored after the proof.
+- Full local-fork assurance passed all 12 stages and all 44 HTTP contract integration tests; the known `ProposalFacet.queue` safe-read gap remains (445/446 passed). API-05 advances to 139/260 proven methods, leaving 121 open.
+- Hosted API quality CI run [45509757772](https://github.com/chefbc2k/api-layer/actions/runs/45509757772) passed every configured gate on evidence commit `e9a76a58512cbb04bc54bbd77f593158e75f3a42`. The bounded 35-method target remains unmet. Durable proof: [`output/api05-token-supply-finalization-proof-2026-11-24.json`](../output/api05-token-supply-finalization-proof-2026-11-24.json).
+
 ## Definition Of Done
 
 The API assurance effort is complete when every ABI method and event has a visible proof classification, every user-facing workflow has positive and negative evidence, every value-moving path has balance conservation checks, every state machine has illegal-transition tests, every emitted event is indexer-proven, every privileged function has role-abuse tests, and all remaining exceptions are explicitly documented as unsafe/destructive on live networks or blocked by upstream contract behavior.

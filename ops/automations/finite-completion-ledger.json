@@ -1054,7 +1054,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
             "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
             "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
-            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 \u2192 2,512 indexed receipts, 127 \u2192 128/260 proven write methods, 3,504 \u2192 3,791 raw events, and 2,312 \u2192 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
             "GitHub Actions API quality run 45466661979 initially failed regression because the event-assurance test still expected 276 event declarations; corrected counts to 275 declarations and 34 eventless writes, with focused event-assurance suite passing 210/210.",
             "GitHub Actions API quality retry 45467848444 passed every configured gate on db65482d43c1ee5df2190ce7449b28c4a9edc2b6, including dependency audit, pinned-selector codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
@@ -1266,9 +1266,12 @@
             "The canonical getter and HTTP read route confirmed minting finished; the original token flag slot was restored in loopback-fork storage.",
             "PostgreSQL stored raw event 267 and one block-journal row, no projection; replay was unchanged and idempotent.",
             "Cumulative indexer: 4,090 receipts, 139/260 distinct methods, 6,236 raw events, and 4,052 projection rows.",
-            "Hosted CI for this source update is pending."
+            "Hosted API quality run 45509757772 passed every configured gate on evidence commit e9a76a58512cbb04bc54bbd77f593158e75f3a42, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
-          "resultLimitation": "This run completed 1 of 122 open methods (0.8197%), below the bounded target of 35; API-05 remains in_progress with 121 methods open."
+          "resultLimitation": "This run completed 1 of 122 open methods (0.8197%), below the bounded target of 35; API-05 remains in_progress with 121 methods open.",
+          "ciRunId": 45509757772,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45509757772",
+          "ciCommit": "e9a76a58512cbb04bc54bbd77f593158e75f3a42"
         }
       ],
       "deliveredCommit": null,
@@ -5039,7 +5042,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 – Low-risk cron batch (draft)",
+            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]
