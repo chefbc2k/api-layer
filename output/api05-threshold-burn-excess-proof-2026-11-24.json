@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "task": "API-05 exact-method acceptance evidence",
+  "methodKey": "BurnThresholdFacet.thresholdBurnExcess",
+  "route": "POST /v1/tokenomics/commands/threshold-burn-excess",
+  "network": "Base Sepolia fork on loopback RPC",
+  "execution": {
+    "actor": "outsider-key (permissionless caller)",
+    "receipt": {
+      "transactionHash": "0x274d054e1120af09102149bf3bb712aaa395921158a109d03660cacb1afdf021",
+      "blockNumber": 63145074,
+      "status": 1,
+      "logCount": 2
+    },
+    "event": {
+      "name": "ThresholdBurn",
+      "amount": "41989300000000",
+      "burner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "timestamp": "1795810567",
+      "thresholdAtBurn": "1"
+    },
+    "assertions": [
+      "API returned HTTP 202 and receipt status was 1.",
+      "Burn amount matched the contract-calculated excess at a temporary 1 basis point threshold.",
+      "Founder balance and total supply each decreased by exactly the event amount.",
+      "The outsider caller required no privileged role.",
+      "The original burn threshold was restored through the API after the burn."
+    ],
+    "producer": "packages/api/src/app.contract-integration.test.ts: proves permissionless threshold-excess burn accounting on an isolated fork"
+  },
+  "indexer": {
+    "status": "proven working",
+    "rawEvents": 2,
+    "eventKeys": [
+      "null.Transfer(address,address,uint256)",
+      "BurnThresholdFacet.ThresholdBurn(address,uint256,uint256,uint256)"
+    ],
+    "projections": [],
+    "blockJournalRows": 1,
+    "replay": {
+      "status": "idempotent",
+      "unchanged": true
+    },
+    "focusedReceiptSource": ".runtime/local-fork-proofs/event-indexer.json"
+  },
+  "cumulative": {
+    "startingProvenWriteMethods": 128,
+    "endingProvenWriteMethods": 129,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 131,
+    "indexedReceipts": 2859,
+    "rawEvents": 4316,
+    "projectionRows": 2857,
+    "methodClassification": "proven working"
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "httpIntegrationTestsPassed": 37,
+    "safeReadPassed": 445,
+    "safeReadAttempted": 446,
+    "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."
+  }
+}

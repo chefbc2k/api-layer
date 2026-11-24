@@ -1064,6 +1064,32 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45467848444",
           "ciRunId": 45467848444,
           "ciCommit": "db65482d43c1ee5df2190ce7449b28c4a9edc2b6"
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-threshold-burn-excess-proof-2026-11-24.json",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "result": "Added exact-source loopback-fork proof for permissionless BurnThresholdFacet.thresholdBurnExcess through POST /v1/tokenomics/commands/threshold-burn-excess. The outsider-key receipt succeeded at block 63145074, emitted ThresholdBurn for 41989300000000 units at threshold 1, and matched the founder balance and total-supply reductions. PostgreSQL indexed both receipt logs, recorded the block journal, and unchanged idempotent replay passed. Cumulative coverage advances from 128/260 to 129/260, leaving 131 open.",
+          "startingProvenCount": 128,
+          "startingOpenCount": 132,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.7576,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 129,
+          "endingOpenCount": 131,
+          "checks": [
+            "Pinned-selector generation completed with 492 methods, 218 events, and 260/260 reviewed write invariants.",
+            "Full local-fork assurance passed all 12 stages; all 37 HTTP contract integration tests passed.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 as the known fixture gap.",
+            "thresholdBurnExcess returned a status-1 receipt at block 63145074 with 2 logs; event amount, threshold, founder balance delta, total-supply delta, permissionless actor, and threshold restoration were asserted.",
+            "PostgreSQL recorded 2 raw events and one indexer_blocks journal row; the receipt has no projection requirement, and replay was idempotent with unchanged state.",
+            "Cumulative indexer report contains 2859 receipts, 129/260 distinct write methods, 4316 raw events, and 2857 projection rows; thresholdBurnExcess is classified proven working.",
+            "AccessControlFacet.setPaused remains open and uncounted: the contract self-calls EmergencyFacet through the diamond and the emergency admin check rejects the diamond caller. Contract source or an explicit reviewed exception policy is needed; no contract-repository source was changed."
+          ],
+          "resultLimitation": "This run completed 1 of the 132 open methods (0.7576%), below the bounded target of 35; API-05 remains in_progress with 131 methods open.",
+          "proofArtifactSha256": "2f82a00b854004dae395ab50d20b2a219a94b6d11f2e1b90e863dff1513ae36c",
+          "indexerArtifactSha256": "50115d7e514ecdfed2e2edd82d0e5f3f9e4fa052d2e0a1a6b157b9f05bf175ad"
         }
       ],
       "deliveredCommit": null,

@@ -1,3 +1,10 @@
+## API-05 Follow-on — Permissionless Threshold Excess Burn — 2026-11-24
+
+- Added exact-source loopback-fork proof for `BurnThresholdFacet.thresholdBurnExcess` through `POST /v1/tokenomics/commands/threshold-burn-excess`. An outsider caller produced a status-1 receipt at block 63145074; the `ThresholdBurn` event amount matched the computed excess, founder balance and total supply fell by that amount, and the original threshold was restored.
+- PostgreSQL captured both raw receipt logs and the block journal; no projection is expected for this method, and replay was unchanged and idempotent. Full local-fork assurance passed all 12 stages with 37/37 API integration tests; safe reads passed 445/446 with the known `ProposalFacet.queue` fixture gap. Cumulative coverage advances from 128/260 to 129/260, leaving 131 open.
+- `AccessControlFacet.setPaused` remains unproven because the contract's nested diamond self-call fails emergency authorization. Its exact limitation and required contract-owner action are recorded in [the diagnostic](../output/api05-set-paused-contract-limitation-2026-11-24.json).
+- Durable proof: [threshold burn artifact](../output/api05-threshold-burn-excess-proof-2026-11-24.json), [cumulative indexer report](../verify-local-fork-indexer-output.json), and [local-fork assurance report](../.runtime/local-fork-assurance-report.json). CI is pending for the source commit.
+
 # API Testing And Red-Team Roadmap
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.

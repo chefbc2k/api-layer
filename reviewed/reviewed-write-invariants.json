@@ -595,34 +595,33 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
-          "TIMELOCK_ROLE",
-          "FOUNDER_ROLE"
+          "FOUNDER_ROLE",
+          "TIMELOCK_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "The caller must hold FOUNDER_ROLE before founder sunset, or TIMELOCK_ROLE after sunset; AccessControlFacet.setPaused uses _requireFounderGovernanceControl."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "The caller must hold FOUNDER_ROLE before founder sunset, or TIMELOCK_ROLE after sunset."
         }
       ],
       "postStateReadbacks": {
         "mode": "required",
         "checks": [
           {
-            "method": "AccessControlFacet.getQuorum",
-            "assertion": "AccessControlFacet.getQuorum reflects the receipt-confirmed AccessControlFacet.setPaused transition for the affected identifiers and actor."
+            "method": "EmergencyFacet.getEmergencyState",
+            "assertion": "EmergencyFacet.getEmergencyState is PAUSED after setPaused(true) and NORMAL after setPaused(false)."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "setPaused delegates to EmergencyFacet.triggerEmergency or emergencyResume; read the canonical emergency state after each receipt."
       },
       "emittedEvents": {
         "mode": "all",
         "events": [
-          "AccessControlFacet.SecurityAction"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "rationale": "Both pause and resume delegate to EmergencyFacet transitions that emit EmergencyStateChanged."
       },
       "balanceEffects": {
         "mode": "none",
@@ -642,12 +641,14 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
+        "mode": "required",
         "events": [
-          "AccessControlFacet.SecurityAction"
+          "EmergencyFacet.EmergencyStateChanged"
         ],
-        "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "projections": [
+          "emergency_incidents:ledger"
+        ],
+        "assertion": "EmergencyStateChanged is decoded into the emergency_incidents ledger projection and replayed without duplicate state changes."
       }
     },
     "AccessControlFacet.setRecoveryActive": {

@@ -3408,6 +3408,66 @@ describeLive("HTTP API contract integration", () => {
     expect(apiCampaignRead.payload).toEqual(rewardCampaignToObject(await communityRewardsFacet.getCampaign(campaignId)));
   }, 300_000);
 
+  it("proves permissionless threshold-excess burn accounting on an isolated fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "permissionless threshold-excess burn proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000006") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000004") },
+    ])) return;
+
+    const thresholdBefore = BigInt(await burnThresholdFacet.thresholdGetBurnLimit());
+    const threshold = 1n;
+    const thresholdResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-set-burn-limit", {
+      apiKey: "founder-key",
+      body: { threshold: threshold.toString() },
+    });
+    expect(thresholdResponse.status).toBe(202);
+    await expectReceipt(extractTxHash(thresholdResponse.payload));
+    expect(await burnThresholdFacet.thresholdGetBurnLimit()).toBe(threshold);
+
+    const balanceBefore = BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress));
+    const supplyBefore = BigInt(await tokenSupplyFacet.totalSupply());
+    const expectedBurn = balanceBefore - (balanceBefore * (10_000n - threshold)) / 10_000n;
+    expect(expectedBurn).toBeGreaterThan(0n);
+
+    const response = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-burn-excess", {
+      apiKey: "outsider-key",
+      body: { account: founderAddress },
+    });
+    expect(response.status, JSON.stringify(response.payload)).toBe(202);
+    const txHash = extractTxHash(response.payload);
+    await expectReceipt(txHash);
+    const receipt = await provider.getTransactionReceipt(txHash);
+    expect(receipt?.status).toBe(1);
+    const thresholdBurn = (receipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = burnThresholdFacet.interface.parseLog(log);
+        return parsed?.name === "ThresholdBurn" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(thresholdBurn).toHaveLength(1);
+    expect(thresholdBurn[0]!.args.burner).toBe(founderAddress);
+    expect(BigInt(thresholdBurn[0]!.args.amount)).toBe(expectedBurn);
+    expect(BigInt(thresholdBurn[0]!.args.thresholdAtBurn)).toBe(threshold);
+    expect(BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress))).toBe(balanceBefore - expectedBurn);
+    expect(BigInt(await tokenSupplyFacet.totalSupply())).toBe(supplyBefore - expectedBurn);
+    expect(BigInt(await burnThresholdFacet.thresholdCalculateExcess(founderAddress))).toBeGreaterThan(0n);
+    expect(await burnThresholdFacet.thresholdGetBurnLimit()).toBe(threshold);
+
+    const restoredThreshold = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-set-burn-limit", {
+      apiKey: "founder-key",
+      body: { threshold: thresholdBefore.toString() },
+    });
+    expect(restoredThreshold.status).toBe(202);
+    await expectReceipt(extractTxHash(restoredThreshold.payload));
+    expect(await burnThresholdFacet.thresholdGetBurnLimit()).toBe(thresholdBefore);
+  }, 180_000);
+
   it("proves burn, mint, repeat-call, and failed-write accounting on an isolated fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();

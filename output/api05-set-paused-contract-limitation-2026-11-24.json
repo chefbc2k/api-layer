@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "methodKey": "AccessControlFacet.setPaused",
+  "route": "POST /v1/access-control/admin/set-paused",
+  "status": "unproven-contract-limitation",
+  "sourceReview": {
+    "repository": "CONTRACTS (read-only)",
+    "file": "/Users/chef/Public/CONTRACTS/contracts/security/access/facets/AccessControlFacet.sol",
+    "behavior": "setPaused first enforces founder/timelock governance, then calls IEmergency(address(this)).triggerEmergency(...) or emergencyResume()."
+  },
+  "cause": "The external self-call crosses the diamond as msg.sender=the diamond address. EmergencyFacet applies onlyEmergencyAdmin to triggerEmergency and authorization checks to emergencyResume, so the nested call rejects the diamond as caller.",
+  "observedFailure": {
+    "error": "NotEmergencyAdmin(address)",
+    "selector": "0xdcd2f7d9",
+    "rejectedCaller": "diamond address",
+    "successfulReceipts": 0
+  },
+  "acceptance": "Do not count this method. The API-05 ledger requires either a contract-side resolution delivered by the contract owner or an explicit reviewed policy for contract-only exceptions.",
+  "requiredOwnerAction": "CONTRACTS owner: correct the nested-call authorization/design and publish the updated deployed contract/ABI evidence, or review and approve a specific API-05 exception policy.",
+  "scope": "No source changes were made to the contracts repository."
+}
