@@ -233,7 +233,7 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.summary).toBe("proven working");
     expect(output.totals).toEqual({
       domainCount: 1,
-      routeCount: 7,
+      routeCount: 8,
       evidenceCount: 6,
     });
     expect(output.statusCounts).toEqual({

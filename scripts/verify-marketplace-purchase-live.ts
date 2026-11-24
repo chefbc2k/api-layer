@@ -499,6 +499,18 @@ type MarketplacePurchaseDetails = {
     pendingBefore: string;
     pendingAfter: string;
   };
+  usdcTokenUpdate?: {
+    status: number;
+    payload: unknown;
+    txHash: string;
+    receipt: {
+      status: unknown;
+      blockNumber: unknown;
+    };
+    configuredTokenBefore: string;
+    configuredTokenAfter: string;
+    expectedEvent: string;
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -525,6 +537,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.preState ? { kind: "preState", value: normalize(args.details.preState) } : null,
     args.details.purchase ? { kind: "purchase", value: normalize(args.details.purchase) } : null,
     args.details.withdrawal ? { kind: "withdrawal", value: normalize(args.details.withdrawal) } : null,
+    args.details.usdcTokenUpdate ? { kind: "usdcTokenUpdate", value: normalize(args.details.usdcTokenUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -533,6 +546,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
   return buildVerifyReportOutput({
     "marketplace-purchase": {
       routes: [
+        "PATCH /v1/marketplace/commands/set-usdc-token",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
         "GET /v1/marketplace/queries/get-listing",
@@ -701,6 +715,56 @@ async function main() {
 
   const { server, port } = await startServer();
   try {
+    let usdcTokenUpdate: MarketplacePurchaseDetails["usdcTokenUpdate"];
+    if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
+      await ensureNativeBalance(
+        provider,
+        forkRuntime.rpcUrl,
+        fundingCandidates,
+        founder.address,
+        MIN_FALLBACK_CREATOR_NATIVE_BALANCE,
+      );
+      const updateResponse = await apiCall(
+        port,
+        "PATCH",
+        "/v1/marketplace/commands/set-usdc-token",
+        {
+          apiKey: "founder-key",
+          walletAddress: founder.address,
+          body: { newUsdcToken: usdcAddress },
+        },
+      );
+      if (updateResponse.status !== 202) {
+        throw new Error(`fork-only USDC token readback proof failed: ${JSON.stringify(updateResponse.payload)}`);
+      }
+      const updateTxHash = extractTxHash(updateResponse.payload);
+      if (!updateTxHash) {
+        throw new Error(`fork-only USDC token update did not return a tx hash: ${JSON.stringify(updateResponse.payload)}`);
+      }
+      const updateReceipt = await waitForReceipt(provider, updateTxHash, "fork-only USDC token update");
+      const expectedEvent = "PaymentFacet.UsdcTokenUpdated";
+      const eventFound = updateReceipt.logs.some((log) => {
+        try {
+          return payment.interface.parseLog(log)?.name === "UsdcTokenUpdated";
+        } catch {
+          return false;
+        }
+      });
+      const configuredTokenAfter = String(await payment.getUsdcToken());
+      if (!eventFound || configuredTokenAfter.toLowerCase() !== usdcAddress.toLowerCase()) {
+        throw new Error("fork-only USDC token update missed its declared event or canonical readback");
+      }
+      usdcTokenUpdate = {
+        status: updateResponse.status,
+        payload: updateResponse.payload,
+        txHash: updateTxHash,
+        receipt: { status: updateReceipt.status, blockNumber: updateReceipt.blockNumber },
+        configuredTokenBefore: usdcAddress,
+        configuredTokenAfter,
+        expectedEvent,
+      };
+    }
+
     let target = selectMarketplacePurchaseTarget(agedListing, seller.address);
     const shouldRefreshTarget = shouldAttemptMarketplaceRefresh(agedListing);
 
@@ -1032,6 +1096,7 @@ async function main() {
           pendingBefore: pendingBeforeWithdrawal.toString(),
           pendingAfter: pendingAfterWithdrawal,
         },
+        ...(usdcTokenUpdate ? { usdcTokenUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,
