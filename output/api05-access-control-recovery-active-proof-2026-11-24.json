@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-11-24T19:04:47.630Z",
-  "sourceCommit": null,
+  "sourceCommit": "ee88205d4d5bf03bedb7e7545157ff20cb283e04",
   "network": {
     "mode": "local-fork",
     "chainId": 84532,

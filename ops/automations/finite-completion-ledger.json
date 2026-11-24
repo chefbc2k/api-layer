@@ -1035,7 +1035,7 @@
           "indexerArtifactSha256": "f08dbb5a8b44fe79dd38aa4f02aadf1de2887022717e47a3ce561612beb378d5"
         },
         {
-          "sourceCommit": null,
+          "sourceCommit": "ee88205d4d5bf03bedb7e7545157ff20cb283e04",
           "artifact": "output/api05-access-control-recovery-active-proof-2026-11-24.json",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "result": "Added exact current-source local-fork proof for AccessControlFacet.setRecoveryActive through POST /v1/access-control/admin/set-recovery-active. Source review corrected the invariant to onlyRole(TIMELOCK_ROLE), getRoleConfig(role).recoveryActive readback, and no emitted event. Two disposable-role toggles each returned a status-1 eventless receipt; PostgreSQL recorded only block journals and replay was idempotent. API-05 advances from 127/260 to 128/260 exact methods, leaving 132 open.",
@@ -1054,12 +1054,16 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
             "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
             "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
-            "GitHub Actions API quality workflow pending on the source commit.",
-            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed."
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
+            "GitHub Actions API quality run 45466661979 initially failed regression because the event-assurance test still expected 276 event declarations; corrected counts to 275 declarations and 34 eventless writes, with focused event-assurance suite passing 210/210.",
+            "GitHub Actions API quality retry 45467848444 passed every configured gate on db65482d43c1ee5df2190ce7449b28c4a9edc2b6, including dependency audit, pinned-selector codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
           "resultLimitation": "This run completed 1 of the 133 open methods (0.7519%), below the bounded target of 35; API-05 remains in_progress with 132 methods open.",
-          "proofArtifactSha256": "cc15c496e72afb93663b0ccb0b653464112c922ffe933485e9511ea3ca6d4c3d",
-          "indexerArtifactSha256": "7d0f2bf7e6047c35a1d461f6f15ced4f6617bcbd4cfc5f8d46af617128ee6b30"
+          "proofArtifactSha256": "11c08bcf346afa422ea7caa15e2e725765eb34baabe9f2ef955c8e39333883e3",
+          "indexerArtifactSha256": "7d0f2bf7e6047c35a1d461f6f15ced4f6617bcbd4cfc5f8d46af617128ee6b30",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45467848444",
+          "ciRunId": 45467848444,
+          "ciCommit": "db65482d43c1ee5df2190ce7449b28c4a9edc2b6"
         }
       ],
       "deliveredCommit": null,

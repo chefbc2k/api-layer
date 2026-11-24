@@ -6167,4 +6167,4 @@
 # 2026-11-24 — Record access-control recovery flag proof
 
 - Added an isolated-fork proof for `AccessControlFacet.setRecoveryActive`, corrected its reviewed authorization/readback/event invariant, and verified two eventless state toggles with journal-only PostgreSQL rows and idempotent replay.
-- The complete local-fork assurance run passed all 12 stages with the known `ProposalFacet.queue` safe-read gap. API-05 advances to 128/260 distinct proven write methods; hosted CI is pending.
+- The complete local-fork assurance run passed all 12 stages with the known `ProposalFacet.queue` safe-read gap. API-05 advances to 128/260 distinct proven write methods. Hosted API quality retry [45467848444](https://github.com/chefbc2k/api-layer/actions/runs/45467848444) passed all configured gates on `db65482d43c1ee5df2190ce7449b28c4a9edc2b6`; its first attempt exposed stale event-assurance counts, corrected to 275 event declarations and 34 eventless writes.
