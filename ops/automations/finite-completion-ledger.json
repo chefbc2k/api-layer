@@ -1206,9 +1206,12 @@
             "Founder balance and total supply each decreased by 17; transferee balance was unchanged and the founder-to-transferee allowance was exhausted.",
             "PostgreSQL recorded raw event rows 265 and 266 plus one indexer_blocks row; no projection is expected, and replay was unchanged and idempotent.",
             "Cumulative indexer report: 3,742 receipts, 137/260 distinct write methods, 5,694 raw events, and 3,718 projection rows; exactly TokenSupplyFacet.burnFrom was added relative to the prior 136-method accepted proof.",
-            "Hosted CI for this source update is pending."
+            "GitHub Actions API quality run 45503401718 passed every configured gate on evidence commit b4d77965427bcef8bd197b9911f8e2378bf9d98c for source commit 3462b88c0b77e86086b4996b4732e08548f97727. Dependency audit, pinned-selector bootstrap, TypeScript, Vercel types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation all passed."
           ],
-          "resultLimitation": "This run completed 1 of the 124 open methods (0.8065%), below the bounded target of 35; API-05 remains in_progress with 123 methods open."
+          "resultLimitation": "This run completed 1 of the 124 open methods (0.8065%), below the bounded target of 35; API-05 remains in_progress with 123 methods open.",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45503401718",
+          "ciRunId": 45503401718,
+          "ciCommit": "b4d77965427bcef8bd197b9911f8e2378bf9d98c"
         }
       ],
       "deliveredCommit": null,

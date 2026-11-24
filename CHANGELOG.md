@@ -1,3 +1,8 @@
+# 2026-11-24 — Record allowance-backed token burn indexing proof
+
+- Added exact local-fork proof for `TokenSupplyFacet.burnFrom` through the API. The transferee burned 17 founder-approved units; balance, supply, allowance, both raw event rows, block journal, and idempotent replay were verified.
+- The 12-stage local-fork assurance passed with 42/42 HTTP contract integration tests. The known `ProposalFacet.queue` safe-read gap remains (445/446 passed). API-05 advances to 137/260 proven write methods, leaving 123 open.
+- Hosted API quality run [45503401718](https://github.com/chefbc2k/api-layer/actions/runs/45503401718) passed all configured gates on evidence commit `b4d77965427bcef8bd197b9911f8e2378bf9d98c` for source commit `3462b88c0b77e86086b4996b4732e08548f97727`.
 # 2026-11-24 — Prove caller token burn receipt indexing
 
 - Added a dedicated loopback-fork proof for `TokenSupplyFacet.burn`; its status-1 receipt emitted the expected `Transfer` burn event, and founder balance and total supply each fell by exactly one unit.
