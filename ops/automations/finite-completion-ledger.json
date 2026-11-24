@@ -758,6 +758,17 @@
             "Cumulative indexer artifact: 1,165 receipts, 118/260 proven write methods, 1,716 raw events, 1,131 projection rows; 142 method keys remain."
           ],
           "resultLimitation": "This run completed 1 of the 143 open methods (0.6993%), below the bounded owner target of 37; the wider API-05 criterion remains open."
+        },
+        {
+          "sourceCommit": "9612f6a1265bff020cd88dbd88d77a02afa83e31",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45410943402",
+          "artifact": "CI run 45410943402",
+          "result": "Default-branch API quality workflow passed on the commit containing the corrected eventless MEV write invariant, the 118/260 exact-method proof aggregate, and updated event-assurance regression counts. API-05 remains in progress with 142 mounted write methods still open.",
+          "checks": [
+            "GitHub Actions run 45410943402 completed with conclusion success for exact head 9612f6a1265bff020cd88dbd88d77a02afa83e31.",
+            "Dependency audit, pinned-selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed.",
+            "The preceding run 45408959382 failed only because its generated-event assurance test still asserted pre-correction counts; updated counts passed in the full regression gate."
+          ]
         }
       ],
       "deliveredCommit": null,
