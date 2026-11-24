@@ -19,6 +19,13 @@ This document is the master tracking file for the API assurance automation. Dail
 - Durable proof: [`output/api05-usdc-token-config-proof-2026-11-24.json`](../output/api05-usdc-token-config-proof-2026-11-24.json), [`verify-marketplace-purchase-output.json`](../verify-marketplace-purchase-output.json), and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json). The source commit is `50835f3342416a0c39daf552afd76498fa3c1606`; CI run [`45405113081`](https://github.com/chefbc2k/api-layer/actions/runs/45405113081) passed on evidence commit `3f6f760c4a8b9cc2e175aecf83b8120e2b7a2014`; all workflow gates are green.
 - This follow-on completed `1/144` open methods (`0.6944%`), below the bounded target of `37`. API-05 remains `in_progress`; continue from its exact `143`-method remainder.
 
+## API-05 Follow-on — Eventless MEV Configuration Proof — 2026-11-24
+
+- Added a fork-only call to `PATCH /v1/marketplace/commands/set-mev-protection-config` using the current five-field configuration read from `getMevProtectionConfig`. The contract source confirms this setter emits no event; the proof requires a successful zero-log receipt and matching canonical getter readback.
+- The receipt succeeded at block `63034438`. PostgreSQL recorded one block-journal row and correctly recorded no raw event or projection; replay was unchanged and idempotent. The reviewed write invariant was corrected to represent the eventless contract behavior, and event-assurance regression expectations were updated accordingly.
+- The full pinned-selector local-fork assurance run passed `12/12` stages. Its safe-read sweep passed `445/446`; only the existing `ProposalFacet.queue` gap remains. Live and live-destructive opt-ins were false. The cumulative indexer artifact advanced to `118/260` exact methods, `1,165` receipts, `1,716` raw events, and `1,131` projection rows, leaving `142` method proofs open.
+- Durable proof: [`output/api05-mev-config-proof-2026-11-24.json`](../output/api05-mev-config-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json). This run completed `1/143` open methods (`0.6993%`), below the bounded target of `37`; API-05 remains `in_progress`.
+
 ## Red-Team Harness Automation Run — 2026-11-05
 
 - Started `codex/red-team-harness-20261105` from local production `master` `90a62e2` after fetching `origin`; fetched `origin/master` `a9657c3` is an ancestor of that baseline. The unrelated dirty primary assurance checkout remained untouched, and the clean isolated red-team worktree was reused.

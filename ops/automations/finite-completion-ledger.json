@@ -731,6 +731,33 @@
             "GitHub Actions run 45405113081 completed with conclusion success for exact head 3f6f760c4a8b9cc2e175aecf83b8120e2b7a2014.",
             "Dependency audit, pinned-selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed."
           ]
+        },
+        {
+          "sourceCommit": "090ef31e3d4b5359333204946aeb869c399f5da3",
+          "url": "https://github.com/chefbc2k/api-layer/commit/090ef31e3d4b5359333204946aeb869c399f5da3",
+          "artifact": "output/api05-mev-config-proof-2026-11-24.json",
+          "proofArtifactSha256": "20f73cf6eb59df673294c1e037df3c4ebd99df638f0a5e0b4838936fac45760c",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "58544a7db5b50db43d88a00934ce9ca433ecb2b633629529314c8d7b1f59acea",
+          "result": "Added exact current-source local-fork proof for PaymentFacet.setMevProtectionConfig through PATCH /v1/marketplace/commands/set-mev-protection-config. Contract source review confirmed the method has no event emission; the successful receipt had zero logs, all five getMevProtectionConfig values matched before and after, PostgreSQL recorded its block journal without fabricated raw-event/projection rows, and replay was idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue read gap; API-05 now has 118/260 exact write methods proven and remains in progress.",
+          "startingProvenCount": 117,
+          "startingOpenCount": 143,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.6993,
+          "boundedRunTarget": 37,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 118,
+          "endingOpenCount": 142,
+          "checks": [
+            "API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run codegen: passed, including 260/260 write invariant coverage.",
+            "pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts scripts/write-invariants-lib.test.ts --maxWorkers 1: 23 passed; pnpm exec vitest run packages/indexer/src/event-assurance.test.ts --maxWorkers 1: 210 passed.",
+            "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork: all 12 stages passed on a disposable loopback Base Sepolia fork; live and live-destructive opt-ins were false.",
+            "Safe-read sweep passed 445/446; only ProposalFacet.queue returned HTTP 500 from the previously documented contract expiry-validation gap.",
+            "setMevProtectionConfig returned receipt status 1 at block 63034438 with zero logs; getMevProtectionConfig returned the same five values before and after.",
+            "Disposable PostgreSQL recorded one block-journal row and zero raw-event/projection rows for this eventless receipt; replay was unchanged and idempotent.",
+            "Cumulative indexer artifact: 1,165 receipts, 118/260 proven write methods, 1,716 raw events, 1,131 projection rows; 142 method keys remain."
+          ],
+          "resultLimitation": "This run completed 1 of the 143 open methods (0.6993%), below the bounded owner target of 37; the wider API-05 criterion remains open."
         }
       ],
       "deliveredCommit": null,

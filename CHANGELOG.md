@@ -1,3 +1,8 @@
+# 2026-11-24 — Prove eventless MEV protection configuration readback
+
+- Added a loopback-only API proof for `PaymentFacet.setMevProtectionConfig` using its current five-field configuration. Corrected the API-layer write invariant to match contract source: the method emits no event, so acceptance uses its zero-log receipt, canonical getter readback, and PostgreSQL block journal without inventing an event projection.
+- Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` read gap. API-05 advances to 118/260 exact write methods; 142 remain open.
+
 # 2026-11-24 — Prove fork-only USDC token configuration readback
 
 - Extended the marketplace verification workflow with the `PaymentFacet.setUsdcToken` HTTP write on loopback forks, using the already configured token address. The proof requires a successful `UsdcTokenUpdated` receipt and matching canonical `getUsdcToken` readback before it continues to purchase and withdraw.
