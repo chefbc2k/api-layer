@@ -148,6 +148,21 @@ export async function readPaymentClaimCommitment(
   };
 }
 
+export async function readPaymentStakingConfig(provider: JsonRpcProvider, diamondAddress: string) {
+  const paymentStoragePosition = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.payment.storage")));
+  const stakingFacetSlot = ethers.toBeHex(paymentStoragePosition + 34n, 32);
+  const stakingAllocationBpsSlot = ethers.toBeHex(paymentStoragePosition + 35n, 32);
+  const [stakingFacetWord, stakingAllocationBpsWord] = await Promise.all([
+    provider.getStorage(diamondAddress, stakingFacetSlot),
+    provider.getStorage(diamondAddress, stakingAllocationBpsSlot),
+  ]);
+  return {
+    stakingFacet: ethers.getAddress(`0x${stakingFacetWord.slice(-40)}`),
+    stakingAllocationBps: BigInt(stakingAllocationBpsWord).toString(),
+    slots: { stakingFacet: stakingFacetSlot, stakingAllocationBps: stakingAllocationBpsSlot },
+  };
+}
+
 export function resolveMarketplaceWithdrawalApiKey(
   sellerAddress: string,
   configuredSellerAddress: string,
@@ -598,6 +613,15 @@ type MarketplacePurchaseDetails = {
     balanceBefore: string;
     balanceAfter: string;
   }>;
+  stakingConfigUpdate?: {
+    status: number;
+    txHash: string;
+    receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    configBefore: { stakingFacet: string; stakingAllocationBps: string };
+    configAfter: { stakingFacet: string; stakingAllocationBps: string };
+    balanceBefore: { caller: string; diamond: string };
+    balanceAfter: { caller: string; diamond: string };
+  };
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -630,6 +654,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.buybackConfigUpdate ? { kind: "buybackConfigUpdate", value: normalize(args.details.buybackConfigUpdate) } : null,
     args.details.buybackConfigStructUpdate ? { kind: "buybackConfigStructUpdate", value: normalize(args.details.buybackConfigStructUpdate) } : null,
     args.details.claimCommitmentUpdates ? { kind: "claimCommitmentUpdates", value: normalize(args.details.claimCommitmentUpdates) } : null,
+    args.details.stakingConfigUpdate ? { kind: "stakingConfigUpdate", value: normalize(args.details.stakingConfigUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -644,6 +669,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
         "PATCH /v1/marketplace/commands/set-buyback-config-struct",
         "POST /v1/marketplace/commands/commit-distribution",
         "POST /v1/marketplace/commands/commit-withdraw",
+        "PATCH /v1/marketplace/commands/set-staking-config",
         "POST /v1/marketplace/commands/pause-buybacks",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
@@ -1522,6 +1548,70 @@ async function main() {
       "seller pending payment after withdrawal",
     );
 
+    let stakingConfigUpdate: MarketplacePurchaseDetails["stakingConfigUpdate"];
+    if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
+      const configBefore = await readPaymentStakingConfig(provider, config.diamondAddress);
+      const balanceBefore = {
+        caller: BigInt(await erc20.balanceOf(founder.address)).toString(),
+        diamond: BigInt(await erc20.balanceOf(config.diamondAddress)).toString(),
+      };
+      const stakingConfigResponse = await apiCall(
+        port,
+        "PATCH",
+        "/v1/marketplace/commands/set-staking-config",
+        {
+          apiKey: "founder-key",
+          walletAddress: founder.address,
+          body: { stakingFacet: config.diamondAddress, stakingAllocationBps: "3000" },
+        },
+      );
+      if (stakingConfigResponse.status !== 202) {
+        throw new Error(`fork-only staking config proof failed: ${JSON.stringify(stakingConfigResponse.payload)}`);
+      }
+      const stakingConfigTxHash = extractTxHash(stakingConfigResponse.payload);
+      if (!stakingConfigTxHash) {
+        throw new Error("fork-only staking config update did not return a transaction hash");
+      }
+      const stakingConfigReceipt = await waitForReceipt(provider, stakingConfigTxHash, "fork-only staking config update");
+      const configAfter = await readPaymentStakingConfig(provider, config.diamondAddress);
+      const balanceAfter = {
+        caller: BigInt(await erc20.balanceOf(founder.address)).toString(),
+        diamond: BigInt(await erc20.balanceOf(config.diamondAddress)).toString(),
+      };
+      if (stakingConfigReceipt.logs.length !== 0
+        || configAfter.stakingFacet.toLowerCase() !== config.diamondAddress.toLowerCase()
+        || configAfter.stakingAllocationBps !== "3000"
+        || balanceAfter.caller !== balanceBefore.caller
+        || balanceAfter.diamond !== balanceBefore.diamond) {
+        throw new Error(`fork-only staking config proof mismatch: ${JSON.stringify({
+          receiptLogCount: stakingConfigReceipt.logs.length,
+          configBefore,
+          configAfter,
+          balanceBefore,
+          balanceAfter,
+        })}`);
+      }
+      stakingConfigUpdate = {
+        status: stakingConfigResponse.status,
+        txHash: stakingConfigTxHash,
+        receipt: {
+          status: stakingConfigReceipt.status,
+          blockNumber: stakingConfigReceipt.blockNumber,
+          logCount: stakingConfigReceipt.logs.length,
+        },
+        configBefore: {
+          stakingFacet: configBefore.stakingFacet,
+          stakingAllocationBps: configBefore.stakingAllocationBps,
+        },
+        configAfter: {
+          stakingFacet: configAfter.stakingFacet,
+          stakingAllocationBps: configAfter.stakingAllocationBps,
+        },
+        balanceBefore,
+        balanceAfter,
+      };
+    }
+
     const output = buildMarketplacePurchaseVerifyOutput({
       classification: "proven working",
       executionResult: "marketplace purchase and seller withdrawal completed with settlement, receipt, and event evidence",
@@ -1571,6 +1661,7 @@ async function main() {
         ...(buybackConfigUpdate ? { buybackConfigUpdate } : {}),
         ...(buybackConfigStructUpdate ? { buybackConfigStructUpdate } : {}),
         ...(claimCommitmentUpdates ? { claimCommitmentUpdates } : {}),
+        ...(stakingConfigUpdate ? { stakingConfigUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,

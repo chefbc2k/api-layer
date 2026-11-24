@@ -9,6 +9,7 @@ import {
   estimateBuyerNativeMinimum,
   extractTxHash,
   paymentClaimCommitmentStorageSlots,
+  readPaymentStakingConfig,
   resolveMarketplaceWithdrawalApiKey,
   selectMarketplacePurchaseTarget,
   shouldAttemptMarketplaceRefresh,
@@ -29,6 +30,23 @@ describe("verify marketplace purchase live target selection", () => {
         revealed: ethers.toBeHex(entrySlot + 2n, 32),
       });
     }
+  });
+
+  it("reads the staking configuration from its namespaced PaymentStorage slots", async () => {
+    const base = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.payment.storage")));
+    const provider = {
+      getStorage: vi.fn()
+        .mockResolvedValueOnce(`0x${"0".repeat(24)}00000000000000000000000000000000000000aa`)
+        .mockResolvedValueOnce(ethers.toBeHex(3000n, 32)),
+    } as never;
+    const result = await readPaymentStakingConfig(provider, "0x0000000000000000000000000000000000000001");
+
+    expect(provider.getStorage).toHaveBeenNthCalledWith(1, "0x0000000000000000000000000000000000000001", ethers.toBeHex(base + 34n, 32));
+    expect(provider.getStorage).toHaveBeenNthCalledWith(2, "0x0000000000000000000000000000000000000001", ethers.toBeHex(base + 35n, 32));
+    expect(result).toMatchObject({
+      stakingFacet: "0x00000000000000000000000000000000000000AA",
+      stakingAllocationBps: "3000",
+    });
   });
 
   it("extracts nested withdrawal transaction hashes and rejects malformed values", () => {
@@ -280,6 +298,15 @@ describe("verify marketplace purchase live target selection", () => {
             balanceAfter: "100",
           },
         ],
+        stakingConfigUpdate: {
+          status: 202,
+          txHash: "0xstaking-config",
+          receipt: { status: 1, blockNumber: 106, logCount: 0 },
+          configBefore: { stakingFacet: ethers.ZeroAddress, stakingAllocationBps: "3000" },
+          configAfter: { stakingFacet: "0xdiamond", stakingAllocationBps: "3000" },
+          balanceBefore: { caller: "100", diamond: "1000" },
+          balanceAfter: { caller: "100", diamond: "1000" },
+        },
         postState: {
           listing: {
             tokenId: "11",
@@ -295,8 +322,8 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.summary).toBe("proven working");
     expect(output.totals).toEqual({
       domainCount: 1,
-      routeCount: 14,
-      evidenceCount: 9,
+      routeCount: 15,
+      evidenceCount: 10,
     });
     expect(output.statusCounts).toEqual({
       "proven working": 1,
@@ -313,6 +340,7 @@ describe("verify marketplace purchase live target selection", () => {
         "PATCH /v1/marketplace/commands/set-buyback-config",
         "POST /v1/marketplace/commands/commit-distribution",
         "POST /v1/marketplace/commands/commit-withdraw",
+        "PATCH /v1/marketplace/commands/set-staking-config",
       ]),
       buybackConfigUpdate: {
         event: "PaymentFacet.BuybackConfigUpdated",
@@ -331,7 +359,7 @@ describe("verify marketplace purchase live target selection", () => {
         buyer: "0xbuyer",
       },
     });
-    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(9);
+    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(10);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
       deadline: "1770003600",

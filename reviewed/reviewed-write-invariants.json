@@ -8605,48 +8605,34 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
+          "FEE_MANAGER_ROLE"
         ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setStakingConfig."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+          "description": "The signer must hold FEE_MANAGER_ROLE for PaymentFacet.setStakingConfig."
         },
         {
           "kind": "argument",
-          "description": "All required address inputs are non-zero, distinct where required, and authorized for their declared relationship."
-        },
-        {
-          "kind": "protocol-state",
-          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+          "description": "stakingAllocationBps must be within the implemented inclusive range 2000 to 4000; the method stores stakingFacet without a non-zero or code-size check."
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "PaymentFacet.getFeeConfiguration",
-            "assertion": "PaymentFacet.getFeeConfiguration reflects the receipt-confirmed PaymentFacet.setStakingConfig transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "PaymentFacet exposes no getter for stakingFacet or stakingAllocationBps. The fork proof reads namespaced PaymentStorage slots 34 and 35 and matches both stored fields to the receipt request."
       },
       "emittedEvents": {
-        "mode": "one-of",
-        "events": [
-          "PaymentFacet.BuybackConfigUpdated",
-          "PaymentFacet.FeeConfigurationUpdated"
-        ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "mode": "none",
+        "events": [],
+        "rationale": "Source review of contracts/marketplace/facets/PaymentFacet.sol confirms setStakingConfig emits no event."
       },
       "balanceEffects": {
         "mode": "none",
         "effects": [],
-        "rationale": "This write changes protocol configuration or lifecycle state without moving an asset balance."
+        "rationale": "The method only stores staking integration configuration; it does not transfer or approve tokens."
       },
       "replayConstraints": {
         "mode": "idempotent",
@@ -8654,23 +8640,18 @@
           "stakingFacet",
           "stakingAllocationBps"
         ],
-        "assertion": "Repeating the same target state either leaves state unchanged or reverts without additional balance, event-projection, or lifecycle effects."
+        "assertion": "Repeating the same target state leaves the configuration unchanged and does not move balances or emit events."
       },
       "liveNetworkSafety": {
         "classification": "fork-only",
         "requiresExplicitOptIn": true,
-        "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
+        "rationale": "The configuration affects future fee distributions and is verified only on an isolated local fork."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "PaymentFacet.BuybackConfigUpdated",
-          "PaymentFacet.FeeConfigurationUpdated"
-        ],
-        "projections": [
-          "payment_flows:ledger"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "This source method emits no event; accept its successful receipt and block journal without fabricating raw-event or payment_flows projection rows."
       }
     },
     "PaymentFacet.setTreasuryWithdrawalLimit": {
