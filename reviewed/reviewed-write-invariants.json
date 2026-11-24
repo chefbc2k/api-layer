@@ -859,17 +859,14 @@
     "BurnThresholdFacet.thresholdBurnTokens": {
       "abiSignature": "thresholdBurnTokens(uint256)",
       "requiredActor": {
-        "kind": "role",
-        "roles": [
-          "GOVERNANCE_ROLE",
-          "BURNER_ROLE"
-        ],
-        "description": "The signer must hold the applicable GOVERNANCE_ROLE or BURNER_ROLE privilege for BurnThresholdFacet."
+        "kind": "permissionless",
+        "roles": [],
+        "description": "Any caller may burn tokens from their own balance, subject to the configured maximum burn threshold."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable GOVERNANCE_ROLE or BURNER_ROLE privilege for BurnThresholdFacet."
+          "description": "The caller burns only from their own token balance; no role is required."
         },
         {
           "kind": "argument",
@@ -888,19 +885,23 @@
         "mode": "required",
         "checks": [
           {
-            "method": "BurnThresholdFacet.thresholdGetBurnLimit",
-            "assertion": "BurnThresholdFacet.thresholdGetBurnLimit reflects the receipt-confirmed BurnThresholdFacet.thresholdBurnTokens transition for the affected identifiers and actor."
+            "method": "TokenSupplyFacet.tokenBalanceOf",
+            "assertion": "TokenSupplyFacet.tokenBalanceOf(caller) decreases by the receipt-confirmed BurnThresholdFacet.thresholdBurnTokens amount."
+          },
+          {
+            "method": "TokenSupplyFacet.totalSupply",
+            "assertion": "TokenSupplyFacet.totalSupply decreases by the receipt-confirmed BurnThresholdFacet.thresholdBurnTokens amount."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "Verify the token and allowance balances affected by the burn against the successful receipt."
       },
       "emittedEvents": {
-        "mode": "one-of",
+        "mode": "all",
         "events": [
-          "BurnThresholdFacet.BurnThresholdUpdated",
-          "BurnThresholdFacet.ThresholdBurn"
+          "BurnThresholdFacet.ThresholdBurn",
+          "TokenSupplyFacet.Transfer"
         ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "rationale": "A successful threshold burn emits its threshold event and the ERC-20 burn Transfer."
       },
       "balanceEffects": {
         "mode": "tracked",
@@ -909,21 +910,20 @@
             "asset": "erc20",
             "direction": "burn",
             "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
+              "caller token balance",
+              "total supply"
             ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
+            "assertion": "Caller token balance and total supply each decrease by exactly the successful receipt amount."
           }
         ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "rationale": "This method burns tokens from the caller and reduces total supply."
       },
       "replayConstraints": {
-        "mode": "state-transition",
+        "mode": "repeatable",
         "keyFields": [
           "amount"
         ],
-        "assertion": "A second submission must observe the advanced lifecycle state and cannot repeat one-time ownership, value, or entitlement effects."
+        "assertion": "Each accepted invocation is a distinct burn; repeating the request burns again only if the remaining balance, allowance, and configured threshold still permit it."
       },
       "liveNetworkSafety": {
         "classification": "fork-only",
@@ -933,27 +933,24 @@
       "indexerExpectations": {
         "mode": "raw-event-only",
         "events": [
-          "BurnThresholdFacet.BurnThresholdUpdated",
-          "BurnThresholdFacet.ThresholdBurn"
+          "BurnThresholdFacet.ThresholdBurn",
+          "TokenSupplyFacet.Transfer"
         ],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "Both burn logs are decoded and deduplicated by chain/log identity; replay adds no duplicate rows."
       }
     },
     "BurnThresholdFacet.thresholdBurnTokensFrom": {
       "abiSignature": "thresholdBurnTokensFrom(address,uint256)",
       "requiredActor": {
-        "kind": "role",
-        "roles": [
-          "GOVERNANCE_ROLE",
-          "BURNER_ROLE"
-        ],
-        "description": "The signer must hold the applicable GOVERNANCE_ROLE or BURNER_ROLE privilege for BurnThresholdFacet."
+        "kind": "permissionless",
+        "roles": [],
+        "description": "Any caller with sufficient allowance from the token owner may burn up to the configured threshold."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable GOVERNANCE_ROLE or BURNER_ROLE privilege for BurnThresholdFacet."
+          "description": "The caller must have allowance from the account for at least the burn amount."
         },
         {
           "kind": "argument",
@@ -976,19 +973,27 @@
         "mode": "required",
         "checks": [
           {
-            "method": "BurnThresholdFacet.thresholdGetBurnLimit",
-            "assertion": "BurnThresholdFacet.thresholdGetBurnLimit reflects the receipt-confirmed BurnThresholdFacet.thresholdBurnTokensFrom transition for the affected identifiers and actor."
+            "method": "TokenSupplyFacet.tokenBalanceOf",
+            "assertion": "TokenSupplyFacet.tokenBalanceOf(account) decreases by the receipt-confirmed BurnThresholdFacet.thresholdBurnTokensFrom amount."
+          },
+          {
+            "method": "TokenSupplyFacet.totalSupply",
+            "assertion": "TokenSupplyFacet.totalSupply decreases by the receipt-confirmed BurnThresholdFacet.thresholdBurnTokensFrom amount."
+          },
+          {
+            "method": "TokenSupplyFacet.tokenAllowance",
+            "assertion": "TokenSupplyFacet.tokenAllowance(account, caller) decreases by the exact burn amount."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "Verify the token and allowance balances affected by the burn against the successful receipt."
       },
       "emittedEvents": {
-        "mode": "one-of",
+        "mode": "all",
         "events": [
-          "BurnThresholdFacet.BurnThresholdUpdated",
-          "BurnThresholdFacet.ThresholdBurn"
+          "BurnThresholdFacet.ThresholdBurn",
+          "TokenSupplyFacet.Transfer"
         ],
-        "rationale": "The successful path must emit the applicable canonical event variant."
+        "rationale": "A successful threshold burn emits its threshold event and the ERC-20 burn Transfer."
       },
       "balanceEffects": {
         "mode": "tracked",
@@ -997,22 +1002,22 @@
             "asset": "erc20",
             "direction": "burn",
             "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
+              "account token balance",
+              "caller allowance",
+              "total supply"
             ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
+            "assertion": "Account token balance and total supply each decrease by exactly the receipt amount, and caller allowance decreases by the same amount."
           }
         ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "rationale": "This method burns from an allowance-backed account and consumes that allowance."
       },
       "replayConstraints": {
-        "mode": "state-transition",
+        "mode": "repeatable",
         "keyFields": [
           "account",
           "amount"
         ],
-        "assertion": "A second submission must observe the advanced lifecycle state and cannot repeat one-time ownership, value, or entitlement effects."
+        "assertion": "Each accepted invocation is a distinct burn; repeating the request burns again only if the remaining balance, allowance, and configured threshold still permit it."
       },
       "liveNetworkSafety": {
         "classification": "fork-only",
@@ -1022,11 +1027,11 @@
       "indexerExpectations": {
         "mode": "raw-event-only",
         "events": [
-          "BurnThresholdFacet.BurnThresholdUpdated",
-          "BurnThresholdFacet.ThresholdBurn"
+          "BurnThresholdFacet.ThresholdBurn",
+          "TokenSupplyFacet.Transfer"
         ],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "Both burn logs are decoded and deduplicated by chain/log identity; replay adds no duplicate rows."
       }
     },
     "BurnThresholdFacet.thresholdSetBurnLimit": {

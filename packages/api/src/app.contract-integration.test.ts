@@ -3468,6 +3468,116 @@ describeLive("HTTP API contract integration", () => {
     expect(await burnThresholdFacet.thresholdGetBurnLimit()).toBe(thresholdBefore);
   }, 180_000);
 
+  it("proves permissionless self and approved threshold burns through HTTP", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "permissionless threshold token burns", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00001") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000004") },
+    ])) return;
+
+    const founderRole = id("FOUNDER_ROLE");
+    const governanceRole = id("GOVERNANCE_ROLE");
+    const burnerRole = id("BURNER_ROLE");
+    expect(await accessControl.hasRole(governanceRole, outsiderWallet.address)).toBe(false);
+    expect(await accessControl.hasRole(burnerRole, outsiderWallet.address)).toBe(false);
+
+    const thresholdBefore = BigInt(await burnThresholdFacet.thresholdGetBurnLimit());
+    const threshold = 10_000n;
+    const thresholdResponse = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-set-burn-limit", {
+      apiKey: "founder-key",
+      body: { threshold: threshold.toString() },
+    });
+    expect(thresholdResponse.status).toBe(202);
+    await expectReceipt(extractTxHash(thresholdResponse.payload));
+    expect(await burnThresholdFacet.thresholdGetBurnLimit()).toBe(threshold);
+
+    const founderBalanceForBurns = BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress));
+    const amount = founderBalanceForBurns / 10n;
+    expect(amount).toBeGreaterThan(0n);
+    const transferBalanceBefore = BigInt(await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address));
+    const transfer = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+      apiKey: "founder-key",
+      body: { to: outsiderWallet.address, amount: amount.toString() },
+    });
+    expect(transfer.status, JSON.stringify(transfer.payload)).toBe(202);
+    await expectReceipt(extractTxHash(transfer.payload));
+    expect(BigInt(await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address))).toBe(transferBalanceBefore + amount);
+
+    const outsiderBalanceBefore = BigInt(await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address));
+    const supplyBeforeSelfBurn = BigInt(await tokenSupplyFacet.totalSupply());
+    const selfBurn = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-burn-tokens", {
+      apiKey: "outsider-key",
+      body: { amount: amount.toString() },
+    });
+    expect(selfBurn.status).toBe(202);
+    const selfBurnHash = extractTxHash(selfBurn.payload);
+    await expectReceipt(selfBurnHash);
+    const selfBurnReceipt = await provider.getTransactionReceipt(selfBurnHash);
+    expect(selfBurnReceipt?.status).toBe(1);
+    const selfBurnEvent = (selfBurnReceipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = burnThresholdFacet.interface.parseLog(log);
+        return parsed?.name === "ThresholdBurn" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(selfBurnEvent).toHaveLength(1);
+    expect(selfBurnEvent[0]!.args.burner).toBe(outsiderWallet.address);
+    expect(BigInt(selfBurnEvent[0]!.args.amount)).toBe(amount);
+    expect(BigInt(selfBurnEvent[0]!.args.thresholdAtBurn)).toBe(threshold);
+    expect(BigInt(await tokenSupplyFacet.tokenBalanceOf(outsiderWallet.address))).toBe(outsiderBalanceBefore - amount);
+    expect(BigInt(await tokenSupplyFacet.totalSupply())).toBe(supplyBeforeSelfBurn - amount);
+
+    const allowanceBefore = BigInt(await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address));
+    const approve = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+      apiKey: "founder-key",
+      body: { spender: outsiderWallet.address, amount: amount.toString() },
+    });
+    expect(approve.status).toBe(202);
+    await expectReceipt(extractTxHash(approve.payload));
+    expect(BigInt(await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address))).toBe(allowanceBefore + amount);
+
+    const founderBalanceBefore = BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress));
+    const supplyBeforeDelegatedBurn = BigInt(await tokenSupplyFacet.totalSupply());
+    const delegatedBurn = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-burn-tokens-from", {
+      apiKey: "outsider-key",
+      body: { account: founderAddress, amount: amount.toString() },
+    });
+    expect(delegatedBurn.status).toBe(202);
+    const delegatedBurnHash = extractTxHash(delegatedBurn.payload);
+    await expectReceipt(delegatedBurnHash);
+    const delegatedBurnReceipt = await provider.getTransactionReceipt(delegatedBurnHash);
+    expect(delegatedBurnReceipt?.status).toBe(1);
+    const delegatedBurnEvent = (delegatedBurnReceipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = burnThresholdFacet.interface.parseLog(log);
+        return parsed?.name === "ThresholdBurn" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(delegatedBurnEvent).toHaveLength(1);
+    expect(delegatedBurnEvent[0]!.args.burner).toBe(founderAddress);
+    expect(BigInt(delegatedBurnEvent[0]!.args.amount)).toBe(amount);
+    expect(BigInt(delegatedBurnEvent[0]!.args.thresholdAtBurn)).toBe(threshold);
+    expect(BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress))).toBe(founderBalanceBefore - amount);
+    expect(BigInt(await tokenSupplyFacet.totalSupply())).toBe(supplyBeforeDelegatedBurn - amount);
+    expect(BigInt(await tokenSupplyFacet.tokenAllowance(founderAddress, outsiderWallet.address))).toBe(allowanceBefore);
+
+    const restoredThreshold = await apiCall(port, "POST", "/v1/tokenomics/commands/threshold-set-burn-limit", {
+      apiKey: "founder-key",
+      body: { threshold: thresholdBefore.toString() },
+    });
+    expect(restoredThreshold.status).toBe(202);
+    await expectReceipt(extractTxHash(restoredThreshold.payload));
+    expect(await burnThresholdFacet.thresholdGetBurnLimit()).toBe(thresholdBefore);
+    expect(await accessControl.hasRole(founderRole, founderAddress)).toBe(true);
+  }, 240_000);
+
   it("proves burn, mint, repeat-call, and failed-write accounting on an isolated fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();

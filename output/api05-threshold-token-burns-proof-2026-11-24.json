@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": "Base Sepolia fork on loopback RPC",
+  "methods": [
+    {
+      "methodKey": "BurnThresholdFacet.thresholdBurnTokens",
+      "route": "POST /v1/tokenomics/commands/threshold-burn-tokens",
+      "actor": "outsider-key; test verified the caller held neither GOVERNANCE_ROLE nor BURNER_ROLE",
+      "receipt": {
+        "transactionHash": "0x9d77f3c1e4a626bc7b4d0ccce55c0b7c95bbd58c6a52e0cd0022cc2725509e50",
+        "blockNumber": 63156056,
+        "status": 1,
+        "logCount": 2
+      },
+      "thresholdBurnEvent": {
+        "amount": "41985101069999899",
+        "burner": "0xd7C37Eb722daA915A38f7E5cF0750a3A81a34A3c",
+        "timestamp": "1795812737",
+        "thresholdAtBurn": "10000"
+      },
+      "transferEvent": {
+        "to": "0x0000000000000000000000000000000000000000",
+        "from": "0xd7C37Eb722daA915A38f7E5cF0750a3A81a34A3c",
+        "value": "41985101069999899"
+      },
+      "assertions": [
+        "Founder transferred a balance-derived amount to the outsider through the API.",
+        "The outsider burned from their own balance without either privileged role.",
+        "Outsider token balance and total supply each decreased by the event amount."
+      ],
+      "indexer": {
+        "rawEvents": 2,
+        "rawEventIds": [
+          "79",
+          "80"
+        ],
+        "eventKeys": [
+          "TokenSupplyFacet.Transfer(address,address,uint256)",
+          "BurnThresholdFacet.ThresholdBurn(address,uint256,uint256,uint256)"
+        ],
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63156056",
+              "block_hash": "0x652868286f88eaecd8794c1b4231b983e4d84b784488dd09d76819d03f5cec91"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
+    },
+    {
+      "methodKey": "BurnThresholdFacet.thresholdBurnTokensFrom",
+      "route": "POST /v1/tokenomics/commands/threshold-burn-tokens-from",
+      "actor": "outsider-key; test verified the caller held neither GOVERNANCE_ROLE nor BURNER_ROLE",
+      "receipt": {
+        "transactionHash": "0xfacf3877e5245723aad2d218dbceb7e01bc76818b2bf90d0f914d67abcc028d4",
+        "blockNumber": 63156058,
+        "status": 1,
+        "logCount": 2
+      },
+      "thresholdBurnEvent": {
+        "amount": "41985101069999899",
+        "burner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "timestamp": "1795812737",
+        "thresholdAtBurn": "10000"
+      },
+      "transferEvent": {
+        "to": "0x0000000000000000000000000000000000000000",
+        "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "value": "41985101069999899"
+      },
+      "assertions": [
+        "Founder approved the outsider for exactly the burn amount through the API.",
+        "The outsider burned from the founder account using the allowance.",
+        "Founder token balance and total supply each decreased by the event amount.",
+        "Allowance returned to its pre-approval amount after the burn."
+      ],
+      "indexer": {
+        "rawEvents": 2,
+        "rawEventIds": [
+          "82",
+          "83"
+        ],
+        "eventKeys": [
+          "TokenSupplyFacet.Transfer(address,address,uint256)",
+          "BurnThresholdFacet.ThresholdBurn(address,uint256,uint256,uint256)"
+        ],
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63156058",
+              "block_hash": "0x54c1f82f24b907d6ff2982b6d3d54ca8242a773dbb183719067c4c917527a74f"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
+    }
+  ],
+  "cumulative": {
+    "startingProvenWriteMethods": 129,
+    "endingProvenWriteMethods": 131,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 129,
+    "indexedReceipts": 3058,
+    "rawEvents": 4612,
+    "projectionRows": 3043,
+    "addedMethodKeys": [
+      "BurnThresholdFacet.thresholdBurnTokens",
+      "BurnThresholdFacet.thresholdBurnTokensFrom"
+    ]
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "httpIntegrationTestsPassed": 38,
+    "eventAssuranceTestsPassed": 210,
+    "safeReadPassed": 445,
+    "safeReadAttempted": 446,
+    "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."
+  }
+}
