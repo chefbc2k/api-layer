@@ -534,7 +534,8 @@ type MarketplacePurchaseDetails = {
       logCount: number;
     };
     pausedEventValue: boolean;
-    postStateReadbackNote: string;
+    pausedStateAfter: boolean;
+    postStateReadback: string;
   };
   postState?: {
     owner?: unknown;
@@ -873,6 +874,8 @@ async function main() {
         throw new Error(`fork-only buyback pause update did not return a tx hash: ${JSON.stringify(pauseResponse.payload)}`);
       }
       const pauseReceipt = await waitForReceipt(provider, pauseTxHash, "fork-only buyback pause update");
+      const buybackStatusAfterPause = await payment.getBuybackStatus();
+      const pausedStateAfter = Boolean(buybackStatusAfterPause.paused ?? buybackStatusAfterPause[9]);
       const pauseEvent = pauseReceipt.logs.flatMap((log) => {
         try {
           const parsed = payment.interface.parseLog(log);
@@ -882,11 +885,12 @@ async function main() {
         }
       })[0];
       const pausedEventValue = pauseEvent ? Boolean(pauseEvent.args.paused ?? pauseEvent.args[0]) : true;
-      if (!pauseEvent || pausedEventValue !== false) {
+      if (!pauseEvent || pausedEventValue !== false || pausedStateAfter !== false) {
         throw new Error(`fork-only buyback pause proof mismatch: ${JSON.stringify({
           receiptLogCount: pauseReceipt.logs.length,
           eventFound: Boolean(pauseEvent),
           pausedEventValue,
+          pausedStateAfter,
         })}`);
       }
       buybackPauseUpdate = {
@@ -895,7 +899,8 @@ async function main() {
         txHash: pauseTxHash,
         receipt: { status: pauseReceipt.status, blockNumber: pauseReceipt.blockNumber, logCount: pauseReceipt.logs.length },
         pausedEventValue,
-        postStateReadbackNote: "getBuybackStatus omits buybackPaused; BuybackPaused event argument is the canonical readback",
+        pausedStateAfter,
+        postStateReadback: "PaymentFacet.getBuybackStatus().paused",
       };
     }
 
