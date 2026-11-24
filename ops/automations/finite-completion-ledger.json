@@ -278,6 +278,14 @@
           "checks": [
             "API quality workflow: dependency audit, pinned-selector codegen, typecheck, lint, build, disposable PostgreSQL and fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance all passed."
           ]
+        },
+        {
+          "sourceCommit": "8905aadd0959635131c6e47581e1cf78c2bfb5d3",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45320381629",
+          "result": "Default-branch API quality CI passed after the integrated fork-evidence ledger update. The uploaded coverage artifact still reports 93.62% lines, 92.79% statements, 90.99% branches, and 96.15% functions; the original 100% release criterion remains open.",
+          "checks": [
+            "API quality workflow completed successfully on default branch."
+          ]
         }
       ],
       "deliveredCommit": null,
@@ -716,6 +724,17 @@
           "sourceCommit": "f0ce7542c3c42707eb0c00811c84da4ec2210cab",
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/45114538235",
           "result": "Default-branch API quality CI passed after integrating the rate-limiter isolation and control-plane readbacks. The uploaded coverage summary remains below the release criterion.",
+          "coveragePercent": {
+            "statements": 92.79,
+            "branches": 90.99,
+            "functions": 96.15,
+            "lines": 93.62
+          }
+        },
+        {
+          "sourceCommit": "8905aadd0959635131c6e47581e1cf78c2bfb5d3",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45320381629",
+          "result": "Default-branch API quality CI passed; uploaded coverage remains below the frozen 100% criterion. Backend privacy/release acceptance also remains externally dependent.",
           "coveragePercent": {
             "statements": 92.79,
             "branches": 90.99,

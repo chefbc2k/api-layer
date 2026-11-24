@@ -14,7 +14,7 @@ import {
   summarizeReviewedSurface,
   type ProofStage,
 } from "./verify-local-fork-lib.js";
-import { classifySafeReadGap, fixtureValue, proofFixtureOverrides, verifiedLicensingReads } from "./verify-local-fork-safe-read-values.js";
+import { classifySafeReadGap, fixtureValue, proofFixtureOverrides, selectVestingBeneficiary, verifiedLicensingReads } from "./verify-local-fork-safe-read-values.js";
 
 const tempDirs: string[] = [];
 
@@ -408,5 +408,23 @@ describe("safe-read fixture values", () => {
     expect(verifiedLicensingReads(report, null)).toEqual([]);
     expect(verifiedLicensingReads(report, { ...receipt, blockHash: txHash })).toEqual([]);
     expect(verifiedLicensingReads(report, { ...receipt, status: 0 })).toEqual([]);
+  });
+
+  it("uses a verified vesting beneficiary instead of assuming the founder has a schedule", async () => {
+    const unavailable = `0x${"12".repeat(20)}`;
+    const valid = `0x${"34".repeat(20)}`;
+    const actors = {
+      transferee: { address: unavailable },
+      licensee: { address: unavailable },
+      buyer: { address: valid },
+      founder: { address: "invalid" },
+    };
+    const checked: string[] = [];
+    expect(await selectVestingBeneficiary({ actors }, async (address) => {
+      checked.push(address);
+      return address === valid;
+    })).toBe(valid);
+    expect(checked).toEqual([unavailable, valid]);
+    expect(await selectVestingBeneficiary({ actors }, async () => false)).toBeNull();
   });
 });
