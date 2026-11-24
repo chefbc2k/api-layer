@@ -998,9 +998,12 @@
             "PaymentFacet.distributePaymentFromWithDeadline returned a status-1 receipt at block 63110730 with five logs; token 199, valid deadline 1797017104, payer USDC 2000 to 1000, diamond custody 88595 to 89595, seller pending 2745 to 3660, global and asset revenue each increased by 1000.",
             "Disposable PostgreSQL stored five raw_events rows and three payment_flows projections for each receipt, one indexer_blocks row per receipt, and unchanged idempotent replay. Each receipt contained duplicate PaymentDistributed logs, both preserved in the projection evidence.",
             "Cumulative indexer: 2169 receipts, 126/260 distinct write methods, 3262 raw events, 2155 projection rows; 134 method keys remain.",
-            "Hosted API quality CI has not yet run for source commit 8eb2405f6fd5a67ab90b576df930810fc54dea47."
+            "GitHub Actions API quality run 45458828912 passed every configured gate on current master commit 253f7bc94004358fea662cd6519fde3a99da3e50, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation; this tree contains source commit 8eb2405f6fd5a67ab90b576df930810fc54dea47."
           ],
-          "resultLimitation": "This run completed 2 of the 136 open methods (1.4706%), below the bounded owner target of 35; API-05 remains in_progress with 134 methods open. The duplicate PaymentDistributed emissions are recorded as observed contract behavior."
+          "resultLimitation": "This run completed 2 of the 136 open methods (1.4706%), below the bounded owner target of 35; API-05 remains in_progress with 134 methods open. The duplicate PaymentDistributed emissions are recorded as observed contract behavior.",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45458828912",
+          "ciRunId": 45458828912,
+          "ciCommit": "253f7bc94004358fea662cd6519fde3a99da3e50"
         }
       ],
       "deliveredCommit": null,
