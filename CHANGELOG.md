@@ -6163,3 +6163,8 @@
 
 - Hosted API quality run [45462297910](https://github.com/chefbc2k/api-layer/actions/runs/45462297910) passed every configured gate on commit `ea1695f96ec4ba880163ed06b667418dd9208216`, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.
 - API-05 remains in progress at 127/260 proven write methods, with 133 open; the bounded 35-method target remains unmet.
+
+# 2026-11-24 — Record access-control recovery flag proof
+
+- Added an isolated-fork proof for `AccessControlFacet.setRecoveryActive`, corrected its reviewed authorization/readback/event invariant, and verified two eventless state toggles with journal-only PostgreSQL rows and idempotent replay.
+- The complete local-fork assurance run passed all 12 stages with the known `ProposalFacet.queue` safe-read gap. API-05 advances to 128/260 distinct proven write methods; hosted CI is pending.

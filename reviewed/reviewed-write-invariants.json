@@ -655,16 +655,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
-          "TIMELOCK_ROLE",
-          "FOUNDER_ROLE"
+          "TIMELOCK_ROLE"
         ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "description": "The caller must hold TIMELOCK_ROLE; AccessControlFacet.setRecoveryActive is guarded by onlyRole(TIMELOCK_ROLE)."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "The signer must hold TIMELOCK_ROLE for AccessControlFacet.setRecoveryActive."
         },
         {
           "kind": "protocol-state",
@@ -675,18 +673,16 @@
         "mode": "required",
         "checks": [
           {
-            "method": "AccessControlFacet.isRoleActive",
-            "assertion": "AccessControlFacet.isRoleActive reflects the receipt-confirmed AccessControlFacet.setRecoveryActive transition for the affected identifiers and actor."
+            "method": "AccessControlFacet.getRoleConfig",
+            "assertion": "The recoveryActive field in AccessControlFacet.getRoleConfig(role) matches the receipt-confirmed active value."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The contract setter only updates roleConfigs[role].recoveryActive and emits no event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -707,12 +703,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "The successful eventless receipt is journaled without fabricating raw-event or projection rows."
       }
     },
     "AccessControlFacet.setRoleAdmin": {

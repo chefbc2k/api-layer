@@ -1033,6 +1033,33 @@
           "ciCommit": "ea1695f96ec4ba880163ed06b667418dd9208216",
           "proofArtifactSha256": "806e8a9ec89bdfe089ee72735af44db3f3050582ff747d32e71fa5942ab67afe",
           "indexerArtifactSha256": "f08dbb5a8b44fe79dd38aa4f02aadf1de2887022717e47a3ce561612beb378d5"
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-access-control-recovery-active-proof-2026-11-24.json",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "result": "Added exact current-source local-fork proof for AccessControlFacet.setRecoveryActive through POST /v1/access-control/admin/set-recovery-active. Source review corrected the invariant to onlyRole(TIMELOCK_ROLE), getRoleConfig(role).recoveryActive readback, and no emitted event. Two disposable-role toggles each returned a status-1 eventless receipt; PostgreSQL recorded only block journals and replay was idempotent. API-05 advances from 127/260 to 128/260 exact methods, leaving 132 open.",
+          "startingProvenCount": 127,
+          "startingOpenCount": 133,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.7519,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 128,
+          "endingOpenCount": 132,
+          "checks": [
+            "Pinned-selector codegen generated 492 methods, 214 events, and complete 260/260 write invariant coverage.",
+            "Full disposable Base Sepolia loopback local-fork assurance completed all 12 stages; live and live-destructive opt-ins were false.",
+            "The integration suite passed 36/36 tests, including mounted control-plane admin writes and disposable access-control configuration/eventless receipts.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
+            "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
+            "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
+            "GitHub Actions API quality workflow pending on the source commit.",
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed."
+          ],
+          "resultLimitation": "This run completed 1 of the 133 open methods (0.7519%), below the bounded target of 35; API-05 remains in_progress with 132 methods open.",
+          "proofArtifactSha256": "cc15c496e72afb93663b0ccb0b653464112c922ffe933485e9511ea3ca6d4c3d",
+          "indexerArtifactSha256": "7d0f2bf7e6047c35a1d461f6f15ced4f6617bcbd4cfc5f8d46af617128ee6b30"
         }
       ],
       "deliveredCommit": null,
@@ -4803,7 +4830,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "title": "Wave 1 – Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]

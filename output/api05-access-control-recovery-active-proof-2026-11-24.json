@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-24T19:04:47.630Z",
+  "sourceCommit": null,
+  "network": {
+    "mode": "local-fork",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "runnerStartedFork": true
+  },
+  "safety": {
+    "liveRunExplicitlyAllowed": false,
+    "liveDestructiveRunExplicitlyAllowed": false
+  },
+  "contractInvariant": {
+    "methodKey": "AccessControlFacet.setRecoveryActive",
+    "authorization": "onlyRole(TIMELOCK_ROLE)",
+    "postStateRead": "AccessControlFacet.getRoleConfig(role).recoveryActive",
+    "emitsEvent": false
+  },
+  "scenario": {
+    "route": "POST /v1/access-control/admin/set-recovery-active",
+    "disposableRole": true,
+    "initialAndRestoredStateVerified": true,
+    "receipts": [
+      {
+        "txHash": "0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9",
+        "blockNumber": 63123333,
+        "status": 1,
+        "logCount": 0,
+        "selector": "0xd2de9c0b",
+        "methodSignature": "setRecoveryActive(bytes32,bool)",
+        "rawEvents": 0,
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63123333",
+              "block_hash": "0xff50e813e01d4903c9eb760d903455be70a4a8f4090f03a364b90fabdb3602b3"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rows": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63123333",
+                  "block_hash": "0xff50e813e01d4903c9eb760d903455be70a4a8f4090f03a364b90fabdb3602b3"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rows": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63123333",
+                  "block_hash": "0xff50e813e01d4903c9eb760d903455be70a4a8f4090f03a364b90fabdb3602b3"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "txHash": "0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226",
+        "blockNumber": 63123334,
+        "status": 1,
+        "logCount": 0,
+        "selector": "0xd2de9c0b",
+        "methodSignature": "setRecoveryActive(bytes32,bool)",
+        "rawEvents": 0,
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63123334",
+              "block_hash": "0x20d8af458af1b32cf7c39fbb98f9c83c51f893051c21dd9a851903b5f7cd8648"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rows": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63123334",
+                  "block_hash": "0x20d8af458af1b32cf7c39fbb98f9c83c51f893051c21dd9a851903b5f7cd8648"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rows": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63123334",
+                  "block_hash": "0x20d8af458af1b32cf7c39fbb98f9c83c51f893051c21dd9a851903b5f7cd8648"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "aggregate": {
+    "status": "passed with structured gaps",
+    "stageCount": 12,
+    "stagesPassed": 12,
+    "structuredGapCount": 1,
+    "gaps": [
+      {
+        "methodKey": "ProposalFacet.queue",
+        "detail": "safe-read returned HTTP 500 with ProposalExpired(uint256)"
+      }
+    ],
+    "safeReads": {
+      "passed": 445,
+      "attempted": 446
+    }
+  },
+  "indexerTotals": {
+    "artifactTransactionHashes": 2512,
+    "includedArtifacts": 6,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 2512,
+    "provenWriteMethods": 128,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 132,
+    "rawEvents": 3791,
+    "projectionRows": 2510
+  }
+}

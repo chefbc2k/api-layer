@@ -2,6 +2,12 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Access-Control Recovery Flag Proof — 2026-11-24
+
+- Corrected the reviewed invariant for `AccessControlFacet.setRecoveryActive`: source authorization is `TIMELOCK_ROLE`, post-state is `getRoleConfig(role).recoveryActive`, and the setter is eventless. The loopback test toggled a disposable role flag and restored its original value, verifying both exact readbacks.
+- Both receipts succeeded at blocks `63123333` and `63123334` with zero logs. PostgreSQL recorded no raw events or projections, journaled each block, and unchanged replay was idempotent. Full local-fork assurance completed all 12 stages; the known `ProposalFacet.queue` safe-read gap remains (445/446 probes passed).
+- Durable proof: [`output/api05-access-control-recovery-active-proof-2026-11-24.json`](../output/api05-access-control-recovery-active-proof-2026-11-24.json), [`event-indexer.json`](../.runtime/local-fork-proofs/event-indexer.json) (runtime artifact), and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json). API-05 advances from 127/260 to 128/260 exact methods, with 132 open. This run completed 1 of 133 open methods (0.7519%), below the bounded target of 35. Hosted CI is pending.
+
 ## API-05 Follow-on — Direct Payment Distribution Proof — 2026-11-24
 
 Added `POST /v1/marketplace/commands/distribute-payment` execution evidence for `PaymentFacet.distributePayment` against a distinct seller-owned, aged, unlocked, unlisted asset. The status-1 receipt matched token, seller, caller, and amount; payer and diamond USDC balances, seller pending proceeds, global revenue, and per-asset revenue readbacks matched the transaction.

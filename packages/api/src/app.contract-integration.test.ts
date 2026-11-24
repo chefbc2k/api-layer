@@ -5603,7 +5603,7 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
-  it("proves eight control-plane admin writes through mounted HTTP routes on a local fork", async (ctx) => {
+  it("proves mounted control-plane admin writes on a local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
@@ -5621,6 +5621,7 @@ describeLive("HTTP API contract integration", () => {
       route: string;
       actor: string;
       status: number;
+      methodKey?: string;
       txHash: string;
       receiptStatus: number;
       readback?: { getter: string; before: unknown; after: unknown; changed: boolean };
@@ -5631,6 +5632,7 @@ describeLive("HTTP API contract integration", () => {
       contract: Contract,
       expectedEvent?: string,
       readback?: AdminReadback,
+      methodKey?: string,
     ) => {
       const before = readback ? normalize(await readback.read()) : undefined;
       const apiKey = adminProofs.length < 4
@@ -5665,6 +5667,7 @@ describeLive("HTTP API contract integration", () => {
         route: `POST ${routePath}`,
         actor: apiKey,
         status: response.status,
+        ...(methodKey ? { methodKey } : {}),
         txHash,
         receiptStatus: receipt!.status,
         readback: readback ? {
@@ -5772,6 +5775,45 @@ describeLive("HTTP API contract integration", () => {
       true,
       10000001n,
     ]);
+
+    const timeLockRole = id("TIMELOCK_ROLE");
+    if (!(await accessControl.hasRole(timeLockRole, founderAddress))) {
+      const timeLockGrant = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+        apiKey: "founder-key",
+        body: { role: timeLockRole, account: founderAddress, expiryTime: "0" },
+      });
+      expect(timeLockGrant.status, JSON.stringify(timeLockGrant.payload)).toBe(202);
+      await expectReceipt(extractTxHash(timeLockGrant.payload));
+      expect(await accessControl.hasRole(timeLockRole, founderAddress)).toBe(true);
+    }
+    const recoveryRole = id(`API05_RECOVERY_ACTIVE_${Date.now()}`);
+    const recoveryConfigBefore = await accessControl.getRoleConfig(recoveryRole);
+    const originalRecoveryActive = Boolean(recoveryConfigBefore.recoveryActive);
+    const temporaryRecoveryActive = !originalRecoveryActive;
+    await submitAdminWrite(
+      "/v1/access-control/admin/set-recovery-active",
+      { role: recoveryRole, active: temporaryRecoveryActive },
+      accessControl as unknown as Contract,
+      undefined,
+      {
+        getter: "getRoleConfig.recoveryActive",
+        read: async () => Boolean((await accessControl.getRoleConfig(recoveryRole)).recoveryActive),
+        expected: temporaryRecoveryActive,
+      },
+      "AccessControlFacet.setRecoveryActive",
+    );
+    await submitAdminWrite(
+      "/v1/access-control/admin/set-recovery-active",
+      { role: recoveryRole, active: originalRecoveryActive },
+      accessControl as unknown as Contract,
+      undefined,
+      {
+        getter: "getRoleConfig.recoveryActive",
+        read: async () => Boolean((await accessControl.getRoleConfig(recoveryRole)).recoveryActive),
+        expected: originalRecoveryActive,
+      },
+      "AccessControlFacet.setRecoveryActive",
+    );
 
     await submitAdminWrite(
       "/v1/diamond-admin/admin/set-upgrade-control-enforced",
