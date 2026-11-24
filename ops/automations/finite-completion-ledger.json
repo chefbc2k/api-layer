@@ -1124,7 +1124,7 @@
           "indexerArtifactSha256": "d5f4181502e91fff7f689d205e62c6fa880b8da701006072ac09017e85cd7414"
         },
         {
-          "sourceCommit": null,
+          "sourceCommit": "273ed6d7768762bf95df0dd012a26a039027a082",
           "artifact": "output/api05-delegation-refresh-proof-2026-11-24.json",
           "proofArtifactSha256": "5b23240a51dabd1db71badc9236831659457a659c74b280c4f29f933ef9fa409",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
@@ -1147,12 +1147,12 @@
             "updateDelegatedVotingPowerBatch receipt 0xef67c1e6b78da663a9663d0d153206ce3e607ecc6169da34df1dfe999ab0e266 at block 63167454 status 1 (2 logs); both batch targets reconciled and changed checkpoint emitted DelegateVotesChanged.",
             "PostgreSQL persisted 7 raw event rows, 3 governance_delegations current projection rows, and one indexer_blocks row for each receipt; all three receipt replays were unchanged and idempotent.",
             "Cumulative indexer report: 3,236 receipts, 134/260 distinct write methods, 4,897 raw events, and 3,218 projection rows; exactly these three method keys were added to the previous 131-method inventory.",
-            "API quality run 45485924587 on the prior def01c source failed Regression because two role-gated method inventory assertions expected 148/3,108 but current generated inventory was 146/3,066. The assertions were updated to match the current 146 role-gated methods and 3,066 lifecycle cases; CI must pass on the new delivery commit."
+            "GitHub Actions API quality run 45493727587 passed every configured gate on 273ed6d7768762bf95df0dd012a26a039027a082, including dependency audit, generated-source bootstrap, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, Regression, Coverage, API surface, Actor boundaries, Red team, Indexer assurance, and measured-evidence preservation."
           ],
           "resultLimitation": "This run completed 3 of the 129 open methods (2.2901%), below the bounded target of 35; API-05 remains in_progress with 126 methods open.",
-          "ciRun": "pending",
-          "ciRunId": null,
-          "ciCommit": null
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45493727587",
+          "ciRunId": 45493727587,
+          "ciCommit": "273ed6d7768762bf95df0dd012a26a039027a082"
         }
       ],
       "deliveredCommit": null,

@@ -2,7 +2,7 @@
 
 - Added loopback-fork proofs for `DelegationFacet.delegateBySig`, `updateDelegatedVotingPower`, and `updateDelegatedVotingPowerBatch`. The signed operation rejected replay; the permissionless refreshes recomputed stale checkpoints and matched their receipt events and canonical readbacks.
 - The full local-fork assurance passed all 12 stages and all 39 HTTP integration tests. PostgreSQL indexed the delegation events and `governance_delegations` projections, journaled each receipt block, and passed unchanged replay. Safe reads passed 445/446 with the known `ProposalFacet.queue` fixture gap.
-- API-05 advances from 131/260 to 134/260 proven write methods, leaving 126 open. Durable evidence: [delegation proof](output/api05-delegation-refresh-proof-2026-11-24.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). Hosted CI is pending on the delivery commit.
+- API-05 advances from 131/260 to 134/260 proven write methods, leaving 126 open. Durable evidence: [delegation proof](output/api05-delegation-refresh-proof-2026-11-24.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). API quality CI [45493727587](https://github.com/chefbc2k/api-layer/actions/runs/45493727587) passed every configured gate on `273ed6d`.
 
 # 2026-11-24 — Prove direct and allowance-backed threshold burns
 
