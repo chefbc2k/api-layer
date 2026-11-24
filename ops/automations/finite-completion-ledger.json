@@ -393,6 +393,15 @@
             "Governance lifecycle queue read immediately after proposal submission returned HTTP 500 ProposalExpired(uint256), confirming the remaining gap is not caused by final-sweep timing.",
             "Focused Vitest: 21 passed; TypeScript typecheck, focused ESLint, and git diff --check passed."
           ]
+        },
+        {
+          "sourceCommit": "32c13038936c78d0f9811c83c85435ac1a913ecb",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45392034598",
+          "result": "Delivered the exact-source 445/446 aggregate improvement to default master; API quality CI succeeded on the resulting ledger commit.",
+          "checks": [
+            "API quality workflow 45392034598 completed successfully on default master commit 32c13038936c78d0f9811c83c85435ac1a913ecb.",
+            "Dependency audit, selector codegen, TypeScript, Vercel types, lint, build, disposable PostgreSQL/fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed."
+          ]
         }
       ],
       "deliveredCommit": null,
