@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { ethers } from "ethers";
 
 import {
   advanceLocalForkPastMarketplaceTradingLock,
@@ -7,12 +8,29 @@ import {
   buildBlockedPurchaseOutput,
   estimateBuyerNativeMinimum,
   extractTxHash,
+  paymentClaimCommitmentStorageSlots,
   resolveMarketplaceWithdrawalApiKey,
   selectMarketplacePurchaseTarget,
   shouldAttemptMarketplaceRefresh,
 } from "./verify-marketplace-purchase-live.js";
 
 describe("verify marketplace purchase live target selection", () => {
+  it("derives claimant commitment mapping slots from PaymentStorage", () => {
+    const claimant = "0x00000000000000000000000000000000000000aa";
+    const paymentStoragePosition = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.payment.storage")));
+    for (const mappingSlot of [40, 41] as const) {
+      const entrySlot = BigInt(ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+        ["address", "uint256"],
+        [claimant, paymentStoragePosition + BigInt(mappingSlot)],
+      )));
+      expect(paymentClaimCommitmentStorageSlots(claimant, mappingSlot)).toEqual({
+        commitHash: ethers.toBeHex(entrySlot, 32),
+        commitBlock: ethers.toBeHex(entrySlot + 1n, 32),
+        revealed: ethers.toBeHex(entrySlot + 2n, 32),
+      });
+    }
+  });
+
   it("extracts nested withdrawal transaction hashes and rejects malformed values", () => {
     expect(extractTxHash({ withdrawal: { txHash: "0xwithdraw" } })).toBe("0xwithdraw");
     expect(extractTxHash({ withdrawal: { txHash: "withdraw" } })).toBeNull();
@@ -234,6 +252,34 @@ describe("verify marketplace purchase live target selection", () => {
           configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
           event: "PaymentFacet.BuybackConfigUpdated",
         },
+        claimCommitmentUpdates: [
+          {
+            methodKey: "PaymentFacet.commitDistribution",
+            route: "/v1/marketplace/commands/commit-distribution",
+            actor: "0xfounder",
+            status: 202,
+            txHash: "0xcommit-distribution",
+            receipt: { status: 1, blockNumber: 104, logCount: 1 },
+            event: { claimant: "0xfounder", commitHash: "0xhash", commitBlock: "104" },
+            storageBefore: { commitHash: ethers.ZeroHash, commitBlock: "0", revealed: false },
+            storageAfter: { commitHash: "0xhash", commitBlock: "104", revealed: false },
+            balanceBefore: "100",
+            balanceAfter: "100",
+          },
+          {
+            methodKey: "PaymentFacet.commitWithdraw",
+            route: "/v1/marketplace/commands/commit-withdraw",
+            actor: "0xbuyer",
+            status: 202,
+            txHash: "0xcommit-withdraw",
+            receipt: { status: 1, blockNumber: 105, logCount: 1 },
+            event: { claimant: "0xbuyer", commitHash: "0xhash2", commitBlock: "105" },
+            storageBefore: { commitHash: ethers.ZeroHash, commitBlock: "0", revealed: false },
+            storageAfter: { commitHash: "0xhash2", commitBlock: "105", revealed: false },
+            balanceBefore: "100",
+            balanceAfter: "100",
+          },
+        ],
         postState: {
           listing: {
             tokenId: "11",
@@ -249,8 +295,8 @@ describe("verify marketplace purchase live target selection", () => {
     expect(output.summary).toBe("proven working");
     expect(output.totals).toEqual({
       domainCount: 1,
-      routeCount: 12,
-      evidenceCount: 8,
+      routeCount: 14,
+      evidenceCount: 9,
     });
     expect(output.statusCounts).toEqual({
       "proven working": 1,
@@ -263,7 +309,11 @@ describe("verify marketplace purchase live target selection", () => {
       result: "proven working",
       executionResult: "purchase completed",
       actors: ["seller-key", "buyer-key", "read-key"],
-      routes: expect.arrayContaining(["PATCH /v1/marketplace/commands/set-buyback-config"]),
+      routes: expect.arrayContaining([
+        "PATCH /v1/marketplace/commands/set-buyback-config",
+        "POST /v1/marketplace/commands/commit-distribution",
+        "POST /v1/marketplace/commands/commit-withdraw",
+      ]),
       buybackConfigUpdate: {
         event: "PaymentFacet.BuybackConfigUpdated",
         configAfter: ["0", "0", "1", "1", "0x0", "0x0", "0x0"],
@@ -281,7 +331,7 @@ describe("verify marketplace purchase live target selection", () => {
         buyer: "0xbuyer",
       },
     });
-    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(8);
+    expect(output.reports["marketplace-purchase"].evidence).toHaveLength(9);
     expect(output.reports["marketplace-purchase"].withdrawal).toMatchObject({
       txHash: "0xwithdraw",
       deadline: "1770003600",

@@ -115,6 +115,39 @@ export function extractTxHash(payload: unknown): string | null {
   return null;
 }
 
+export function paymentClaimCommitmentStorageSlots(claimant: string, mappingSlot: 40 | 41) {
+  const paymentStoragePosition = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.payment.storage")));
+  const mappingEntry = BigInt(ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+    ["address", "uint256"],
+    [claimant, paymentStoragePosition + BigInt(mappingSlot)],
+  )));
+  return {
+    commitHash: ethers.toBeHex(mappingEntry, 32),
+    commitBlock: ethers.toBeHex(mappingEntry + 1n, 32),
+    revealed: ethers.toBeHex(mappingEntry + 2n, 32),
+  };
+}
+
+export async function readPaymentClaimCommitment(
+  provider: JsonRpcProvider,
+  diamondAddress: string,
+  claimant: string,
+  mappingSlot: 40 | 41,
+) {
+  const slots = paymentClaimCommitmentStorageSlots(claimant, mappingSlot);
+  const [commitHash, commitBlock, revealed] = await Promise.all([
+    provider.getStorage(diamondAddress, slots.commitHash),
+    provider.getStorage(diamondAddress, slots.commitBlock),
+    provider.getStorage(diamondAddress, slots.revealed),
+  ]);
+  return {
+    commitHash: commitHash.toLowerCase(),
+    commitBlock: BigInt(commitBlock).toString(),
+    revealed: BigInt(revealed) !== 0n,
+    slots,
+  };
+}
+
 export function resolveMarketplaceWithdrawalApiKey(
   sellerAddress: string,
   configuredSellerAddress: string,
@@ -552,6 +585,19 @@ type MarketplacePurchaseDetails = {
     configAfter: string[];
     event: string;
   };
+  claimCommitmentUpdates?: Array<{
+    methodKey: "PaymentFacet.commitDistribution" | "PaymentFacet.commitWithdraw";
+    route: string;
+    actor: string;
+    status: number;
+    txHash: string;
+    receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    event: { claimant: string; commitHash: string; commitBlock: string };
+    storageBefore: { commitHash: string; commitBlock: string; revealed: boolean };
+    storageAfter: { commitHash: string; commitBlock: string; revealed: boolean };
+    balanceBefore: string;
+    balanceAfter: string;
+  }>;
   postState?: {
     owner?: unknown;
     listing?: unknown;
@@ -583,6 +629,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.buybackPauseUpdate ? { kind: "buybackPauseUpdate", value: normalize(args.details.buybackPauseUpdate) } : null,
     args.details.buybackConfigUpdate ? { kind: "buybackConfigUpdate", value: normalize(args.details.buybackConfigUpdate) } : null,
     args.details.buybackConfigStructUpdate ? { kind: "buybackConfigStructUpdate", value: normalize(args.details.buybackConfigStructUpdate) } : null,
+    args.details.claimCommitmentUpdates ? { kind: "claimCommitmentUpdates", value: normalize(args.details.claimCommitmentUpdates) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -595,6 +642,8 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
         "PATCH /v1/marketplace/commands/set-mev-protection-config",
         "PATCH /v1/marketplace/commands/set-buyback-config",
         "PATCH /v1/marketplace/commands/set-buyback-config-struct",
+        "POST /v1/marketplace/commands/commit-distribution",
+        "POST /v1/marketplace/commands/commit-withdraw",
         "POST /v1/marketplace/commands/pause-buybacks",
         "POST /v1/workflows/purchase-marketplace-asset",
         "POST /v1/workflows/withdraw-marketplace-payments",
@@ -768,6 +817,8 @@ async function main() {
     let mevProtectionConfigUpdate: MarketplacePurchaseDetails["mevProtectionConfigUpdate"];
     let buybackPauseUpdate: MarketplacePurchaseDetails["buybackPauseUpdate"];
     let buybackConfigUpdate: MarketplacePurchaseDetails["buybackConfigUpdate"];
+    let buybackConfigStructUpdate: MarketplacePurchaseDetails["buybackConfigStructUpdate"];
+    let claimCommitmentUpdates: MarketplacePurchaseDetails["claimCommitmentUpdates"];
     if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
       await ensureNativeBalance(
         provider,
@@ -1027,6 +1078,113 @@ async function main() {
         configAfter: buybackConfigStructAfter,
         event: "PaymentFacet.BuybackConfigUpdated",
       };
+
+      const submitClaimCommitment = async (
+        methodKey: "PaymentFacet.commitDistribution" | "PaymentFacet.commitWithdraw",
+        methodName: "commitDistribution" | "commitWithdraw",
+        mappingSlot: 40 | 41,
+        route: string,
+      ) => {
+        const candidates = [
+          { wallet: founder, apiKey: "founder-key" },
+          { wallet: seller, apiKey: "seller-key" },
+          { wallet: buyer, apiKey: "buyer-key" },
+        ];
+        let selected: typeof candidates[number] | undefined;
+        let storageBefore: Awaited<ReturnType<typeof readPaymentClaimCommitment>> | undefined;
+        for (const candidate of candidates) {
+          const current = await readPaymentClaimCommitment(provider, config.diamondAddress, candidate.wallet.address, mappingSlot);
+          if (current.commitHash === ethers.ZeroHash || current.revealed) {
+            selected = candidate;
+            storageBefore = current;
+            break;
+          }
+        }
+        if (!selected || !storageBefore) {
+          throw new Error(`no configured API actor has an available ${methodName} commitment slot`);
+        }
+
+        const commitHash = ethers.keccak256(ethers.toUtf8Bytes(
+          `api05:${methodName}:${selected.wallet.address.toLowerCase()}:${Date.now()}:${Math.random()}`,
+        ));
+        const balanceBefore = BigInt(await erc20.balanceOf(selected.wallet.address)).toString();
+        const response = await apiCall(port, "POST", route, {
+          apiKey: selected.apiKey,
+          walletAddress: selected.wallet.address,
+          body: { commitHash },
+        });
+        if (response.status !== 202) {
+          throw new Error(`fork-only ${methodName} proof failed: ${JSON.stringify(response.payload)}`);
+        }
+        const txHash = extractTxHash(response.payload);
+        if (!txHash) {
+          throw new Error(`fork-only ${methodName} did not return a transaction hash`);
+        }
+        const receipt = await waitForReceipt(provider, txHash, `fork-only ${methodName}`);
+        const committed = receipt.logs.flatMap((log) => {
+          try {
+            const parsed = payment.interface.parseLog(log);
+            return parsed?.name === "ClaimCommitted" ? [parsed] : [];
+          } catch {
+            return [];
+          }
+        })[0];
+        const storageAfter = await readPaymentClaimCommitment(provider, config.diamondAddress, selected.wallet.address, mappingSlot);
+        const balanceAfter = BigInt(await erc20.balanceOf(selected.wallet.address)).toString();
+        const event = committed ? {
+          claimant: String(committed.args.claimant),
+          commitHash: String(committed.args.commitHash).toLowerCase(),
+          commitBlock: String(committed.args.commitBlock),
+        } : null;
+        if (!event
+          || event.claimant.toLowerCase() !== selected.wallet.address.toLowerCase()
+          || event.commitHash !== commitHash.toLowerCase()
+          || event.commitBlock !== String(receipt.blockNumber)
+          || receipt.logs.length !== 1
+          || storageAfter.commitHash !== commitHash.toLowerCase()
+          || storageAfter.commitBlock !== String(receipt.blockNumber)
+          || storageAfter.revealed
+          || balanceAfter !== balanceBefore) {
+          throw new Error(`fork-only ${methodName} receipt/event/storage proof mismatch: ${JSON.stringify({
+            event,
+            expectedClaimant: selected.wallet.address,
+            expectedCommitHash: commitHash,
+            receipt: { blockNumber: receipt.blockNumber, logCount: receipt.logs.length },
+            storageBefore,
+            storageAfter,
+            balanceBefore,
+            balanceAfter,
+          })}`);
+        }
+        return {
+          methodKey,
+          route,
+          actor: selected.wallet.address,
+          status: response.status,
+          txHash,
+          receipt: { status: receipt.status, blockNumber: receipt.blockNumber, logCount: receipt.logs.length },
+          event,
+          storageBefore,
+          storageAfter,
+          balanceBefore,
+          balanceAfter,
+        };
+      };
+
+      claimCommitmentUpdates = [
+        await submitClaimCommitment(
+          "PaymentFacet.commitDistribution",
+          "commitDistribution",
+          40,
+          "/v1/marketplace/commands/commit-distribution",
+        ),
+        await submitClaimCommitment(
+          "PaymentFacet.commitWithdraw",
+          "commitWithdraw",
+          41,
+          "/v1/marketplace/commands/commit-withdraw",
+        ),
+      ];
 
       const pauseResponse = await apiCall(
         port,
@@ -1412,6 +1570,7 @@ async function main() {
         ...(buybackPauseUpdate ? { buybackPauseUpdate } : {}),
         ...(buybackConfigUpdate ? { buybackConfigUpdate } : {}),
         ...(buybackConfigStructUpdate ? { buybackConfigStructUpdate } : {}),
+        ...(claimCommitmentUpdates ? { claimCommitmentUpdates } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,

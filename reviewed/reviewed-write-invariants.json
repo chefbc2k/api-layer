@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "reviewedAt": "2026-09-15",
+  "reviewedAt": "2026-11-24",
   "methods": {
     "AccessControlFacet.configureRole": {
       "abiSignature": "configureRole(bytes32,(uint256,uint256,uint256,uint256,uint256,bytes32,bool,bool,bool,bool))",
@@ -7333,67 +7333,44 @@
     "PaymentFacet.commitDistribution": {
       "abiSignature": "commitDistribution(bytes32)",
       "requiredActor": {
-        "kind": "role",
-        "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
-        ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "kind": "permissionless",
+        "roles": [],
+        "description": "PaymentFacet.commitDistribution has no role check; any signer may create a commitment while payments are not paused and the signer has no unrevealed commitment of that kind."
       },
       "preconditions": [
         {
-          "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
-        },
-        {
-          "kind": "funding",
-          "description": "Required balances, allowances, escrow, caps, and protocol liquidity are sufficient before submission."
+          "kind": "argument",
+          "description": "Supply the commitment hash for the exact reveal payload; the proof uses a non-zero keccak256 hash."
         },
         {
           "kind": "protocol-state",
-          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+          "description": "Payments are not paused, and the caller has no existing unrevealed commitment of the same kind."
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "PaymentFacet.getAssetRevenue",
-            "assertion": "PaymentFacet.getAssetRevenue reflects the receipt-confirmed PaymentFacet.commitDistribution transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "PaymentFacet exposes no commitment getter. The fork proof reads the claimant-specific namespaced PaymentStorage mapping slots and matches the stored hash, block number, and revealed flag to the receipt."
       },
       "emittedEvents": {
         "mode": "all",
         "events": [
           "PaymentFacet.ClaimCommitted"
         ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "rationale": "The successful commitment must emit claimant, hash, and commit block matching the receipt and direct storage readback."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "transfer",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "Creating a commitment records hidden parameters and does not transfer or reserve assets."
       },
       "replayConstraints": {
-        "mode": "nonce-and-deadline",
+        "mode": "state-transition",
         "keyFields": [
+          "claimant",
           "commitHash"
         ],
-        "assertion": "A signature, nonce, commitment, or deadline can authorize only its intended payload and cannot be reused after consumption or expiry."
+        "assertion": "A caller cannot replace an unrevealed commitment; a fresh commitment is accepted only after the previous one is revealed."
       },
       "liveNetworkSafety": {
         "classification": "fork-only",
@@ -7408,73 +7385,50 @@
         "projections": [
           "payment_flows:ledger"
         ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "assertion": "The commitment event is decoded and projected once; replay is idempotent and the projection remains consistent with the receipt event."
       }
     },
     "PaymentFacet.commitWithdraw": {
       "abiSignature": "commitWithdraw(bytes32)",
       "requiredActor": {
-        "kind": "role",
-        "roles": [
-          "FEE_MANAGER_ROLE",
-          "TREASURY_ROLE",
-          "MARKETPLACE_OPERATOR_ROLE"
-        ],
-        "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
+        "kind": "permissionless",
+        "roles": [],
+        "description": "PaymentFacet.commitWithdraw has no role check; any signer may create a commitment while payments are not paused and the signer has no unrevealed commitment of that kind."
       },
       "preconditions": [
         {
-          "kind": "authorization",
-          "description": "The signer must hold the applicable FEE_MANAGER_ROLE or TREASURY_ROLE or MARKETPLACE_OPERATOR_ROLE privilege for PaymentFacet."
-        },
-        {
-          "kind": "funding",
-          "description": "Required balances, allowances, escrow, caps, and protocol liquidity are sufficient before submission."
+          "kind": "argument",
+          "description": "Supply the commitment hash for the exact reveal payload; the proof uses a non-zero keccak256 hash."
         },
         {
           "kind": "protocol-state",
-          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+          "description": "Payments are not paused, and the caller has no existing unrevealed commitment of the same kind."
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "PaymentFacet.getAssetRevenue",
-            "assertion": "PaymentFacet.getAssetRevenue reflects the receipt-confirmed PaymentFacet.commitWithdraw transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "PaymentFacet exposes no commitment getter. The fork proof reads the claimant-specific namespaced PaymentStorage mapping slots and matches the stored hash, block number, and revealed flag to the receipt."
       },
       "emittedEvents": {
         "mode": "all",
         "events": [
           "PaymentFacet.ClaimCommitted"
         ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "rationale": "The successful commitment must emit claimant, hash, and commit block matching the receipt and direct storage readback."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "unlock",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "Creating a commitment records hidden parameters and does not transfer or reserve assets."
       },
       "replayConstraints": {
-        "mode": "nonce-and-deadline",
+        "mode": "state-transition",
         "keyFields": [
+          "claimant",
           "commitHash"
         ],
-        "assertion": "A signature, nonce, commitment, or deadline can authorize only its intended payload and cannot be reused after consumption or expiry."
+        "assertion": "A caller cannot replace an unrevealed commitment; a fresh commitment is accepted only after the previous one is revealed."
       },
       "liveNetworkSafety": {
         "classification": "fork-only",
@@ -7489,7 +7443,7 @@
         "projections": [
           "payment_flows:ledger"
         ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "assertion": "The commitment event is decoded and projected once; replay is idempotent and the projection remains consistent with the receipt event."
       }
     },
     "PaymentFacet.distributePayment": {
