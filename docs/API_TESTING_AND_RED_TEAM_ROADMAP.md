@@ -19,6 +19,13 @@ This document is the master tracking file for the API assurance automation. Dail
 - Durable proof: [`output/api05-usdc-token-config-proof-2026-11-24.json`](../output/api05-usdc-token-config-proof-2026-11-24.json), [`verify-marketplace-purchase-output.json`](../verify-marketplace-purchase-output.json), and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json). The source commit is `50835f3342416a0c39daf552afd76498fa3c1606`; CI run [`45405113081`](https://github.com/chefbc2k/api-layer/actions/runs/45405113081) passed on evidence commit `3f6f760c4a8b9cc2e175aecf83b8120e2b7a2014`; all workflow gates are green.
 - This follow-on completed `1/144` open methods (`0.6944%`), below the bounded target of `37`. API-05 remains `in_progress`; continue from its exact `143`-method remainder.
 
+## API-05 Follow-on — Buyback Pause Proof — 2026-11-24
+
+- Added a loopback-only call to `POST /v1/marketplace/commands/pause-buybacks` using the current `false` state. The receipt succeeded and emitted `PaymentFacet.BuybackPaused(false)`; source review confirms `getBuybackStatus` omits this field, so the event is the canonical state evidence.
+- Disposable PostgreSQL indexed the raw event and `payment_flows` projection, journaled its block, and replayed idempotently. Local assurance passed all 12 stages with one known safe-read fixture gap: `ProposalFacet.queue` returns HTTP 500 for an expired proposal. Live write opt-ins remained false.
+- CI run [45413859703](https://github.com/chefbc2k/api-layer/actions/runs/45413859703) passed all gates on source commit `7cdf2aa4e2d3fe1dd9a181ef730ad1c30855c441`. This refresh strengthens an already accepted method and does not add a distinct method; API-05 remains at `118/260`, with `142` open. The bounded target of 37 new methods remains unmet.
+- Durable evidence: [`output/api05-buyback-pause-proof-2026-11-24.json`](../output/api05-buyback-pause-proof-2026-11-24.json) and the exact receipts in [`.runtime/local-fork-proofs/event-indexer.json`](../.runtime/local-fork-proofs/event-indexer.json). The focused seven-artifact report is not used to replace the cumulative acceptance total.
+
 ## API-05 Follow-on — Eventless MEV Configuration Proof — 2026-11-24
 
 - Added a fork-only call to `PATCH /v1/marketplace/commands/set-mev-protection-config` using the current five-field configuration read from `getMevProtectionConfig`. The contract source confirms this setter emits no event; the proof requires a successful zero-log receipt and matching canonical getter readback.

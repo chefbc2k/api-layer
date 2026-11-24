@@ -769,6 +769,32 @@
             "Dependency audit, pinned-selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed.",
             "The preceding run 45408959382 failed only because its generated-event assurance test still asserted pre-correction counts; updated counts passed in the full regression gate."
           ]
+        },
+        {
+          "sourceCommit": "7cdf2aa4e2d3fe1dd9a181ef730ad1c30855c441",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45413859703",
+          "artifact": "output/api05-buyback-pause-proof-2026-11-24.json",
+          "proofArtifactSha256": "8eb15d99352c652e4d5d592ea419583dc18575fcebc22de6a13b8409bc49a23a",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "1ca59846e51facae31b320fc2aca84a56d5b6660c4981cd445f039583d07866b",
+          "result": "Added fresh exact current-source local-fork evidence for PaymentFacet.pauseBuybacks through POST /v1/marketplace/commands/pause-buybacks, strengthening the existing method proof. The successful receipt emitted BuybackPaused(false), which is canonical state evidence because getBuybackStatus omits buybackPaused. PostgreSQL indexed one raw event and one payment_flows projection with a block journal; replay was idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue expired-proposal safe-read gap. This refresh does not add a distinct method: API-05 remains at 118/260, with 142 methods open.",
+          "startingProvenCount": 118,
+          "startingOpenCount": 142,
+          "completedThisRun": 0,
+          "completionPercentOfStart": 0,
+          "boundedRunTarget": 37,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 118,
+          "endingOpenCount": 142,
+          "checks": [
+            "pnpm run verify:local-fork on the disposable loopback Base Sepolia fork: 12/12 stages passed; live and live-destructive opt-ins were false.",
+            "POST /v1/marketplace/commands/pause-buybacks returned a successful receipt at block 63042446 with one BuybackPaused(false) log.",
+            "Disposable PostgreSQL recorded one raw_events row, one payment_flows projection row, and one indexer_blocks row for the receipt; replay was unchanged and idempotent.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
+            "GitHub Actions run 45413859703 passed all workflow gates on exact head 7cdf2aa4e2d3fe1dd9a181ef730ad1c30855c441.",
+            "Persistent cumulative artifact retains 1,166 unique receipts, 118 proven methods and 142 remaining; the focused seven-artifact report alone was not used to replace historical cumulative evidence."
+          ],
+          "resultLimitation": "This run refreshed evidence for an already accepted method and completed 0 new distinct methods toward the bounded owner target of 37; API-05 remains open."
         }
       ],
       "deliveredCommit": null,
@@ -4539,7 +4565,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "title": "Wave 1 – Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]

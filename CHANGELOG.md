@@ -1,3 +1,8 @@
+# 2026-11-24 — Refresh fork-only buyback pause proof
+
+- Re-ran the loopback-only `pauseBuybacks(false)` API proof with a successful `BuybackPaused(false)` receipt. PostgreSQL indexed the raw event and `payment_flows` row, and replay remained idempotent.
+- Local assurance passed all 12 stages with the known `ProposalFacet.queue` expiry fixture gap; hosted CI run `45413859703` passed all gates. This strengthens an already accepted method, so API-05 remains at 118/260 with 142 methods open.
+
 # 2026-11-24 — Prove eventless MEV protection configuration readback
 
 - Added a loopback-only API proof for `PaymentFacet.setMevProtectionConfig` using its current five-field configuration. Corrected the API-layer write invariant to match contract source: the method emits no event, so acceptance uses its zero-log receipt, canonical getter readback, and PostgreSQL block journal without inventing an event projection.

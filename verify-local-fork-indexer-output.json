@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T14:06:32.299Z",
+  "generatedAt": "2026-11-24T14:36:07.355Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 1165,
+    "artifactTransactionHashes": 1166,
     "includedArtifacts": 6,
     "skippedArtifacts": 0,
-    "indexedReceipts": 1165,
+    "indexedReceipts": 1166,
     "provenWriteMethods": 118,
     "catalogWriteMethods": 260,
     "remainingWriteMethods": 142,
-    "rawEvents": 1716,
-    "projectionRows": 1131
+    "rawEvents": 1717,
+    "projectionRows": 1132
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -15908,7 +15908,8 @@
     },
     "PaymentFacet.pauseBuybacks": {
       "routes": [
-        "POST /v1/marketplace/commands/pause-buybacks"
+        "POST /v1/marketplace/commands/pause-buybacks",
+        "."
       ],
       "actors": [
         "local-fork-fixture"
@@ -15979,12 +15980,8 @@
           }
         },
         {
-          "localFork": true,
-          "methodKey": "PaymentFacet.pauseBuybacks",
-          "affectedFacet": "PaymentFacet",
-          "methodSignature": "pauseBuybacks(bool)",
           "txHash": "0x38df721158772de1b3a0178d12088683eb1d39436233057285bc079056a880d4",
-          "blockNumber": 63034336,
+          "blockNumber": 63042343,
           "receipt": {
             "status": 1,
             "logCount": 1
@@ -16000,19 +15997,28 @@
             "rawEvents": {
               "table": "raw_events",
               "rowCount": 1,
-              "rowIds": [
-                "166"
+              "rows": [
+                {
+                  "id": "166",
+                  "log_index": 0,
+                  "facet_name": "PaymentFacet",
+                  "event_name": "BuybackPaused",
+                  "event_signature": "BuybackPaused(bool)",
+                  "decoded_args": {
+                    "paused": false
+                  }
+                }
               ]
             },
             "projections": [
               {
                 "table": "payment_flows",
                 "rowCount": 1,
-                "rowIds": [
-                  "4"
-                ],
-                "sourceRawEventIds": [
-                  "166"
+                "rows": [
+                  {
+                    "row_id": "4",
+                    "source_raw_event_id": "166"
+                  }
                 ]
               }
             ],
@@ -16021,8 +16027,8 @@
               "rowCount": 1,
               "rows": [
                 {
-                  "block_number": "63034336",
-                  "block_hash": "0x347a32f29f36397afefab8f4f9b0f053bac973604f7f0eeff30430bd39f4e558"
+                  "block_number": "63042343",
+                  "block_hash": "0x5cde5d604b706966eff80e0399b2c41504db685d7c912b5c5d9efdf87e0ab377"
                 }
               ]
             }
@@ -16037,6 +16043,74 @@
             ],
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "txHash": "0x5061eeef17c53b0ac175527742895d439d22b2f62c6fa4d7f90b365bc1488dad",
+          "blockNumber": 63042446,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "296",
+              "logIndex": 0,
+              "eventKey": "PaymentFacet.BuybackPaused(bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "296",
+                  "log_index": 0,
+                  "facet_name": "PaymentFacet",
+                  "event_name": "BuybackPaused",
+                  "event_signature": "BuybackPaused(bool)",
+                  "decoded_args": {
+                    "paused": false
+                  }
+                }
+              ]
+            },
+            "projections": [
+              {
+                "table": "payment_flows",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "row_id": "16",
+                    "source_raw_event_id": "296"
+                  }
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63042446",
+                  "block_hash": "0xd9762de3329453b96228566fec0e42855a3d9a8e6fae250cb33d82e221aafd69"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/marketplace-purchase.json"
+            ],
+            "producers": [
+              "scripts/verify-marketplace-purchase-live.ts"
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
@@ -16231,12 +16305,8 @@
           }
         },
         {
-          "localFork": true,
-          "methodKey": "PaymentFacet.pauseBuybacks",
-          "affectedFacet": "PaymentFacet",
-          "methodSignature": "pauseBuybacks(bool)",
           "txHash": "0xece78a064eb1271e17ead8869631d5f728dff445b1cb3ca91b045862a24e79fb",
-          "blockNumber": 63034335,
+          "blockNumber": 63042342,
           "receipt": {
             "status": 1,
             "logCount": 1
@@ -16252,19 +16322,28 @@
             "rawEvents": {
               "table": "raw_events",
               "rowCount": 1,
-              "rowIds": [
-                "165"
+              "rows": [
+                {
+                  "id": "165",
+                  "log_index": 0,
+                  "facet_name": "PaymentFacet",
+                  "event_name": "BuybackPaused",
+                  "event_signature": "BuybackPaused(bool)",
+                  "decoded_args": {
+                    "paused": true
+                  }
+                }
               ]
             },
             "projections": [
               {
                 "table": "payment_flows",
                 "rowCount": 1,
-                "rowIds": [
-                  "3"
-                ],
-                "sourceRawEventIds": [
-                  "165"
+                "rows": [
+                  {
+                    "row_id": "3",
+                    "source_raw_event_id": "165"
+                  }
                 ]
               }
             ],
@@ -16273,8 +16352,8 @@
               "rowCount": 1,
               "rows": [
                 {
-                  "block_number": "63034335",
-                  "block_hash": "0x8e9bef2bb561d06b339cec3c2da9122d59476ba3e412f5f38e4a38cfe287f6bd"
+                  "block_number": "63042342",
+                  "block_hash": "0xc9787231607eaecbae9fe8ca4a9fdc7978401a9e23913bfee4653ddd8b88208b"
                 }
               ]
             }
