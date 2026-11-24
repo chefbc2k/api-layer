@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": "Base Sepolia fork on loopback RPC",
+  "sourceCommit": "2f52fc443c2ec93d820060385eab19d8c3035256",
+  "methods": [
+    {
+      "methodKey": "TokenSupplyFacet.supplySetMaximum",
+      "route": "POST /v1/tokenomics/commands/supply-set-maximum",
+      "actor": "founder fixture signer with MINTER_ROLE",
+      "fixture": {
+        "mintingFinishedInitially": true,
+        "setup": "cleared the minting-finished flag and raised maximum only in loopback-fork storage; restored both original storage slots after the API proof"
+      },
+      "receipts": [
+        {
+          "transactionHash": "0x7349e5fa1f48872d621ef7a604dec4552889d0f6dd2837f42d501c25c71cdd28",
+          "blockNumber": 63194787,
+          "status": 1,
+          "logCount": 0,
+          "maximum": "raised above observed supply by API command"
+        },
+        {
+          "transactionHash": "0x490fc483a33ab7bd34a371eacb126c38264bec392edecbbc05d0ca6861bf6688",
+          "blockNumber": 63194788,
+          "status": 1,
+          "logCount": 0,
+          "maximum": "restored through API command to the fixture maximum"
+        }
+      ],
+      "assertions": [
+        "The command route returned HTTP 202 for the cap increase and its receipt succeeded with zero logs.",
+        "TokenSupplyFacet.supplyGetMaximum and POST /v1/tokenomics/queries/supply-get-maximum returned the requested cap after the receipt.",
+        "A second status-1 API receipt restored the fixture maximum; the canonical getter matched it.",
+        "The original token flags and maximum-supply slots were restored directly after proof setup, on the loopback fork only; no deployed state changed."
+      ],
+      "indexer": {
+        "rawEvents": 0,
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 2,
+          "rows": [
+            {
+              "block_number": "63194787",
+              "block_hash": "0xe8218fabd3e55fd834b57df76ed290ed71f502486b406fb2ae54368cf2b4ab69"
+            },
+            {
+              "block_number": "63194788",
+              "block_hash": "0xbe03f43d9c767d395a904e7890ce7f7fdf83450d387eb6aa60ae14652832176c"
+            }
+          ]
+        },
+        "journalRows": 2,
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
+    }
+  ],
+  "cumulative": {
+    "startingProvenWriteMethods": 137,
+    "endingProvenWriteMethods": 138,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 122,
+    "indexedReceipts": 3917,
+    "rawEvents": 5965,
+    "projectionRows": 3884,
+    "addedMethodKeys": [
+      "TokenSupplyFacet.supplySetMaximum"
+    ]
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "httpIntegrationTestsPassed": 43,
+    "safeReadPassed": 445,
+    "safeReadAttempted": 446,
+    "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."
+  }
+}

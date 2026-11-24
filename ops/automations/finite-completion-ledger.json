@@ -1212,6 +1212,33 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45503401718",
           "ciRunId": 45503401718,
           "ciCommit": "b4d77965427bcef8bd197b9911f8e2378bf9d98c"
+        },
+        {
+          "sourceCommit": "2f52fc443c2ec93d820060385eab19d8c3035256",
+          "artifact": "output/api05-token-supply-controls-proof-2026-11-24.json",
+          "proofArtifactSha256": "4a9c57d7052b1b23db8ae18547bf80b2e876a71c7c42d1072044ad908ef90ce8",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "95db1289d20a4b202623280d9ae3aea2ba074eff5234568dce53b14e3d2cb4a6",
+          "result": "Added exact-source local-fork proof for TokenSupplyFacet.supplySetMaximum through POST /v1/tokenomics/commands/supply-set-maximum. The MINTER_ROLE founder raised the supply cap through the API, verified it through supplyGetMaximum and the HTTP read route, then restored the fixture value through the same API. Both receipts succeeded with zero logs. PostgreSQL recorded only block journals, with no raw events or projections, and replay remained unchanged and idempotent. Cumulative proof advances from 137/260 to 138/260, leaving 122 open.",
+          "startingProvenCount": 137,
+          "startingOpenCount": 123,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.813,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 138,
+          "endingOpenCount": 122,
+          "checks": [
+            "Focused supplySetMaximum local-fork integration test passed.",
+            "The full local-fork assurance completed all 12 stages with exit 0; all 43 HTTP contract integration tests passed.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 from the known fixture gap.",
+            "Two status-1 receipts succeeded at blocks 63194787 and 63194788 with zero logs; the getter and HTTP readback matched the API-selected cap, then its restored value.",
+            "The local-fork test temporarily cleared finalized-minting flags and set a fixture maximum in storage, then restored both original storage slots; no deployed state was changed.",
+            "PostgreSQL recorded one indexer_blocks row per receipt, zero raw_events and zero projections; replay was unchanged and idempotent.",
+            "Cumulative indexer report: 3,917 receipts, 138/260 distinct write methods, 5,965 raw events, and 3,884 projection rows; TokenSupplyFacet.supplySetMaximum is classified proven working.",
+            "Hosted CI for this source update is pending."
+          ],
+          "resultLimitation": "This run completed 1 of 123 open methods (0.8130%), below the bounded target of 35; API-05 remains in_progress with 122 methods open."
         }
       ],
       "deliveredCommit": null,

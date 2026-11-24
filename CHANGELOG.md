@@ -1,3 +1,7 @@
+# 2026-11-24 — Record supply maximum indexer proof
+
+- Added exact current-source proof for `TokenSupplyFacet.supplySetMaximum`. The founder set and restored a valid cap through HTTP; both status-1 receipts were eventless, and canonical readbacks matched. The finalized-minting flag and cap were restored in loopback-fork storage after the proof.
+- Full local-fork assurance passed all 12 stages and 43/43 HTTP contract integration tests. PostgreSQL journaled both receipts without fabricated events or projections; replay remained idempotent. API-05 advances to 138/260 methods, with 122 open. The known `ProposalFacet.queue` read gap remains.
 # 2026-11-24 — Record allowance-backed token burn indexing proof
 
 - Added exact local-fork proof for `TokenSupplyFacet.burnFrom` through the API. The transferee burned 17 founder-approved units; balance, supply, allowance, both raw event rows, block journal, and idempotent replay were verified.
