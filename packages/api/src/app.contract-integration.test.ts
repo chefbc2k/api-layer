@@ -7963,4 +7963,86 @@ describeLive("HTTP API contract integration", () => {
     expect(await tokenSupplyFacet.totalSupply()).toBe(supplyBefore - amount);
     expect(await tokenSupplyFacet.tokenAllowance(founderAddress, transfereeWallet.address)).toBe(0n);
   }, 180_000);
+
+  it("proves the supply maximum update remains indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "token supply maximum receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const minterRole = id("MINTER_ROLE");
+    if (!(await accessControl.hasRole(minterRole, founderAddress))) {
+      const roleReceipt = await (
+        await accessControl.connect(founderWallet).grantRole(minterRole, founderAddress, ethers.MaxUint256)
+      ).wait();
+      expect(roleReceipt?.status).toBe(1);
+    }
+    const tokenStorageBase = BigInt(id("speak.token.storage"));
+    const tokenFlagsSlot = tokenStorageBase + 11n;
+    const maxSupplySlot = tokenStorageBase + 12n;
+    const tokenFlagsBefore = BigInt(await provider.getStorage(diamondAddress, ethers.toBeHex(tokenFlagsSlot, 32)));
+    const maximumStorageBefore = BigInt(await provider.getStorage(diamondAddress, ethers.toBeHex(maxSupplySlot, 32)));
+    const supplyBefore = await tokenSupplyFacet.totalSupply();
+    const fixtureMaximum = supplyBefore + 100n;
+
+    // The deployed fixture has finalized minting, which also gates this setter.
+    // Reopen it only in loopback-fork storage, then restore the original slots.
+    await provider.send("anvil_setStorageAt", [
+      diamondAddress,
+      ethers.toBeHex(tokenFlagsSlot, 32),
+      ethers.toBeHex(tokenFlagsBefore & ~(0xffn << 8n), 32),
+    ]);
+    await provider.send("anvil_setStorageAt", [
+      diamondAddress,
+      ethers.toBeHex(maxSupplySlot, 32),
+      ethers.toBeHex(fixtureMaximum, 32),
+    ]);
+    await provider.send("evm_mine", []);
+    const maximumBefore = await tokenSupplyFacet.supplyGetMaximum();
+    expect(maximumBefore).toBe(fixtureMaximum);
+    expect(maximumBefore).toBeGreaterThan(supplyBefore);
+
+    try {
+      const targetMaximum = maximumBefore + 1n;
+      const update = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-set-maximum", {
+        body: { maxSupply_: targetMaximum.toString() },
+      });
+      expect(update.status, JSON.stringify(update.payload)).toBe(202);
+      const txHash = extractTxHash(update.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      expect(receipt?.logs).toHaveLength(0);
+      expect(await tokenSupplyFacet.supplyGetMaximum()).toBe(targetMaximum);
+
+      const readback = await apiCall(port, "POST", "/v1/tokenomics/queries/supply-get-maximum", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(readback.payload).toBe(targetMaximum.toString());
+
+      const restore = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-set-maximum", {
+        body: { maxSupply_: maximumBefore.toString() },
+      });
+      expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+      await expectReceipt(extractTxHash(restore.payload));
+      expect(await tokenSupplyFacet.supplyGetMaximum()).toBe(maximumBefore);
+    } finally {
+      await provider.send("anvil_setStorageAt", [
+        diamondAddress,
+        ethers.toBeHex(tokenFlagsSlot, 32),
+        ethers.toBeHex(tokenFlagsBefore, 32),
+      ]);
+      await provider.send("anvil_setStorageAt", [
+        diamondAddress,
+        ethers.toBeHex(maxSupplySlot, 32),
+        ethers.toBeHex(maximumStorageBefore, 32),
+      ]);
+      await provider.send("evm_mine", []);
+    }
+  }, 180_000);
 });
