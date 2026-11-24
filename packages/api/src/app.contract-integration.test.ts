@@ -7913,4 +7913,54 @@ describeLive("HTTP API contract integration", () => {
     expect(await tokenSupplyFacet.tokenBalanceOf(recipient)).toBe(balanceBefore + amount);
     expect(await tokenSupplyFacet.totalSupply()).toBe(supplyBefore + amount);
   }, 180_000);
+
+  it("proves the approved token burnFrom receipt remains indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "token supply burnFrom receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+      { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const amount = 17n;
+    const ownerBefore = await tokenSupplyFacet.tokenBalanceOf(founderAddress);
+    const recipientBefore = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
+    const supplyBefore = await tokenSupplyFacet.totalSupply();
+    expect(ownerBefore).toBeGreaterThanOrEqual(amount);
+
+    const approval = await apiCall(port, "POST", "/v1/tokenomics/commands/token-approve", {
+      body: { spender: transfereeWallet.address, amount: amount.toString() },
+    });
+    expect(approval.status, JSON.stringify(approval.payload)).toBe(202);
+    await expectReceipt(extractTxHash(approval.payload));
+    expect(await tokenSupplyFacet.tokenAllowance(founderAddress, transfereeWallet.address)).toBe(amount);
+
+    const response = await apiCall(port, "DELETE", "/v1/tokenomics/commands/burn-from", {
+      apiKey: "transferee-key",
+      body: { account: founderAddress, amount: amount.toString() },
+    });
+    expect(response.status, JSON.stringify(response.payload)).toBe(202);
+    const txHash = extractTxHash(response.payload);
+    await expectReceipt(txHash);
+    const receipt = await provider.getTransactionReceipt(txHash);
+    expect(receipt?.status).toBe(1);
+    const transferEvents = (receipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = tokenSupplyFacet.interface.parseLog(log);
+        return parsed?.name === "Transfer" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(transferEvents).toHaveLength(1);
+    expect(transferEvents[0]?.args.from).toBe(founderAddress);
+    expect(transferEvents[0]?.args.to).toBe(ethers.ZeroAddress);
+    expect(transferEvents[0]?.args.value).toBe(amount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(ownerBefore - amount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address)).toBe(recipientBefore);
+    expect(await tokenSupplyFacet.totalSupply()).toBe(supplyBefore - amount);
+    expect(await tokenSupplyFacet.tokenAllowance(founderAddress, transfereeWallet.address)).toBe(0n);
+  }, 180_000);
 });
