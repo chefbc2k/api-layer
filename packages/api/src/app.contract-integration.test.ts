@@ -8045,4 +8045,60 @@ describeLive("HTTP API contract integration", () => {
       await provider.send("evm_mine", []);
     }
   }, 180_000);
+
+  it("proves the mint finalization receipt remains indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "token mint finalization receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const tokenStorageBase = BigInt(id("speak.token.storage"));
+    const tokenFlagsSlot = tokenStorageBase + 11n;
+    const originalTokenFlags = BigInt(await provider.getStorage(diamondAddress, ethers.toBeHex(tokenFlagsSlot, 32)));
+    await provider.send("anvil_setStorageAt", [
+      diamondAddress,
+      ethers.toBeHex(tokenFlagsSlot, 32),
+      ethers.toBeHex(originalTokenFlags & ~(0xffn << 8n), 32),
+    ]);
+    await provider.send("evm_mine", []);
+    expect(await tokenSupplyFacet.supplyIsMintingFinished()).toBe(false);
+
+    try {
+      const response = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-finish-minting", {
+        body: {},
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      const finalizedEvents = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = tokenSupplyFacet.interface.parseLog(log);
+          return parsed?.name === "MintingFinished" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(finalizedEvents).toHaveLength(1);
+      expect(await tokenSupplyFacet.supplyIsMintingFinished()).toBe(true);
+
+      const readback = await apiCall(port, "POST", "/v1/tokenomics/queries/supply-is-minting-finished", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(readback.payload).toBe(true);
+    } finally {
+      await provider.send("anvil_setStorageAt", [
+        diamondAddress,
+        ethers.toBeHex(tokenFlagsSlot, 32),
+        ethers.toBeHex(originalTokenFlags, 32),
+      ]);
+      await provider.send("evm_mine", []);
+    }
+  }, 180_000);
 });
