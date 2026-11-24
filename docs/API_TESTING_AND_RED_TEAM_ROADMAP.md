@@ -2,6 +2,14 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Payment Claim Commitment Proofs — 2026-11-24
+
+- Added loopback-only requests for `POST /v1/marketplace/commands/commit-distribution` and `POST /v1/marketplace/commands/commit-withdraw`. Both receipts emitted `ClaimCommitted`; claimant, hash, and block matched direct namespaced storage readback, and USDC balances were unchanged.
+- Disposable PostgreSQL recorded the raw events, `payment_flows` projections, and block journals; replay was idempotent. Full local-fork assurance passed all 12 stages with only the known `ProposalFacet.queue` safe-read fixture gap.
+- Source commit `75f04e626efb5fa23b849b2c8a4b2d2c0baa61cf` adds two distinct methods. API-05 advances from `120/260` to `122/260`, leaving `138` open. The run completed `2/140` open methods (`1.4286%`), below the bounded target of `35`. CI run [45435461674](https://github.com/chefbc2k/api-layer/actions/runs/45435461674) passed every configured gate on commit `5bafbdecab6618ae3bc68fcaf3bcf8c8ddd36478`.
+- Durable proof: [`output/api05-payment-claim-commitments-proof-2026-11-24.json`](../output/api05-payment-claim-commitments-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json).
+
+
 ## API-05 Follow-on — Buyback Configuration Struct Proof — 2026-11-24
 
 - Added a loopback-only call to `PATCH /v1/marketplace/commands/set-buyback-config-struct` using the valid disabled config from the scalar setter proof. The receipt succeeded at block `63059801`, emitted `PaymentFacet.BuybackConfigUpdated`, and all seven event values matched `PaymentFacet.getBuybackStatus`.

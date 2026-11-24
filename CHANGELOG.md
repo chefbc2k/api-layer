@@ -1,3 +1,9 @@
+# 2026-11-24 — Prove permissionless payment claim commitment writes
+
+- Added local-fork proofs for `PaymentFacet.commitDistribution` and `PaymentFacet.commitWithdraw`. Each successful receipt emitted `ClaimCommitted`, matched direct namespaced storage readback and left the caller balance unchanged; PostgreSQL projection and idempotent replay passed.
+- Full local-fork assurance passed all 12 stages with the existing `ProposalFacet.queue` fixture gap. API-05 advances to 122/260 methods, with 138 open. Hosted CI run [45435461674](https://github.com/chefbc2k/api-layer/actions/runs/45435461674) passed every configured gate after correcting lifecycle coverage counts for the permissionless methods.
+- Durable evidence: [`output/api05-payment-claim-commitments-proof-2026-11-24.json`](output/api05-payment-claim-commitments-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](verify-local-fork-indexer-output.json).
+
 # 2026-11-24 — Prove struct buyback configuration API write
 
 - Added a fork-only `setBuybackConfigStruct` API proof. The successful receipt emitted `BuybackConfigUpdated`; all seven event values matched the canonical getter, and PostgreSQL projection plus idempotent replay passed.

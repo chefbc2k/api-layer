@@ -881,6 +881,38 @@
             "GitHub Actions workflow 45426714451 succeeded on exact source commit 70860762895a758b3a4141927102443bd654c1a4. Dependency audit, selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation all passed."
           ],
           "resultLimitation": "This run completed 1 of the 141 open methods (0.7092%), below the bounded owner target of 37; API-05 remains in_progress with 140 methods open."
+        },
+        {
+          "sourceCommit": "75f04e626efb5fa23b849b2c8a4b2d2c0baa61cf",
+          "url": "https://github.com/chefbc2k/api-layer/commit/75f04e626efb5fa23b849b2c8a4b2d2c0baa61cf",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45435461674",
+          "ciCommit": "5bafbdecab6618ae3bc68fcaf3bcf8c8ddd36478",
+          "artifact": "output/api05-payment-claim-commitments-proof-2026-11-24.json",
+          "proofArtifactSha256": "9ed2b90288a28cfd021a85732701eb2e3609cd3d6f26e4915c140f55beb32c98",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "2e1f29aede301e6cfb0646a018b8b66e130d67a154acc92740416a71b642f760",
+          "result": "Added exact current-source local-fork proof for PaymentFacet.commitDistribution and PaymentFacet.commitWithdraw. Both permissionless routes returned 202, produced status-1 receipts and exact ClaimCommitted events, matched claimant-specific namespaced storage readbacks, and left USDC balances unchanged. PostgreSQL recorded each raw event, payment_flows projection, and block journal; replay was idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue safe-read gap. API-05 advances from 120/260 to 122/260 proven methods, leaving 138 open.",
+          "startingProvenCount": 120,
+          "startingOpenCount": 140,
+          "completedThisRun": 2,
+          "completionPercentOfStart": 1.4286,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 122,
+          "endingOpenCount": 138,
+          "checks": [
+            "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork: all 12 stages passed on a disposable loopback Base Sepolia fork; live and live-destructive opt-ins were false.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
+            "PaymentFacet.commitDistribution returned a status-1 receipt at block 63071464. ClaimCommitted claimant/hash/block matched namespaced storage slots 40 and the receipt; the caller USDC balance remained 903000.",
+            "PaymentFacet.commitWithdraw returned a status-1 receipt at block 63071465. ClaimCommitted claimant/hash/block matched namespaced storage slots 41 and the receipt; the caller USDC balance remained 903000.",
+            "Disposable PostgreSQL stored one raw_events row, payment_flows projection, and indexer_blocks journal entry per method; replay remained unchanged and idempotent.",
+            "Focused verifier and write-invariant tests: 24 passed; API TypeScript check passed; reviewed invariant generation covered 260/260 methods.",
+            "Actor lifecycle regressions: 95 tests passed after updating expected role-gated inventory from 150 to 148 and lifecycle checks from 3150 to 3108, reflecting the two source-reviewed permissionless methods.",
+            "Cumulative indexer: 1741 receipts, 122/260 distinct write methods, 2590 raw events, 1716 projection rows; 138 methods remain open.",
+            "GitHub Actions run 45435461674 passed every configured gate on CI commit 5bafbdecab6618ae3bc68fcaf3bcf8c8ddd36478. The first run, 45434553651, exposed the stale role-inventory assertions; the corrected retry passed regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
+          ],
+          "resultLimitation": "This run completed 2 of the 140 open methods (1.4286%), below the bounded owner target of 35; API-05 remains in_progress with 138 methods open.",
+          "ciRunId": 45435461674
         }
       ],
       "deliveredCommit": null,
@@ -4651,7 +4683,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 – Low-risk cron batch (draft)",
+            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]
