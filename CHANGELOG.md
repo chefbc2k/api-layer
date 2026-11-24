@@ -1,3 +1,9 @@
+# 2026-11-24 — Prove direct caller payment deadline through the API
+
+- Added a loopback-fork `PaymentFacet.distributePaymentWithDeadline` API proof. The successful receipt matched the payer, seller, amount, deadline, and distinct seller asset; payer/custody USDC deltas, seller pending proceeds, and global/per-asset revenue matched direct readbacks.
+- PostgreSQL indexed all five receipt logs, including duplicate `PaymentDistributed` emissions, into raw events and payment-flow projections. Replay left the stored evidence unchanged. Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` safe-read gap (445/446 probes); cumulative indexer coverage is 127/260 methods, with 133 open.
+- Durable evidence: `output/api05-payment-from-deadline-proofs-2026-11-24.json` and `verify-local-fork-indexer-output.json`.
+
 ## 2026-11-24 — Prove payer-specific payment distribution deadlines
 
 - Added loopback fork evidence for `PaymentFacet.distributePaymentFrom` and `PaymentFacet.distributePaymentFromWithDeadline` through their mounted API command routes, using separate aged seller assets and checking payer/custody balances, seller proceeds, revenue readbacks, event arguments, PostgreSQL projections, and idempotent replay. Both receipts emitted duplicate `PaymentDistributed` events, preserved in the proof artifact as observed contract behavior.

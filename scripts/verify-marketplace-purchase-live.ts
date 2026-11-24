@@ -638,7 +638,7 @@ type MarketplacePurchaseDetails = {
     sellerPendingDelta: string;
   };
   distributePaymentFromUpdates?: Array<{
-    methodKey: "PaymentFacet.distributePaymentFrom" | "PaymentFacet.distributePaymentFromWithDeadline";
+    methodKey: "PaymentFacet.distributePaymentFrom" | "PaymentFacet.distributePaymentFromWithDeadline" | "PaymentFacet.distributePaymentWithDeadline";
     route: string;
     txHash: string;
     receipt: { status: unknown; blockNumber: unknown; logCount: number };
@@ -1435,7 +1435,7 @@ async function main() {
     }
     const listingRecordAfterAdjustment = listingBefore.payload as Record<string, unknown>;
     const price = BigInt(String(listingRecordAfterAdjustment.price));
-    const paymentBudget = isLoopbackRpcUrl(forkRuntime.rpcUrl) ? price * 4n : price;
+    const paymentBudget = isLoopbackRpcUrl(forkRuntime.rpcUrl) ? price * 5n : price;
 
     const buyerBalanceAtStart = BigInt(await erc20.balanceOf(buyer.address));
     const buyerAllowanceAtStart = BigInt(await erc20.allowance(buyer.address, config.diamondAddress));
@@ -1543,10 +1543,10 @@ async function main() {
           usedTokenIds.add(id);
           return id;
         }
-        throw new Error("fork-only distributePaymentFrom proofs require two additional aged, unlocked, unlisted seller assets");
+        throw new Error("fork-only payment distribution proofs require three additional aged, unlocked, unlisted seller assets");
       };
       const runPayerDistribution = async (
-        methodKey: "PaymentFacet.distributePaymentFrom" | "PaymentFacet.distributePaymentFromWithDeadline",
+        methodKey: "PaymentFacet.distributePaymentFrom" | "PaymentFacet.distributePaymentFromWithDeadline" | "PaymentFacet.distributePaymentWithDeadline",
         route: string,
         assetTokenId: string,
         deadline?: string,
@@ -1557,13 +1557,13 @@ async function main() {
         const sellerPendingBefore = BigInt(await payment.getPendingPayments(target.sellerAddress));
         const revenueBefore = Array.from(await payment.getRevenueMetrics()).map(String);
         const assetRevenueBefore = Array.from(await payment.getAssetRevenue(BigInt(assetTokenId))).map(String);
-        const body = {
+        const body: Record<string, unknown> = {
           tokenId: assetTokenId,
           amount: price.toString(),
           seller: target.sellerAddress,
           referrer: ZeroAddress,
           isLicensePayment: false,
-          payer,
+          ...(methodKey !== "PaymentFacet.distributePaymentWithDeadline" ? { payer } : {}),
           ...(deadline ? { deadline } : {}),
         };
         const response = await apiCall(port, "POST", route, { apiKey: "buyer-key", walletAddress: payer, body });
@@ -1622,6 +1622,7 @@ async function main() {
       };
       const fromAssetTokenId = await pickSeparateSellerAsset();
       const fromDeadlineAssetTokenId = await pickSeparateSellerAsset();
+      const deadlineAssetTokenId = await pickSeparateSellerAsset();
       const validDeadline = String(latestTimestamp + 3_600n);
       distributePaymentFromUpdates = [
         await runPayerDistribution(
@@ -1633,6 +1634,12 @@ async function main() {
           "PaymentFacet.distributePaymentFromWithDeadline",
           "/v1/marketplace/commands/distribute-payment-from-with-deadline",
           fromDeadlineAssetTokenId,
+          validDeadline,
+        ),
+        await runPayerDistribution(
+          "PaymentFacet.distributePaymentWithDeadline",
+          "/v1/marketplace/commands/distribute-payment-with-deadline",
+          deadlineAssetTokenId,
           validDeadline,
         ),
       ];

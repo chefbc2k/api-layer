@@ -1667,3 +1667,10 @@ Merge readiness:
 ## Definition Of Done
 
 The API assurance effort is complete when every ABI method and event has a visible proof classification, every user-facing workflow has positive and negative evidence, every value-moving path has balance conservation checks, every state machine has illegal-transition tests, every emitted event is indexer-proven, every privileged function has role-abuse tests, and all remaining exceptions are explicitly documented as unsafe/destructive on live networks or blocked by upstream contract behavior.
+
+## API-05 Follow-on — Direct Caller Payment Deadline Proof — 2026-11-24
+
+- Added loopback fork evidence for `PaymentFacet.distributePaymentWithDeadline` through `POST /v1/marketplace/commands/distribute-payment-with-deadline`, using a distinct seller-owned, aged, unlocked, unlisted asset. The status-1 receipt at block `63116347` matched token `189`, caller/payer, seller, amount `1000`, and a valid deadline; payer USDC decreased `2000` to `1000`, diamond custody increased `89595` to `90595`, seller pending proceeds increased `3660` to `4575`, and global plus per-asset revenue each increased by `1000`.
+- PostgreSQL captured five raw events and three payment-flow projections, including the two identical `PaymentDistributed` emissions, journaled the block, and passed unchanged idempotent replay. Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` safe-read gap (`445/446`).
+- API-05 advances from `126/260` to `127/260` distinct write methods, leaving `133` open. This run completed `1/134` open methods (`0.7463%`), below the bounded target of `35`; API-05 remains `in_progress`.
+- Durable evidence: [`output/api05-payment-from-deadline-proofs-2026-11-24.json`](../output/api05-payment-from-deadline-proofs-2026-11-24.json), [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json), and the local-fork assurance report.

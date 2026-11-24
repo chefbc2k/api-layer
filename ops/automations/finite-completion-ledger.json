@@ -1004,6 +1004,31 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45458828912",
           "ciRunId": 45458828912,
           "ciCommit": "253f7bc94004358fea662cd6519fde3a99da3e50"
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-payment-from-deadline-proofs-2026-11-24.json",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "result": "Added exact current-source local-fork proof for PaymentFacet.distributePaymentWithDeadline through POST /v1/marketplace/commands/distribute-payment-with-deadline. The status-1 receipt matched token 189, payer, seller, amount 1000, and valid deadline; payer USDC decreased 2000 to 1000, diamond custody increased 89595 to 90595, seller pending proceeds increased 3660 to 4575, and global plus asset revenue each increased by 1000. PostgreSQL stored five raw events and three payment_flows projections, journaled the block, and replayed unchanged. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue safe-read gap. API-05 advances from 126/260 to 127/260 proven methods, leaving 133 open.",
+          "startingProvenCount": 126,
+          "startingOpenCount": 134,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.7463,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 127,
+          "endingOpenCount": 133,
+          "checks": [
+            "Codegen against the pinned CI selector manifest, marketplace proof tests (18 passed), TypeScript, focused ESLint, and git diff --check passed.",
+            "The exact-source disposable Base Sepolia loopback aggregate passed all 12 runner stages; live and live-destructive opt-ins were false.",
+            "Safe-read sweep passed 445/446; only ProposalFacet.queue returned HTTP 500 from the known fixture gap.",
+            "PaymentFacet.distributePaymentWithDeadline returned a status-1 receipt at block 63116347 with five logs; token 189, payer USDC 2000 to 1000, diamond custody 89595 to 90595, seller pending 3660 to 4575, global and asset revenue each increased by 1000.",
+            "Disposable PostgreSQL stored five raw_events rows, three payment_flows projections, and one indexer_blocks row; replay was unchanged and idempotent. Both duplicate PaymentDistributed emissions were preserved as observed contract behavior.",
+            "Cumulative indexer: 2316 receipts, 127/260 distinct write methods, 3504 raw events, 2312 projection rows; 133 method keys remain."
+          ],
+          "resultLimitation": "This run completed 1 of the 134 open methods (0.7463%), below the bounded owner target of 35; API-05 remains in_progress with 133 methods open.",
+          "proofArtifactSha256": "806e8a9ec89bdfe089ee72735af44db3f3050582ff747d32e71fa5942ab67afe",
+          "indexerArtifactSha256": "f08dbb5a8b44fe79dd38aa4f02aadf1de2887022717e47a3ce561612beb378d5"
         }
       ],
       "deliveredCommit": null,
