@@ -1,3 +1,10 @@
+# API-05 Follow-on — Allowance-Backed Token Burn Indexing Proof — 2026-11-24
+
+- Added a dedicated loopback-fork test for `TokenSupplyFacet.burnFrom` through `DELETE /v1/tokenomics/commands/burn-from`. The founder approved 17 units to the transferee; the transferee API key burned those units from the founder. The status-1 receipt emitted Approval and Transfer logs, founder balance and total supply each fell by 17, transferee balance stayed unchanged, and the allowance was consumed.
+- PostgreSQL stored both raw logs and the block journal; no projection is expected for this ERC-20 Transfer invariant, and replay was unchanged and idempotent. Full local-fork assurance passed all 12 stages and 42/42 HTTP contract integration tests. Safe reads passed 445/446; `ProposalFacet.queue` remains the known contract fixture gap.
+- API-05 advances from 136/260 to 137/260 exact write methods, leaving 123 open. This run completed 1 of 124 open methods (0.8065%), below the bounded target of 35; API-05 remains `in_progress`.
+- Durable proof: [token supply proof](../output/api05-token-supply-burn-proof-2026-11-24.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit: `3462b88c0b77e86086b4996b4732e08548f97727`; hosted CI pending.
+
 # API-05 Follow-on — Caller Token Burn Indexing Proof — 2026-11-24
 
 - Added a dedicated local-fork test for `TokenSupplyFacet.burn` through `DELETE /v1/tokenomics/commands/burn`. The successful receipt emitted one `Transfer` event from the caller to the zero address for one unit; canonical founder balance and total-supply readbacks each decreased by exactly one.

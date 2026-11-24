@@ -3,7 +3,7 @@
   "date": "2026-11-24",
   "task": "API-05 exact-method acceptance evidence",
   "network": "Base Sepolia fork on loopback RPC",
-  "sourceCommit": "5e69cf44fee634c49e4ddf21c83f0c77549f1489",
+  "sourceCommit": "3462b88c0b77e86086b4996b4732e08548f97727",
   "methods": [
     {
       "methodKey": "TokenSupplyFacet.burn",
@@ -97,25 +97,74 @@
         }
       },
       "classification": "proven working"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.burnFrom",
+      "route": "DELETE /v1/tokenomics/commands/burn-from",
+      "actor": "transferee API key with founder-approved allowance",
+      "receipt": {
+        "transactionHash": "0x21de04e0e80f171e62d212e9fa03181c2fd42ce2b3d66a74e83d5b6ce8f03ff3",
+        "blockNumber": 63188321,
+        "status": 1,
+        "logCount": 2
+      },
+      "transferEvent": {
+        "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "to": "0x0000000000000000000000000000000000000000",
+        "value": "17"
+      },
+      "assertions": [
+        "The founder approved exactly 17 units to the transferee through POST /v1/tokenomics/commands/token-approve.",
+        "The transferee API key called the burn-from endpoint; the command returned HTTP 202 and the receipt status was 1.",
+        "The receipt emitted Approval and Transfer logs; the sole Transfer burned 17 units from the founder to the zero address.",
+        "Founder balance and total supply each decreased by 17; transferee balance was unchanged and the allowance was exhausted."
+      ],
+      "indexer": {
+        "rawEvents": 2,
+        "rawEventIds": [
+          "265",
+          "266"
+        ],
+        "eventKeys": [
+          "null.Approval(address,address,uint256)",
+          "TokenSupplyFacet.Transfer(address,address,uint256)"
+        ],
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63188321",
+              "block_hash": "0xa84e7144318dd1b01edbea6dd0bdcfce7fe1d4f4ceb6fc5a92e1217e7d12c437"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
     }
   ],
   "cumulative": {
-    "startingProvenWriteMethods": 135,
-    "endingProvenWriteMethods": 136,
+    "startingProvenWriteMethods": 136,
+    "endingProvenWriteMethods": 137,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 124,
-    "indexedReceipts": 3571,
-    "rawEvents": 5426,
-    "projectionRows": 3552,
+    "remainingWriteMethods": 123,
+    "indexedReceipts": 3742,
+    "rawEvents": 5694,
+    "projectionRows": 3718,
     "addedMethodKeys": [
-      "TokenSupplyFacet.supplyMintTokens"
+      "TokenSupplyFacet.burnFrom"
     ]
   },
   "assurance": {
     "status": "passed with structured gaps",
     "stagesPassed": 12,
     "stagesTotal": 12,
-    "httpIntegrationTestsPassed": 41,
+    "httpIntegrationTestsPassed": 42,
     "safeReadPassed": 445,
     "safeReadAttempted": 446,
     "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."

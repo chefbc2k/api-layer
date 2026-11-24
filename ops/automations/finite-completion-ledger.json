@@ -1182,6 +1182,33 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45498024029",
           "ciRunId": 45498024029,
           "ciCommit": "bcca0380ba8bdfb27aea50af53b63cdb9fbed16b"
+        },
+        {
+          "sourceCommit": "3462b88c0b77e86086b4996b4732e08548f97727",
+          "artifact": "output/api05-token-supply-burn-proof-2026-11-24.json",
+          "proofArtifactSha256": "fa77e6e6c841d1d669fea420f1f1f9c5597d616dc870ff80b2dc81e06e8485a7",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "78788a562a42b012a0c11bec8d6a675020a692b819f9e89ebde9d709e34f2c78",
+          "result": "Added exact-source loopback-fork proof for TokenSupplyFacet.burnFrom through DELETE /v1/tokenomics/commands/burn-from. The transferee API key burned 17 founder-approved units; the status-1 receipt emitted Approval and Transfer logs, founder balance and total supply each decreased by 17, the transferee balance was unchanged, and the allowance was exhausted. PostgreSQL stored both raw logs and the block journal; no projection is expected, and replay was unchanged and idempotent. Cumulative coverage advances from 136/260 to 137/260, leaving 123 open.",
+          "startingProvenCount": 136,
+          "startingOpenCount": 124,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8065,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 137,
+          "endingOpenCount": 123,
+          "checks": [
+            "Focused approved burnFrom integration test passed on the loopback Base Sepolia fork.",
+            "Full local-fork assurance passed all 12 stages and all 42 HTTP contract integration tests.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 from the known fixture gap.",
+            "Receipt 0x21de04e0e80f171e62d212e9fa03181c2fd42ce2b3d66a74e83d5b6ce8f03ff3 at block 63188321 succeeded with two decoded logs: Approval and Transfer.",
+            "Founder balance and total supply each decreased by 17; transferee balance was unchanged and the founder-to-transferee allowance was exhausted.",
+            "PostgreSQL recorded raw event rows 265 and 266 plus one indexer_blocks row; no projection is expected, and replay was unchanged and idempotent.",
+            "Cumulative indexer report: 3,742 receipts, 137/260 distinct write methods, 5,694 raw events, and 3,718 projection rows; exactly TokenSupplyFacet.burnFrom was added relative to the prior 136-method accepted proof.",
+            "Hosted CI for this source update is pending."
+          ],
+          "resultLimitation": "This run completed 1 of the 124 open methods (0.8065%), below the bounded target of 35; API-05 remains in_progress with 123 methods open."
         }
       ],
       "deliveredCommit": null,
