@@ -913,6 +913,36 @@
           ],
           "resultLimitation": "This run completed 2 of the 140 open methods (1.4286%), below the bounded owner target of 35; API-05 remains in_progress with 138 methods open.",
           "ciRunId": 45435461674
+        },
+        {
+          "sourceCommit": "be473d74898c4f7bf49865768c8b4df1cabf69d0",
+          "url": "https://github.com/chefbc2k/api-layer/commit/be473d74898c4f7bf49865768c8b4df1cabf69d0",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45440663641",
+          "artifact": "output/api05-staking-config-proof-2026-11-24.json",
+          "proofArtifactSha256": "96328941c73d34a64371547fdbe8593fa027a1d37cba840d575d7c998a1cdf02",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "e0855b1694c4631ab15fdf7be7c383a646150a18d4d87ed1654c9c99769b0db2",
+          "result": "Added exact current-source local-fork proof for PaymentFacet.setStakingConfig. The FEE_MANAGER_ROLE-gated route returned 202 with a status-1 eventless receipt; direct reads of namespaced PaymentStorage slots 34 and 35 matched the stored staking address and 3000 bps, and caller/diamond USDC balances were unchanged. PostgreSQL recorded only the receipt block journal, with no fabricated raw-event or projection rows; replay was idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue safe-read gap. API-05 advances from 122/260 to 123/260 proven methods, leaving 137 open.",
+          "startingProvenCount": 122,
+          "startingOpenCount": 138,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.7246,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 123,
+          "endingOpenCount": 137,
+          "checks": [
+            "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork: all 12 stages passed on a disposable loopback Base Sepolia fork; live and live-destructive opt-ins were false.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500.",
+            "PaymentFacet.setStakingConfig returned a status-1 receipt at block 63081369 with zero logs. The direct storage readback matched stakingFacet=0xa14088AcbF0639EF1C3655768a3001E6B8DC9669 and stakingAllocationBps=3000; caller and diamond USDC balances were unchanged.",
+            "Disposable PostgreSQL recorded zero raw_events and zero projections for the source-confirmed eventless method, one indexer_blocks journal row, and unchanged idempotent replay.",
+            "Payment/proof tests: 103 passed; actor/lifecycle regressions: 95 passed; event assurance: 210 passed; API TypeScript check passed; write invariant coverage passed 260/260.",
+            "Cumulative indexer: 1886 receipts, 123/260 distinct write methods, 2805 raw events, 1860 projection rows; 137 methods remain open.",
+            "GitHub Actions run 45441637215 passed every configured gate on commit 8df74467c50889f029c994335dc4fe3cf804d949. The first attempt, 45440663641, exposed stale event-assurance totals after correcting setStakingConfig to no events and no projection; the updated totals passed in regression on the retry."
+          ],
+          "resultLimitation": "This run completed 1 of the 138 open methods (0.7246%), below the bounded owner target of 35; API-05 remains in_progress with 137 methods open.",
+          "ciRunId": 45440663641,
+          "ciCommit": "8df74467c50889f029c994335dc4fe3cf804d949"
         }
       ],
       "deliveredCommit": null,

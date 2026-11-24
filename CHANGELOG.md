@@ -1,3 +1,9 @@
+# 2026-11-24 — Prove staking configuration storage through the API
+
+- Added a local-fork `PaymentFacet.setStakingConfig` proof. The `FEE_MANAGER_ROLE` route returned a successful eventless receipt; namespaced storage slots 34 and 35 matched the configured address and 3,000 bps, and caller and diamond balances were unchanged. PostgreSQL stored only the block journal and replayed idempotently.
+- Full local-fork assurance passed all 12 stages with the existing `ProposalFacet.queue` safe-read gap. API-05 advances to 123/260 methods, with 137 open. CI run [45441637215](https://github.com/chefbc2k/api-layer/actions/runs/45441637215) passed after updating the eventless-write assurance totals.
+- Durable proof: [`output/api05-staking-config-proof-2026-11-24.json`](output/api05-staking-config-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](verify-local-fork-indexer-output.json).
+
 # 2026-11-24 — Prove permissionless payment claim commitment writes
 
 - Added local-fork proofs for `PaymentFacet.commitDistribution` and `PaymentFacet.commitWithdraw`. Each successful receipt emitted `ClaimCommitted`, matched direct namespaced storage readback and left the caller balance unchanged; PostgreSQL projection and idempotent replay passed.

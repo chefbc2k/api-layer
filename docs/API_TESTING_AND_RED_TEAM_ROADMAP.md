@@ -2,6 +2,13 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Staking Configuration Proof — 2026-11-24
+
+- Added a loopback-only `PATCH /v1/marketplace/commands/set-staking-config` call. The FEE_MANAGER_ROLE-authorized receipt succeeded at block `63081369` with no logs; direct namespaced storage reads at slots 34 and 35 matched the staking facet address and 3,000 bps. Caller and diamond USDC balances were unchanged.
+- The eventless receipt produced no fabricated `raw_events` or projection records; PostgreSQL journaled the block and replay was idempotent. Full local-fork assurance passed all 12 stages with only the known `ProposalFacet.queue` safe-read fixture gap.
+- Source commit `be473d74898c4f7bf49865768c8b4df1cabf69d0` adds one distinct method. API-05 advances from `122/260` to `123/260`, leaving `137` open. The run completed `1/138` open methods (`0.7246%`), below the bounded target of `35`. CI run [45441637215](https://github.com/chefbc2k/api-layer/actions/runs/45441637215) passed all gates on `8df74467c50889f029c994335dc4fe3cf804d949`.
+- Durable proof: [`output/api05-staking-config-proof-2026-11-24.json`](../output/api05-staking-config-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json).
+
 ## API-05 Follow-on — Payment Claim Commitment Proofs — 2026-11-24
 
 - Added loopback-only requests for `POST /v1/marketplace/commands/commit-distribution` and `POST /v1/marketplace/commands/commit-withdraw`. Both receipts emitted `ClaimCommitted`; claimant, hash, and block matched direct namespaced storage readback, and USDC balances were unchanged.
