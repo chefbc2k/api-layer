@@ -2,6 +2,12 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Direct Payment Distribution Proof — 2026-11-24
+
+Added `POST /v1/marketplace/commands/distribute-payment` execution evidence for `PaymentFacet.distributePayment` against a distinct seller-owned, aged, unlocked, unlisted asset. The status-1 receipt matched token, seller, caller, and amount; payer and diamond USDC balances, seller pending proceeds, global revenue, and per-asset revenue readbacks matched the transaction.
+
+The PostgreSQL indexer captured all five receipt logs and associated raw events and payment-flow projections. It observed two identical `PaymentDistributed` emissions, and unchanged idempotent replay passed. Full local-fork assurance completed with one known safe-read gap (`ProposalFacet.queue`, 445/446 probes passed). Cumulative write proof advances from 123/260 to 124/260, leaving 136 method keys open. Durable artifact: `output/api05-payment-distribution-proof-2026-11-24.json`.
+
 ## API-05 Follow-on — Staking Configuration Proof — 2026-11-24
 
 - Added a loopback-only `PATCH /v1/marketplace/commands/set-staking-config` call. The FEE_MANAGER_ROLE-authorized receipt succeeded at block `63081369` with no logs; direct namespaced storage reads at slots 34 and 35 matched the staking facet address and 3,000 bps. Caller and diamond USDC balances were unchanged.

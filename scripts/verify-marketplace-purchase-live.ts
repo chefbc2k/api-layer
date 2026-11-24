@@ -589,6 +589,7 @@ type MarketplacePurchaseDetails = {
     status: number;
     txHash: string;
     receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    paymentDistributedEventCount: number;
     configBefore: string[];
     configAfter: string[];
     event: string;
@@ -621,6 +622,20 @@ type MarketplacePurchaseDetails = {
     configAfter: { stakingFacet: string; stakingAllocationBps: string };
     balanceBefore: { caller: string; diamond: string };
     balanceAfter: { caller: string; diamond: string };
+  };
+  distributePaymentUpdate?: {
+    methodKey: "PaymentFacet.distributePayment";
+    route: string;
+    txHash: string;
+    receipt: { status: unknown; blockNumber: unknown; logCount: number };
+    event: { tokenId: string; seller: string; caller: string; amount: string };
+    payerBalanceBefore: string;
+    payerBalanceAfter: string;
+    diamondBalanceBefore: string;
+    diamondBalanceAfter: string;
+    sellerPendingBefore: string;
+    sellerPendingAfter: string;
+    sellerPendingDelta: string;
   };
   postState?: {
     owner?: unknown;
@@ -655,6 +670,7 @@ export function buildMarketplacePurchaseVerifyOutput(args: {
     args.details.buybackConfigStructUpdate ? { kind: "buybackConfigStructUpdate", value: normalize(args.details.buybackConfigStructUpdate) } : null,
     args.details.claimCommitmentUpdates ? { kind: "claimCommitmentUpdates", value: normalize(args.details.claimCommitmentUpdates) } : null,
     args.details.stakingConfigUpdate ? { kind: "stakingConfigUpdate", value: normalize(args.details.stakingConfigUpdate) } : null,
+    args.details.distributePaymentUpdate ? { kind: "distributePaymentUpdate", value: normalize(args.details.distributePaymentUpdate) } : null,
     args.details.postState ? { kind: "postState", value: normalize(args.details.postState) } : null,
     args.details.events ? { kind: "events", value: normalize(args.details.events) } : null,
     args.details.notes ? { kind: "notes", value: normalize(args.details.notes) } : null,
@@ -845,6 +861,7 @@ async function main() {
     let buybackConfigUpdate: MarketplacePurchaseDetails["buybackConfigUpdate"];
     let buybackConfigStructUpdate: MarketplacePurchaseDetails["buybackConfigStructUpdate"];
     let claimCommitmentUpdates: MarketplacePurchaseDetails["claimCommitmentUpdates"];
+    let distributePaymentUpdate: MarketplacePurchaseDetails["distributePaymentUpdate"];
     if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
       await ensureNativeBalance(
         provider,
@@ -1413,6 +1430,84 @@ async function main() {
     const buyerBalanceBefore = BigInt(await erc20.balanceOf(buyer.address));
     const buyerAllowanceBefore = BigInt(await erc20.allowance(buyer.address, config.diamondAddress));
 
+    if (isLoopbackRpcUrl(forkRuntime.rpcUrl)) {
+      const latestTimestamp = BigInt((await provider.getBlock("latest"))?.timestamp ?? 0);
+      const sellerAssetHashes = await voiceAsset.getVoiceAssetsByOwner(target.sellerAddress);
+      let distributionTokenId: string | null = null;
+      for (const voiceHash of sellerAssetHashes) {
+        const asset = await voiceAsset.getVoiceAsset(voiceHash);
+        if (Boolean(asset.isLocked) || BigInt(asset.createdAt) + 86_400n > latestTimestamp) continue;
+        const id = String(await voiceAsset.getTokenId(voiceHash));
+        if (id === tokenId) continue;
+        const [assetOwner, listing] = await Promise.all([
+          voiceAsset.ownerOf(BigInt(id)),
+          marketplace.getListing(BigInt(id)),
+        ]);
+        if (String(assetOwner).toLowerCase() !== target.sellerAddress.toLowerCase() || Boolean(listing.isActive)) continue;
+        distributionTokenId = id;
+        break;
+      }
+      if (!distributionTokenId) throw new Error("fork-only distributePayment proof requires a separate aged, unlocked, unlisted seller asset");
+      const sellerPendingBefore = BigInt(await payment.getPendingPayments(target.sellerAddress));
+      const payerBalanceBefore = BigInt(await erc20.balanceOf(buyer.address));
+      const diamondBalanceBefore = BigInt(await erc20.balanceOf(config.diamondAddress));
+      const revenueBefore = Array.from(await payment.getRevenueMetrics()).map(String);
+      const assetRevenueBefore = Array.from(await payment.getAssetRevenue(BigInt(distributionTokenId))).map(String);
+      const distributionResponse = await apiCall(port, "POST", "/v1/marketplace/commands/distribute-payment", {
+        apiKey: "buyer-key",
+        walletAddress: buyer.address,
+        body: { tokenId: distributionTokenId, amount: price.toString(), seller: target.sellerAddress, referrer: ZeroAddress, isLicensePayment: false },
+      });
+      if (distributionResponse.status !== 202) throw new Error(`fork-only distributePayment route failed: ${JSON.stringify(distributionResponse.payload)}`);
+      const distributionTxHash = extractTxHash(distributionResponse.payload);
+      if (!distributionTxHash) throw new Error("fork-only distributePayment did not return a transaction hash");
+      const distributionReceipt = await waitForReceipt(provider, distributionTxHash, "fork-only PaymentFacet.distributePayment");
+      const distributionEvents = distributionReceipt.logs.flatMap((log) => {
+        try {
+          const parsed = payment.interface.parseLog(log);
+          return parsed?.name === "PaymentDistributed" ? [parsed] : [];
+        } catch { return []; }
+      });
+      const paymentDistributedEventCount = distributionReceipt.logs.filter((log) => {
+        try { return payment.interface.parseLog(log)?.name === "PaymentDistributed"; } catch { return false; }
+      }).length;
+      const distributionEvent = distributionEvents[0];
+      if (!distributionEvent || paymentDistributedEventCount < 1) throw new Error(`fork-only distributePayment receipt omitted PaymentDistributed: ${JSON.stringify({ paymentDistributedEventCount, logCount: distributionReceipt.logs.length, topics: distributionReceipt.logs.map((log) => log.topics[0]) })}`);
+      const event = {
+        tokenId: String(distributionEvent.args.tokenId),
+        seller: String(distributionEvent.args.seller),
+        caller: String(distributionEvent.args.buyer),
+        amount: String(distributionEvent.args.amount),
+      };
+      const payerBalanceAfter = BigInt(await erc20.balanceOf(buyer.address));
+      const diamondBalanceAfter = BigInt(await erc20.balanceOf(config.diamondAddress));
+      const sellerPendingAfter = BigInt(await payment.getPendingPayments(target.sellerAddress));
+      const revenueAfter = Array.from(await payment.getRevenueMetrics()).map(String);
+      const assetRevenueAfter = Array.from(await payment.getAssetRevenue(BigInt(distributionTokenId))).map(String);
+      const sellerPendingDelta = sellerPendingAfter - sellerPendingBefore;
+      if (event.tokenId !== distributionTokenId
+        || event.seller.toLowerCase() !== target.sellerAddress.toLowerCase()
+        || event.caller.toLowerCase() !== buyer.address.toLowerCase() || event.amount !== price.toString()
+        || payerBalanceBefore - payerBalanceAfter !== price || diamondBalanceAfter - diamondBalanceBefore !== price
+        || sellerPendingDelta <= 0n || BigInt(revenueAfter[0]) - BigInt(revenueBefore[0]) !== price
+        || BigInt(assetRevenueAfter[0]) - BigInt(assetRevenueBefore[0]) !== price
+        || BigInt(assetRevenueAfter[1]) < BigInt(assetRevenueBefore[1])) {
+        throw new Error(`fork-only distributePayment post-state mismatch: ${JSON.stringify({ event, distributionTokenId, seller: target.sellerAddress, buyer: buyer.address, price: price.toString(), payerBalanceBefore: payerBalanceBefore.toString(), payerBalanceAfter: payerBalanceAfter.toString(), diamondBalanceBefore: diamondBalanceBefore.toString(), diamondBalanceAfter: diamondBalanceAfter.toString(), sellerPendingBefore: sellerPendingBefore.toString(), sellerPendingAfter: sellerPendingAfter.toString(), revenueBefore, revenueAfter, assetRevenueBefore, assetRevenueAfter })}`);
+      }
+      distributePaymentUpdate = {
+        methodKey: "PaymentFacet.distributePayment",
+        route: "POST /v1/marketplace/commands/distribute-payment",
+        txHash: distributionTxHash,
+        receipt: { status: distributionReceipt.status, blockNumber: distributionReceipt.blockNumber, logCount: distributionReceipt.logs.length },
+        paymentDistributedEventCount,
+        event,
+        payerBalanceBefore: payerBalanceBefore.toString(), payerBalanceAfter: payerBalanceAfter.toString(),
+        diamondBalanceBefore: diamondBalanceBefore.toString(), diamondBalanceAfter: diamondBalanceAfter.toString(),
+        sellerPendingBefore: sellerPendingBefore.toString(), sellerPendingAfter: sellerPendingAfter.toString(),
+        sellerPendingDelta: sellerPendingDelta.toString(),
+      };
+    }
+
     const purchaseResponse = await apiCall(
       port,
       "POST",
@@ -1662,6 +1757,7 @@ async function main() {
         ...(buybackConfigStructUpdate ? { buybackConfigStructUpdate } : {}),
         ...(claimCommitmentUpdates ? { claimCommitmentUpdates } : {}),
         ...(stakingConfigUpdate ? { stakingConfigUpdate } : {}),
+        ...(distributePaymentUpdate ? { distributePaymentUpdate } : {}),
         postState: {
           owner: ownerAfter,
           listing: listingAfter.payload,

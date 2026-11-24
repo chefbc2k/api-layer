@@ -1,3 +1,9 @@
+# 2026-11-24 — Prove direct payment distribution through the API
+
+- Added a loopback-fork `PaymentFacet.distributePayment` API proof using a separate seller-owned, aged, unlocked, unlisted asset. The successful receipt matched the payment amount and actor arguments; payer/custody USDC deltas, seller pending proceeds, global revenue, and per-asset revenue all matched direct readbacks.
+- PostgreSQL indexed all five receipt logs, including two identical `PaymentDistributed` emissions, into raw events and payment-flow projections. Replay left the persisted evidence unchanged. Full local-fork assurance passed with the known `ProposalFacet.queue` safe-read gap (445/446 probes); cumulative indexer coverage is 124/260 methods, with 136 open.
+- Durable evidence: [`output/api05-payment-distribution-proof-2026-11-24.json`](output/api05-payment-distribution-proof-2026-11-24.json), [`verify-local-fork-indexer-output.json`](verify-local-fork-indexer-output.json), and the successful local-fork assurance report.
+
 # 2026-11-24 — Prove staking configuration storage through the API
 
 - Added a local-fork `PaymentFacet.setStakingConfig` proof. The `FEE_MANAGER_ROLE` route returned a successful eventless receipt; namespaced storage slots 34 and 35 matched the configured address and 3,000 bps, and caller and diamond balances were unchanged. PostgreSQL stored only the block journal and replayed idempotently.
