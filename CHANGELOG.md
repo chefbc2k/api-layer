@@ -1,3 +1,8 @@
+## 2026-11-24 — Prove direct payment distribution and indexer replay
+
+- Added exact-source loopback fork evidence for `PaymentFacet.distributePayment` through the mounted API command, checking payer/custody balances, seller proceeds, revenue readbacks, receipt events, PostgreSQL projections, and idempotent replay. The receipt exposed two identical `PaymentDistributed` logs; this observed behavior is documented in the proof artifact.
+- The full local-fork assurance passed 12 stages with the known `ProposalFacet.queue` safe-read gap (445/446). Hosted API quality run [45454949808](https://github.com/chefbc2k/api-layer/actions/runs/45454949808) passed every configured gate on the exact source commit. API-05 now has 124/260 distinct write methods proven, with 136 open; the 35-method bounded run target remains unmet.
+
 # 2026-11-24 — Prove direct payment distribution through the API
 
 - Added a loopback-fork `PaymentFacet.distributePayment` API proof using a separate seller-owned, aged, unlocked, unlisted asset. The successful receipt matched the payment amount and actor arguments; payer/custody USDC deltas, seller pending proceeds, global revenue, and per-asset revenue all matched direct readbacks.

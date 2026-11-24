@@ -967,9 +967,12 @@
             "PaymentFacet.distributePayment returned a status-1 receipt at block 63103979 with five logs. PaymentDistributed arguments matched token 129, seller, buyer, and 1,000 USDC; payer went 4,000 to 3,000, diamond custody 86,595 to 87,595, and seller pending 915 to 1,830.",
             "Disposable PostgreSQL stored five raw_events rows, three payment_flows projection rows (including the duplicate PaymentDistributed projection), and one block journal row. Receipt replay left row counts and receipt evidence unchanged.",
             "Cumulative indexer: 2,027 receipts, 124/260 distinct write methods, 3,031 raw events, 2,006 projection rows; 136 method keys remain.",
-            "GitHub Actions API quality run 45454949808 started on exact source commit 8acd987585301fa3a18a2f075926ea611aa02e65; hosted result is pending."
+            "GitHub Actions API quality run 45454949808 passed every configured gate on exact source commit 8acd987585301fa3a18a2f075926ea611aa02e65, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
-          "resultLimitation": "This run completed 1 of the 137 open methods (0.7299%), below the bounded owner target of 35; API-05 remains in_progress with 136 methods open. The duplicate PaymentDistributed emissions are recorded as observed contract behavior."
+          "resultLimitation": "This run completed 1 of the 137 open methods (0.7299%), below the bounded owner target of 35; API-05 remains in_progress with 136 methods open. The duplicate PaymentDistributed emissions are recorded as observed contract behavior.",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45454949808",
+          "ciRunId": 45454949808,
+          "ciCommit": "8acd987585301fa3a18a2f075926ea611aa02e65"
         }
       ],
       "deliveredCommit": null,
