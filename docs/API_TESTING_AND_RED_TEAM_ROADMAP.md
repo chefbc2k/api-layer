@@ -1,10 +1,16 @@
+## API-05 Follow-on — Mint Finalization Indexing Proof — 2026-11-24
+
+- Added a loopback-fork proof for `TokenSupplyFacet.supplyFinishMinting` through `POST /v1/tokenomics/commands/supply-finish-minting`. The status-1 receipt emitted `MintingFinished`; the canonical getter and HTTP readback both confirmed finalization. The test saves and restores the original token-flag slot in local fork storage.
+- PostgreSQL stored the raw event and block journal, with no projection; replay was unchanged and idempotent. Full local-fork assurance passed all 12 stages and 44/44 HTTP contract integration tests. Safe reads passed 445/446; `ProposalFacet.queue` remains the known fixture gap.
+- API-05 advances from 138/260 to 139/260 exact write methods, leaving 121 open. This run completed 1 of 122 open methods (0.8197%), below the bounded target of 35; API-05 remains `in_progress`.
+- Durable proof: [mint finalization proof](../output/api05-token-supply-finalization-proof-2026-11-24.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit: `b3a7a6558762b33cd1aa0c5710e0a4ec3dd0637d`; hosted CI pending.
 ## API-05 Follow-on — Supply Maximum Indexing Proof — 2026-11-24
 
 - Added a loopback-fork proof for `TokenSupplyFacet.supplySetMaximum` through `POST /v1/tokenomics/commands/supply-set-maximum`. The founder fixture signer with `MINTER_ROLE` increased the cap through HTTP, matched `supplyGetMaximum` and the HTTP read route, then restored the prior cap through the API. Both receipts succeeded with zero logs.
 - Minting had been finalized on the fork, which also gates the cap setter. The test cleared that flag and established a valid cap only in loopback-fork storage, then restored both original storage slots; no deployed state changed.
 - PostgreSQL recorded one block-journal row per receipt and no raw-event or projection rows, as required for this eventless setter; replay was unchanged and idempotent. The full local-fork assurance passed all 12 stages and 43/43 HTTP contract integration tests. Safe reads passed 445/446; `ProposalFacet.queue` remains the known fixture gap.
 - API-05 advances from 137/260 to 138/260 exact write methods, leaving 122 open. This run completed 1 of 123 open methods (0.8130%), below the bounded target of 35; API-05 remains `in_progress`.
-- Durable proof: [supply controls proof](../output/api05-token-supply-controls-proof-2026-11-24.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit: `2f52fc443c2ec93d820060385eab19d8c3035256`; hosted CI pending.
+- Durable proof: [supply controls proof](../output/api05-token-supply-controls-proof-2026-11-24.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit: `2f52fc443c2ec93d820060385eab19d8c3035256`; hosted API quality CI [45506556173](https://github.com/chefbc2k/api-layer/actions/runs/45506556173) passed all configured gates on evidence commit `61908bec2d980fc0ea15c7812d4cf49d7078b576`.
 # API-05 Follow-on — Allowance-Backed Token Burn Indexing Proof — 2026-11-24
 
 - Added a dedicated loopback-fork test for `TokenSupplyFacet.burnFrom` through `DELETE /v1/tokenomics/commands/burn-from`. The founder approved 17 units to the transferee; the transferee API key burned those units from the founder. The status-1 receipt emitted Approval and Transfer logs, founder balance and total supply each fell by 17, transferee balance stayed unchanged, and the allowance was consumed.

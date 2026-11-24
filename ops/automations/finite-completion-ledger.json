@@ -1236,9 +1236,39 @@
             "The local-fork test temporarily cleared finalized-minting flags and set a fixture maximum in storage, then restored both original storage slots; no deployed state was changed.",
             "PostgreSQL recorded one indexer_blocks row per receipt, zero raw_events and zero projections; replay was unchanged and idempotent.",
             "Cumulative indexer report: 3,917 receipts, 138/260 distinct write methods, 5,965 raw events, and 3,884 projection rows; TokenSupplyFacet.supplySetMaximum is classified proven working.",
+            "Hosted API quality run 45506556173 passed every configured gate on evidence commit 61908bec2d980fc0ea15c7812d4cf49d7078b576 for source commit 2f52fc443c2ec93d820060385eab19d8c3035256."
+          ],
+          "resultLimitation": "This run completed 1 of 123 open methods (0.8130%), below the bounded target of 35; API-05 remains in_progress with 122 methods open.",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45506556173",
+          "ciRunId": 45506556173,
+          "ciCommit": "61908bec2d980fc0ea15c7812d4cf49d7078b576"
+        },
+        {
+          "sourceCommit": "b3a7a6558762b33cd1aa0c5710e0a4ec3dd0637d",
+          "artifact": "output/api05-token-supply-finalization-proof-2026-11-24.json",
+          "proofArtifactSha256": "b355fb8e975b108bae532f51ab520650aade99de87eb437fd34324f8e06b6de7",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "78082a70317155b83ce37baf70722d1c89408863b83b175969a731aa1b84b4d2",
+          "result": "Added exact-source loopback-fork proof for TokenSupplyFacet.supplyFinishMinting through POST /v1/tokenomics/commands/supply-finish-minting. The founder fixture signer finalized minting; the status-1 receipt emitted MintingFinished, the canonical getter and HTTP query both returned true, PostgreSQL stored the raw event and block journal with no projection, and replay was unchanged and idempotent. The prior token flags were restored in fork storage. Cumulative coverage advances from 138/260 to 139/260, leaving 121 open.",
+          "startingProvenCount": 138,
+          "startingOpenCount": 122,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8197,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 139,
+          "endingOpenCount": 121,
+          "checks": [
+            "Focused mint-finalization integration test passed on the loopback Base Sepolia fork.",
+            "Full local-fork assurance passed all 12 stages; all 44 HTTP contract integration tests passed.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 from the known fixture gap.",
+            "Receipt 0xa20608a499a011e08a04ee641dafc79c3dab9c7e2484fc43e15ce0ac4fbcadb0 at block 63201341 succeeded with one MintingFinished event.",
+            "The canonical getter and HTTP read route confirmed minting finished; the original token flag slot was restored in loopback-fork storage.",
+            "PostgreSQL stored raw event 267 and one block-journal row, no projection; replay was unchanged and idempotent.",
+            "Cumulative indexer: 4,090 receipts, 139/260 distinct methods, 6,236 raw events, and 4,052 projection rows.",
             "Hosted CI for this source update is pending."
           ],
-          "resultLimitation": "This run completed 1 of 123 open methods (0.8130%), below the bounded target of 35; API-05 remains in_progress with 122 methods open."
+          "resultLimitation": "This run completed 1 of 122 open methods (0.8197%), below the bounded target of 35; API-05 remains in_progress with 121 methods open."
         }
       ],
       "deliveredCommit": null,

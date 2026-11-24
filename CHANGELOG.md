@@ -1,3 +1,8 @@
+# 2026-11-24 — Record mint finalization proof
+
+- Added exact local-fork proof for `TokenSupplyFacet.supplyFinishMinting`; the receipt emitted `MintingFinished`, and both contract and HTTP readbacks confirmed finalization. PostgreSQL stored the raw event and block journal; replay was idempotent. The token flag fixture was restored after the proof.
+- Full local-fork assurance passed all 12 stages and all 44 HTTP contract integration tests; the known `ProposalFacet.queue` safe-read gap remains. API-05 advances to 139/260 proven methods, leaving 121 open.
+- Hosted API quality CI run [45506556173](https://github.com/chefbc2k/api-layer/actions/runs/45506556173) passed the supply-maximum proof gates on evidence commit `61908bec2d980fc0ea15c7812d4cf49d7078b576`. CI for the finalization change is pending.
 # 2026-11-24 — Record supply maximum indexer proof
 
 - Added exact current-source proof for `TokenSupplyFacet.supplySetMaximum`. The founder set and restored a valid cap through HTTP; both status-1 receipts were eventless, and canonical readbacks matched. The finalized-minting flag and cap were restored in loopback-fork storage after the proof.

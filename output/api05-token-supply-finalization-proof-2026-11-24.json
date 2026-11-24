@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": "Base Sepolia fork on loopback RPC",
+  "sourceCommit": "b3a7a6558762b33cd1aa0c5710e0a4ec3dd0637d",
+  "methods": [
+    {
+      "methodKey": "TokenSupplyFacet.supplyFinishMinting",
+      "route": "POST /v1/tokenomics/commands/supply-finish-minting",
+      "actor": "founder fixture signer with SUPPLY_MANAGER_ROLE",
+      "receipt": {
+        "transactionHash": "0xa20608a499a011e08a04ee641dafc79c3dab9c7e2484fc43e15ce0ac4fbcadb0",
+        "blockNumber": 63201341,
+        "status": 1,
+        "logCount": 1
+      },
+      "event": {
+        "name": "MintingFinished",
+        "signature": "MintingFinished()",
+        "eventKey": "TokenSupplyFacet.MintingFinished()",
+        "rawEventId": "267"
+      },
+      "assertions": [
+        "The HTTP command returned 202 and the receipt succeeded with one MintingFinished event.",
+        "TokenSupplyFacet.supplyIsMintingFinished returned true after the receipt.",
+        "POST /v1/tokenomics/queries/supply-is-minting-finished returned HTTP 200 with true.",
+        "The test preserved the original token flags before setup and restored them in loopback-fork storage afterward; no deployed state was changed."
+      ],
+      "indexer": {
+        "rawEvents": 1,
+        "rawEventIds": [
+          "267"
+        ],
+        "eventKeys": [
+          "TokenSupplyFacet.MintingFinished()"
+        ],
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63201341",
+              "block_hash": "0xb88bc82f43b7778b1655b59b20217df4598641b0c8079669346f1e821c2e462d"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
+    }
+  ],
+  "cumulative": {
+    "startingProvenWriteMethods": 138,
+    "endingProvenWriteMethods": 139,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 121,
+    "indexedReceipts": 4090,
+    "rawEvents": 6236,
+    "projectionRows": 4052,
+    "addedMethodKeys": [
+      "TokenSupplyFacet.supplyFinishMinting"
+    ]
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "httpIntegrationTestsPassed": 44,
+    "safeReadPassed": 445,
+    "safeReadAttempted": 446,
+    "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."
+  }
+}
