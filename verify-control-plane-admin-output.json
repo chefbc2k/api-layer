@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-04T17:16:39.510Z",
+  "generatedAt": "2026-11-24T03:58:49.346Z",
   "summary": "proven working",
   "reports": {
     "control-plane-admin-writes": {
@@ -24,57 +24,93 @@
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x8912a56cb4b4dc8cee47bfe0dd1ff90539b3e74772a8a90385eb25dd6ec7a8a0",
+          "txHash": "0x06c118f261514c98ab6fc23ab1fbe558b7428ec96da38b3ee252208206589fd8",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x80457763c5ef00026dd057b90374d0bb38e9d8425a1720b2f8f4c21ccb94b0c4",
-          "receiptStatus": 1
+          "txHash": "0x01d4ddb930c4ac44765e2bda4681d4341cca9367aef801b5e81fc774b84ad801",
+          "receiptStatus": 1,
+          "readback": {
+            "getter": "isTrustedInitSelector",
+            "before": false,
+            "after": true,
+            "changed": true
+          }
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x267ea0db716c51c49192027cfb3440d6b55bb4aa9d452a3ecc00de4efabe257a",
-          "receiptStatus": 1
+          "txHash": "0x958527d6e4229de5aa7b2445ecc5cddf9f40adff7be72fcb960c148bf60c0f9d",
+          "receiptStatus": 1,
+          "readback": {
+            "getter": "getTrustedInitCodehash",
+            "before": "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "after": "0x1c586ff96efe17ae4cd4a530a06872e3005f2b419334231798427d1445df26a2",
+            "changed": true
+          }
         },
         {
           "route": "POST /v1/emergency/admin/set-resume-delay",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x16534c2855912571b4c0d7dcd587197292df9fb059071cd6b12539e3eb1e528d",
+          "txHash": "0x5d35d72c3951b61e0f31cb328179b90c56e3bcb42b6c26e33ea464b84c21abd5",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/emergency/admin/set-emergency-timeout",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x11abf66395363f98d17538211b6d9e3c1ce5a462fce729ded615fc1866ba9741",
-          "receiptStatus": 1
+          "txHash": "0xd9dbefcce7983a3c82cb9f45edce6314ee0a669cf36cd0c00435be3344ce91bc",
+          "receiptStatus": 1,
+          "readback": {
+            "getter": "getEmergencyTimeout",
+            "before": "7201",
+            "after": "7202",
+            "changed": true
+          }
         },
         {
           "route": "POST /v1/emergency/admin/set-recipient-whitelist",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x5b2a1832eb4281179faa3cbf57e22d4452f84a87b31abe232321dc5f5271801a",
-          "receiptStatus": 1
+          "txHash": "0x89fd90c16d3c39520f6830a961745b7a817839b613abd153fac8b186f4be676e",
+          "receiptStatus": 1,
+          "readback": {
+            "getter": "isRecipientWhitelisted",
+            "before": false,
+            "after": true,
+            "changed": true
+          }
         },
         {
           "route": "POST /v1/emergency/admin/update-withdrawal-config",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x2a96c71bbf1f9f3ed303fa086bf65af443418e7123ba1f2eb63d3f9f9f43b65c",
+          "txHash": "0x899be43345ff9c39ad42e0aff4ee7ae74d7f90f2d0dbd262f95e7280d16ac636",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0xdd1095b5ee79e7dd4f1b55de0354e2a0b765f1d576f9c004f04527685d1bdd6f",
-          "receiptStatus": 1
+          "txHash": "0xd70304b08012a381186ef1abc95e4fa43b0c94ae23a2b0850c3d600c82ab7c76",
+          "receiptStatus": 1,
+          "readback": {
+            "getter": "getUpgradeControlStatus",
+            "before": {
+              "initialized": true,
+              "enforced": true
+            },
+            "after": {
+              "initialized": true,
+              "enforced": true
+            },
+            "changed": false
+          }
         }
       ],
       "finalClassification": "proven working",

@@ -313,6 +313,14 @@
             "All 211 included transaction receipts were indexed; PostgreSQL replay was idempotent.",
             "Safe-read sweep passed 442/446 probes; all nine vesting reads and all three anchored licensing reads passed."
           ]
+        },
+        {
+          "sourceCommit": "109efdac40e9631ad15662e33ac2846580122e5a",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45322452018",
+          "result": "Default-branch API quality CI passed for the integrated vesting read fixture change. The current-source disposable-fork aggregate for this commit is separately recorded with all 11 stages passing and four explicit needs-fixture read gaps.",
+          "checks": [
+            "API quality workflow completed successfully on default branch."
+          ]
         }
       ],
       "deliveredCommit": null,
@@ -531,6 +539,20 @@
             "projectionRows": 199
           },
           "replay": "idempotent"
+        },
+        {
+          "sourceCommit": "109efdac40e9631ad15662e33ac2846580122e5a",
+          "url": "https://github.com/chefbc2k/api-layer/blob/109efdac40e9631ad15662e33ac2846580122e5a/verify-local-fork-indexer-output.json",
+          "artifact": "verify-local-fork-indexer-output.json",
+          "result": "The current-source aggregate indexer proof summary completed with 115 proven write method keys from the 260-method mounted catalog. The full aggregate additionally indexed 211 receipts across seven included artifacts, 305 raw events, and 199 projection rows with idempotent PostgreSQL replay. The remaining 145 method keys still need exact proof.",
+          "checks": [
+            "Current-source aggregate indexer stage passed on a disposable loopback fork.",
+            "PostgreSQL replay was idempotent."
+          ],
+          "provenWriteMethods": 115,
+          "catalogWriteMethods": 260,
+          "remainingWriteMethods": 145,
+          "aggregateReportSha256": "7faf7579a62036ddcf88ba91860323fcf50e1331bafcc267f63781115b282ca8"
         }
       ],
       "deliveredCommit": null,
@@ -781,6 +803,17 @@
           "sourceCommit": "8905aadd0959635131c6e47581e1cf78c2bfb5d3",
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/45320381629",
           "result": "Default-branch API quality CI passed; uploaded coverage remains below the frozen 100% criterion. Backend privacy/release acceptance also remains externally dependent.",
+          "coveragePercent": {
+            "statements": 92.79,
+            "branches": 90.99,
+            "functions": 96.15,
+            "lines": 93.62
+          }
+        },
+        {
+          "sourceCommit": "109efdac40e9631ad15662e33ac2846580122e5a",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45322452018",
+          "result": "Default-branch API quality CI passed, but coverage remains below the frozen 100% criterion. The uploaded report shows 93.62% lines, 92.79% statements, 90.99% branches, and 96.15% functions. Backend privacy/release acceptance remains externally dependent.",
           "coveragePercent": {
             "statements": 92.79,
             "branches": 90.99,
