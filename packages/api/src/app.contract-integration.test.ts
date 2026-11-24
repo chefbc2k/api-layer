@@ -7850,4 +7850,67 @@ describeLive("HTTP API contract integration", () => {
     expect(await tokenSupplyFacet.tokenBalanceOf(founderAddress)).toBe(balanceBefore - amount);
     expect(await tokenSupplyFacet.totalSupply()).toBe(supplyBefore - amount);
   }, 180_000);
+
+  it("proves the caller token mint receipt remains indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "token supply mint receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const minterRole = id("MINTER_ROLE");
+    if (!(await accessControl.hasRole(minterRole, founderAddress))) {
+      const roleReceipt = await (
+        await accessControl.connect(founderWallet).grantRole(minterRole, founderAddress, ethers.MaxUint256)
+      ).wait();
+      expect(roleReceipt?.status).toBe(1);
+    }
+    const tokenStorageBase = BigInt(id("speak.token.storage"));
+    const tokenFlagsSlot = tokenStorageBase + 11n;
+    const maxSupplySlot = tokenStorageBase + 12n;
+    const originalTokenFlags = BigInt(await provider.getStorage(diamondAddress, ethers.toBeHex(tokenFlagsSlot, 32)));
+    const disposableTokenFlags = originalTokenFlags & ~(0xffn << 8n);
+    const fixtureSupply = BigInt(await tokenSupplyFacet.totalSupply());
+    await provider.send("anvil_setStorageAt", [
+      diamondAddress,
+      ethers.toBeHex(tokenFlagsSlot, 32),
+      ethers.toBeHex(disposableTokenFlags, 32),
+    ]);
+    await provider.send("anvil_setStorageAt", [
+      diamondAddress,
+      ethers.toBeHex(maxSupplySlot, 32),
+      ethers.toBeHex(fixtureSupply + 100n, 32),
+    ]);
+    await provider.send("evm_mine", []);
+    expect(await tokenSupplyFacet.supplyIsMintingFinished()).toBe(false);
+
+    const recipient = transfereeWallet.address;
+    const amount = 17n;
+    const balanceBefore = await tokenSupplyFacet.tokenBalanceOf(recipient);
+    const supplyBefore = await tokenSupplyFacet.totalSupply();
+    const response = await apiCall(port, "POST", "/v1/tokenomics/commands/supply-mint-tokens", {
+      body: { to: recipient, amount: amount.toString() },
+    });
+    expect(response.status, JSON.stringify(response.payload)).toBe(202);
+    const txHash = extractTxHash(response.payload);
+    await expectReceipt(txHash);
+    const receipt = await provider.getTransactionReceipt(txHash);
+    expect(receipt?.status).toBe(1);
+    const transferEvents = (receipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = tokenSupplyFacet.interface.parseLog(log);
+        return parsed?.name === "Transfer" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(transferEvents).toHaveLength(1);
+    expect(transferEvents[0]?.args.from).toBe(ethers.ZeroAddress);
+    expect(transferEvents[0]?.args.to).toBe(recipient);
+    expect(transferEvents[0]?.args.value).toBe(amount);
+    expect(await tokenSupplyFacet.tokenBalanceOf(recipient)).toBe(balanceBefore + amount);
+    expect(await tokenSupplyFacet.totalSupply()).toBe(supplyBefore + amount);
+  }, 180_000);
 });

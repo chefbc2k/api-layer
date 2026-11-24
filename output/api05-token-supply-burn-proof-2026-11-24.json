@@ -3,7 +3,7 @@
   "date": "2026-11-24",
   "task": "API-05 exact-method acceptance evidence",
   "network": "Base Sepolia fork on loopback RPC",
-  "sourceCommit": null,
+  "sourceCommit": "pending",
   "methods": [
     {
       "methodKey": "TokenSupplyFacet.burn",
@@ -50,25 +50,72 @@
         }
       },
       "classification": "proven working"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.supplyMintTokens",
+      "route": "POST /v1/tokenomics/commands/supply-mint-tokens",
+      "actor": "founder fixture signer with MINTER_ROLE; minting reopened only in disposable fork storage",
+      "receipt": {
+        "transactionHash": "0xe2d774584637f44ccfe2b031e6b036254b3f63d75d5a0f8c4bee7d659813b9a0",
+        "blockNumber": 63184670,
+        "status": 1,
+        "logCount": 1
+      },
+      "transferEvent": {
+        "from": "0x0000000000000000000000000000000000000000",
+        "to": "0x38715AB647049A755810B2eEcf29eE79CcC649BE",
+        "value": "17"
+      },
+      "assertions": [
+        "HTTP command returned 202 and receipt status was 1.",
+        "The sole Transfer event minted exactly 17 units from the zero address to the transferee fixture.",
+        "Direct token balanceOf(recipient) and totalSupply readbacks each increased by exactly 17.",
+        "Minting was enabled only by changing token storage on the loopback fork; no deployed state was changed."
+      ],
+      "indexer": {
+        "rawEvents": 1,
+        "rawEventIds": [
+          "263"
+        ],
+        "eventKeys": [
+          "TokenSupplyFacet.Transfer(address,address,uint256)"
+        ],
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63184670",
+              "block_hash": "0x3bde2e4c7370bb223ed3f2e2e28653679069609190c0f870f8923d766c8a2dc8"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
     }
   ],
   "cumulative": {
-    "startingProvenWriteMethods": 134,
-    "endingProvenWriteMethods": 135,
+    "startingProvenWriteMethods": 135,
+    "endingProvenWriteMethods": 136,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 125,
-    "indexedReceipts": 3405,
-    "rawEvents": 5165,
-    "projectionRows": 3388,
+    "remainingWriteMethods": 124,
+    "indexedReceipts": 3571,
+    "rawEvents": 5426,
+    "projectionRows": 3552,
     "addedMethodKeys": [
-      "TokenSupplyFacet.burn"
+      "TokenSupplyFacet.supplyMintTokens"
     ]
   },
   "assurance": {
     "status": "passed with structured gaps",
     "stagesPassed": 12,
     "stagesTotal": 12,
-    "httpIntegrationTestsPassed": 40,
+    "httpIntegrationTestsPassed": 41,
     "safeReadPassed": 445,
     "safeReadAttempted": 446,
     "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."
