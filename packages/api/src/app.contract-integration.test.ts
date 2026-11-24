@@ -7458,6 +7458,137 @@ describeLive("HTTP API contract integration", () => {
     expect(await emergencyFacet.getEmergencyState()).toBe(0n);
   }, 180_000);
 
+  it("proves signed delegation and permissionless delegated-power refreshes through HTTP", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "delegation receipt expansion", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0001") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.000006") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const outsiderRole = id("BURNER_ROLE");
+    expect(await accessControl.hasRole(outsiderRole, outsiderWallet.address)).toBe(false);
+    const delegatee = Wallet.createRandom().address;
+    const setupPower = await apiCall(port, "PATCH", "/v1/staking/commands/setup-initial-voting-power", {
+      body: { account: outsiderWallet.address, votingPower: "777" },
+    });
+    expect(setupPower.status, JSON.stringify(setupPower.payload)).toBe(202);
+    await expectReceipt(extractTxHash(setupPower.payload));
+    const chainId = (await provider.getNetwork()).chainId;
+    const nonce = 0n;
+    const latestBlock = await provider.getBlock("latest");
+    expect(latestBlock).not.toBeNull();
+    const expiry = BigInt(latestBlock!.timestamp + 3600);
+    const domain = { name: "USpeaks", chainId, verifyingContract: diamondAddress };
+    const types = { Delegation: [
+      { name: "delegatee", type: "address" },
+      { name: "nonce", type: "uint256" },
+      { name: "expiry", type: "uint256" },
+    ] };
+    const signature = await outsiderWallet.signTypedData(domain, types, { delegatee, nonce, expiry });
+    const parsedSignature = ethers.Signature.from(signature);
+    const signResponse = await apiCall(port, "POST", "/v1/staking/commands/delegate-by-sig", {
+      apiKey: "delegation-proof-key",
+      headers: { "x-wallet-address": outsiderWallet.address },
+      body: { delegatee, nonce: nonce.toString(), expiry: expiry.toString(), v: String(parsedSignature.v), r: parsedSignature.r, s: parsedSignature.s },
+    });
+    expect(signResponse.status, JSON.stringify(signResponse.payload)).toBe(202);
+    const signHash = extractTxHash(signResponse.payload);
+    await expectReceipt(signHash);
+    const signReceipt = await provider.getTransactionReceipt(signHash);
+    expect(signReceipt?.status).toBe(1);
+    expect(await delegationFacet.delegates(outsiderWallet.address)).toBe(delegatee);
+    expect(await delegationFacet.getTotalVotingPower(delegatee)).toBeGreaterThanOrEqual(777n);
+    const delegationEvents = (signReceipt?.logs ?? []).flatMap((log) => {
+      try { return [delegationFacet.interface.parseLog(log)?.name].filter((name): name is string => Boolean(name)); } catch { return []; }
+    });
+    expect(delegationEvents).toContain("DelegateChanged");
+
+    const replay = await apiCall(port, "POST", "/v1/staking/commands/delegate-by-sig", {
+      apiKey: "delegation-proof-key",
+      headers: { "x-wallet-address": outsiderWallet.address },
+      body: { delegatee, nonce: nonce.toString(), expiry: expiry.toString(), v: String(parsedSignature.v), r: parsedSignature.r, s: parsedSignature.s },
+    });
+    expect(replay.status).not.toBe(202);
+
+    const transferAmount = 100n;
+    const changedPower = await apiCall(port, "PATCH", "/v1/staking/commands/setup-initial-voting-power", {
+      body: { account: outsiderWallet.address, votingPower: "1000" },
+    });
+    expect(changedPower.status, JSON.stringify(changedPower.payload)).toBe(202);
+    await expectReceipt(extractTxHash(changedPower.payload));
+    const votesAfterPowerChange = await delegationFacet.getCurrentVotes(delegatee);
+    const singleRefresh = await apiCall(port, "PATCH", "/v1/staking/commands/update-delegated-voting-power", {
+      apiKey: "outsider-key",
+      body: { account: delegatee },
+    });
+    expect(singleRefresh.status, JSON.stringify(singleRefresh.payload)).toBe(202);
+    const singleHash = extractTxHash(singleRefresh.payload);
+    await expectReceipt(singleHash);
+    const singleReceipt = await provider.getTransactionReceipt(singleHash);
+    expect(singleReceipt?.status).toBe(1);
+    expect(await votingPowerFacet.getDelegatedVotingPower(delegatee)).toBe(1000n);
+    expect(await delegationFacet.getCurrentVotes(delegatee)).toBeGreaterThan(votesAfterPowerChange);
+    expect((singleReceipt?.logs ?? []).some((log) => {
+      try { return delegationFacet.interface.parseLog(log)?.name === "DelegateVotesChanged"; } catch { return false; }
+    })).toBe(true);
+
+    const setupSecondDelegator = await apiCall(port, "PATCH", "/v1/staking/commands/setup-initial-voting-power", {
+      body: { account: licenseeWallet.address, votingPower: "444" },
+    });
+    expect(setupSecondDelegator.status, JSON.stringify(setupSecondDelegator.payload)).toBe(202);
+    await expectReceipt(extractTxHash(setupSecondDelegator.payload));
+    const batchDelegatee = Wallet.createRandom().address;
+    const batchDelegatedBefore = await votingPowerFacet.getDelegatedVotingPower(batchDelegatee);
+    expect(batchDelegatedBefore).toBe(0n);
+    const secondNonce = 0n;
+    const secondSignature = ethers.Signature.from(await licenseeWallet.signTypedData(domain, types, {
+      delegatee: batchDelegatee,
+      nonce: secondNonce,
+      expiry,
+    }));
+    const secondDelegation = await apiCall(port, "POST", "/v1/staking/commands/delegate-by-sig", {
+      apiKey: "licensee-key",
+      headers: { "x-wallet-address": licenseeWallet.address },
+      body: {
+        delegatee: batchDelegatee,
+        nonce: secondNonce.toString(),
+        expiry: expiry.toString(),
+        v: String(secondSignature.v),
+        r: secondSignature.r,
+        s: secondSignature.s,
+      },
+    });
+    expect(secondDelegation.status, JSON.stringify(secondDelegation.payload)).toBe(202);
+    await expectReceipt(extractTxHash(secondDelegation.payload));
+    const batchDelegatedAfterSign = await votingPowerFacet.getDelegatedVotingPower(batchDelegatee);
+    expect(batchDelegatedAfterSign).toBe(batchDelegatedBefore + 444n);
+    const updateSecondPower = await apiCall(port, "PATCH", "/v1/staking/commands/setup-initial-voting-power", {
+      body: { account: licenseeWallet.address, votingPower: "555" },
+    });
+    expect(updateSecondPower.status, JSON.stringify(updateSecondPower.payload)).toBe(202);
+    await expectReceipt(extractTxHash(updateSecondPower.payload));
+    const batchVotesBefore = await delegationFacet.getCurrentVotes(batchDelegatee);
+    const batchRefresh = await apiCall(port, "PATCH", "/v1/staking/commands/update-delegated-voting-power-batch", {
+      apiKey: "outsider-key",
+      body: { accounts: [delegatee, batchDelegatee] },
+    });
+    expect(batchRefresh.status, JSON.stringify(batchRefresh.payload)).toBe(202);
+    const batchHash = extractTxHash(batchRefresh.payload);
+    await expectReceipt(batchHash);
+    const batchReceipt = await provider.getTransactionReceipt(batchHash);
+    expect(batchReceipt?.status).toBe(1);
+    expect(await votingPowerFacet.getDelegatedVotingPower(delegatee)).toBe(1000n);
+    expect(await votingPowerFacet.getDelegatedVotingPower(batchDelegatee)).toBe(batchDelegatedBefore + 555n);
+    expect(await delegationFacet.getCurrentVotes(batchDelegatee)).toBeGreaterThan(batchVotesBefore);
+    expect((batchReceipt?.logs ?? []).some((log) => {
+      try { return delegationFacet.interface.parseLog(log)?.name === "DelegateVotesChanged"; } catch { return false; }
+    })).toBe(true);
+  }, 180_000);
+
   it("proves the funded staking reward, claim, and unstake receipt lifecycle", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();

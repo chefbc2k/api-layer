@@ -1,8 +1,20 @@
+# 2026-11-24 — Prove delegation signatures and checkpoint refreshes
+
+- Added loopback-fork proofs for `DelegationFacet.delegateBySig`, `updateDelegatedVotingPower`, and `updateDelegatedVotingPowerBatch`. The signed operation rejected replay; the permissionless refreshes recomputed stale checkpoints and matched their receipt events and canonical readbacks.
+- The full local-fork assurance passed all 12 stages and all 39 HTTP integration tests. PostgreSQL indexed the delegation events and `governance_delegations` projections, journaled each receipt block, and passed unchanged replay. Safe reads passed 445/446 with the known `ProposalFacet.queue` fixture gap.
+- API-05 advances from 131/260 to 134/260 proven write methods, leaving 126 open. Durable evidence: [delegation proof](output/api05-delegation-refresh-proof-2026-11-24.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). Hosted CI is pending on the delivery commit.
+
+# 2026-11-24 — Prove direct and allowance-backed threshold burns
+
+- Added loopback-fork proofs for `thresholdBurnTokens` and `thresholdBurnTokensFrom`; non-role self-burn and allowance-backed burn receipts matched both burn events and exact balance, supply, and allowance changes. PostgreSQL ingestion and idempotent replay passed for both.
+- Full local-fork assurance passed all 12 stages and all 38 API integration tests. The known `ProposalFacet.queue` safe-read fixture gap remains (445/446). API-05 advances to 131/260 methods, with 129 open.
+- Durable proof: [threshold burn artifact](output/api05-threshold-token-burns-proof-2026-11-24.json). CI is pending.
+
 # 2026-11-24 — Prove permissionless threshold excess burn
 
 - Added a loopback-fork API proof for `BurnThresholdFacet.thresholdBurnExcess`. The permissionless receipt matched the `ThresholdBurn` event, founder balance and total-supply decreases, and threshold restoration; PostgreSQL raw-event ingestion and idempotent replay passed.
 - Full local-fork assurance passed 12 stages and all 37 API integration tests. The known `ProposalFacet.queue` safe-read fixture gap remains (445/446). API-05 advances to 129/260 methods, with 131 open.
-- Durable proof: [threshold burn artifact](output/api05-threshold-burn-excess-proof-2026-11-24.json). The first CI attempt (45479951551) exposed stale event-assurance projection totals; the assertions were corrected and the focused suite passed 210/210. Full CI retry is pending.
+- Durable proof: [threshold burn artifact](output/api05-threshold-burn-excess-proof-2026-11-24.json). The first CI attempt (45479951551) exposed stale event-assurance projection totals; the assertions were corrected and the focused suite passed 210/210. API quality retry [45480938822](https://github.com/chefbc2k/api-layer/actions/runs/45480938822) passed every configured gate on 0662a5519b60fce68016ab020f8b517de7eec11f.
 
 # 2026-11-24 — Prove direct caller payment deadline through the API
 

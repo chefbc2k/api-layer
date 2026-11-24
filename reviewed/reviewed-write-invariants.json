@@ -1538,12 +1538,12 @@
       "requiredActor": {
         "kind": "self",
         "roles": [],
-        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        "description": "A valid EIP-712 delegation signature from the recovered signer authorizes only its signed delegatee, nonce, and expiry."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+          "description": "ECDSA recovery must identify the signer who authorized the delegatee, nonce, and expiry in the typed signature."
         },
         {
           "kind": "argument",
@@ -1554,10 +1554,6 @@
           "description": "The supplied time boundary is valid at the mined block and has not expired or bypassed a required delay."
         },
         {
-          "kind": "lifecycle",
-          "description": "The nonce or commitment has not been consumed and resolves to the submitted payload."
-        },
-        {
           "kind": "protocol-state",
           "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
         }
@@ -1566,8 +1562,12 @@
         "mode": "required",
         "checks": [
           {
-            "method": "DelegationFacet.getCurrentVotes",
-            "assertion": "DelegationFacet.getCurrentVotes reflects the receipt-confirmed DelegationFacet.delegateBySig transition for the affected identifiers and actor."
+            "method": "DelegationFacet.delegates",
+            "assertion": "DelegationFacet.delegates(recovered signer) equals the delegatee covered by the valid typed signature."
+          },
+          {
+            "method": "DelegationFacet.getTotalVotingPower",
+            "assertion": "DelegationFacet.getTotalVotingPower(delegatee) includes the recovered signer voting power after the receipt-confirmed delegation."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -1575,8 +1575,7 @@
       "emittedEvents": {
         "mode": "all",
         "events": [
-          "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.VotingPowerUpdated"
+          "DelegationFacet.DelegateChanged(address,address,address)"
         ],
         "rationale": "Every listed canonical transition event must be present in the successful receipt."
       },
@@ -1600,8 +1599,7 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "DelegationFacet.DelegateChanged(address,address,address)",
-          "DelegationFacet.VotingPowerUpdated"
+          "DelegationFacet.DelegateChanged(address,address,address)"
         ],
         "projections": [
           "governance_delegations:current"
@@ -1634,8 +1632,12 @@
         "mode": "required",
         "checks": [
           {
-            "method": "DelegationFacet.getTotalVotingPower",
-            "assertion": "DelegationFacet.getTotalVotingPower reflects the receipt-confirmed DelegationFacet.updateDelegatedVotingPower transition for the affected identifiers and actor."
+            "method": "VotingPowerFacet.getDelegatedVotingPower",
+            "assertion": "The delegated checkpoint equals the recomputed sum of current voting power for delegators assigned to the account."
+          },
+          {
+            "method": "DelegationFacet.getCurrentVotes",
+            "assertion": "The account current votes reflect the updated delegated checkpoint when the previous checkpoint was stale."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -1643,9 +1645,9 @@
       "emittedEvents": {
         "mode": "all",
         "events": [
-          "DelegationFacet.VotingPowerUpdated"
+          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
         ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "rationale": "A stale delegated-power checkpoint changes during the accepted proof and emits this event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -1653,11 +1655,11 @@
         "rationale": "This write changes protocol configuration or lifecycle state without moving an asset balance."
       },
       "replayConstraints": {
-        "mode": "idempotent",
+        "mode": "repeatable",
         "keyFields": [
           "account"
         ],
-        "assertion": "Repeating the same target state either leaves state unchanged or reverts without additional balance, event-projection, or lifecycle effects."
+        "assertion": "Each call is independently evaluated against current delegation and voting-power state; a receipt may contain a checkpoint-change event only when the recomputed amount differs."
       },
       "liveNetworkSafety": {
         "classification": "safe-with-fixture",
@@ -1667,12 +1669,12 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "DelegationFacet.VotingPowerUpdated"
+          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
         ],
         "projections": [
           "governance_delegations:current"
         ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "assertion": "When the delegated checkpoint changes, the event is indexed and projected once; unchanged calls may produce no log. Duplicate ingestion is idempotent."
       }
     },
     "DelegationFacet.updateDelegatedVotingPowerBatch": {
@@ -1704,8 +1706,12 @@
         "mode": "required",
         "checks": [
           {
-            "method": "DelegationFacet.getTotalVotingPower",
-            "assertion": "DelegationFacet.getTotalVotingPower reflects the receipt-confirmed DelegationFacet.updateDelegatedVotingPowerBatch transition for the affected identifiers and actor."
+            "method": "VotingPowerFacet.getDelegatedVotingPower",
+            "assertion": "Each account delegated checkpoint equals the recomputed sum of current voting power for assigned delegators."
+          },
+          {
+            "method": "DelegationFacet.getCurrentVotes",
+            "assertion": "Each account current-votes checkpoint reflects the updated delegated amount when stale."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -1713,9 +1719,9 @@
       "emittedEvents": {
         "mode": "all",
         "events": [
-          "DelegationFacet.VotingPowerUpdated"
+          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
         ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "rationale": "A stale delegated-power checkpoint changes during the accepted proof and emits this event."
       },
       "balanceEffects": {
         "mode": "none",
@@ -1723,11 +1729,11 @@
         "rationale": "This write changes protocol configuration or lifecycle state without moving an asset balance."
       },
       "replayConstraints": {
-        "mode": "idempotent",
+        "mode": "repeatable",
         "keyFields": [
           "accounts"
         ],
-        "assertion": "Repeating the same target state either leaves state unchanged or reverts without additional balance, event-projection, or lifecycle effects."
+        "assertion": "Each call is independently evaluated against current delegation and voting-power state; a receipt may contain a checkpoint-change event only when the recomputed amount differs."
       },
       "liveNetworkSafety": {
         "classification": "safe-with-fixture",
@@ -1737,12 +1743,12 @@
       "indexerExpectations": {
         "mode": "required",
         "events": [
-          "DelegationFacet.VotingPowerUpdated"
+          "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)"
         ],
         "projections": [
           "governance_delegations:current"
         ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "assertion": "When the delegated checkpoint changes, the event is indexed and projected once; unchanged calls may produce no log. Duplicate ingestion is idempotent."
       }
     },
     "DiamondCutFacet.diamondCut": {

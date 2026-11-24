@@ -92,8 +92,8 @@ describe("actor negative-path coverage", () => {
     const report = buildActorNegativePathReport(policy, surface, reviewed, "2026-08-03T00:00:00.000Z");
     const roleGated = report.methods.filter((method) => method.requiredActor.kind === "role");
 
-    expect(roleGated).toHaveLength(148);
-    expect(report.totals.roleLifecycleCaseCount).toBe(3_108);
+    expect(roleGated).toHaveLength(146);
+    expect(report.totals.roleLifecycleCaseCount).toBe(3_066);
     for (const method of roleGated) {
       expect(method.roleLifecycleDenials).toEqual(["stale-role", "revoked-role", "expired-validity-window"]);
       expect(method.actors.every((actor) => actor.contractDenials.includes("missing-required-role"))).toBe(true);
