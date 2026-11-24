@@ -3,7 +3,7 @@
   "date": "2026-11-24",
   "task": "API-05 exact-method acceptance evidence",
   "network": "Base Sepolia fork on loopback RPC",
-  "sourceCommit": "pending",
+  "sourceCommit": "5e69cf44fee634c49e4ddf21c83f0c77549f1489",
   "methods": [
     {
       "methodKey": "TokenSupplyFacet.burn",

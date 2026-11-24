@@ -2,7 +2,7 @@
 
 - Added a dedicated loopback-fork proof for `TokenSupplyFacet.burn`; its status-1 receipt emitted the expected `Transfer` burn event, and founder balance and total supply each fell by exactly one unit.
 - PostgreSQL stored the decoded raw event and receipt block journal; unchanged idempotent replay passed. The full local-fork assurance passed all 12 stages and 40 HTTP integration tests. Safe reads passed 445/446 with the known `ProposalFacet.queue` fixture gap.
-- API-05 advances from 134/260 to 135/260 proven write methods, leaving 125 open. Durable evidence: [burn proof](output/api05-token-supply-burn-proof-2026-11-24.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). API quality CI [45498024029](https://github.com/chefbc2k/api-layer/actions/runs/45498024029) passed all gates on `bcca038`.
+- API-05 advances from 135/260 to 136/260 proven write methods, leaving 124 open. Durable evidence: [token supply proof](output/api05-token-supply-burn-proof-2026-11-24.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). A dedicated local-fork mint case temporarily reopens minting only in fork storage; CI for this update is pending.
 
 # 2026-11-24 — Prove delegation signatures and checkpoint refreshes
 
