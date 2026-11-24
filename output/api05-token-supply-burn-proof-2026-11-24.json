@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-24",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": "Base Sepolia fork on loopback RPC",
+  "sourceCommit": null,
+  "methods": [
+    {
+      "methodKey": "TokenSupplyFacet.burn",
+      "route": "DELETE /v1/tokenomics/commands/burn",
+      "actor": "founder fixture signer; caller burns only its own balance",
+      "receipt": {
+        "transactionHash": "0xc0c3a62413e6ddd7cf6a8846cab0bb7619df22f86bf8fcd18a225376e8ff2552",
+        "blockNumber": 63178018,
+        "status": 1,
+        "logCount": 1
+      },
+      "transferEvent": {
+        "from": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "to": "0x0000000000000000000000000000000000000000",
+        "value": "1"
+      },
+      "assertions": [
+        "HTTP command returned 202 and receipt status was 1.",
+        "The sole Transfer event burned exactly one token unit from the founder to the zero address.",
+        "Direct token balanceOf(founder) and totalSupply readbacks each decreased by exactly one token unit."
+      ],
+      "indexer": {
+        "rawEvents": 1,
+        "rawEventIds": [
+          "262"
+        ],
+        "eventKeys": [
+          "TokenSupplyFacet.Transfer(address,address,uint256)"
+        ],
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63178018",
+              "block_hash": "0x057d0d8256c4ba083d5b0e893058a455926f7e2fbfc78d7a16c9d10eaedc96b3"
+            }
+          ]
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        }
+      },
+      "classification": "proven working"
+    }
+  ],
+  "cumulative": {
+    "startingProvenWriteMethods": 134,
+    "endingProvenWriteMethods": 135,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 125,
+    "indexedReceipts": 3405,
+    "rawEvents": 5165,
+    "projectionRows": 3388,
+    "addedMethodKeys": [
+      "TokenSupplyFacet.burn"
+    ]
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "httpIntegrationTestsPassed": 40,
+    "safeReadPassed": 445,
+    "safeReadAttempted": 446,
+    "knownGap": "ProposalFacet.queue: GET /v1/governance/queries/queue returned HTTP 500 (fixture gap)."
+  }
+}

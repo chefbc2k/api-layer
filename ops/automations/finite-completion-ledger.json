@@ -1153,6 +1153,35 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45493727587",
           "ciRunId": 45493727587,
           "ciCommit": "273ed6d7768762bf95df0dd012a26a039027a082"
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-token-supply-burn-proof-2026-11-24.json",
+          "proofArtifactSha256": "2efe8ad0be4037bb03cacf660c345a9abd3f033a1e18c64d1a567029b98f0100",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "9f29666227a2d0035fde4e247b9444d9f43d3964976baec4c0540be9c60c8ea2",
+          "result": "Added exact-source local-fork proof for TokenSupplyFacet.burn through DELETE /v1/tokenomics/commands/burn. A status-1 receipt emitted one Transfer event burning one unit from the founder fixture account; direct balance and total-supply reads each fell by one. PostgreSQL stored the decoded raw event and block journal with unchanged idempotent replay. Cumulative coverage advances from 134/260 to 135/260, leaving 125 open.",
+          "startingProvenCount": 134,
+          "startingOpenCount": 126,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.7937,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 135,
+          "endingOpenCount": 125,
+          "checks": [
+            "Focused caller-burn integration test passed on the loopback Base Sepolia fork and verified the HTTP response, successful receipt, exact Transfer event, balance delta, and total-supply delta.",
+            "Full disposable local-fork assurance passed all 12 stages; all 40 HTTP contract integration tests passed.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 from the known fixture gap.",
+            "TokenSupplyFacet.burn receipt 0xc0c3a62413e6ddd7cf6a8846cab0bb7619df22f86bf8fcd18a225376e8ff2552 at block 63178018 succeeded with one decoded Transfer log.",
+            "PostgreSQL stored one raw event, no projection rows as required by the raw-event-only policy, and one indexer_blocks journal row; replay was unchanged and idempotent.",
+            "Cumulative indexer report: 3,405 receipts, 135/260 distinct write methods, 5,165 raw events, and 3,388 projection rows; exactly TokenSupplyFacet.burn is newly added.",
+            "The existing broader burn/mint test reverts its fork snapshot; this dedicated final test retains its receipt on the active fork so the indexer can ingest and replay it."
+          ],
+          "resultLimitation": "This run completed 1 of the 126 open methods (0.7937%), below the bounded target of 35; API-05 remains in_progress with 125 methods open.",
+          "ciRun": "pending",
+          "ciRunId": null,
+          "ciCommit": null
         }
       ],
       "deliveredCommit": null,
