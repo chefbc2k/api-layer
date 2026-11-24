@@ -2,6 +2,13 @@
 
 This document is the master tracking file for the API assurance automation. Daily automation runs must update this file with status, evidence, remaining gaps, and merge readiness for each section.
 
+## API-05 Follow-on — Buyback Configuration Struct Proof — 2026-11-24
+
+- Added a loopback-only call to `PATCH /v1/marketplace/commands/set-buyback-config-struct` using the valid disabled config from the scalar setter proof. The receipt succeeded at block `63059801`, emitted `PaymentFacet.BuybackConfigUpdated`, and all seven event values matched `PaymentFacet.getBuybackStatus`.
+- PostgreSQL indexed the raw event and `payment_flows` projection, journaled the block, and replayed idempotently. The full local-fork run passed all 12 stages with only the known `ProposalFacet.queue` safe-read fixture gap.
+- Source commit `70860762895a758b3a4141927102443bd654c1a4` adds one distinct method. API-05 advances from `119/260` to `120/260`, leaving `140` open. This run completed `1/141` open methods (`0.7092%`), below the bounded target of `37`. GitHub Actions run [45426714451](https://github.com/chefbc2k/api-layer/actions/runs/45426714451) passed every configured gate on the exact source commit.
+- Durable proof: [`output/api05-buyback-config-struct-proof-2026-11-24.json`](../output/api05-buyback-config-struct-proof-2026-11-24.json) and [`verify-local-fork-indexer-output.json`](../verify-local-fork-indexer-output.json).
+
 ## API-05 Follow-on — Buyback Configuration Proof — 2026-11-24
 
 - Added a loopback-only call to `PATCH /v1/marketplace/commands/set-buyback-config` using a valid disabled target: zero buyback basis points, zero monthly minimum, one required month, cadence 1, and zero addresses. The receipt succeeded at block `63055602`, emitted `PaymentFacet.BuybackConfigUpdated`, and all seven event arguments matched `PaymentFacet.getBuybackStatus` readback.

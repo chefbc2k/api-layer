@@ -1,3 +1,8 @@
+# 2026-11-24 — Prove struct buyback configuration API write
+
+- Added a fork-only `setBuybackConfigStruct` API proof. The successful receipt emitted `BuybackConfigUpdated`; all seven event values matched the canonical getter, and PostgreSQL projection plus idempotent replay passed.
+- Full local-fork assurance passed all 12 stages with the known queue fixture gap. API-05 advances to 120/260 distinct methods, with 140 open. Hosted CI run [45426714451](https://github.com/chefbc2k/api-layer/actions/runs/45426714451) passed every configured gate on the source commit.
+
 # 2026-11-24 — Prove buyback configuration write on local fork
 
 - Added a fork-only `setBuybackConfig` request using a valid disabled configuration. The receipt emitted `BuybackConfigUpdated`; all seven values matched the canonical getter, and PostgreSQL projection plus idempotent replay passed.

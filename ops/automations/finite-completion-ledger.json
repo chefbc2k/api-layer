@@ -853,6 +853,34 @@
           ],
           "resultLimitation": "This run completed 1 of the 142 open methods (0.7042%), below the bounded owner target of 37; API-05 remains in_progress with 141 methods open.",
           "ciRun": 45424068498
+        },
+        {
+          "sourceCommit": "70860762895a758b3a4141927102443bd654c1a4",
+          "url": "https://github.com/chefbc2k/api-layer/commit/70860762895a758b3a4141927102443bd654c1a4",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45426714451",
+          "artifact": "output/api05-buyback-config-struct-proof-2026-11-24.json",
+          "proofArtifactSha256": "d834f79843ea5af5e7d501a8d85f1e43d9276fe195e066e0112f0e7936734550",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "5497790f77ab22962c24e98493bcf79fca554be032daa9be993ab506cbdfbcde",
+          "result": "Added exact current-source local-fork proof for PaymentFacet.setBuybackConfigStruct through PATCH /v1/marketplace/commands/set-buyback-config-struct. Using the valid disabled buyback target, the successful receipt emitted BuybackConfigUpdated with exact arguments and getBuybackStatus matched all seven config fields. PostgreSQL recorded the raw event, payment_flows projection, and block journal; replay was idempotent. Full local-fork assurance passed all 12 stages with the known ProposalFacet.queue safe-read gap. API-05 advances from 119/260 to 120/260 proven methods, with 140 open.",
+          "startingProvenCount": 119,
+          "startingOpenCount": 141,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.7092,
+          "boundedRunTarget": 37,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 120,
+          "endingOpenCount": 140,
+          "checks": [
+            "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork: all 12 stages passed on a disposable loopback Base Sepolia fork; live and live-destructive opt-ins were false.",
+            "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
+            "PaymentFacet.setBuybackConfigStruct returned a status-1 receipt at block 63059801 with one BuybackConfigUpdated log; event arguments and all seven PaymentFacet.getBuybackStatus fields matched the valid disabled target.",
+            "Disposable PostgreSQL recorded one raw_events row, one payment_flows projection row, and one indexer_blocks row; replay remained unchanged and idempotent.",
+            "pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1: 16 passed; pnpm exec tsc -p packages/api/tsconfig.json --noEmit passed.",
+            "Cumulative indexer: 1599 receipts, 120/260 distinct methods, 2374 raw events, 1569 projection rows; 140 methods remain.",
+            "GitHub Actions workflow 45426714451 succeeded on exact source commit 70860762895a758b3a4141927102443bd654c1a4. Dependency audit, selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation all passed."
+          ],
+          "resultLimitation": "This run completed 1 of the 141 open methods (0.7092%), below the bounded owner target of 37; API-05 remains in_progress with 140 methods open."
         }
       ],
       "deliveredCommit": null,
