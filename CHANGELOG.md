@@ -2,7 +2,7 @@
 
 - Added a loopback-fork API proof for `BurnThresholdFacet.thresholdBurnExcess`. The permissionless receipt matched the `ThresholdBurn` event, founder balance and total-supply decreases, and threshold restoration; PostgreSQL raw-event ingestion and idempotent replay passed.
 - Full local-fork assurance passed 12 stages and all 37 API integration tests. The known `ProposalFacet.queue` safe-read fixture gap remains (445/446). API-05 advances to 129/260 methods, with 131 open.
-- Durable proof: [threshold burn artifact](output/api05-threshold-burn-excess-proof-2026-11-24.json). CI is pending.
+- Durable proof: [threshold burn artifact](output/api05-threshold-burn-excess-proof-2026-11-24.json). The first CI attempt (45479951551) exposed stale event-assurance projection totals; the assertions were corrected and the focused suite passed 210/210. Full CI retry is pending.
 
 # 2026-11-24 — Prove direct caller payment deadline through the API
 

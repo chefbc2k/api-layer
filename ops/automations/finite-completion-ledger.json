@@ -1066,7 +1066,7 @@
           "ciCommit": "db65482d43c1ee5df2190ce7449b28c4a9edc2b6"
         },
         {
-          "sourceCommit": null,
+          "sourceCommit": "e1eab217655e293f1d7be1feb798e64f2e39a881",
           "artifact": "output/api05-threshold-burn-excess-proof-2026-11-24.json",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "result": "Added exact-source loopback-fork proof for permissionless BurnThresholdFacet.thresholdBurnExcess through POST /v1/tokenomics/commands/threshold-burn-excess. The outsider-key receipt succeeded at block 63145074, emitted ThresholdBurn for 41989300000000 units at threshold 1, and matched the founder balance and total-supply reductions. PostgreSQL indexed both receipt logs, recorded the block journal, and unchanged idempotent replay passed. Cumulative coverage advances from 128/260 to 129/260, leaving 131 open.",
@@ -1080,6 +1080,7 @@
           "endingOpenCount": 131,
           "checks": [
             "Pinned-selector generation completed with 492 methods, 218 events, and 260/260 reviewed write invariants.",
+            "First hosted API quality attempt 45479951551 reached regression and exposed stale event-assurance projection totals: corrected expected projection declarations from 151 to 152 and projected event targets from 189 to 190; focused event-assurance suite passed 210/210 after correction.",
             "Full local-fork assurance passed all 12 stages; all 37 HTTP contract integration tests passed.",
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 as the known fixture gap.",
             "thresholdBurnExcess returned a status-1 receipt at block 63145074 with 2 logs; event amount, threshold, founder balance delta, total-supply delta, permissionless actor, and threshold restoration were asserted.",
