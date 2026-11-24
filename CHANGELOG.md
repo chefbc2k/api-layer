@@ -6158,3 +6158,8 @@
 - Add an optional server-provisioned stable requestOwnerId for deliberate key rotation, preserve ownerless legacy rows without exposing them, and block browser database roles from private request storage.
 - Return non-disclosing unauthorized responses, redact storage failures, disable private-response caching and preserve public chain receipt lookup.
 - Add HTTP and real PostgreSQL ownership, restart, key-rotation, signer-isolation, legacy-record and browser-role regression checks; document migration-first rollout and secure rollback.
+
+# 2026-11-24 — Record hosted CI for caller payment deadline proof
+
+- Hosted API quality run [45462297910](https://github.com/chefbc2k/api-layer/actions/runs/45462297910) passed every configured gate on commit `ea1695f96ec4ba880163ed06b667418dd9208216`, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.
+- API-05 remains in progress at 127/260 proven write methods, with 133 open; the bounded 35-method target remains unmet.

@@ -1024,9 +1024,13 @@
             "Safe-read sweep passed 445/446; only ProposalFacet.queue returned HTTP 500 from the known fixture gap.",
             "PaymentFacet.distributePaymentWithDeadline returned a status-1 receipt at block 63116347 with five logs; token 189, payer USDC 2000 to 1000, diamond custody 89595 to 90595, seller pending 3660 to 4575, global and asset revenue each increased by 1000.",
             "Disposable PostgreSQL stored five raw_events rows, three payment_flows projections, and one indexer_blocks row; replay was unchanged and idempotent. Both duplicate PaymentDistributed emissions were preserved as observed contract behavior.",
-            "Cumulative indexer: 2316 receipts, 127/260 distinct write methods, 3504 raw events, 2312 projection rows; 133 method keys remain."
+            "Cumulative indexer: 2316 receipts, 127/260 distinct write methods, 3504 raw events, 2312 projection rows; 133 method keys remain.",
+            "GitHub Actions API quality run 45462297910 passed every configured gate on exact source commit ea1695f96ec4ba880163ed06b667418dd9208216, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
           "resultLimitation": "This run completed 1 of the 134 open methods (0.7463%), below the bounded owner target of 35; API-05 remains in_progress with 133 methods open.",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45462297910",
+          "ciRunId": 45462297910,
+          "ciCommit": "ea1695f96ec4ba880163ed06b667418dd9208216",
           "proofArtifactSha256": "806e8a9ec89bdfe089ee72735af44db3f3050582ff747d32e71fa5942ab67afe",
           "indexerArtifactSha256": "f08dbb5a8b44fe79dd38aa4f02aadf1de2887022717e47a3ce561612beb378d5"
         }
