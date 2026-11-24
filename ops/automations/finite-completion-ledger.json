@@ -686,8 +686,34 @@
           ],
           "resultLimitation": "This run completed 1 of the 145 open methods (0.6897%), below the bounded owner target of 37; the wider API-05 criterion remains open."
         },
-        {
-          "sourceCommit": "2061e9ba6af21031e61ed8ab827e2c9055f15ebb",
+    {
+      "sourceCommit": "50835f3342416a0c39daf552afd76498fa3c1606",
+      "url": "https://github.com/chefbc2k/api-layer/commit/50835f3342416a0c39daf552afd76498fa3c1606",
+      "artifact": "output/api05-usdc-token-config-proof-2026-11-24.json",
+      "proofArtifactSha256": "ae440b47bfc6d99d23345239e40a9d52c14511431048cade32e5b8a34defee8a",
+      "indexerArtifact": "verify-local-fork-indexer-output.json",
+      "indexerArtifactSha256": "8e872370cb43adea1eabf67d80a4785f963cfae1a8c1e1ad973486e064433993",
+      "result": "Added exact current-source local-fork proof for PaymentFacet.setUsdcToken through PATCH /v1/marketplace/commands/set-usdc-token. The receipt emitted UsdcTokenUpdated, getUsdcToken matched the configured token, and PostgreSQL stored the raw event and payment_flows projection with unchanged idempotent replay. The full 12-stage local-fork assurance run passed with the known ProposalFacet.queue read gap; API-05 now has 117/260 exact write methods proven and remains in progress.",
+      "startingProvenCount": 116,
+      "startingOpenCount": 144,
+      "completedThisRun": 1,
+      "completionPercentOfStart": 0.6944,
+      "boundedRunTarget": 37,
+      "boundedRunTargetMet": false,
+      "endingProvenCount": 117,
+      "endingOpenCount": 143,
+      "checks": [
+        "pnpm exec vitest run scripts/verify-marketplace-purchase-live.test.ts --maxWorkers 1: 16 passed; TypeScript, focused ESLint, and git diff --check passed.",
+        "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json pnpm run verify:local-fork: all 12 stages passed on a disposable loopback Base Sepolia fork; live opt-in and live destructive opt-in were false.",
+        "Safe-read sweep passed 445/446; only ProposalFacet.queue returned HTTP 500 from the already documented contract expiry-validation gap.",
+        "setUsdcToken returned receipt status 1 at block 63024319 with PaymentFacet.UsdcTokenUpdated; getUsdcToken matched the preconfigured address.",
+        "Disposable PostgreSQL persisted one raw event, one payment_flows row, and one block-journal row; replay was unchanged and idempotent.",
+        "Cumulative indexer artifact: 1,017 receipts, 117/260 proven write methods, 1,499 raw events, 987 projection rows; 143 method keys remain."
+      ],
+      "resultLimitation": "This run completed 1 of the 144 open methods (0.6944%), below the bounded owner target of 37; the wider API-05 criterion remains open."
+    },
+    {
+      "sourceCommit": "2061e9ba6af21031e61ed8ab827e2c9055f15ebb",
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/45400329258",
           "artifact": "CI run 45400329258",
           "result": "Default-branch API quality workflow passed on the commit containing the API-05 deadline-withdrawal evidence. Dependency audit, pinned-selector codegen, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed. API-05 method acceptance remains open at 116/260 proven methods.",

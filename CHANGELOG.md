@@ -1,3 +1,8 @@
+# 2026-11-24 — Prove fork-only USDC token configuration readback
+
+- Extended the marketplace verification workflow with the `PaymentFacet.setUsdcToken` HTTP write on loopback forks, using the already configured token address. The proof requires a successful `UsdcTokenUpdated` receipt and matching canonical `getUsdcToken` readback before it continues to purchase and withdraw.
+- Captured exact-method PostgreSQL ingestion and idempotent replay. Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` read gap; API-05 advances to 117/260 proven write methods, with 143 still open.
+
 ## 2026-11-24 — Prove deadline-bound marketplace withdrawals
 
 - Updated the marketplace purchase proof to withdraw accrued seller proceeds through the deadline-bound PaymentFacet overload, with a deadline one hour after the current local-fork block.
