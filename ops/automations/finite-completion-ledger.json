@@ -2561,6 +2561,31 @@
             "functions": 96.15,
             "lines": 93.62
           }
+        },
+        {
+          "sourceCommit": "7b5cb2fc0f4249dfd7f44fff06049a1b8f2ea94d",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45680212596",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-7b5cb2fc0f4249dfd7f44fff06049a1b8f2ea94d)",
+          "artifactSha256": "1989a910b2c8241761564d8bea78c1e2cf76ad09b4aa3e729836df2efcc80e9f",
+          "result": "Latest exact-head coverage run remains below the frozen 100% acceptance requirement. The 100% coverage gate did not fail because its current policy checks wrapper and HTTP API coverage specifically; it does not establish 100% repository coverage. API-08 remains open.",
+          "coveragePercent": {
+            "lines": 93.62,
+            "statements": 92.8,
+            "branches": 90.94,
+            "functions": 96.15
+          },
+          "coveredTotals": {
+            "lines": "6420/6857",
+            "statements": "6807/7335",
+            "branches": "5773/6348",
+            "functions": "1577/1640"
+          },
+          "checks": [
+            "API quality CI 45680212596 passed its dedicated API surface gate.",
+            "The uploaded whole-repository coverage summary reports less than 100% for lines, statements, branches, and functions.",
+            "Production runtime and backend privacy/release acceptance remain unverified."
+          ],
+          "resultLimitation": "API-08 remains open pending exact 100% coverage against the frozen criterion and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
@@ -3998,6 +4023,20 @@
           "artifact": "output/coinbase-usdc/2026-11-16-am-verification.json",
           "result": "Verified backend security increment and exact-source full local/GitHub CI; whole unit remains blocked_external, not accepted",
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/43883645807"
+        },
+        {
+          "sourceCommit": "7b5cb2fc0f4249dfd7f44fff06049a1b8f2ea94d",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45680212596",
+          "artifact": ".runtime/funding-fork-proof.json (workflow artifact api-quality-7b5cb2fc0f4249dfd7f44fff06049a1b8f2ea94d)",
+          "artifactSha256": "2a55afdeba10fa9e5193eea6a8bfcdb11b6b8c1ecd684e39c625484b9d6b6681",
+          "result": "Exact-head disposable fork evidence proves local purchase and database settlement paths only. Provider sandbox readiness is false and no production transfers occurred; C19 remains blocked_external.",
+          "checks": [
+            "CI fork proof environment is disposable Base Sepolia fork at block 63556137.",
+            "providerSandbox=false.",
+            "productionTransfers=0.",
+            "Database and local test settlement proofs are present, but no real provider sandbox acceptance is shown."
+          ],
+          "resultLimitation": "C19 remains blocked_external pending configured provider sandbox credentials and verified provider/marketplace acceptance; no live provider run or production charge has been performed."
         }
       ],
       "deliveredCommit": "9daadafc021b8f9c102308cd044e1b5dfdefa671",
