@@ -596,6 +596,7 @@ describeLive("HTTP API contract integration", () => {
   let activeRpcUrl = "";
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
   const confirmedTransactionHashes = new Set<string>();
+  const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
   async function captureReceiptSnapshot() {
@@ -1014,6 +1015,7 @@ describeLive("HTTP API contract integration", () => {
         status: "proven working",
         rolledBackReceiptObservations,
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
+        oracleFutureDriftProofObservations,
       }, null, 2)}\n`);
     }
     server?.close();
@@ -8161,6 +8163,81 @@ describeLive("HTTP API contract integration", () => {
         await expectReceipt(extractTxHash(restore.payload));
       }
       expect(BigInt((await oracle.getOracleStalenessConfig()).maxAgeSeconds)).toBe(originalMaxAge);
+    }
+  }, 180_000);
+
+  it("proves the oracle future-drift configuration update remains indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "oracle future-drift configuration receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
+    const governanceRole = id("GOVERNANCE_ROLE");
+    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const originalMaxFutureSeconds = BigInt(await oracle.getOracleFutureDriftConfig());
+    const targetMaxFutureSeconds = originalMaxFutureSeconds + 1n;
+    let updateTransactionHash: string | null = null;
+    let restoreTransactionHash: string | null = null;
+
+    try {
+      const update = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-future-drift-config", {
+        apiKey: "founder-key",
+        body: { maxFutureSeconds: targetMaxFutureSeconds.toString() },
+      });
+      expect(update.status, JSON.stringify(update.payload)).toBe(202);
+      const updateHash = extractTxHash(update.payload);
+      updateTransactionHash = updateHash;
+      await expectReceipt(updateHash);
+      const updateReceipt = await provider.getTransactionReceipt(updateHash);
+      expect(updateReceipt?.status).toBe(1);
+      const updatedEvents = (updateReceipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = oracle.interface.parseLog(log);
+          return parsed?.name === "OracleFutureDriftConfigUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(updatedEvents).toHaveLength(1);
+      expect(BigInt(updatedEvents[0]!.args.maxFutureSeconds)).toBe(targetMaxFutureSeconds);
+      expect(BigInt(await oracle.getOracleFutureDriftConfig())).toBe(targetMaxFutureSeconds);
+
+      const readback = await apiCall(port, "POST", "/v1/staking/queries/get-oracle-future-drift-config", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(BigInt(readback.payload as string)).toBe(targetMaxFutureSeconds);
+    } finally {
+      const currentMaxFutureSeconds = BigInt(await oracle.getOracleFutureDriftConfig());
+      if (currentMaxFutureSeconds !== originalMaxFutureSeconds) {
+        const restore = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-future-drift-config", {
+          apiKey: "founder-key",
+          body: { maxFutureSeconds: originalMaxFutureSeconds.toString() },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        restoreTransactionHash = extractTxHash(restore.payload);
+        await expectReceipt(restoreTransactionHash);
+      }
+      expect(BigInt(await oracle.getOracleFutureDriftConfig())).toBe(originalMaxFutureSeconds);
+      oracleFutureDriftProofObservations.push({
+        methodKey: "EchoScoreFacetV3.setOracleFutureDriftConfig",
+        route: "PATCH /v1/staking/commands/set-oracle-future-drift-config",
+        actor: "founder fixture signer with GOVERNANCE_ROLE",
+        originalMaxFutureSeconds: originalMaxFutureSeconds.toString(),
+        testMaxFutureSeconds: targetMaxFutureSeconds.toString(),
+        restoredMaxFutureSeconds: (await oracle.getOracleFutureDriftConfig()).toString(),
+        updateTransactionHash,
+        restoreTransactionHash,
+        event: "EchoScoreFacetV3.OracleFutureDriftConfigUpdated(uint256)",
+        canonicalReadbackMatched: true,
+        httpReadbackMatched: true,
+        finalValueRestored: true,
+      });
     }
   }, 180_000);
 
