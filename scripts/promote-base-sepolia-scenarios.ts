@@ -424,6 +424,10 @@ export async function runPromotion(options: {
   envPath?: string;
   outputPath?: string;
   argv?: string[];
+  fixturePath?: string;
+  marketplaceOutputPath?: string;
+  governanceOutputPath?: string;
+  runCommand?: typeof runCommand;
   providerFactory?: (rpcUrl: string) => {
     getNetwork(): Promise<{ chainId: number | bigint }>;
     getCode(address: string): Promise<string>;
@@ -431,6 +435,10 @@ export async function runPromotion(options: {
   };
 } = {}): Promise<void> {
   const envPath = options.envPath ?? resolvePromotionEnvPath();
+  const fixturePath = options.fixturePath ?? FIXTURE_PATH;
+  const marketplaceOutputPath = options.marketplaceOutputPath ?? MARKETPLACE_OUTPUT_PATH;
+  const governanceOutputPath = options.governanceOutputPath ?? GOVERNANCE_OUTPUT_PATH;
+  const executeCommand = options.runCommand ?? runCommand;
   const persistOutput = (output: PromotionOutput) => writeOutput(output, options.outputPath);
   const envFilePresent = existsSync(envPath);
   const fileEnv = envFilePresent ? parse(readFileSync(envPath, "utf8")) : {};
@@ -474,9 +482,9 @@ export async function runPromotion(options: {
   }
 
   const childEnv = { ...process.env, ...fileEnv };
-  const fixtureMtimeBefore = existsSync(FIXTURE_PATH) ? statSync(FIXTURE_PATH).mtimeMs : 0;
-  const setupExit = await runCommand("pnpm", ["run", "setup:base-sepolia"], childEnv);
-  const fixtureWasRefreshed = existsSync(FIXTURE_PATH) && statSync(FIXTURE_PATH).mtimeMs > fixtureMtimeBefore;
+  const fixtureMtimeBefore = existsSync(fixturePath) ? statSync(fixturePath).mtimeMs : 0;
+  const setupExit = await executeCommand("pnpm", ["run", "setup:base-sepolia"], childEnv);
+  const fixtureWasRefreshed = existsSync(fixturePath) && statSync(fixturePath).mtimeMs > fixtureMtimeBefore;
   if (setupExit !== 0 || !fixtureWasRefreshed) {
     output.readiness.status = "blocked";
     output.readiness.blockers.push(`setup:base-sepolia exited ${setupExit} or did not refresh its fixture artifact`);
@@ -486,7 +494,7 @@ export async function runPromotion(options: {
     return;
   }
 
-  const fixture = readJson<SetupFixture>(FIXTURE_PATH);
+  const fixture = readJson<SetupFixture>(fixturePath);
   output.setup = fixture;
   const runtimeRpcUrl = fixture.network?.runtimeRpcUrl;
   if (
@@ -516,13 +524,13 @@ export async function runPromotion(options: {
       id: "marketplace-purchase",
       command: "pnpm run verify:marketplace:purchase:base-sepolia",
       args: ["run", "verify:marketplace:purchase:base-sepolia"],
-      outputPath: MARKETPLACE_OUTPUT_PATH,
+      outputPath: marketplaceOutputPath,
     },
     {
       id: "governance",
       command: "pnpm run verify:governance:base-sepolia",
       args: ["run", "verify:governance:base-sepolia"],
-      outputPath: GOVERNANCE_OUTPUT_PATH,
+      outputPath: governanceOutputPath,
     },
   ];
 
@@ -541,7 +549,7 @@ export async function runPromotion(options: {
     }
 
     const reportMtimeBefore = existsSync(scenario.outputPath) ? statSync(scenario.outputPath).mtimeMs : 0;
-    const exitCode = await runCommand("pnpm", scenario.args, childEnv);
+    const exitCode = await executeCommand("pnpm", scenario.args, childEnv);
     const reportWasRefreshed = existsSync(scenario.outputPath) && statSync(scenario.outputPath).mtimeMs > reportMtimeBefore;
     const report = reportWasRefreshed ? readJson<unknown>(scenario.outputPath) : null;
     const classification = reportClassification(report);

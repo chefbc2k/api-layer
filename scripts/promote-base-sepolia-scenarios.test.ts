@@ -188,6 +188,35 @@ describe("Base Sepolia promotion report decisions",()=>{
 });
 
 describe("Base Sepolia promotion CLI safety",()=>{
+  it("orchestrates fixture-backed scenarios with injected commands and temporary artifacts",async()=>{
+    const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-scenarios-"));
+    const envPath=path.join(isolatedCwd,"promotion.env");const fixturePath=path.join(isolatedCwd,"fixture.json");const outputPath=path.join(isolatedCwd,"report.json");
+    const marketplaceOutputPath=path.join(isolatedCwd,"marketplace.json");const governanceOutputPath=path.join(isolatedCwd,"governance.json");
+    const previousExitCode=process.exitCode;
+    try {
+      writeFileSync(envPath,Object.entries(readyEnv()).map(([key,value])=>`${key}=${value}`).join("\n"));
+      const txHash=`0x${"ab".repeat(32)}`;
+      const fixture={network:{chainId:84532,runtimeRpcUrl:"https://base-sepolia.example.invalid",forkedFrom:null},setup:{status:"ready"},marketplace:{agedListingFixture:{status:"ready",purchaseReadiness:"purchase-ready",listing:{readback:{payload:{price:"100"}}}},usdcFunding:{buyerBalance:"100",buyerAllowance:"100"}},governance:{status:"ready"}};
+      const provider={getNetwork:vi.fn().mockResolvedValue({chainId:84532n}),getCode:vi.fn().mockResolvedValue("0x6000"),destroy:vi.fn().mockResolvedValue(undefined)};
+      const commands:string[]=[];
+      vi.spyOn(console,"log").mockImplementation(()=>undefined);
+      const commandRunner=async(_command:string,args:string[])=>{
+        commands.push(args[1]);
+        if(args[1]==="setup:base-sepolia") writeFileSync(fixturePath,JSON.stringify(fixture));
+        else {
+          const destination=args[1]==="verify:marketplace:purchase:base-sepolia"?marketplaceOutputPath:governanceOutputPath;
+          writeFileSync(destination,JSON.stringify({summary:"proven working",txHash,blockNumber:123,actors:["buyer"],pendingDelta:{seller:"100"},events:[{eventName:"verified"}]}));
+        }
+        return 0;
+      };
+      await runPromotion({envPath,fixturePath,outputPath,marketplaceOutputPath,governanceOutputPath,argv:[],providerFactory:()=>provider,runCommand:commandRunner});
+      const report=JSON.parse(readFileSync(outputPath,"utf8"));
+      expect(commands).toEqual(["setup:base-sepolia","verify:marketplace:purchase:base-sepolia","verify:governance:base-sepolia"]);
+      expect(report).toMatchObject({finalClassification:"proven working",scenarios:[{status:"proven"},{status:"proven"}],evidence:{txHashes:[txHash],blockNumbers:[123],actors:["buyer"]}});
+      expect(provider.destroy).toHaveBeenCalledOnce();
+    } finally {vi.restoreAllMocks();process.exitCode=previousExitCode;rmSync(isolatedCwd,{recursive:true,force:true});}
+  });
+
   it("runs the read-only preflight with an injected provider and writes only to the requested path",async()=>{
     const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-preflight-"));
     const envPath=path.join(isolatedCwd,"promotion.env");const outputPath=path.join(isolatedCwd,"report.json");
