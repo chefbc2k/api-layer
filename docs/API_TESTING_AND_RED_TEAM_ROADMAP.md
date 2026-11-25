@@ -1,3 +1,10 @@
+# API-05 Follow-on — Degraded-Mode Staking Config Proof — 2026-11-25
+
+- Corrected the reviewed `StakingFacet.setDegradedModeConfig` authorization and event policy: the contract requires `PLATFORM_ADMIN_ROLE` and emits no event. Added a fork-only API proof that toggles the enabled flag, verifies canonical and HTTP config readbacks, and restores the original settings.
+- Both successful eventless receipts were indexed as PostgreSQL block-journal rows without fabricated raw events or projections; replay remained unchanged. Full HTTP contract integration passed `53/53`, event-to-indexer assurance passed `210/210`, and all 12 local-fork stages passed. Safe reads passed `445/446` with the known `ProposalFacet.queue` fixture gap.
+- API-05 advances from `147/260` to `148/260` exact-method proofs, leaving `112` open. Source commit `5f4e310b0d692129ad3d6d05331c3ba179592027` is awaiting hosted API quality CI.
+- Durable proof: [degraded-mode proof](../output/api05-staking-degraded-mode-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json), and assurance report SHA-256 `ca793f9b895f3d5cc2d465735a071697547de28df69adc6497dd1dc7fc16cd43`.
+
 # API-05 Follow-on — EchoScore Oracle Address Proof — 2026-11-25
 
 - Added an exact loopback-fork HTTP receipt proof for `EchoScoreFacetV3.setEchoScoreOracleV3`. The founder fixture signer with `PLATFORM_ADMIN_ROLE` set a distinct test oracle address, checked the `OracleUpdated` event plus canonical and HTTP reads, and restored the original address.

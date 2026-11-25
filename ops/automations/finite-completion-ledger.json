@@ -1538,6 +1538,35 @@
           "ciRunId": 45556710345,
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45556710345",
           "ciCommit": "7c99e5743ed1efc4c71f036819727a4d5fd09894"
+        },
+        {
+          "sourceCommit": "5f4e310b0d692129ad3d6d05331c3ba179592027",
+          "artifact": "output/api05-staking-degraded-mode-proof-2026-11-25.json",
+          "proofArtifactSha256": "d15a922cfbafdf0f172ce756bfad2c6c620e5457e48447ef4ed41a4d829da3fc",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "12b33e81810544d8b22593c2f47ca031359a7434fc4dc5ab8fc143e353016ab6",
+          "result": "Corrected StakingFacet.setDegradedModeConfig invariants to match its PLATFORM_ADMIN_ROLE guard and eventless implementation. A fork-only HTTP test toggled degraded mode, verified canonical and HTTP config readbacks, then restored all original values. Both successful eventless receipts were indexed as block-journal rows without fabricated raw events or projections; replay was idempotent. All 12 local-fork assurance stages passed with one known safe-read gap (445/446). API-05 advances from 147/260 to 148/260, leaving 112 open.",
+          "startingProvenCount": 147,
+          "startingOpenCount": 113,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.885,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 148,
+          "endingOpenCount": 112,
+          "assuranceReportSha256": "ca793f9b895f3d5cc2d465735a071697547de28df69adc6497dd1dc7fc16cd43",
+          "assuranceReportPath": ".runtime/api05-staking-degraded-mode-assurance.json (ephemeral local report; checksum preserved)",
+          "checks": [
+            "Focused integration test passed (1 passed, 52 skipped).",
+            "Full HTTP contract integration passed 53/53.",
+            "Event-to-indexer assurance passed 210/210 after updating exact aggregate counts for the newly reviewed eventless write.",
+            "All 12 local-fork assurance stages passed; safe reads passed 445/446, with the known ProposalFacet.queue fixture gap.",
+            "Both receipts were status 1 with zero logs; Postgres stored one indexer_blocks row for each and no raw_events or projections; replays were unchanged and idempotent.",
+            "Direct and HTTP reads matched the toggled config, and the original config was restored.",
+            "Pinned code generation and coverage passed: 492 functions, 218 events, 260/260 reviewed write invariants."
+          ],
+          "resultLimitation": "One open method completed, below the bounded target of 35; API-05 remains in_progress with 112 methods open.",
+          "ciConclusion": "pending"
         }
       ],
       "deliveredCommit": null,
