@@ -62,5 +62,54 @@
     "API-08": "open",
     "repositoryWideCoverage": "below frozen 100% requirement; exact-head CI refresh pending",
     "backendPrivacyAndReleaseAcceptance": "unverified"
+  },
+  "hostedCi": {
+    "runId": 45689110979,
+    "sourceCommit": "9c6e52f767fc6037804d9678c992cdd799ce8bb9",
+    "result": "passed",
+    "coveragePercent": {
+      "lines": 96.76,
+      "statements": 96.48,
+      "branches": 95.36,
+      "functions": 97.74
+    },
+    "coveredTotals": {
+      "lines": "6635/6857",
+      "statements": "7077/7335",
+      "branches": "6052/6346",
+      "functions": "1603/1640"
+    },
+    "moduleCoveragePercent": {
+      "processor.ts": {
+        "lines": 100,
+        "statements": 100,
+        "functions": 100,
+        "branches": 100
+      },
+      "purchase.ts": {
+        "lines": 98.38,
+        "statements": 97.75,
+        "functions": 100,
+        "branches": 98.88
+      },
+      "reconciliation.ts": {
+        "lines": 100,
+        "statements": 100,
+        "functions": 100,
+        "branches": 100
+      },
+      "release-readiness.ts": {
+        "lines": 100,
+        "statements": 100,
+        "functions": 100,
+        "branches": 100
+      },
+      "store.ts": {
+        "lines": 100,
+        "statements": 100,
+        "functions": 100,
+        "branches": 100
+      }
+    }
   }
 }
