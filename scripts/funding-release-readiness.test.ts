@@ -9,6 +9,12 @@ describe("funding database rollout inspection",()=>{
   const result=await runFundingReleaseReadiness({CDP_API_KEY_ID:"private-id",CDP_API_KEY_SECRET:"private-secret",API_LAYER_FUNDING_WEBHOOK_SECRET:"private-hook",API_LAYER_FUNDING_ENABLED:"true",API_LAYER_FUNDING_CHECKOUT_ENABLED:"true"});
   expect(result).toMatchObject({database:{status:"unconfigured"},configured:{cdpServerCredentials:true,webhookSecret:true},productionReleaseAccepted:false,productionWrites:0});expect(JSON.stringify(result)).not.toMatch(/private-id|private-secret|private-hook/);
  });
+ it("fails closed when a configured database endpoint is unavailable",async()=>{
+  const result=await runFundingReleaseReadiness({API_LAYER_FUNDING_RELEASE_DB_URL:"postgres://read-only:private-secret@127.0.0.1:1/funding?connect_timeout=1"});
+  expect(result.database).toMatchObject({status:"unavailable",readOnly:false});
+  expect(result.productionReleaseAccepted).toBe(false);
+  expect(JSON.stringify(result)).not.toContain("private-secret");
+ });
  it("uses the actual checked-in migration bytes and fixed migration names",async()=>{const hashes=await fundingMigrationChecksums();expect(Object.keys(hashes)).toContain("0012_funding_purchase_requests.sql");expect(Object.values(hashes).every(value=>/^[a-f0-9]{64}$/.test(value))).toBe(true);});
  it("writes an unconfigured read-only report and fails closed without a database URL",async()=>{
   const directory=await mkdtemp(path.join(os.tmpdir(),"funding-release-readiness-"));const output=path.join(directory,"reports","readiness.json");const previousExitCode=process.exitCode;
