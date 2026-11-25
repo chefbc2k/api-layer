@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "sourceCommit": "3a9c237c89e29f6e835e281be424660efbf7ef9d",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "method": {
+    "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+    "signature": "setOracleQuorumSigners(address[],uint256)",
+    "route": "PATCH /v1/staking/commands/set-oracle-quorum-signers",
+    "actor": "founder fixture signer with GOVERNANCE_ROLE",
+    "originalState": {
+      "signers": [
+        "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+        "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+        "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+        "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+        "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+      ],
+      "threshold": "3"
+    },
+    "targetState": {
+      "signers": [
+        "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+        "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+        "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+        "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+        "0x38715AB647049A755810B2eEcf29eE79CcC649BE",
+        "0x3f650894D12E2e47367D3d02e21F849ACdf761f8"
+      ],
+      "threshold": "3"
+    },
+    "finalStateRestored": true,
+    "forkScoped": true
+  },
+  "receipts": [
+    {
+      "purpose": "configuration update",
+      "transactionHash": "0xebd17b811599d2f3d53311fcdfa4ad87d65497679e04e1b6ee62ba9d7fe183a9",
+      "blockNumber": 63287396,
+      "blockHash": "0x99d964d7add8864709f6d048b61b81f4fc27ca7c5e9db96ea28ff6f345c73f74",
+      "status": 1,
+      "event": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)",
+      "rawEventId": "272",
+      "postgres": {
+        "rawEvents": 1,
+        "blockJournalRows": 1,
+        "projectionRows": 0
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    },
+    {
+      "purpose": "restore original configuration",
+      "transactionHash": "0xa76f6e753c15b340f7034f0025d51e1e7e4ee736d0150194d1ad7733dff00fed",
+      "blockNumber": 63287397,
+      "blockHash": "0x64fe408bc8134ac2f31c35554420417eb92bb208f98554156f2c384edf3dbffe",
+      "status": 1,
+      "event": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)",
+      "rawEventId": "273",
+      "postgres": {
+        "rawEvents": 1,
+        "blockJournalRows": 1,
+        "projectionRows": 0
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    }
+  ],
+  "readbacks": {
+    "updateEventMatchedTarget": true,
+    "updateCanonicalReadbackMatched": true,
+    "updateHttpReadbackMatched": true,
+    "restoreEventMatchedOriginal": true,
+    "restoreCanonicalReadbackMatched": true,
+    "restoreHttpReadbackMatched": true,
+    "finalStateRestored": true
+  },
+  "cumulative": {
+    "startingProvenMethods": 143,
+    "catalogMethods": 260,
+    "remainingBefore": 117,
+    "completedThisRun": 1,
+    "completionPercentOfStart": 0.8547,
+    "provenMethods": 144,
+    "remainingMethods": 116,
+    "indexedReceipts": 4709,
+    "rawEvents": 7145,
+    "projectionRows": 4606
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "reportSha256": "766752a798d43ac5e50472b83325dbdb6b48f14eeb073c0191be9de40e3364dd",
+    "reportPath": ".runtime/api05-oracle-quorum-assurance-retry.json (ephemeral local report; checksum preserved)",
+    "stagesPassed": 12,
+    "contractIntegrationTestsPassed": 50,
+    "safeReads": {
+      "passed": 445,
+      "attempted": 446,
+      "knownGap": "ProposalFacet.queue"
+    },
+    "checks": [
+      "The full local-fork contract integration suite passed 50/50 tests, including the exact quorum update and restoration through HTTP.",
+      "Both status-1 receipts emitted OracleQuorumConfigUpdated with the requested signer array and threshold; canonical and uncached HTTP reads matched after each transition.",
+      "PostgreSQL stored each raw event and block journal with no fabricated projection rows; unchanged replay was idempotent.",
+      "Pinned code generation passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
+      "All 12 local-fork assurance stages passed; the existing ProposalFacet.queue safe-read fixture gap remains.",
+      "Hosted API quality CI run 45545082300 passed all configured gates on source commit 3a9c237c89e29f6e835e281be424660efbf7ef9d."
+    ]
+  },
+  "resultLimitation": "This run completed 1 of the 117 open methods (0.8547%), below the bounded target of 35; API-05 remains in_progress with 116 methods open.",
+  "indexerArtifact": "verify-local-fork-indexer-output.json",
+  "indexerArtifactSha256": "d1dd559de1f95baae60df6b74468d8ac09381d91d02b522c816fa29048bf2638",
+  "ciRunId": 45545082300,
+  "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45545082300",
+  "ciCommit": "3a9c237c89e29f6e835e281be424660efbf7ef9d",
+  "ciConclusion": "success"
+}

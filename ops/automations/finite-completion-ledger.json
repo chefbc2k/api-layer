@@ -1054,7 +1054,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
             "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
             "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
-            "Persistent cumulative indexer comparison against the prior committed report: 2,316 \u2192 2,512 indexed receipts, 127 \u2192 128/260 proven write methods, 3,504 \u2192 3,791 raw events, and 2,312 \u2192 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
             "GitHub Actions API quality run 45466661979 initially failed regression because the event-assurance test still expected 276 event declarations; corrected counts to 275 declarations and 34 eventless writes, with focused event-assurance suite passing 210/210.",
             "GitHub Actions API quality retry 45467848444 passed every configured gate on db65482d43c1ee5df2190ce7449b28c4a9edc2b6, including dependency audit, pinned-selector codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
@@ -1295,7 +1295,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
             "Indexer evidence: update receipt 0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8 at block 63207569, raw event 268; restore receipt 0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350 at block 63207570, raw event 269. Both were journaled, replayed unchanged, and classified proven working.",
             "Final direct getter confirms original maxAgeSeconds 86400 was restored on the loopback fork.",
-            "The initial runner attempt used the sibling contracts checkout\u2019s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
+            "The initial runner attempt used the sibling contracts checkout’s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
             "Hosted API quality run 45514446423 passed every configured gate on evidence commit c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.",
             "Pinned-manifest local assurance report checksum 7302343d2767d56f014c9e8a52b416f48ca342aedc9f37c515572f6917065ca6; all 12 stages passed, with only ProposalFacet.queue safe-read fixture gap.",
             "Hosted API quality run 45517260884 passed every configured gate on evidence commit a8f8196df14675485ff753ff2ec6ada57619e336."
@@ -1352,7 +1352,7 @@
           "startingProvenCount": 141,
           "startingOpenCount": 119,
           "completedThisRun": 0,
-          "completionPercentOfStart": 0.0,
+          "completionPercentOfStart": 0,
           "boundedRunTarget": 35,
           "boundedRunTargetMet": false,
           "endingProvenCount": 141,
@@ -1394,7 +1394,7 @@
             "All 12 local-fork assurance stages passed; safe reads passed 445/446 with only the known ProposalFacet.queue fixture gap.",
             "Proposal creation receipt 0x06bc5afb25786cfb38aaae6e9bd7ef62167ad369e21785dc93e2ed8f8e313ae5 at block 63250473 emitted raw event 272 and created PostgreSQL governance_proposals row 1.",
             "Cancellation receipt 0xec0066bf3ad29b63478ad0299bb4464d75be994a235fba1b9cba122364b6cab1 at block 63250474 emitted raw event 273 and created governance_proposals projection row 2. Both receipts had block journals and idempotent replay.",
-            "Proposal state changed Pending \u2192 Canceled and both direct and HTTP prState reads matched; proposal deadline direct and HTTP readbacks matched.",
+            "Proposal state changed Pending → Canceled and both direct and HTTP prState reads matched; proposal deadline direct and HTTP readbacks matched.",
             "Pinned codegen passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
             "Hosted API quality CI run 45530793891 passed every configured gate on source commit 68db13f89293e4908bebcfe85a6af8a8113c841e.",
             "Hosted API quality CI run 45531868472 passed every configured gate on durable evidence commit fcf17a889dd39efa503e849a12db01ce46b3d21e."
@@ -1406,6 +1406,69 @@
           "evidenceCommit": "fcf17a889dd39efa503e849a12db01ce46b3d21e",
           "evidenceCiRunId": 45531868472,
           "evidenceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45531868472"
+        },
+        {
+          "sourceCommit": "c80276e3e5dac3b701a8a59234bdb7537b8a0a53",
+          "artifact": "output/api05-ownership-policy-proof-2026-11-25.json",
+          "proofArtifactSha256": "efb466527a5cd9d7d760d036fbcda66933f020e7498ab8c75602b603443dfef0",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "bce302fdb041d21836be6beef61479e61006c639e48252287527726a0f032e67",
+          "result": "Added exact-source proof for OwnershipFacet.setOwnershipPolicyEnforced through PATCH /v1/ownership/commands/set-ownership-policy-enforced. The founder fixture signer and diamond owner sent the update and monotonic replay; both receipts succeeded and emitted OwnershipPolicyEnforcementSet(true), direct and HTTP reads matched, and PostgreSQL stored raw events, ownership_transfers projections, block journals, and unchanged idempotent replay. API-05 advances from 142/260 to 143/260 proven methods, leaving 117 open.",
+          "startingProvenCount": 142,
+          "startingOpenCount": 118,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8475,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 143,
+          "endingOpenCount": 117,
+          "assuranceReportSha256": "6cd332d4c2f44103e1b2c3d3e6f2697d9018caf2f13936a6d4161528ba9c770e",
+          "assuranceReportPath": "ephemeral local assurance report (checksum preserved)",
+          "checks": [
+            "Full local-fork assurance passed all 12 stages with the existing ProposalFacet.queue safe-read gap (445/446); all 49 HTTP contract integration tests passed.",
+            "Update receipt 0x34a94e5c6d0cb53045ae2186f6e534d5cf59e8a9373b55daedadabb1a1a45bde and replay receipt 0x5b7f55d2b13c211c2ee4547c5053b493424ba9304d0786b81876e24ec2d6c8b2 emitted the expected event and were indexed with PostgreSQL ownership_transfers projections and idempotent replay.",
+            "Hosted API quality CI run 45538364188 passed all configured gates on source commit c80276e3e5dac3b701a8a59234bdb7537b8a0a53.",
+            "Hosted API quality CI run 45539268849 passed all configured gates on evidence commit 477bbdfbf4190b814e5f4515cbcd6ff6a59faa5f."
+          ],
+          "resultLimitation": "This run completed 1 of 118 open methods (0.8475%), below the bounded target of 35; API-05 remains in_progress with 117 methods open.",
+          "ciRunId": 45538364188,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45538364188",
+          "ciCommit": "c80276e3e5dac3b701a8a59234bdb7537b8a0a53",
+          "evidenceCommit": "477bbdfbf4190b814e5f4515cbcd6ff6a59faa5f",
+          "evidenceCiRunId": 45539268849,
+          "evidenceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45539268849",
+          "evidenceCiCommit": "477bbdfbf4190b814e5f4515cbcd6ff6a59faa5f"
+        },
+        {
+          "sourceCommit": "3a9c237c89e29f6e835e281be424660efbf7ef9d",
+          "artifact": "output/api05-oracle-quorum-signers-proof-2026-11-25.json",
+          "proofArtifactSha256": "9a77d1cc83d7575353386e7b65ccacbf4706f1f69aa766a43fc34d2306b92b6d",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "d1dd559de1f95baae60df6b74468d8ac09381d91d02b522c816fa29048bf2638",
+          "result": "Added exact-source local-fork proof for EchoScoreFacetV3.setOracleQuorumSigners through PATCH /v1/staking/commands/set-oracle-quorum-signers. The founder fixture signer with GOVERNANCE_ROLE added a distinct signer while preserving threshold 3, then restored the original five-signer configuration. Both status-1 receipts emitted OracleQuorumConfigUpdated; canonical and HTTP readbacks matched, PostgreSQL stored the raw events and block journals without fabricated projections, and unchanged replay was idempotent. API-05 advances from 143/260 to 144/260 proven methods, leaving 116 open.",
+          "startingProvenCount": 143,
+          "startingOpenCount": 117,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8547,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 144,
+          "endingOpenCount": 116,
+          "assuranceReportSha256": "766752a798d43ac5e50472b83325dbdb6b48f14eeb073c0191be9de40e3364dd",
+          "assuranceReportPath": ".runtime/api05-oracle-quorum-assurance-retry.json (ephemeral local report; checksum preserved)",
+          "checks": [
+            "Full local-fork assurance passed all 12 stages; safe reads passed 445/446 with the existing ProposalFacet.queue fixture gap; all 50 HTTP contract integration tests passed.",
+            "Update receipt 0xebd17b811599d2f3d53311fcdfa4ad87d65497679e04e1b6ee62ba9d7fe183a9 at block 63287396 and restoration receipt 0xa76f6e753c15b340f7034f0025d51e1e7e4ee736d0150194d1ad7733dff00fed at block 63287397 each emitted one OracleQuorumConfigUpdated event and were stored in raw_events with matching indexer_blocks rows.",
+            "Direct contract state and uncached HTTP readback matched the target signer list and threshold after update and matched the original values after restoration; final state was restored.",
+            "PostgreSQL replay for both receipts was unchanged and idempotent; no projection was created for this raw-event-only invariant.",
+            "Pinned code generation passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
+            "Hosted API quality CI run 45545082300 passed all 26 configured workflow steps on source commit 3a9c237c89e29f6e835e281be424660efbf7ef9d."
+          ],
+          "resultLimitation": "This run completed 1 of the 117 open methods (0.8547%), below the bounded target of 35; API-05 remains in_progress with 116 methods open.",
+          "ciRunId": 45545082300,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45545082300",
+          "ciCommit": "3a9c237c89e29f6e835e281be424660efbf7ef9d",
+          "ciConclusion": "success"
         }
       ],
       "deliveredCommit": null,
@@ -5176,7 +5239,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "title": "Wave 1 – Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]

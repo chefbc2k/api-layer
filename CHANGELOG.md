@@ -1,3 +1,10 @@
+# 2026-11-25 — Prove oracle quorum signer indexing
+
+- Added exact loopback-fork API proof for `EchoScoreFacetV3.setOracleQuorumSigners` through `PATCH /v1/staking/commands/set-oracle-quorum-signers`. The founder fixture signer with `GOVERNANCE_ROLE` added a distinct signer, verified the emitted `OracleQuorumConfigUpdated` event and canonical/HTTP readbacks, then restored the original five signers and threshold of three.
+- PostgreSQL stored both raw events and block journals with no fabricated projections; replay was unchanged and idempotent. All 12 local-fork assurance stages passed, including the 50/50 contract suite; the existing `ProposalFacet.queue` safe-read fixture gap remains (`445/446`).
+- API-05 advances from `143/260` to `144/260` distinct proven write methods, leaving `116` open. This run completed `1` of `117` open methods (`0.8547%`), below the bounded target of `35`; API-05 remains `in_progress`.
+- Durable proof: [oracle quorum signer proof](output/api05-oracle-quorum-signers-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). Source commit `3a9c237c89e29f6e835e281be424660efbf7ef9d` passed hosted API quality CI [45545082300](https://github.com/chefbc2k/api-layer/actions/runs/45545082300).
+
 # 2026-11-25 — Prove ownership policy enforcement indexing
 
 - Added exact loopback-fork API proof for `OwnershipFacet.setOwnershipPolicyEnforced` through `PATCH /v1/ownership/commands/set-ownership-policy-enforced`. The diamond owner enabled the monotonic policy twice; both receipts succeeded and emitted `OwnershipPolicyEnforcementSet(true)`. Direct and HTTP query readbacks matched after each write.
