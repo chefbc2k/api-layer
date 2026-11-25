@@ -456,8 +456,8 @@
           "resultLimitation": "API-04 is not accepted: queue contract fix and a clean 445/445 rerun are still required."
         },
         {
-          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
-          "sourceState": "Uncommitted worktree based on the recorded source commit; the verifier timeout adjustment and fresh aggregate proof are included in the captured artifacts.",
+          "sourceCommit": "d9d07d54463f6316e8e83822171d27ea132330b2",
+          "sourceState": "Proof was produced from the worktree subsequently committed as d9d07d5; generated artifacts retain their generation-time source metadata.",
           "artifact": "output/api04-final-safe-reads-2026-11-25.json",
           "artifactSha256": "545bf992e84cf6ff1fd8d040b1480daa44df9c9005c9a0dd3bc7ff25fe9e7092",
           "aggregateArtifact": "output/api05-final-payment-suite-2026-11-25.json",
@@ -2129,8 +2129,8 @@
           "resultLimitation": "API-05 remains in_progress at 187/260 with 73 open. The aggregate run is substantially improved but exact-method ledger acceptance and default-branch delivery remain outstanding. Safe-read gaps remain for ProposalFacet.getActiveProposals and ProposalFacet.queue."
         },
         {
-          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
-          "sourceState": "Uncommitted worktree based on the recorded source commit; exact proof changes are included in the captured artifact digests.",
+          "sourceCommit": "d9d07d54463f6316e8e83822171d27ea132330b2",
+          "sourceState": "Proof ran on the committed tree at d9d07d5; the artifacts retain their generation-time source metadata.",
           "artifact": "output/api05-payment-method-proof-2026-11-25.json",
           "artifactSha256": "e35c2f7b6f0cbb1a87501c68274763e99096e5698001115c382caddf6769c717",
           "aggregateArtifact": "output/api05-final-payment-suite-2026-11-25.json",
@@ -2171,6 +2171,23 @@
           "resultLimitation": "API-05 remains in_progress at 189/260 with 71 open. This evidence was produced from a local worktree and still requires exact-head CI and verified default-branch delivery; the release objective has outstanding API-04, API-06, API-07, API-08, delivery, test, and external acceptance items.",
           "cumulativeIndexerArtifact": "verify-local-fork-indexer-output.json",
           "cumulativeIndexerArtifactSha256": "598cf290e5751f9fe5a7991b21cd29d4f9da75d2c0eb74a54820ed356aaa8f56"
+        },
+        {
+          "sourceCommit": "d9d07d54463f6316e8e83822171d27ea132330b2",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45673039547",
+          "result": "Exact-head API quality CI failed only in Regression because the event-assurance inventory test still expected 272 declarations and 36 eventless writes after the reviewed legacy beneficiary methods were correctly changed to eventless. No acceptance count is changed; the stale test totals are corrected in the follow-up commit.",
+          "startingProvenCount": 189,
+          "endingProvenCount": 189,
+          "completedThisRun": 0,
+          "endingOpenCount": 71,
+          "checks": [
+            "Critical dependency audit, pinned-selector codegen, TypeScript, Vercel entrypoint types, lint, build, and disposable PostgreSQL/native-USDC fork all passed.",
+            "Regression: 2,810 passed, 145 skipped, one failed in packages/indexer/src/event-assurance.test.ts on stale inventory totals.",
+            "The failing assertion showed 270 actual declared events versus 272 expected; noEventWriteCount is now corrected from 36 to 38.",
+            "Focused rerun after the correction passed all 210 event-assurance tests."
+          ],
+          "resultLimitation": "API-05 remains at 189/260 with 71 open. Exact-head hosted CI must be rerun on the correction commit; default-branch delivery remains outstanding.",
+          "sourceState": "Proof was produced from the worktree subsequently committed as d9d07d5; generated artifacts retain their generation-time source metadata."
         }
       ],
       "deliveredCommit": null,
@@ -3906,6 +3923,17 @@
           ],
           "remainingBranches": 126,
           "remainingWorktrees": 66
+        },
+        {
+          "sourceCommit": "d9d07d54463f6316e8e83822171d27ea132330b2",
+          "url": "https://github.com/chefbc2k/api-layer/commit/d9d07d54463f6316e8e83822171d27ea132330b2",
+          "result": "Pushed the local-fork proof, safe-read timeout adjustment, reviewed legacy event policy, method-level receipt evidence, and refreshed cumulative indexer report to origin/codex/api05-payment-deadline-20261124. Exact-head CI run 45673039547 reached Regression and failed one stale event-inventory count assertion; the correction is covered by 210 focused passing tests and is being delivered in the follow-up.",
+          "checks": [
+            "Branch push succeeded from 2dc4cc4 to d9d07d5.",
+            "Hosted exact-head API-quality checks through disposable PostgreSQL/native-USDC fork passed.",
+            "Correction for event-assurance.test.ts was validated by 210/210 focused tests; branch follow-up and exact-head CI rerun are pending."
+          ],
+          "resultLimitation": "The proof commit is not merged to master; the current API-05 work and the broader finite release remain incomplete."
         }
       ],
       "deliveredCommit": null,
