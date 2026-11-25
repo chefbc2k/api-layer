@@ -1,9 +1,22 @@
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import { EventEmitter } from "node:events";
+import { tmpdir } from "node:os";
 import { Wallet } from "ethers";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import path from "node:path";
 
-import { assessPromotionReadiness, collectPromotionEvidence, resolvePromotionEnvPath } from "./promote-base-sepolia-scenarios.js";
+import {
+  assessPromotionReadiness,
+  baseOutput,
+  collectPromotionEvidence,
+  reportClassification,
+  resolvePromotionEnvPath,
+  runCommand,
+  safeBigInt,
+  scenarioGate,
+} from "./promote-base-sepolia-scenarios.js";
 
 const founder = Wallet.createRandom();
 const seller = Wallet.createRandom();
@@ -104,5 +117,95 @@ describe("Base Sepolia promotion evidence", () => {
       "buyer",
       buyer.address,
     ]);
+  });
+});
+
+describe("Base Sepolia promotion report decisions",()=>{
+  it("classifies only known scenario report summaries",()=>{
+    expect(reportClassification(null)).toBe("deeper issue remains");
+    expect(reportClassification({summary:"unexpected"})).toBe("deeper issue remains");
+    for(const summary of ["proven working","blocked by setup/state","semantically clarified but not fully proven","deeper issue remains"] as const) {
+      expect(reportClassification({summary})).toBe(summary);
+    }
+  });
+
+  it("parses integer evidence and safely maps malformed input to zero",()=>{
+    expect(safeBigInt("42")).toBe(42n);
+    expect(safeBigInt(17)).toBe(17n);
+    expect(safeBigInt(23n)).toBe(23n);
+    expect(safeBigInt("not an integer")).toBe(0n);
+    expect(safeBigInt({amount:"24"})).toBe(0n);
+  });
+
+  it("gates governance and marketplace scenarios on their fixture-specific prerequisites",()=>{
+    expect(scenarioGate({governance:{status:"ready"}},"governance")).toEqual({ready:true,reason:"governance proposer role and voting power are ready"});
+    expect(scenarioGate({governance:{status:"blocked",reason:"role missing"}},"governance")).toEqual({ready:false,reason:"role missing"});
+    expect(scenarioGate({},"governance")).toEqual({ready:false,reason:"governance readiness is incomplete"});
+
+    const fixture={marketplace:{agedListingFixture:{status:"ready",purchaseReadiness:"purchase-ready",listing:{readback:{payload:{price:"100"}}}},usdcFunding:{buyerBalance:"100",buyerAllowance:"120"}}};
+    expect(scenarioGate(fixture,"marketplace-purchase")).toEqual({ready:true,reason:"aged listing, buyer funds, and allowance are ready"});
+    expect(scenarioGate({marketplace:{agedListingFixture:{status:"blocked",reason:"listing expired"}}},"marketplace-purchase")).toEqual({ready:false,reason:"listing expired"});
+    expect(scenarioGate({},"marketplace-purchase")).toEqual({ready:false,reason:"marketplace fixture, buyer funds, or allowance is incomplete"});
+    expect(scenarioGate({marketplace:{agedListingFixture:{status:"ready",purchaseReadiness:"purchase-ready",listing:{readback:{payload:{price:"100"}}}},usdcFunding:{buyerBalance:"99",buyerAllowance:"100"}}},"marketplace-purchase").ready).toBe(false);
+  });
+
+  it("builds a sanitized target summary and a blocked classification for invalid configuration",()=>{
+    const readiness=assessPromotionReadiness(readyEnv());
+    expect(baseOutput(readyEnv(),readiness)).toMatchObject({
+      target:{network:"base-sepolia",chainId:84532,rpcOrigin:"https://base-sepolia.example.invalid",diamondAddress:"0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"},
+      safety:{destructiveProtocolAdminWrites:"disabled"},
+      finalClassification:"semantically clarified but not fully proven",
+    });
+    expect(baseOutput({NETWORK:"base-sepolia",CHAIN_ID:"invalid",RPC_URL:"not a URL",DIAMOND_ADDRESS:"0xdead"},assessPromotionReadiness({},false))).toMatchObject({
+      target:{network:"base-sepolia",chainId:null,rpcOrigin:null,diamondAddress:null},
+      finalClassification:"blocked by setup/state",
+    });
+  });
+});
+
+describe("Base Sepolia promotion CLI safety",()=>{
+  it("writes a blocked report and exits before creating a provider when approval configuration is absent",()=>{
+    const project=process.cwd();
+    const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-promotion-blocked-"));
+    try {
+      const result=spawnSync(path.join(project,"node_modules/.bin/tsx"),[
+        path.join(project,"scripts/promote-base-sepolia-scenarios.ts"),
+      ],{
+        cwd:isolatedCwd,
+        env:{...process.env,API_LAYER_BASE_SEPOLIA_ENV_PATH:path.join(isolatedCwd,"missing.env")},
+        encoding:"utf8",
+        timeout:15_000,
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.status).toBe(2);
+      const report=JSON.parse(readFileSync(path.join(isolatedCwd,"verify-base-sepolia-promotion-output.json"),"utf8"));
+      expect(report).toMatchObject({
+        readiness:{status:"blocked"},
+        liveTarget:{checked:false},
+        scenarios:[],
+        finalClassification:"blocked by setup/state",
+      });
+      expect(report.readiness.blockers).toEqual(expect.arrayContaining([
+        expect.stringContaining("env-file"),
+        expect.stringContaining("explicit-live-opt-in"),
+      ]));
+      expect(result.stderr).toContain("\"status\": \"blocked\"");
+    } finally {rmSync(isolatedCwd,{recursive:true,force:true});}
+  });
+
+  it("maps child process exit and spawn errors into stable runner results",async()=>{
+    const exitChild=new EventEmitter();
+    const spawnProcess=vi.fn(()=>exitChild as never);
+    const exitResult=runCommand("pnpm",["run","safe-check"],{NETWORK:"base-sepolia"},spawnProcess as unknown as typeof spawn);
+    expect(spawnProcess).toHaveBeenCalledWith("pnpm",["run","safe-check"],expect.objectContaining({cwd:process.cwd(),env:{NETWORK:"base-sepolia"},stdio:"inherit"}));
+    exitChild.emit("exit",null,null);
+    await expect(exitResult).resolves.toBe(1);
+
+    const errorChild=new EventEmitter();
+    const errorSpawn=vi.fn(()=>errorChild as never);
+    const failure=new Error("executable unavailable");
+    const errorResult=runCommand("missing",[],{},errorSpawn as unknown as typeof spawn);
+    errorChild.emit("error",failure);
+    await expect(errorResult).rejects.toBe(failure);
   });
 });
