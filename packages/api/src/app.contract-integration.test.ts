@@ -1318,6 +1318,136 @@ describeLive("HTTP API contract integration", () => {
     expect((eventResponse.payload as Array<Record<string, unknown>>).some((log) => log.transactionHash === txHash)).toBe(true);
   }, 30_000);
 
+  it("proves the legacy-plan beneficiary and inheritance lifecycle through HTTP", async (ctx) => {
+    if (await skipWhenFundingBlocked(ctx, "legacy plan lifecycle proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    const owner = Wallet.createRandom();
+    await ensureNativeBalance(owner.address, ethers.parseEther("0.00002"));
+    const beneficiary = Wallet.createRandom().address;
+    const legacy = new Contract(diamondAddress, facetRegistry.LegacyFacet.abi, provider);
+    const legacyView = new Contract(diamondAddress, facetRegistry.LegacyViewFacet.abi, provider);
+    const ownerRole = id("OWNER_ROLE");
+    const hadOwnerRole = await accessControl.hasRole(ownerRole, owner.address);
+    if (!hadOwnerRole) {
+      const grant = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+        apiKey: "founder-key",
+        body: { role: ownerRole, account: owner.address, expiryTime: "0" },
+      });
+      expect(grant.status, JSON.stringify(grant.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grant.payload));
+    }
+
+    apiExecutionContext.apiKeys["legacy-owner-key"] = {
+      apiKey: "legacy-owner-key",
+      label: "legacy-owner",
+      signerId: "legacyOwner",
+      roles: ["service"],
+      allowGasless: false,
+    };
+    process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({
+      ...JSON.parse(process.env.API_LAYER_SIGNER_MAP_JSON ?? "{}"),
+      legacyOwner: owner.privateKey,
+    });
+
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { apiKey: "legacy-owner-key", body });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      return receipt!;
+    };
+
+    try {
+      const created = await submit("POST", "/v1/voice-assets/legacy/create-legacy-plan", { memo: "API-05 local proof" });
+      expect(created.logs.some((log) => {
+        try {
+          const parsed = legacy.interface.parseLog(log);
+          return parsed?.name === "LegacyPlanCreated" && parsed.args.owner === owner.address;
+        } catch { return false; }
+      })).toBe(true);
+
+      const initialPlan = await legacyView.getLegacyPlan(owner.address);
+      expect(initialPlan.createdAt).toBeGreaterThan(0n);
+      expect(initialPlan.memo).toBe("API-05 local proof");
+
+      await submit("POST", "/v1/voice-assets/commands/add-beneficiary", {
+        account: beneficiary, share: "6000", canDelegate: true,
+      });
+      await submit("PATCH", "/v1/voice-assets/commands/set-beneficiary-relationship", {
+        account: beneficiary, relationship: "sibling",
+      });
+      const beneficiaryUpdate = {
+        sharePercentage: "6000", activationTime: "0", account: beneficiary,
+        isActive: true, canDelegate: true, relationship: "sibling",
+      };
+      const updatedBeneficiaryReceipt = await submit("PATCH", "/v1/voice-assets/commands/update-beneficiary", {
+        beneficiary: beneficiaryUpdate, index: "0",
+      });
+      expect(updatedBeneficiaryReceipt.logs.some((log) => {
+        try {
+          const parsed = legacy.interface.parseLog(log);
+          return parsed?.name === "BeneficiaryUpdated" && parsed.args.beneficiary === beneficiary;
+        } catch { return false; }
+      })).toBe(true);
+
+      const beforeConditions = await legacyView.getLegacyPlan(owner.address);
+      const minimumTimelock = beforeConditions.conditions.timelock > 7n * 24n * 60n * 60n
+        ? beforeConditions.conditions.timelock
+        : 7n * 24n * 60n * 60n;
+      const conditionReceipt = await submit("PATCH", "/v1/voice-assets/commands/set-inheritance-conditions", {
+        timelock: minimumTimelock.toString(), requiresProof: true, approvers: [], minApprovals: "0",
+      });
+      expect(conditionReceipt.logs.some((log) => {
+        try { return legacy.interface.parseLog(log)?.name === "InheritanceConditionsUpdated"; } catch { return false; }
+      })).toBe(true);
+      await submit("POST", "/v1/voice-assets/commands/add-inheritance-requirement", {
+        doc: "local-fork-proof-document",
+      });
+
+      const finalPlan = await legacyView.getLegacyPlan(owner.address);
+      expect(finalPlan.beneficiaries).toHaveLength(1);
+      expect(finalPlan.beneficiaries[0].account).toBe(beneficiary);
+      expect(finalPlan.beneficiaries[0].sharePercentage).toBe(6000n);
+      expect(finalPlan.beneficiaries[0].relationship).toBe("sibling");
+      expect(finalPlan.conditions.timelock).toBe(minimumTimelock);
+      expect(finalPlan.conditions.requiresProof).toBe(true);
+      expect(finalPlan.conditions.requiredDocs).toContain("local-fork-proof-document");
+      const apiPlan = await apiCall(port, "GET", `/v1/voice-assets/queries/get-legacy-plan?owner=${encodeURIComponent(owner.address)}`, {
+        apiKey: "read-key",
+      });
+      expect(apiPlan.status).toBe(200);
+      expect(apiPlan.payload).toMatchObject({
+        createdAt: initialPlan.createdAt.toString(),
+        memo: "API-05 local proof",
+      });
+      const apiPlanRecord = apiPlan.payload as Record<string, any>;
+      expect(apiPlanRecord.beneficiaries[0]).toMatchObject({
+        account: beneficiary,
+        sharePercentage: "6000",
+        relationship: "sibling",
+      });
+      expect(apiPlanRecord.conditions).toMatchObject({
+        timelock: minimumTimelock.toString(),
+        requiresProof: true,
+        requiredDocs: ["local-fork-proof-document"],
+      });
+    } finally {
+      if (!hadOwnerRole) {
+        const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+          apiKey: "founder-key",
+          body: { role: ownerRole, account: owner.address, reason: "local-fork legacy plan proof cleanup" },
+        });
+        expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+        await expectReceipt(extractTxHash(revoke.payload));
+        expect(await accessControl.hasRole(ownerRole, owner.address)).toBe(false);
+      }
+    }
+  }, 60_000);
+
   it("updates authorization and royalty state through HTTP and matches direct contract state", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "voice authorization and royalty proof", [
       { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },

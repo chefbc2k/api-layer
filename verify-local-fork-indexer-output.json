@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T08:54:09.638Z",
+  "generatedAt": "2026-11-25T09:04:33.072Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5785,
-    "includedArtifacts": 19,
+    "artifactTransactionHashes": 5788,
+    "includedArtifacts": 20,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5785,
-    "provenWriteMethods": 173,
+    "indexedReceipts": 5788,
+    "provenWriteMethods": 174,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 87,
-    "rawEvents": 8715,
+    "remainingWriteMethods": 86,
+    "rawEvents": 8720,
     "projectionRows": 5559
   },
   "reports": {
@@ -12950,6 +12950,62 @@
           "methodKey": "AccessControlFacet.grantRole",
           "affectedFacet": "AccessControlFacet",
           "methodSignature": "grantRole(bytes32,address,uint256)",
+          "txHash": "0xed6219cf53831bb76c7d958513ec5ecbc3cbbef973190be9b8202fd4fafc56c9",
+          "blockNumber": 63368546,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "AccessControlFacet.RoleGranted(bytes32,address,address,uint256)"
+            },
+            {
+              "rawEventId": "2",
+              "logIndex": 1,
+              "eventKey": "AccessControlFacet.SecurityAction(bytes32,address,uint8,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "1",
+                "2"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368546",
+                  "block_hash": "0x040a2a060f6d22284e45d2fcdd521b92b0aa19d284b4ee6670bbd9b77da31c34"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "AccessControlFacet.grantRole",
+          "affectedFacet": "AccessControlFacet",
+          "methodSignature": "grantRole(bytes32,address,uint256)",
           "txHash": "0xed6257dac929377c5da6c01df115a011446fa9b05c2ce4d616ff64b032049361",
           "blockNumber": 63055370,
           "receipt": {
@@ -16730,6 +16786,62 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "AccessControlFacet.revokeRole",
+          "affectedFacet": "AccessControlFacet",
+          "methodSignature": "revokeRole(bytes32,address,string)",
+          "txHash": "0x3ec66850b426501e08838e105a3e9f3492e5163c89cf585011e932b1038380f9",
+          "blockNumber": 63368553,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "4",
+              "logIndex": 0,
+              "eventKey": "AccessControlFacet.RoleRevoked(bytes32,address,address,string)"
+            },
+            {
+              "rawEventId": "5",
+              "logIndex": 1,
+              "eventKey": "AccessControlFacet.SecurityAction(bytes32,address,uint8,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "4",
+                "5"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368553",
+                  "block_hash": "0x8dd81e82109d11f13661703aefd422c37edc47201f99866eb64fec52c72c7069"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-lifecycle-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -73395,6 +73507,70 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-method-followup-live-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.createLegacyPlan": {
+      "routes": [
+        "POST /v1/voice-assets/legacy/create-legacy-plan"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.createLegacyPlan",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "createLegacyPlan(string)",
+          "txHash": "0xedbdbd0e30a794526f8ddf47c1b91131e7a6ca052da3d289178ab574a4cf5717",
+          "blockNumber": 63368547,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "LegacyFacet.LegacyPlanCreated(address,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "3"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368547",
+                  "block_hash": "0xbd54bed804ed2845b99bbcc59f4135ece6f0570b263fcc01f52c1184f1792edb"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-lifecycle-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
