@@ -1,3 +1,9 @@
+# 2026-11-25 — Revalidate full HTTP contract receipts
+
+- The current-branch full HTTP contract integration passed `56/56`. The local-fork receipt artifact contributed 218 transaction hashes; PostgreSQL indexing and replay passed. Cumulative indexer evidence now covers 5,718 receipts, 8,641 raw events, and 5,533 projection rows.
+- The broad suite added no new unique API-05 method keys: acceptance remains `155/260`, with `105` open. API quality CI [45569433597](https://github.com/chefbc2k/api-layer/actions/runs/45569433597) passed on source commit `6feac57d48b40c535ca151d179af3f86131aa931`; it predates the current branch head and is not represented as current-head CI.
+- Durable receipt list: [full integration receipt artifact](output/api05-full-contract-integration-receipts-2026-11-25.json); cumulative indexer report: [verify-local-fork-indexer-output.json](verify-local-fork-indexer-output.json).
+
 # 2026-11-25 — Prove ownership proposal and cancellation lifecycle
 
 - Added a fork-only HTTP proof for `OwnershipFacet.proposeOwnershipTransfer` and `OwnershipFacet.cancelOwnershipTransfer`. With approved-contract enforcement enabled, the current owner temporarily approved the deployed USDC contract, proposed it, cancelled the proposal, and removed the temporary approval. The owner stayed unchanged and pending-owner state returned to zero; PostgreSQL indexed four receipts and replay passed.

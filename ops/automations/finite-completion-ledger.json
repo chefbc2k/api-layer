@@ -1711,6 +1711,25 @@
             "Temporary approved-target and ownership proposal state were restored; replay remained idempotent.",
             "Disposable fork was stopped after indexing."
           ]
+        },
+        {
+          "sourceCommit": "5f93186",
+          "artifact": "output/api05-full-contract-integration-receipts-2026-11-25.json",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "result": "Full HTTP contract integration passed 56/56 on the current branch and indexed 218 receipt hashes with PostgreSQL raw-event/projection/block-journal evidence and idempotent replay. Cumulative indexer totals now cover 5,718 receipts, 8,641 raw events, and 5,533 projection rows. This suite introduced no new unique method keys: API-05 remains at 155/260 accepted write methods with 105 open. API quality CI 45569433597 succeeded on source commit 6feac57; it predates the current ownership proposal/cancellation commit, so current-head CI remains to be recorded.",
+          "startingProvenCount": 155,
+          "startingOpenCount": 105,
+          "completedThisRun": 0,
+          "endingProvenCount": 155,
+          "endingOpenCount": 105,
+          "checks": [
+            "Full integration command: API_LAYER_AUTO_FORK=0 API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json API_LAYER_RUN_CONTRACT_INTEGRATION=1 API_LAYER_MERGE_CONTRACT_RECEIPT_ARTIFACT=1 API_LAYER_CONTRACT_RECEIPT_ARTIFACT=.runtime/api05-full-contract-integration-receipts.json pnpm exec vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1; passed 56/56.",
+            "Receipt artifact contained 218 transaction hashes; indexer completed with 218 indexed receipts, no skipped artifacts, PostgreSQL event/projection/block-journal evidence, and idempotent replay.",
+            "Cumulative acceptance report: 155/260 unique write methods, 105 open; current run introduced zero new unique keys.",
+            "API quality CI 45569433597 succeeded on commit 6feac57d48b40c535ca151d179af3f86131aa931."
+          ],
+          "proofArtifactSha256": "2f0f8b7e64f010664b5134520577003f598082466d82928a77d6e8af8eedef57",
+          "indexerArtifactSha256": "b8138e6371418128564cb742130e0b3853424c896329a6cd9c3eb2218c6df854"
         }
       ],
       "deliveredCommit": null,

@@ -1,3 +1,9 @@
+# API-05 Follow-on — Full HTTP Contract Receipt Revalidation — 2026-11-25
+
+- Current-branch HTTP contract integration passed `56/56`. The loopback fork produced 218 receipt hashes; PostgreSQL indexing recorded raw events, projections, block journals, and idempotent replay. Cumulative totals are 5,718 indexed receipts, 8,641 raw events, and 5,533 projection rows.
+- No new unique methods were established by this broad run. API-05 remains `155/260` accepted, with `105` open. CI run [45569433597](https://github.com/chefbc2k/api-layer/actions/runs/45569433597) passed on `6feac57d48b40c535ca151d179af3f86131aa931`, before current head `5f93186`; current-head CI is still required for the latest ledger changes.
+- Evidence: [receipt artifact](../output/api05-full-contract-integration-receipts-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json).
+
 # API-05 Follow-on — Ownership Transfer Proposal and Cancellation — 2026-11-25
 
 - Proved `OwnershipFacet.proposeOwnershipTransfer` and `OwnershipFacet.cancelOwnershipTransfer` through HTTP on a disposable loopback fork. Owner-target enforcement required temporary approval of the deployed USDC contract; the test proposed then cancelled the transfer, restored the approval, and verified the diamond owner stayed unchanged and pending owner returned to zero. PostgreSQL indexed four receipts and projections with block journals; replay was idempotent.
