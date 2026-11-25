@@ -1817,12 +1817,12 @@
           "transactionArtifactSha256": "cba06f252e8dd5756244a994e967e2ab8805f8d0e131db8a4a94d455afc9c64c",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "indexerArtifactSha256": "e3196fd27a28e905ec9ae59badc5456065d68c846e2540f97a304e59d7dda67e",
-          "result": "Proved RightsFacet.addCollaborator, updateCollaboratorShare, removeCollaborator, createRightsGroup, grantRight, revokeRight, registerRightContract, and updateRightContract through their exact HTTP routes on a disposable Base Sepolia loopback fork. Status-1 receipts, collaborator/right/group/registry contract readbacks, expected decoded events, PostgreSQL indexing, and unchanged replay were verified. API-05 advances from 163/260 to 171/260, leaving 89 open.",
-          "startingProvenCount": 163,
-          "startingOpenCount": 97,
-          "completedThisRun": 8,
-          "completionPercentOfStart": 8.2474,
-          "boundedRunTarget": 25,
+          "result": "Proved RightsFacet.addCollaborator, updateCollaboratorShare, removeCollaborator, createRightsGroup, grantRight, revokeRight, registerRightContract, and updateRightContract through their exact HTTP routes on a disposable Base Sepolia loopback fork. Status-1 receipts, collaborator/right/group/registry contract readbacks, expected decoded events, PostgreSQL indexing, and unchanged replay were verified. API-05 advances from 159/260 to 171/260, leaving 89 open across this run’s emergency-recovery and RightsFacet proof batches.",
+          "startingProvenCount": 159,
+          "startingOpenCount": 101,
+          "completedThisRun": 12,
+          "completionPercentOfStart": 11.8812,
+          "boundedRunTarget": 26,
           "boundedRunTargetRule": "ceil(0.25 * startingOpenCount)",
           "boundedRunTargetMet": false,
           "endingProvenCount": 171,
@@ -1835,7 +1835,7 @@
             "Indexer processed 15 successful receipts, 16 raw events, eight projection rows, and unchanged replay.",
             "All eight targeted RightsFacet methods have exact successful receipts and post-state verification."
           ],
-          "resultLimitation": "Eight new methods were completed against a 26-method run target (starting with 101 open); 18 more are required for this automation run to meet its batch target. API-05 remains in_progress with 89 open methods."
+          "resultLimitation": "Twelve new methods were completed against a 26-method run target (starting with 101 open); 14 more are required for this automation run to meet its batch target. API-05 remains in_progress with 89 open methods."
         }
       ],
       "deliveredCommit": null,
