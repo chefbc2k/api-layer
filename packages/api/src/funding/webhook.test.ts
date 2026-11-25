@@ -1,16 +1,38 @@
 import { createHmac } from "node:crypto";
 import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createFundingWebhookRouter, verifyWebhook } from "./webhook.js";
+import { createFundingWebhookRouter, PostgresWebhookInbox, verifyWebhook } from "./webhook.js";
 const secret = "disposable-webhook-secret";
 const body = Buffer.from('{ "data": { "status":"COMPLETED" } }');
 const headers = { "content-type": "application/json", "x-event-id": "event-1", "x-event-type": "onramp.transaction.updated" };
-function signature(raw = body, timestamp = Math.floor(Date.now()/1000), names = "content-type x-event-id x-event-type") {
-  const values = names.split(" ").map(name => headers[name as keyof typeof headers]).join(".");
+function signature(raw = body, timestamp = Math.floor(Date.now()/1000), names = "content-type x-event-id x-event-type", signedHeaders = headers) {
+  const values = names.split(" ").map(name => signedHeaders[name as keyof typeof signedHeaders]).join(".");
   return `t=${timestamp},h=${names},v1=${createHmac("sha256",secret).update(`${timestamp}.${names}.${values}.`).update(raw).digest("hex")}`;
 }
 afterEach(() => vi.restoreAllMocks());
 describe("Coinbase raw webhook verification", () => {
+  it("persists new events, accepts exact replays, and rejects identity collisions",async()=>{
+    const query=vi.fn()
+      .mockResolvedValueOnce({rowCount:1,rows:[{event_id:"event-1"}]})
+      .mockResolvedValueOnce({rowCount:0,rows:[]})
+      .mockResolvedValueOnce({rowCount:0,rows:[{body_digest:"digest",event_type:"onramp.transaction.updated"}]})
+      .mockResolvedValueOnce({rowCount:0,rows:[]})
+      .mockResolvedValueOnce({rowCount:0,rows:[{body_digest:"other",event_type:"onramp.transaction.updated"}]});
+    const inbox=new PostgresWebhookInbox({query} as never);
+    const raw=Buffer.from("payload");
+    await expect(inbox.enqueue("event-1","onramp.transaction.updated","digest",raw)).resolves.toBe(true);
+    await expect(inbox.enqueue("event-1","onramp.transaction.updated","digest",raw)).resolves.toBe(false);
+    await expect(inbox.enqueue("event-1","onramp.transaction.updated","different",raw)).rejects.toThrow("Webhook identity collision");
+    expect(query).toHaveBeenCalledTimes(5);
+  });
+  it("leaves the route disabled by default and rejects incomplete enabled configuration",()=>{
+    expect(createFundingWebhookRouter({}).stack).toHaveLength(0);
+    for(const env of [
+      {API_LAYER_FUNDING_WEBHOOK_ENABLED:"true",SUPABASE_DB_URL:"postgresql://localhost/test"},
+      {API_LAYER_FUNDING_WEBHOOK_ENABLED:"true",API_LAYER_FUNDING_WEBHOOK_SECRET:"short",SUPABASE_DB_URL:"postgresql://localhost/test"},
+      {API_LAYER_FUNDING_WEBHOOK_ENABLED:"true",API_LAYER_FUNDING_WEBHOOK_SECRET:secret,SUPABASE_DB_URL:"https://database.invalid"},
+    ]) expect(()=>createFundingWebhookRouter(env)).toThrow("Funding webhook requires a subscription secret and PostgreSQL URL");
+  });
   it("verifies signed bytes and required headers", () => {
     expect(verifyWebhook(body,signature(),secret,headers)).toBe(true);
     expect(verifyWebhook(Buffer.from(JSON.stringify(JSON.parse(body.toString()))),signature(),secret,headers)).toBe(false);
@@ -60,10 +82,15 @@ describe("Coinbase raw webhook verification", () => {
     const server=app.listen(0,"127.0.0.1");
     await new Promise<void>(resolve=>server.once("listening",resolve));
     const address=server.address() as {port:number};
-    const send = (value=signature())=>fetch(`http://127.0.0.1:${address.port}/v1/webhooks/coinbase/onramp`,{ method:"POST",headers:{...headers,"x-webhook-signature":value},body });
+    const send = (value=signature(), requestBody:Buffer=body, requestHeaders:Record<string,string|undefined>={...headers,"x-webhook-signature":value})=>fetch(`http://127.0.0.1:${address.port}/v1/webhooks/coinbase/onramp`,{ method:"POST",headers:requestHeaders,body:requestBody });
     try {
       expect((await send("invalid")).status).toBe(401); expect(enqueue).not.toHaveBeenCalled();
-      expect(await (await send()).json()).toEqual({received:true,duplicate:false});
+      const invalidIdentity={...headers,"x-event-id":"event-"+"x".repeat(300)};
+      const invalidIdentitySignature=signature(body,Math.floor(Date.now()/1000),undefined,invalidIdentity);
+      expect((await send(invalidIdentitySignature,body,{...invalidIdentity,"x-webhook-signature":invalidIdentitySignature})).status).toBe(400);
+      const invalidJson=Buffer.from("{");
+      expect((await send(signature(invalidJson),invalidJson)).status).toBe(400);
+      expect(await (await send(signature(),body,{...headers,"x-hook0-signature":signature()})).json()).toEqual({received:true,duplicate:false});
       expect(enqueue.mock.calls[0][3]).toEqual(body);
       expect(await (await send()).json()).toEqual({received:true,duplicate:true});
       const failed=await send(); expect(failed.status).toBe(503); expect(await failed.text()).not.toContain("secret");
