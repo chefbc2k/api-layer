@@ -792,6 +792,26 @@ describe("API test gap report", () => {
     expect(report.facets[0].events[0].proof.unit).toBe(true);
   });
 
+  it("limits keyed-matrix restrictions to the test case that declares them", () => {
+    const input = baseInput();
+    input.tests = [{
+      path: "packages/api/src/workflows/scoped-keyed.integration.test.ts",
+      content: [
+        "it('checks a keyed write matrix', () => {",
+        "  const cases = [{ methodKey: 'TestFacet.getThing' }];",
+        "  setThing();",
+        "});",
+        "it('writes independently', () => setThing());",
+      ].join("\n"),
+    }];
+    input.verifyArtifacts = [];
+
+    const report = buildGapReport(input);
+
+    expect(report.facets[0].functions[0].proof.unit).toBe(true);
+    expect(report.facets[0].functions[1].proof.unit).toBe(true);
+  });
+
   it("does not treat the TypeScript symbol keyword as VoiceAssetFacet.symbol evidence", () => {
     const input = baseInput();
     input.manifest.facets[0].functions = [{

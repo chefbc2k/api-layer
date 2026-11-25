@@ -97,11 +97,14 @@ type TestSource = {
 type TestReference = {
   index: number;
   length: number;
+  testScope: number | null;
 };
 
 type IndexedTestSource = TestSource & {
   exactReferences: Map<string, TestReference[]>;
   declaredAbiKeys: Set<string>;
+  scopedDeclaredAbiKeys: Map<number, Set<string>>;
+  testScopes: Array<{ start: number; end: number }>;
 };
 
 type ItemTokens = {
@@ -487,15 +490,46 @@ function isExecutableWeakReference(node: ts.Identifier | ts.StringLiteralLike): 
       && (isInvokedMemberAccess(parent) || isMockInvocationAssertion(parent)));
 }
 
+function testScopeFor(node: ts.Node): number | null {
+  let current: ts.Node | undefined = node;
+  while (current?.parent) {
+    const parent = current.parent;
+    if (
+      ts.isCallExpression(parent)
+      && ts.isIdentifier(parent.expression)
+      && (parent.expression.text === "it" || parent.expression.text === "test")
+      && parent.arguments.some((argument) => argument === current)
+    ) {
+      return current.getStart();
+    }
+    current = parent;
+  }
+  return null;
+}
+
 function indexTestSource(test: TestSource, knownAbiKeys: Set<string>): IndexedTestSource {
   const sourceFile = ts.createSourceFile(test.path, test.content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const exactReferences = new Map<string, TestReference[]>();
   const declaredAbiKeys = new Set<string>();
+  const scopedDeclaredAbiKeys = new Map<number, Set<string>>();
+  const testScopes: Array<{ start: number; end: number }> = [];
   const visit = (node: ts.Node): void => {
+    if (
+      ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && (node.expression.text === "it" || node.expression.text === "test")
+    ) {
+      for (const argument of node.arguments) {
+        if (ts.isArrowFunction(argument) || ts.isFunctionExpression(argument)) {
+          testScopes.push({ start: argument.getStart(sourceFile), end: argument.getEnd() });
+        }
+      }
+    }
     if ((ts.isIdentifier(node) || ts.isStringLiteralLike(node)) && isExecutableWeakReference(node)) {
       addExactReference(exactReferences, node.text, {
         index: node.getStart(sourceFile),
         length: node.getWidth(sourceFile),
+        testScope: testScopeFor(node),
       });
     }
     if (ts.isPropertyAssignment(node)) {
@@ -505,32 +539,50 @@ function indexTestSource(test: TestSource, knownAbiKeys: Set<string>): IndexedTe
         && ts.isStringLiteralLike(node.initializer)
         && knownAbiKeys.has(node.initializer.text)
       ) {
-        declaredAbiKeys.add(node.initializer.text);
+        const scope = testScopeFor(node);
+        if (scope === null) {
+          declaredAbiKeys.add(node.initializer.text);
+        } else {
+          const keys = scopedDeclaredAbiKeys.get(scope) ?? new Set<string>();
+          keys.add(node.initializer.text);
+          scopedDeclaredAbiKeys.set(scope, keys);
+        }
       }
     }
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
-  return { ...test, exactReferences, declaredAbiKeys };
+  return { ...test, exactReferences, declaredAbiKeys, scopedDeclaredAbiKeys, testScopes };
 }
 
 function matchingReferences(test: IndexedTestSource, tokens: ItemTokens): TestReference[] {
-  if (test.declaredAbiKeys.size > 0 && !test.declaredAbiKeys.has(tokens.key)) {
-    return [];
-  }
   const references: TestReference[] = [];
   for (const token of tokens.strong) {
     for (const index of tokenIndexes(test.content, token.value, token.boundary)) {
-      references.push({ index, length: token.value.length });
+      references.push({ index, length: token.value.length, testScope: testScopeForOffset(test, index) });
     }
   }
   for (const token of tokens.weak) {
     references.push(...test.exactReferences.get(token) ?? []);
   }
-  return [...new Map(references.map((reference) => [
+  const scoped = references.filter((reference) => {
+    const testKeys = reference.testScope === null
+      ? null
+      : test.scopedDeclaredAbiKeys.get(reference.testScope);
+    const declaredKeys = testKeys ?? test.declaredAbiKeys;
+    return declaredKeys.size === 0 || declaredKeys.has(tokens.key);
+  });
+  return [...new Map(scoped.map((reference) => [
     `${reference.index}:${reference.length}`,
     reference,
   ])).values()];
+}
+
+function testScopeForOffset(test: TestSource, offset: number): number | null {
+  const matching = test.testScopes
+    .filter((scope) => offset >= scope.start && offset < scope.end)
+    .sort((left, right) => (left.end - left.start) - (right.end - right.start));
+  return matching[0]?.start ?? null;
 }
 
 function hasKeywordNearReference(content: string, references: TestReference[], keywords: string[]): boolean {
