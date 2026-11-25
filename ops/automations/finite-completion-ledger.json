@@ -1365,12 +1365,12 @@
             "Update receipt 0x08b6a03d739cd082d09b0e9dd668ce3ced2df1d7f8824327159798498eaf9d76 at block 63235029 and restore receipt 0x1001b4cbc51f662dc9c5ecce65107f382289416a3d4535a2a32aa6b818ca8df5 at block 63235030 each produced only a block-journal row.",
             "PostgreSQL replay was unchanged and idempotent; original timeout 7201 was restored. The cumulative indexer already classified this method among its 141 proven methods, so the release denominator remains 141/260 with 119 open.",
             "Pinned codegen passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
-            "Hosted API quality run 45524489919 passed every configured gate on source commit 68210a5c38ca9fbec64f00f0b49cfe9012015e7b."
+            "Hosted API quality run 45525547983 passed every configured gate on evidence commit f490992d396ae5e9e1f8e0973238cdc823da856a."
           ],
           "resultLimitation": "This adds stronger evidence for an already-counted method and completes 0 of 119 open methods; API-05 remains in_progress at 141/260, below the bounded target of 35.",
-          "ciRunId": 45524489919,
-          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45524489919",
-          "ciCommit": "68210a5c38ca9fbec64f00f0b49cfe9012015e7b"
+          "ciRunId": 45525547983,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45525547983",
+          "ciCommit": "f490992d396ae5e9e1f8e0973238cdc823da856a"
         }
       ],
       "deliveredCommit": null,
