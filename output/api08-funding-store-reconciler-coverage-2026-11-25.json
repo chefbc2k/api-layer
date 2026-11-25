@@ -1,18 +1,19 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T19:22:30Z",
+  "generatedAt": "2026-11-25T19:49:57Z",
   "task": "API-08 coverage evidence",
   "scope": [
     "packages/api/src/funding/store.ts",
     "packages/api/src/funding/reconciliation.ts",
     "packages/api/src/funding/processor.ts",
-    "packages/api/src/funding/release-readiness.ts"
+    "packages/api/src/funding/release-readiness.ts",
+    "packages/api/src/funding/purchase.ts"
   ],
   "status": "targeted module coverage passed; repository-wide coverage remains open",
-  "command": "pnpm exec vitest run packages/api/src/funding/store.test.ts packages/api/src/funding/reconciler.test.ts packages/api/src/funding/processor.test.ts packages/api/src/funding/release-readiness.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include packages/api/src/funding/store.ts --coverage.include packages/api/src/funding/reconciliation.ts --coverage.include packages/api/src/funding/processor.ts --coverage.include packages/api/src/funding/release-readiness.ts --coverage.reporter=json-summary",
+  "command": "pnpm exec vitest run packages/api/src/funding/store.test.ts packages/api/src/funding/reconciler.test.ts packages/api/src/funding/processor.test.ts packages/api/src/funding/release-readiness.test.ts packages/api/src/funding/purchase.test.ts packages/api/src/funding/purchase.router.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include packages/api/src/funding/store.ts --coverage.include packages/api/src/funding/reconciliation.ts --coverage.include packages/api/src/funding/processor.ts --coverage.include packages/api/src/funding/release-readiness.ts --coverage.include packages/api/src/funding/purchase.ts --coverage.reporter=json-summary",
   "tests": {
-    "filesPassed": 4,
-    "testsPassed": 72,
+    "filesPassed": 6,
+    "testsPassed": 102,
     "testsFailed": 0
   },
   "coveragePercent": {
@@ -39,15 +40,27 @@
       "statements": 100,
       "functions": 100,
       "branches": 100
+    },
+    "purchase.ts": {
+      "lines": 100,
+      "statements": 97.75,
+      "functions": 100,
+      "branches": 98.88
+    },
+    "overallTargetedSuite": {
+      "lines": 100,
+      "statements": 99.46,
+      "functions": 100,
+      "branches": 99.73
     }
   },
   "additionalChecks": {
     "typescriptBuild": "passed: pnpm exec tsc -b --pretty false",
-    "eslint": "passed for touched funding implementation and test files"
+    "eslint": "passed for purchase.router.test.ts and purchase.test.ts; previously passed for funding implementation and tests"
   },
   "acceptanceAccounting": {
     "API-08": "open",
-    "repositoryWideCoverage": "unchanged from exact-head CI artifact; below 100%",
+    "repositoryWideCoverage": "below frozen 100% requirement; exact-head CI refresh pending",
     "backendPrivacyAndReleaseAcceptance": "unverified"
   }
 }
