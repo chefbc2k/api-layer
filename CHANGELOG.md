@@ -2,7 +2,7 @@
 
 - Added exact loopback-fork proof for `EchoScoreFacetV3.setOracleStalenessConfig`; API update and restoration receipts each emitted the expected event, and the final value was restored to `86400`.
 - The full contract integration stage passed `45/45`; PostgreSQL stored raw events `268` and `269` and their block journals, and idempotent replay passed. API-05 advances to `140/260`, leaving `120` methods open.
-- Hosted API quality run [45514446423](https://github.com/chefbc2k/api-layer/actions/runs/45514446423) passed every configured gate on evidence commit `c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea`. The local assurance report separately retains a codegen metadata mismatch against contracts checkout `3b814442` and the known `ProposalFacet.queue` safe-read gap.
+- Hosted API quality run [45514446423](https://github.com/chefbc2k/api-layer/actions/runs/45514446423) passed every configured gate on evidence commit `c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea`. The pinned local assurance rerun passed codegen and all stages except the known `ProposalFacet.queue` safe-read fixture gap.
 
 # 2026-11-24 — Record hosted CI for token supply finalization proof
 

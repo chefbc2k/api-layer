@@ -1054,7 +1054,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
             "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
             "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
-            "Persistent cumulative indexer comparison against the prior committed report: 2,316 \u2192 2,512 indexed receipts, 127 \u2192 128/260 proven write methods, 3,504 \u2192 3,791 raw events, and 2,312 \u2192 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
             "GitHub Actions API quality run 45466661979 initially failed regression because the event-assurance test still expected 276 event declarations; corrected counts to 275 declarations and 34 eventless writes, with focused event-assurance suite passing 210/210.",
             "GitHub Actions API quality retry 45467848444 passed every configured gate on db65482d43c1ee5df2190ce7449b28c4a9edc2b6, including dependency audit, pinned-selector codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
@@ -1288,20 +1288,21 @@
           "boundedRunTargetMet": false,
           "endingProvenCount": 140,
           "endingOpenCount": 120,
-          "assuranceReportSha256": "b99162f0b04fbf6811d70ca911c8c7d8b998dd322ee0fe49a983573e2c580df1",
+          "assuranceReportSha256": "7302343d2767d56f014c9e8a52b416f48ca342aedc9f37c515572f6917065ca6",
           "checks": [
             "Focused loopback-fork HTTP integration test passed; API update and restore each returned a status-1 receipt with the expected single OracleStalenessConfigUpdated event.",
-            "Full contract integration stage passed 45/45 tests; all 11 assurance stages other than inventory generation passed.",
+            "Pinned-manifest full local-fork assurance passed all 12 stages; HTTP contract integration passed, and safe-read coverage was 445/446.",
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
             "Indexer evidence: update receipt 0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8 at block 63207569, raw event 268; restore receipt 0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350 at block 63207570, raw event 269. Both were journaled, replayed unchanged, and classified proven working.",
             "Final direct getter confirms original maxAgeSeconds 86400 was restored on the loopback fork.",
-            "Local codegen inventory failed against contracts checkout 3b814442: 510 current methods and 218 events do not match this branch\u2019s reviewed write-invariant metadata; seven signatures are missing and two are stale. No files in the contracts repository were modified.",
+            "The initial runner attempt used the sibling contracts checkout’s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
             "Hosted API quality run 45514446423 passed every configured gate on evidence commit c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
-          "resultLimitation": "This run completed 1 of the 121 open methods (0.8264%), below the bounded target of 35; API-05 remains in_progress with 120 methods open. The local assurance runner has two structured gaps: codegen metadata is out of sync with the current sibling contracts checkout, and ProposalFacet.queue still lacks a working safe-read fixture.",
+          "resultLimitation": "This run completed 1 of the 121 open methods (0.8264%), below the bounded target of 35; API-05 remains in_progress with 120 methods open. The pinned local assurance rerun has one structured gap: ProposalFacet.queue still lacks a working safe-read fixture.",
           "ciRunId": 45514446423,
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45514446423",
-          "ciCommit": "c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea"
+          "ciCommit": "c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea",
+          "assuranceReportPath": ".runtime/api05-echo-score-staleness-pinned-assurance-report.json (ephemeral local report; checksum preserved)"
         }
       ],
       "deliveredCommit": null,
@@ -5072,7 +5073,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "title": "Wave 1 – Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]
