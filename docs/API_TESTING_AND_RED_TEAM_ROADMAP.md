@@ -1,3 +1,10 @@
+# API-05 Follow-on — Royalty Payment Journal — 2026-11-25
+
+- Proved `VoiceAssetFacet.recordRoyaltyPayment` through its exact HTTP route on a disposable loopback fork. The successful receipt emitted `RoyaltyPaid` with the exact voice hash, owner actor, amount, and usage reference; `getRoyaltyHistory` matched. Temporary `ROYALTY_MANAGER_ROLE` was revoked.
+- PostgreSQL indexed the decoded event and `voice_assets` projection; idempotent replay passed. Focused integration, TypeScript, and ESLint passed.
+- API-05 advances from 172/260 to 173/260 proven methods, leaving 87 open. Across this continuing run, 14 distinct methods are proved against its 26-method target (initially 101 open), leaving 12 to meet the target.
+- Evidence: [royalty payment proof](../output/api05-royalty-payment-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit and fresh hosted CI pending.
+
 # API-05 Follow-on — Staking Tier Configuration — 2026-11-25
 
 - Proved `StakingFacet.queueTierConfigUpdate` through its exact HTTP route on a disposable loopback fork. Two status-1 receipts changed then restored tier thresholds while preserving multipliers; both emitted `TierConfigUpdated`, direct getter readbacks matched, PostgreSQL stored raw events and staking projection rows, and replay was idempotent.

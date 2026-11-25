@@ -6832,6 +6832,61 @@ describeLive("HTTP API contract integration", () => {
     );
     expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
 
+    const royaltyManagerRole = id("ROYALTY_MANAGER_ROLE");
+    const royaltyRoleWasGranted = await accessControl.hasRole(royaltyManagerRole, licensingOwnerAddress);
+    if (!royaltyRoleWasGranted) {
+      const grantRole = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+        apiKey: "founder-key",
+        body: { role: royaltyManagerRole, account: licensingOwnerAddress, expiryTime: "0" },
+      });
+      expect(grantRole.status, JSON.stringify(grantRole.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grantRole.payload));
+      expect(await accessControl.hasRole(royaltyManagerRole, licensingOwnerAddress)).toBe(true);
+    }
+    const royaltyAmount = 250n;
+    const royaltyUsageReference = id("api05-royalty-" + voiceHash + "-" + Date.now());
+    try {
+      const royaltyResponse = await apiCall(port, "POST", "/v1/voice-assets/" + voiceHash + "/royalty-payments", {
+        apiKey: "licensing-owner-key",
+        body: { amount: royaltyAmount.toString(), usageReference: royaltyUsageReference },
+      });
+      expect(royaltyResponse.status, JSON.stringify(royaltyResponse.payload)).toBe(202);
+      const royaltyTxHash = extractTxHash(royaltyResponse.payload);
+      await expectReceipt(royaltyTxHash);
+      const royaltyReceipt = await provider.getTransactionReceipt(royaltyTxHash);
+      expect(royaltyReceipt?.status).toBe(1);
+      expect(royaltyReceipt!.logs.some((log) => {
+        try {
+          const parsed = voiceAsset.interface.parseLog(log);
+          return parsed?.name === "RoyaltyPaid"
+            && parsed.args.voiceHash === voiceHash
+            && parsed.args.user === licensingOwnerAddress
+            && parsed.args.amount === royaltyAmount
+            && parsed.args.usageReference === royaltyUsageReference;
+        } catch { return false; }
+      })).toBe(true);
+      const royaltyHistory = await voiceAsset.getRoyaltyHistory(voiceHash);
+      const recordedRoyalty = royaltyHistory.at(-1);
+      expect(recordedRoyalty).toBeDefined();
+      expect(recordedRoyalty![0]).toBe(royaltyAmount);
+      expect(recordedRoyalty![2]).toBe(licensingOwnerAddress);
+      expect(recordedRoyalty![3]).toBe(royaltyUsageReference);
+    } finally {
+      if (!royaltyRoleWasGranted) {
+        const revokeRole = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+          apiKey: "founder-key",
+          body: {
+            role: royaltyManagerRole,
+            account: licensingOwnerAddress,
+            reason: "local-fork royalty receipt proof cleanup",
+          },
+        });
+        expect(revokeRole.status, JSON.stringify(revokeRole.payload)).toBe(202);
+        await expectReceipt(extractTxHash(revokeRole.payload));
+        expect(await accessControl.hasRole(royaltyManagerRole, licensingOwnerAddress)).toBe(false);
+      }
+    }
+
     const rightsFacet = new Contract(diamondAddress, facetRegistry.RightsFacet.abi, provider);
     const collaborator = transfereeWallet.address;
     const collaboratorShare = 1_250n;

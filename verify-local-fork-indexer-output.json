@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T08:44:08.384Z",
+  "generatedAt": "2026-11-25T08:54:09.638Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5767,
-    "includedArtifacts": 18,
+    "artifactTransactionHashes": 5785,
+    "includedArtifacts": 19,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5767,
-    "provenWriteMethods": 172,
+    "indexedReceipts": 5785,
+    "provenWriteMethods": 173,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 88,
-    "rawEvents": 8694,
-    "projectionRows": 5550
+    "remainingWriteMethods": 87,
+    "rawEvents": 8715,
+    "projectionRows": 5559
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -11274,6 +11274,62 @@
           "methodKey": "AccessControlFacet.grantRole",
           "affectedFacet": "AccessControlFacet",
           "methodSignature": "grantRole(bytes32,address,uint256)",
+          "txHash": "0xce0afdf026f5aaebf291fb048600fcaaf90d0ad1412b7f3c3971a5881ef51c1f",
+          "blockNumber": 63368513,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "AccessControlFacet.RoleGranted(bytes32,address,address,uint256)"
+            },
+            {
+              "rawEventId": "4",
+              "logIndex": 1,
+              "eventKey": "AccessControlFacet.SecurityAction(bytes32,address,uint8,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "3",
+                "4"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368513",
+                  "block_hash": "0xaadefd39e5841dfaac0acd1d3b2a378cf33598be1bd79b42f48cfcaf7991fe9f"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "AccessControlFacet.grantRole",
+          "affectedFacet": "AccessControlFacet",
+          "methodSignature": "grantRole(bytes32,address,uint256)",
           "txHash": "0xcf888fb268988b6bb695d09bfb1f09c80b7aff5e2058f551c4db018df33e3ae3",
           "blockNumber": 63103833,
           "receipt": {
@@ -16848,6 +16904,62 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "AccessControlFacet.revokeRole",
+          "affectedFacet": "AccessControlFacet",
+          "methodSignature": "revokeRole(bytes32,address,string)",
+          "txHash": "0x494e1b1d88b29fe608be1058972e70a9acc4d1cdf2ca448d7cbbf093d87cbdb7",
+          "blockNumber": 63368515,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "6",
+              "logIndex": 0,
+              "eventKey": "AccessControlFacet.RoleRevoked(bytes32,address,address,string)"
+            },
+            {
+              "rawEventId": "7",
+              "logIndex": 1,
+              "eventKey": "AccessControlFacet.SecurityAction(bytes32,address,uint8,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "6",
+                "7"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368515",
+                  "block_hash": "0x37d83b1670a5a30a3072a0fdb46448d8eccb1b74511ac0c885f90605c6cacbf4"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -118312,6 +118424,56 @@
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.addCollaborator",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "addCollaborator(bytes32,address,uint256)",
+          "txHash": "0x57dfeb531141b8fdb3c62e86bcf0396e2092fa81bdea113fa2ddb39dae1ecd26",
+          "blockNumber": 63368516,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "8",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.CollaboratorUpdated(bytes32,address,uint256,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "8"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368516",
+                  "block_hash": "0xdd4d6552d51a3d909a06545dcdef32164112b94c3bfa65de513dfa7519a63bba"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -118327,6 +118489,56 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.createRightsGroup",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "createRightsGroup(bytes32,string,(string,uint256,uint256,bool,string[],bool)[],address[])",
+          "txHash": "0xb942f14cc381a1826f4bc93dd9432509da73ffbd00e87d89b59098fa8c56e96c",
+          "blockNumber": 63368519,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "11",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.RightsGroupCreated(bytes32,string,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "11"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368519",
+                  "block_hash": "0x1fb140e59b230c1896a88f4da161b9dd23e7ce7e8dfd92ce04ba7c0db3bb9074"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "RightsFacet.createRightsGroup",
@@ -118440,6 +118652,56 @@
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.grantRight",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "grantRight(bytes32,address,(string,uint256,uint256,bool,string[],bool))",
+          "txHash": "0x80d98024545179f0e180e4c6c855034ce22ab0666b9bb47c70b69e4bc471aac7",
+          "blockNumber": 63368520,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "12",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.RightGranted(bytes32,address,string,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "12"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368520",
+                  "block_hash": "0x0cbad853d39275f26a8c0e567eea882bae4bf5215c5eb71ae3bdf49f8fac1643"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -118504,6 +118766,56 @@
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.registerRightContract",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "registerRightContract(string,address)",
+          "txHash": "0xdaa0b5fa053b2c76264dc2a9d37fc48ed12c98a487d98e40af45a01b63750c2a",
+          "blockNumber": 63368522,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "14",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.RightContractRegistered(string,string,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "14"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368522",
+                  "block_hash": "0x9def7a605a56228faef557c604b80a8a03cbaa628530d4062b52d74f8305dff5"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -118519,6 +118831,56 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.removeCollaborator",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "removeCollaborator(bytes32,address)",
+          "txHash": "0x79885a86e98ca3c316a5651a72d7515a8db6620df60d7c2dfd14376273aca63a",
+          "blockNumber": 63368518,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "10",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.CollaboratorUpdated(bytes32,address,uint256,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "10"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368518",
+                  "block_hash": "0x9e22d85e553bbb8a2e707d25a6f5b327fd5bc050aec96671106cebd6d8dca2bd"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "RightsFacet.removeCollaborator",
@@ -118588,6 +118950,56 @@
           "methodKey": "RightsFacet.revokeRight",
           "affectedFacet": "RightsFacet",
           "methodSignature": "revokeRight(bytes32,address,string)",
+          "txHash": "0x0d7f7ac5aa1e8a64d9593436a0fefa72b782238979dbab16e1386c56732c5d29",
+          "blockNumber": 63368521,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "13",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.RightRevoked(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "13"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368521",
+                  "block_hash": "0xfe85bba7d43a5016ebd117dc4928fe12cd599683cd248635781ed43d63522a26"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.revokeRight",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "revokeRight(bytes32,address,string)",
           "txHash": "0x90ea2b99d246720d53d9fed2b22f9d037dc0f7b2ee96efe965a1c1761bd0ccf9",
           "blockNumber": 63368490,
           "receipt": {
@@ -118647,6 +119059,56 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.updateCollaboratorShare",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "updateCollaboratorShare(bytes32,address,uint256)",
+          "txHash": "0x2bcd0df6526da95fda55f7974082453e2ac8e8901892e124c6ab8e6900c10f70",
+          "blockNumber": 63368517,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "9",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.CollaboratorUpdated(bytes32,address,uint256,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "9"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368517",
+                  "block_hash": "0x3fa172b7f63d52dc25d74ba927103ed95dd07df5dd166a9b9354ad9e386ed284"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "RightsFacet.updateCollaboratorShare",
@@ -118756,6 +119218,56 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "RightsFacet.updateRightContract",
+          "affectedFacet": "RightsFacet",
+          "methodSignature": "updateRightContract(string,address)",
+          "txHash": "0xddaedc98be1bc62d3cbf7600414e28166a0a98afbcae6a43036faf55b7acba1e",
+          "blockNumber": 63368523,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "15",
+              "logIndex": 0,
+              "eventKey": "RightsFacet.RightContractUpdated(string,address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "15"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368523",
+                  "block_hash": "0xe16b1f93cab11420d011b0c357a8ae12208e98ffaf75cf705809b9568b40c59f"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -154622,6 +155134,67 @@
           "methodKey": "VoiceAssetFacet.approveVoiceAsset",
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "approveVoiceAsset(address,uint256)",
+          "txHash": "0xabaf51ac24d8524ec9da475b6fff0454ea544d9e4120b7957803528ee7528533",
+          "blockNumber": 63368527,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "19",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Approval(address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "19"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "7"
+                ],
+                "sourceRawEventIds": [
+                  "19"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368527",
+                  "block_hash": "0x7eed36ea2604505862a6fff25fd6a9f57654c249deb994373e52cecc4f5e4320"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.approveVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "approveVoiceAsset(address,uint256)",
           "txHash": "0xabebd9cb6597f48bbc253b296b88fe8a5d90769e8abff643fd6d09f4cefc9463",
           "blockNumber": 63055478,
           "receipt": {
@@ -163736,6 +164309,67 @@
           "methodKey": "VoiceAssetFacet.lockVoiceAsset",
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "lockVoiceAsset(bytes32)",
+          "txHash": "0xb9705f5b594f189f59e4cddae63ec17bf91c52ec509e9a27b978720e5c73f2eb",
+          "blockNumber": 63368525,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "17",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.VoiceAssetLockChanged(bytes32,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "17"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "5"
+                ],
+                "sourceRawEventIds": [
+                  "17"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368525",
+                  "block_hash": "0xe4974bf56db3bcb66f66526cbff061bba3aa064a9d9ca75b485614d502d5aa28"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.lockVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "lockVoiceAsset(bytes32)",
           "txHash": "0xd2e094f900ab7780d02f0e96bb9882e09735f70bab86ed37def8f418d40a28de",
           "blockNumber": 63269669,
           "receipt": {
@@ -164039,6 +164673,81 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "VoiceAssetFacet.recordRoyaltyPayment": {
+      "routes": [
+        "POST /v1/voice-assets/:voiceHash/royalty-payments"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.recordRoyaltyPayment",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "recordRoyaltyPayment(bytes32,uint256,bytes32)",
+          "txHash": "0x16f93856ed83b49e51a23fc1c833346b53053dd8a8ab019a34f719f975fda050",
+          "blockNumber": 63368514,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "5",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.RoyaltyPaid(bytes32,address,uint256,bytes32)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "5"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "3"
+                ],
+                "sourceRawEventIds": [
+                  "5"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368514",
+                  "block_hash": "0x73aabe96ae7efe2bb9af32c3877492083e2f534cff4a74607000c3425ee4dad7"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -165500,6 +166209,67 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.recordUsage",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "recordUsage(bytes32,bytes32)",
+          "txHash": "0x9dd97e5dcb6d4d4ffbe8634f00385f27711f7112a7e3a623bc12e3885f3232ef",
+          "blockNumber": 63368524,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "16",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.VoiceAssetUsed(bytes32,bytes32,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "16"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "4"
+                ],
+                "sourceRawEventIds": [
+                  "16"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368524",
+                  "block_hash": "0x12733d5f1426c715d0d7bf7e14b1a67a6fa6be85c3ddda7ff3bab0fe9659a0c8"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -175149,6 +175919,75 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.registerVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "registerVoiceAsset(string,uint256)",
+          "txHash": "0x2743640d0df6db55e9112eeba757be6562b4826b6d5aa2f449d547fed14fe9bd",
+          "blockNumber": 63368512,
+          "receipt": {
+            "status": 1,
+            "logCount": 2
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            },
+            {
+              "rawEventId": "2",
+              "logIndex": 1,
+              "eventKey": "VoiceAssetFacet.VoiceAssetRegistered(bytes32,address,string,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 2,
+              "rowIds": [
+                "1",
+                "2"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 2,
+                "rowIds": [
+                  "1",
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "1",
+                  "2"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368512",
+                  "block_hash": "0x82be40e5b1e2ef610adade7be225fe9fd9ab6ef0b7a7025a7aa24ed284a67f4b"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -233625,6 +234464,67 @@
           "methodKey": "VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)",
           "affectedFacet": "VoiceAssetFacet",
           "methodSignature": "safeTransferFrom(address,address,uint256,bytes)",
+          "txHash": "0xd80c596651d6362f0728f1693495f61c7277798a49e64455a7c66995090af76c",
+          "blockNumber": 63368529,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "21",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "21"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "9"
+                ],
+                "sourceRawEventIds": [
+                  "21"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368529",
+                  "block_hash": "0x6fe59d57afd06f80d971ae2ce673d57ad61b16ee102e6f8a437937e28cd0c7f4"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "safeTransferFrom(address,address,uint256,bytes)",
           "txHash": "0xe20d0d90551c8a20245ab859aa04901b9a3633d6247c672102f85421ea695aa3",
           "blockNumber": 63287303,
           "receipt": {
@@ -234448,6 +235348,67 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.safeTransferFrom(address,address,uint256)",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "safeTransferFrom(address,address,uint256)",
+          "txHash": "0x1458620dd2bcd35de4748e10c9aa722f5651e618d82453bfcb09a6de486c491c",
+          "blockNumber": 63368528,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "20",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.Transfer(address,address,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "20"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "8"
+                ],
+                "sourceRawEventIds": [
+                  "20"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368528",
+                  "block_hash": "0x94f07dbde3a676dee16c57270197b6c6fa837c1183df6a2d78ad5d65767c4ec9"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -246860,6 +247821,67 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "VoiceAssetFacet.unlockVoiceAsset",
+          "affectedFacet": "VoiceAssetFacet",
+          "methodSignature": "unlockVoiceAsset(bytes32)",
+          "txHash": "0x23e38d3f9eca597baf350c60675607731480d67862b868c22e3d7fb70b1de647",
+          "blockNumber": 63368526,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "18",
+              "logIndex": 0,
+              "eventKey": "VoiceAssetFacet.VoiceAssetLockChanged(bytes32,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "18"
+              ]
+            },
+            "projections": [
+              {
+                "table": "voice_assets",
+                "rowCount": 1,
+                "rowIds": [
+                  "6"
+                ],
+                "sourceRawEventIds": [
+                  "18"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368526",
+                  "block_hash": "0xb9929845950a05a4653b180388e5e1e100ed23ddf22580ec644a10f946e8cf18"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-royalty-rights-lifecycle-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },

@@ -1863,6 +1863,31 @@
             "Event-to-indexer assurance test passed: 210/210."
           ],
           "resultLimitation": "Thirteen distinct methods were completed across this continuing run against a 26-method target (initially 101 open); 13 more are required to reach the batch target. API-05 remains in_progress."
+        },
+        {
+          "sourceCommit": "pending",
+          "artifact": "output/api05-royalty-payment-proof-2026-11-25.json",
+          "proofArtifactSha256": "25f384a5062f3059cfe3865bf15a0e6740b8444550c7230a78033bff04d3ebfe",
+          "transactionArtifact": ".runtime/api05-royalty-rights-lifecycle-receipts.json",
+          "transactionArtifactSha256": "8de97d5f4a9067afdd3d3d24998d929bea8c6a41d94b700dee8f60ca94e8ddcd",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "3f1995bb9efa558c8e7fa0616e527dd2b0dc7b160988e68a249f47f24fc1500d",
+          "result": "Proved VoiceAssetFacet.recordRoyaltyPayment through its exact HTTP route on a disposable Base Sepolia loopback fork. The successful receipt emitted RoyaltyPaid with matching voice hash, owner, amount, and usage reference; getRoyaltyHistory matched. Temporary ROYALTY_MANAGER_ROLE was revoked. PostgreSQL indexed the raw event and voice_assets projection, and replay was idempotent. API-05 advances from 172/260 to 173/260, leaving 87 open.",
+          "startingProvenCount": 159,
+          "startingOpenCount": 101,
+          "completedThisRun": 14,
+          "completionPercentOfStart": 13.8614,
+          "boundedRunTarget": 26,
+          "boundedRunTargetRule": "ceil(0.25 * initial run open count (101))",
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 173,
+          "endingOpenCount": 87,
+          "checks": [
+            "Focused local-fork HTTP integration passed: 1 passed, 60 unrelated tests skipped.",
+            "TypeScript build and focused ESLint passed.",
+            "Indexer verified 18 successful receipts, including the royalty write; replay idempotent."
+          ],
+          "resultLimitation": "Fourteen distinct methods are proved across this continuing run against a 26-method target (initially 101 open); 12 more are required to reach the batch target. API-05 remains in_progress."
         }
       ],
       "deliveredCommit": null,
