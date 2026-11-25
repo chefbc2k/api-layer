@@ -1054,7 +1054,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
             "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
             "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
-            "Persistent cumulative indexer comparison against the prior committed report: 2,316 \u2192 2,512 indexed receipts, 127 \u2192 128/260 proven write methods, 3,504 \u2192 3,791 raw events, and 2,312 \u2192 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
             "GitHub Actions API quality run 45466661979 initially failed regression because the event-assurance test still expected 276 event declarations; corrected counts to 275 declarations and 34 eventless writes, with focused event-assurance suite passing 210/210.",
             "GitHub Actions API quality retry 45467848444 passed every configured gate on db65482d43c1ee5df2190ce7449b28c4a9edc2b6, including dependency audit, pinned-selector codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
@@ -1295,7 +1295,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
             "Indexer evidence: update receipt 0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8 at block 63207569, raw event 268; restore receipt 0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350 at block 63207570, raw event 269. Both were journaled, replayed unchanged, and classified proven working.",
             "Final direct getter confirms original maxAgeSeconds 86400 was restored on the loopback fork.",
-            "The initial runner attempt used the sibling contracts checkout\u2019s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
+            "The initial runner attempt used the sibling contracts checkout’s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
             "Hosted API quality run 45514446423 passed every configured gate on evidence commit c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.",
             "Pinned-manifest local assurance report checksum 7302343d2767d56f014c9e8a52b416f48ca342aedc9f37c515572f6917065ca6; all 12 stages passed, with only ProposalFacet.queue safe-read fixture gap.",
             "Hosted API quality run 45517260884 passed every configured gate on evidence commit a8f8196df14675485ff753ff2ec6ada57619e336."
@@ -1394,7 +1394,7 @@
             "All 12 local-fork assurance stages passed; safe reads passed 445/446 with only the known ProposalFacet.queue fixture gap.",
             "Proposal creation receipt 0x06bc5afb25786cfb38aaae6e9bd7ef62167ad369e21785dc93e2ed8f8e313ae5 at block 63250473 emitted raw event 272 and created PostgreSQL governance_proposals row 1.",
             "Cancellation receipt 0xec0066bf3ad29b63478ad0299bb4464d75be994a235fba1b9cba122364b6cab1 at block 63250474 emitted raw event 273 and created governance_proposals projection row 2. Both receipts had block journals and idempotent replay.",
-            "Proposal state changed Pending \u2192 Canceled and both direct and HTTP prState reads matched; proposal deadline direct and HTTP readbacks matched.",
+            "Proposal state changed Pending → Canceled and both direct and HTTP prState reads matched; proposal deadline direct and HTTP readbacks matched.",
             "Pinned codegen passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
             "Hosted API quality CI run 45530793891 passed every configured gate on source commit 68db13f89293e4908bebcfe85a6af8a8113c841e.",
             "Hosted API quality CI run 45531868472 passed every configured gate on durable evidence commit fcf17a889dd39efa503e849a12db01ce46b3d21e."
@@ -1542,7 +1542,7 @@
         {
           "sourceCommit": "5f4e310b0d692129ad3d6d05331c3ba179592027",
           "artifact": "output/api05-staking-degraded-mode-proof-2026-11-25.json",
-          "proofArtifactSha256": "d15a922cfbafdf0f172ce756bfad2c6c620e5457e48447ef4ed41a4d829da3fc",
+          "proofArtifactSha256": "8a1b29ebd9c8d0eb53d52e3ce43e23cf1ca442942bd05bc35861d5b8e480270a",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "indexerArtifactSha256": "12b33e81810544d8b22593c2f47ca031359a7434fc4dc5ab8fc143e353016ab6",
           "result": "Corrected StakingFacet.setDegradedModeConfig invariants to match its PLATFORM_ADMIN_ROLE guard and eventless implementation. A fork-only HTTP test toggled degraded mode, verified canonical and HTTP config readbacks, then restored all original values. Both successful eventless receipts were indexed as block-journal rows without fabricated raw events or projections; replay was idempotent. All 12 local-fork assurance stages passed with one known safe-read gap (445/446). API-05 advances from 147/260 to 148/260, leaving 112 open.",
@@ -1563,10 +1563,14 @@
             "All 12 local-fork assurance stages passed; safe reads passed 445/446, with the known ProposalFacet.queue fixture gap.",
             "Both receipts were status 1 with zero logs; Postgres stored one indexer_blocks row for each and no raw_events or projections; replays were unchanged and idempotent.",
             "Direct and HTTP reads matched the toggled config, and the original config was restored.",
-            "Pinned code generation and coverage passed: 492 functions, 218 events, 260/260 reviewed write invariants."
+            "Pinned code generation and coverage passed: 492 functions, 218 events, 260/260 reviewed write invariants.",
+            "Hosted API quality CI run 45559294213 passed every configured gate on source commit 5f4e310b0d692129ad3d6d05331c3ba179592027."
           ],
           "resultLimitation": "One open method completed, below the bounded target of 35; API-05 remains in_progress with 112 methods open.",
-          "ciConclusion": "pending"
+          "ciConclusion": "success",
+          "ciRunId": 45559294213,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45559294213",
+          "ciCommit": "5f4e310b0d692129ad3d6d05331c3ba179592027"
         }
       ],
       "deliveredCommit": null,
@@ -5337,7 +5341,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "title": "Wave 1 – Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]

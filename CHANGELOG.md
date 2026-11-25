@@ -2,7 +2,7 @@
 
 - Corrected `StakingFacet.setDegradedModeConfig` invariants to match the contract's `PLATFORM_ADMIN_ROLE` requirement and eventless receipt behavior. The local-fork HTTP test toggled degraded mode, verified canonical and HTTP readbacks, and restored the original configuration.
 - Both status-1, zero-log receipts were recorded in PostgreSQL as block-journal rows without fabricated raw events or projections; replay was idempotent. Full HTTP contract integration passed `53/53`; event-to-indexer assurance passed `210/210`. All 12 fork-assurance stages passed; safe reads passed `445/446` with the known `ProposalFacet.queue` fixture gap.
-- API-05 advances from `147/260` to `148/260` proven methods, leaving `112` open. Source commit `5f4e310b0d692129ad3d6d05331c3ba179592027` is awaiting hosted API quality CI.
+- API-05 advances from `147/260` to `148/260` proven methods, leaving `112` open. Source commit `5f4e310b0d692129ad3d6d05331c3ba179592027` passed hosted API quality CI [45559294213](https://github.com/chefbc2k/api-layer/actions/runs/45559294213).
 - Durable proof: [degraded-mode proof](output/api05-staking-degraded-mode-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json).
 
 # 2026-11-25 — Prove EchoScore oracle address update

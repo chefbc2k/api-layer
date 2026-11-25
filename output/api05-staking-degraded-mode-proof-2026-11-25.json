@@ -154,7 +154,8 @@
     "fullContractIntegration": "passed; 53/53",
     "codegenAndCoverage": "passed; 492 functions, 218 events, 260/260 reviewed write invariants",
     "indexerEventAssurance": "passed; 210/210",
-    "sourceCi": "pending"
+    "sourceCi": "passed; hosted API quality run 45559294213 on source commit 5f4e310b0d692129ad3d6d05331c3ba179592027",
+    "sourceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45559294213"
   },
   "methodCounts": {
     "startingProven": 147,
