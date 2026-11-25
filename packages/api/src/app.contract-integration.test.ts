@@ -600,6 +600,7 @@ describeLive("HTTP API contract integration", () => {
   const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
   const oracleQuorumSignersProofObservations: Array<Record<string, unknown>> = [];
   const oraclePauseProofObservations: Array<Record<string, unknown>> = [];
+  const oracleAddressProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
@@ -1025,6 +1026,7 @@ describeLive("HTTP API contract integration", () => {
         oracleFutureDriftProofObservations,
         oracleQuorumSignersProofObservations,
         oraclePauseProofObservations,
+        oracleAddressProofObservations,
         emergencyTimeoutProofObservations,
         ownershipPolicyProofObservations,
         proposalCancellationProofObservations,
@@ -8422,6 +8424,100 @@ describeLive("HTTP API contract integration", () => {
       finalStateRestored: true,
       forkScopedFixture: true,
     });
+  }, 180_000);
+
+  it("proves the EchoScore oracle address update through HTTP on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "EchoScore oracle address receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
+    const originalOracle = String(await oracle.getEchoScoreOracleV3());
+    const targetOracle = outsiderWallet.address;
+    expect(targetOracle.toLowerCase()).not.toBe(originalOracle.toLowerCase());
+    let updateTransactionHash: string | null = null;
+    let restoreTransactionHash: string | null = null;
+
+    try {
+      const update = await apiCall(port, "PATCH", "/v1/staking/commands/set-echo-score-oracle-v3", {
+        apiKey: "founder-key",
+        body: { newOracle: targetOracle },
+      });
+      expect(update.status, JSON.stringify(update.payload)).toBe(202);
+      updateTransactionHash = extractTxHash(update.payload);
+      await expectReceipt(updateTransactionHash);
+      const updateReceipt = await provider.getTransactionReceipt(updateTransactionHash);
+      expect(updateReceipt?.status).toBe(1);
+      const updateEvent = (updateReceipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = oracle.interface.parseLog(log);
+          return parsed?.name === "OracleUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(updateEvent).toHaveLength(1);
+      expect(String(updateEvent[0]!.args.oldOracle).toLowerCase()).toBe(originalOracle.toLowerCase());
+      expect(String(updateEvent[0]!.args.newOracle).toLowerCase()).toBe(targetOracle.toLowerCase());
+      expect(String(await oracle.getEchoScoreOracleV3()).toLowerCase()).toBe(targetOracle.toLowerCase());
+
+      const readback = await apiCall(port, "POST", "/v1/staking/queries/get-echo-score-oracle-v3", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(String(readback.payload).toLowerCase()).toBe(targetOracle.toLowerCase());
+    } finally {
+      const currentOracle = String(await oracle.getEchoScoreOracleV3());
+      if (currentOracle.toLowerCase() !== originalOracle.toLowerCase()) {
+        const restore = await apiCall(port, "PATCH", "/v1/staking/commands/set-echo-score-oracle-v3", {
+          apiKey: "founder-key",
+          body: { newOracle: originalOracle },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        restoreTransactionHash = extractTxHash(restore.payload);
+        await expectReceipt(restoreTransactionHash);
+        const restoreReceipt = await provider.getTransactionReceipt(restoreTransactionHash);
+        expect(restoreReceipt?.status).toBe(1);
+        expect((restoreReceipt?.logs ?? []).some((log) => {
+          try {
+            return oracle.interface.parseLog(log)?.name === "OracleUpdated";
+          } catch {
+            return false;
+          }
+        })).toBe(true);
+      }
+      expect(String(await oracle.getEchoScoreOracleV3()).toLowerCase()).toBe(originalOracle.toLowerCase());
+      // The generated getter uses a five-second response cache.
+      await delay(6_000);
+      const finalReadback = await apiCall(port, "POST", "/v1/staking/queries/get-echo-score-oracle-v3", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(finalReadback.status).toBe(200);
+      expect(String(finalReadback.payload).toLowerCase()).toBe(originalOracle.toLowerCase());
+      oracleAddressProofObservations.push({
+        methodKey: "EchoScoreFacetV3.setEchoScoreOracleV3",
+        route: "PATCH /v1/staking/commands/set-echo-score-oracle-v3",
+        actor: "founder fixture signer with PLATFORM_ADMIN_ROLE",
+        originalOracle,
+        targetOracle,
+        restoredOracle: String(await oracle.getEchoScoreOracleV3()),
+        updateTransactionHash,
+        restoreTransactionHash,
+        event: "EchoScoreFacetV3.OracleUpdated(address,address)",
+        canonicalReadbackMatched: true,
+        httpReadbackMatched: true,
+        finalStateRestored: true,
+        forkScopedFixture: true,
+      });
+    }
   }, 180_000);
 
   it("proves emergency timeout configuration receipts remain indexable on the local fork", async (ctx) => {
