@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T07:00:03.116Z",
+  "generatedAt": "2026-11-25T07:20:54.973Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5557,
-    "includedArtifacts": 6,
+    "artifactTransactionHashes": 5559,
+    "includedArtifacts": 7,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5557,
+    "indexedReceipts": 5559,
     "provenWriteMethods": 149,
     "catalogWriteMethods": 260,
     "remainingWriteMethods": 111,
-    "rawEvents": 8407,
+    "rawEvents": 8409,
     "projectionRows": 5403
   },
   "reports": {
@@ -51591,6 +51591,56 @@
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.pauseEchoScoreV3",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "pauseEchoScoreV3()",
+          "txHash": "0x8cf506d8adf940bf3b65b07dd4d3a388e94107b8a3ef58ca311b918c7e6577d5",
+          "blockNumber": 63346853,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.Paused(address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63346853",
+                  "block_hash": "0x25fb450331a33cb842ab12426c45c4b89988a0cc42b58ffc1929d6c0b520634b"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-pause-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
         }
       ],
       "finalClassification": "proven working",
@@ -52494,6 +52544,56 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.unpauseEchoScoreV3",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "unpauseEchoScoreV3()",
+          "txHash": "0x9ab0caed659114399f999c995c099ea4293ca64df598d181375ed59621f60419",
+          "blockNumber": 63346854,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.Unpaused(address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63346854",
+                  "block_hash": "0x371609caa33f6df4b532275b643b11987ae1569a6f468c27076e03298842b65f"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-pause-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "EchoScoreFacetV3.unpauseEchoScoreV3",

@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 historical method revalidation",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "methods": [
+    {
+      "methodKeys": [
+        "EchoScoreFacetV3.pauseEchoScoreV3",
+        "EchoScoreFacetV3.unpauseEchoScoreV3"
+      ],
+      "pauseRoute": "POST /v1/staking/commands/pause-echo-score-v3",
+      "unpauseRoute": "POST /v1/staking/commands/unpause-echo-score-v3",
+      "actor": "founder fixture signer with PLATFORM_ADMIN_ROLE",
+      "initialPaused": false,
+      "pauseTransactionHash": "0x8cf506d8adf940bf3b65b07dd4d3a388e94107b8a3ef58ca311b918c7e6577d5",
+      "unpauseTransactionHash": "0x9ab0caed659114399f999c995c099ea4293ca64df598d181375ed59621f60419",
+      "pauseEvent": "EchoScoreFacetV3.Paused(address)",
+      "unpauseEvent": "EchoScoreFacetV3.Unpaused(address)",
+      "canonicalReadbacksMatched": true,
+      "httpReadbacksMatched": true,
+      "finalStateRestored": true,
+      "forkScopedFixture": true
+    }
+  ],
+  "transactionHashes": [
+    "0x8cf506d8adf940bf3b65b07dd4d3a388e94107b8a3ef58ca311b918c7e6577d5",
+    "0x9ab0caed659114399f999c995c099ea4293ca64df598d181375ed59621f60419"
+  ],
+  "observations": {
+    "focusedTest": "passed; 1 passed, 53 skipped",
+    "stateRestored": true,
+    "canonicalAndHttpReadbacksMatched": true,
+    "events": [
+      "EchoScoreFacetV3.Paused(address)",
+      "EchoScoreFacetV3.Unpaused(address)"
+    ],
+    "postgresRawEvents": 2,
+    "blockJournalRows": 2,
+    "idempotentReplay": true
+  },
+  "indexer": {
+    "classification": "proven working",
+    "methodReports": {
+      "EchoScoreFacetV3.pauseEchoScoreV3": {
+        "routes": [
+          "POST /v1/staking/commands/pause-echo-score-v3"
+        ],
+        "actors": [
+          "local-fork-fixture"
+        ],
+        "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        "evidence": [
+          {
+            "localFork": true,
+            "methodKey": "EchoScoreFacetV3.pauseEchoScoreV3",
+            "affectedFacet": "EchoScoreFacetV3",
+            "methodSignature": "pauseEchoScoreV3()",
+            "txHash": "0x8ad7c68bcec65de2889b111db91eaf1e88534d1b0388b5118da8e5f8709ae54a",
+            "blockNumber": 63338135,
+            "receipt": {
+              "status": 1,
+              "logCount": 1
+            },
+            "decodedEvents": [
+              {
+                "rawEventId": "274",
+                "logIndex": 0,
+                "eventKey": "EchoScoreFacetV3.Paused(address)"
+              }
+            ],
+            "postgres": {
+              "rawEvents": {
+                "table": "raw_events",
+                "rowCount": 1,
+                "rowIds": [
+                  "274"
+                ]
+              },
+              "projections": [],
+              "blockJournal": {
+                "table": "indexer_blocks",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "block_number": "63338135",
+                    "block_hash": "0x7f73a183ac4007966a60579651597b418419decfa5a2697827b2345f1269631b"
+                  }
+                ]
+              }
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            },
+            "source": {
+              "workflowArtifacts": [
+                ".runtime/local-fork-proofs/http-contract-receipts.json"
+              ],
+              "producers": [
+                "packages/api/src/app.contract-integration.test.ts"
+              ],
+              "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+            }
+          },
+          {
+            "localFork": true,
+            "methodKey": "EchoScoreFacetV3.pauseEchoScoreV3",
+            "affectedFacet": "EchoScoreFacetV3",
+            "methodSignature": "pauseEchoScoreV3()",
+            "txHash": "0x8cf506d8adf940bf3b65b07dd4d3a388e94107b8a3ef58ca311b918c7e6577d5",
+            "blockNumber": 63346853,
+            "receipt": {
+              "status": 1,
+              "logCount": 1
+            },
+            "decodedEvents": [
+              {
+                "rawEventId": "1",
+                "logIndex": 0,
+                "eventKey": "EchoScoreFacetV3.Paused(address)"
+              }
+            ],
+            "postgres": {
+              "rawEvents": {
+                "table": "raw_events",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ]
+              },
+              "projections": [],
+              "blockJournal": {
+                "table": "indexer_blocks",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "block_number": "63346853",
+                    "block_hash": "0x25fb450331a33cb842ab12426c45c4b89988a0cc42b58ffc1929d6c0b520634b"
+                  }
+                ]
+              }
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            },
+            "source": {
+              "workflowArtifacts": [
+                ".runtime/api05-echo-pause-receipts.json"
+              ],
+              "producers": [],
+              "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+            }
+          }
+        ],
+        "finalClassification": "proven working",
+        "classification": "proven working",
+        "result": "proven working"
+      },
+      "EchoScoreFacetV3.unpauseEchoScoreV3": {
+        "routes": [
+          "POST /v1/staking/commands/unpause-echo-score-v3"
+        ],
+        "actors": [
+          "local-fork-fixture"
+        ],
+        "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        "evidence": [
+          {
+            "localFork": true,
+            "methodKey": "EchoScoreFacetV3.unpauseEchoScoreV3",
+            "affectedFacet": "EchoScoreFacetV3",
+            "methodSignature": "unpauseEchoScoreV3()",
+            "txHash": "0x9ab0caed659114399f999c995c099ea4293ca64df598d181375ed59621f60419",
+            "blockNumber": 63346854,
+            "receipt": {
+              "status": 1,
+              "logCount": 1
+            },
+            "decodedEvents": [
+              {
+                "rawEventId": "2",
+                "logIndex": 0,
+                "eventKey": "EchoScoreFacetV3.Unpaused(address)"
+              }
+            ],
+            "postgres": {
+              "rawEvents": {
+                "table": "raw_events",
+                "rowCount": 1,
+                "rowIds": [
+                  "2"
+                ]
+              },
+              "projections": [],
+              "blockJournal": {
+                "table": "indexer_blocks",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "block_number": "63346854",
+                    "block_hash": "0x371609caa33f6df4b532275b643b11987ae1569a6f468c27076e03298842b65f"
+                  }
+                ]
+              }
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            },
+            "source": {
+              "workflowArtifacts": [
+                ".runtime/api05-echo-pause-receipts.json"
+              ],
+              "producers": [],
+              "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+            }
+          },
+          {
+            "localFork": true,
+            "methodKey": "EchoScoreFacetV3.unpauseEchoScoreV3",
+            "affectedFacet": "EchoScoreFacetV3",
+            "methodSignature": "unpauseEchoScoreV3()",
+            "txHash": "0xc94dbe9d9d8efe6d2f658ce8634b23a0532c8c5a503df184147e5d704fec14b6",
+            "blockNumber": 63338136,
+            "receipt": {
+              "status": 1,
+              "logCount": 1
+            },
+            "decodedEvents": [
+              {
+                "rawEventId": "275",
+                "logIndex": 0,
+                "eventKey": "EchoScoreFacetV3.Unpaused(address)"
+              }
+            ],
+            "postgres": {
+              "rawEvents": {
+                "table": "raw_events",
+                "rowCount": 1,
+                "rowIds": [
+                  "275"
+                ]
+              },
+              "projections": [],
+              "blockJournal": {
+                "table": "indexer_blocks",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "block_number": "63338136",
+                    "block_hash": "0x05da8b7cf2558f051fdf6b1c304e24dc80d7cc23175ee85516bc92305e354175"
+                  }
+                ]
+              }
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            },
+            "source": {
+              "workflowArtifacts": [
+                ".runtime/local-fork-proofs/http-contract-receipts.json"
+              ],
+              "producers": [
+                "packages/api/src/app.contract-integration.test.ts"
+              ],
+              "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+            }
+          }
+        ],
+        "finalClassification": "proven working",
+        "classification": "proven working",
+        "result": "proven working"
+      }
+    },
+    "artifact": "verify-local-fork-indexer-output.json",
+    "artifactSha256": "23d7419a16a51b7a7e1c4925d29acba0c7782e532143cf43a0484eaabebe0857"
+  },
+  "methodCounts": {
+    "startingProven": 149,
+    "startingOpen": 111,
+    "endingProven": 149,
+    "endingOpen": 111,
+    "acceptedNewMethods": 0,
+    "reason": "Both method keys already existed in the cumulative report; this run adds fresh receipt evidence without changing unique-method acceptance."
+  }
+}

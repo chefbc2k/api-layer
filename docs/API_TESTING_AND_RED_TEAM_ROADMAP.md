@@ -1,3 +1,8 @@
+# API-05 Follow-on — EchoScore Pause Lifecycle Revalidation — 2026-11-25
+
+- Revalidated `EchoScoreFacetV3.pauseEchoScoreV3` and `EchoScoreFacetV3.unpauseEchoScoreV3` through their HTTP command routes on a disposable loopback fork. The successful receipts contained `Paused` and `Unpaused`; canonical and HTTP reads matched and the original unpaused state was restored. PostgreSQL stored two raw events and block journals, with idempotent replay.
+- Both keys were already present in the cumulative acceptance report. This run adds fresh receipt evidence but no newly accepted method: API-05 remains at `149/260`, with `111` open. See [revalidation proof](../output/api05-echo-score-pause-revalidation-2026-11-25.json).
+
 # API-05 Follow-on — Access-Control Pause Lifecycle Proof — 2026-11-25
 
 - Added exact loopback-fork HTTP proof for `AccessControlFacet.setPaused` through `POST /v1/access-control/admin/set-paused`. The diamond temporarily received `EMERGENCY_ADMIN_ROLE` for the nested self-call, then the test verified the emergency transition (automatic escalation produced `LOCKED_DOWN` in the full run), restored `NORMAL`, revoked the temporary role, and matched canonical/HTTP readbacks.

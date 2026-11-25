@@ -1,3 +1,8 @@
+# 2026-11-25 — Revalidate EchoScore pause lifecycle receipts
+
+- Revalidated the HTTP pause/resume lifecycle for `EchoScoreFacetV3.pauseEchoScoreV3` and `EchoScoreFacetV3.unpauseEchoScoreV3` on a disposable loopback Base Sepolia fork. Both receipts emitted the expected event, canonical and HTTP readbacks matched, original unpaused state was restored, and PostgreSQL indexing plus idempotent replay passed.
+- These methods already existed in the cumulative accepted-method report, so this adds fresh receipt evidence without changing API-05's `149/260` count or `111` remaining. Durable revalidation: [proof artifact](output/api05-echo-score-pause-revalidation-2026-11-25.json).
+
 # 2026-11-25 — Prove access-control pause lifecycle
 
 - Added a loopback-fork HTTP proof for `AccessControlFacet.setPaused`, including a temporary diamond `EMERGENCY_ADMIN_ROLE` grant for the nested emergency call, pause/resume state readbacks, and role revocation. The full run observed automatic escalation to `LOCKED_DOWN` and restored `NORMAL`; reviewed invariant metadata now records that behavior and the hidden role precondition.

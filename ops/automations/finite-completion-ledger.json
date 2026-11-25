@@ -1602,6 +1602,24 @@
           "ciRunId": 45565290774,
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45565290774",
           "ciCommit": "372329377bfe90299e42308f0b61a673101b4479"
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-echo-score-pause-revalidation-2026-11-25.json",
+          "proofArtifactSha256": "d78449052cd42440bf8ad67f4f6adaac0420aa36ef2089c5d86db324af827941",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "23d7419a16a51b7a7e1c4925d29acba0c7782e532143cf43a0484eaabebe0857",
+          "result": "Revalidated EchoScoreFacetV3.pauseEchoScoreV3 and EchoScoreFacetV3.unpauseEchoScoreV3 through HTTP on a disposable loopback Base Sepolia fork. Both status-1 receipts emitted the expected Paused/Unpaused event, direct and HTTP readbacks matched, and original unpaused state was restored. PostgreSQL indexed two raw events and block journals; idempotent replay was unchanged. These keys were already present in cumulative acceptance, so the run adds zero newly accepted methods; API-05 remains 149/260 proven with 111 open.",
+          "startingProvenCount": 149,
+          "startingOpenCount": 111,
+          "completedThisRun": 0,
+          "endingProvenCount": 149,
+          "endingOpenCount": 111,
+          "checks": [
+            "Focused HTTP contract test passed: 1 passed, 53 skipped.",
+            "Receipt indexer proof passed for two receipts, with raw event decoding, block journals, and idempotent replay.",
+            "Both method keys were already accepted in the cumulative report; no unique-method count change."
+          ]
         }
       ],
       "deliveredCommit": null,

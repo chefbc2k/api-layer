@@ -56,6 +56,7 @@ type ApiResponse = {
 };
 
 const originalEnv = { ...process.env };
+const keepLocalForkAfterContractIntegration = process.env.API_LAYER_KEEP_LOCAL_FORK === "1";
 const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
 const HTTP_API_TIMEOUT_MS = 45_000;
 const SAFE_READ_ATTEMPTS = 4;
@@ -1023,8 +1024,18 @@ describeLive("HTTP API contract integration", () => {
     const receiptArtifactPath = process.env.API_LAYER_CONTRACT_RECEIPT_ARTIFACT;
     if (receiptArtifactPath) {
       const resolvedArtifactPath = path.resolve(receiptArtifactPath);
+      const mergeExistingArtifact = process.env.API_LAYER_MERGE_CONTRACT_RECEIPT_ARTIFACT === "1";
+      let existingArtifact: Record<string, unknown> = {};
+      if (mergeExistingArtifact) {
+        try {
+          existingArtifact = JSON.parse(await readFile(resolvedArtifactPath, "utf8")) as Record<string, unknown>;
+        } catch {
+          existingArtifact = {};
+        }
+      }
       await mkdir(path.dirname(resolvedArtifactPath), { recursive: true });
       await writeFile(resolvedArtifactPath, `${JSON.stringify({
+        ...existingArtifact,
         schemaVersion: 1,
         generatedAt: new Date().toISOString(),
         summary: "proven working",
@@ -1044,7 +1055,7 @@ describeLive("HTTP API contract integration", () => {
     }
     server?.close();
     await provider?.destroy();
-    if (localForkProcess && localForkProcess.exitCode === null) {
+    if (localForkProcess && localForkProcess.exitCode === null && !keepLocalForkAfterContractIntegration) {
       localForkProcess.kill("SIGTERM");
     }
     process.env = { ...originalEnv };
