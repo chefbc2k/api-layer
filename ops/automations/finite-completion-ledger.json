@@ -2112,10 +2112,10 @@
           }
         },
         {
-          "sourceCommit": "pending",
+          "sourceCommit": "0ee018bf1cc819730dfa5929a526dfd68bf401cf",
           "artifact": "output/api06-treasury-role-acceptance-gap-2026-11-25.json",
           "proofArtifactSha256": "b706c50ec7168460a4255c3b46f277f85b17425ec458df4c136424ee87e76b71",
-          "result": "Replaced direct anvil_setStorageAt treasury signer setup in the local-fork API scenario with supported HTTP grantRole calls through the deployed admin chain TIMELOCK_ROLE → BOARD_MEMBER_ROLE → TREASURY_ROLE → TREASURY_SIGNER_ROLE. Distinct founder and licensee signers were provisioned and read back through the API. The multisig workflow then submitted two successful approvals with no balance/liability movement and executed a 920-unit withdrawal with exact pending, custody, and recipient deltas. API-06 remains open because approvalCount is derived from submitted tx hashes and the deployed PaymentFacet emits no approval event or getter; PostgreSQL/indexer replay acceptance was not obtained.",
+          "result": "success: API quality gates for exact source commit; treasury criterion remains open pending deployed contract observability and indexed receipt/replay proof",
           "checks": [
             "Focused local-fork HTTP integration passed: one treasury/payout scenario; 62 unrelated cases skipped.",
             "Contract role-admin readbacks matched: BOARD_MEMBER_ROLE admin TIMELOCK_ROLE; TREASURY_ROLE admin BOARD_MEMBER_ROLE; TREASURY_SIGNER_ROLE admin TREASURY_ROLE.",
@@ -2125,7 +2125,8 @@
             "TypeScript, focused ESLint, and git diff --check passed after the API test changes.",
             "The proof artifact records receipt block numbers/status/log counts and exact transaction hashes; because the scenario reverts its fork snapshot after assertions, no PostgreSQL/replay acceptance is claimed."
           ],
-          "resultLimitation": "Treasury role provisioning and economic consequences now use supported API paths, but API-06 treasury acceptance requires a contract approval event or getter, API-level observation of the stored approval count, and PostgreSQL/indexer plus replay evidence."
+          "resultLimitation": "Treasury role provisioning and economic consequences now use supported API paths, but API-06 treasury acceptance requires a contract approval event or getter, API-level observation of the stored approval count, and PostgreSQL/indexer plus replay evidence.",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45599336744"
         }
       ],
       "deliveredCommit": null,
