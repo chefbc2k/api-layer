@@ -1305,6 +1305,37 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45517260884",
           "ciCommit": "a8f8196df14675485ff753ff2ec6ada57619e336",
           "assuranceReportPath": ".runtime/api05-echo-score-staleness-pinned-assurance-report.json (ephemeral local report; checksum preserved)"
+        },
+        {
+          "sourceCommit": "4f761c974c3425f96aa7eade51e7cc8a6f24482f",
+          "artifact": "output/api05-echo-score-future-drift-proof-2026-11-25.json",
+          "proofArtifactSha256": "01137371bd05d72ba3896dcaa6d66c9e2e6d91a9dc90175a6987db3b85400eec",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "04bfbd786758466d9f0d57504882243d3163c04c2e6bfd8460db6cae832a3502",
+          "result": "Added exact-source local-fork proof for EchoScoreFacetV3.setOracleFutureDriftConfig through PATCH /v1/staking/commands/set-oracle-future-drift-config. Founder fixture signer with GOVERNANCE_ROLE changed maxFutureSeconds from 300 to 301 and restored 300. Both status-1 receipts emitted OracleFutureDriftConfigUpdated; canonical and HTTP reads matched. PostgreSQL stored one raw event and block journal per receipt, no projection under the reviewed raw-event-only invariant, and replay was idempotent. API-05 advances from 140/260 to 141/260 proven methods, leaving 119 open.",
+          "startingProvenCount": 140,
+          "startingOpenCount": 120,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8333,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 141,
+          "endingOpenCount": 119,
+          "assuranceReportSha256": "c5629c23ba5bc86741998362656e78260054dd1946c1e36c16863c248fca5719",
+          "assuranceReportPath": ".runtime/api05-future-drift-evidence-report.json (ephemeral local report; checksum preserved)",
+          "checks": [
+            "Focused current-source oracle future-drift HTTP integration passed on the loopback Base Sepolia fork; update and restoration each returned a status-1 receipt with the expected event.",
+            "Full local-fork assurance passed all 12 stages; all safe reads passed except the known ProposalFacet.queue fixture gap (445/446).",
+            "Update receipt 0xe31a87d3dbe6b3ac459cefc65c9bf7777faf6e1db4de85216845567e513fed69 at block 63226854 emitted raw event 270; restore receipt 0xc690218b37e912e41584cbf17c016631fc9c8ecf2c7d51a95915ec7ab70813fc at block 63226855 emitted raw event 271.",
+            "PostgreSQL recorded one raw event and block-journal row per receipt, no projection; replay was unchanged and idempotent.",
+            "Final canonical getter confirms maxFutureSeconds 300 was restored.",
+            "Pinned codegen passed: 492 functions, 218 events, and 260/260 reviewed write invariants.",
+            "Hosted API quality run 45521013544 passed every configured gate on source commit 4f761c974c3425f96aa7eade51e7cc8a6f24482f, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
+          ],
+          "resultLimitation": "This run completed 1 of the 120 open methods (0.8333%), below the bounded target of 35; API-05 remains in_progress with 119 methods open.",
+          "ciRunId": 45521013544,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45521013544",
+          "ciCommit": "4f761c974c3425f96aa7eade51e7cc8a6f24482f"
         }
       ],
       "deliveredCommit": null,

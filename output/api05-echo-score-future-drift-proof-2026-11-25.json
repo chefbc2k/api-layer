@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "sourceCommit": "4f761c974c3425f96aa7eade51e7cc8a6f24482f",
+  "methods": [
+    {
+      "methodKey": "EchoScoreFacetV3.setOracleFutureDriftConfig",
+      "route": "PATCH /v1/staking/commands/set-oracle-future-drift-config",
+      "actor": "founder fixture signer with GOVERNANCE_ROLE",
+      "fixture": {
+        "originalMaxFutureSeconds": "300",
+        "testMaxFutureSeconds": "301",
+        "restoredMaxFutureSeconds": "300"
+      },
+      "readbacks": {
+        "canonicalGetterMatched": true,
+        "httpGetterMatched": true,
+        "finalRestorationConfirmed": true
+      },
+      "event": {
+        "name": "OracleFutureDriftConfigUpdated",
+        "signature": "OracleFutureDriftConfigUpdated(uint256)",
+        "eventKey": "EchoScoreFacetV3.OracleFutureDriftConfigUpdated(uint256)"
+      },
+      "receipts": [
+        {
+          "targetMaxFutureSeconds": "301",
+          "receipt": {
+            "transactionHash": "0xe31a87d3dbe6b3ac459cefc65c9bf7777faf6e1db4de85216845567e513fed69",
+            "blockNumber": 63226854,
+            "blockHash": "0x77587a1a88688915ce9e9c1ce68fb18b9d31be63bf6abaef8ed04cf3cdf862e2",
+            "status": 1,
+            "logCount": 1,
+            "eventRawId": "270"
+          },
+          "indexer": {
+            "rawEvents": 1,
+            "rawEventIds": [
+              "270"
+            ],
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "blockNumber": 63226854,
+              "blockHash": "0x77587a1a88688915ce9e9c1ce68fb18b9d31be63bf6abaef8ed04cf3cdf862e2"
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            }
+          }
+        },
+        {
+          "targetMaxFutureSeconds": "300",
+          "receipt": {
+            "transactionHash": "0xc690218b37e912e41584cbf17c016631fc9c8ecf2c7d51a95915ec7ab70813fc",
+            "blockNumber": 63226855,
+            "blockHash": "0x6fe0e352ddfcffb2adc13195367c950108404171c815156a2e06303659453f8d",
+            "status": 1,
+            "logCount": 1,
+            "eventRawId": "271"
+          },
+          "indexer": {
+            "rawEvents": 1,
+            "rawEventIds": [
+              "271"
+            ],
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "blockNumber": 63226855,
+              "blockHash": "0x6fe0e352ddfcffb2adc13195367c950108404171c815156a2e06303659453f8d"
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            }
+          }
+        }
+      ],
+      "result": "proven working"
+    }
+  ],
+  "cumulative": {
+    "provenMethods": 141,
+    "catalogMethods": 260,
+    "remainingMethods": 119,
+    "indexedReceipts": 4332,
+    "rawEvents": 6584,
+    "projectionRows": 4259
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "reportSha256": "c5629c23ba5bc86741998362656e78260054dd1946c1e36c16863c248fca5719",
+    "reportPath": ".runtime/api05-future-drift-evidence-report.json (ephemeral local report; checksum preserved)",
+    "stagesPassed": 12,
+    "structuredGaps": [
+      {
+        "methodKey": "ProposalFacet.queue",
+        "route": "GET /v1/governance/queries/queue",
+        "detail": "safe read returned HTTP 500"
+      }
+    ]
+  },
+  "resultLimitation": "This run completed 1 of the 120 open methods (0.8333%), below the bounded target of 35; API-05 remains in_progress with 119 methods open."
+}

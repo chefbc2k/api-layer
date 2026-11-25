@@ -1,3 +1,9 @@
+# 2026-11-25 — Prove oracle future-drift configuration indexing
+
+- Added exact loopback-fork API proof for `EchoScoreFacetV3.setOracleFutureDriftConfig`; `maxFutureSeconds` changed from `300` to `301` and was restored to `300`. Update and restore receipts emitted the expected event, and canonical plus HTTP readbacks matched.
+- PostgreSQL stored raw events `270` and `271` with block journals; no projection was expected, and replay was idempotent. Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` safe-read gap (`445/446`).
+- API-05 advances to `141/260`, leaving `119` methods open. Hosted API quality CI [45521013544](https://github.com/chefbc2k/api-layer/actions/runs/45521013544) passed on source commit `4f761c974c3425f96aa7eade51e7cc8a6f24482f`.
+
 # 2026-11-24 — Prove oracle staleness configuration indexing
 
 - Added exact loopback-fork proof for `EchoScoreFacetV3.setOracleStalenessConfig`; API update and restoration receipts each emitted the expected event, and the final value was restored to `86400`.
