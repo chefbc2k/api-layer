@@ -1296,12 +1296,14 @@
             "Indexer evidence: update receipt 0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8 at block 63207569, raw event 268; restore receipt 0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350 at block 63207570, raw event 269. Both were journaled, replayed unchanged, and classified proven working.",
             "Final direct getter confirms original maxAgeSeconds 86400 was restored on the loopback fork.",
             "The initial runner attempt used the sibling contracts checkout’s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
-            "Hosted API quality run 45514446423 passed every configured gate on evidence commit c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
+            "Hosted API quality run 45514446423 passed every configured gate on evidence commit c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.",
+            "Pinned-manifest local assurance report checksum 7302343d2767d56f014c9e8a52b416f48ca342aedc9f37c515572f6917065ca6; all 12 stages passed, with only ProposalFacet.queue safe-read fixture gap.",
+            "Hosted API quality run 45517260884 passed every configured gate on evidence commit a8f8196df14675485ff753ff2ec6ada57619e336."
           ],
           "resultLimitation": "This run completed 1 of the 121 open methods (0.8264%), below the bounded target of 35; API-05 remains in_progress with 120 methods open. The pinned local assurance rerun has one structured gap: ProposalFacet.queue still lacks a working safe-read fixture.",
-          "ciRunId": 45514446423,
-          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45514446423",
-          "ciCommit": "c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea",
+          "ciRunId": 45517260884,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45517260884",
+          "ciCommit": "a8f8196df14675485ff753ff2ec6ada57619e336",
           "assuranceReportPath": ".runtime/api05-echo-score-staleness-pinned-assurance-report.json (ephemeral local report; checksum preserved)"
         }
       ],
