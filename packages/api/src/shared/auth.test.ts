@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  type AuthContext,
   assertAdminAuthorized,
   assertAdminNetworkAuthorized,
   assertWriteAuthorized,
@@ -11,6 +12,24 @@ import {
 describe("auth", () => {
   it("returns an empty api key map when the environment is unset", () => {
     expect(loadApiKeys({})).toEqual({});
+  });
+
+  it("reads API keys from process.env when no environment override is supplied", () => {
+    const original = process.env.API_LAYER_KEYS_JSON;
+    process.env.API_LAYER_KEYS_JSON = JSON.stringify({ "environment-key": { label: "environment" } });
+    try {
+      expect(loadApiKeys()).toEqual({
+        "environment-key": {
+          apiKey: "environment-key",
+          label: "environment",
+          allowGasless: false,
+          roles: ["service"],
+        },
+      });
+    } finally {
+      if (original === undefined) delete process.env.API_LAYER_KEYS_JSON;
+      else process.env.API_LAYER_KEYS_JSON = original;
+    }
   });
 
   it("parses api keys and applies schema defaults", () => {
@@ -65,6 +84,17 @@ describe("auth", () => {
         "reader-key",
       ),
     ).toThrow("invalid x-api-key");
+  });
+
+  it("rejects an own api key entry without an authenticated context", () => {
+    const apiKeys = Object.create(null) as Record<string, AuthContext>;
+    Object.defineProperty(apiKeys, "broken-key", {
+      configurable: true,
+      enumerable: true,
+      value: undefined,
+    });
+
+    expect(() => authenticate(apiKeys, "broken-key")).toThrow("invalid x-api-key");
   });
 
   it("returns the authenticated context for a known api key", () => {
