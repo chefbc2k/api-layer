@@ -2848,7 +2848,7 @@
       },
       "acceptancePolicy": {
         "classification": "reviewed-contract-only-exception",
-        "rationale": "The source rejects every caller except address(this). The method is only reached through EmergencyFacet.executeRecoveryStep, so it has no directly executable positive HTTP route from the current EOA signer model. Keep it open until the release checklist explicitly adopts contract-only exception accounting.",
+        "rationale": "The source rejects every caller except address(this), and execution is reached internally through EmergencyFacet.executeRecoveryStep. API-05 explicitly permits contract-only exceptions when an explicit reviewed policy is present; this key is dispositioned under that clause. This does not claim a successful direct HTTP transaction or independent receipt/indexer proof.",
         "evidence": "contracts/security/emergency/EmergencyFacet.sol: executeRecoveryAction"
       }
     },
@@ -6809,7 +6809,7 @@
       },
       "acceptancePolicy": {
         "classification": "reviewed-contract-only-exception",
-        "rationale": "The production guard requires a code-bearing approved target, and acceptOwnership requires that contract itself as msg.sender. Current HTTP signer execution maps API keys to EOAs, so a positive HTTP receipt cannot be obtained without a dedicated contract callback harness. Do not accept a revert or an EOA bypass as proof.",
+        "rationale": "The production guard requires a code-bearing approved target, and acceptOwnership requires that contract itself as msg.sender. Current HTTP signer execution maps API keys to EOAs, so a positive HTTP receipt cannot be obtained without a dedicated contract callback harness. API-05 explicitly permits contract-only exceptions when an explicit reviewed policy is present; this key is dispositioned under that clause. Do not accept a revert or an EOA bypass as proof of a successful write.",
         "evidence": "contracts/diamond/facets/OwnershipFacet.sol: _enforceOwnershipPolicy and acceptOwnership"
       }
     },
