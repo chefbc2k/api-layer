@@ -10905,15 +10905,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "GOVERNANCE_ROLE",
-          "PAUSER_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable GOVERNANCE_ROLE or PAUSER_ROLE privilege for StakingFacet."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; StakingFacet.setDegradedModeConfig uses onlyRole(PLATFORM_ADMIN_ROLE)."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable GOVERNANCE_ROLE or PAUSER_ROLE privilege for StakingFacet."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; StakingFacet.setDegradedModeConfig uses onlyRole(PLATFORM_ADMIN_ROLE)."
         },
         {
           "kind": "argument",
@@ -10935,11 +10934,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "StakingFacet.TierConfigUpdated"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The implementation writes the degraded-mode configuration without emitting an event; canonical post-state reads are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
@@ -10961,14 +10958,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "required",
-        "events": [
-          "StakingFacet.TierConfigUpdated"
-        ],
-        "projections": [
-          "staking_positions:current"
-        ],
-        "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+        "mode": "none",
+        "events": [],
+        "projections": [],
+        "assertion": "The receipt is successful and eventless; no raw event or projection is fabricated, and replay leaves indexed state unchanged."
       }
     },
     "StakingFacet.setEchoScoreBoost": {

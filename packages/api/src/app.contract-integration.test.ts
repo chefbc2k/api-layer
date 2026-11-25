@@ -601,6 +601,7 @@ describeLive("HTTP API contract integration", () => {
   const oracleQuorumSignersProofObservations: Array<Record<string, unknown>> = [];
   const oraclePauseProofObservations: Array<Record<string, unknown>> = [];
   const oracleAddressProofObservations: Array<Record<string, unknown>> = [];
+  const degradedModeConfigProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
@@ -1027,6 +1028,7 @@ describeLive("HTTP API contract integration", () => {
         oracleQuorumSignersProofObservations,
         oraclePauseProofObservations,
         oracleAddressProofObservations,
+        degradedModeConfigProofObservations,
         emergencyTimeoutProofObservations,
         ownershipPolicyProofObservations,
         proposalCancellationProofObservations,
@@ -8512,6 +8514,133 @@ describeLive("HTTP API contract integration", () => {
         updateTransactionHash,
         restoreTransactionHash,
         event: "EchoScoreFacetV3.OracleUpdated(address,address)",
+        canonicalReadbackMatched: true,
+        httpReadbackMatched: true,
+        finalStateRestored: true,
+        forkScopedFixture: true,
+      });
+    }
+  }, 180_000);
+
+  it("proves degraded-mode configuration receipts remain indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "degraded-mode configuration receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const staking = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
+    const originalConfig = await staking.getDegradedModeConfig();
+    const original = {
+      enabled: Boolean(originalConfig.enabled),
+      staleAfterSeconds: BigInt(originalConfig.staleAfterSeconds),
+      maxStakePerWallet: BigInt(originalConfig.maxStakePerWallet),
+    };
+    const target = { ...original, enabled: !original.enabled };
+    let updateTransactionHash: string | null = null;
+    let restoreTransactionHash: string | null = null;
+
+    const readConfig = async () => {
+      const config = await staking.getDegradedModeConfig();
+      return {
+        enabled: Boolean(config.enabled),
+        staleAfterSeconds: BigInt(config.staleAfterSeconds),
+        maxStakePerWallet: BigInt(config.maxStakePerWallet),
+      };
+    };
+    const expectConfig = (actual: typeof original, expected: typeof original) => {
+      expect(actual.enabled).toBe(expected.enabled);
+      expect(actual.staleAfterSeconds).toBe(expected.staleAfterSeconds);
+      expect(actual.maxStakePerWallet).toBe(expected.maxStakePerWallet);
+    };
+
+    try {
+      const update = await apiCall(port, "PATCH", "/v1/staking/commands/set-degraded-mode-config", {
+        apiKey: "founder-key",
+        body: {
+          enabled: target.enabled,
+          staleAfterSeconds: target.staleAfterSeconds.toString(),
+          maxStakePerWallet: target.maxStakePerWallet.toString(),
+        },
+      });
+      expect(update.status, JSON.stringify(update.payload)).toBe(202);
+      updateTransactionHash = extractTxHash(update.payload);
+      await expectReceipt(updateTransactionHash);
+      const updateReceipt = await provider.getTransactionReceipt(updateTransactionHash);
+      expect(updateReceipt?.status).toBe(1);
+      expect(updateReceipt?.logs).toHaveLength(0);
+      expectConfig(await readConfig(), target);
+
+      // The generated getter uses a five-second response cache.
+      await delay(6_000);
+      const readback = await apiCall(port, "POST", "/v1/staking/queries/get-degraded-mode-config", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(readback.payload).toMatchObject({
+        enabled: target.enabled,
+        staleAfterSeconds: target.staleAfterSeconds.toString(),
+        maxStakePerWallet: target.maxStakePerWallet.toString(),
+      });
+    } finally {
+      const current = await readConfig();
+      if (current.enabled !== original.enabled
+        || current.staleAfterSeconds !== original.staleAfterSeconds
+        || current.maxStakePerWallet !== original.maxStakePerWallet) {
+        const restore = await apiCall(port, "PATCH", "/v1/staking/commands/set-degraded-mode-config", {
+          apiKey: "founder-key",
+          body: {
+            enabled: original.enabled,
+            staleAfterSeconds: original.staleAfterSeconds.toString(),
+            maxStakePerWallet: original.maxStakePerWallet.toString(),
+          },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        restoreTransactionHash = extractTxHash(restore.payload);
+        await expectReceipt(restoreTransactionHash);
+        const restoreReceipt = await provider.getTransactionReceipt(restoreTransactionHash);
+        expect(restoreReceipt?.status).toBe(1);
+        expect(restoreReceipt?.logs).toHaveLength(0);
+      }
+      expectConfig(await readConfig(), original);
+      await delay(6_000);
+      const finalReadback = await apiCall(port, "POST", "/v1/staking/queries/get-degraded-mode-config", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(finalReadback.status).toBe(200);
+      expect(finalReadback.payload).toMatchObject({
+        enabled: original.enabled,
+        staleAfterSeconds: original.staleAfterSeconds.toString(),
+        maxStakePerWallet: original.maxStakePerWallet.toString(),
+      });
+      degradedModeConfigProofObservations.push({
+        methodKey: "StakingFacet.setDegradedModeConfig",
+        route: "PATCH /v1/staking/commands/set-degraded-mode-config",
+        actor: "founder fixture signer with PLATFORM_ADMIN_ROLE",
+        original: {
+          enabled: original.enabled,
+          staleAfterSeconds: original.staleAfterSeconds.toString(),
+          maxStakePerWallet: original.maxStakePerWallet.toString(),
+        },
+        target: {
+          enabled: target.enabled,
+          staleAfterSeconds: target.staleAfterSeconds.toString(),
+          maxStakePerWallet: target.maxStakePerWallet.toString(),
+        },
+        restored: {
+          enabled: original.enabled,
+          staleAfterSeconds: original.staleAfterSeconds.toString(),
+          maxStakePerWallet: original.maxStakePerWallet.toString(),
+        },
+        updateTransactionHash,
+        restoreTransactionHash,
+        eventlessReceipt: true,
         canonicalReadbackMatched: true,
         httpReadbackMatched: true,
         finalStateRestored: true,
