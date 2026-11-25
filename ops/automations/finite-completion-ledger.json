@@ -1620,6 +1620,28 @@
             "Receipt indexer proof passed for two receipts, with raw event decoding, block journals, and idempotent replay.",
             "Both method keys were already accepted in the cumulative report; no unique-method count change."
           ]
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-owner-target-approval-proof-2026-11-25.json",
+          "proofArtifactSha256": "baf9ee59c949fc178dc23ec3229ff79f51e392bc336c4473dd29bb83a4109e55",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "1d136d0685305fe57a5c45be8ddb22367aec1e02959d1563c14d66b5d6a46238",
+          "result": "Proved OwnershipFacet.setApprovedOwnerTarget through PATCH /v1/ownership/commands/set-approved-owner-target on a disposable loopback Base Sepolia fork. A fresh target was temporarily approved and then restored to false. Both status-1 receipts emitted OwnershipTargetApprovalSet, direct and HTTP reads matched both transitions, PostgreSQL stored two raw events, ownership_transfers projections, and block journals, and replay was idempotent. API-05 advances from 149/260 to 150/260 proven methods, leaving 110 open.",
+          "startingProvenCount": 149,
+          "startingOpenCount": 111,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.9009,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 150,
+          "endingOpenCount": 110,
+          "checks": [
+            "Focused HTTP contract integration passed (1 passed, 54 skipped).",
+            "Two successful receipts were indexed with decoded events, ownership_transfers projections, and block journals.",
+            "Receipt replay was idempotent and unchanged.",
+            "Disposable Anvil fork was isolated to loopback and stopped after indexer proof."
+          ]
         }
       ],
       "deliveredCommit": null,

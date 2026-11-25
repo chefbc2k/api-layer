@@ -606,6 +606,7 @@ describeLive("HTTP API contract integration", () => {
   const degradedModeConfigProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
+  const ownershipTargetApprovalProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
@@ -1050,6 +1051,7 @@ describeLive("HTTP API contract integration", () => {
         degradedModeConfigProofObservations,
         emergencyTimeoutProofObservations,
         ownershipPolicyProofObservations,
+        ownershipTargetApprovalProofObservations,
         proposalCancellationProofObservations,
       }, null, 2)}\n`);
     }
@@ -9018,6 +9020,76 @@ describeLive("HTTP API contract integration", () => {
       replayStateUnchanged: true,
       forkScopedFixture: true,
       stateIsMonotonicOnContract: true,
+    });
+  }, 180_000);
+
+  it("proves approved owner-target changes and restoration through HTTP on the disposable fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "owner-target approval receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    expect((await ownershipFacet.owner()).toLowerCase()).toBe(founderAddress.toLowerCase());
+    const target = Wallet.createRandom().address;
+    const initialApproval = Boolean(await ownershipFacet.isOwnerTargetApproved(target));
+    let grantTransactionHash: string | null = null;
+    let restoreTransactionHash: string | null = null;
+    const submitApproval = async (approved: boolean) => {
+      const response = await apiCall(port, "PATCH", "/v1/ownership/commands/set-approved-owner-target", {
+        apiKey: "founder-key",
+        body: { target, approved },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      const events = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = ownershipFacet.interface.parseLog(log);
+          return parsed?.name === "OwnershipTargetApprovalSet" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(events).toHaveLength(1);
+      expect(String(events[0]!.args.target).toLowerCase()).toBe(target.toLowerCase());
+      expect(events[0]!.args.approved).toBe(approved);
+      expect(Boolean(await ownershipFacet.isOwnerTargetApproved(target))).toBe(approved);
+      const httpReadback = await apiCall(port, "GET", `/v1/ownership/queries/is-owner-target-approved?target=${encodeURIComponent(target)}`, {
+        apiKey: "read-key",
+      });
+      expect(httpReadback.status).toBe(200);
+      expect(httpReadback.payload).toBe(approved);
+      return txHash;
+    };
+
+    try {
+      grantTransactionHash = await submitApproval(!initialApproval);
+    } finally {
+      const currentApproval = Boolean(await ownershipFacet.isOwnerTargetApproved(target));
+      if (currentApproval !== initialApproval) {
+        restoreTransactionHash = await submitApproval(initialApproval);
+      }
+    }
+    expect(Boolean(await ownershipFacet.isOwnerTargetApproved(target))).toBe(initialApproval);
+    ownershipTargetApprovalProofObservations.push({
+      methodKey: "OwnershipFacet.setApprovedOwnerTarget",
+      route: "PATCH /v1/ownership/commands/set-approved-owner-target",
+      actor: "founder fixture signer and current diamond owner",
+      target,
+      initialApproval,
+      temporaryApproval: !initialApproval,
+      grantTransactionHash,
+      restoreTransactionHash,
+      event: "OwnershipFacet.OwnershipTargetApprovalSet(address,bool)",
+      canonicalReadbacksMatched: true,
+      httpReadbacksMatched: true,
+      finalStateRestored: true,
+      forkScopedFixture: true,
     });
   }, 180_000);
 

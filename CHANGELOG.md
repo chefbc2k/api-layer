@@ -1,3 +1,8 @@
+# 2026-11-25 — Prove owner-target approval lifecycle
+
+- Added a loopback-fork HTTP proof for `OwnershipFacet.setApprovedOwnerTarget`. The test used a fresh target address, verified the approval through canonical and HTTP reads, restored the original unapproved state, and confirmed both receipt events in PostgreSQL with `ownership_transfers` projections, block journals, and idempotent replay.
+- API-05 advances from `149/260` to `150/260` unique write methods proven, leaving `110` open. See [owner-target approval proof](output/api05-owner-target-approval-proof-2026-11-25.json).
+
 # 2026-11-25 — Revalidate EchoScore pause lifecycle receipts
 
 - Revalidated the HTTP pause/resume lifecycle for `EchoScoreFacetV3.pauseEchoScoreV3` and `EchoScoreFacetV3.unpauseEchoScoreV3` on a disposable loopback Base Sepolia fork. Both receipts emitted the expected event, canonical and HTTP readbacks matched, original unpaused state was restored, and PostgreSQL indexing plus idempotent replay passed.

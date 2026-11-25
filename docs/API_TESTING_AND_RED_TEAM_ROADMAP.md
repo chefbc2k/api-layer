@@ -1,3 +1,8 @@
+# API-05 Follow-on — Owner-Target Approval Lifecycle — 2026-11-25
+
+- Proved `OwnershipFacet.setApprovedOwnerTarget` through its HTTP command on a disposable loopback fork. The current diamond owner temporarily approved a fresh address and the test restored the initial false value. Canonical and HTTP reads matched both states; both receipts emitted `OwnershipTargetApprovalSet`. PostgreSQL recorded two raw events, `ownership_transfers` projections, and block journals; replay remained idempotent.
+- API-05 advances from `149/260` to `150/260` exact-method proofs, leaving `110` open. Durable evidence: [owner-target approval proof](../output/api05-owner-target-approval-proof-2026-11-25.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json).
+
 # API-05 Follow-on — EchoScore Pause Lifecycle Revalidation — 2026-11-25
 
 - Revalidated `EchoScoreFacetV3.pauseEchoScoreV3` and `EchoScoreFacetV3.unpauseEchoScoreV3` through their HTTP command routes on a disposable loopback fork. The successful receipts contained `Paused` and `Unpaused`; canonical and HTTP reads matched and the original unpaused state was restored. PostgreSQL stored two raw events and block journals, with idempotent replay.
