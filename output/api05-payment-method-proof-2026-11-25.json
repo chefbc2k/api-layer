@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T18:11:38.195Z",
+  "status": "proven working",
+  "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+  "scope": "API-05 exact-method supplementary proof",
+  "cumulativeTotals": {
+    "artifactTransactionHashes": 7498,
+    "includedArtifacts": 36,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 7498,
+    "provenWriteMethods": 189,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 71,
+    "rawEvents": 11181,
+    "projectionRows": 7060
+  },
+  "methods": {
+    "LegacyFacet.addBeneficiary": {
+      "routes": [
+        "POST /v1/voice-assets/commands/add-beneficiary"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.addBeneficiary",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "addBeneficiary(address,uint256,bool)",
+          "txHash": "0x134efb62384e0ebf0c529cb44bf2e2befb611c53dd93e88b37ad6532b696eabf",
+          "blockNumber": 63533169,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63533169",
+                  "block_hash": "0xc3c78413c6e43067c9298c2a95278e037cfbae7e4337cc1be519cbfda55706f3"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.addBeneficiary",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "addBeneficiary(address,uint256,bool)",
+          "txHash": "0x379fd18430a259d6a60c3f72151526535df85314fe8c99f96f8b165317d1480e",
+          "blockNumber": 63545500,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63545500",
+                  "block_hash": "0xa5c76a6a1b1010ba4fd064dadfa40c5946061872e4eb30c97b033f588b0dddf8"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.addBeneficiary",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "addBeneficiary(address,uint256,bool)",
+          "txHash": "0xaee92458b16d0555eca33e55ce54eecacb173170b6c90f5afd8b9ff252c9588d",
+          "blockNumber": 63537246,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63537246",
+                  "block_hash": "0xa15819de54103eaee8adb127883b95ba58354177d6fe814b307224aa7fbd2913"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.setBeneficiaryRelationship": {
+      "routes": [
+        "PATCH /v1/voice-assets/commands/set-beneficiary-relationship"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.setBeneficiaryRelationship",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "setBeneficiaryRelationship(address,string)",
+          "txHash": "0x112d2b16a39b15f0b462e5ac319a24f1f4260635446ef22957e402a1b2aae77b",
+          "blockNumber": 63545501,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63545501",
+                  "block_hash": "0x3bbd1e461609fad3106eec96be8df42050887a169f405ed2e645c3d44f5af4a5"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.setBeneficiaryRelationship",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "setBeneficiaryRelationship(address,string)",
+          "txHash": "0x51ad04e08c31dc1ef85d70d513ca4200d05424c9abbe05b5d482ce27d653660b",
+          "blockNumber": 63533170,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63533170",
+                  "block_hash": "0x8d31883ebcd275248a158bdc1ace08983eea0666e9f8ff253e0084632419445f"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.setBeneficiaryRelationship",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "setBeneficiaryRelationship(address,string)",
+          "txHash": "0xfadd4862ff35864690b402800ce0e5f042e749757c6cbae214dd3388b1c78110",
+          "blockNumber": 63537247,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63537247",
+                  "block_hash": "0xf3597503d8a45c77cd9e5254016f361caa30ebcba0078fb54daa72145e2c9abd"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    }
+  }
+}

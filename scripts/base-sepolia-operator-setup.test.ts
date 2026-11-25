@@ -1404,6 +1404,7 @@ describe("base sepolia operator setup helpers", () => {
     expect(context.availableSpecs.map((entry) => entry.label)).toEqual(["founder", "seller", "buyer", "licensee"]);
     expect(context.availableSpecsForFunding.get(context.founder.address.toLowerCase())).toBe("founder");
     expect(context.availableSpecsForFunding.get(context.seller.address.toLowerCase())).toBe("seller");
+    expect(context.buyer!.address).toBe(buyer.address);
     expect(context.transferee).toBeNull();
 
     setApiLayerActorEnvironment(context);
@@ -1615,7 +1616,10 @@ describe("base sepolia operator setup helpers", () => {
     const applyNativeSetupTopUpsFn = vi.fn(async ({ status: setupStatus }: { status: typeof status }) => {
       setupStatus.setup.status = "ready";
     });
-    const buildUsdcFundingStatusFn = vi.fn().mockResolvedValue({ buyerBalanceAfterTransfer: "25000000" });
+    const buildUsdcFundingStatusFn = vi.fn().mockResolvedValue({
+      buyerBalanceAfterTransfer: "100000",
+      buyerAllowanceAfterApproval: "100000",
+    });
     const collectSellerEscrowedVoiceHashesFn = vi.fn().mockResolvedValue(["0xescrowed"]);
     const prepareAgedListingFixtureFn = vi.fn().mockResolvedValue({ tokenId: "11", status: "ready" });
     const getCurrentVotes = vi.fn()
@@ -1691,7 +1695,7 @@ describe("base sepolia operator setup helpers", () => {
       marketplace: undefined,
     });
     expect(status.marketplace).toMatchObject({
-      usdcFunding: { buyerBalanceAfterTransfer: "25000000" },
+      usdcFunding: { buyerBalanceAfterTransfer: "100000" },
       agedListingFixture: { tokenId: "11", status: "ready" },
     });
     expect(status.governance).toMatchObject({
@@ -1970,7 +1974,7 @@ describe("base sepolia operator setup helpers", () => {
     ];
     const balances = new Map<string, bigint>([
       [founder.address, 50_000_000n],
-      [buyer.address, 1_000_000n],
+      [buyer.address, 1_000n],
     ]);
     const allowances = new Map<string, bigint>([
       [buyer.address, 0n],
@@ -1982,18 +1986,17 @@ describe("base sepolia operator setup helpers", () => {
         wait: vi.fn().mockResolvedValue({ hash: "0xtransfer" }),
       };
     });
+    const approve = vi.fn(async (_spender: string, amount: bigint) => {
+      allowances.set(buyer.address, amount);
+      return { wait: vi.fn().mockResolvedValue({ hash: "0xerc20-approve" }) };
+    });
     const erc20 = {
       balanceOf: vi.fn(async (address: string) => balances.get(address) ?? 0n),
       allowance: vi.fn(async (owner: string) => allowances.get(owner) ?? 0n),
-      connect: vi.fn(() => ({ transfer })),
+      connect: vi.fn(() => ({ transfer, approve })),
     };
-    const apiCallFn = vi.fn().mockResolvedValue({
-      status: 202,
-      payload: { txHash: "0xapprove" },
-    });
-    const waitForReceiptFn = vi.fn(async () => {
-      allowances.set(buyer.address, balances.get(buyer.address) ?? 0n);
-    });
+    const apiCallFn = vi.fn();
+    const waitForReceiptFn = vi.fn();
 
     const result = await buildUsdcFundingStatus({
       erc20,
@@ -2009,28 +2012,23 @@ describe("base sepolia operator setup helpers", () => {
 
     expect(result).toMatchObject({
       token: "0xusdc",
-      buyerBalance: "1000000",
+      buyerBalance: "1000",
       buyerAllowance: "0",
       transferTxHash: "0xtransfer",
-      buyerBalanceAfterTransfer: "25000000",
-      buyerAllowanceAfterApproval: "25000000",
-      approval: {
-        status: 202,
-        payload: { txHash: "0xapprove" },
-      },
+      buyerBalanceAfterTransfer: "100000",
+      buyerAllowanceAfterApproval: "100000",
+      erc20ApprovalTxHash: "0xerc20-approve",
       richestSigner: {
         label: "founder",
         address: founder.address,
         balance: 50_000_000n,
       },
     });
-    expect(erc20.connect).toHaveBeenCalledTimes(1);
-    expect(transfer).toHaveBeenCalledWith(buyer.address, 24_000_000n);
-    expect(apiCallFn).toHaveBeenCalledWith(8787, "POST", "/v1/tokenomics/commands/token-approve", {
-      apiKey: "buyer-key",
-      body: { spender: "0xdiamond", amount: "25000000" },
-    });
-    expect(waitForReceiptFn).toHaveBeenCalledWith(8787, "0xapprove");
+    expect(erc20.connect).toHaveBeenCalledTimes(2);
+    expect(transfer).toHaveBeenCalledWith(buyer.address, 99_000n);
+    expect(approve).toHaveBeenCalledWith("0xdiamond", 100_000n);
+    expect(apiCallFn).not.toHaveBeenCalled();
+    expect(waitForReceiptFn).not.toHaveBeenCalled();
   });
 
   it("returns stable USDC funding metadata when no transfer or approval repair is needed", async () => {
@@ -2042,7 +2040,7 @@ describe("base sepolia operator setup helpers", () => {
     const erc20 = {
       balanceOf: vi.fn(async () => 30_000_000n),
       allowance: vi.fn(async () => 30_000_000n),
-      connect: vi.fn(),
+      connect: vi.fn(() => ({ approve: vi.fn() })),
     };
     const apiCallFn = vi.fn();
     const waitForReceiptFn = vi.fn();
@@ -2085,7 +2083,7 @@ describe("base sepolia operator setup helpers", () => {
     const erc20 = {
       balanceOf: vi.fn(async () => 30_000_000n),
       allowance: vi.fn(async () => 30_000_000n),
-      connect: vi.fn(),
+      connect: vi.fn(() => ({ approve: vi.fn() })),
     };
 
     const result = await buildUsdcFundingStatus({
@@ -2106,16 +2104,16 @@ describe("base sepolia operator setup helpers", () => {
     expect(erc20.connect).not.toHaveBeenCalled();
   });
 
-  it("records approval failures without waiting for a receipt when buyer remains underfunded", async () => {
+  it("records approval failures when the ERC20 approval transaction fails", async () => {
     const provider = {} as any;
     const buyer = ethers.Wallet.createRandom().connect(provider);
     const availableSpecs = [
       { label: "buyer", privateKey: buyer.privateKey },
     ];
     const erc20 = {
-      balanceOf: vi.fn(async () => 4_000n),
+      balanceOf: vi.fn(async () => 100_000n),
       allowance: vi.fn(async () => 0n),
-      connect: vi.fn(),
+      connect: vi.fn(() => ({ approve: vi.fn(async () => { throw new Error("approval denied"); }) })),
     };
     const apiCallFn = vi.fn().mockResolvedValue({
       status: 400,
@@ -2137,22 +2135,19 @@ describe("base sepolia operator setup helpers", () => {
 
     expect(result).toMatchObject({
       token: "0xusdc",
-      buyerBalance: "4000",
+      buyerBalance: "100000",
       buyerAllowance: "0",
       richestSigner: {
         label: "buyer",
         address: buyer.address,
-        balance: 4_000n,
+        balance: 100_000n,
       },
-      approval: {
-        status: 400,
-        payload: { error: "allowance denied" },
-      },
+      approvalError: "approval denied",
       buyerAllowanceAfterApproval: "0",
     });
     expect(result).not.toHaveProperty("transferTxHash");
-    expect(erc20.connect).not.toHaveBeenCalled();
-    expect(apiCallFn).toHaveBeenCalledTimes(1);
+    expect(erc20.connect).toHaveBeenCalledWith(buyer);
+    expect(apiCallFn).not.toHaveBeenCalled();
     expect(waitForReceiptFn).not.toHaveBeenCalled();
   });
 
@@ -2162,7 +2157,7 @@ describe("base sepolia operator setup helpers", () => {
     const buyer = ethers.Wallet.createRandom().connect(provider);
     const balances = new Map<string, bigint>([
       [founder.address, 50_000_000n],
-      [buyer.address, 1_000_000n],
+      [buyer.address, 1_000n],
     ]);
     const allowances = new Map<string, bigint>([
       [buyer.address, 0n],
@@ -2178,6 +2173,10 @@ describe("base sepolia operator setup helpers", () => {
       allowance: vi.fn(async (address: string) => allowances.get(address) ?? 0n),
       connect: vi.fn(() => ({
         transfer,
+        approve: vi.fn(async (_spender: string, amount: bigint) => {
+          allowances.set(buyer.address, amount);
+          return { wait: vi.fn().mockResolvedValue({ status: 1 }) };
+        }),
       })),
     };
     const apiCallFn = vi.fn().mockResolvedValue({
@@ -2201,10 +2200,11 @@ describe("base sepolia operator setup helpers", () => {
 
     expect(result).toMatchObject({
       transferTxHash: null,
-      buyerBalanceAfterTransfer: "25000000",
-      buyerAllowanceAfterApproval: "0",
+      buyerBalanceAfterTransfer: "100000",
+      buyerAllowanceAfterApproval: "100000",
     });
-    expect(transfer).toHaveBeenCalledWith(buyer.address, 24_000_000n);
+    expect(transfer).toHaveBeenCalledWith(buyer.address, 99_000n);
+    expect(apiCallFn).not.toHaveBeenCalled();
   });
 
   it("returns null USDC funding status when the ERC20 contract or buyer is unavailable", async () => {

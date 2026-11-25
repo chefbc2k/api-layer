@@ -438,6 +438,38 @@
             "Full HTTP contract stage passed 67/67 tests on the exact source content."
           ],
           "resultLimitation": "No API-04 acceptance change. ProposalFacet.queue still needs the external contract expiry-helper correction; current aggregate does not satisfy 446/446."
+        },
+        {
+          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45621117031",
+          "artifact": "output/api05-reordered-fork-assurance-2026-11-25.json",
+          "artifactSha256": "e937a0bc8f7ef70fcac4a3a1625fa382df95d1654ea9f3c79f263e7184b7f8db",
+          "aggregateReport": ".runtime/release-runner/api05-reordered.json",
+          "aggregateReportSha256": "b5fe43ce1caebb607a4aa567c9caa403a23cef3d726f07b04441dad4fb93b9a1",
+          "result": "The reordered local-fork run reached 443/445 safe reads. ProposalFacet.queue remains an HTTP 500 from the contract expiry-helper issue, and getActiveProposals timed out. All other API-04 probes passed; status remains waiting_dependency.",
+          "checks": [
+            "Pinned inventory/codegen stage passed.",
+            "Read fixtures were provisioned before the safe-read sweep.",
+            "The full sweep attempted 445 routes and passed 443.",
+            "All non-contract stages in the aggregate passed; the remaining full contract suite and indexer outcomes are recorded separately."
+          ],
+          "resultLimitation": "API-04 is not accepted: queue contract fix and a clean 445/445 rerun are still required."
+        },
+        {
+          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+          "sourceState": "Uncommitted worktree based on the recorded source commit; the verifier timeout adjustment and fresh aggregate proof are included in the captured artifacts.",
+          "artifact": "output/api04-final-safe-reads-2026-11-25.json",
+          "artifactSha256": "545bf992e84cf6ff1fd8d040b1480daa44df9c9005c9a0dd3bc7ff25fe9e7092",
+          "aggregateArtifact": "output/api05-final-payment-suite-2026-11-25.json",
+          "aggregateArtifactSha256": "0a57731ecff84ce582a90e27b9ea78578982d36d2be63e85573d20fdf494d6c0",
+          "result": "Fresh fixture-backed aggregate passed all 15 stages and the safe-read/event sweep passed 444/445. The earlier getActiveProposals timeout was transient and is resolved by a bounded 60-second sweep allowance for that list query. ProposalFacet.queue alone still reverts ProposalExpired(uint256) in the deployed contract.",
+          "checks": [
+            "The complete safe-read artifact attempted all 445 reviewed read/event endpoints and passed 444.",
+            "ProposalFacet.getActiveProposals passed; ProposalFacet.queue returned HTTP 500 with execution reverted: ProposalExpired(uint256).",
+            "All other aggregate stages passed on the local fork, including fixture provisioning, governance, HTTP contract proofs, and indexer replay.",
+            "The active contract implementation is in the read-only CONTRACTS repository; API-layer changes cannot correct the queue expiry validation. API-04 remains waiting_dependency."
+          ],
+          "resultLimitation": "API-04 remains waiting_dependency until the contract release owner corrects the deployed ProposalFacet.queue expiry validation and the API aggregate is rerun against that deployed implementation; default-branch delivery is also pending."
         }
       ],
       "deliveredCommit": null,
@@ -1069,7 +1101,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256), the existing contract/read-fixture gap.",
             "setRecoveryActive receipts: 0x4ce94a3205e0adc3258448b6a488be427219555285ab96571c1d46d327ca57e9 at block 63123333 and 0x4e28677d5ea0dea4fc1a52922e6bda5978d4fef79c39f02d897180fefa5f6226 at block 63123334; both status 1 and zero logs.",
             "PostgreSQL recorded zero raw_events, zero projections, one indexer_blocks row per receipt, and unchanged idempotent replay.",
-            "Persistent cumulative indexer comparison against the prior committed report: 2,316 \u2192 2,512 indexed receipts, 127 \u2192 128/260 proven write methods, 3,504 \u2192 3,791 raw events, and 2,312 \u2192 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
+            "Persistent cumulative indexer comparison against the prior committed report: 2,316 → 2,512 indexed receipts, 127 → 128/260 proven write methods, 3,504 → 3,791 raw events, and 2,312 → 2,510 projection rows; setRecoveryActive is the sole newly proven key and no prior proven key was removed.",
             "GitHub Actions API quality run 45466661979 initially failed regression because the event-assurance test still expected 276 event declarations; corrected counts to 275 declarations and 34 eventless writes, with focused event-assurance suite passing 210/210.",
             "GitHub Actions API quality retry 45467848444 passed every configured gate on db65482d43c1ee5df2190ce7449b28c4a9edc2b6, including dependency audit, pinned-selector codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
           ],
@@ -1310,7 +1342,7 @@
             "Safe-read sweep passed 445/446; ProposalFacet.queue alone returned HTTP 500 with ProposalExpired(uint256).",
             "Indexer evidence: update receipt 0xb94864e1645a7bedd413fbd629c69819c8480b458b1c34f1a6548c4808f5dcd8 at block 63207569, raw event 268; restore receipt 0xfea9cc54fb37ef5ad4c0d3d2ec0794c23c6307be64abf07093bb1548073c5350 at block 63207570, raw event 269. Both were journaled, replayed unchanged, and classified proven working.",
             "Final direct getter confirms original maxAgeSeconds 86400 was restored on the loopback fork.",
-            "The initial runner attempt used the sibling contracts checkout\u2019s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
+            "The initial runner attempt used the sibling contracts checkout’s unpinned deployment manifest; rerun with API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json passed codegen (492 functions, 218 events, 260/260 write invariants).",
             "Hosted API quality run 45514446423 passed every configured gate on evidence commit c2a88afcb6a187cb4fc48264ff56fa23ed88e3ea, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.",
             "Pinned-manifest local assurance report checksum 7302343d2767d56f014c9e8a52b416f48ca342aedc9f37c515572f6917065ca6; all 12 stages passed, with only ProposalFacet.queue safe-read fixture gap.",
             "Hosted API quality run 45517260884 passed every configured gate on evidence commit a8f8196df14675485ff753ff2ec6ada57619e336."
@@ -1409,7 +1441,7 @@
             "All 12 local-fork assurance stages passed; safe reads passed 445/446 with only the known ProposalFacet.queue fixture gap.",
             "Proposal creation receipt 0x06bc5afb25786cfb38aaae6e9bd7ef62167ad369e21785dc93e2ed8f8e313ae5 at block 63250473 emitted raw event 272 and created PostgreSQL governance_proposals row 1.",
             "Cancellation receipt 0xec0066bf3ad29b63478ad0299bb4464d75be994a235fba1b9cba122364b6cab1 at block 63250474 emitted raw event 273 and created governance_proposals projection row 2. Both receipts had block journals and idempotent replay.",
-            "Proposal state changed Pending \u2192 Canceled and both direct and HTTP prState reads matched; proposal deadline direct and HTTP readbacks matched.",
+            "Proposal state changed Pending → Canceled and both direct and HTTP prState reads matched; proposal deadline direct and HTTP readbacks matched.",
             "Pinned codegen passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
             "Hosted API quality CI run 45530793891 passed every configured gate on source commit 68db13f89293e4908bebcfe85a6af8a8113c841e.",
             "Hosted API quality CI run 45531868472 passed every configured gate on durable evidence commit fcf17a889dd39efa503e849a12db01ce46b3d21e."
@@ -1832,7 +1864,7 @@
           "transactionArtifactSha256": "cba06f252e8dd5756244a994e967e2ab8805f8d0e131db8a4a94d455afc9c64c",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "indexerArtifactSha256": "e3196fd27a28e905ec9ae59badc5456065d68c846e2540f97a304e59d7dda67e",
-          "result": "Proved RightsFacet.addCollaborator, updateCollaboratorShare, removeCollaborator, createRightsGroup, grantRight, revokeRight, registerRightContract, and updateRightContract through their exact HTTP routes on a disposable Base Sepolia loopback fork. Status-1 receipts, collaborator/right/group/registry contract readbacks, expected decoded events, PostgreSQL indexing, and unchanged replay were verified. API-05 advances from 159/260 to 171/260, leaving 89 open across this run\u2019s emergency-recovery and RightsFacet proof batches.",
+          "result": "Proved RightsFacet.addCollaborator, updateCollaboratorShare, removeCollaborator, createRightsGroup, grantRight, revokeRight, registerRightContract, and updateRightContract through their exact HTTP routes on a disposable Base Sepolia loopback fork. Status-1 receipts, collaborator/right/group/registry contract readbacks, expected decoded events, PostgreSQL indexing, and unchanged replay were verified. API-05 advances from 159/260 to 171/260, leaving 89 open across this run’s emergency-recovery and RightsFacet proof batches.",
           "startingProvenCount": 159,
           "startingOpenCount": 101,
           "completedThisRun": 12,
@@ -2022,7 +2054,7 @@
           "transactionArtifactSha256": "0f5a8b54fc3a8d64a92de11ed8e597255aff5ae46f59087196d6f7594aacc79e",
           "cumulativeIndexerArtifact": "verify-local-fork-indexer-output.json",
           "cumulativeIndexerArtifactSha256": "778f6e18d38884878df9f889a1d07f5fd1c68417c29c310a54ade8c9df9d13db",
-          "result": "Fixed the fork integration test\u2019s undefined fork-preservation flag and corrected the get-operation route assertion to match the generated TimelockFacet governance endpoint. The complete HTTP contract integration stage passed 67/67. The latest completed cumulative indexer report remains 187/260 methods (73 open), 6,114 receipts, 9,141 raw events, and 5,771 projections; no new write method was accepted.",
+          "result": "Fixed the fork integration test’s undefined fork-preservation flag and corrected the get-operation route assertion to match the generated TimelockFacet governance endpoint. The complete HTTP contract integration stage passed 67/67. The latest completed cumulative indexer report remains 187/260 methods (73 open), 6,114 receipts, 9,141 raw events, and 5,771 projections; no new write method was accepted.",
           "startingProvenCount": 187,
           "endingProvenCount": 187,
           "completedThisRun": 0,
@@ -2036,6 +2068,109 @@
             "API quality workflow 45620299915 was dispatched for ee850c998433bb8ae87c2e455ed7b54416c2bd15 and was in progress when this evidence was written."
           ],
           "resultLimitation": "API-05 remains in_progress at 187/260 with 73 methods open. The current full aggregate is incomplete; authorization and fork-state gaps remain in control-plane, Layer 1, and marketplace proof stages, and current CI is pending."
+        },
+        {
+          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45621117031",
+          "artifact": "output/api05-reordered-fork-assurance-2026-11-25.json",
+          "proofArtifactSha256": "e937a0bc8f7ef70fcac4a3a1625fa382df95d1654ea9f3c79f263e7184b7f8db",
+          "cumulativeIndexerArtifact": "verify-local-fork-indexer-output.json",
+          "cumulativeIndexerArtifactSha256": "a23b3a78af77ecb0f37c4a5f6ed24a702436cb44c70cee4cb39f9c2b50774839",
+          "result": "Stage reordering fixed owner-state contamination: control-plane, Layer 1, marketplace purchase, and governance proof stages passed; the exact local-fork indexer stage passed for 61/61 receipts, zero skipped. The terminal HTTP contract suite still failed three payment custody tests because prior stages had spent the shared buyer USDC fixture. Cumulative acceptance remains 187/260, 73 open.",
+          "startingProvenCount": 187,
+          "endingProvenCount": 187,
+          "completedThisRun": 0,
+          "endingOpenCount": 73,
+          "checks": [
+            "The full runner passed control-plane admin, Layer 1 core/completion/remaining, marketplace purchase, and governance stages on the reordered fork.",
+            "Safe reads passed 443/445; queue and getActiveProposals remain open.",
+            "Event-indexer proof passed: 61/61 receipts, six artifacts included, zero skipped, 101 raw events, 80 projections.",
+            "Cumulative indexer report: 6,174 receipts, 187/260 proven writes, 9,241 raw events, 5,841 projections.",
+            "The contract stage retry restored the fork snapshot after each attempt and failed only three tests due to marketplaceBuyerWallet having zero USDC. A follow-up runner change reprovisions actor balances immediately before this stage.",
+            "API quality workflow 45621117031 passed on this source commit."
+          ],
+          "resultLimitation": "No method acceptance credit is added. API-05 remains in_progress at 187/260; the terminal full contract suite requires buyer fixture top-up and successful exact receipt verification."
+        },
+        {
+          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+          "artifact": ".runtime/release-runner/api05-funded-payment-suite.json",
+          "result": "The full assurance runner passed setup, control-plane, Layer 1, marketplace purchase, governance and event-indexer stages. Fixture reprovision correctly restored buyer USDC balance and allowance to 100,000, but three HTTP payment-custody tests still reverted with custom error 0x13be252b; aggregate remains failed with four gaps. No API-05 acceptance count is added.",
+          "startingProvenCount": 187,
+          "endingProvenCount": 187,
+          "completedThisRun": 0,
+          "endingOpenCount": 73,
+          "checks": [
+            "Safe reads passed 443/445; ProposalFacet.getActiveProposals timed out and ProposalFacet.queue returned HTTP 500.",
+            "General HTTP contract stage: 64 passed, 2 failed, 1 skipped; failures were marketplace withdrawal and payment-split custody tests reverting 0x13be252b.",
+            "Isolated PaymentFacet.revealWithdraw proof failed with the same custom error 0x13be252b.",
+            "Post-suite event-indexer proof passed: 61/61 receipts, six artifacts, zero skipped, 101 raw events, 80 projection rows; cumulative report remains 187/260 methods.",
+            "Focused setup and runner tests passed: 123/123; git diff --check passed."
+          ],
+          "resultLimitation": "API-05 remains in_progress at 187/260 with 73 open. Payment route actor/funding/revert cause remains unresolved; API-04 queue dependency and getActiveProposals timeout remain open."
+        },
+        {
+          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+          "artifact": "output/api05-final-payment-suite-2026-11-25.json",
+          "artifactSha256": "090a8c7f0a12c819ffc70a3cca19c8e6b2530ee47c67076f5c76bad6259ad8f2",
+          "transactionArtifact": ".runtime/local-fork-proofs/http-contract-receipts.json",
+          "result": "Fresh local-fork assurance passed all stages except two safe-read gaps. Isolated PaymentFacet.revealWithdraw now passes after moving it immediately after fixture provisioning; HTTP payment custody and cumulative event-indexer proof also pass. No API-05 acceptance credit is added because these aggregate artifacts do not satisfy the full exact-method acceptance requirements for every newly exercised key.",
+          "startingProvenCount": 187,
+          "endingProvenCount": 187,
+          "completedThisRun": 0,
+          "endingOpenCount": 73,
+          "checks": [
+            "Runner status: passed with structured gaps; all 15 execution stages passed, while the safe-read sweep retained two method-level gaps.",
+            "ProposalFacet.getActiveProposals timed out; ProposalFacet.queue returned HTTP 500. All other 443/445 safe reads passed.",
+            "Isolated PaymentFacet.revealWithdraw passed on a fresh local fork with commit and reveal receipts, ClaimRevealed and USDCPaymentWithdrawn events, zero pending balance, and exact custody/payee deltas of -127/+127 USDC.",
+            "General HTTP contract proof passed; 281 transaction hashes recorded in its artifact.",
+            "Event-indexer proof passed: 342/342 current-run receipts, eight artifacts included, zero skipped, 184/260 current-run write methods, 461 raw events, and 254 projection rows. Cumulative indexer artifact reports 7,284 receipts and 189/260 proven writes.",
+            "The cumulative indexer count is not copied into accepted ledger counts without per-method reconciliation against the full acceptance criteria."
+          ],
+          "resultLimitation": "API-05 remains in_progress at 187/260 with 73 open. The aggregate run is substantially improved but exact-method ledger acceptance and default-branch delivery remain outstanding. Safe-read gaps remain for ProposalFacet.getActiveProposals and ProposalFacet.queue."
+        },
+        {
+          "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+          "sourceState": "Uncommitted worktree based on the recorded source commit; exact proof changes are included in the captured artifact digests.",
+          "artifact": "output/api05-payment-method-proof-2026-11-25.json",
+          "artifactSha256": "e35c2f7b6f0cbb1a87501c68274763e99096e5698001115c382caddf6769c717",
+          "aggregateArtifact": "output/api05-final-payment-suite-2026-11-25.json",
+          "aggregateArtifactSha256": "0a57731ecff84ce582a90e27b9ea78578982d36d2be63e85573d20fdf494d6c0",
+          "transactionArtifact": ".runtime/local-fork-proofs/http-contract-receipts.json",
+          "transactionArtifactSha256": "b65418428b5487b8bfa29d2d743c243198d44015e4a70e6956c09d226e9d0855",
+          "result": "Reconciled and accepted LegacyFacet.addBeneficiary and LegacyFacet.setBeneficiaryRelationship against exact mounted routes, direct post-write LegacyViewFacet state, successful receipts, reviewed no-event policy, PostgreSQL block-journal indexing, and idempotent receipt replay. API-05 advances from 187/260 to 189/260, leaving 71 open.",
+          "startingProvenCount": 187,
+          "endingProvenCount": 189,
+          "completedThisRun": 2,
+          "endingOpenCount": 71,
+          "acceptedMethods": [
+            {
+              "methodKey": "LegacyFacet.addBeneficiary",
+              "route": "POST /v1/voice-assets/commands/add-beneficiary",
+              "transactionHashes": [
+                "0x134efb62384e0ebf0c529cb44bf2e2befb611c53dd93e88b37ad6532b696eabf",
+                "0xaee92458b16d0555eca33e55ce54eecacb173170b6c90f5afd8b9ff252c9588d"
+              ]
+            },
+            {
+              "methodKey": "LegacyFacet.setBeneficiaryRelationship",
+              "route": "PATCH /v1/voice-assets/commands/set-beneficiary-relationship",
+              "transactionHashes": [
+                "0x51ad04e08c31dc1ef85d70d513ca4200d05424c9abbe05b5d482ce27d653660b",
+                "0xfadd4862ff35864690b402800ce0e5f042e749757c6cbae214dd3388b1c78110"
+              ]
+            }
+          ],
+          "checks": [
+            "The complete HTTP contract proof passed on the fresh local fork; the legacy lifecycle assertions read back beneficiary account/share/delegation and the updated relationship immediately after the respective writes.",
+            "Reviewed write invariants now classify both deployed methods as emittedEvents.mode=none and indexerExpectations.mode=none, matching read-only contract source behavior.",
+            "Cumulative indexer reports for both exact method keys classify them proven working with successful status-1 receipts, zero logs, PostgreSQL block-journal rows, and idempotent replay unchanged=true.",
+            "The indexer invariant evaluator has explicit tests for the reviewed no-event policy.",
+            "The complete fixture-backed safe-read sweep now passes 444/445; ProposalFacet.queue alone returns HTTP 500 with ProposalExpired(uint256). The formerly timed-out ProposalFacet.getActiveProposals read passed within the adjusted bounded timeout.",
+            "The refreshed cumulative indexer reports 7,498 receipts and 189/260 proven writes, leaving 71 open; exact supplementary proof details for the two newly accepted methods are preserved in the method proof artifact."
+          ],
+          "resultLimitation": "API-05 remains in_progress at 189/260 with 71 open. This evidence was produced from a local worktree and still requires exact-head CI and verified default-branch delivery; the release objective has outstanding API-04, API-06, API-07, API-08, delivery, test, and external acceptance items.",
+          "cumulativeIndexerArtifact": "verify-local-fork-indexer-output.json",
+          "cumulativeIndexerArtifactSha256": "598cf290e5751f9fe5a7991b21cd29d4f9da75d2c0eb74a54820ed356aaa8f56"
         }
       ],
       "deliveredCommit": null,
@@ -5848,7 +5983,7 @@
           },
           {
             "identifier": "OPS-29",
-            "title": "Wave 1 \u2013 Low-risk cron batch (draft)",
+            "title": "Wave 1 – Low-risk cron batch (draft)",
             "status": "blocked"
           }
         ]

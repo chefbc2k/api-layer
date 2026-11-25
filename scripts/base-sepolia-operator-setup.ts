@@ -91,7 +91,7 @@ type MarketplaceListingLike = {
 
 const DEFAULT_NATIVE_MINIMUM = ethers.parseEther("0.00004");
 const DEFAULT_SELLER_LOOPBACK_MINIMUM = ethers.parseEther("0.001");
-const DEFAULT_USDC_MINIMUM = 25_000_000n;
+const DEFAULT_USDC_MINIMUM = 100_000n;
 const RUNTIME_DIR = path.resolve(".runtime");
 const OUTPUT_PATH = path.join(RUNTIME_DIR, "base-sepolia-operator-fixtures.json");
 
@@ -720,7 +720,10 @@ export async function buildUsdcFundingStatus(args: {
   erc20: {
     balanceOf(address: string): Promise<bigint | number | string>;
     allowance(owner: string, spender: string): Promise<bigint | number | string>;
-    connect(wallet: Wallet): { transfer(to: string, amount: bigint): Promise<{ wait(): Promise<{ hash?: string | null } | null> }> };
+    connect(wallet: Wallet): {
+      transfer(to: string, amount: bigint): Promise<{ wait(): Promise<{ hash?: string | null } | null> }>;
+      approve(spender: string, amount: bigint): Promise<{ hash?: string | null; wait(): Promise<{ hash?: string | null } | null> }>;
+    };
   } | null;
   availableSpecs: WalletSpec[];
   buyer: Wallet | null;
@@ -772,14 +775,14 @@ export async function buildUsdcFundingStatus(args: {
   }
 
   const refreshedBuyerBalance = BigInt(await erc20.balanceOf(buyer.address));
-  if (refreshedBuyerBalance > 0n && BigInt(await erc20.allowance(buyer.address, args.diamondAddress)) < refreshedBuyerBalance) {
-    const approve = await callApi(args.port, "POST", "/v1/tokenomics/commands/token-approve", {
-      apiKey: "buyer-key",
-      body: { spender: args.diamondAddress, amount: refreshedBuyerBalance.toString() },
-    });
-    usdcFunding.approval = approve;
-    if (approve.status === 202) {
-      await waitReceipt(args.port, extractTxHash(approve.payload));
+  const refreshedBuyerAllowance = BigInt(await erc20.allowance(buyer.address, args.diamondAddress));
+  if (refreshedBuyerBalance > 0n && refreshedBuyerAllowance < refreshedBuyerBalance) {
+    try {
+      const approvalTx = await erc20.connect(buyer).approve(args.diamondAddress, refreshedBuyerBalance);
+      const approvalReceipt = await approvalTx.wait();
+      usdcFunding.erc20ApprovalTxHash = approvalReceipt?.hash ?? approvalTx.hash ?? null;
+    } catch (error) {
+      usdcFunding.approvalError = error instanceof Error ? error.message : String(error);
     }
     usdcFunding.buyerAllowanceAfterApproval = (await erc20.allowance(buyer.address, args.diamondAddress)).toString();
   }
@@ -1191,6 +1194,17 @@ export async function populateSetupStatus(args: {
       ...(args.status.marketplace as Record<string, unknown>),
       usdcFunding,
     };
+    const buyerAllowanceAfterApproval = BigInt(String(
+      usdcFunding.buyerAllowanceAfterApproval ?? usdcFunding.buyerAllowance ?? "0",
+    ));
+    if (buyerAllowanceAfterApproval < DEFAULT_USDC_MINIMUM) {
+      applyDomainSetupStatus(
+        args.status,
+        "marketplace",
+        "partial",
+        `USDC buyer allowance is below the ${DEFAULT_USDC_MINIMUM} unit payment-test minimum`,
+      );
+    }
   }
 
   const sellerVoiceHashes = await args.voiceAsset.getVoiceAssetsByOwner(args.seller.address);
@@ -1306,6 +1320,7 @@ async function runSetupOnce(): Promise<void> {
           "function balanceOf(address) view returns (uint256)",
           "function allowance(address,address) view returns (uint256)",
           "function transfer(address,uint256) returns (bool)",
+          "function approve(address,uint256) returns (bool)",
         ],
         provider,
       )

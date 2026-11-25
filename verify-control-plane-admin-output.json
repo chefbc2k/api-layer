@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T12:48:23.991Z",
+  "generatedAt": "2026-11-25T18:01:23.158Z",
   "summary": "proven working",
   "reports": {
     "control-plane-admin-writes": {
@@ -26,14 +26,14 @@
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-contract",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0xf6de1fb9cfacb8d55c61785cb22dbdb104197ff31dda36999994bfc92de2b236",
+          "txHash": "0xd3a37c5a3ad6d192c418ca1a82c891b3adaf65c74876a2ac8f20f6ff2e573dd8",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-selector",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x2795517522f98ac87423e5f9252bbdb4b54194e576b51158d5713e104871dea2",
+          "txHash": "0x88bd7479aa88ff62138cba543f54dc29bf8175b7596942ff1c882eb36112a316",
           "receiptStatus": 1,
           "readback": {
             "getter": "isTrustedInitSelector",
@@ -46,12 +46,12 @@
           "route": "POST /v1/diamond-admin/admin/set-trusted-init-codehash",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x6b3be8905dc6aec944326d1383e44a3701ea3d51f7569ea5838033bfb19e652d",
+          "txHash": "0x32b2fcebf55c0718706dcc63897d3dafe3133d142d072585238bf4b3df6713d9",
           "receiptStatus": 1,
           "readback": {
             "getter": "getTrustedInitCodehash",
             "before": "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "after": "0xeb5101e6ee3dcc8aedc469bd86a657a91e5b4fc92812ae38cb95d8870e124b5c",
+            "after": "0xc0670bdd68c52bdce14899165e21497f501b59391ff20feaedd9b4bb835e7bf3",
             "changed": true
           }
         },
@@ -59,14 +59,14 @@
           "route": "POST /v1/emergency/admin/set-resume-delay",
           "actor": "control-plane-proof-a-key",
           "status": 202,
-          "txHash": "0x16534c2855912571b4c0d7dcd587197292df9fb059071cd6b12539e3eb1e528d",
+          "txHash": "0x633e43c869571a9b49de12d7395e0e5ff4cd8d132111ce006632e1f74b81ee98",
           "receiptStatus": 1
         },
         {
           "route": "POST /v1/emergency/admin/set-emergency-timeout",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x11abf66395363f98d17538211b6d9e3c1ce5a462fce729ded615fc1866ba9741",
+          "txHash": "0xe0569b2b78adfb7f355e26cc598b78fb1d6b2f78200a1f4eeac5ecbce590b56f",
           "receiptStatus": 1,
           "readback": {
             "getter": "getEmergencyTimeout",
@@ -79,7 +79,7 @@
           "route": "POST /v1/emergency/admin/set-recipient-whitelist",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x73d68fd2e72397296eac746d26c3982b93a65e3830831df40005a0b2c16094a3",
+          "txHash": "0x71fa1cc610e95925aab7233334f8cd8e198e946c2a6be3f420f74ec911cfb3c7",
           "receiptStatus": 1,
           "readback": {
             "getter": "isRecipientWhitelisted",
@@ -92,7 +92,7 @@
           "route": "POST /v1/emergency/admin/update-withdrawal-config",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x2a96c71bbf1f9f3ed303fa086bf65af443418e7123ba1f2eb63d3f9f9f43b65c",
+          "txHash": "0xa42a79ecc7dd2fb52b491277972c615e1052915e1e5fea24a1ce3a176bfd368f",
           "receiptStatus": 1
         },
         {
@@ -100,7 +100,7 @@
           "actor": "control-plane-proof-b-key",
           "status": 202,
           "methodKey": "AccessControlFacet.setRecoveryActive",
-          "txHash": "0x491640fcfd393d61d3883602ef31aa378797847a0bbf101800210324b899a2da",
+          "txHash": "0x4d1c06779b00b11a6890697cf8aa0d7749209a2ae9eee67a1fb18c6670e0b63f",
           "receiptStatus": 1,
           "readback": {
             "getter": "getRoleConfig.recoveryActive",
@@ -114,7 +114,7 @@
           "actor": "control-plane-proof-b-key",
           "status": 202,
           "methodKey": "AccessControlFacet.setRecoveryActive",
-          "txHash": "0x916fcd1b25287b67d79515ba09ae058bf6e156b72b25d04be44c42c73397aa7d",
+          "txHash": "0x8040f8dfa4394c13ac739b00911a92f9d304a9017e2d30d841ddb4a3add6b7ca",
           "receiptStatus": 1,
           "readback": {
             "getter": "getRoleConfig.recoveryActive",
@@ -127,7 +127,7 @@
           "route": "POST /v1/diamond-admin/admin/set-upgrade-control-enforced",
           "actor": "control-plane-proof-b-key",
           "status": 202,
-          "txHash": "0x52290b5f804c6198cb70d5fcbf7a1c3589db6e144bffb1041e038981e6b67a31",
+          "txHash": "0x1ad549a28d66ea97fb4f8634f32d12f42c1f49f752d667882c626f9c1693f0c0",
           "receiptStatus": 1,
           "readback": {
             "getter": "getUpgradeControlStatus",

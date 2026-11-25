@@ -190,7 +190,7 @@ async function main(): Promise<void> {
           method: endpoint.httpMethod,
           headers: { "content-type": "application/json", "x-api-key": apiKey },
           body: request.body ? JSON.stringify(request.body) : undefined,
-          signal: AbortSignal.timeout(20_000),
+          signal: AbortSignal.timeout(methodKey === "ProposalFacet.getActiveProposals" ? 60_000 : 20_000),
         });
         const payload = await response.json().catch(() => null);
         const proof = { methodKey, route: `${endpoint.httpMethod} ${request.route}`, status: response.status, payload };

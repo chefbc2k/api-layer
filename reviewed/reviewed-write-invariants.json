@@ -5029,11 +5029,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "LegacyFacet.BeneficiaryUpdated"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The deployed transition updates beneficiary state without emitting BeneficiaryUpdated; that event is emitted by updateBeneficiary. Verify this transition through its receipt and canonical beneficiary state readback."
       },
       "balanceEffects": {
         "mode": "none",
@@ -5055,12 +5053,10 @@
         "rationale": "Live execution requires an explicitly funded, disposable fixture actor and resource; local-fork proof remains the default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "LegacyFacet.BeneficiaryUpdated"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "Index the successful transaction receipt and confirm no contract event is required for this transition; canonical beneficiary state is verified by the HTTP proof."
       }
     },
     "LegacyFacet.addDatasets": {
@@ -5346,11 +5342,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "LegacyFacet.BeneficiaryUpdated"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The deployed transition updates beneficiary state without emitting BeneficiaryUpdated; that event is emitted by updateBeneficiary. Verify this transition through its receipt and canonical beneficiary state readback."
       },
       "balanceEffects": {
         "mode": "none",
@@ -5371,12 +5365,10 @@
         "rationale": "This privileged or protocol-wide mutation is destructive to shared state and is permitted only on an isolated fork by default."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "LegacyFacet.BeneficiaryUpdated"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "Index the successful transaction receipt and confirm no contract event is required for this transition; canonical beneficiary state is verified by the HTTP proof."
       }
     },
     "LegacyFacet.setInheritanceConditions": {

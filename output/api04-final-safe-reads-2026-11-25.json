@@ -1,0 +1,4241 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T18:05:06.159Z",
+  "network": {
+    "chainId": 84532,
+    "rpcUrl": "http://127.0.0.1:8548",
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "status": "gaps remain",
+  "totals": {
+    "reviewedReadCount": 231,
+    "reviewedEventCount": 214,
+    "attempted": 445,
+    "passed": 444,
+    "gaps": 1
+  },
+  "probes": [
+    {
+      "methodKey": "AccessControlFacet.debugRoleIndexState",
+      "route": "GET /v1/access-control/queries/debug-role-index-state?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": [
+        "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        false,
+        false,
+        "0",
+        "0"
+      ]
+    },
+    {
+      "methodKey": "AccessControlFacet.getOwnerOperationalRoles",
+      "route": "GET /v1/access-control/queries/get-owner-operational-roles?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": [
+        "0xf0f99b205571b5da68295acbeeb7ecfd19ea5d20670463e37ab4e0c3530faad2",
+        "0x6906f436fc390f9133ad373774cc38c4aa0356c26e6e60fa181881215f6b80e3",
+        "0x4c845bd8367732455594e4267d2660f9c3f2cbb53288e8c2f3ec69276e9a440a",
+        "0xeb5830d0edfd9a3fc364751d8048f132771d2f8dc2f771a6c35a4fccd0157af4",
+        "0xf29a78c020ddf311f61483cfe182d6d833b80b74c6044ef77e24d033c4266a4c",
+        "0x601d69ba66e5f539b7ce9f20638317b6997a09e4e6b51c83bffe981f582405eb",
+        "0x6fa6c057ff3874415f284f7fafc658c2112b63f90e79a285ae81c4de04a3a174",
+        "0xb55305888dd4afc8463f509a22de6ab645c0e21aa89db602ab93e5d9806707cb",
+        "0xb569c1f6db20bb6482b98858bd4d97c19ed8ef4f6a8d6aa4bd62ac17db8d4abc"
+      ]
+    },
+    {
+      "methodKey": "AccessControlFacet.getQuorum",
+      "route": "GET /v1/access-control/queries/get-quorum?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "AccessControlFacet.getRequiredSigners",
+      "route": "GET /v1/access-control/queries/get-required-signers?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "AccessControlFacet.getRoleAdmin",
+      "route": "GET /v1/access-control/queries/get-role-admin?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "AccessControlFacet.getRoleConfig",
+      "route": "GET /v1/access-control/queries/get-role-config?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": {
+        "memberLimit": "0",
+        "validityPeriod": "0",
+        "minMemberLimit": "0",
+        "quorumBps": "0",
+        "absoluteMinQuorum": "0",
+        "adminRole": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "restricted": false,
+        "revocable": false,
+        "requiresApproval": false,
+        "recoveryActive": false
+      }
+    },
+    {
+      "methodKey": "AccessControlFacet.getRoleMember",
+      "route": "GET /v1/access-control/queries/get-role-member?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d&account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": {
+        "expiryTime": "0",
+        "assignedTime": "0",
+        "assignedBlock": "0",
+        "assignedBy": "0x0000000000000000000000000000000000000000",
+        "active": false,
+        "childRoles": []
+      }
+    },
+    {
+      "methodKey": "AccessControlFacet.getRoleMembers",
+      "route": "GET /v1/access-control/queries/get-role-members?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.getUserRoles",
+      "route": "GET /v1/access-control/queries/get-user-roles?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": [
+        "0x7ed687a8f2955bd2ba7ca08227e1e364d132be747f42fb733165f923021b0225",
+        "0xb19546dff01e856fb3f010c267a7b1c60363cf8a4664e21cc89c26224620214e",
+        "0xf0f99b205571b5da68295acbeeb7ecfd19ea5d20670463e37ab4e0c3530faad2",
+        "0x6906f436fc390f9133ad373774cc38c4aa0356c26e6e60fa181881215f6b80e3",
+        "0x4c845bd8367732455594e4267d2660f9c3f2cbb53288e8c2f3ec69276e9a440a",
+        "0xeb5830d0edfd9a3fc364751d8048f132771d2f8dc2f771a6c35a4fccd0157af4",
+        "0xf29a78c020ddf311f61483cfe182d6d833b80b74c6044ef77e24d033c4266a4c",
+        "0x601d69ba66e5f539b7ce9f20638317b6997a09e4e6b51c83bffe981f582405eb",
+        "0x6fa6c057ff3874415f284f7fafc658c2112b63f90e79a285ae81c4de04a3a174",
+        "0xb55305888dd4afc8463f509a22de6ab645c0e21aa89db602ab93e5d9806707cb",
+        "0xb569c1f6db20bb6482b98858bd4d97c19ed8ef4f6a8d6aa4bd62ac17db8d4abc",
+        "0x72c3eec1760bf69946625c2d4fb8e44e2c806345041960b434674fb9ab3976cf",
+        "0xf66846415d2bf9eabda9e84793ff9c0ea96d87f50fc41e66aa16469c6a442f05",
+        "0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1",
+        "0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63",
+        "0x5246556c0ab216b5b325ad7c539bfbd1a07c768773cdf810fecd3c3375c27407",
+        "0x4e9617a5e2ee64b49ea666eb545a00a6f26df1c8ca519835eb93aac8d7889492",
+        "0xc5a01215c40ae393b8dd7ca6c61496b1cc32e1f8c7c4359fd8dae25be62fcd41",
+        "0xd6766cfdb455907fac8731e3c20aa10fb2657995c2e3228695b4cc96a0d71270",
+        "0xad38fc56e7cf12436f8636729bfc3ea1f59bbdb38e132fa3e9330c57e2c77c2d",
+        "0x59a1c48e5837ad7a7f3dcedcbe129bf3249ec4fbf651fd4f5e2600ead39fe2f5",
+        "0xf6e67e455c1170019df813a9dcb568f910c16426a5a6faffb00d325d6f118b67",
+        "0x6c0757dc3e6b28b2580c03fd9e96c274acf4f99d91fbec9b418fa1d70604ff1c",
+        "0x5358bcfd81d1ef3da152b1755e1c3c6739686fa7e83dbcad0071568cc4b73a63",
+        "0xd810f479110c9771ec744414e571d78468b4e92a20f345df2ffbdc5f927a182e",
+        "0x71840dc4906352362b0cdaf79870196c8e42acafade72d5d5a6d59291253ceb1"
+      ]
+    },
+    {
+      "methodKey": "AccessControlFacet.hasAllParticipantRoles",
+      "route": "GET /v1/access-control/queries/has-all-participant-roles?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "AccessControlFacet.hasRole",
+      "route": "GET /v1/access-control/queries/has-role?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d&account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "AccessControlFacet.isFounderSunsetActive",
+      "route": "POST /v1/access-control/queries/is-founder-sunset-active",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "AccessControlFacet.isRoleActive",
+      "route": "GET /v1/access-control/queries/is-role-active?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d&account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "BurnThresholdFacet.thresholdCalculateExcess",
+      "route": "GET /v1/tokenomics/queries/threshold-calculate-excess?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "BurnThresholdFacet.thresholdGetBurnLimit",
+      "route": "POST /v1/tokenomics/queries/threshold-get-burn-limit",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.campaignCount",
+      "route": "POST /v1/tokenomics/queries/campaign-count",
+      "status": 200,
+      "payload": "18"
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.claimableAmount",
+      "route": "POST /v1/tokenomics/queries/claimable-amount",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.claimed",
+      "route": "GET /v1/tokenomics/queries/claimed?campaignId=18&account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.getCampaign",
+      "route": "GET /v1/tokenomics/queries/get-campaign?campaignId=18",
+      "status": 200,
+      "payload": {
+        "merkleRoot": "0x5cf55e471d4db6ecde50094536e795da01320f0ba42601f0abbe5ae68d8288d8",
+        "startTime": "1773615520",
+        "cliffSeconds": "0",
+        "durationSeconds": "0",
+        "tgeUnlockBps": "10000",
+        "maxTotalClaimable": "5000000000000",
+        "totalClaimed": "5000000000000",
+        "paused": false
+      }
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.vestedAmount",
+      "route": "GET /v1/tokenomics/queries/vested-amount?campaignId=18&totalAllocation=0",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "DelegationFacet.delegates",
+      "route": "GET /v1/staking/queries/delegates?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+    },
+    {
+      "methodKey": "DelegationFacet.DELEGATION_TYPEHASH",
+      "route": "POST /v1/staking/queries/delegation-typehash",
+      "status": 200,
+      "payload": "0xe48329057bfd03d55e49b547132e39cffd9c1820ad7b9d4c5307691425d15adf"
+    },
+    {
+      "methodKey": "DelegationFacet.DOMAIN_TYPEHASH",
+      "route": "POST /v1/staking/queries/domain-typehash",
+      "status": 200,
+      "payload": "0x8cad95687ba82c2ce50e74f7b754645e5117c3a5bec8151c0726d5857980a866"
+    },
+    {
+      "methodKey": "DelegationFacet.getCurrentVotes",
+      "route": "GET /v1/staking/queries/get-current-votes?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "840000000000000000"
+    },
+    {
+      "methodKey": "DelegationFacet.getPriorVotes",
+      "route": "GET /v1/staking/queries/get-prior-votes?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2&blockNumber=63545481",
+      "status": 200,
+      "payload": "840000000000000000"
+    },
+    {
+      "methodKey": "DelegationFacet.getTotalVotingPower",
+      "route": "GET /v1/staking/queries/get-total-voting-power?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "840000000000000000"
+    },
+    {
+      "methodKey": "DiamondCutFacet.FOUNDER_ROLE",
+      "route": "POST /v1/diamond-admin/queries/founder-role",
+      "status": 200,
+      "payload": "0x7ed687a8f2955bd2ba7ca08227e1e364d132be747f42fb733165f923021b0225"
+    },
+    {
+      "methodKey": "DiamondCutFacet.getTrustedInitCodehash",
+      "route": "GET /v1/diamond-admin/queries/get-trusted-init-codehash?initContract=0x0000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "DiamondCutFacet.isImmutableSelectorReserved",
+      "route": "GET /v1/diamond-admin/queries/is-immutable-selector-reserved?selector=0x00000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "DiamondCutFacet.isTrustedInitSelector",
+      "route": "GET /v1/diamond-admin/queries/is-trusted-init-selector?initContract=0x0000000000000000000000000000000000000000&selector=0x00000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "DiamondCutFacet.isTrustedInitSelectorPolicyEnabled",
+      "route": "GET /v1/diamond-admin/queries/is-trusted-init-selector-policy-enabled?initContract=0x0000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "DiamondLoupeFacet.facetAddress",
+      "route": "GET /v1/diamond-admin/queries/facet-address?functionSelector=0x00000000",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "DiamondLoupeFacet.facetAddresses",
+      "route": "POST /v1/diamond-admin/queries/facet-addresses",
+      "status": 200,
+      "payload": [
+        "0xCB56aB8F164aBc8CB628844dbb271fD7D93d1b96",
+        "0xEE7d153d90817937583F9D5A6DCd512e347Bc6Fc",
+        "0x5f193BEF733693a65cAe7A21b202697719aE0Ec9",
+        "0x76E64523Fc226bC79B5C38c9aF457b60A7CB1966",
+        "0x2d3531884eaEA48A7b2E0dec154D74802aCe4816",
+        "0x016ae1db83301e609612f2895e52b3Ee513BAF9a",
+        "0x90F29b9EDdD3BdDBC063fD06C8fDEa9eD1e3C092",
+        "0xEfd7621C19b460983bC2aBdF31f2d28e00C6ac2B",
+        "0xCb9fE7CDB561Fdd27E2953D8D4108702CF84dcD3",
+        "0x084846c434648Fc5105A2DC49Bd3FdAC57b81EfF",
+        "0x379E71E3EB2c55851133D75FE7411c818313CCbf",
+        "0xa75E2572A6E724A07B8690125B488Ff6FfA71cFD",
+        "0x08cF366a9b5AA383c41cAD59e9CCB58b114F9BB9",
+        "0x4Bef1a589846c1bFc418ea27640184493Fa3f3f0",
+        "0x32ec54606EE47FE3a8599a89275A4FeFfF9Ef383",
+        "0x9b139c0944Fe5D271bc631A793f79e239dC1dA6e",
+        "0x4763BcC6558baE004744c22CAe7C5261fbdb8d02",
+        "0x5F3dAdb5E785AB3e960EBA6FC5378F5DCd55940d",
+        "0x140459f36D1336d7d244Dac8FD49c1915CEd5baC",
+        "0x66eF9B55B9CB6a09ce0BdEd6702d82E3D098ccbb",
+        "0x267E5e8bF5b80b63D90C0cABdbF9939e6548cC00",
+        "0x341F6A009e312ddFf5d69638004E056Ff1898f65",
+        "0x783789077725ffB057DF1Eb7573648624eA91f0a",
+        "0x95A0cEc63F444668a9568D93ff11052fFa62BDFC",
+        "0x87299385b0672434Fc6D877C84aB519843F0b43E",
+        "0x6Fd51270236729F1385583f2C9bb163DD586d715",
+        "0xCe0147D146f2AFC8990d1D6D43513C3cF8b01Ea8",
+        "0x70063e7230cD32fa2FFDE0116bc4DbE4dbE313b8",
+        "0x83C930B7a9ad26676e666bAA181Ef26d26903264",
+        "0x61a33fbAeb67141C77a3a8f26F3c61fb86489F0e",
+        "0xa7Ea66069897542b288e5335f47b14cEAC8b0891",
+        "0xA0b88bA0f5250e5505E685DB9E8a5C483a310d56",
+        "0x8F0CAF50F4344e49c591EB08080eDa62eF2e3c04"
+      ]
+    },
+    {
+      "methodKey": "DiamondLoupeFacet.facetFunctionSelectors",
+      "route": "GET /v1/diamond-admin/queries/facet-function-selectors?facetAddr=0x0000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DiamondLoupeFacet.facets",
+      "route": "POST /v1/diamond-admin/queries/facets",
+      "status": 200,
+      "payload": [
+        [
+          "0xCB56aB8F164aBc8CB628844dbb271fD7D93d1b96",
+          [
+            "0x1f931c1c",
+            "0xb17252d6",
+            "0x88f46342",
+            "0xadd472b4",
+            "0x8b7cdbd5",
+            "0x0a5a63fb",
+            "0x32f87240",
+            "0xb63bd529",
+            "0xc1e6f304"
+          ]
+        ],
+        [
+          "0xEE7d153d90817937583F9D5A6DCd512e347Bc6Fc",
+          [
+            "0x7a0ed627",
+            "0xadfca15e",
+            "0x52ef6b2c",
+            "0xcdffacc6"
+          ]
+        ],
+        [
+          "0x5f193BEF733693a65cAe7A21b202697719aE0Ec9",
+          [
+            "0xf2fde38b",
+            "0x8da5cb5b",
+            "0x21040fc3",
+            "0x79ba5097",
+            "0x23452b9c",
+            "0xefd9532f",
+            "0x14cd5a55",
+            "0x30846711",
+            "0xe30c3978",
+            "0x87812653"
+          ]
+        ],
+        [
+          "0x76E64523Fc226bC79B5C38c9aF457b60A7CB1966",
+          [
+            "0x06a36aee",
+            "0x0d26c53b",
+            "0x120f8fcb",
+            "0x14a2b400",
+            "0x16c38b3c",
+            "0x1e4e0091",
+            "0x248a9ca3",
+            "0x2b52d8c3",
+            "0x36609a97",
+            "0x46291bfb",
+            "0x4e01b34a",
+            "0x4f995e65",
+            "0x531b6f5d",
+            "0x8bb9c5bf",
+            "0x91d14854",
+            "0x9d985e5f",
+            "0xa3246ad3",
+            "0xab3de49b",
+            "0xabb382b5",
+            "0xb2422136",
+            "0xb5e936ab",
+            "0xc6737063",
+            "0xd2de9c0b",
+            "0xde13278c",
+            "0xf9a44fe7"
+          ]
+        ],
+        [
+          "0x2d3531884eaEA48A7b2E0dec154D74802aCe4816",
+          [
+            "0x20606b70",
+            "0x2c009fa2",
+            "0x587cde1e",
+            "0x5c19a95c",
+            "0x782d6fe1",
+            "0x813ae22d",
+            "0xa0f8d2f6",
+            "0xb4b5ea57",
+            "0xc3cda520",
+            "0xe7a324dc"
+          ]
+        ],
+        [
+          "0x016ae1db83301e609612f2895e52b3Ee513BAF9a",
+          [
+            "0x1d95ba97",
+            "0x2b458a5e",
+            "0x3a46b1a8",
+            "0x3c26835b",
+            "0x465e0c17",
+            "0x50cab732",
+            "0x6236e365",
+            "0x6da25a54",
+            "0x747c1255",
+            "0x98503b26",
+            "0xbb4d4436",
+            "0xcfdbf254",
+            "0xd4745d9b",
+            "0xd9dbe418",
+            "0xdc1af4bb",
+            "0xeb9019d4",
+            "0xf786b958"
+          ]
+        ],
+        [
+          "0x90F29b9EDdD3BdDBC063fD06C8fDEa9eD1e3C092",
+          [
+            "0x06f3f9e6",
+            "0x24b468fa",
+            "0x57ad6279",
+            "0x63d61a19",
+            "0x721c3c64",
+            "0xafb15b90",
+            "0xe32bb67b",
+            "0xef00ef43"
+          ]
+        ],
+        [
+          "0xEfd7621C19b460983bC2aBdF31f2d28e00C6ac2B",
+          [
+            "0x0c725e99",
+            "0x1374b22d",
+            "0x25ba10b5",
+            "0x2d63f693",
+            "0x396daaf8",
+            "0x3e4f49e6",
+            "0x4a43d6df",
+            "0x4c72da00",
+            "0x544ffc9c",
+            "0x5584c4f9",
+            "0x7f787d0a",
+            "0x9a79018e",
+            "0xb2037dc6",
+            "0xc01f9e37",
+            "0xd90b2d57",
+            "0xdd16392f",
+            "0xddf0b009",
+            "0xe0a8f6f5",
+            "0xe23a9a52",
+            "0xf288a2e2"
+          ]
+        ],
+        [
+          "0xCb9fE7CDB561Fdd27E2953D8D4108702CF84dcD3",
+          [
+            "0x07bd0265",
+            "0x13bc9f20",
+            "0x279412c5",
+            "0x584b153e",
+            "0x68bb3920",
+            "0x8a99d586",
+            "0x8f61f4f5",
+            "0xadc710b8",
+            "0xbfe61df4",
+            "0xcc72547b",
+            "0xd45c4435",
+            "0xf27a0c92"
+          ]
+        ],
+        [
+          "0x084846c434648Fc5105A2DC49Bd3FdAC57b81EfF",
+          [
+            "0x0676f661",
+            "0x113647bb",
+            "0x1f1c0144",
+            "0x2926dc0b",
+            "0x2ac09708",
+            "0x2bca8391",
+            "0x476056e3",
+            "0x62eed8ca",
+            "0x63a599a4",
+            "0x746db152",
+            "0x7ad45a76",
+            "0x85fb8449",
+            "0x8e360502",
+            "0x93c87f03",
+            "0x9578615e",
+            "0xa6cf90e4",
+            "0xb3898b61",
+            "0xbe9136f7",
+            "0xd2f65591",
+            "0xdef78049",
+            "0xe60ecfcd",
+            "0xfd59ff68",
+            "0xfddd4837"
+          ]
+        ],
+        [
+          "0x379E71E3EB2c55851133D75FE7411c818313CCbf",
+          [
+            "0x01e8f789",
+            "0x136fb024",
+            "0x3dfb9fc8",
+            "0x812646af",
+            "0xb9c2aa43",
+            "0xd237c54e",
+            "0xf90e0996"
+          ]
+        ],
+        [
+          "0xa75E2572A6E724A07B8690125B488Ff6FfA71cFD",
+          [
+            "0x057bb9cf",
+            "0x150b7a02",
+            "0x4eeba5be",
+            "0x510c3903",
+            "0x91e58a20",
+            "0xc642c9c9",
+            "0xfa25125f"
+          ]
+        ],
+        [
+          "0x08cF366a9b5AA383c41cAD59e9CCB58b114F9BB9",
+          [
+            "0x107a274a",
+            "0x305a67a8",
+            "0x3f4ba83a",
+            "0x8456cb59",
+            "0xa457e1c0",
+            "0xb187bd26",
+            "0xc4604943",
+            "0xfc75b780"
+          ]
+        ],
+        [
+          "0x4Bef1a589846c1bFc418ea27640184493Fa3f3f0",
+          [
+            "0x00d54fa5",
+            "0x021da69c",
+            "0x02c7acfb",
+            "0x0d68475e",
+            "0x13dd015f",
+            "0x21098c29",
+            "0x293dcc34",
+            "0x3b44390a",
+            "0x3b74b491",
+            "0x40a2e60a",
+            "0x419fd1ee",
+            "0x4f051973",
+            "0x5ae6fba4",
+            "0x5d886f22",
+            "0x6103d70b",
+            "0x613107e6",
+            "0x62633ad9",
+            "0x6e437414",
+            "0x763246e5",
+            "0x7dc43744",
+            "0x81fd9e57",
+            "0x82165bbf",
+            "0x841e4561",
+            "0x8677cebe",
+            "0x871209c8",
+            "0x88167f2d",
+            "0xa02a84c6",
+            "0xa89d777b",
+            "0xad5cb2e1",
+            "0xd3a37e58",
+            "0xd5895c5a",
+            "0xd8eb8082",
+            "0xe0024604",
+            "0xe708be9f",
+            "0xef646800",
+            "0xf47687ad",
+            "0xf60c5512",
+            "0xf76851bc",
+            "0xf7929a35"
+          ]
+        ],
+        [
+          "0x32ec54606EE47FE3a8599a89275A4FeFfF9Ef383",
+          [
+            "0x095ea7b3",
+            "0x0cd689f5",
+            "0x119c1c23",
+            "0x18160ddd",
+            "0x23b872dd",
+            "0x273181b5",
+            "0x313ce567",
+            "0x3ed9bc86",
+            "0x42966c68",
+            "0x4c12716a",
+            "0x4d41636f",
+            "0x6c02a931",
+            "0x70a08231",
+            "0x79cc6790",
+            "0x7b61c320",
+            "0x961974ba",
+            "0xa9059cbb",
+            "0xa9eb895c",
+            "0xd5b17742",
+            "0xdd62ed3e",
+            "0xe42c08f2"
+          ]
+        ],
+        [
+          "0x9b139c0944Fe5D271bc631A793f79e239dC1dA6e",
+          [
+            "0x5ee2f0c1",
+            "0x7241d3c0",
+            "0x7a104b2c",
+            "0x9be346bf",
+            "0xbb6e39aa",
+            "0xf455dccb"
+          ]
+        ],
+        [
+          "0x4763BcC6558baE004744c22CAe7C5261fbdb8d02",
+          [
+            "0x0690c3dc",
+            "0x06981395",
+            "0x0cea2bda",
+            "0x15b31bbb",
+            "0x1d583e0d",
+            "0x23095721",
+            "0x2a9e68cd",
+            "0x2cd0068d",
+            "0x372500ab",
+            "0x3cf80e6c",
+            "0x4f062c5a",
+            "0x64a6c194",
+            "0x7fe72f21",
+            "0x8a461967",
+            "0x9b9ceac9",
+            "0xa694fc3a",
+            "0xbb601798",
+            "0xc1dd6084",
+            "0xc3453153",
+            "0xc9793d49",
+            "0xe777cf79",
+            "0xe81a04b4",
+            "0xf6ed2017"
+          ]
+        ],
+        [
+          "0x5F3dAdb5E785AB3e960EBA6FC5378F5DCd55940d",
+          [
+            "0x01ebeb7e",
+            "0x1676ed1f",
+            "0x2002d7ea",
+            "0x2045142f",
+            "0x22969c18",
+            "0x237dd9c6",
+            "0x25136173",
+            "0x26892acd",
+            "0x2c5b3b7c",
+            "0x32ea6cbc",
+            "0x36c26d6b",
+            "0x3bcb1b12",
+            "0x3ca01f85",
+            "0x3d402f1b",
+            "0x4b01c84c",
+            "0x4c495d99",
+            "0x54dd1da4",
+            "0x75fca2a5",
+            "0x84a2e829",
+            "0x8bc9e73e",
+            "0x8dedf009",
+            "0x9eff06bd",
+            "0xa270e9f0",
+            "0xa54e0605",
+            "0xa6dbc986",
+            "0xac70ea51",
+            "0xb4a38893",
+            "0xee85f5fe",
+            "0xf035a272",
+            "0xffdd68b2"
+          ]
+        ],
+        [
+          "0x140459f36D1336d7d244Dac8FD49c1915CEd5baC",
+          [
+            "0x120aa877",
+            "0x18712c21",
+            "0x43a19a65",
+            "0x54b547a5",
+            "0x5598f8cc",
+            "0x55ce036b",
+            "0x7274e30d",
+            "0xae0b51df",
+            "0xde99347a",
+            "0xfff617b9"
+          ]
+        ],
+        [
+          "0x66eF9B55B9CB6a09ce0BdEd6702d82E3D098ccbb",
+          [
+            "0x0b895578",
+            "0x25ded8b6",
+            "0x28394095",
+            "0x388890d0",
+            "0x481ab8e5",
+            "0x6be41274",
+            "0x703905db",
+            "0x712fbf8e",
+            "0x8094baf8",
+            "0x886c0d38",
+            "0x8caf3711",
+            "0x9c72ae66",
+            "0xa66bf92a",
+            "0xb4eea971",
+            "0xc435e40e",
+            "0xc7f1a1f5",
+            "0xd0c8c7b1"
+          ]
+        ],
+        [
+          "0x267E5e8bF5b80b63D90C0cABdbF9939e6548cC00",
+          [
+            "0x11afa115",
+            "0x27b83e95",
+            "0x29164fec",
+            "0x5fa9d5f4",
+            "0x720bd865",
+            "0x74eb9d81",
+            "0x930faaf6",
+            "0x982d821b",
+            "0xa434e813",
+            "0xa7b830d5",
+            "0xaf3232bf",
+            "0xd14519d2",
+            "0xe6689224",
+            "0xeec65de2",
+            "0xf2dac3c6",
+            "0xf7d015e2"
+          ]
+        ],
+        [
+          "0x341F6A009e312ddFf5d69638004E056Ff1898f65",
+          [
+            "0x06fdde03",
+            "0x081812fc",
+            "0x09d55d9a",
+            "0x0e5c3e19",
+            "0x1bd641ef",
+            "0x1e565477",
+            "0x1e82cd85",
+            "0x1f4f9486",
+            "0x2b7aa7ba",
+            "0x3dd892ad",
+            "0x3f335f3d",
+            "0x409d12d6",
+            "0x42842e0e",
+            "0x48b4cd1f",
+            "0x535548cd",
+            "0x6352211e",
+            "0x660a0696",
+            "0x7b2d6db3",
+            "0x7f9e244c",
+            "0x81d22d26",
+            "0x8667e657",
+            "0x87f811fb",
+            "0x9065f623",
+            "0x9103edbf",
+            "0x93c032db",
+            "0x956db465",
+            "0x95d89b41",
+            "0xa22cb465",
+            "0xa6bc0cb0",
+            "0xadf51527",
+            "0xaf421a2d",
+            "0xb3397a58",
+            "0xb88d4fde",
+            "0xbe5b9b60",
+            "0xc87b56dd",
+            "0xc9cb65e1",
+            "0xd6fab9c2",
+            "0xe42e718b",
+            "0xe83973f9",
+            "0xe985e9c5",
+            "0xf6f8e090",
+            "0xfdd950c1"
+          ]
+        ],
+        [
+          "0x783789077725ffB057DF1Eb7573648624eA91f0a",
+          [
+            "0x1af8e976",
+            "0x1b2dc54d",
+            "0x25d81aab",
+            "0x2a55205a",
+            "0x2a7df4e4",
+            "0x2c26b166",
+            "0x2f8104d2",
+            "0x512b994f",
+            "0x593aa283",
+            "0x6bcf40e6",
+            "0x7f45a16d",
+            "0xd43c54b8",
+            "0xecccf285",
+            "0xee004221",
+            "0xf773d0c1"
+          ]
+        ],
+        [
+          "0x95A0cEc63F444668a9568D93ff11052fFa62BDFC",
+          [
+            "0x0c566d79",
+            "0x220cadbe",
+            "0x29e6a964",
+            "0x37ec0e5a",
+            "0x38770c8e",
+            "0x518eea47",
+            "0x5ac06c39",
+            "0x5bb4cbad",
+            "0x748384da",
+            "0x7754054e",
+            "0x78767645",
+            "0xc700ff2a",
+            "0xd2862fb2",
+            "0xe183efb0",
+            "0xe9741106",
+            "0xf6177016"
+          ]
+        ],
+        [
+          "0x87299385b0672434Fc6D877C84aB519843F0b43E",
+          [
+            "0x1620a0c5",
+            "0x18aeb803",
+            "0x9464ecbe",
+            "0x9757739b",
+            "0x9a5b0a8c",
+            "0xd12a2318",
+            "0xe012080a"
+          ]
+        ],
+        [
+          "0x6Fd51270236729F1385583f2C9bb163DD586d715",
+          [
+            "0x0e584cfe",
+            "0x10bd852d",
+            "0x2c3f02f8",
+            "0x3d04a80c",
+            "0x7ae1f62a",
+            "0x90c0f462",
+            "0xa43e8894",
+            "0xcc12ee00",
+            "0xe9667bbc",
+            "0xf62ebb98",
+            "0xfd84a3bd"
+          ]
+        ],
+        [
+          "0xCe0147D146f2AFC8990d1D6D43513C3cF8b01Ea8",
+          [
+            "0x0d7f39cf",
+            "0x14aa497f",
+            "0x20c4f08c",
+            "0x22d407bf",
+            "0x25200f05",
+            "0x4b503f0b",
+            "0x51ffef11",
+            "0x73a8ce8b",
+            "0x8d53b208",
+            "0x9aafdba9",
+            "0xb22bd298",
+            "0xb8663fd0",
+            "0xdf882fdd",
+            "0xe58378bb"
+          ]
+        ],
+        [
+          "0x70063e7230cD32fa2FFDE0116bc4DbE4dbE313b8",
+          [
+            "0x09f3b7d0",
+            "0x23d3564c",
+            "0x2b8e7662",
+            "0x46acffad",
+            "0x6bbc0e4c",
+            "0x715f3458",
+            "0x71cdf2bb",
+            "0x930bb7dd",
+            "0x9563e984",
+            "0x95929109",
+            "0xa14e2cbe",
+            "0xa74713ab",
+            "0xae57a77b",
+            "0xb3bfbda7",
+            "0xb991a928"
+          ]
+        ],
+        [
+          "0x83C930B7a9ad26676e666bAA181Ef26d26903264",
+          [
+            "0x1ab9469d",
+            "0x226a9196",
+            "0x234b0e2c",
+            "0x31119e2e",
+            "0x569ed941",
+            "0x762a79c6",
+            "0x90d524cc",
+            "0xb02930a3",
+            "0xd9155820",
+            "0xf28e4383"
+          ]
+        ],
+        [
+          "0x61a33fbAeb67141C77a3a8f26F3c61fb86489F0e",
+          [
+            "0x11a048a5",
+            "0x51bfc050",
+            "0x6c2afb29",
+            "0x7730fd72"
+          ]
+        ],
+        [
+          "0xa7Ea66069897542b288e5335f47b14cEAC8b0891",
+          [
+            "0x19741bf8",
+            "0x86198cd5",
+            "0xa6cb3575",
+            "0xbdc98b6c"
+          ]
+        ],
+        [
+          "0xA0b88bA0f5250e5505E685DB9E8a5C483a310d56",
+          [
+            "0x3a976d8f",
+            "0x3ccccbee",
+            "0x6d70f7ae",
+            "0x727c6c5a",
+            "0x7819fe41",
+            "0x862455c3",
+            "0x9870d7fe",
+            "0xac8a584a",
+            "0xb61d27f6",
+            "0xc6427474",
+            "0xcbaf2fa7",
+            "0xd47b272a",
+            "0xe230e357",
+            "0xeb6a415a",
+            "0xf34e0b4f",
+            "0xf8833439"
+          ]
+        ],
+        [
+          "0x8F0CAF50F4344e49c591EB08080eDa62eF2e3c04",
+          [
+            "0x22f153db",
+            "0x2b26e033",
+            "0x38f1be48",
+            "0x4ba0ab39",
+            "0x595f0847",
+            "0x67884095",
+            "0x8250abcb",
+            "0x953769c9",
+            "0x9562a35f",
+            "0xaf5bdcb6",
+            "0xbbf2358e",
+            "0xc2cd7eac",
+            "0xc9b965e8",
+            "0xdff5dc08"
+          ]
+        ]
+      ]
+    },
+    {
+      "methodKey": "DiamondLoupeFacet.supportsInterface",
+      "route": "GET /v1/diamond-admin/queries/supports-interface?interfaceId=0x00000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.getEchoScoreOracleV3",
+      "route": "POST /v1/staking/queries/get-echo-score-oracle-v3",
+      "status": 200,
+      "payload": "0x5f403778E226F49A9446792cb470A30b9fC885ED"
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.getOracleFutureDriftConfig",
+      "route": "POST /v1/staking/queries/get-oracle-future-drift-config",
+      "status": 200,
+      "payload": "300"
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.getOracleQuorumSigners",
+      "route": "POST /v1/staking/queries/get-oracle-quorum-signers",
+      "status": 200,
+      "payload": [
+        [
+          "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+          "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+          "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+          "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+          "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+        ],
+        "3"
+      ]
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.getOracleStalenessConfig",
+      "route": "POST /v1/staking/queries/get-oracle-staleness-config",
+      "status": 200,
+      "payload": [
+        "86400",
+        "1773615492"
+      ]
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.getReputation",
+      "route": "GET /v1/staking/queries/get-reputation?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": {
+        "totalReputation": "0",
+        "voiceQualityScore": "0",
+        "engagementScore": "0",
+        "governanceScore": "0",
+        "datasetScore": "0",
+        "marketplaceScore": "0",
+        "lastUpdated": "0",
+        "updateCount": "0"
+      }
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.getReputationHistory",
+      "route": "GET /v1/staking/queries/get-reputation-history?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.isEchoScorePausedV3",
+      "route": "POST /v1/staking/queries/is-echo-score-paused-v3",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.isOracleHealthy",
+      "route": "POST /v1/staking/queries/is-oracle-healthy",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "EmergencyFacet.getEmergencyState",
+      "route": "POST /v1/emergency/queries/get-emergency-state",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "EmergencyFacet.getEmergencyTimeout",
+      "route": "POST /v1/emergency/queries/get-emergency-timeout",
+      "status": 200,
+      "payload": "7201"
+    },
+    {
+      "methodKey": "EmergencyFacet.getIncident",
+      "route": "GET /v1/emergency/queries/get-incident?incidentId=0",
+      "status": 200,
+      "payload": {
+        "id": "0",
+        "incidentType": "0",
+        "description": "",
+        "reporter": "0x0000000000000000000000000000000000000000",
+        "timestamp": "0",
+        "resolved": false,
+        "actions": [],
+        "approvers": [],
+        "resolutionTime": "0"
+      }
+    },
+    {
+      "methodKey": "EmergencyFacet.getRecoveryPlan",
+      "route": "GET /v1/emergency/queries/get-recovery-plan?incidentId=0",
+      "status": 200,
+      "payload": [
+        [],
+        false,
+        "0",
+        "0",
+        "0",
+        []
+      ]
+    },
+    {
+      "methodKey": "EmergencyFacet.isAssetFrozen",
+      "route": "GET /v1/emergency/queries/is-asset-frozen?assetId=0",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "EmergencyFacet.isEmergencyStopped",
+      "route": "POST /v1/emergency/queries/is-emergency-stopped",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.getApprovalCount",
+      "route": "GET /v1/emergency/queries/get-approval-count?requestId=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.isRecipientWhitelisted",
+      "route": "GET /v1/emergency/queries/is-recipient-whitelisted?recipient=0x38715AB647049A755810B2eEcf29eE79CcC649BE",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "EscrowFacet.getAssetState",
+      "route": "GET /v1/marketplace/queries/get-asset-state?tokenId=11",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "EscrowFacet.getOriginalOwner",
+      "route": "GET /v1/marketplace/queries/get-original-owner?tokenId=11",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "EscrowFacet.isInEscrow",
+      "route": "GET /v1/marketplace/queries/is-in-escrow?tokenId=11",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "GovernorFacet.getRoleMultiplier",
+      "route": "GET /v1/governance/queries/get-role-multiplier?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": "10000"
+    },
+    {
+      "methodKey": "GovernorFacet.getVotingConfig",
+      "route": "POST /v1/governance/queries/get-voting-config",
+      "status": 200,
+      "payload": {
+        "votingDelay": "6720",
+        "votingPeriod": "40320",
+        "proposalThreshold": "4200000000000000",
+        "quorumNumerator": "1500"
+      }
+    },
+    {
+      "methodKey": "LegacyViewFacet.getLegacyPlan",
+      "route": "GET /v1/voice-assets/queries/get-legacy-plan?owner=0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": {
+        "voiceAssets": [],
+        "datasetIds": [],
+        "beneficiaries": [],
+        "conditions": {
+          "timelock": "0",
+          "requiresProof": false,
+          "requiredDocs": [],
+          "approvers": [],
+          "minApprovals": "0"
+        },
+        "createdAt": "0",
+        "updatedAt": "0",
+        "isActive": false,
+        "isExecuted": false,
+        "memo": ""
+      }
+    },
+    {
+      "methodKey": "LegacyViewFacet.isInheritanceReady",
+      "route": "GET /v1/voice-assets/queries/is-inheritance-ready?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": [
+        true,
+        "0",
+        "0"
+      ]
+    },
+    {
+      "methodKey": "LegacyViewFacet.validateBeneficiaries",
+      "route": "POST /v1/voice-assets/queries/validate-beneficiaries",
+      "status": 200,
+      "payload": null
+    },
+    {
+      "methodKey": "LegacyViewFacet.validateBeneficiary",
+      "route": "POST /v1/voice-assets/queries/validate-beneficiary",
+      "status": 200,
+      "payload": null
+    },
+    {
+      "methodKey": "MarketplaceFacet.getListing",
+      "route": "GET /v1/marketplace/queries/get-listing?tokenId=11",
+      "status": 200,
+      "payload": {
+        "tokenId": "11",
+        "seller": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+        "price": "1000",
+        "createdAt": "1795629663",
+        "createdBlock": "63538647",
+        "lastUpdateBlock": "63538647",
+        "expiresAt": "1798221663",
+        "isActive": false
+      }
+    },
+    {
+      "methodKey": "MarketplaceFacet.isPaused",
+      "route": "POST /v1/marketplace/queries/is-paused",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "MultiSigFacet.canExecuteOperation",
+      "route": "GET /v1/multisig/queries/can-execute-operation?operationId=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": [
+        false,
+        "Operation not found"
+      ]
+    },
+    {
+      "methodKey": "MultiSigFacet.getOperationConfig",
+      "route": "GET /v1/multisig/queries/get-operation-config?operationType=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": {
+        "minApprovals": "0",
+        "maxApprovals": "0",
+        "allowsCancellation": false
+      }
+    },
+    {
+      "methodKey": "MultiSigFacet.getOperationStatus",
+      "route": "GET /v1/multisig/queries/get-operation-status?operationId=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "MultiSigFacet.hasApprovedOperation",
+      "route": "GET /v1/multisig/queries/has-approved-operation?operationId=0x0000000000000000000000000000000000000000000000000000000000000000&approver=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "MultiSigFacet.isOperator",
+      "route": "GET /v1/multisig/queries/is-operator?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "OwnershipFacet.isOwnershipPolicyEnforced",
+      "route": "POST /v1/ownership/queries/is-ownership-policy-enforced",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "OwnershipFacet.isOwnerTargetApproved",
+      "route": "GET /v1/ownership/queries/is-owner-target-approved?target=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "OwnershipFacet.owner",
+      "route": "POST /v1/ownership/queries/owner",
+      "status": 200,
+      "payload": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+    },
+    {
+      "methodKey": "OwnershipFacet.pendingOwner",
+      "route": "POST /v1/ownership/queries/pending-owner",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "PaymentFacet.getAssetRevenue",
+      "route": "GET /v1/marketplace/queries/get-asset-revenue?tokenId=11",
+      "status": 200,
+      "payload": [
+        "1000",
+        "85",
+        "915",
+        "0"
+      ]
+    },
+    {
+      "methodKey": "PaymentFacet.getBuybackStatus",
+      "route": "POST /v1/marketplace/queries/get-buyback-status",
+      "status": 200,
+      "payload": {
+        "buybackBps": "0",
+        "minMonthlyRevenue": "0",
+        "requiredMonths": "1",
+        "cadence": "1",
+        "accumulator": "0",
+        "consecutiveMonths": "0",
+        "lastMonth": "0",
+        "currentMonthRevenue": "0",
+        "lastExecution": "0",
+        "paused": false,
+        "buybackRouter": "0x0000000000000000000000000000000000000000",
+        "uspkToken": "0x0000000000000000000000000000000000000000",
+        "burnAddress": "0x0000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "methodKey": "PaymentFacet.getDevFundAddress",
+      "route": "POST /v1/marketplace/queries/get-dev-fund-address",
+      "status": 200,
+      "payload": "0x0FC9CE2a0d17668fD007fCf5668146BbE2560816"
+    },
+    {
+      "methodKey": "PaymentFacet.getFeeConfiguration",
+      "route": "POST /v1/marketplace/queries/get-fee-configuration",
+      "status": 200,
+      "payload": {
+        "platformFee": "500",
+        "unionShare": "100",
+        "devFund": "250",
+        "timewaveGift": "0",
+        "referralFee": "0",
+        "milestonePool": "0"
+      }
+    },
+    {
+      "methodKey": "PaymentFacet.getMevProtectionConfig",
+      "route": "POST /v1/marketplace/queries/get-mev-protection-config",
+      "status": 200,
+      "payload": [
+        true,
+        "0x0000000000000000000000000000000000000000",
+        "100000000",
+        "1000000000",
+        "2"
+      ]
+    },
+    {
+      "methodKey": "PaymentFacet.getPendingPayments",
+      "route": "GET /v1/marketplace/queries/get-pending-payments?payee=0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "PaymentFacet.getPendingTimewaveGift",
+      "route": "GET /v1/marketplace/queries/get-pending-timewave-gift?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "PaymentFacet.getRevenueMetrics",
+      "route": "POST /v1/marketplace/queries/get-revenue-metrics",
+      "status": 200,
+      "payload": [
+        "1013001",
+        "86105",
+        "926896",
+        "0"
+      ]
+    },
+    {
+      "methodKey": "PaymentFacet.getTreasuryAddress",
+      "route": "POST /v1/marketplace/queries/get-treasury-address",
+      "status": 200,
+      "payload": "0x4eC36f50ee25016a5DB3a09CddcBea0069052f5a"
+    },
+    {
+      "methodKey": "PaymentFacet.getTreasuryWithdrawalLimit",
+      "route": "POST /v1/marketplace/queries/get-treasury-withdrawal-limit",
+      "status": 200,
+      "payload": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "methodKey": "PaymentFacet.getUnionTreasuryAddress",
+      "route": "POST /v1/marketplace/queries/get-union-treasury-address",
+      "status": 200,
+      "payload": "0x4eC36f50ee25016a5DB3a09CddcBea0069052f5a"
+    },
+    {
+      "methodKey": "PaymentFacet.getUsdcToken",
+      "route": "POST /v1/marketplace/queries/get-usdc-token",
+      "status": 200,
+      "payload": "0xf976bb0f0a4091d41B149AE6D4Cda8cac232b2F2"
+    },
+    {
+      "methodKey": "PaymentFacet.paymentPaused",
+      "route": "POST /v1/marketplace/queries/payment-paused",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "ProposalFacet.getActiveProposals",
+      "route": "POST /v1/governance/queries/get-active-proposals",
+      "status": 200,
+      "payload": [
+        [
+          "40",
+          "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          [
+            "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0x06fdde03"
+          ],
+          "Layer1 proof 1795629685258",
+          "63545379",
+          "63585699",
+          "0",
+          "0",
+          "0",
+          false,
+          false,
+          "0",
+          "0",
+          "0",
+          "0",
+          [],
+          "0"
+        ],
+        [
+          "41",
+          "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+          [
+            "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+          ],
+          [
+            "0"
+          ],
+          [
+            "0x63d61a190000000000000000000000000000000000000000000000000000000000001770"
+          ],
+          "api-layer governance proof 1795629760234",
+          "63545437",
+          "63585757",
+          "21000000000000000",
+          "0",
+          "0",
+          false,
+          false,
+          "0",
+          "0",
+          "0",
+          "0",
+          [],
+          "0"
+        ]
+      ]
+    },
+    {
+      "methodKey": "ProposalFacet.getProposalTypeConfig",
+      "route": "GET /v1/governance/queries/get-proposal-type-config?proposalType=0",
+      "status": 200,
+      "payload": {
+        "threshold": "4200000000000000",
+        "quorum": "1500",
+        "votingDelay": "6720",
+        "votingPeriod": "40320",
+        "executionDelay": "172800"
+      }
+    },
+    {
+      "methodKey": "ProposalFacet.getProposerProposals",
+      "route": "GET /v1/governance/queries/get-proposer-proposals?proposer=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "40",
+        "41"
+      ]
+    },
+    {
+      "methodKey": "ProposalFacet.getReceipt",
+      "route": "GET /v1/governance/queries/get-receipt?proposalId=41&voter=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": {
+        "hasVoted": true,
+        "support": "1",
+        "reason": "api-layer governance proof",
+        "votes": "21000000000000000"
+      }
+    },
+    {
+      "methodKey": "ProposalFacet.GOVERNANCE_PROPOSER_ROLE",
+      "route": "POST /v1/governance/queries/governance-proposer-role",
+      "status": 200,
+      "payload": "0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1"
+    },
+    {
+      "methodKey": "ProposalFacet.proposalDeadline",
+      "route": "GET /v1/governance/queries/proposal-deadline?proposalId=41",
+      "status": 200,
+      "payload": "63585757"
+    },
+    {
+      "methodKey": "ProposalFacet.proposalExists",
+      "route": "GET /v1/governance/queries/proposal-exists?proposalId=41",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "ProposalFacet.proposalSnapshot",
+      "route": "GET /v1/governance/queries/proposal-snapshot?proposalId=41",
+      "status": 200,
+      "payload": "63545437"
+    },
+    {
+      "methodKey": "ProposalFacet.proposalVotes",
+      "route": "GET /v1/governance/queries/proposal-votes?proposalId=41",
+      "status": 200,
+      "payload": {
+        "againstVotes": "0",
+        "forVotes": "21000000000000000",
+        "abstainVotes": "0"
+      }
+    },
+    {
+      "methodKey": "ProposalFacet.prState",
+      "route": "GET /v1/governance/queries/pr-state?proposalId=41",
+      "status": 200,
+      "payload": "1"
+    },
+    {
+      "methodKey": "ProposalFacet.queue",
+      "route": "GET /v1/governance/queries/queue?proposalId=41",
+      "status": 500,
+      "payload": {
+        "error": "execution reverted: ProposalExpired(uint256)"
+      }
+    },
+    {
+      "methodKey": "ProposalFacet.state",
+      "route": "GET /v1/governance/queries/state?proposalId=41",
+      "status": 200,
+      "payload": "1"
+    },
+    {
+      "methodKey": "ProposalFacet.TIMELOCK_ROLE",
+      "route": "POST /v1/governance/queries/timelock-role",
+      "status": 200,
+      "payload": "0xf66846415d2bf9eabda9e84793ff9c0ea96d87f50fc41e66aa16469c6a442f05"
+    },
+    {
+      "methodKey": "RightsFacet.getCategoryContracts",
+      "route": "GET /v1/licensing/queries/get-category-contracts?category=default",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.getCollaborator",
+      "route": "GET /v1/licensing/queries/get-collaborator?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886&collaborator=0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": [
+        false,
+        "0"
+      ]
+    },
+    {
+      "methodKey": "RightsFacet.getRightCategory",
+      "route": "GET /v1/licensing/queries/get-right-category?rightId=",
+      "status": 200,
+      "payload": ""
+    },
+    {
+      "methodKey": "RightsFacet.getRightContract",
+      "route": "GET /v1/licensing/queries/get-right-contract?rightId=",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "RightsFacet.getRightsGroup",
+      "route": "GET /v1/licensing/queries/get-rights-group?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886&groupIndex=0",
+      "status": 200,
+      "payload": {
+        "name": "api-local-fork-rights-1795629825750",
+        "rights": [
+          {
+            "rightType": "commercial",
+            "startTime": "1795716211",
+            "endTime": "1795802611",
+            "transferable": true,
+            "restrictions": [
+              "isolated-fork"
+            ],
+            "revocable": true
+          }
+        ],
+        "members": [
+          "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+        ],
+        "active": true,
+        "createdAt": "1795716214"
+      }
+    },
+    {
+      "methodKey": "RightsFacet.getUserRights",
+      "route": "GET /v1/licensing/queries/get-user-rights?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886&user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.rightIdExists",
+      "route": "GET /v1/licensing/queries/right-id-exists?rightId=",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "StakingFacet.getDegradedModeConfig",
+      "route": "POST /v1/staking/queries/get-degraded-mode-config",
+      "status": 200,
+      "payload": {
+        "enabled": true,
+        "staleAfterSeconds": "86400",
+        "maxStakePerWallet": "50000000000000000000000"
+      }
+    },
+    {
+      "methodKey": "StakingFacet.getEffectiveApy",
+      "route": "GET /v1/staking/queries/get-effective-apy?amount=1000&echoScore=0",
+      "status": 200,
+      "payload": "1000"
+    },
+    {
+      "methodKey": "StakingFacet.getPendingRewards",
+      "route": "GET /v1/staking/queries/get-pending-rewards?user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "StakingFacet.getRewardBreakdown",
+      "route": "GET /v1/staking/queries/get-reward-breakdown?user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": {
+        "rawPending": "0",
+        "claimable": "0",
+        "forfeited": "0",
+        "multiplierBps": "0"
+      }
+    },
+    {
+      "methodKey": "StakingFacet.getStakeAgeMultiplier",
+      "route": "GET /v1/staking/queries/get-stake-age-multiplier?stakeTimestamp=1795716214",
+      "status": 200,
+      "payload": "5000"
+    },
+    {
+      "methodKey": "StakingFacet.getStakeInfo",
+      "route": "GET /v1/staking/queries/get-stake-info?user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": {
+        "amount": "6",
+        "stakeTimestamp": "1773427726",
+        "lastClaimTimestamp": "1773860018",
+        "pendingRewards": "0",
+        "effectiveApyBps": "1000",
+        "tier": "0",
+        "stakeAgeMultiplierBps": "10000",
+        "echoScoreBoostBps": "0"
+      }
+    },
+    {
+      "methodKey": "StakingFacet.getStakingStats",
+      "route": "POST /v1/staking/queries/get-staking-stats",
+      "status": 200,
+      "payload": {
+        "totalStaked": "60060000000007",
+        "rewardPoolBalance": "0",
+        "totalUniqueStakers": "2",
+        "totalRewardsDistributed": "0",
+        "currentEpoch": "36",
+        "epochMaxReward": "0"
+      }
+    },
+    {
+      "methodKey": "StakingFacet.getTier",
+      "route": "GET /v1/staking/queries/get-tier?amount=1000",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "StakingFacet.getTierConfig",
+      "route": "POST /v1/staking/queries/get-tier-config",
+      "status": 200,
+      "payload": [
+        [
+          "1000000000000000000000"
+        ],
+        [
+          "10000",
+          "5000"
+        ],
+        "1000"
+      ]
+    },
+    {
+      "methodKey": "StakingFacet.getUnstakeRequest",
+      "route": "GET /v1/staking/queries/get-unstake-request?user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": {
+        "amount": "0",
+        "unlockTimestamp": "604800",
+        "pending": false
+      }
+    },
+    {
+      "methodKey": "StakingFacet.isDegradedModeActive",
+      "route": "POST /v1/staking/queries/is-degraded-mode-active",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "TimelockFacet.EXECUTOR_ROLE",
+      "route": "POST /v1/governance/queries/executor-role",
+      "status": 200,
+      "payload": "0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63"
+    },
+    {
+      "methodKey": "TimelockFacet.getMinDelay",
+      "route": "POST /v1/governance/queries/get-min-delay",
+      "status": 200,
+      "payload": "172800"
+    },
+    {
+      "methodKey": "TimelockFacet.getOperation",
+      "route": "GET /v1/governance/queries/get-operation?id=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": {
+        "targets": [],
+        "values": [],
+        "calldatas": [],
+        "predecessor": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "delay": "0",
+        "timestamp": "0",
+        "lastCheckBlock": "0",
+        "executed": false,
+        "canceled": false
+      }
+    },
+    {
+      "methodKey": "TimelockFacet.getTimestamp",
+      "route": "GET /v1/governance/queries/get-timestamp?id=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "TimelockFacet.isOperationExecuted",
+      "route": "GET /v1/governance/queries/is-operation-executed?id=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "TimelockFacet.isOperationPending",
+      "route": "GET /v1/governance/queries/is-operation-pending?id=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "TimelockFacet.isOperationReady",
+      "route": "GET /v1/governance/queries/is-operation-ready?id=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "TimelockFacet.PROPOSER_ROLE",
+      "route": "POST /v1/governance/queries/proposer-role",
+      "status": 200,
+      "payload": "0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1"
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.canTransferVesting",
+      "route": "GET /v1/tokenomics/queries/can-transfer-vesting?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.getMinTwaveVestingDuration",
+      "route": "POST /v1/tokenomics/queries/get-min-twave-vesting-duration",
+      "status": 200,
+      "payload": "2592000"
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.getNextUnlockTime",
+      "route": "GET /v1/tokenomics/queries/get-next-unlock-time?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.getQuarterlyUnlockRate",
+      "route": "POST /v1/tokenomics/queries/get-quarterly-unlock-rate",
+      "status": 200,
+      "payload": "2500"
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.getReleasableTwaveAmount",
+      "route": "GET /v1/tokenomics/queries/get-releasable-twave-amount?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.getVestedTwaveAmount",
+      "route": "GET /v1/tokenomics/queries/get-vested-twave-amount?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.getVestingTwaveSchedule",
+      "route": "GET /v1/tokenomics/queries/get-vesting-twave-schedule?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.isFullyVested",
+      "route": "GET /v1/tokenomics/queries/is-fully-vested?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.isVestingActive",
+      "route": "GET /v1/tokenomics/queries/is-vesting-active?beneficiary=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "TokenSupplyFacet.allowance",
+      "route": "GET /v1/tokenomics/queries/allowance?owner=0x276D8504239A02907BA5e7dD42eEb5A651274bCd&spender=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.balanceOf",
+      "route": "GET /v1/tokenomics/queries/balance-of?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "419892999999999993"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.decimals",
+      "route": "POST /v1/tokenomics/queries/decimals",
+      "status": 200,
+      "payload": "10"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.supplyGetMaximum",
+      "route": "POST /v1/tokenomics/queries/supply-get-maximum",
+      "status": 200,
+      "payload": "420000000000000000"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.supplyIsMintingFinished",
+      "route": "POST /v1/tokenomics/queries/supply-is-minting-finished",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "TokenSupplyFacet.tokenAllowance",
+      "route": "GET /v1/tokenomics/queries/token-allowance?owner=0x276D8504239A02907BA5e7dD42eEb5A651274bCd&spender=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.tokenBalanceOf",
+      "route": "GET /v1/tokenomics/queries/token-balance-of?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "419892999999999993"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.tokenName",
+      "route": "POST /v1/tokenomics/queries/token-name",
+      "status": 200,
+      "payload": "USpeaks"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.tokenSymbol",
+      "route": "POST /v1/tokenomics/queries/token-symbol",
+      "status": 200,
+      "payload": "USPK"
+    },
+    {
+      "methodKey": "TokenSupplyFacet.totalSupply",
+      "route": "POST /v1/tokenomics/queries/total-supply",
+      "status": 200,
+      "payload": "420000000000000000"
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.getOperationalInvariants",
+      "route": "POST /v1/diamond-admin/queries/get-operational-invariants",
+      "status": 200,
+      "payload": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        "7201",
+        "1000000000",
+        "2"
+      ]
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.getUpgrade",
+      "route": "GET /v1/diamond-admin/queries/get-upgrade?upgradeId=0xa56bfbe44f71abffe4c265cc4125bc66fbfb711fb9930e088c0c5f26ebaa5b34",
+      "status": 200,
+      "payload": [
+        "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+        "1795716213",
+        "0",
+        false
+      ]
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.getUpgradeControlStatus",
+      "route": "POST /v1/diamond-admin/queries/get-upgrade-control-status",
+      "status": 200,
+      "payload": [
+        true,
+        true,
+        true,
+        "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+      ]
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.getUpgradeDelay",
+      "route": "POST /v1/diamond-admin/queries/get-upgrade-delay",
+      "status": 200,
+      "payload": "604800"
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.getUpgradeThreshold",
+      "route": "POST /v1/diamond-admin/queries/get-upgrade-threshold",
+      "status": 200,
+      "payload": "3"
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.isUpgradeApproved",
+      "route": "GET /v1/diamond-admin/queries/is-upgrade-approved?upgradeId=0xa56bfbe44f71abffe4c265cc4125bc66fbfb711fb9930e088c0c5f26ebaa5b34&signer=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.isUpgradeControlFrozen",
+      "route": "POST /v1/diamond-admin/queries/is-upgrade-control-frozen",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.isUpgradeSigner",
+      "route": "GET /v1/diamond-admin/queries/is-upgrade-signer?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VestingFacet.calculateCexVesting",
+      "route": "POST /v1/tokenomics/queries/calculate-cex-vesting",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VestingFacet.calculateDevFundVesting",
+      "route": "POST /v1/tokenomics/queries/calculate-dev-fund-vesting",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VestingFacet.calculateFounderVesting",
+      "route": "GET /v1/tokenomics/queries/calculate-founder-vesting?amount=1000&timestamp=1795716214",
+      "status": 200,
+      "payload": "1000"
+    },
+    {
+      "methodKey": "VestingFacet.calculatePublicVesting",
+      "route": "POST /v1/tokenomics/queries/calculate-public-vesting",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VestingFacet.calculateTeamVesting",
+      "route": "POST /v1/tokenomics/queries/calculate-team-vesting",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VestingFacet.getSellableAmount",
+      "route": "GET /v1/tokenomics/queries/get-sellable-amount?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": "87369563801"
+    },
+    {
+      "methodKey": "VestingFacet.getStandardVestedAmount",
+      "route": "GET /v1/tokenomics/queries/get-standard-vested-amount?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": [
+        "134414713541",
+        "36168",
+        "134414677373"
+      ]
+    },
+    {
+      "methodKey": "VestingFacet.getStandardVestingReleasable",
+      "route": "GET /v1/tokenomics/queries/get-standard-vesting-releasable?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": "134414677373"
+    },
+    {
+      "methodKey": "VestingFacet.getStandardVestingSchedule",
+      "route": "GET /v1/tokenomics/queries/get-standard-vesting-schedule?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": {
+        "vestingType": "5",
+        "totalAmount": "1000000000000",
+        "releasedAmount": "36168",
+        "startTime": "1773418426",
+        "duration": "165888000",
+        "cliff": "0",
+        "lastReleaseTime": "1773418432",
+        "revocable": false,
+        "revoked": false,
+        "sellablePercentage": "6500"
+      }
+    },
+    {
+      "methodKey": "VestingFacet.getVestingDetails",
+      "route": "GET /v1/tokenomics/queries/get-vesting-details?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": {
+        "vestingType": "5",
+        "totalAmount": "1000000000000",
+        "releasedAmount": "36168",
+        "startTime": "1773418426",
+        "duration": "165888000",
+        "cliff": "0",
+        "lastReleaseTime": "1773418432",
+        "revocable": false,
+        "revoked": false,
+        "sellablePercentage": "6500"
+      }
+    },
+    {
+      "methodKey": "VestingFacet.getVestingReleasableAmount",
+      "route": "GET /v1/tokenomics/queries/get-vesting-releasable-amount?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": "134414677373"
+    },
+    {
+      "methodKey": "VestingFacet.getVestingTotalAmount",
+      "route": "GET /v1/tokenomics/queries/get-vesting-total-amount?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": [
+        "134414713541",
+        "36168",
+        "134414677373"
+      ]
+    },
+    {
+      "methodKey": "VestingFacet.getVestingType",
+      "route": "GET /v1/tokenomics/queries/get-vesting-type?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": "5"
+    },
+    {
+      "methodKey": "VestingFacet.hasVestingSchedule",
+      "route": "GET /v1/tokenomics/queries/has-vesting-schedule?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "VestingFacet.veGetRoleAdmin",
+      "route": "GET /v1/tokenomics/queries/ve-get-role-admin?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "VestingFacet.veGetVestingSchedule",
+      "route": "GET /v1/tokenomics/queries/ve-get-vesting-schedule?beneficiary=0x38715ab647049a755810b2eecf29ee79ccc649be",
+      "status": 200,
+      "payload": {
+        "vestingType": "5",
+        "totalAmount": "1000000000000",
+        "releasedAmount": "36168",
+        "startTime": "1773418426",
+        "duration": "165888000",
+        "cliff": "0",
+        "lastReleaseTime": "1773418432",
+        "revocable": false,
+        "revoked": false,
+        "sellablePercentage": "6500"
+      }
+    },
+    {
+      "methodKey": "VestingFacet.veHasRole",
+      "route": "GET /v1/tokenomics/queries/ve-has-role?role=0x1effbbff9c66c5e59634f24fe842750c60d18891155c32dd155fc2d661a4c86d&account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VestingFacet.veSupportsInterface",
+      "route": "GET /v1/tokenomics/queries/ve-supports-interface?interfaceId=0x00000000",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getApproved",
+      "route": "GET /v1/voice-assets/queries/get-approved?tokenId=11",
+      "status": 200,
+      "payload": "0x0000000000000000000000000000000000000000"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getDefaultPlatformFee",
+      "route": "POST /v1/voice-assets/queries/get-default-platform-fee",
+      "status": 200,
+      "payload": "1000"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getDefaultRoyaltyRate",
+      "route": "POST /v1/voice-assets/queries/get-default-royalty-rate",
+      "status": 200,
+      "payload": "1000"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getMaxRoyaltyRate",
+      "route": "POST /v1/voice-assets/queries/get-max-royalty-rate",
+      "status": 200,
+      "payload": "5000"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getRoyaltyHistory",
+      "route": "GET /v1/voice-assets/queries/get-royalty-history?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": [
+        [
+          "915",
+          "1795716145",
+          "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+          "0x52dc598b2e8d0828f3766c6b65989d8a7e15ed4684629b60c123810c69a06394"
+        ]
+      ]
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getTokenId",
+      "route": "GET /v1/voice-assets/queries/get-token-id?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": "11"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getUserVoices",
+      "route": "GET /v1/voice-assets/queries/get-user-voices?user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": [
+        "0xbda52408669ca0afefcc7f925edf60777bf55446ac882837432ef251c2823dc2",
+        "0xb8a442047ff2978521aceaefe3e4076e2ed7f10838045f0db332c0f6cee7b53f",
+        "0xca22c87f2eeb504f86dd7161193fab083cd3129ee9756da07da90c7a84dae2e1",
+        "0xa0b816e847f45e4844014982ca73d9387fb0294511d3a42c7747b6848c027ffc",
+        "0x4ffe5d5dca4b1f49ebceb8b1f56a502a9b144d71309b8d1bc17604656bc68447",
+        "0x05aa948a4ff36f31bd4ce97bda9f0be648942e0a533fcbbdcce097df293c6f07",
+        "0x68d9404aa9eaa83b5e661ae89bc722f6117f3425271a2c82a83b175f5afc8e0a",
+        "0x0386cdf58779e93c429b626597371c70e1dda7b71b1b466e1d12ea91ab5250e5",
+        "0xe94056372c9dc56d807ea7160648bffe23b0a594ab20169277cdb3a645469d96",
+        "0x37a19a8a2d42e0006d7022fc6babb74e01d8f3c6defdfc2713af66ba6c35b8f3",
+        "0xb0d0db3df5346ec2bb31d41f03ca379ac398c3ed320dcbacec656490147875c5",
+        "0x95993694fbb3666e6a2ab949c2641664b38ca0554c1835e546e9248fa03b92e3",
+        "0x18b41489599d7e9c55e3dc9992a99b7fe19db22b5d45fbf0eb0a360b8b5d2aec",
+        "0x42b789b83511601bfcef23b15b6a0983a83d35b06db81e59af9316f67e146a6d",
+        "0x6975a78e3bf7c71270e387229a3e73b3b2a5e8ef5afe7b6b6e33ba295bbc0b3a",
+        "0x9aab539e2089a0f4b32322aabefa679a568e6a120029b9d1dbba0e6ddbbdb9bc",
+        "0xf05ede57e0939e488cfb4d545890816b149011ae5864851c277b9460b0646aef",
+        "0xc26d7d87c83f73c26538eddcbfa3d6f4aeb695927150ec4f81547e8b74185d6e",
+        "0x74d42592d5c441779e3205cb91a0632b7323cfa3472be0f9b6f57ec423b2ad4b",
+        "0x6a11a81f05d0f05056b8c8d9b0c07d4381eb788eeb7332f4eecfe064e14edb3f",
+        "0x9302736cb5d38f18a802e298a97793d73f8c22f6397092afc1959381f780f8f7",
+        "0x85be53c577e490f623a5ca088ae4ac6f89a99b5b319b336661b92862d4b6ee99",
+        "0xdef10c441d341f1bb8219cefac4a68cacfa5d1723b18e02cb0e7658bfbca9bb5",
+        "0x89a03185c126635e962644d042101331f2f457d967711395ce7bd118ebe125cd",
+        "0x2b0ec1e6a27f9d9ca52e0b7338bbaecc3f9c0083116656ce72732cf330fcc4b8",
+        "0x686edee4cb006d4f650c60b4cf58f0e5c9280a6ba81dd99b12a3bc6f850e23e0",
+        "0x82f6ad2c9ca836003f95b03100215bed7e4f8ec93a65d61f9b5dd9767cf5899d",
+        "0x9083783ec4290823ae0fad8546ab46336c4602ec3e6b75fd32cb68dd7104d308",
+        "0xc7c164731b7a802ff0b344969533000733d25630579ef31707f8fc2af2467749",
+        "0xab6ee4e400056b9b89f6caec8932d8faddae6bb502b17967f5c728f0d4cf5b9a",
+        "0xcde5b47a44a9af39edb41eb0dca82b707322d63dcab7105f81d0179d75e4e87b",
+        "0x417e9d11cf7f8af23d47de6dea9cdd52adfadfb0e9cae5ba54baf7f7aa946e21",
+        "0x4eb10d250ac97315add3c05fb06cbf098ce8cc6b26eab60ff90b3a5407ba2e86",
+        "0x1447adb3e00390920b1b223e163cb11856d5a1c2ee4a8c25599de78400a30db7",
+        "0x255f61324b5d2c9c9f211bdda18c23db4afbf14953283391731888e440dc65b9",
+        "0xb0d27ca040474e0561453597d9659577e698d92dad97e0b0e322c4e76b4b8f55",
+        "0x5e90226cd81f025c3069002990a25831e4f8fd60f52070f0214d33904b027c96",
+        "0x4ac584f046bd43d031e310eb54ab5c16ba98a5d6ea4e863d587042f7db59bc1c",
+        "0x54e9daa0a7ff64666ad051b54847ed149a2644c8d690366a94be475d2e0914ad",
+        "0x7ee89cca1f564ac294998f1d6b3ac68b301953fb6cc68d41c498296a6c828e98",
+        "0x19996d82b91c4dbd42d0c33f35b3f733b79870acaba0ebfdd568425627b52a91",
+        "0x9d91d33d98e685d29d04027d5119eafc1ed2ee7daa2f998012d6473b79cc6a90",
+        "0x69b2bdc44d0ea92d2355dad9302dffa9b7bdb2a3a717b167a7b885cc46ffd5fe",
+        "0x2db32e5dacbd305ecc6de90af21a014b989694e1062624d56575876e0c609172",
+        "0xfa2a5d454ec18b86d0549dde85319b6674862db8f11a52fb1cd25e005931ef1a",
+        "0x36354bc51ae801ad88ac73273f31406b4ff894f1cd659bdbefb2a5be6b68ae86",
+        "0xba2fd39e0d15fa382d3e2862f9d958626413489d2c13e24fb393a4807342732c",
+        "0xfd4dcc0137e59af07a5634e4dbe5cd9a2febe98eab8b96651b65b17ed00fb617",
+        "0xf9fbf7c5472ebc456741c6eafbdd0499dd6434fe78ca57570bebcd01fdf616ea",
+        "0x9b84e736db3a5cfb4aeedbb6572865b1d01555a80e487b3b3cb9cbbe64206899",
+        "0x457b74ebb1ab52b68a83fefd5c9e43d79182ff6b493c85b51d63fae347ebeb9a",
+        "0xc5fb1f1dbeb465f4f05a2c0181a9e9b4188cf6184a3be3b6be05e4ddd438bc35",
+        "0x3269eb3eac96b34cbe533fba6739262985d94a9a6064d6968e74d4e53a50b210",
+        "0xfb15f38147f1c2654a0a6247fd52691a1aab1b9282df75b7ec72d9909f5bb7de",
+        "0x6b5e24a55ee4f48915e596cd2a9dc021de84d0cd3673cc7365d1b6503a2c3eb7",
+        "0xa1c6dad26cbaad814ba575d29e31001db1b7ddea8620d5d1b5f900872b074c8b",
+        "0x78a956ed5f9d9206779ac84d7ecfca9df094fa20e60bfb31b8d4455e4c87e374",
+        "0x276d7623c108884ace009401c00b366d9292ee6a0b8ddbb65dde4a85a921a733",
+        "0x1038fc5365ec124ffbef1a1d14c6ff3fd3752d4eeed32a1ef9d8fa07fc85a49e",
+        "0xc74eb77339f468e38850aaa4aaebb79f5795cc61ef40ffedc52ef17411b8470e",
+        "0xe0f432993a2ad12391047d77b20183fea2f3020cefc305b7b0af9abf41d55a96",
+        "0xd53452fced76dedd33b0018018a8275577643be21d5f13fc1bfadcdd5fa1139d",
+        "0x395adcf7056a57818380271dd7af30fffb0916cf8f1c5e8295200f9fe402e675",
+        "0x8b3e51a371222515b1fd469241c49237a9be26e62fec589c07515a2a5c38002a",
+        "0xca56397c96636d1009c01d8dca4e5edb2fddd10c09bc7b91260ce4b6ee466db4",
+        "0x557287d877dd13469577911abd83f9847fb6922bc5d5a0c2ccf09664a031d772",
+        "0x20313ba228e9481f1f16c02a92b4442200bf4075dec248c2ba580d3ccf727b2b",
+        "0x24615c8c9b9b4e266d53c4525c3d3214d55905efdfda14ba9df091bab8345d48",
+        "0x98ff671b071121966737b938c949bc55c5d3e4ac8cfcc155031b4d32ab1989db",
+        "0xcb6052985167b465022f7f9d75c95930b2e6df31ce6a00466bd8bac7a355741a",
+        "0x80946ee8cf09cc35182f7f4de6db3dd129b0b55a9ed840722c24a793137665b3",
+        "0x4bc61bc12ff0a739337d7bf92f7610e04d375a729d379e628daae0d499193ee2",
+        "0xcd8ea508f24e2e9deaf0b1df4f67b028948b58aec47c8971cfdd2d4a7ec1ff84",
+        "0xebf0cae17ba2074f74971ce82d34295e8641ece8cd101defb51acd93cb1adabd",
+        "0x3badb9042bd1f46d31a629286a85cb1eb1df44a1012b68ef268a3ebdc2fa95ca",
+        "0x688a20d2b34db3f425cd93ba004c6e683fddc4ea93558fc63f9a81cae7c5d3c6",
+        "0x29e4447fc84c8ef9298b5dda38606984d8989d3b35b12e3007b1885ef9399aa8",
+        "0xe1b5ad4c9fd266ddc35828d141b1a2576f1bf88aadab55249f16ad7cdefc2055",
+        "0x34376869863c8fe143062362ca1209b05afda256cef53cbe72edc534b655090c",
+        "0x68f8bd23812b2c60321cf45d7b5f005773266490adb6b2ddab6ea68cb3ec8210",
+        "0xc5ca30c4e9a4f9aad75a7348bc5c0d1f8cbcd7503740e571f3a81fc80518d335",
+        "0x15bb1412cbd4a7850e7ba5374e6aac0c0ace2a9089368aea2ade5cf959701bbd",
+        "0x712ae6aa3c6ea425cc5fba023beb3cf17ca27f0a2d5d38adadd1cd8f9c2c7950",
+        "0x2772c447d106142c414bbac65879f31e493e8f461150c934cc865d73e0e2d4b6",
+        "0x89b7561e9c7e5f14252a15387068a1388114f4585acf743abb45edf226d1034d",
+        "0x52bdfac5397bb45d36bac018ae4917083d5203b608c037c9420b7e76a09b747a",
+        "0x9290388dd0fc9dc981bde093c52334f241ba5db15c4827478052fb802fd89934",
+        "0xff324744673bd605f09c26a9986f62a9c4e85f6e14d1d8363f3b9c018f35134b",
+        "0xf5ad6d399419d7608d4674d3095b70610561e0e42a4af28a3085d508189577c4",
+        "0xb140fbe27df16cd782704f61ae9d6a70fabe041e805342bf047c48826563c03a",
+        "0x20a67963090793e1ed07a07445401138389cd627626425c5963b8021d9aaa817",
+        "0x04ced21b30475c4a861ef842e4ff4819fc24668b2c853841918d3416eb91f157",
+        "0x25b39ed57a0a48fe755f054700ccfd1b759a819e32b70d2d85ea4ba6f42fded7",
+        "0x1e5a5d59453887331326b6ce7d530ab2b506277cc5d788fc0d2fd1403cb8826a",
+        "0xa739a162bb1f0fbd8c01c82bceddbad638a399407665e33c108456c440082d9d",
+        "0xe940e2b10b85573cdf75fda70943b546b5f34e04654b4fff5f1a28db62d103fb",
+        "0x1b81673f2a65715fe0e160773b42f91c9942bb0367283c17aec53707f0b5085c",
+        "0x5e4ce882d8d1951782f84179deb25ff1fa6cd6cd53a313b9b16e976ffd00b161",
+        "0x1131efa25bc6ecb8ff5f667a478eb6a27d2c18f0f638332637869557d7e44859",
+        "0xb89375b16d57fe685c0c2d8ea40c7fae7eea152f0109aa7e499a6201595e7e80",
+        "0xdd3b23d53293b55b2087788fae8a9f0d44bb6a64f93fa0d28c0a1eda6013dd02",
+        "0x2dce0c4fb6dd87b2e19bce7205893b5511d32b94e138c0ab03abd5e8dd525081",
+        "0xa98535e38b5a3e317b8cd7effc371d7c16ef55bedfce59cd44371c574ac349b0",
+        "0xee37f39d49336bba1606cf66a53ce4cf0e2df0d069787a07584202ab8d08e7da",
+        "0x839a28ee1a6d18e657bb436311982664aa05051fceeb9e8378ec01a09587cbf9",
+        "0x0c2629e7e6aacabf232a7b1952ee48f77f1f8d9a55265c240241137b733b2bd0",
+        "0x13c14b37caa476b844c6b2939a6ed365118d7a4dbc74811e22a13392794e527a",
+        "0x3845ab40eb6552baef1a9f06bec573419c80e5e7c06428e52567a8a52e17933e",
+        "0x59d5a51c44ab3179f25e84fcf5254a43d02c6af08baa962bb5a243274caea038",
+        "0x703a37d5b37af109e80e47e3d8bcda8bc3c6975125447af998726069b95dc5c2",
+        "0x7f0d626b835ab31aff6de6a7df9f49882ae4df0e809179b9b708a356d1493ddd",
+        "0x27eed5fdfecc6b0a676926736ae0d0d4ab9c60f87f15f53d599026b0b27852e9",
+        "0x2b65ef445baa541f0dbcdaaad32bfb16983d849a425a0faab0106cfd515c8a09",
+        "0x335a3b29d35ef50ef839efaf92374f9e49202fc399fcfc32ad5b9fb79b0ea70f",
+        "0xf2f5d022ded1a4c11361c2efb0419a5e1da63c0a73a8850fb5e6d01f8ab1be4b",
+        "0x0aa434884fe307a3247b0c2ce68b530cb3dffc041dacc087d01b22006b25b1ac",
+        "0xf34ae0fc54482b674c856b0f83505d97d09e6da3b9258fb16bc73e11617033d9",
+        "0x958bae89c6b5b131688a115cb2c557659f4a265601eb1465d55d0129160e17c7",
+        "0xfe74556f443427cee9549d0769ca68fbead7f20b6bdb855c7901b59f79b3ef84",
+        "0x9ee13b39a6bf1832b9916f788bac47b79a69296a461162f8f4bf7c849d918312",
+        "0x5fbdd428fbccd5149568929953c55c0b3fe8eb5724f3378e8dd8ee35bb121b39",
+        "0xf85e0a73abfbf9e62e0d37b1a148b221bf362e789ceb5c7abc875ca6715227b2",
+        "0xb37122aaa24ebf18336a16725b209357370956ad2c3cfab80fe04e3914b39300",
+        "0x2779ba3521664f551cf6e4ff48c847d4ea30fda9ab3b6e63317479928b51a3e6",
+        "0x4d58681c40cfa93f04962804287074381225db0ea261a6acf6332e87c95efe1c",
+        "0xccc8a62f428c3e508ebb52231a1dc25d507fe0031f28e437a845029114c4b9ab",
+        "0xc21cca7153b82ba44f90abaf05cabaf3df8fb50e603c0506d29ed38e6ef52193",
+        "0xd093de7a8668ecbc9e4ca374732fb631f379ed13fa03a5a815f2a8122ccbc932",
+        "0x0345c433bfe82c67f1e7846fc4d17891aec7e6df0e3702b358855bbc5db0bcf5",
+        "0x77a4095f3e7014ed91f2136f733414059ad7dcc5249af7a32f58f39fa5d71a94",
+        "0x0e02056d5248f49af06dd8eb3fcd66a8e0407aae6c86103d18ab1b6846b08ef7",
+        "0xd0ed6dcef6681003de974c92539ee45bc40e1f1e30055c9f05ae1adbad33d979",
+        "0x15cd10f4667429462946dd645f0f6a16dfcd7cc2b992a313162e1507a29900a6",
+        "0x3b897279d3dcf3b07271e91a6d537b4ed4e461626496830179aab5240e50f9b9",
+        "0x4285852dd1506159230f9fab15a5a70d7aa96e5093d10f0fc34af2fc7e44ecff",
+        "0xc9fd4f5503af4c54846494a1253fa18705b50b57ad6787829c98a9b745f18833",
+        "0xe3e626969234f2922ca3956ae002423bf5c1dc7391e8c00d28a8e65b0a4ebb9e",
+        "0x350022515d15d8ee931ec656448b25082395cf5493b889c250c281a18cca0130",
+        "0x1b6723d31e01d30648e2f820a791889123f69972f89315685bb4e0bfc1ae42a5",
+        "0xa373eca19cedd5eee5f5a75b789c1f5090d9309732a1c7528186453e18f6ec91",
+        "0xc93a3811d45b1ae911d57aa0e1130a1109eace05d7d8a58b942f3871e31d2cfc",
+        "0x64c2347903c3f8e1761a30648374258a6672703d664470f23cdcfbe1ede73b53",
+        "0xa30fcff36fc450e9b9ffabffd71dfc24e2f529e18a1afb40e98698c0de933a92",
+        "0xed3be8cd4c5734c72a0fccc2c1ab6a25ea6c60a913e8229dbadadc4814a4b756",
+        "0xd5cb48f200c159ccebaf315051044b8a51aa082a377e31501b54caa0cf45410c",
+        "0x79ec2ef099c278777a761af13fda13a5ce3b88cdf8c9eb0f4769a63ef60c08b2",
+        "0xfb8fe09947957da436b62c26beb252d7533691e20b17523bbf447e9c85d8b3eb",
+        "0x31681801242f0f2ceab7b568d9e26ca3d4295dbb1f546329b4d8bacb07742b63",
+        "0xf03805c353a8698031cf2d2b217340692606b99deb1da85b2f02e37cb799281c",
+        "0x864d84c426f8caf6f884d12725f47b8f1eb0a22c52738681ba1c59165cd0fe93",
+        "0xfae5a81dced675434cf5e12cfc61b5d090e229f649c64e352b4b7db56604e004",
+        "0x7b4e978f8a47755d8888cfc75c1f26b7b190ed72e8d6f5c04a8f06cbfc41d3a4",
+        "0xca408ff2d2a340a7959ce36e07d620381ddcb4477a92c1af7dd98e32f5120237",
+        "0x2bca8f8d33a42a12b52ed4e2d69054e3f3c002cbacf88d0405ee3377b3ed9377",
+        "0x7fd4067ca891474cedf55d67b177af176498b2f7cbda01ba520d365b944f5176",
+        "0xe86122a58c9317e96789802717380f15c8f5822cf30f71d40c84ba1ea30ca64c",
+        "0xd90c403c5501d633c3faad1969a009e3c2316b86ce9620b9cf80b815c4cfcb7c",
+        "0x9d1c9e4d988660a69a245a308cfc16c56edb84246dd76ab90d1baa80d80fc9e4",
+        "0x0557f41f70b56cb4e68b74f0a3d5b79ed64ad05e06758de30022499b30acd739",
+        "0x039d48f190c96f6c67928f9c8bfa6c24f5b8ef89a3e8a0817b59687793f6eb96",
+        "0xf140b248b69cd8467f112f12962d54b493e4f136d0b49e733e3b2793fbf7b59c",
+        "0x5818509f188de3098019976a582dfa3139dc2ea7ad49e2a1e3984312cc0cd492",
+        "0x954880c51dc8136796259efa38b0de0b69da0466cd56c957f6dea490069748bf",
+        "0x3c407cf00f4cd8f8f00336a41054cf8e95fbe6e1e2e3527bb71b26b119b1535c",
+        "0x7e5d29443dce0ffbb587c927f277649869c0351ea31ae53061a431efb4e9fabd",
+        "0x58cb7bc9ca33c65e65fb8a855f65f07ee26c1e1742f46d3cd1a918745256e309",
+        "0x349fc8ab7d5ba68d0facb33b49aa1a0f133ffc2135def92d092878ec18ee5f0d",
+        "0x40a01b4a50082cafcf1b2d3eefd2c4f59c9bca0a5cea1b142e6a6878015d2ac8",
+        "0x5e316ee10035179fcea5c3458e59bffae7af87ec4892d689a2986cc765260b92",
+        "0x0a564d58457c6d63e6ffb9b8738413af59f77e118446ede513ee6f6e21bbc429",
+        "0x48c407f064d4e7b71606f5f917ec8ff460f966346e3a53e5f7b746ca9683b679",
+        "0xd4e31919f4285c5194635a399e216b465102c83486d240b73be3903ac9d8a5d1"
+      ]
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getVoiceAsset",
+      "route": "GET /v1/voice-assets/0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": [
+        "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+        "QmFocusedLicensing-1773351187394",
+        "175",
+        false,
+        "1",
+        "1773351192"
+      ]
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getVoiceAssetDetails",
+      "route": "GET /v1/voice-assets/0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886/details",
+      "status": 200,
+      "payload": [
+        "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+        true,
+        "1773351192"
+      ]
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getVoiceAssetsByOwner",
+      "route": "GET /v1/voice-assets/by-owner/0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": [
+        "0xc58f7c98cfd3d97d5a4390de89c45fb7e061abad5bfe87f3c9985ed3298223f7",
+        "0xf1e9ad23f6888a71f1a8b52bb91dd7d13ec17e411061c1cb86107d114e1219be",
+        "0x6cd223760c64b9ac359b9e9302386de68f5657459118aad295687cf00ab35923",
+        "0xb073cfc23d6e9dbe4f2ce4398d6736f414c4f8e641d2870215524e1b0a644f88",
+        "0xbdd006219798837d098bcb3a774b02f34a249e073b05651a1a2a041712de9996",
+        "0x8aa96b9dad2fd3f4656ea4e1281cd75098ee493b26f4b565bfe8cf2dc1a71d37",
+        "0x516ccb2d1dd331883d4df26381d746e365dcd6a350193f64e9ab4294d3056408",
+        "0x9475145dac7a0769d6294de82082eb4a45a7af29f46cafff91bdf29b0136f81f",
+        "0x96c0d9c6b9d088519e16f4e6c982f284f186999dad1f081eef580c1592dac4ad",
+        "0x98a656a7bcb017b6835e736a2836cb82464023e0cd7ba94364582cd0732ab704",
+        "0x44aefc949676e89ecd3721b3d1effe7573363bf11b3a19dcdde15504a27604f8",
+        "0x506c2787dbf104b95f908fcdf23423f20c8b1e1291ccaa5d307c83d5995108f2",
+        "0x3a16f9b4f82b4de2c81d851cf9eef3d9a8df25c7456e2dc05e68013659ceebb0",
+        "0x68c44b3f300017afeccab5fbc46f37b502c5fc3e3c0fc865238531e56e54267d",
+        "0x178957feae0f9e7845a55deec89a791396f47c2946d0d678728d8a4a8f4cc6f5",
+        "0x0eca2f158b664f18636d0ee2e385583b49bb162b6c66cf3838b5a3e2c2cf2e9d",
+        "0x49605ff4c50d79b4952e4738dcdee47ed703dc6464a571a7a6967ce0f4a77b3d",
+        "0x48e26546031be5d5ad973102e79646da2671868bf2f127352263c1b1c5dc7e43",
+        "0x47518ffdd947b1734c21022842cee7f32d0cb2d051a2327050b8ebb5e60aa1e5",
+        "0x43e96e9eb8e733743ff8dad6c8f57bb66d6d62859550118aa81f710a95e3f48c",
+        "0x09b1128b8ed9be5883afe1f229b08904860f1e26357a176226eb49311228dba3",
+        "0x73e9803f7d407905c60e8336d524ec6c7c0fa994c626f9ceb1ffeae244a33b19",
+        "0x65ec2bf6634597c127032ff5a16c6d98e20c1d0c3a9ffc5f818195c5bfef77bc",
+        "0x1933a1b231c52ac1eb1801b9defe47c6617154fbbd6b935fff505b0ea2ac285e",
+        "0x791eb3cb3b9eb69858179478c7bbc08f15d1acea35b11db165bb5443b7d61b77",
+        "0xc7d72adf34f42253337e0a1d4a99ffe9a0351375352a9beaa647ab510f36f469",
+        "0x1be07f9fa50f09d02d95f4492ed5f1c2c189c9e78a9cb5ad0aa6877503f6e8ae",
+        "0xe04a5673ac792804dcb69da19ad52a4de0f21b31cf981162ebc42c2d426e9e9f",
+        "0x76287d25be15a631be32dbbf586562abf0eec9cbc2dd1cec593846a8389124c4",
+        "0x19a0fd53ff2e5b1e889a78ca260d0e575bb4a9dee6f7fab4da7cf0f4459c6be0",
+        "0xfcf30d643cb1dabbfc3737c7e1e3166a6b2dcf05658a5cdedb1c46ecb545bcc4",
+        "0xd303ffdab388fd875f106722b243764e396558c3ac6717d4ad1cdda28937a70b",
+        "0x627efc64fc48233e9f27fdd2c96bfa91f9bb68bed54695ee5d00ee1be6bf60e9",
+        "0x12a8d415b6b1b44e4c4d016ab2f0b0fbcfaf18b63f2ca8b73c6bc2a00d0cc721",
+        "0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566"
+      ]
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getVoiceHash",
+      "route": "GET /v1/voice-assets/queries/get-voice-hash?tokenId=11",
+      "status": 200,
+      "payload": "0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.getVoiceHashFromTokenId",
+      "route": "GET /v1/voice-assets/queries/get-voice-hash-from-token-id?tokenId=11",
+      "status": 200,
+      "payload": "0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.isApprovedForAll",
+      "route": "GET /v1/voice-assets/queries/is-approved-for-all?owner=0x276D8504239A02907BA5e7dD42eEb5A651274bCd&operator=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VoiceAssetFacet.isAuthorized",
+      "route": "GET /v1/voice-assets/queries/is-authorized?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886&user=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VoiceAssetFacet.isRegistrationPaused",
+      "route": "POST /v1/voice-assets/queries/is-registration-paused",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VoiceAssetFacet.name",
+      "route": "POST /v1/voice-assets/queries/name",
+      "status": 200,
+      "payload": "Voice NFT"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.ownerOf",
+      "route": "GET /v1/voice-assets/tokens/11/owner",
+      "status": 200,
+      "payload": "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.supportsInterface",
+      "route": "GET /v1/voice-assets/queries/supports-interface?interfaceId=0x00000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VoiceAssetFacet.symbol",
+      "route": "POST /v1/voice-assets/queries/symbol",
+      "status": 200,
+      "payload": "VOICE"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.tokenURI",
+      "route": "GET /v1/voice-assets/tokens/11/uri",
+      "status": 200,
+      "payload": "ipfs://QmFocusedLicensing-1773351187394"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.voiceAssetBalanceOf",
+      "route": "GET /v1/voice-assets/queries/voice-asset-balance-of?owner=0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": "35"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.voiceAssetName",
+      "route": "POST /v1/voice-assets/queries/voice-asset-name",
+      "status": 200,
+      "payload": "Voice NFT"
+    },
+    {
+      "methodKey": "VoiceAssetFacet.voiceAssetSymbol",
+      "route": "POST /v1/voice-assets/queries/voice-asset-symbol",
+      "status": 200,
+      "payload": "VOICE"
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.containsAsset",
+      "route": "GET /v1/datasets/queries/contains-asset?datasetId=1000000000000000034&assetId=0",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.getDataset",
+      "route": "GET /v1/datasets/queries/get-dataset?datasetId=1000000000000000034",
+      "status": 200,
+      "payload": {
+        "id": "1000000000000000034",
+        "title": "Live Dataset 1795629692966",
+        "assetIds": [
+          "249",
+          "250"
+        ],
+        "licenseTemplateId": "35822605785025623838386697481035097442998751788212260136003315409364675010948",
+        "metadataURI": "ipfs://dataset-meta-1795629692966",
+        "creator": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "royaltyBps": "500",
+        "createdAt": "1795716083",
+        "active": true
+      }
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.getDatasetsByCreator",
+      "route": "GET /v1/datasets/queries/get-datasets-by-creator?creator=0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": [
+        "1000000000000000012",
+        "1000000000000000013",
+        "1000000000000000014",
+        "1000000000000000015",
+        "1000000000000000016",
+        "1000000000000000017",
+        "1000000000000000018",
+        "1000000000000000019",
+        "1000000000000000021",
+        "1000000000000000022",
+        "1000000000000000023"
+      ]
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.getMaxAssetsPerDataset",
+      "route": "POST /v1/datasets/queries/get-max-assets-per-dataset",
+      "status": 200,
+      "payload": "1000"
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.getTotalDatasets",
+      "route": "POST /v1/datasets/queries/get-total-datasets",
+      "status": 200,
+      "payload": "28"
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.royaltyInfo",
+      "route": "GET /v1/datasets/queries/royalty-info?datasetId=1000000000000000034&salePrice=1000",
+      "status": 200,
+      "payload": [
+        "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+        "50"
+      ]
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.getLicense",
+      "route": "GET /v1/licensing/queries/get-license?voiceHash=0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566&licensee=0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+      "status": 200,
+      "payload": {
+        "licensee": "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+        "isActive": true,
+        "transferable": false,
+        "startTime": "1795716122",
+        "endTime": "1800900122",
+        "maxUses": "7",
+        "usageCount": "0",
+        "licenseFee": "0",
+        "usageFee": "0",
+        "templateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "termsHash": "0x7a32217d5aebb238e94b6c145dc92fce7dc4f40e18eaddbf4942527102fb8171",
+        "rights": [],
+        "restrictions": [],
+        "usageRefs": []
+      },
+      "source": "licensing lifecycle",
+      "fixtureTransactionHash": "0x2faa43515336141a27c8a8def030a540a1c0bcfbbe8f24b1301cff12f8ad9f79"
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.getLicensees",
+      "route": "GET /v1/licensing/queries/get-licensees?voiceHash=0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566",
+      "status": 200,
+      "payload": [
+        "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0"
+      ]
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.getLicenseHistory",
+      "route": "GET /v1/licensing/queries/get-license-history?voiceHash=0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566",
+      "status": 200,
+      "payload": [
+        "1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.getLicenseTerms",
+      "route": "GET /v1/licensing/queries/get-license-terms?voiceHash=0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566",
+      "status": 200,
+      "payload": {
+        "licenseHash": "0x7a32217d5aebb238e94b6c145dc92fce7dc4f40e18eaddbf4942527102fb8171",
+        "duration": "5184000",
+        "price": "0",
+        "maxUses": "7",
+        "transferable": true,
+        "rights": [
+          "Podcast"
+        ],
+        "restrictions": [
+          "no-derivatives"
+        ]
+      },
+      "source": "licensing lifecycle",
+      "fixtureTransactionHash": "0x2faa43515336141a27c8a8def030a540a1c0bcfbbe8f24b1301cff12f8ad9f79"
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.getPendingRevenue",
+      "route": "GET /v1/licensing/queries/get-pending-revenue?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.getUsageCount",
+      "route": "GET /v1/licensing/queries/get-usage-count?voiceHash=0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566&licensee=0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+      "status": 200,
+      "payload": "1",
+      "source": "licensing lifecycle",
+      "fixtureTransactionHash": "0x2faa43515336141a27c8a8def030a540a1c0bcfbbe8f24b1301cff12f8ad9f79"
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.isUsageRefUsed",
+      "route": "GET /v1/licensing/queries/is-usage-ref-used?voiceHash=0x4fec98e576761af697f7825213c2f4426021175fcd9e8681dcbe8ba618d10566&usageRef=0x0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 200,
+      "payload": false
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.validateLicense",
+      "route": "POST /v1/licensing/queries/validate-license",
+      "status": 200,
+      "payload": [
+        false,
+        "1795716123"
+      ]
+    },
+    {
+      "methodKey": "VoiceLicenseTemplateFacet.getCreatorTemplates",
+      "route": "GET /v1/licensing/queries/get-creator-templates?creator=0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+      "status": 200,
+      "payload": [
+        "0xcbc5291bcd32f7016d308b2a6d635f8126669712acd8fc8fdb5256e662ee42b9",
+        "0xc2ed054c4342df342bb83c4a6aed623dde448c95872e5814f3e79027d170a81a",
+        "0xb64ecd8ff002ced12630935b2b6f507c4975e4a414603833be23400b56b2b4c1",
+        "0xebb00703d4d6ee6ab938e2db1447efec0647acbc966a45bc3fffea0bd1b064c6",
+        "0x5701e10835dd5b410a70ad40e38d41f1714d37107214c7ee152cdd3186cf7374",
+        "0x3c34366c8c7d95baf157bd86f9adff1d8e0213449c4254ed4243f7acb6a9cd27",
+        "0xb60f8fa69fbf28ffecdd95293d08d6fe02581c3a3189540133679c265ec03b3a",
+        "0xc9d18774c808a931ce9c305b0ce55873eab21217e9d70fa0dcc3912f38b93ce4",
+        "0x21f87e3faafb8ac71e93eafe66d87cba4e960a6f558b92287ee53b6cea7f592e",
+        "0xf6763696e7383a4e59b57c99920a7c73786ae7ce981c4f877cd161133a142b6f",
+        "0x8c994a13c6266d5388890df4d365e66c573dba7059dd4fcf7ed49690df5a727a",
+        "0xc8c317584c95d9e0add9fb1b3afd94e18dc2bb81afb9b19727994827b6fb5711",
+        "0x574e983cea0f79db4d167b3965ca02a5c6bdc619b5da780052e4d5b662499bcc",
+        "0x9f0d9c58f6476a573a1ffed10c4213869182f2dcbdd4f058b335086ded6fa799",
+        "0xe5b1f320bc6db164bd447d58662fd2e62a6e4ee8267104b20182fa2149d9eb29",
+        "0x6bf5a196daf32ae69f5af0ffbd9ae919419a78db5b6422665c2f8a4795ff12ed",
+        "0x4f32e0591d5b917cffedb15699575de9702a0932fa24e670ee5974e943752184",
+        "0xeed3935caafbb804b7ef402d441274bc24bc0db9efaa28c19f50b1934aaa3535",
+        "0x925c0600a3f817bc116442ef07e8509e11222f464f3939e6a2260db5ec8b517b"
+      ]
+    },
+    {
+      "methodKey": "VoiceLicenseTemplateFacet.getTemplate",
+      "route": "GET /v1/licensing/queries/get-template?templateHash=0x4f32e0591d5b917cffedb15699575de9702a0932fa24e670ee5974e943752184",
+      "status": 200,
+      "payload": {
+        "creator": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+        "isActive": true,
+        "transferable": true,
+        "createdAt": "1773858880",
+        "updatedAt": "1773858880",
+        "defaultDuration": "3888000",
+        "defaultPrice": "1000",
+        "maxUses": "12",
+        "name": "Lifecycle Active 1773858878613",
+        "description": "Lifecycle Active 1773858878613 coverage",
+        "defaultRights": [
+          "Narration",
+          "Ads"
+        ],
+        "defaultRestrictions": [
+          "no-sublicense"
+        ],
+        "terms": {
+          "licenseHash": "0x4f32e0591d5b917cffedb15699575de9702a0932fa24e670ee5974e943752184",
+          "duration": "3888000",
+          "price": "1000",
+          "maxUses": "12",
+          "transferable": true,
+          "rights": [
+            "Narration",
+            "Ads"
+          ],
+          "restrictions": [
+            "no-sublicense"
+          ]
+        }
+      }
+    },
+    {
+      "methodKey": "VoiceLicenseTemplateFacet.isTemplateActive",
+      "route": "GET /v1/licensing/queries/is-template-active?templateHash=0x4f32e0591d5b917cffedb15699575de9702a0932fa24e670ee5974e943752184",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.getBasicAcousticFeatures",
+      "route": "GET /v1/voice-assets/queries/get-basic-acoustic-features?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": {
+        "pitch": "0",
+        "volume": "0",
+        "speechRate": "0",
+        "timbre": "",
+        "formants": [],
+        "harmonicsToNoise": "0",
+        "dynamicRange": "0"
+      }
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.getGeographicData",
+      "route": "GET /v1/voice-assets/queries/get-geographic-data?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": {
+        "latitude": "0",
+        "longitude": "0",
+        "region": "",
+        "country": "",
+        "locality": ""
+      }
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.getVoiceCategories",
+      "route": "GET /v1/voice-assets/queries/get-voice-categories?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.getVoiceClassifications",
+      "route": "GET /v1/voice-assets/queries/get-voice-classifications?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": {
+        "analysisVersion": "",
+        "timestamp": "0",
+        "processingTimeMs": "0",
+        "componentsRun": [],
+        "categories": []
+      }
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.searchVoicesByClassification",
+      "route": "POST /v1/voice-assets/queries/by-classification",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.searchVoicesByClassificationPaginated",
+      "route": "POST /v1/voice-assets/queries/search-voices-by-classification-paginated",
+      "status": 200,
+      "payload": [
+        [],
+        "0"
+      ]
+    },
+    {
+      "methodKey": "VotingPowerFacet.calculateBaseRoleMultiplier",
+      "route": "GET /v1/staking/queries/calculate-base-role-multiplier?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "10000"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getDelegatedVotingPower",
+      "route": "GET /v1/staking/queries/get-delegated-voting-power?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "420000000000000000"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getLatestCheckpoint",
+      "route": "GET /v1/staking/queries/get-latest-checkpoint?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": [
+        "38785537",
+        "840000000000000000"
+      ]
+    },
+    {
+      "methodKey": "VotingPowerFacet.getLockDuration",
+      "route": "GET /v1/staking/queries/get-lock-duration?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getLockTimestamp",
+      "route": "GET /v1/staking/queries/get-lock-timestamp?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "0"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getPastVotes",
+      "route": "GET /v1/staking/queries/get-past-votes?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2&blockNumber=63545481",
+      "status": 200,
+      "payload": "840000000000000000"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getVotes",
+      "route": "GET /v1/staking/queries/get-votes?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2&blockNumber=63545481",
+      "status": 200,
+      "payload": "840000000000000000"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getVotingPower",
+      "route": "GET /v1/staking/queries/get-voting-power?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "840000000000000000"
+    },
+    {
+      "methodKey": "VotingPowerFacet.getVotingPowerWithDelegations",
+      "route": "GET /v1/staking/queries/get-voting-power-with-delegations?account=0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "status": 200,
+      "payload": "1260000000000000000"
+    },
+    {
+      "methodKey": "VotingPowerFacet.MAX_BATCH_SIZE",
+      "route": "POST /v1/staking/queries/max-batch-size",
+      "status": 200,
+      "payload": "100"
+    },
+    {
+      "methodKey": "WhisperBlockFacet.ENCRYPTOR_ROLE",
+      "route": "POST /v1/whisperblock/queries/encryptor-role",
+      "status": 200,
+      "payload": "0xad38fc56e7cf12436f8636729bfc3ea1f59bbdb38e132fa3e9330c57e2c77c2d"
+    },
+    {
+      "methodKey": "WhisperBlockFacet.getAuditTrail",
+      "route": "GET /v1/whisperblock/queries/get-audit-trail?voiceHash=0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.getSelectors",
+      "route": "POST /v1/whisperblock/queries/get-selectors",
+      "status": 200,
+      "payload": [
+        "0x20c4f08c",
+        "0x25200f05",
+        "0x8d53b208",
+        "0xb8663fd0",
+        "0xdf882fdd",
+        "0x51ffef11",
+        "0x73a8ce8b",
+        "0x22d407bf",
+        "0xb22bd298",
+        "0x9aafdba9",
+        "0x4b503f0b"
+      ]
+    },
+    {
+      "methodKey": "WhisperBlockFacet.OWNER_ROLE",
+      "route": "POST /v1/whisperblock/queries/owner-role",
+      "status": 200,
+      "payload": "0xb19546dff01e856fb3f010c267a7b1c60363cf8a4664e21cc89c26224620214e"
+    },
+    {
+      "methodKey": "WhisperBlockFacet.verifyVoiceAuthenticity",
+      "route": "GET /v1/whisperblock/queries/verify-voice-authenticity?voiceHash=0xd4e31919f4285c5194635a399e216b465102c83486d240b73be3903ac9d8a5d1&fingerprintData=0x000000000000000000000000000000000000000000000000000000000000111100000000000000000000000000000000000000000000000000000000000022220000000000000000000000000000000000000000000000000000000000003333",
+      "status": 200,
+      "payload": true
+    },
+    {
+      "methodKey": "WhisperBlockFacet.VOICE_OPERATOR_ROLE",
+      "route": "POST /v1/whisperblock/queries/voice-operator-role",
+      "status": 200,
+      "payload": "0xf0f99b205571b5da68295acbeeb7ecfd19ea5d20670463e37ab4e0c3530faad2"
+    },
+    {
+      "methodKey": "AccessControlFacet.AccessAttempt",
+      "route": "POST /v1/access-control/events/access-attempt/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.DAOMemberRoleGranted",
+      "route": "POST /v1/access-control/events/daomember-role-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.FounderSunsetExecuted",
+      "route": "POST /v1/access-control/events/founder-sunset-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.FounderSunsetScheduled",
+      "route": "POST /v1/access-control/events/founder-sunset-scheduled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.GovernanceParticipantRoleGranted",
+      "route": "POST /v1/access-control/events/governance-participant-role-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.MarketplacePurchaserRoleGranted",
+      "route": "POST /v1/access-control/events/marketplace-purchaser-role-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.MarketplaceSellerRoleGranted",
+      "route": "POST /v1/access-control/events/marketplace-seller-role-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.ParticipantRoleRevoked",
+      "route": "POST /v1/access-control/events/participant-role-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.ResearchParticipantRoleGranted",
+      "route": "POST /v1/access-control/events/research-participant-role-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.RoleAdminChanged",
+      "route": "POST /v1/access-control/events/role-admin-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.RoleConfigUpdated",
+      "route": "POST /v1/access-control/events/role-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.RoleGranted",
+      "route": "POST /v1/access-control/events/role-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.RoleRenounced",
+      "route": "POST /v1/access-control/events/role-renounced/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.RoleRevoked",
+      "route": "POST /v1/access-control/events/role-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "AccessControlFacet.SecurityAction",
+      "route": "POST /v1/access-control/events/security-action/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "BurnThresholdFacet.BurnThresholdUpdated",
+      "route": "POST /v1/tokenomics/events/burn-threshold-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "BurnThresholdFacet.ThresholdBurn",
+      "route": "POST /v1/tokenomics/events/threshold-burn/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "BurnThresholdFacet.Transfer",
+      "route": "POST /v1/tokenomics/events/transfer/query/burn-threshold",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.CampaignCapConfig",
+      "route": "POST /v1/tokenomics/events/campaign-cap-config/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.CampaignCreated",
+      "route": "POST /v1/tokenomics/events/campaign-created/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.CampaignMerkleRootUpdated",
+      "route": "POST /v1/tokenomics/events/campaign-merkle-root-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.CampaignPaused",
+      "route": "POST /v1/tokenomics/events/campaign-paused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.CampaignUnpaused",
+      "route": "POST /v1/tokenomics/events/campaign-unpaused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.CampaignVestingConfig",
+      "route": "POST /v1/tokenomics/events/campaign-vesting-config/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "CommunityRewardsFacet.Claimed",
+      "route": "POST /v1/tokenomics/events/claimed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DelegationFacet.DelegateChanged(address,address,address)",
+      "route": "POST /v1/staking/events/delegate-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DelegationFacet.DelegateVotesChanged(address,uint256,uint256)",
+      "route": "POST /v1/staking/events/delegate-votes-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DelegationFacet.VotingPowerUpdated",
+      "route": "POST /v1/staking/events/voting-power-updated/query/delegation",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DiamondCutFacet.DiamondCut",
+      "route": "POST /v1/diamond-admin/events/diamond-cut/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DiamondCutFacet.DiamondCutEvent",
+      "route": "POST /v1/diamond-admin/events/diamond-cut-event/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DiamondCutFacet.TrustedInitCodehashSet",
+      "route": "POST /v1/diamond-admin/events/trusted-init-codehash-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DiamondCutFacet.TrustedInitContractSet",
+      "route": "POST /v1/diamond-admin/events/trusted-init-contract-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "DiamondCutFacet.TrustedInitSelectorSet",
+      "route": "POST /v1/diamond-admin/events/trusted-init-selector-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.OracleFutureDriftConfigUpdated",
+      "route": "POST /v1/staking/events/oracle-future-drift-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.OracleQuorumConfigUpdated",
+      "route": "POST /v1/staking/events/oracle-quorum-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.OracleStalenessConfigUpdated",
+      "route": "POST /v1/staking/events/oracle-staleness-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.OracleUpdated",
+      "route": "POST /v1/staking/events/oracle-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.Paused",
+      "route": "POST /v1/staking/events/paused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.ReputationUpdated",
+      "route": "POST /v1/staking/events/reputation-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.ScoresUpdated",
+      "route": "POST /v1/staking/events/scores-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.Unpaused",
+      "route": "POST /v1/staking/events/unpaused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.AssetsFrozen",
+      "route": "POST /v1/emergency/events/assets-frozen/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.EmergencyResumeExecuted",
+      "route": "POST /v1/emergency/events/emergency-resume-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.EmergencyResumeScheduled",
+      "route": "POST /v1/emergency/events/emergency-resume-scheduled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.EmergencyStateChanged",
+      "route": "POST /v1/emergency/events/emergency-state-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.IncidentReported",
+      "route": "POST /v1/emergency/events/incident-reported/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.PauseExtended",
+      "route": "POST /v1/emergency/events/pause-extended/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.RecoveryCompleted",
+      "route": "POST /v1/emergency/events/recovery-completed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.RecoveryStarted",
+      "route": "POST /v1/emergency/events/recovery-started/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.RecoveryStepExecuted",
+      "route": "POST /v1/emergency/events/recovery-step-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyFacet.ResponseExecuted",
+      "route": "POST /v1/emergency/events/response-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyEthWithdrawalApproved",
+      "route": "POST /v1/emergency/events/emergency-eth-withdrawal-approved/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyEthWithdrawalExecuted",
+      "route": "POST /v1/emergency/events/emergency-eth-withdrawal-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyEthWithdrawalRequested",
+      "route": "POST /v1/emergency/events/emergency-eth-withdrawal-requested/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyWithdrawal",
+      "route": "POST /v1/emergency/events/emergency-withdrawal/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyWithdrawalApproved",
+      "route": "POST /v1/emergency/events/emergency-withdrawal-approved/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyWithdrawalExecuted",
+      "route": "POST /v1/emergency/events/emergency-withdrawal-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.EmergencyWithdrawalRequested",
+      "route": "POST /v1/emergency/events/emergency-withdrawal-requested/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.RecipientWhitelisted",
+      "route": "POST /v1/emergency/events/recipient-whitelisted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EmergencyWithdrawalFacet.WithdrawalConfigUpdated",
+      "route": "POST /v1/emergency/events/withdrawal-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EscrowFacet.AssetEscrowed",
+      "route": "POST /v1/marketplace/events/asset-escrowed/query/escrow",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EscrowFacet.AssetReleased",
+      "route": "POST /v1/marketplace/events/asset-released/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "EscrowFacet.AssetStateUpdated",
+      "route": "POST /v1/marketplace/events/asset-state-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "GovernorFacet.TargetGasLimitUpdated",
+      "route": "POST /v1/governance/events/target-gas-limit-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "GovernorFacet.TrustedTargetUpdated",
+      "route": "POST /v1/governance/events/trusted-target-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "LegacyExecutionFacet.InheritanceActivated",
+      "route": "POST /v1/voice-assets/events/inheritance-activated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "LegacyExecutionFacet.InheritanceApproved",
+      "route": "POST /v1/voice-assets/events/inheritance-approved/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "LegacyExecutionFacet.RightsDelegated",
+      "route": "POST /v1/voice-assets/events/rights-delegated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "LegacyFacet.BeneficiaryUpdated",
+      "route": "POST /v1/voice-assets/events/beneficiary-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "LegacyFacet.InheritanceConditionsUpdated",
+      "route": "POST /v1/voice-assets/events/inheritance-conditions-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "LegacyFacet.LegacyPlanCreated",
+      "route": "POST /v1/voice-assets/events/legacy-plan-created/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.AssetEscrowed",
+      "route": "POST /v1/marketplace/events/asset-escrowed/query/marketplace",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.AssetListed",
+      "route": "POST /v1/marketplace/events/asset-listed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.AssetPurchased",
+      "route": "POST /v1/marketplace/events/asset-purchased/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.ListingCancelled",
+      "route": "POST /v1/marketplace/events/listing-cancelled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.ListingPriceUpdated",
+      "route": "POST /v1/marketplace/events/listing-price-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.MarketplacePaused",
+      "route": "POST /v1/marketplace/events/marketplace-paused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MarketplaceFacet.MarketplaceUnpaused",
+      "route": "POST /v1/marketplace/events/marketplace-unpaused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.ActionExecuted",
+      "route": "POST /v1/multisig/events/action-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.BatchCompleted",
+      "route": "POST /v1/multisig/events/batch-completed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.MultiSigOperationCancelled",
+      "route": "POST /v1/multisig/events/multi-sig-operation-cancelled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.OperationApproved",
+      "route": "POST /v1/multisig/events/operation-approved/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.OperationExecuted",
+      "route": "POST /v1/multisig/events/operation-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.OperationProposed",
+      "route": "POST /v1/multisig/events/operation-proposed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "MultiSigFacet.OperationStatusChanged",
+      "route": "POST /v1/multisig/events/operation-status-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "OwnershipFacet.OwnershipPolicyEnforcementSet",
+      "route": "POST /v1/ownership/events/ownership-policy-enforcement-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "OwnershipFacet.OwnershipTargetApprovalSet",
+      "route": "POST /v1/ownership/events/ownership-target-approval-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "OwnershipFacet.OwnershipTransferCancelled",
+      "route": "POST /v1/ownership/events/ownership-transfer-cancelled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "OwnershipFacet.OwnershipTransferProposed",
+      "route": "POST /v1/ownership/events/ownership-transfer-proposed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "OwnershipFacet.OwnershipTransferred",
+      "route": "POST /v1/ownership/events/ownership-transferred/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.BuybackAccumulatorUpdated",
+      "route": "POST /v1/marketplace/events/buyback-accumulator-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.BuybackConfigUpdated",
+      "route": "POST /v1/marketplace/events/buyback-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.BuybackExecuted",
+      "route": "POST /v1/marketplace/events/buyback-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.BuybackPaused",
+      "route": "POST /v1/marketplace/events/buyback-paused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.ClaimCommitted",
+      "route": "POST /v1/marketplace/events/claim-committed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.ClaimRevealed",
+      "route": "POST /v1/marketplace/events/claim-revealed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.DatasetRoyaltyAccrued",
+      "route": "POST /v1/marketplace/events/dataset-royalty-accrued/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.DevFundAddressUpdated",
+      "route": "POST /v1/marketplace/events/dev-fund-address-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.FeeConfigurationUpdated",
+      "route": "POST /v1/marketplace/events/fee-configuration-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.FlashbotsSuggested",
+      "route": "POST /v1/marketplace/events/flashbots-suggested/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.MetadataAccessed",
+      "route": "POST /v1/marketplace/events/metadata-accessed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.PauseStateChanged",
+      "route": "POST /v1/marketplace/events/pause-state-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.PaymentDistributed",
+      "route": "POST /v1/marketplace/events/payment-distributed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.TimewaveGiftCreated",
+      "route": "POST /v1/marketplace/events/timewave-gift-created/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.TreasuryAddressUpdated",
+      "route": "POST /v1/marketplace/events/treasury-address-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.UnionTreasuryAddressUpdated",
+      "route": "POST /v1/marketplace/events/union-treasury-address-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.USDCPaymentWithdrawn",
+      "route": "POST /v1/marketplace/events/usdcpayment-withdrawn/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.UsdcTokenUpdated",
+      "route": "POST /v1/marketplace/events/usdc-token-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "PaymentFacet.WithdrawalLimitUpdated",
+      "route": "POST /v1/marketplace/events/withdrawal-limit-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "ProposalFacet.ProposalCanceled",
+      "route": "POST /v1/governance/events/proposal-canceled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "ProposalFacet.ProposalCreated",
+      "route": "POST /v1/governance/events/proposal-created/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "ProposalFacet.ProposalExecuted",
+      "route": "POST /v1/governance/events/proposal-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "ProposalFacet.ProposalQueued",
+      "route": "POST /v1/governance/events/proposal-queued/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "ProposalFacet.ProposalTypeConfigSet",
+      "route": "POST /v1/governance/events/proposal-type-config-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "ProposalFacet.VoteCast",
+      "route": "POST /v1/governance/events/vote-cast/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.CollaboratorUpdated",
+      "route": "POST /v1/licensing/events/collaborator-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.RightContractRegistered",
+      "route": "POST /v1/licensing/events/right-contract-registered/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.RightContractUpdated",
+      "route": "POST /v1/licensing/events/right-contract-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.RightGranted",
+      "route": "POST /v1/licensing/events/right-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.RightRevoked",
+      "route": "POST /v1/licensing/events/right-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "RightsFacet.RightsGroupCreated",
+      "route": "POST /v1/licensing/events/rights-group-created/query",
+      "status": 200,
+      "payload": [
+        {
+          "provider": {},
+          "transactionHash": "0x0d38d220d9ed66d14021737d38a38e720af071228e013ba5df4c9ee8f3625da1",
+          "blockHash": "0x28731b8e259cee101b9a7c9b99138cce413e6bf1dd0363697977bf5f2c14b7d6",
+          "blockNumber": 63545481,
+          "removed": false,
+          "address": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000236170692d6c6f63616c2d666f726b2d7269676874732d313739353632393832353735300000000000000000000000000000000000000000000000000000000000",
+          "topics": [
+            "0xbd3305e59b9d03f1328b0c764ad3e1ecb2e58b57b9005f2ca43526a709a503a8",
+            "0x00c10f13edac815c303ab5a9bfb5359366a4f1621000bbafa00ca81c06d48886",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "0x000000000000000000000000000000000000000000000000000000006b087476"
+          ],
+          "index": 0,
+          "transactionIndex": 0
+        }
+      ]
+    },
+    {
+      "methodKey": "StakingFacet.EpochAdvanced",
+      "route": "POST /v1/staking/events/epoch-advanced/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.RewardPoolFunded",
+      "route": "POST /v1/staking/events/reward-pool-funded/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.RewardsClaimed",
+      "route": "POST /v1/staking/events/rewards-claimed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.RewardsClaimedDetailed",
+      "route": "POST /v1/staking/events/rewards-claimed-detailed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.Staked",
+      "route": "POST /v1/staking/events/staked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.StakingInitialized",
+      "route": "POST /v1/staking/events/staking-initialized/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.StakingPaused",
+      "route": "POST /v1/staking/events/staking-paused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.TierConfigUpdated",
+      "route": "POST /v1/staking/events/tier-config-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.Unstaked",
+      "route": "POST /v1/staking/events/unstaked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "StakingFacet.UnstakeRequested",
+      "route": "POST /v1/staking/events/unstake-requested/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.CallExecuted",
+      "route": "POST /v1/governance/events/call-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.MinDelayUpdated(uint256,uint256)",
+      "route": "POST /v1/governance/events/min-delay-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.OperationExecuted(bytes32,uint256,uint256)",
+      "route": "POST /v1/governance/events/operation-executed/query/timelock/bytes32-uint256-uint256",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.OperationExecuted(bytes32)",
+      "route": "POST /v1/governance/events/operation-executed/query/timelock/bytes32",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.OperationRemoved",
+      "route": "POST /v1/governance/events/operation-removed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.OperationScheduled",
+      "route": "POST /v1/governance/events/operation-scheduled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.OperationStored",
+      "route": "POST /v1/governance/events/operation-stored/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimelockFacet.TimelockOperationCanceled",
+      "route": "POST /v1/governance/events/timelock-operation-canceled/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.TokensVested",
+      "route": "POST /v1/tokenomics/events/tokens-vested/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.VestingRevoked",
+      "route": "POST /v1/tokenomics/events/vesting-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.VestingScheduleCreated(address,uint256,uint256,uint256,uint256,bool)",
+      "route": "POST /v1/tokenomics/events/vesting-schedule-created/query/timewave-gift",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TimewaveGiftFacet.VestingTransferred",
+      "route": "POST /v1/tokenomics/events/vesting-transferred/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TokenSupplyFacet.Approval",
+      "route": "POST /v1/tokenomics/events/approval/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TokenSupplyFacet.MintingFinished",
+      "route": "POST /v1/tokenomics/events/minting-finished/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TokenSupplyFacet.TokenInitialized",
+      "route": "POST /v1/tokenomics/events/token-initialized/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "TokenSupplyFacet.Transfer",
+      "route": "POST /v1/tokenomics/events/transfer/query/token-supply",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.UpgradeApproved",
+      "route": "POST /v1/diamond-admin/events/upgrade-approved/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.UpgradeControlEnforcementSet",
+      "route": "POST /v1/diamond-admin/events/upgrade-control-enforcement-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.UpgradeControlFrozen",
+      "route": "POST /v1/diamond-admin/events/upgrade-control-frozen/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.UpgradeControllerInitialized",
+      "route": "POST /v1/diamond-admin/events/upgrade-controller-initialized/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.UpgradeExecuted",
+      "route": "POST /v1/diamond-admin/events/upgrade-executed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "UpgradeControllerFacet.UpgradeProposed",
+      "route": "POST /v1/diamond-admin/events/upgrade-proposed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.BeneficiaryTransferred",
+      "route": "POST /v1/tokenomics/events/beneficiary-transferred/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.SaleRestrictionUpdated",
+      "route": "POST /v1/tokenomics/events/sale-restriction-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.TokensReleased",
+      "route": "POST /v1/tokenomics/events/tokens-released/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.VestingInitialized",
+      "route": "POST /v1/tokenomics/events/vesting-initialized/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.VestingPaused",
+      "route": "POST /v1/tokenomics/events/vesting-paused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.VestingScheduleCreated",
+      "route": "POST /v1/tokenomics/events/vesting-schedule-created/query/vesting",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.VestingScheduleRevoked",
+      "route": "POST /v1/tokenomics/events/vesting-schedule-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VestingFacet.VestingUnpaused",
+      "route": "POST /v1/tokenomics/events/vesting-unpaused/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.Approval",
+      "route": "POST /v1/voice-assets/events/approval/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.ApprovalForAll",
+      "route": "POST /v1/voice-assets/events/approval-for-all/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.DefaultPlatformFeeUpdated",
+      "route": "POST /v1/voice-assets/events/default-platform-fee-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.DefaultRoyaltyRateUpdated",
+      "route": "POST /v1/voice-assets/events/default-royalty-rate-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.RegistrationPauseChanged",
+      "route": "POST /v1/voice-assets/events/registration-pause-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.RoyaltyPaid",
+      "route": "POST /v1/voice-assets/events/royalty-paid/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.RoyaltyRateChanged",
+      "route": "POST /v1/voice-assets/events/royalty-rate-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.RoyaltyRateUpdated",
+      "route": "POST /v1/voice-assets/events/royalty-rate-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.Transfer",
+      "route": "POST /v1/voice-assets/events/transfer/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.UserAuthorizationChanged",
+      "route": "POST /v1/voice-assets/events/user-authorization-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.VoiceAssetLockChanged",
+      "route": "POST /v1/voice-assets/events/voice-asset-lock-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.VoiceAssetRegistered",
+      "route": "POST /v1/voice-assets/events/voice-asset-registered/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceAssetFacet.VoiceAssetUsed",
+      "route": "POST /v1/voice-assets/events/voice-asset-used/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.AssetRemoved",
+      "route": "POST /v1/datasets/events/asset-removed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.AssetsAppended",
+      "route": "POST /v1/datasets/events/assets-appended/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.DatasetBurned",
+      "route": "POST /v1/datasets/events/dataset-burned/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.DatasetCreated",
+      "route": "POST /v1/datasets/events/dataset-created/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.DatasetRoyaltyPayeeSet",
+      "route": "POST /v1/datasets/events/dataset-royalty-payee-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.DatasetStatusChanged",
+      "route": "POST /v1/datasets/events/dataset-status-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.LicenseChanged",
+      "route": "POST /v1/datasets/events/license-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.MetadataChanged",
+      "route": "POST /v1/datasets/events/metadata-changed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.RoyaltySet",
+      "route": "POST /v1/datasets/events/royalty-set/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceDatasetFacet.Transfer",
+      "route": "POST /v1/datasets/events/transfer/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.Debug",
+      "route": "POST /v1/licensing/events/debug/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseBatchGranted",
+      "route": "POST /v1/licensing/events/license-batch-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseCreated(bytes32,address,bytes32,uint256,uint256)",
+      "route": "POST /v1/licensing/events/license-created/query/voice-license/bytes32-address-bytes32-uint256-uint256",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseCreated(bytes32,bytes32,address,uint256,uint256)",
+      "route": "POST /v1/licensing/events/license-created/query/voice-license/bytes32-bytes32-address-uint256-uint256",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseEnded",
+      "route": "POST /v1/licensing/events/license-ended/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseRenewed",
+      "route": "POST /v1/licensing/events/license-renewed/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseRevoked",
+      "route": "POST /v1/licensing/events/license-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseTermsUpdated",
+      "route": "POST /v1/licensing/events/license-terms-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseTransferred",
+      "route": "POST /v1/licensing/events/license-transferred/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.LicenseUsed",
+      "route": "POST /v1/licensing/events/license-used/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.TemplateUpdated",
+      "route": "POST /v1/licensing/events/template-updated/query/voice-license",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseFacet.VoiceAssetUsed",
+      "route": "POST /v1/licensing/events/voice-asset-used/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseTemplateFacet.LicenseCreated",
+      "route": "POST /v1/licensing/events/license-created/query/voice-license-template",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceLicenseTemplateFacet.TemplateUpdated",
+      "route": "POST /v1/licensing/events/template-updated/query/voice-license-template",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.AnalysisVersionUpdated",
+      "route": "POST /v1/voice-assets/events/analysis-version-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.BasicAcousticFeaturesUpdated",
+      "route": "POST /v1/voice-assets/events/basic-acoustic-features-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.ClassificationCategoryUpdated",
+      "route": "POST /v1/voice-assets/events/classification-category-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.GeographicDataUpdated",
+      "route": "POST /v1/voice-assets/events/geographic-data-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VoiceMetadataFacet.VoiceClassificationsUpdated",
+      "route": "POST /v1/voice-assets/events/voice-classifications-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VotingPowerFacet.LockDurationUpdated",
+      "route": "POST /v1/staking/events/lock-duration-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VotingPowerFacet.MaxLockDurationUpdated",
+      "route": "POST /v1/staking/events/max-lock-duration-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VotingPowerFacet.RoleMultiplierUpdated",
+      "route": "POST /v1/staking/events/role-multiplier-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "VotingPowerFacet.VotingPowerUpdated",
+      "route": "POST /v1/staking/events/voting-power-updated/query/voting-power",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.AccessGranted",
+      "route": "POST /v1/whisperblock/events/access-granted/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.AccessRevoked",
+      "route": "POST /v1/whisperblock/events/access-revoked/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.AuditEvent",
+      "route": "POST /v1/whisperblock/events/audit-event/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.KeyRotated",
+      "route": "POST /v1/whisperblock/events/key-rotated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.OffchainKeyGenerated",
+      "route": "POST /v1/whisperblock/events/offchain-key-generated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.SecurityParametersUpdated",
+      "route": "POST /v1/whisperblock/events/security-parameters-updated/query",
+      "status": 200,
+      "payload": []
+    },
+    {
+      "methodKey": "WhisperBlockFacet.VoiceFingerprintUpdated",
+      "route": "POST /v1/whisperblock/events/voice-fingerprint-updated/query",
+      "status": 200,
+      "payload": []
+    }
+  ],
+  "gaps": [
+    {
+      "methodKey": "ProposalFacet.queue",
+      "route": "GET /v1/governance/queries/queue",
+      "classification": "needs fixture",
+      "detail": "safe read returned HTTP 500",
+      "response": {
+        "error": "execution reverted: ProposalExpired(uint256)"
+      }
+    }
+  ]
+}

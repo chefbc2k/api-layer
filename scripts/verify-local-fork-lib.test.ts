@@ -129,6 +129,7 @@ describe("local-fork proof planning and reporting", () => {
     expect(plan.map((stage) => stage.id)).toEqual([
       "generate-inventory",
       "provision-fixtures",
+      "http-reveal-withdraw-proof",
       "control-plane-admin-proof",
       "layer1-core-proof",
       "layer1-completion-proof",
@@ -137,11 +138,14 @@ describe("local-fork proof planning and reporting", () => {
       "governance-proof",
       "provision-read-fixtures",
       "probe-safe-reads",
+      "reprovision-http-contract-fixtures",
       "http-contract-proof",
+      "reprovision-contract-fixtures",
       "event-indexer-proof",
     ]);
     expect(plan.filter((stage) => stage.destructive).length).toBeGreaterThan(0);
     expect(plan.find((stage) => stage.id === "http-contract-proof")?.artifactPath).toContain("http-contract-receipts.json");
+    expect(plan.find((stage) => stage.id === "http-reveal-withdraw-proof")?.artifactPath).toContain("http-reveal-withdraw-receipts.json");
     expect(plan.find((stage) => stage.id === "control-plane-admin-proof")?.args[0]).toContain("control-plane-admin-receipts.json");
     expect(plan.find((stage) => stage.id === "probe-safe-reads")?.artifactPath).toContain("safe-reads.json");
     expect(plan.find((stage) => stage.id === "event-indexer-proof")?.artifactPath).toContain("event-indexer.json");

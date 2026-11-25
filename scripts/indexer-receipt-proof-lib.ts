@@ -47,6 +47,7 @@ export type PersistentProofReports = Record<string, PersistentMethodReport>;
 
 export const defaultReceiptProofArtifactProducers: Record<string, string> = {
   "http-contract-receipts.json": "packages/api/src/app.contract-integration.test.ts",
+  "http-reveal-withdraw-receipts.json": "packages/api/src/app.contract-integration.test.ts",
   "control-plane-admin-receipts.json": "packages/api/src/app.contract-integration.test.ts",
   "layer1-core.json": "scripts/verify-layer1-live.ts",
   "layer1-completion.json": "scripts/verify-layer1-completion.ts",

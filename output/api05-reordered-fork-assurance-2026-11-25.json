@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "sourceCommit": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+  "runnerReport": ".runtime/release-runner/api05-reordered.json",
+  "runnerReportSha256": "b5fe43ce1caebb607a4aa567c9caa403a23cef3d726f07b04441dad4fb93b9a1",
+  "target": {
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "rpc": "disposable loopback Base Sepolia fork"
+  },
+  "stageOrderFinding": "Moving control-plane, lifecycle, marketplace, governance, and safe-read stages before the HTTP contract suite fixed the earlier owner-state contamination. The HTTP suite remains the terminal on-chain mutation stage and receipt indexing follows it.",
+  "stages": {
+    "control-plane-admin-proof": "passed",
+    "layer1-core-proof": "passed",
+    "layer1-completion-proof": "passed",
+    "layer1-remaining-proof": "passed",
+    "marketplace-purchase-proof": "passed",
+    "governance-proof": "passed",
+    "probe-safe-reads": {
+      "status": "gaps remain",
+      "attempted": 445,
+      "passed": 443,
+      "gaps": [
+        {
+          "method": "ProposalFacet.getActiveProposals",
+          "route": "POST /v1/governance/queries/get-active-proposals",
+          "finding": "request timed out"
+        },
+        {
+          "method": "ProposalFacet.queue",
+          "route": "GET /v1/governance/queries/queue",
+          "finding": "HTTP 500; contract expiry-helper dependency remains unresolved"
+        }
+      ]
+    },
+    "http-contract-proof": {
+      "status": "failed after two attempts",
+      "attempts": 2,
+      "checkpointRestores": 2,
+      "finding": "Three payment custody tests found the shared marketplace buyer at zero USDC after prior proof stages had consumed the fixture balance. The next runner revision adds a fixture reprovision/top-up immediately before this terminal stage."
+    },
+    "event-indexer-proof": {
+      "status": "passed",
+      "artifact": ".runtime/local-fork-proofs/event-indexer.json",
+      "artifactTransactionHashes": 61,
+      "indexedReceipts": 61,
+      "includedArtifacts": 6,
+      "skippedArtifacts": 0,
+      "rawEvents": 101,
+      "projectionRows": 80
+    }
+  },
+  "cumulativeIndexer": {
+    "artifact": "verify-local-fork-indexer-output.json",
+    "sha256": "a23b3a78af77ecb0f37c4a5f6ed24a702436cb44c70cee4cb39f9c2b50774839",
+    "indexedReceipts": 6174,
+    "provenWriteMethods": 187,
+    "totalWriteMethods": 260,
+    "remainingWriteMethods": 73,
+    "rawEvents": 9241,
+    "projectionRows": 5841
+  },
+  "acceptance": {
+    "api04Status": "waiting_dependency",
+    "api04ReadSweep": "443/445 passed; queue dependency and one timeout remain",
+    "api05Status": "in_progress",
+    "api05ProvenMethods": 187,
+    "api05TotalMethods": 260,
+    "api05OpenMethods": 73,
+    "newMethodAcceptanceCredit": 0
+  },
+  "hostedApiQuality": {
+    "runId": 45621117031,
+    "url": "https://github.com/chefbc2k/api-layer/actions/runs/45621117031",
+    "headSha": "2dc4cc48dccbd0843853a5ba4aaa6ac65cb89df1",
+    "status": "success"
+  }
+}
