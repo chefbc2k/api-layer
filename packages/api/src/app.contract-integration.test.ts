@@ -57,7 +57,6 @@ type ApiResponse = {
 
 const originalEnv = { ...process.env };
 const keepLocalForkAfterContractIntegration = process.env.API_LAYER_KEEP_LOCAL_FORK === "1";
-const preserveForkStateForIndexerProof = process.env.API_LAYER_PRESERVE_FORK_STATE_FOR_INDEXER === "1";
 const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
 const HTTP_API_TIMEOUT_MS = 45_000;
 const SAFE_READ_ATTEMPTS = 4;

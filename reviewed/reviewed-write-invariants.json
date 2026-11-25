@@ -6253,8 +6253,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MultiSigFacet.getOperation",
-            "assertion": "MultiSigFacet.getOperation reflects the receipt-confirmed MultiSigFacet.cancelOperation transition for the affected identifiers and actor."
+            "method": "MultiSigFacet.getOperationStatus",
+            "assertion": "MultiSigFacet.getOperationStatus reflects the receipt-confirmed MultiSigFacet.cancelOperation transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -6455,8 +6455,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MultiSigFacet.getOperation",
-            "assertion": "MultiSigFacet.getOperation reflects the receipt-confirmed MultiSigFacet.muSetPaused transition for the affected identifiers and actor."
+            "method": "MultiSigFacet.getOperationStatus",
+            "assertion": "MultiSigFacet.getOperationStatus reflects the receipt-confirmed MultiSigFacet.muSetPaused transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -6517,8 +6517,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MultiSigFacet.getOperation",
-            "assertion": "MultiSigFacet.getOperation reflects the receipt-confirmed MultiSigFacet.proposeOperation transition for the affected identifiers and actor."
+            "method": "MultiSigFacet.getOperationStatus",
+            "assertion": "MultiSigFacet.getOperationStatus reflects the receipt-confirmed MultiSigFacet.proposeOperation transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -6717,8 +6717,8 @@
         "mode": "required",
         "checks": [
           {
-            "method": "MultiSigFacet.getOperation",
-            "assertion": "MultiSigFacet.getOperation reflects the receipt-confirmed MultiSigFacet.submitTransaction transition for the affected identifiers and actor."
+            "method": "MultiSigFacet.getOperationStatus",
+            "assertion": "MultiSigFacet.getOperationStatus reflects the receipt-confirmed MultiSigFacet.submitTransaction transition for the affected identifiers and actor."
           }
         ],
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
@@ -7217,9 +7217,11 @@
     "PaymentFacet.approveMultisigWithdrawal": {
       "abiSignature": "approveMultisigWithdrawal(address,uint256,address)",
       "requiredActor": {
-        "kind": "self",
-        "roles": [],
-        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        "kind": "role",
+        "roles": [
+          "TREASURY_SIGNER_ROLE"
+        ],
+        "description": "A distinct authorized treasury signer records one approval for the requested treasury withdrawal."
       },
       "preconditions": [
         {
@@ -7251,12 +7253,12 @@
             "assertion": "PaymentFacet.getTreasuryWithdrawalLimit reflects the receipt-confirmed PaymentFacet.approveMultisigWithdrawal transition for the affected identifiers and actor."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "Canonical treasury state must be read after finality; approval count is not exposed by the current deployed ABI."
       },
       "emittedEvents": {
         "mode": "none",
         "events": [],
-        "rationale": "The reviewed ABI exposes no method-specific event for approveMultisigWithdrawal; receipt and state readbacks are authoritative."
+        "rationale": "The current deployed ABI exposes no method-specific event for approveMultisigWithdrawal; receipt and state readbacks are authoritative."
       },
       "balanceEffects": {
         "mode": "tracked",
@@ -7272,7 +7274,7 @@
             "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
           }
         ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "rationale": "This method can change ownership, custody, allowance, entitlement, position, supply, or a withdrawable balance."
       },
       "replayConstraints": {
         "mode": "state-transition",

@@ -14,6 +14,7 @@ import {
   parentRepoDir,
   readJson,
   resetDir,
+  rootDir,
   resolveAbiSourceDir,
   resolveDeploymentManifestPath,
   resolveScenarioSourceDir,
@@ -116,6 +117,7 @@ describe("script utils", () => {
     expect(
       resolved === null
       || resolved === localDeploymentManifestPath
+      || resolved === path.join(rootDir, "reviewed", "ci-deployment-selectors.json")
       || path.normalize(resolved).endsWith(path.join("artifacts", "release-readiness", "deployment-manifest.json")),
     ).toBe(true);
     expect(resolved).not.toBe(directoryManifest);
@@ -134,6 +136,7 @@ describe("script utils", () => {
     expect(
       manifestPath === null
       || manifestPath === localDeploymentManifestPath
+      || manifestPath === path.join(rootDir, "reviewed", "ci-deployment-selectors.json")
       || path.normalize(manifestPath).endsWith(path.join("artifacts", "release-readiness", "deployment-manifest.json")),
     ).toBe(true);
   });
@@ -152,11 +155,7 @@ describe("script utils", () => {
     ).toBe(true);
 
     const manifestPath = await resolveDeploymentManifestPath();
-    expect(
-      manifestPath === null
-      || manifestPath === localDeploymentManifestPath
-      || path.normalize(manifestPath).endsWith(path.join("artifacts", "release-readiness", "deployment-manifest.json")),
-    ).toBe(true);
+    expect(manifestPath).toBe(path.join(rootDir, "reviewed", "ci-deployment-selectors.json"));
   });
 
   it("returns false when a file path does not exist", async () => {

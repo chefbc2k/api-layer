@@ -59,6 +59,22 @@ function selectorFor(entry: AbiInput): string {
   return id(signatureFor(entry)).slice(0, 10).toLowerCase();
 }
 
+function isMountedFunction(
+  entry: AbiInput,
+  facetName: string,
+  deploymentManifest: DeploymentManifest | null,
+  mountedSelectors: Set<string> | null,
+  forcedSignatures: Set<string>,
+): boolean {
+  const signature = signatureFor(entry);
+  const selector = selectorFor(entry);
+  if (!deploymentManifest) {
+    return mountedSelectors === null || mountedSelectors.has(selector) || forcedSignatures.has(signature);
+  }
+  const owner = deploymentManifest.selectorToFacet.find((mounted) => mounted.selector.toLowerCase() === selector);
+  return owner ? owner.facetName === facetName : forcedSignatures.has(signature);
+}
+
 function isRead(entry: AbiInput): boolean {
   return entry.type === "function" && (entry.stateMutability === "view" || entry.stateMutability === "pure");
 }
@@ -95,12 +111,10 @@ async function main(): Promise<void> {
     const abi = await readJson<AbiInput[]>(path.join(facetsDir, fileName));
     const mountedSelectors = mountedSelectorsByFacet.get(facetName) ?? null;
     const forcedSignatures = forcedFunctionSignaturesByFacet[facetName] ?? new Set<string>();
-    const functionEntries = abi
-      .filter((entry) =>
-        entry.type === "function" &&
-        entry.name &&
-        (mountedSelectors === null || mountedSelectors.has(selectorFor(entry)) || forcedSignatures.has(signatureFor(entry))),
-      );
+    const functionEntries = abi.filter((entry) =>
+      entry.type === "function" && entry.name &&
+      isMountedFunction(entry, facetName, deploymentManifest, mountedSelectors, forcedSignatures),
+    );
 
     const functionNameCounts = new Map<string, number>();
     for (const entry of functionEntries) {

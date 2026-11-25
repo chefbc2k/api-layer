@@ -1938,6 +1938,17 @@
             "deliveryStatus": "local isolated branch; not deployed"
           },
           "resultLimitation": "API state assertions are stronger, but event/indexer acceptance remains blocked until the contract fix is deployed to a disposable fork and exact API receipts index with idempotent replay."
+        },
+        {
+          "sourceCommit": "pending",
+          "result": "Fixed codegen to use the tracked reviewed/ci-deployment-selectors.json when no explicit or adjacent deployment manifest exists. This prevents fallback to every ABI entry in isolated worktrees. Canonical codegen now returns to the pinned inventory: 491 manifest functions, 218 ABI event occurrences, and 260 write methods; duplicate ERC20 selectors are excluded from VoiceAssetFacet. Corrected stale MultiSig readback invariant references to the mounted getOperationStatus method. Historical API-05 acceptance remains 186/260, with exact-method proof and delivery still open.",
+          "checks": [
+            "pnpm run codegen passed: 491 manifest functions, 218 ABI events, 260/260 ABI write invariants; tracked reviewed/ci-deployment-selectors.json selected in isolated worktree",
+            "Focused scripts/utils, receipt-proof, write-invariant, event-assurance, payment-command-safety and withdrawal workflow suites: 325/325 passed",
+            "pnpm exec tsc -b --pretty false passed",
+            "Focused ESLint on changed generator/test files passed; git diff --check passed"
+          ],
+          "resultLimitation": "This fixes generator reproducibility and inventory integrity only; it adds no method proof credit. API-06 treasury and vesting economic criteria remain open."
         }
       ],
       "deliveredCommit": null,

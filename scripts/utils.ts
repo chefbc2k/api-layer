@@ -117,6 +117,7 @@ export async function resolveDeploymentManifestPath(): Promise<string | null> {
   const candidates = [
     explicit ? normalizeCandidate(explicit) : null,
     localDeploymentManifestPath,
+    path.join(rootDir, "reviewed", "ci-deployment-selectors.json"),
     path.join(parentRepoDir, "artifacts", "release-readiness", "deployment-manifest.json"),
     path.join(path.dirname(rootDir), "CONTRACTS", "artifacts", "release-readiness", "deployment-manifest.json"),
   ].filter((value): value is string => Boolean(value));
