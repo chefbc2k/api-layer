@@ -6519,7 +6519,7 @@ describeLive("HTTP API contract integration", () => {
         (entry) => entry.status === 202,
         `workflow create voice ${suffix}`,
       );
-      expect(response.status).toBe(202);
+      expect(response.status, `${method} ${route}: ${JSON.stringify(response.payload)}`).toBe(202);
       await expectReceipt(extractTxHash(response.payload));
       const voiceHash = String((response.payload as Record<string, unknown>).result);
       const voiceVisibleResponse = await waitFor(
@@ -6796,6 +6796,7 @@ describeLive("HTTP API contract integration", () => {
   it("proves usage, lock, approval, and both safe-transfer write paths for a disposable voice asset", async (ctx) => {
     if (await skipWhenFundingBlocked(ctx, "voice asset receipt expansion", [
       { address: licensingOwnerAddress, minimumWei: ethers.parseEther("0.00002") },
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
       { address: transfereeWallet.address, minimumWei: ethers.parseEther("0.00002") },
     ])) {
       return;
@@ -6808,7 +6809,7 @@ describeLive("HTTP API contract integration", () => {
       body: Record<string, unknown> = {},
     ) => {
       const response = await apiCall(port, method, route, { apiKey, body });
-      expect(response.status).toBe(202);
+      expect(response.status, `${method} ${route}: ${JSON.stringify(response.payload)}`).toBe(202);
       const txHash = extractTxHash(response.payload);
       await expectReceipt(txHash);
       return txHash;
@@ -6830,6 +6831,167 @@ describeLive("HTTP API contract integration", () => {
       "voice asset token for receipt expansion",
     );
     expect(await voiceAsset.ownerOf(tokenId)).toBe(licensingOwnerAddress);
+
+    const rightsFacet = new Contract(diamondAddress, facetRegistry.RightsFacet.abi, provider);
+    const collaborator = transfereeWallet.address;
+    const collaboratorShare = 1_250n;
+    const collaboratorAddTxHash = await submit(
+      "licensing-owner-key",
+      "POST",
+      "/v1/licensing/commands/add-collaborator",
+      { voiceHash, collaborator, share: collaboratorShare.toString() },
+    );
+    const collaboratorAdded = await rightsFacet.getCollaborator(voiceHash, collaborator);
+    expect(collaboratorAdded[0]).toBe(true);
+    expect(collaboratorAdded[1]).toBe(collaboratorShare);
+    const collaboratorAddReceipt = await provider.getTransactionReceipt(collaboratorAddTxHash);
+    expect(collaboratorAddReceipt).not.toBeNull();
+    expect(collaboratorAddReceipt!.logs.some((log) => {
+      try { return rightsFacet.interface.parseLog(log)?.name === "CollaboratorUpdated"; } catch { return false; }
+    })).toBe(true);
+
+    const updatedCollaboratorShare = 1_750n;
+    const collaboratorUpdateTxHash = await submit(
+      "licensing-owner-key",
+      "PATCH",
+      "/v1/licensing/commands/update-collaborator-share",
+      { voiceHash, collaborator, newShare: updatedCollaboratorShare.toString() },
+    );
+    expect(await rightsFacet.getCollaborator(voiceHash, collaborator)).toEqual([true, updatedCollaboratorShare]);
+    const collaboratorUpdateReceipt = await provider.getTransactionReceipt(collaboratorUpdateTxHash);
+    expect(collaboratorUpdateReceipt).not.toBeNull();
+    expect(collaboratorUpdateReceipt!.logs.some((log) => {
+      try {
+        const parsed = rightsFacet.interface.parseLog(log);
+        return parsed?.name === "CollaboratorUpdated" && parsed.args.share === updatedCollaboratorShare;
+      } catch { return false; }
+    })).toBe(true);
+
+    const collaboratorRemoveTxHash = await submit(
+      "licensing-owner-key",
+      "DELETE",
+      "/v1/licensing/commands/remove-collaborator",
+      { voiceHash, collaborator },
+    );
+    expect(await rightsFacet.getCollaborator(voiceHash, collaborator)).toEqual([false, 0n]);
+    const collaboratorRemoveReceipt = await provider.getTransactionReceipt(collaboratorRemoveTxHash);
+    expect(collaboratorRemoveReceipt).not.toBeNull();
+    expect(collaboratorRemoveReceipt!.logs.some((log) => {
+      try {
+        const parsed = rightsFacet.interface.parseLog(log);
+        return parsed?.name === "CollaboratorUpdated" && parsed.args.share === 0n && parsed.args.isActive === false;
+      } catch { return false; }
+    })).toBe(true);
+
+    const rightsBlock = await provider.getBlock("latest");
+    expect(rightsBlock).not.toBeNull();
+    const usageRight = {
+      rightType: "Animation",
+      startTime: String(rightsBlock!.timestamp),
+      endTime: String(rightsBlock!.timestamp + 3_600),
+      transferable: true,
+      restrictions: ["no-sublicense"],
+      revocable: true,
+    };
+    const groupName = `receipt-rights-group-${Date.now()}`;
+    const groupCreateTxHash = await submit(
+      "licensing-owner-key",
+      "POST",
+      "/v1/licensing/rights/create-rights-group",
+      { voiceHash, name: groupName, rights: [usageRight], members: [outsiderWallet.address] },
+    );
+    const rightsGroup = await rightsFacet.getRightsGroup(voiceHash, 0);
+    expect(rightsGroup.name).toBe(groupName);
+    expect(rightsGroup.rights).toHaveLength(1);
+    expect(rightsGroup.rights[0].rightType).toBe(usageRight.rightType);
+    expect(rightsGroup.members).toEqual([outsiderWallet.address]);
+    const groupReceipt = await provider.getTransactionReceipt(groupCreateTxHash);
+    expect(groupReceipt).not.toBeNull();
+    expect(groupReceipt!.logs.some((log) => {
+      try { return rightsFacet.interface.parseLog(log)?.name === "RightsGroupCreated"; } catch { return false; }
+    })).toBe(true);
+
+    const rightGrantTxHash = await submit(
+      "licensing-owner-key",
+      "POST",
+      "/v1/licensing/commands/grant-right",
+      { voiceHash, grantee: outsiderWallet.address, right: usageRight },
+    );
+    const grantedRights = await rightsFacet.getUserRights(voiceHash, outsiderWallet.address);
+    expect(grantedRights).toHaveLength(1);
+    expect(grantedRights[0].rightType).toBe(usageRight.rightType);
+    const rightGrantReceipt = await provider.getTransactionReceipt(rightGrantTxHash);
+    expect(rightGrantReceipt).not.toBeNull();
+    expect(rightGrantReceipt!.logs.some((log) => {
+      try { return rightsFacet.interface.parseLog(log)?.name === "RightGranted"; } catch { return false; }
+    })).toBe(true);
+
+    const rightRevokeTxHash = await submit(
+      "licensing-owner-key",
+      "DELETE",
+      "/v1/licensing/commands/revoke-right",
+      { voiceHash, holder: outsiderWallet.address, rightType: usageRight.rightType },
+    );
+    expect(await rightsFacet.getUserRights(voiceHash, outsiderWallet.address)).toHaveLength(0);
+    const rightRevokeReceipt = await provider.getTransactionReceipt(rightRevokeTxHash);
+    expect(rightRevokeReceipt).not.toBeNull();
+    expect(rightRevokeReceipt!.logs.some((log) => {
+      try { return rightsFacet.interface.parseLog(log)?.name === "RightRevoked"; } catch { return false; }
+    })).toBe(true);
+
+    const voiceAdminRole = id("VOICE_ADMIN_ROLE");
+    const voiceAdminWasGranted = await accessControl.hasRole(voiceAdminRole, founderAddress);
+    if (!voiceAdminWasGranted) {
+      await submit("founder-key", "POST", "/v1/access-control/admin/grant-role", {
+        role: voiceAdminRole,
+        account: founderAddress,
+        expiryTime: "0",
+      });
+      expect(await accessControl.hasRole(voiceAdminRole, founderAddress)).toBe(true);
+    }
+    const enforcementContract = await paymentFacet.getUsdcToken();
+    const rightRegistrationTxHash = await submit(
+      "founder-key",
+      "POST",
+      "/v1/licensing/rights/register-right-contract",
+      { category: "Animation", contractAddress: enforcementContract },
+    );
+    const registeredReceipt = await provider.getTransactionReceipt(rightRegistrationTxHash);
+    expect(registeredReceipt).not.toBeNull();
+    const registeredEvent = registeredReceipt!.logs.flatMap((log) => {
+      try {
+        const parsed = rightsFacet.interface.parseLog(log);
+        return parsed?.name === "RightContractRegistered" ? [parsed] : [];
+      } catch { return []; }
+    })[0];
+    expect(registeredEvent).toBeDefined();
+    const rightId = String((await rightsFacet.getCategoryContracts("Animation")).at(-1));
+    expect(rightId).toMatch(/^Animation-\d{5}$/);
+    expect(await rightsFacet.getCategoryContracts("Animation")).toContain(rightId);
+    expect(await rightsFacet.getRightContract(rightId)).toBe(enforcementContract);
+
+    const updatedEnforcementContract = diamondAddress;
+    const rightUpdateTxHash = await submit(
+      "founder-key",
+      "PATCH",
+      "/v1/licensing/commands/update-right-contract",
+      { rightId, newContractAddress: updatedEnforcementContract },
+    );
+    expect(await rightsFacet.getRightContract(rightId)).toBe(updatedEnforcementContract);
+    const rightUpdateReceipt = await provider.getTransactionReceipt(rightUpdateTxHash);
+    expect(rightUpdateReceipt).not.toBeNull();
+    expect(rightUpdateReceipt!.logs.some((log) => {
+      try { return rightsFacet.interface.parseLog(log)?.name === "RightContractUpdated"; } catch { return false; }
+    })).toBe(true);
+    if (!voiceAdminWasGranted) {
+      const revokeVoiceAdmin = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+        apiKey: "founder-key",
+        body: { role: voiceAdminRole, account: founderAddress, reason: "local-fork rights proof cleanup" },
+      });
+      expect(revokeVoiceAdmin.status, JSON.stringify(revokeVoiceAdmin.payload)).toBe(202);
+      await expectReceipt(extractTxHash(revokeVoiceAdmin.payload));
+      expect(await accessControl.hasRole(voiceAdminRole, founderAddress)).toBe(false);
+    }
 
     const usageRef = id(`indexer-voice-usage-${voiceHash}-${Date.now()}`);
     await submit(

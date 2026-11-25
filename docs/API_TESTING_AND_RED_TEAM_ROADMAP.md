@@ -1,3 +1,10 @@
+# API-05 Follow-on — RightsFacet Lifecycle Proof — 2026-11-25
+
+- Added and passed a focused local-fork HTTP integration covering eight RightsFacet writes: collaborator add/share update/removal, rights-group creation, grant/revoke right, and enforcement-contract registration/update. Each exact route returned a successful receipt; on-chain readbacks confirmed collaborator, group, user-right, and registry state.
+- PostgreSQL indexed 15 successful receipts (eight targeted RightsFacet writes plus existing voice-asset lifecycle writes), 16 raw events, eight projection rows, and unchanged replay. TypeScript build, focused ESLint, and write-invariant tests (7/7) passed.
+- API-05 advances from 163/260 to 171/260 proven exact methods, leaving 89 open. At the start of this run, 101 methods were open, so the automation’s 25% batch target was 26; this run completed 8 and is short by 18. Continue the same run until its target is met.
+- Source commit and hosted CI are pending. Evidence: [RightsFacet proof](../output/api05-rights-lifecycle-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json).
+
 # API-05 Follow-on — Emergency Recovery Lifecycle — 2026-11-25
 
 - Added a focused local-fork HTTP integration for recovery start, three distinct approvals, two timelocked recovery steps, and completion. The test verifies each receipt, RecoveryStarted/RecoveryStepExecuted/RecoveryCompleted events, approval counts, exact step results, a reversible emergency-timeout update, incident resolution, and cleanup of temporary role grants.

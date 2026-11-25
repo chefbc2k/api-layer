@@ -1808,6 +1808,34 @@
             "The persistent local fork and disposable PostgreSQL instance were stopped after indexing."
           ],
           "resultLimitation": "Four open methods completed, below the bounded target of 35; API-05 remains in_progress with 97 write methods open. EmergencyFacet.executeRecoveryAction is explicitly documented as contract-only but remains counted open pending release accounting policy."
+        },
+        {
+          "sourceCommit": "pending",
+          "artifact": "output/api05-rights-lifecycle-proof-2026-11-25.json",
+          "proofArtifactSha256": "0d073d4435af78105c3a17ef4db985a7cb7ff195849b0841be47b3deab9bbe6b",
+          "transactionArtifact": ".runtime/api05-rights-lifecycle-receipts.json",
+          "transactionArtifactSha256": "cba06f252e8dd5756244a994e967e2ab8805f8d0e131db8a4a94d455afc9c64c",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "e3196fd27a28e905ec9ae59badc5456065d68c846e2540f97a304e59d7dda67e",
+          "result": "Proved RightsFacet.addCollaborator, updateCollaboratorShare, removeCollaborator, createRightsGroup, grantRight, revokeRight, registerRightContract, and updateRightContract through their exact HTTP routes on a disposable Base Sepolia loopback fork. Status-1 receipts, collaborator/right/group/registry contract readbacks, expected decoded events, PostgreSQL indexing, and unchanged replay were verified. API-05 advances from 163/260 to 171/260, leaving 89 open.",
+          "startingProvenCount": 163,
+          "startingOpenCount": 97,
+          "completedThisRun": 8,
+          "completionPercentOfStart": 8.2474,
+          "boundedRunTarget": 25,
+          "boundedRunTargetRule": "ceil(0.25 * startingOpenCount)",
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 171,
+          "endingOpenCount": 89,
+          "checks": [
+            "Focused local-fork HTTP integration passed: 1 passed, 59 unrelated cases skipped.",
+            "TypeScript build passed: pnpm exec tsc -b.",
+            "Focused ESLint passed for packages/api/src/app.contract-integration.test.ts.",
+            "Write-invariant test passed: 7/7.",
+            "Indexer processed 15 successful receipts, 16 raw events, eight projection rows, and unchanged replay.",
+            "All eight targeted RightsFacet methods have exact successful receipts and post-state verification."
+          ],
+          "resultLimitation": "Eight new methods were completed against a 26-method run target (starting with 101 open); 18 more are required for this automation run to meet its batch target. API-05 remains in_progress with 89 open methods."
         }
       ],
       "deliveredCommit": null,
