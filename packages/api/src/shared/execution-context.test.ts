@@ -1030,7 +1030,7 @@ describe("executeHttpMethodDefinition", () => {
     ));
     mocked.decodeParamsFromWire.mockReturnValue([]);
 
-    expect(roleGatedDefinitions).toHaveLength(146);
+    expect(roleGatedDefinitions).toHaveLength(147);
     expect(roleGatedDefinitions.filter(({ classification }) => classification === "admin")).toHaveLength(46);
 
     let rejectionCount = 0;
@@ -1069,14 +1069,14 @@ describe("executeHttpMethodDefinition", () => {
           }
         }
       }
-      expect(mocked.contractStaticCall).toHaveBeenCalledTimes(838);
+      expect(mocked.contractStaticCall).toHaveBeenCalledTimes(845);
     }
 
-    expect(rejectionCount).toBe(3_066);
+    expect(rejectionCount).toBe(3_087);
     expect(apiRoleRejectionCount).toBe(552);
-    expect(contractLifecycleRejectionCount).toBe(2_514);
+    expect(contractLifecycleRejectionCount).toBe(2_535);
     expect(context.txStore.insert).not.toHaveBeenCalled();
-    expect(mocked.contractPopulateTransaction).toHaveBeenCalledTimes(2_514);
+    expect(mocked.contractPopulateTransaction).toHaveBeenCalledTimes(2_535);
     expect(mocked.walletSendTransaction).not.toHaveBeenCalled();
   });
 

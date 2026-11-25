@@ -1949,6 +1949,17 @@
             "Focused ESLint on changed generator/test files passed; git diff --check passed"
           ],
           "resultLimitation": "This fixes generator reproducibility and inventory integrity only; it adds no method proof credit. API-06 treasury and vesting economic criteria remain open."
+        },
+        {
+          "sourceCommit": "5c55d94",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45606405120",
+          "result": "The exact-head API quality run confirmed the pinned-manifest fallback and passed dependency audit, source bootstrap, TypeScript, Vercel entrypoint types, lint, build, and disposable PostgreSQL/native-USDC fork gate. Regression failed only because two actor-negative-path tests still expected 146 role-gated writes; the current reviewed policy contains 147. The assertions and derived lifecycle call totals were updated to match the expanded mounted-role inventory.",
+          "checks": [
+            "API quality run 45606405120: named gates above passed; regression exposed two stale actor count assertions",
+            "Focused actor-negative-path and execution-context tests after correction: 95/95 passed",
+            "pnpm exec tsc -b --pretty false passed; focused ESLint and git diff --check passed"
+          ],
+          "resultLimitation": "The first exact-head CI run did not pass overall. A second exact-head run on the correction commit is required. API-05 remains at 186/260 proven methods; no method acceptance credit was added."
         }
       ],
       "deliveredCommit": null,
