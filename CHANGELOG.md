@@ -1,7 +1,12 @@
+# 2026-11-25 — Prove direct emergency withdrawal execution
+
+- Extended the disposable-fork lifecycle to set the required approval count to one, create a second request, and submit `EmergencyWithdrawalFacet.executeWithdrawal` as a distinct HTTP transaction. The receipt emitted `EmergencyWithdrawalExecuted`; custody, licensed-recipient, and total-supply deltas matched, and replay was rejected.
+- API-05 advances from `152/260` to `153/260` unique write methods proven, leaving `107` open. The related request and approval proofs are recorded alongside the execution receipt in [the proof artifact](output/api05-emergency-withdrawal-execute-proof-2026-11-25.json).
+
 # 2026-11-25 — Prove emergency withdrawal request and approval
 
 - Preserved the disposable-fork state for an opt-in indexer proof of the emergency-withdrawal workflow. The API proof funded 1 token unit into custody, requested and approved withdrawal, checked exact balance conservation and replay rejection, then indexed the request, approval, and funding receipts with raw events, projections, block journals, and idempotent replay.
-- API-05 advances from `150/260` to `152/260` unique write methods proven, leaving `108` open. `EmergencyWithdrawalFacet.executeWithdrawal` remains open because the workflow executes at approval and the repeat request does not produce a successful receipt. See [emergency-withdrawal proof](output/api05-emergency-withdrawal-methods-proof-2026-11-25.json).
+- API-05 advanced from `150/260` to `152/260` unique write methods proven, leaving `108` open at that point. The follow-on proof now covers `EmergencyWithdrawalFacet.executeWithdrawal` as a separate successful transaction. See [request and approval proof](output/api05-emergency-withdrawal-methods-proof-2026-11-25.json) and [direct execution proof](output/api05-emergency-withdrawal-execute-proof-2026-11-25.json).
 
 # 2026-11-25 — Prove owner-target approval lifecycle
 

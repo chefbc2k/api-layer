@@ -1665,6 +1665,29 @@
             "Receipt replay was idempotent.",
             "Disposable fork was stopped after indexing."
           ]
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-emergency-withdrawal-execute-proof-2026-11-25.json",
+          "proofArtifactSha256": "66359c5070f6ec891dcd88c10647412b6fbb9daae3a49ca0be02adb870ddfa8e",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "1362170f0a70ecf1f6fe8d06aae0124785c3f32dfc4d851ccf14b2eb1ddcad36",
+          "result": "Proved EmergencyWithdrawalFacet.executeWithdrawal as a successful, separate HTTP write in a disposable loopback fork. With the request threshold set to one, the API workflow created a request and then submitted a distinct executeWithdrawal transaction. The status-1 receipt emitted EmergencyWithdrawalExecuted; custody fell by 1, the licensed recipient gained 1, total supply stayed unchanged, and the repeated execute route was rejected without side effects. PostgreSQL/indexer evidence includes the related request and approval lifecycle, raw events, projections, block journals, and idempotent replay. API-05 advances from 152/260 to 153/260 proven methods, leaving 107 open.",
+          "startingProvenCount": 152,
+          "startingOpenCount": 108,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.9259,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 153,
+          "endingOpenCount": 107,
+          "checks": [
+            "Focused local-fork HTTP integration passed (1 passed, 54 skipped).",
+            "Six successful receipts indexed; 11 raw events and seven PostgreSQL projections verified.",
+            "Direct executeWithdrawal receipt emitted EmergencyWithdrawalExecuted and exact economic deltas matched.",
+            "Replay was rejected; idempotent receipt replay was unchanged.",
+            "Disposable fork was stopped after indexing."
+          ]
         }
       ],
       "deliveredCommit": null,

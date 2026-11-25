@@ -1,7 +1,12 @@
+# API-05 Follow-on — Direct Emergency Withdrawal Execution — 2026-11-25
+
+- Added a second withdrawal on the disposable fork with required approvals set to one. The request began with the requester’s approval, then the workflow submitted `EmergencyWithdrawalFacet.executeWithdrawal` as a separate transaction. Its receipt emitted `EmergencyWithdrawalExecuted`; custody decreased by 1, the licensed recipient increased by 1, total supply was unchanged, and replay was rejected. The indexer confirmed raw events, projections, block journals, and idempotent replay.
+- API-05 advances from `152/260` to `153/260`, leaving `107` open. See [direct execution proof](../output/api05-emergency-withdrawal-execute-proof-2026-11-25.json).
+
 # API-05 Follow-on — Emergency Withdrawal Request and Approval — 2026-11-25
 
 - Proved `EmergencyWithdrawalFacet.requestEmergencyWithdrawal` and `EmergencyWithdrawalFacet.approveEmergencyWithdrawal` through the emergency-withdrawal HTTP workflow on a disposable loopback fork. The test funded 1 token unit into custody, requested and approved withdrawal, confirmed execution to the licensed recipient, reconciled custody/recipient/supply deltas, and rejected replay. PostgreSQL indexed three successful receipts, six raw events, four projections, and block journals; replay was idempotent.
-- API-05 advances from `150/260` to `152/260`, leaving `108` open. `EmergencyWithdrawalFacet.executeWithdrawal` remains open because approval executes the request and replay produces no successful receipt. Durable evidence: [proof artifact](../output/api05-emergency-withdrawal-methods-proof-2026-11-25.json).
+- API-05 advanced from `150/260` to `152/260`, leaving `108` open at that point. A follow-on proof now covers `EmergencyWithdrawalFacet.executeWithdrawal` as a separate successful transaction. Durable evidence: [request and approval proof](../output/api05-emergency-withdrawal-methods-proof-2026-11-25.json) and [direct execution proof](../output/api05-emergency-withdrawal-execute-proof-2026-11-25.json).
 
 # API-05 Follow-on — Owner-Target Approval Lifecycle — 2026-11-25
 

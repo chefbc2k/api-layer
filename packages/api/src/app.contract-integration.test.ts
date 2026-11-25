@@ -4355,13 +4355,77 @@ describeLive("HTTP API contract integration", () => {
         recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
         totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
       });
+
+      const singleApprovalConfigReceipt = await (
+        await emergencyWithdrawalFacet.connect(founderWallet).updateWithdrawalConfig(0, 0, 1, false, 1000)
+      ).wait();
+      expect(singleApprovalConfigReceipt?.status).toBe(1);
+      const secondFunding = await apiCall(port, "POST", "/v1/tokenomics/commands/transfer", {
+        body: { to: diamondAddress, amount: amount.toString() },
+      });
+      expect(secondFunding.status, JSON.stringify(secondFunding.payload)).toBe(202);
+      await expectReceipt(extractTxHash(secondFunding.payload));
+      const beforeDirectExecution = {
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      const directExecution = await apiCall(port, "POST", "/v1/workflows/emergency-withdrawal-sequence", {
+        body: {
+          token: diamondAddress,
+          amount: amount.toString(),
+          recipient: licenseeWallet.address,
+          approvals: [],
+          execute: { apiKey: "founder-key", walletAddress: founderAddress },
+        },
+      });
+      expect(directExecution.status, JSON.stringify(directExecution.payload)).toBe(202);
+      const directPayload = directExecution.payload as {
+        request: { requestId: string; txHash: string };
+        execute: { txHash: string; eventCount: number } | null;
+        withdrawalState: { executed: boolean };
+        economics: { custody: { delta: string }; recipient: { delta: string }; released: string };
+      };
+      expect(directPayload.request.requestId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+      expect(directPayload.execute?.txHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+      await expectReceipt(directPayload.request.txHash);
+      await expectReceipt(directPayload.execute!.txHash);
+      expect(directPayload.execute!.eventCount).toBeGreaterThan(0);
+      expect(directPayload.withdrawalState.executed).toBe(true);
+      expect(directPayload.economics).toMatchObject({
+        custody: { delta: "-1" },
+        recipient: { delta: "1" },
+        released: "1",
+      });
+      const afterDirectExecution = {
+        custody: BigInt(await tokenSupplyFacet.tokenBalanceOf(diamondAddress)),
+        recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
+        totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
+      };
+      assertExactAmountDelta("emergencyWithdrawal.directExecute.custody", beforeDirectExecution.custody, afterDirectExecution.custody, -amount);
+      assertExactAmountDelta("emergencyWithdrawal.directExecute.recipient", beforeDirectExecution.recipient, afterDirectExecution.recipient, amount);
+      assertExactAmountDelta("emergencyWithdrawal.directExecute.totalSupply", beforeDirectExecution.totalSupply, afterDirectExecution.totalSupply, 0n);
+      const executeReceipt = await provider.getTransactionReceipt(directPayload.execute!.txHash);
+      expect(executeReceipt?.status).toBe(1);
+      expect(executeReceipt?.logs.some((log) => {
+        try {
+          return emergencyWithdrawalFacet.interface.parseLog(log)?.name === "EmergencyWithdrawalExecuted";
+        } catch {
+          return false;
+        }
+      })).toBe(true);
+
       emergencyWithdrawalProofObservations.push({
-        methodKeys: ["EmergencyWithdrawalFacet.requestEmergencyWithdrawal", "EmergencyWithdrawalFacet.approveEmergencyWithdrawal"],
+        methodKeys: ["EmergencyWithdrawalFacet.requestEmergencyWithdrawal", "EmergencyWithdrawalFacet.approveEmergencyWithdrawal", "EmergencyWithdrawalFacet.executeWithdrawal"],
         requestRoute: "POST /v1/workflows/emergency-withdrawal-sequence",
+        directExecutionRoute: "POST /v1/workflows/emergency-withdrawal-sequence",
         replayRoute: "POST /v1/emergency/admin/execute-withdrawal",
         requestId: withdrawalPayload.request.requestId,
         requestTransactionHash: withdrawalPayload.request.txHash,
         approvalTransactionHashes: withdrawalPayload.approvals.map((approval) => approval.txHash),
+        directExecutionRequestId: directPayload.request.requestId,
+        directExecutionRequestTransactionHash: directPayload.request.txHash,
+        directExecutionTransactionHash: directPayload.execute!.txHash,
         actor: "founder fixture requester and licensed approver",
         amount: amount.toString(),
         asset: diamondAddress,
@@ -4371,6 +4435,8 @@ describeLive("HTTP API contract integration", () => {
         totalSupplyDelta: (executed.totalSupply - funded.totalSupply).toString(),
         executed: withdrawalPayload.withdrawalState.executed,
         replayRejected: replay.status !== 202,
+        directExecutionConfirmed: true,
+        directExecutionBalanceDeltasMatched: true,
         forkScopedFixture: true,
       });
       proofCompleted = true;
