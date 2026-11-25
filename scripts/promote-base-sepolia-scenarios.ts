@@ -388,6 +388,38 @@ export function baseOutput(env: NodeJS.ProcessEnv, readiness: PromotionReadiness
   };
 }
 
+export async function inspectPromotionLiveTarget(
+  provider: {
+    getNetwork(): Promise<{ chainId: number | bigint }>;
+    getCode(address: string): Promise<string>;
+    destroy(): Promise<void>;
+  },
+  diamondAddress: string,
+): Promise<PromotionOutput["liveTarget"] & { ready: boolean }> {
+  try {
+    const [network, code] = await Promise.all([provider.getNetwork(), provider.getCode(diamondAddress)]);
+    const chainId = Number(network.chainId);
+    const diamondCodePresent = code !== "0x";
+    return {
+      checked: true,
+      chainId,
+      diamondCodePresent,
+      error: null,
+      ready: chainId === BASE_SEPOLIA_CHAIN_ID && diamondCodePresent,
+    };
+  } catch (error) {
+    return {
+      checked: true,
+      chainId: null,
+      diamondCodePresent: null,
+      error: error instanceof Error ? error.message : String(error),
+      ready: false,
+    };
+  } finally {
+    await provider.destroy();
+  }
+}
+
 async function main(): Promise<void> {
   const envPath = resolvePromotionEnvPath();
   const envFilePresent = existsSync(envPath);
@@ -405,37 +437,21 @@ async function main(): Promise<void> {
   const rpcUrl = fileEnv.RPC_URL ?? fileEnv.CBDP_RPC_URL!;
   const diamondAddress = fileEnv.DIAMOND_ADDRESS ?? fileEnv.API_LAYER_DIAMOND_ADDRESS!;
   const provider = new JsonRpcProvider(rpcUrl, BASE_SEPOLIA_CHAIN_ID, { staticNetwork: true });
-  try {
-    const [network, code] = await Promise.all([provider.getNetwork(), provider.getCode(diamondAddress)]);
-    output.liveTarget = {
-      checked: true,
-      chainId: Number(network.chainId),
-      diamondCodePresent: code !== "0x",
-      error: null,
-    };
-    if (Number(network.chainId) !== BASE_SEPOLIA_CHAIN_ID || code === "0x") {
-      output.readiness.status = "blocked";
-      output.readiness.blockers.push("live-target: RPC chain or deployed diamond code does not match Base Sepolia readiness");
-      output.finalClassification = "blocked by setup/state";
-      writeOutput(output);
-      process.exitCode = 2;
-      return;
-    }
-  } catch (error) {
-    output.liveTarget = {
-      checked: true,
-      chainId: null,
-      diamondCodePresent: null,
-      error: error instanceof Error ? error.message : String(error),
-    };
+  const liveTarget = await inspectPromotionLiveTarget(provider, diamondAddress);
+  output.liveTarget = {
+    checked: liveTarget.checked,
+    chainId: liveTarget.chainId,
+    diamondCodePresent: liveTarget.diamondCodePresent,
+    error: liveTarget.error,
+  };
+  if (!liveTarget.ready) {
+    const reason = liveTarget.error ?? "RPC chain or deployed diamond code does not match Base Sepolia readiness";
     output.readiness.status = "blocked";
-    output.readiness.blockers.push(`live-target: ${output.liveTarget.error}`);
+    output.readiness.blockers.push(`live-target: ${reason}`);
     output.finalClassification = "blocked by setup/state";
     writeOutput(output);
     process.exitCode = 2;
     return;
-  } finally {
-    await provider.destroy();
   }
 
   if (process.argv.includes("--preflight")) {

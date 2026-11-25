@@ -11,6 +11,7 @@ import {
   assessPromotionReadiness,
   baseOutput,
   collectPromotionEvidence,
+  inspectPromotionLiveTarget,
   reportClassification,
   resolvePromotionEnvPath,
   runCommand,
@@ -121,6 +122,28 @@ describe("Base Sepolia promotion evidence", () => {
 });
 
 describe("Base Sepolia promotion report decisions",()=>{
+  it("checks chain and diamond code, fails closed, and always closes the provider",async()=>{
+    const makeProvider=(chainId:number|bigint,code:string)=>({
+      getNetwork:vi.fn().mockResolvedValue({chainId}),
+      getCode:vi.fn().mockResolvedValue(code),
+      destroy:vi.fn().mockResolvedValue(undefined),
+    });
+    const ready=makeProvider(84532n,"0x6000");
+    await expect(inspectPromotionLiveTarget(ready,"0xdiamond")).resolves.toEqual({checked:true,chainId:84532,diamondCodePresent:true,error:null,ready:true});
+    expect(ready.getCode).toHaveBeenCalledWith("0xdiamond");expect(ready.destroy).toHaveBeenCalledOnce();
+
+    const wrongChain=makeProvider(1,"0x6000");
+    await expect(inspectPromotionLiveTarget(wrongChain,"0xdiamond")).resolves.toMatchObject({ready:false,chainId:1,diamondCodePresent:true});
+    const noCode=makeProvider(84532,"0x");
+    await expect(inspectPromotionLiveTarget(noCode,"0xdiamond")).resolves.toMatchObject({ready:false,chainId:84532,diamondCodePresent:false});
+
+    const failed={getNetwork:vi.fn().mockRejectedValue(new Error("provider unavailable")),getCode:vi.fn(),destroy:vi.fn().mockResolvedValue(undefined)};
+    await expect(inspectPromotionLiveTarget(failed,"0xdiamond")).resolves.toMatchObject({ready:false,chainId:null,error:"provider unavailable"});
+    expect(failed.destroy).toHaveBeenCalledOnce();
+    const nonError={getNetwork:vi.fn().mockRejectedValue("rpc offline"),getCode:vi.fn(),destroy:vi.fn().mockResolvedValue(undefined)};
+    await expect(inspectPromotionLiveTarget(nonError,"0xdiamond")).resolves.toMatchObject({ready:false,error:"rpc offline"});
+  });
+
   it("classifies only known scenario report summaries",()=>{
     expect(reportClassification(null)).toBe("deeper issue remains");
     expect(reportClassification({summary:"unexpected"})).toBe("deeper issue remains");
