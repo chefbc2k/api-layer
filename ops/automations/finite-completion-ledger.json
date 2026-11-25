@@ -1642,6 +1642,29 @@
             "Receipt replay was idempotent and unchanged.",
             "Disposable Anvil fork was isolated to loopback and stopped after indexer proof."
           ]
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-emergency-withdrawal-methods-proof-2026-11-25.json",
+          "proofArtifactSha256": "c75f3f76aafc0b1df5f4a329f1f9d4e0d00116b3a2a43b909d86b5f897955b96",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "941d612c5417de74ab513c77bc6c065d637ff77d3c9044d1320635c78494c4c0",
+          "result": "Proved EmergencyWithdrawalFacet.requestEmergencyWithdrawal and EmergencyWithdrawalFacet.approveEmergencyWithdrawal in the API emergency-withdrawal workflow on a disposable loopback Base Sepolia fork. The fork funded 1 token unit into custody, requested and approved a withdrawal to the licensed recipient, verified execution and replay rejection, and recorded exact custody/recipient/supply deltas. Three successful receipts were indexed with six raw events, four projections, block journals, and idempotent replay. API-05 advances from 150/260 to 152/260 proven methods, leaving 108 open. EmergencyWithdrawalFacet.executeWithdrawal remains open because approval executes the request and the replay route does not produce a successful executeWithdrawal receipt.",
+          "startingProvenCount": 150,
+          "startingOpenCount": 110,
+          "completedThisRun": 2,
+          "completionPercentOfStart": 1.8182,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 152,
+          "endingOpenCount": 108,
+          "checks": [
+            "Focused fork HTTP integration passed (1 passed, 54 skipped).",
+            "Three successful receipts indexed; six raw events and four PostgreSQL projections verified.",
+            "Request execution and replay rejection plus custody, recipient, and supply deltas matched.",
+            "Receipt replay was idempotent.",
+            "Disposable fork was stopped after indexing."
+          ]
         }
       ],
       "deliveredCommit": null,

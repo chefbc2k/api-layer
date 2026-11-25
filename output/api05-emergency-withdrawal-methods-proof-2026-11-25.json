@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "sourceCommit": null,
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "observation": {
+    "methodKeys": [
+      "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+      "EmergencyWithdrawalFacet.approveEmergencyWithdrawal"
+    ],
+    "requestRoute": "POST /v1/workflows/emergency-withdrawal-sequence",
+    "replayRoute": "POST /v1/emergency/admin/execute-withdrawal",
+    "requestId": "0xef31eb2901c053c62824a2208fca63b0b00f796db8422f7fc45cfe87d23725a0",
+    "requestTransactionHash": "0x45a47c9c4d21ed9605243e8c33cc68e4eac9fe12677a8ff45ffd904cc6169ba1",
+    "approvalTransactionHashes": [
+      "0x6c0dc87eadff14bdc45dca6b60e8d54ec0a2f5d2eb19d93be3829d329d44be49"
+    ],
+    "actor": "founder fixture requester and licensed approver",
+    "amount": "1",
+    "asset": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "recipient": "0x05feAD81911D68f11F3eEff3192E54EF2e378cdA",
+    "custodyDelta": "-1",
+    "recipientDelta": "1",
+    "totalSupplyDelta": "0",
+    "executed": true,
+    "replayRejected": true,
+    "forkScopedFixture": true
+  },
+  "verifiedMethodKeys": [
+    "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+    "EmergencyWithdrawalFacet.approveEmergencyWithdrawal"
+  ],
+  "indexer": {
+    "classification": "proven working",
+    "reports": {
+      "EmergencyWithdrawalFacet.requestEmergencyWithdrawal": {
+        "routes": [
+          "POST /v1/emergency/admin/request-emergency-withdrawal"
+        ],
+        "actors": [
+          "local-fork-fixture"
+        ],
+        "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        "evidence": [
+          {
+            "localFork": true,
+            "methodKey": "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+            "affectedFacet": "EmergencyWithdrawalFacet",
+            "methodSignature": "requestEmergencyWithdrawal(address,uint256,address)",
+            "txHash": "0x45a47c9c4d21ed9605243e8c33cc68e4eac9fe12677a8ff45ffd904cc6169ba1",
+            "blockNumber": 63349329,
+            "receipt": {
+              "status": 1,
+              "logCount": 1
+            },
+            "decodedEvents": [
+              {
+                "rawEventId": "2",
+                "logIndex": 0,
+                "eventKey": "EmergencyWithdrawalFacet.EmergencyWithdrawalRequested(bytes32,address,uint256,address,uint256)"
+              }
+            ],
+            "postgres": {
+              "rawEvents": {
+                "table": "raw_events",
+                "rowCount": 1,
+                "rowIds": [
+                  "2"
+                ]
+              },
+              "projections": [
+                {
+                  "table": "emergency_withdrawals",
+                  "rowCount": 1,
+                  "rowIds": [
+                    "1"
+                  ],
+                  "sourceRawEventIds": [
+                    "2"
+                  ]
+                }
+              ],
+              "blockJournal": {
+                "table": "indexer_blocks",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "block_number": "63349329",
+                    "block_hash": "0xe54a36e20744be58685be47b1ac6629520a36a5a14f947675c2d12fc0dce93b5"
+                  }
+                ]
+              }
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            },
+            "source": {
+              "workflowArtifacts": [
+                ".runtime/api05-emergency-withdrawal-receipts.json"
+              ],
+              "producers": [],
+              "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+            }
+          }
+        ],
+        "finalClassification": "proven working",
+        "classification": "proven working",
+        "result": "proven working"
+      },
+      "EmergencyWithdrawalFacet.approveEmergencyWithdrawal": {
+        "routes": [
+          "POST /v1/emergency/admin/approve-emergency-withdrawal"
+        ],
+        "actors": [
+          "local-fork-fixture"
+        ],
+        "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        "evidence": [
+          {
+            "localFork": true,
+            "methodKey": "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+            "affectedFacet": "EmergencyWithdrawalFacet",
+            "methodSignature": "approveEmergencyWithdrawal(bytes32)",
+            "txHash": "0x6c0dc87eadff14bdc45dca6b60e8d54ec0a2f5d2eb19d93be3829d329d44be49",
+            "blockNumber": 63349330,
+            "receipt": {
+              "status": 1,
+              "logCount": 4
+            },
+            "decodedEvents": [
+              {
+                "rawEventId": "3",
+                "logIndex": 0,
+                "eventKey": "EmergencyWithdrawalFacet.EmergencyWithdrawalApproved(bytes32,address)"
+              },
+              {
+                "rawEventId": "4",
+                "logIndex": 1,
+                "eventKey": "TokenSupplyFacet.Transfer(address,address,uint256)"
+              },
+              {
+                "rawEventId": "5",
+                "logIndex": 2,
+                "eventKey": "EmergencyWithdrawalFacet.EmergencyWithdrawal(address,address,uint256,uint256)"
+              },
+              {
+                "rawEventId": "6",
+                "logIndex": 3,
+                "eventKey": "EmergencyWithdrawalFacet.EmergencyWithdrawalExecuted(bytes32)"
+              }
+            ],
+            "postgres": {
+              "rawEvents": {
+                "table": "raw_events",
+                "rowCount": 4,
+                "rowIds": [
+                  "3",
+                  "4",
+                  "5",
+                  "6"
+                ]
+              },
+              "projections": [
+                {
+                  "table": "emergency_withdrawals",
+                  "rowCount": 3,
+                  "rowIds": [
+                    "2",
+                    "3",
+                    "4"
+                  ],
+                  "sourceRawEventIds": [
+                    "3",
+                    "5",
+                    "6"
+                  ]
+                }
+              ],
+              "blockJournal": {
+                "table": "indexer_blocks",
+                "rowCount": 1,
+                "rows": [
+                  {
+                    "block_number": "63349330",
+                    "block_hash": "0x521d2a179defe23d3afbcb528b1982d1aba816f275c17ba0e18415cf59cdacc9"
+                  }
+                ]
+              }
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            },
+            "source": {
+              "workflowArtifacts": [
+                ".runtime/api05-emergency-withdrawal-receipts.json"
+              ],
+              "producers": [],
+              "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+            }
+          }
+        ],
+        "finalClassification": "proven working",
+        "classification": "proven working",
+        "result": "proven working"
+      }
+    },
+    "artifact": "verify-local-fork-indexer-output.json",
+    "artifactSha256": "941d612c5417de74ab513c77bc6c065d637ff77d3c9044d1320635c78494c4c0"
+  },
+  "verification": {
+    "focusedCurrentSourceTest": "passed; 1 passed, 54 skipped",
+    "transactionHashes": [
+      "0x45a47c9c4d21ed9605243e8c33cc68e4eac9fe12677a8ff45ffd904cc6169ba1",
+      "0x6c0dc87eadff14bdc45dca6b60e8d54ec0a2f5d2eb19d93be3829d329d44be49",
+      "0xdef4db75c8bab7c9b1354df5c60165a76fd345da5b28833ff239b45a476a540e"
+    ],
+    "receiptCount": 3,
+    "rawEvents": 6,
+    "projectionRows": 4,
+    "blockJournalRows": 3,
+    "idempotentReplay": true,
+    "snapshotPreservedOnlyOnDisposableFork": true,
+    "liveForkStateRestored": true
+  },
+  "remainingMethod": "EmergencyWithdrawalFacet.executeWithdrawal",
+  "remainingMethodReason": "The workflow executes withdrawal during the approval transaction; the replay route only prepares/rejects a repeat, so there is no successful executeWithdrawal receipt to count.",
+  "methodCounts": {
+    "startingProven": 150,
+    "startingOpen": 110,
+    "endingProven": 152,
+    "endingOpen": 108,
+    "acceptedMethods": [
+      "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+      "EmergencyWithdrawalFacet.approveEmergencyWithdrawal"
+    ]
+  }
+}

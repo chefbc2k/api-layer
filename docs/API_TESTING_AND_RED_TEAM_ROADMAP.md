@@ -1,3 +1,8 @@
+# API-05 Follow-on — Emergency Withdrawal Request and Approval — 2026-11-25
+
+- Proved `EmergencyWithdrawalFacet.requestEmergencyWithdrawal` and `EmergencyWithdrawalFacet.approveEmergencyWithdrawal` through the emergency-withdrawal HTTP workflow on a disposable loopback fork. The test funded 1 token unit into custody, requested and approved withdrawal, confirmed execution to the licensed recipient, reconciled custody/recipient/supply deltas, and rejected replay. PostgreSQL indexed three successful receipts, six raw events, four projections, and block journals; replay was idempotent.
+- API-05 advances from `150/260` to `152/260`, leaving `108` open. `EmergencyWithdrawalFacet.executeWithdrawal` remains open because approval executes the request and replay produces no successful receipt. Durable evidence: [proof artifact](../output/api05-emergency-withdrawal-methods-proof-2026-11-25.json).
+
 # API-05 Follow-on — Owner-Target Approval Lifecycle — 2026-11-25
 
 - Proved `OwnershipFacet.setApprovedOwnerTarget` through its HTTP command on a disposable loopback fork. The current diamond owner temporarily approved a fresh address and the test restored the initial false value. Canonical and HTTP reads matched both states; both receipts emitted `OwnershipTargetApprovalSet`. PostgreSQL recorded two raw events, `ownership_transfers` projections, and block journals; replay remained idempotent.

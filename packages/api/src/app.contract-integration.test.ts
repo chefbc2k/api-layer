@@ -57,6 +57,7 @@ type ApiResponse = {
 
 const originalEnv = { ...process.env };
 const keepLocalForkAfterContractIntegration = process.env.API_LAYER_KEEP_LOCAL_FORK === "1";
+const preserveForkStateForIndexerProof = process.env.API_LAYER_PRESERVE_FORK_STATE_FOR_INDEXER === "1";
 const ZERO_BYTES32 = `0x${"0".repeat(64)}`;
 const HTTP_API_TIMEOUT_MS = 45_000;
 const SAFE_READ_ATTEMPTS = 4;
@@ -605,6 +606,7 @@ describeLive("HTTP API contract integration", () => {
   const accessControlPauseProofObservations: Array<Record<string, unknown>> = [];
   const degradedModeConfigProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
+  const emergencyWithdrawalProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const ownershipTargetApprovalProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
@@ -1050,6 +1052,7 @@ describeLive("HTTP API contract integration", () => {
         accessControlPauseProofObservations,
         degradedModeConfigProofObservations,
         emergencyTimeoutProofObservations,
+        emergencyWithdrawalProofObservations,
         ownershipPolicyProofObservations,
         ownershipTargetApprovalProofObservations,
         proposalCancellationProofObservations,
@@ -4352,10 +4355,30 @@ describeLive("HTTP API contract integration", () => {
         recipient: BigInt(await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address)),
         totalSupply: BigInt(await tokenSupplyFacet.totalSupply()),
       });
+      emergencyWithdrawalProofObservations.push({
+        methodKeys: ["EmergencyWithdrawalFacet.requestEmergencyWithdrawal", "EmergencyWithdrawalFacet.approveEmergencyWithdrawal"],
+        requestRoute: "POST /v1/workflows/emergency-withdrawal-sequence",
+        replayRoute: "POST /v1/emergency/admin/execute-withdrawal",
+        requestId: withdrawalPayload.request.requestId,
+        requestTransactionHash: withdrawalPayload.request.txHash,
+        approvalTransactionHashes: withdrawalPayload.approvals.map((approval) => approval.txHash),
+        actor: "founder fixture requester and licensed approver",
+        amount: amount.toString(),
+        asset: diamondAddress,
+        recipient: licenseeWallet.address,
+        custodyDelta: (executed.custody - funded.custody).toString(),
+        recipientDelta: (executed.recipient - funded.recipient).toString(),
+        totalSupplyDelta: (executed.totalSupply - funded.totalSupply).toString(),
+        executed: withdrawalPayload.withdrawalState.executed,
+        replayRejected: replay.status !== 202,
+        forkScopedFixture: true,
+      });
       proofCompleted = true;
     } finally {
-      const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
-      if (proofCompleted) {
+      const reverted = preserveForkStateForIndexerProof
+        ? false
+        : await restoreReceiptSnapshot(snapshot).catch(() => false);
+      if (proofCompleted && !preserveForkStateForIndexerProof) {
         expect(reverted).toBe(true);
       }
     }
