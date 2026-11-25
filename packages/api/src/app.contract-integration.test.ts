@@ -1363,6 +1363,7 @@ describeLive("HTTP API contract integration", () => {
 
     const lifecycleReceiptHashes: Record<string, string[]> = {
       createPlan: [],
+      setMaxBeneficiaries: [],
       updateBeneficiary: [],
       setInheritanceConditions: [],
       addInheritanceRequirement: [],
@@ -1388,6 +1389,9 @@ describeLive("HTTP API contract integration", () => {
     };
 
     try {
+      await submit("PATCH", "/v1/voice-assets/commands/set-max-beneficiaries", {
+        max: "10",
+      }, "setMaxBeneficiaries");
       const created = await submit("POST", "/v1/voice-assets/legacy/create-legacy-plan", { memo: "API-05 local proof" }, "createPlan");
       createPlanTxHash = created.hash;
       expect(created.logs.some((log) => {
@@ -3217,6 +3221,10 @@ describeLive("HTTP API contract integration", () => {
     const targetBurnLimit = originalBurnLimit === 2500n ? 2400n : 2500n;
     const targetQuarterlyRate = originalQuarterlyRate === 2000n ? 2500n : 2000n;
     const targetMinDuration = originalMinDuration === 60n * day ? 90n * day : 60n * day;
+    const timewaveConfigurationReceiptHashes: Record<string, string[]> = {
+      setQuarterlyUnlockRate: [],
+      setMinimumTwaveVestingDuration: [],
+    };
 
     await ensureNativeBalance(founderAddress, ethers.parseEther("0.000015"));
     for (const wallet of [licenseeWallet, transfereeWallet, outsiderWallet]) {
@@ -3493,11 +3501,19 @@ describeLive("HTTP API contract integration", () => {
         expect(updatedBurnLimit).toBe(originalBurnLimit);
       }
 
+      const timewaveConfigurationBalances = {
+        founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        licensee: await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address),
+        transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+      };
       const setQuarterlyRateResponse = await apiCall(port, "PATCH", "/v1/tokenomics/commands/set-quarterly-unlock-rate", {
         body: { rate: targetQuarterlyRate.toString() },
       });
       expect(setQuarterlyRateResponse.status).toBe(202);
-      await expectReceipt(extractTxHash(setQuarterlyRateResponse.payload));
+      const setQuarterlyRateTxHash = extractTxHash(setQuarterlyRateResponse.payload);
+      timewaveConfigurationReceiptHashes.setQuarterlyUnlockRate.push(setQuarterlyRateTxHash);
+      await expectReceipt(setQuarterlyRateTxHash);
       await waitFor(
         () => timewaveGiftFacet.getQuarterlyUnlockRate(),
         (value) => value === targetQuarterlyRate,
@@ -3508,12 +3524,20 @@ describeLive("HTTP API contract integration", () => {
         body: { duration: targetMinDuration.toString() },
       });
       expect(setMinDurationResponse.status).toBe(202);
-      await expectReceipt(extractTxHash(setMinDurationResponse.payload));
+      const setMinDurationTxHash = extractTxHash(setMinDurationResponse.payload);
+      timewaveConfigurationReceiptHashes.setMinimumTwaveVestingDuration.push(setMinDurationTxHash);
+      await expectReceipt(setMinDurationTxHash);
       await waitFor(
         () => timewaveGiftFacet.getMinTwaveVestingDuration(),
         (value) => value === targetMinDuration,
         "tokenomics minimum twave duration update",
       );
+      expect({
+        founder: await tokenSupplyFacet.tokenBalanceOf(founderAddress),
+        licensee: await tokenSupplyFacet.tokenBalanceOf(licenseeWallet.address),
+        transferee: await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address),
+        totalSupply: await tokenSupplyFacet.totalSupply(),
+      }).toEqual(timewaveConfigurationBalances);
     } finally {
       const currentTransfereeBalance = await tokenSupplyFacet.tokenBalanceOf(transfereeWallet.address);
       if (currentTransfereeBalance > originalTransfereeBalance) {
@@ -3612,6 +3636,15 @@ describeLive("HTTP API contract integration", () => {
         { attempts: 120 },
       )).toBe(originalMinDuration);
     }
+    const proofDirectory = path.resolve(".runtime");
+    await mkdir(proofDirectory, { recursive: true });
+    await writeFile(path.join(proofDirectory, "api05-timewave-configuration-receipts.json"), `${JSON.stringify({
+      schemaVersion: 1,
+      generatedAt: new Date().toISOString(),
+      status: "proven working",
+      transactionHashes: Object.values(timewaveConfigurationReceiptHashes).flat(),
+      methods: timewaveConfigurationReceiptHashes,
+    }, null, 2)}\n`);
   }, 300_000);
 
   it("proves the reward campaign lifecycle and a funded participant claim on a local fork", async (ctx) => {
@@ -6864,7 +6897,7 @@ describeLive("HTTP API contract integration", () => {
         (entry) => entry.status === 202,
         `workflow create voice ${suffix}`,
       );
-      expect(response.status, `${method} ${route}: ${JSON.stringify(response.payload)}`).toBe(202);
+      expect(response.status, `POST /v1/voice-assets: ${JSON.stringify(response.payload)}`).toBe(202);
       await expectReceipt(extractTxHash(response.payload));
       const voiceHash = String((response.payload as Record<string, unknown>).result);
       const voiceVisibleResponse = await waitFor(
@@ -9381,52 +9414,7 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 120_000);
 
-  it("proves immediate ownership transfer to a reviewed contract target on the local fork", async (ctx) => {
-    if (!isLoopbackRpcUrl(activeRpcUrl)) {
-      ctx.skip();
-      return;
-    }
-    if (await skipWhenFundingBlocked(ctx, "immediate ownership transfer proof", [
-      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
-    ])) return;
 
-    const ownership = new Contract(diamondAddress, facetRegistry.OwnershipFacet.abi, provider);
-    const originalOwner = String(await ownership.owner());
-    const target = String(await paymentFacet.getUsdcToken());
-    expect(originalOwner.toLowerCase()).toBe(founderAddress.toLowerCase());
-    expect(target).not.toBe(ethers.ZeroAddress);
-    expect(await provider.getCode(target)).not.toBe("0x");
-    if (!(await ownership.isOwnerTargetApproved(target))) {
-      const approve = await apiCall(port, "PATCH", "/v1/ownership/commands/set-approved-owner-target", {
-        apiKey: "founder-key",
-        body: { target, approved: true },
-      });
-      expect(approve.status, JSON.stringify(approve.payload)).toBe(202);
-      await expectReceipt(extractTxHash(approve.payload));
-    }
-
-    const transfer = await apiCall(port, "POST", "/v1/ownership/commands/transfer-ownership", {
-      apiKey: "founder-key",
-      body: { _newOwner: target },
-    });
-    expect(transfer.status, JSON.stringify(transfer.payload)).toBe(202);
-    const txHash = extractTxHash(transfer.payload);
-    await expectReceipt(txHash);
-    const receipt = await provider.getTransactionReceipt(txHash);
-    expect(receipt?.status).toBe(1);
-    const transferred = (receipt?.logs ?? []).flatMap((log) => {
-      try {
-        const parsed = ownership.interface.parseLog(log);
-        return parsed?.name === "OwnershipTransferred" ? [parsed] : [];
-      } catch {
-        return [];
-      }
-    });
-    expect(transferred).toHaveLength(1);
-    expect(String(transferred[0]!.args.previousOwner).toLowerCase()).toBe(originalOwner.toLowerCase());
-    expect(String(transferred[0]!.args.newOwner).toLowerCase()).toBe(target.toLowerCase());
-    expect(String(await ownership.owner()).toLowerCase()).toBe(target.toLowerCase());
-  }, 120_000);
 
   it("proves signed single and batch EchoScore updates through HTTP on the local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
@@ -10340,4 +10328,52 @@ describeLive("HTTP API contract integration", () => {
     });
   }, 180_000);
 
+
+  // This scenario intentionally transfers ownership to the USDC contract; keep it last so it cannot contaminate later fork scenarios.
+  it("proves immediate ownership transfer to a reviewed contract target on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "immediate ownership transfer proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const ownership = new Contract(diamondAddress, facetRegistry.OwnershipFacet.abi, provider);
+    const originalOwner = String(await ownership.owner());
+    const target = String(await paymentFacet.getUsdcToken());
+    expect(originalOwner.toLowerCase()).toBe(founderAddress.toLowerCase());
+    expect(target).not.toBe(ethers.ZeroAddress);
+    expect(await provider.getCode(target)).not.toBe("0x");
+    if (!(await ownership.isOwnerTargetApproved(target))) {
+      const approve = await apiCall(port, "PATCH", "/v1/ownership/commands/set-approved-owner-target", {
+        apiKey: "founder-key",
+        body: { target, approved: true },
+      });
+      expect(approve.status, JSON.stringify(approve.payload)).toBe(202);
+      await expectReceipt(extractTxHash(approve.payload));
+    }
+
+    const transfer = await apiCall(port, "POST", "/v1/ownership/commands/transfer-ownership", {
+      apiKey: "founder-key",
+      body: { _newOwner: target },
+    });
+    expect(transfer.status, JSON.stringify(transfer.payload)).toBe(202);
+    const txHash = extractTxHash(transfer.payload);
+    await expectReceipt(txHash);
+    const receipt = await provider.getTransactionReceipt(txHash);
+    expect(receipt?.status).toBe(1);
+    const transferred = (receipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = ownership.interface.parseLog(log);
+        return parsed?.name === "OwnershipTransferred" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(transferred).toHaveLength(1);
+    expect(String(transferred[0]!.args.previousOwner).toLowerCase()).toBe(originalOwner.toLowerCase());
+    expect(String(transferred[0]!.args.newOwner).toLowerCase()).toBe(target.toLowerCase());
+    expect(String(await ownership.owner()).toLowerCase()).toBe(target.toLowerCase());
+  }, 120_000);
 });

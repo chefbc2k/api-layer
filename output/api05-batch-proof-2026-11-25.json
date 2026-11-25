@@ -10,15 +10,15 @@
     "status": "target-met"
   },
   "finalCumulative": {
-    "artifactTransactionHashes": 5801,
-    "includedArtifacts": 32,
+    "artifactTransactionHashes": 6072,
+    "includedArtifacts": 35,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5801,
-    "provenWriteMethods": 185,
+    "indexedReceipts": 6072,
+    "provenWriteMethods": 186,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 75,
-    "rawEvents": 8728,
-    "projectionRows": 5559
+    "remainingWriteMethods": 74,
+    "rawEvents": 9073,
+    "projectionRows": 5717
   },
   "newlyAcceptedMethodKeys": [
     "LegacyFacet.createLegacyPlan",
@@ -50,7 +50,7 @@
   ],
   "methodKeyCount": 26,
   "sourceArtifact": "verify-local-fork-indexer-output.json",
-  "sourceArtifactSha256": "a08fc0c0e33e120e8ed41735a7fb7e148c55e1f96efc857f8c9f6f6a541a05f2",
+  "sourceArtifactSha256": "54ffc79e6d896787ff39a832338b8850d0f636c0d3440383468c8f85809f6436",
   "focusedLocalForkTests": [
     {
       "name": "legacy-plan beneficiary and inheritance lifecycle through HTTP",
@@ -97,5 +97,14 @@
     "sourceOfTruth": "CONTRACTS VoiceFacet checks VOICE_ADMIN_ROLE and changes LegacyStorage.minTimelockPeriod; no getter or token balance effect exists.",
     "correction": "Replaced stale PLATFORM_ADMIN_ROLE and unrelated TimelockFacet.getMinDelay/erc20 balance claims with the actual role, behavioral plan readback, and no-balance-effect invariant.",
     "generatedRegistry": "generated/manifests/write-invariant-registry.json"
+  },
+  "followOnRefresh": {
+    "artifact": "output/api05-legacy-max-beneficiaries-proof-2026-11-25.json",
+    "sourceArtifactSha256": "54ffc79e6d896787ff39a832338b8850d0f636c0d3440383468c8f85809f6436",
+    "newlyAcceptedMethodKeys": [
+      "LegacyFacet.setMaxBeneficiaries"
+    ],
+    "endingOpenMethods": 74,
+    "overallApi05Status": "in_progress"
   }
 }

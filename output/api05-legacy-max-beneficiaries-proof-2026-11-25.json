@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance follow-on",
+  "method": {
+    "methodKey": "LegacyFacet.setMaxBeneficiaries",
+    "route": "PATCH /v1/voice-assets/commands/set-max-beneficiaries",
+    "actor": "local-fork fixture signer with VOICE_ADMIN_ROLE",
+    "signature": "setMaxBeneficiaries(uint256)",
+    "sourceBehavior": "Writes LegacyStorage.layout().maxBeneficiaries directly; the deployed ABI provides no getter or method-specific event.",
+    "readback": "No getter is available; the successful receipt and reviewed contract source are the direct evidence.",
+    "transactions": [
+      {
+        "hash": "0xed7da80ee29f88b206f4fad670bc885d40ec1c41b2d28bbddda52f3a2c6b9ecb",
+        "blockNumber": 63368615,
+        "status": 1,
+        "logCount": 0,
+        "rawEventCount": 0,
+        "projectionCount": 0,
+        "blockJournalRows": 1,
+        "replay": "idempotent; evidence unchanged"
+      },
+      {
+        "hash": "0xb5be29b1b228d3026d4c38504f6a79e36c21e0a5d0d255774dad08540d2724bf",
+        "blockNumber": 63368638,
+        "status": 1,
+        "logCount": 0,
+        "rawEventCount": 0,
+        "projectionCount": 0,
+        "blockJournalRows": 1,
+        "replay": "idempotent; evidence unchanged"
+      }
+    ]
+  },
+  "additionalPolicyEvidence": {
+    "timewaveConfigurationWrites": [
+      {
+        "methodKey": "TimewaveGiftFacet.setQuarterlyUnlockRate",
+        "transactionHash": "0x839cf1228bb2c23135f5c372740e97de83c7ee74341ca07f5e014774f84b9a90",
+        "status": 1,
+        "logCount": 0,
+        "postStateBalanceAndSupplyDeltas": "founder, licensee, transferee, and totalSupply unchanged"
+      },
+      {
+        "methodKey": "TimewaveGiftFacet.setMinimumTwaveVestingDuration",
+        "transactionHash": "0xde91368a339f6d46c40e0efe6968508302299cb01e74d2bd0835c1cf9c4c6b0b",
+        "status": 1,
+        "logCount": 0,
+        "postStateBalanceAndSupplyDeltas": "founder, licensee, transferee, and totalSupply unchanged"
+      }
+    ],
+    "suiteStability": "Ownership-transfer test moved after all tests that need the original owner. Focused order check passed 3/3; fresh-fork suite passed 62/63 before fixing an unrelated undefined-variable diagnostic in the final workflow test; that corrected workflow test then passed 1/1 on a fresh fork."
+  },
+  "indexer": {
+    "classification": "proven working",
+    "sourceArtifact": "verify-local-fork-indexer-output.json",
+    "sourceArtifactSha256": "54ffc79e6d896787ff39a832338b8850d0f636c0d3440383468c8f85809f6436",
+    "cumulative": {
+      "indexedReceipts": 6072,
+      "provenWriteMethods": 186,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 74,
+      "rawEvents": 9073,
+      "projectionRows": 5717
+    }
+  },
+  "accounting": {
+    "startingProvenMethods": 185,
+    "endingProvenMethods": 186,
+    "newlyAcceptedMethodKeys": [
+      "LegacyFacet.setMaxBeneficiaries"
+    ],
+    "endingOpenMethods": 74,
+    "api05Status": "in_progress",
+    "boundedTarget": 26,
+    "completedNewMethods": 1,
+    "boundedTargetMet": false,
+    "remainingEventGapMethods": [
+      "LegacyFacet.addBeneficiary",
+      "LegacyFacet.setBeneficiaryRelationship"
+    ]
+  },
+  "verification": {
+    "focusedLegacyLifecycle": "passed",
+    "ownershipTestOrdering": "passed: 3/3 on fresh fork",
+    "correctedRemainingWorkflow": "passed: 1/1 on fresh fork",
+    "fullSuiteAfterCorrection": "not rerun; immediately prior fresh-fork suite was 62/63 due to a test-reference typo subsequently corrected and independently verified",
+    "hostedCi": "pending for source commit"
+  },
+  "sourceCommit": null
+}

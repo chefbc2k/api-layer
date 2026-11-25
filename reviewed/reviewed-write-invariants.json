@@ -5458,50 +5458,37 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "PLATFORM_ADMIN_ROLE"
+          "VOICE_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable PLATFORM_ADMIN_ROLE privilege for LegacyFacet."
+        "description": "The signer must hold the VOICE_ADMIN_ROLE privilege required by LegacyFacet.setMaxBeneficiaries."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable PLATFORM_ADMIN_ROLE privilege for LegacyFacet."
-        },
-        {
-          "kind": "argument",
-          "description": "Numeric amounts, rates, shares, thresholds, and durations remain within the contract-defined non-zero and upper bounds."
-        },
-        {
-          "kind": "protocol-state",
-          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+          "description": "The signer must hold VOICE_ADMIN_ROLE."
         }
       ],
       "postStateReadbacks": {
-        "mode": "required",
-        "checks": [
-          {
-            "method": "VoiceAssetFacet.getMaxRoyaltyRate",
-            "assertion": "VoiceAssetFacet.getMaxRoyaltyRate reflects the receipt-confirmed LegacyFacet.setMaxBeneficiaries transition for the affected identifiers and actor."
-          }
-        ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "mode": "none",
+        "checks": [],
+        "rationale": "Legacy storage has no getter for maxBeneficiaries. Source review confirms the successful call assigns this configuration field directly; receipt status is the only direct on-chain observation available through the deployed ABI."
       },
       "emittedEvents": {
         "mode": "none",
         "events": [],
-        "rationale": "The reviewed ABI exposes no method-specific event for setMaxBeneficiaries; receipt and state readbacks are authoritative."
+        "rationale": "The reviewed ABI exposes neither a method-specific event nor a getter for maxBeneficiaries; receipt status and source review are authoritative."
       },
       "balanceEffects": {
         "mode": "none",
         "effects": [],
-        "rationale": "This write changes protocol configuration or lifecycle state without moving an asset balance."
+        "rationale": "Source review confirms this method only writes the legacy beneficiary limit and performs no token or asset calls."
       },
       "replayConstraints": {
         "mode": "idempotent",
         "keyFields": [
           "max"
         ],
-        "assertion": "Repeating the same target state either leaves state unchanged or reverts without additional balance, event-projection, or lifecycle effects."
+        "assertion": "Repeating the same maximum leaves the configured value unchanged and produces no balance or event-projection effects."
       },
       "liveNetworkSafety": {
         "classification": "fork-only",
@@ -5512,7 +5499,7 @@
         "mode": "none",
         "events": [],
         "projections": [],
-        "assertion": "No method-specific ABI event is available; consumers must reconcile from receipt status and post-state reads."
+        "assertion": "No method-specific ABI event or projection is available; indexer acceptance requires the successful receipt without fabricating a projection."
       }
     },
     "LegacyFacet.setMinTimelockPeriod": {
@@ -11897,10 +11884,6 @@
           "description": "Numeric amounts, rates, shares, thresholds, and durations remain within the contract-defined non-zero and upper bounds."
         },
         {
-          "kind": "funding",
-          "description": "Required balances, allowances, escrow, caps, and protocol liquidity are sufficient before submission."
-        },
-        {
           "kind": "protocol-state",
           "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
         }
@@ -11921,20 +11904,9 @@
         "rationale": "The reviewed ABI exposes no method-specific event for setMinimumTwaveVestingDuration; receipt and state readbacks are authoritative."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "transfer",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "Source review confirms this method only updates the minimum vesting-duration configuration and makes no token calls."
       },
       "replayConstraints": {
         "mode": "idempotent",
