@@ -286,7 +286,7 @@
     "writeInvariantTests": "passed; 7/7",
     "codegenAndCoverage": "passed; 492 functions, 218 events, 260/260 reviewed write invariants",
     "fullLocalForkAssurance": "passed; 12/12 stages with one structured safe-read gap",
-    "sourceCi": "pending",
+    "sourceCi": "passed; all configured gates succeeded",
     "sourceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45565290774"
   },
   "methodCounts": {
