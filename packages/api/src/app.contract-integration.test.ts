@@ -598,6 +598,7 @@ describeLive("HTTP API contract integration", () => {
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
   const confirmedTransactionHashes = new Set<string>();
   const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
+  const oracleQuorumSignersProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
@@ -1021,6 +1022,7 @@ describeLive("HTTP API contract integration", () => {
         rolledBackReceiptObservations,
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
         oracleFutureDriftProofObservations,
+        oracleQuorumSignersProofObservations,
         emergencyTimeoutProofObservations,
         ownershipPolicyProofObservations,
         proposalCancellationProofObservations,
@@ -8245,6 +8247,104 @@ describeLive("HTTP API contract integration", () => {
         canonicalReadbackMatched: true,
         httpReadbackMatched: true,
         finalValueRestored: true,
+      });
+    }
+  }, 180_000);
+
+  it("proves oracle quorum signer configuration through HTTP on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "oracle quorum signer receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
+    const governanceRole = id("GOVERNANCE_ROLE");
+    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const original = await oracle.getOracleQuorumSigners();
+    const originalSigners = Array.from(original.signers as string[]).map((address) => ethers.getAddress(address));
+    const originalThreshold = BigInt(original.threshold);
+    expect(originalSigners.length).toBeGreaterThan(0);
+    expect(originalThreshold).toBeGreaterThan(0n);
+    expect(originalThreshold).toBeLessThanOrEqual(BigInt(originalSigners.length));
+    const addedSigner = ethers.getAddress(Wallet.createRandom().address);
+    expect(originalSigners.some((address) => address.toLowerCase() === addedSigner.toLowerCase())).toBe(false);
+    const targetSigners = [...originalSigners, addedSigner];
+    let updateTransactionHash: string | null = null;
+    let restoreTransactionHash: string | null = null;
+
+    const submit = async (signers: string[], threshold: bigint) => {
+      const response = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-quorum-signers", {
+        apiKey: "founder-key",
+        body: { signers, threshold: threshold.toString() },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      const events = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = oracle.interface.parseLog(log);
+          return parsed?.name === "OracleQuorumConfigUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(events).toHaveLength(1);
+      expect(Array.from(events[0]!.args.signers as string[]).map((address) => address.toLowerCase()))
+        .toEqual(signers.map((address) => address.toLowerCase()));
+      expect(BigInt(events[0]!.args.threshold)).toBe(threshold);
+      const canonical = await oracle.getOracleQuorumSigners();
+      expect(Array.from(canonical.signers as string[]).map((address) => address.toLowerCase()))
+        .toEqual(signers.map((address) => address.toLowerCase()));
+      expect(BigInt(canonical.threshold)).toBe(threshold);
+      // The generated tuple query has a five-second response cache.
+      await delay(6_000);
+      const httpReadback = await apiCall(port, "POST", "/v1/staking/queries/get-oracle-quorum-signers", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(httpReadback.status).toBe(200);
+      const httpTuple = httpReadback.payload as [string[], string];
+      expect(httpTuple[0].map((address) => address.toLowerCase())).toEqual(signers.map((address) => address.toLowerCase()));
+      expect(httpTuple[1]).toBe(threshold.toString());
+      return txHash;
+    };
+
+    try {
+      updateTransactionHash = await submit(targetSigners, originalThreshold);
+    } finally {
+      const current = await oracle.getOracleQuorumSigners();
+      const currentSigners = Array.from(current.signers as string[]).map((address) => ethers.getAddress(address));
+      const currentThreshold = BigInt(current.threshold);
+      if (currentSigners.length !== originalSigners.length || currentThreshold !== originalThreshold
+        || currentSigners.some((address, index) => address.toLowerCase() !== originalSigners[index]?.toLowerCase())) {
+        restoreTransactionHash = await submit(originalSigners, originalThreshold);
+      }
+      const final = await oracle.getOracleQuorumSigners();
+      expect(Array.from(final.signers as string[]).map((address) => address.toLowerCase()))
+        .toEqual(originalSigners.map((address) => address.toLowerCase()));
+      expect(BigInt(final.threshold)).toBe(originalThreshold);
+      oracleQuorumSignersProofObservations.push({
+        methodKey: "EchoScoreFacetV3.setOracleQuorumSigners",
+        route: "PATCH /v1/staking/commands/set-oracle-quorum-signers",
+        actor: "founder fixture signer with GOVERNANCE_ROLE",
+        originalSigners,
+        originalThreshold: originalThreshold.toString(),
+        targetSigners,
+        targetThreshold: originalThreshold.toString(),
+        updateTransactionHash,
+        restoreTransactionHash,
+        event: "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)",
+        updateCanonicalReadbackMatched: true,
+        updateHttpReadbackMatched: true,
+        restoreCanonicalReadbackMatched: true,
+        restoreHttpReadbackMatched: true,
+        finalValueRestored: true,
+        forkScopedFixture: true,
       });
     }
   }, 180_000);
