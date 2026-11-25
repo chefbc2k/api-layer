@@ -1914,6 +1914,30 @@
             "Hosted API quality CI run 45592833022 passed every configured gate on documentation/evidence commit 0a1e91b9e43ebcda0afac0392ffe166dc7ecd356. The parent implementation commit 4bf2eed107c96338ee1168a1de9eef7a541a896b also passed run 45591134910."
           ],
           "resultLimitation": "The bounded batch added 26 methods and the follow-on added one method. The ledger proves 186/260 exact methods, leaving 74 open. The follow-on's one-of-75 incremental batch is below its 19-method target. API-05 remains in_progress; LegacyFacet.addBeneficiary and LegacyFacet.setBeneficiaryRelationship remain open because their receipts omit the reviewed BeneficiaryUpdated event."
+        },
+        {
+          "sourceCommit": "pending",
+          "artifact": "output/api05-legacy-beneficiary-event-gap-2026-11-25.json",
+          "proofArtifactSha256": "6c28d76199cca9fc8f011c947efc849ad58587b5c3c252f15d6a0d32adc407c3",
+          "result": "Revalidated the two legacy beneficiary methods through mounted HTTP on a disposable loopback fork. Both receipts succeeded and direct state readbacks passed immediately after each write, but the PostgreSQL receipt verifier rejected both because the deployed facet omitted the declared BeneficiaryUpdated event. A separate isolated CONTRACTS branch adds the missing event emission and passes the LegacyFacet Foundry suite; deployment and exact HTTP/PostgreSQL/replay verification are still required, so API-05 remains at 186/260 with 74 open.",
+          "startingProvenCount": 186,
+          "startingOpenCount": 74,
+          "completedThisRun": 0,
+          "endingProvenCount": 186,
+          "endingOpenCount": 74,
+          "checks": [
+            "Focused local-fork HTTP integration passed: one selected test; 62 unrelated cases skipped. Exact routes and transaction hashes are in the proof artifact.",
+            "Receipt indexer run returned missing declared events for LegacyFacet.addBeneficiary and LegacyFacet.setBeneficiaryRelationship; neither method was credited.",
+            "CONTRACTS branch codex/api05-legacy-beneficiary-events-20261125 commit 02d68ddcb3ded99f1138af7b68d22b8b1dd41eed passed forge test --match-path test/foundry/voice/LegacyFacet.t.sol (8/8) and forge fmt --check.",
+            "Exact-head API quality CI run 45594009419 passed every configured gate on predecessor API source commit 89a8f2cb75bf39f14765541552ba68b5ee2a8b15; the modified proof and contract patch are not represented by that CI run."
+          ],
+          "contractPatch": {
+            "repository": "CONTRACTS",
+            "branch": "codex/api05-legacy-beneficiary-events-20261125",
+            "commit": "02d68ddcb3ded99f1138af7b68d22b8b1dd41eed",
+            "deliveryStatus": "local isolated branch; not deployed"
+          },
+          "resultLimitation": "API state assertions are stronger, but event/indexer acceptance remains blocked until the contract fix is deployed to a disposable fork and exact API receipts index with idempotent replay."
         }
       ],
       "deliveredCommit": null,

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 Legacy beneficiary event gap revalidation",
+  "status": "open",
+  "sourceCommit": "pending",
+  "methods": [
+    {
+      "methodKey": "LegacyFacet.addBeneficiary",
+      "route": "POST /v1/voice-assets/commands/add-beneficiary",
+      "transactionHash": "0x3d95d5e4e7a136c7db5a17bff0b29d0c2c06bf21b6229440fa7b41ad9be8c386",
+      "receiptStatus": 1,
+      "stateReadback": "Immediately after the HTTP receipt, getLegacyPlan returned one beneficiary with the requested account, 6,000 share units, and canDelegate=true.",
+      "indexerResult": "Not accepted: the event/indexer verifier reported missing declared event LegacyFacet.BeneficiaryUpdated."
+    },
+    {
+      "methodKey": "LegacyFacet.setBeneficiaryRelationship",
+      "route": "PATCH /v1/voice-assets/commands/set-beneficiary-relationship",
+      "transactionHash": "0x3fa2499595ffd023dde5cd7a28bd9e456df1cd5d725ff0cd828f76a2737fca10",
+      "receiptStatus": 1,
+      "stateReadback": "Immediately after the HTTP receipt, getLegacyPlan returned the requested relationship, with account, share units, and canDelegate unchanged.",
+      "indexerResult": "Not accepted: the event/indexer verifier reported missing declared event LegacyFacet.BeneficiaryUpdated."
+    }
+  ],
+  "apiVerification": {
+    "command": "API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t 'proves the legacy-plan beneficiary and inheritance lifecycle through HTTP' --maxWorkers 1",
+    "result": "passed: 1 test; 62 unrelated tests skipped",
+    "scope": "The existing test now records each receipt hash and asserts the direct contract state immediately after each exact mounted write."
+  },
+  "indexerVerification": {
+    "command": "RPC_URL=http://127.0.0.1:8548 CBDP_RPC_URL=http://127.0.0.1:8548 DIAMOND_ADDRESS=0xa14088AcbF0639EF1C3655768a3001E6B8DC9669 API_LAYER_INDEXER_PROOF_ARTIFACTS=.runtime/api05-legacy-addBeneficiary-receipts.json,.runtime/api05-legacy-setBeneficiaryRelationship-receipts.json pnpm exec tsx scripts/run-local-fork-indexer-proof.ts",
+    "result": "failed acceptance as expected: missing declared BeneficiaryUpdated events for both receipts",
+    "interpretation": "The HTTP writes and direct post-state assertions succeeded on an isolated loopback fork. The deployment emits no logs for these writes, so exact event/indexer acceptance remains open."
+  },
+  "contractFix": {
+    "repository": "CONTRACTS",
+    "branch": "codex/api05-legacy-beneficiary-events-20261125",
+    "sourceCommit": "02d68ddcb3ded99f1138af7b68d22b8b1dd41eed",
+    "changes": "LegacyFacet.addBeneficiary and setBeneficiaryRelationship now emit the already-declared BeneficiaryUpdated event with the beneficiary's share amount.",
+    "verification": "forge test --match-path test/foundry/voice/LegacyFacet.t.sol: 8 passed; forge fmt --check passed.",
+    "deliveryState": "Local isolated contract branch only; not deployed or delivered to the API default branch."
+  },
+  "acceptance": {
+    "acceptedMethods": 0,
+    "openMethods": [
+      "LegacyFacet.addBeneficiary",
+      "LegacyFacet.setBeneficiaryRelationship"
+    ],
+    "requiredNextEvidence": "Deploy the contract patch into a disposable API proof fork, rerun the exact mounted HTTP writes, and prove event decoding, PostgreSQL persistence, and unchanged replay before incrementing API-05."
+  }
+}

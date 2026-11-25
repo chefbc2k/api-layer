@@ -1364,6 +1364,8 @@ describeLive("HTTP API contract integration", () => {
     const lifecycleReceiptHashes: Record<string, string[]> = {
       createPlan: [],
       setMaxBeneficiaries: [],
+      addBeneficiary: [],
+      setBeneficiaryRelationship: [],
       updateBeneficiary: [],
       setInheritanceConditions: [],
       addInheritanceRequirement: [],
@@ -1452,10 +1454,20 @@ describeLive("HTTP API contract integration", () => {
 
       await submit("POST", "/v1/voice-assets/commands/add-beneficiary", {
         account: beneficiary, share: "6000", canDelegate: true,
-      });
+      }, "addBeneficiary");
+      const planAfterAddBeneficiary = await legacyView.getLegacyPlan(owner.address);
+      expect(planAfterAddBeneficiary.beneficiaries).toHaveLength(1);
+      expect(planAfterAddBeneficiary.beneficiaries[0].account).toBe(beneficiary);
+      expect(planAfterAddBeneficiary.beneficiaries[0].sharePercentage).toBe(6000n);
+      expect(planAfterAddBeneficiary.beneficiaries[0].canDelegate).toBe(true);
       await submit("PATCH", "/v1/voice-assets/commands/set-beneficiary-relationship", {
         account: beneficiary, relationship: "sibling",
-      });
+      }, "setBeneficiaryRelationship");
+      const planAfterRelationship = await legacyView.getLegacyPlan(owner.address);
+      expect(planAfterRelationship.beneficiaries[0].account).toBe(beneficiary);
+      expect(planAfterRelationship.beneficiaries[0].sharePercentage).toBe(6000n);
+      expect(planAfterRelationship.beneficiaries[0].relationship).toBe("sibling");
+      expect(planAfterRelationship.beneficiaries[0].canDelegate).toBe(true);
       const beneficiaryUpdate = {
         sharePercentage: "6000", activationTime: "0", account: beneficiary,
         isActive: true, canDelegate: true, relationship: "sibling",
