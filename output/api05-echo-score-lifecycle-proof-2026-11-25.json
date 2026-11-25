@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "sourceCommit": "c83f869eb1e808110807b8718a6b7b0303df6e91",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "methods": [
+    {
+      "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+      "signature": "setOracleQuorumSigners(address[],uint256)",
+      "route": "PATCH /v1/staking/commands/set-oracle-quorum-signers",
+      "actor": "founder fixture signer with PLATFORM_ADMIN_ROLE",
+      "startingState": {
+        "signers": [
+          "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+          "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+          "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+          "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+          "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+        ],
+        "threshold": "3"
+      },
+      "targetState": {
+        "signers": [
+          "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+          "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+          "0x0C14d2fbd9Cf0A537A8e8fC38e8da005D00A1709",
+          "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+          "0x38715AB647049A755810B2eEcf29eE79CcC649BE",
+          "0xE61EA1f7805f738Fd86bff74f5d8DA4eD35Dad59"
+        ],
+        "threshold": "3"
+      },
+      "finalStateRestored": true,
+      "status": "strengthened existing proof"
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.pauseEchoScoreV3",
+      "signature": "pauseEchoScoreV3()",
+      "route": "POST /v1/staking/commands/pause-echo-score-v3",
+      "actor": "founder fixture signer with PLATFORM_ADMIN_ROLE",
+      "initialState": false,
+      "targetState": true,
+      "finalState": false,
+      "event": "EchoScoreFacetV3.Paused(address)",
+      "status": "proven working"
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.unpauseEchoScoreV3",
+      "signature": "unpauseEchoScoreV3()",
+      "route": "POST /v1/staking/commands/unpause-echo-score-v3",
+      "actor": "founder fixture signer with PLATFORM_ADMIN_ROLE",
+      "initialState": true,
+      "targetState": false,
+      "finalState": false,
+      "event": "EchoScoreFacetV3.Unpaused(address)",
+      "status": "proven working"
+    }
+  ],
+  "receipts": [
+    {
+      "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+      "purpose": "update quorum signer configuration",
+      "transactionHash": "0xe139565463a8e13fcdba653d2d56df098b1cd1a0f3b81129ca7ac71b3a27ea57",
+      "blockNumber": 63296979,
+      "blockHash": "0xae4513e8bec9daa7988f648277d71dfbad28a39ef997de0471eebbdf7b847e29",
+      "status": 1,
+      "event": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)",
+      "rawEventId": "272",
+      "postgres": {
+        "rawEvents": 1,
+        "blockJournalRows": 1,
+        "projectionRows": 0
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+      "purpose": "restore original quorum signer configuration",
+      "transactionHash": "0xa76f6e753c15b340f7034f0025d51e1e7e4ee736d0150194d1ad7733dff00fed",
+      "blockNumber": 63296980,
+      "blockHash": "0x5ed43692c2e47ce6b5428f75d210b60f164bb61c79c8ee80a620b433ba43da1b",
+      "status": 1,
+      "event": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)",
+      "rawEventId": "273",
+      "postgres": {
+        "rawEvents": 1,
+        "blockJournalRows": 1,
+        "projectionRows": 0
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.pauseEchoScoreV3",
+      "transactionHash": "0x8ad7c68bcec65de2889b111db91eaf1e88534d1b0388b5118da8e5f8709ae54a",
+      "blockNumber": 63296981,
+      "blockHash": "0xacc85607b1a81f4f102291c351224cc8a07c4abed71c994d38308fa7eb353ccf",
+      "status": 1,
+      "event": "EchoScoreFacetV3.Paused(address)",
+      "rawEventId": "274",
+      "postgres": {
+        "rawEvents": 1,
+        "blockJournalRows": 1,
+        "projectionRows": 0
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    },
+    {
+      "methodKey": "EchoScoreFacetV3.unpauseEchoScoreV3",
+      "transactionHash": "0xc94dbe9d9d8efe6d2f658ce8634b23a0532c8c5a503df184147e5d704fec14b6",
+      "blockNumber": 63296982,
+      "blockHash": "0x0f32daff18835749f589a239a557cff72431b28d34eda64d51f43d5d743ba910",
+      "status": 1,
+      "event": "EchoScoreFacetV3.Unpaused(address)",
+      "rawEventId": "275",
+      "postgres": {
+        "rawEvents": 1,
+        "blockJournalRows": 1,
+        "projectionRows": 0
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    }
+  ],
+  "readbacks": {
+    "quorumUpdateEventAndCanonicalReadbackMatched": true,
+    "quorumUpdateHttpReadbackMatched": true,
+    "quorumRestoreEventAndCanonicalReadbackMatched": true,
+    "quorumRestoreHttpReadbackMatched": true,
+    "pauseCanonicalAndHttpReadbacksMatched": true,
+    "unpauseCanonicalAndHttpReadbacksMatched": true,
+    "originalQuorumConfigRestored": true,
+    "initialPauseStateRestored": true
+  },
+  "cumulative": {
+    "startingProvenMethods": 144,
+    "catalogMethods": 260,
+    "remainingBefore": 116,
+    "completedThisRun": 2,
+    "completionPercentOfStart": 1.7241,
+    "provenMethods": 146,
+    "remainingMethods": 114,
+    "indexedReceipts": 4890,
+    "rawEvents": 7414,
+    "projectionRows": 4769
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "reportSha256": "ea2056ccc79ec3e2142cb64a80ac16adae75930e8f53ed17c0b5f1d1e8e7c51c",
+    "reportPath": ".runtime/api05-echo-score-lifecycle-assurance.json (ephemeral local report; checksum preserved)",
+    "stagesPassed": 12,
+    "contractIntegrationTestsPassed": 51,
+    "safeReads": {
+      "passed": 445,
+      "attempted": 446,
+      "knownGap": "ProposalFacet.queue"
+    },
+    "checks": [
+      "The 51/51 local-fork contract integration suite passed, including the quorum reproof and pause/resume round trip.",
+      "The founder fixture held PLATFORM_ADMIN_ROLE, matching EchoScoreFacetV3's onlyAdmin authorization for quorum configuration, pause, and unpause.",
+      "The pause and unpause receipts emitted the expected events and direct/HTTP paused-state reads matched; the initial unpaused state was restored.",
+      "PostgreSQL stored one raw event and one block-journal row per receipt, no projection rows for the raw-event-only invariant, and unchanged replay was idempotent.",
+      "Pinned code generation passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
+      "All 12 assurance stages passed; the pre-existing ProposalFacet.queue safe-read fixture gap remains.",
+      "Hosted API quality CI run 45548791158 passed all configured gates on source commit c83f869eb1e808110807b8718a6b7b0303df6e91."
+    ]
+  },
+  "resultLimitation": "This run completed 2 of the 116 open methods (1.7241%), below the bounded target of 35; API-05 remains in_progress with 114 methods open.",
+  "indexerArtifact": "verify-local-fork-indexer-output.json",
+  "indexerArtifactSha256": "0cd234560f5ebc49c0060d05b89b7f60fcb06430a03ffb7d7e35e04dee63d4ca",
+  "ciRunId": 45548791158,
+  "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45548791158",
+  "ciCommit": "c83f869eb1e808110807b8718a6b7b0303df6e91",
+  "ciConclusion": "success"
+}

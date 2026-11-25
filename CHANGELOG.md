@@ -1,3 +1,10 @@
+# 2026-11-25 — Prove EchoScore oracle pause lifecycle
+
+- Corrected the reviewed EchoScore admin invariants to require `PLATFORM_ADMIN_ROLE` and the unpause post-state check to use `isEchoScorePausedV3`. Added a fork-only HTTP receipt proof for `pauseEchoScoreV3` and `unpauseEchoScoreV3`; the expected events and direct/HTTP reads matched, and the original unpaused state was restored. Reproved quorum signer configuration with the corrected role.
+- PostgreSQL stored each receipt's raw event and block journal without fabricated projections; replay was unchanged and idempotent. Full local-fork assurance passed all 12 stages and all `51/51` contract integration tests; the known `ProposalFacet.queue` safe-read gap remains (`445/446`).
+- API-05 advances from `144/260` to `146/260` distinct proven write methods, leaving `114` open. This run completed `2` of `116` open methods (`1.7241%`), below the bounded target of `35`; API-05 remains `in_progress`.
+- Durable proof: [EchoScore lifecycle proof](output/api05-echo-score-lifecycle-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). Source commit `c83f869eb1e808110807b8718a6b7b0303df6e91` passed hosted API quality CI [45548791158](https://github.com/chefbc2k/api-layer/actions/runs/45548791158).
+
 # 2026-11-25 — Prove oracle quorum signer indexing
 
 - Added exact loopback-fork API proof for `EchoScoreFacetV3.setOracleQuorumSigners` through `PATCH /v1/staking/commands/set-oracle-quorum-signers`. The founder fixture signer with `GOVERNANCE_ROLE` added a distinct signer, verified the emitted `OracleQuorumConfigUpdated` event and canonical/HTTP readbacks, then restored the original five signers and threshold of three.

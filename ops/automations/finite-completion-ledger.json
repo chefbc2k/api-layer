@@ -1475,6 +1475,37 @@
           "evidenceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45546064595",
           "evidenceCiCommit": "bb0ed0b4578b1ad5f2aef388514231d04713434c",
           "evidenceCiConclusion": "success"
+        },
+        {
+          "sourceCommit": "c83f869eb1e808110807b8718a6b7b0303df6e91",
+          "artifact": "output/api05-echo-score-lifecycle-proof-2026-11-25.json",
+          "proofArtifactSha256": "fe1117019dafc1be0b62ead111a2528f42d6967226b528f60366e63ccda142f0",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "0cd234560f5ebc49c0060d05b89b7f60fcb06430a03ffb7d7e35e04dee63d4ca",
+          "result": "Corrected EchoScoreFacetV3 administrator invariants to require PLATFORM_ADMIN_ROLE and corrected unpauseEchoScoreV3 post-state to check isEchoScorePausedV3. Added fork-only HTTP receipt proofs for pauseEchoScoreV3 and unpauseEchoScoreV3: the founder fixture signer paused then resumed EchoScore V3, matching the Paused and Unpaused events plus direct and HTTP state reads, and restored the initial unpaused state. PostgreSQL stored each raw event and block journal with no fabricated projections; replay was unchanged and idempotent. Reproved setOracleQuorumSigners with PLATFORM_ADMIN_ROLE. API-05 advances from 144/260 to 146/260 proven methods, leaving 114 open.",
+          "startingProvenCount": 144,
+          "startingOpenCount": 116,
+          "completedThisRun": 2,
+          "completionPercentOfStart": 1.7241,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 146,
+          "endingOpenCount": 114,
+          "assuranceReportSha256": "ea2056ccc79ac3e2142cb64a80ac16adae75930e8f53ed17c0b5f1d1e8e7c51c",
+          "assuranceReportPath": ".runtime/api05-echo-score-lifecycle-assurance.json (ephemeral local report; checksum preserved)",
+          "checks": [
+            "All 12 local-fork assurance stages passed; the 51-test HTTP contract integration suite passed 51/51. The known ProposalFacet.queue safe-read fixture gap remains (445/446).",
+            "The pause and unpause calls each returned a status-1 receipt with the expected event; the direct paused-state getter and HTTP readback matched true after pause and false after resume, restoring the initial state.",
+            "Pause receipt 0x8ad7c68bcec65de2889b111db91eaf1e88534d1b0388b5118da8e5f8709ae54a at block 63296981 emitted raw event 274; unpause receipt 0xc94dbe9d9d8efe6d2f658ce8634b23a0532c8c5a503df184147e5d704fec14b6 at block 63296982 emitted raw event 275. PostgreSQL stored raw_events and indexer_blocks rows with zero projections; both replays were unchanged and idempotent.",
+            "Quorum update receipt 0xe139565463a8e13fcdba653d2d56df098b1cd1a0f3b81129ca7ac71b3a27ea57 and restoration receipt 0xa76f6e753c15b340f7034f0025d51e1e7e4ee736d0150194d1ad7733dff00fed emitted OracleQuorumConfigUpdated; canonical and HTTP reads matched the target and restored signer configuration.",
+            "Pinned code generation passed with 492 functions, 218 events, and 260/260 reviewed write invariants.",
+            "Hosted API quality CI run 45548791158 passed all 26 configured workflow steps on source commit c83f869eb1e808110807b8718a6b7b0303df6e91."
+          ],
+          "resultLimitation": "This run completed 2 of the 116 open methods (1.7241%), below the bounded target of 35; API-05 remains in_progress with 114 methods open.",
+          "ciRunId": 45548791158,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45548791158",
+          "ciCommit": "c83f869eb1e808110807b8718a6b7b0303df6e91",
+          "ciConclusion": "success"
         }
       ],
       "deliveredCommit": null,

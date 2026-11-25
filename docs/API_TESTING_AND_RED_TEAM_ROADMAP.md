@@ -1,3 +1,10 @@
+# API-05 Follow-on — EchoScore Pause Lifecycle Proof — 2026-11-25
+
+- Corrected the reviewed EchoScore admin invariants to require `PLATFORM_ADMIN_ROLE` and corrected `unpauseEchoScoreV3` to require a false `isEchoScorePausedV3` post-state. Added exact loopback-fork proof for `pauseEchoScoreV3` and `unpauseEchoScoreV3` through their HTTP routes. The founder fixture signer paused then resumed EchoScore V3; both receipts emitted the expected events and direct/HTTP reads matched, restoring the initial unpaused state. Reproved `setOracleQuorumSigners` with an explicit `PLATFORM_ADMIN_ROLE` assertion.
+- PostgreSQL recorded raw events and `indexer_blocks` rows with no fabricated projections; replay was unchanged and idempotent. All 12 local-fork assurance stages passed; safe reads passed `445/446` with the known `ProposalFacet.queue` fixture gap, and the contract integration suite passed `51/51`.
+- API-05 advances from `144/260` to `146/260` exact-method proofs, leaving `114` open. This run completed `2` of `116` open methods (`1.7241%`), below the bounded target of `35`; API-05 remains `in_progress`.
+- Durable proof: [EchoScore lifecycle proof](../output/api05-echo-score-lifecycle-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json), and local-fork assurance report (SHA-256 `ea2056ccc79ac3e2142cb64a80ac16adae75930e8f53ed17c0b5f1d1e8e7c51c`). Source commit `c83f869eb1e808110807b8718a6b7b0303df6e91` passed hosted API quality CI [45548791158](https://github.com/chefbc2k/api-layer/actions/runs/45548791158).
+
 # API-05 Follow-on — Oracle Quorum Signer Proof — 2026-11-25
 
 - Added exact loopback-fork proof for `EchoScoreFacetV3.setOracleQuorumSigners` through `PATCH /v1/staking/commands/set-oracle-quorum-signers`. The founder fixture signer with `GOVERNANCE_ROLE` added a distinct quorum signer while preserving threshold `3`, then restored the original five-signer configuration. Both receipts emitted `OracleQuorumConfigUpdated`; event arguments, canonical state, and HTTP reads matched after update and restoration.
