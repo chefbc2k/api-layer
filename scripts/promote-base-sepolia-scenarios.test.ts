@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { tmpdir } from "node:os";
@@ -14,6 +14,7 @@ import {
   inspectPromotionLiveTarget,
   reportClassification,
   resolvePromotionEnvPath,
+  runPromotion,
   runCommand,
   safeBigInt,
   scenarioGate,
@@ -187,6 +188,34 @@ describe("Base Sepolia promotion report decisions",()=>{
 });
 
 describe("Base Sepolia promotion CLI safety",()=>{
+  it("runs the read-only preflight with an injected provider and writes only to the requested path",async()=>{
+    const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-preflight-"));
+    const envPath=path.join(isolatedCwd,"promotion.env");const outputPath=path.join(isolatedCwd,"report.json");
+    const previousExitCode=process.exitCode;
+    try {
+      writeFileSync(envPath,Object.entries(readyEnv()).map(([key,value])=>`${key}=${value}`).join("\n"));
+      const provider={getNetwork:vi.fn().mockResolvedValue({chainId:84532n}),getCode:vi.fn().mockResolvedValue("0x6000"),destroy:vi.fn().mockResolvedValue(undefined)};
+      await runPromotion({envPath,outputPath,argv:["--preflight"],providerFactory:()=>provider});
+      const report=JSON.parse(readFileSync(outputPath,"utf8"));
+      expect(report).toMatchObject({liveTarget:{checked:true,chainId:84532,diamondCodePresent:true,error:null},finalClassification:"semantically clarified but not fully proven"});
+      expect(provider.getCode).toHaveBeenCalledWith(readyEnv().DIAMOND_ADDRESS);expect(provider.destroy).toHaveBeenCalledOnce();
+    } finally {process.exitCode=previousExitCode;rmSync(isolatedCwd,{recursive:true,force:true});}
+  });
+
+  it("writes a blocked report when the live target is wrong and restores the process exit code",async()=>{
+    const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-wrong-target-"));
+    const envPath=path.join(isolatedCwd,"promotion.env");const outputPath=path.join(isolatedCwd,"report.json");
+    const previousExitCode=process.exitCode;
+    try {
+      writeFileSync(envPath,Object.entries(readyEnv()).map(([key,value])=>`${key}=${value}`).join("\n"));
+      const provider={getNetwork:vi.fn().mockResolvedValue({chainId:1}),getCode:vi.fn().mockResolvedValue("0x6000"),destroy:vi.fn().mockResolvedValue(undefined)};
+      await runPromotion({envPath,outputPath,argv:["--preflight"],providerFactory:()=>provider});
+      const report=JSON.parse(readFileSync(outputPath,"utf8"));
+      expect(report).toMatchObject({readiness:{status:"blocked"},liveTarget:{checked:true,chainId:1,diamondCodePresent:true},finalClassification:"blocked by setup/state"});
+      expect(process.exitCode).toBe(2);expect(provider.destroy).toHaveBeenCalledOnce();
+    } finally {process.exitCode=previousExitCode;rmSync(isolatedCwd,{recursive:true,force:true});}
+  });
+
   it("writes a blocked report and exits before creating a provider when approval configuration is absent",()=>{
     const project=process.cwd();
     const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-promotion-blocked-"));

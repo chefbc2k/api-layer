@@ -224,8 +224,8 @@ function readJson<T>(filePath: string): T {
   return JSON.parse(readFileSync(filePath, "utf8")) as T;
 }
 
-function writeOutput(output: PromotionOutput): void {
-  writeFileSync(OUTPUT_PATH, `${JSON.stringify(output, null, 2)}\n`, "utf8");
+function writeOutput(output: PromotionOutput, outputPath = OUTPUT_PATH): void {
+  writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`, "utf8");
 }
 
 export async function runCommand(command: string, args: string[], env: NodeJS.ProcessEnv, spawnProcess: typeof spawn = spawn): Promise<number> {
@@ -420,15 +420,25 @@ export async function inspectPromotionLiveTarget(
   }
 }
 
-async function main(): Promise<void> {
-  const envPath = resolvePromotionEnvPath();
+export async function runPromotion(options: {
+  envPath?: string;
+  outputPath?: string;
+  argv?: string[];
+  providerFactory?: (rpcUrl: string) => {
+    getNetwork(): Promise<{ chainId: number | bigint }>;
+    getCode(address: string): Promise<string>;
+    destroy(): Promise<void>;
+  };
+} = {}): Promise<void> {
+  const envPath = options.envPath ?? resolvePromotionEnvPath();
+  const persistOutput = (output: PromotionOutput) => writeOutput(output, options.outputPath);
   const envFilePresent = existsSync(envPath);
   const fileEnv = envFilePresent ? parse(readFileSync(envPath, "utf8")) : {};
   const readiness = assessPromotionReadiness(fileEnv, envFilePresent);
   const output = baseOutput(fileEnv, readiness);
 
   if (readiness.status !== "ready") {
-    writeOutput(output);
+    persistOutput(output);
     console.error(JSON.stringify(output, null, 2));
     process.exitCode = 2;
     return;
@@ -436,7 +446,9 @@ async function main(): Promise<void> {
 
   const rpcUrl = fileEnv.RPC_URL ?? fileEnv.CBDP_RPC_URL!;
   const diamondAddress = fileEnv.DIAMOND_ADDRESS ?? fileEnv.API_LAYER_DIAMOND_ADDRESS!;
-  const provider = new JsonRpcProvider(rpcUrl, BASE_SEPOLIA_CHAIN_ID, { staticNetwork: true });
+  const provider = options.providerFactory
+    ? options.providerFactory(rpcUrl)
+    : new JsonRpcProvider(rpcUrl, BASE_SEPOLIA_CHAIN_ID, { staticNetwork: true });
   const liveTarget = await inspectPromotionLiveTarget(provider, diamondAddress);
   output.liveTarget = {
     checked: liveTarget.checked,
@@ -449,14 +461,14 @@ async function main(): Promise<void> {
     output.readiness.status = "blocked";
     output.readiness.blockers.push(`live-target: ${reason}`);
     output.finalClassification = "blocked by setup/state";
-    writeOutput(output);
+    persistOutput(output);
     process.exitCode = 2;
     return;
   }
 
-  if (process.argv.includes("--preflight")) {
+  if ((options.argv ?? process.argv).includes("--preflight")) {
     output.finalClassification = "semantically clarified but not fully proven";
-    writeOutput(output);
+    persistOutput(output);
     console.log(JSON.stringify(output, null, 2));
     return;
   }
@@ -469,7 +481,7 @@ async function main(): Promise<void> {
     output.readiness.status = "blocked";
     output.readiness.blockers.push(`setup:base-sepolia exited ${setupExit} or did not refresh its fixture artifact`);
     output.finalClassification = "blocked by setup/state";
-    writeOutput(output);
+    persistOutput(output);
     process.exitCode = 2;
     return;
   }
@@ -489,7 +501,7 @@ async function main(): Promise<void> {
     output.readiness.blockers.push("setup artifact did not prove a direct, ready Base Sepolia runtime");
     output.finalClassification = "blocked by setup/state";
     output.evidence = collectPromotionEvidence([fixture]);
-    writeOutput(output);
+    persistOutput(output);
     process.exitCode = 2;
     return;
   }
@@ -549,7 +561,7 @@ async function main(): Promise<void> {
     : output.scenarios.some((scenario) => scenario.finalClassification === "deeper issue remains")
       ? "deeper issue remains"
       : "blocked by setup/state";
-  writeOutput(output);
+  persistOutput(output);
   console.log(JSON.stringify(output, null, 2));
   if (output.finalClassification !== "proven working") {
     process.exitCode = 2;
@@ -559,7 +571,7 @@ async function main(): Promise<void> {
 const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMainModule) {
-  main().catch((error) => {
+  runPromotion().catch((error) => {
     console.error(error);
     process.exit(1);
   });
