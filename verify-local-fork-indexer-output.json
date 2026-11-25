@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T01:15:30.000Z",
+  "generatedAt": "2026-11-25T02:07:45.000Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 4334,
+    "artifactTransactionHashes": 4336,
     "includedArtifacts": 6,
     "skippedArtifacts": 0,
-    "indexedReceipts": 4334,
-    "provenWriteMethods": 141,
+    "indexedReceipts": 4336,
+    "provenWriteMethods": 142,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 119,
-    "rawEvents": 6584,
-    "projectionRows": 4259
+    "remainingWriteMethods": 118,
+    "rawEvents": 6586,
+    "projectionRows": 4261
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -83984,6 +83984,69 @@
             ],
             "producers": [
               "scripts/verify-layer1-live.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)",
+          "affectedFacet": "ProposalFacet",
+          "methodSignature": "propose(address[],uint256[],bytes[],string,uint8)",
+          "txHash": "0x06bc5afb25786cfb38aaae6e9bd7ef62167ad369e21785dc93e2ed8f8e313ae5",
+          "blockNumber": 63250473,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "272",
+              "logIndex": 0,
+              "eventKey": "ProposalFacet.ProposalCreated(uint256,address,address[],uint256[],bytes[],string,uint256,uint256,uint8)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "272"
+              ]
+            },
+            "projections": [
+              {
+                "table": "governance_proposals",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ],
+                "sourceRawEventIds": [
+                  "272"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63250473",
+                  "block_hash": "0xe883543a28038f210c24407ad60cb3f6c7ddf691894202ca447155976951c270"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
             ],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
@@ -275682,6 +275745,83 @@
                 {
                   "block_number": "63226855",
                   "block_hash": "0x6fe0e352ddfcffb2adc13195367c950108404171c815156a2e06303659453f8d"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/local-fork-proofs/http-contract-receipts.json"
+            ],
+            "producers": [
+              "packages/api/src/app.contract-integration.test.ts"
+            ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "ProposalFacet.cancelProposal": {
+      "routes": [
+        "DELETE /v1/governance/commands/cancel-proposal"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL governance_proposals projection, canonical/HTTP canceled-state readback, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "ProposalFacet.cancelProposal",
+          "affectedFacet": "ProposalFacet",
+          "methodSignature": "cancelProposal(uint256)",
+          "txHash": "0xec0066bf3ad29b63478ad0299bb4464d75be994a235fba1b9cba122364b6cab1",
+          "blockNumber": 63250474,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "273",
+              "logIndex": 0,
+              "eventKey": "ProposalFacet.ProposalCanceled(uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "273"
+              ]
+            },
+            "projections": [
+              {
+                "table": "governance_proposals",
+                "rowCount": 1,
+                "rowIds": [
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "273"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63250474",
+                  "block_hash": "0x992d0ef5ef8f9d20571791f34cb1996f38a524d41c3005d652472449455713ae"
                 }
               ]
             }

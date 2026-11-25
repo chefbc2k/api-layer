@@ -1,3 +1,9 @@
+# 2026-11-25 — Prove proposal cancellation indexing
+
+- Added exact loopback-fork API proof for `ProposalFacet.cancelProposal`; created and canceled a pending no-op proposal through HTTP. Both receipts emitted their expected events; direct and HTTP reads confirmed `Canceled` and matching proposal deadlines.
+- PostgreSQL stored both raw events and `governance_proposals` projections; replay was idempotent. The full contract suite passed `48/48`; full local-fork assurance passed all 12 stages with the known safe-read gap (`445/446`).
+- API-05 advances to `142/260`, leaving `118` methods open. Hosted API quality CI run [45530793891](https://github.com/chefbc2k/api-layer/actions/runs/45530793891) passed every configured gate.
+
 # 2026-11-25 — Strengthen emergency timeout configuration proof
 
 - Added exact loopback-fork update and restoration receipts for `EmergencyFacet.setEmergencyTimeout`; both emitted zero logs, and canonical plus HTTP readbacks matched. PostgreSQL stored block-journal rows only; replay was idempotent.

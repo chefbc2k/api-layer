@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "sourceCommit": "68db13f89293e4908bebcfe85a6af8a8113c841e",
+  "method": {
+    "methodKey": "ProposalFacet.cancelProposal",
+    "route": "DELETE /v1/governance/commands/cancel-proposal",
+    "actor": "founder fixture signer and proposal proposer with the deployed GOVERNANCE_PROPOSER_ROLE",
+    "fixture": {
+      "proposalId": "42",
+      "initialState": "Pending",
+      "finalState": "Canceled",
+      "forkScoped": true
+    },
+    "setupReceipt": {
+      "methodKey": "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)",
+      "transactionHash": "0x06bc5afb25786cfb38aaae6e9bd7ef62167ad369e21785dc93e2ed8f8e313ae5",
+      "blockNumber": 63250473,
+      "blockHash": "0xe883543a28038f210c24407ad60cb3f6c7ddf691894202ca447155976951c270",
+      "status": 1,
+      "event": "ProposalFacet.ProposalCreated",
+      "rawEventId": "272",
+      "projection": {
+        "table": "governance_proposals",
+        "rowId": "1"
+      }
+    },
+    "cancelReceipt": {
+      "transactionHash": "0xec0066bf3ad29b63478ad0299bb4464d75be994a235fba1b9cba122364b6cab1",
+      "blockNumber": 63250474,
+      "blockHash": "0x992d0ef5ef8f9d20571791f34cb1996f38a524d41c3005d652472449455713ae",
+      "status": 1,
+      "event": "ProposalFacet.ProposalCanceled",
+      "rawEventId": "273",
+      "projection": {
+        "table": "governance_proposals",
+        "rowId": "2"
+      },
+      "replay": {
+        "status": "idempotent",
+        "unchanged": true
+      }
+    },
+    "readbacks": {
+      "canonicalState": "Canceled",
+      "httpState": "Canceled",
+      "canonicalDeadlineMatched": true,
+      "httpDeadlineMatched": true
+    },
+    "result": "proven working"
+  },
+  "cumulative": {
+    "provenMethods": 142,
+    "catalogMethods": 260,
+    "remainingMethods": 118,
+    "indexedReceipts": 4336,
+    "rawEvents": 6586,
+    "projectionRows": 4261
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "reportSha256": "381b471eb904f7b4edb3cfaf8b8d39a5f0e42c7c94cf3f7880f74df36bd46931",
+    "reportPath": ".runtime/api05-proposal-cancel-assurance-rerun.json (ephemeral local report; checksum preserved)",
+    "stagesPassed": 12,
+    "structuredGaps": [
+      {
+        "methodKey": "ProposalFacet.queue",
+        "route": "GET /v1/governance/queries/queue",
+        "detail": "safe read returned HTTP 500"
+      }
+    ]
+  },
+  "resultLimitation": "This run completed 1 of 119 open methods (0.8403%), below the bounded target of 35; API-05 remains in_progress with 118 methods open."
+}

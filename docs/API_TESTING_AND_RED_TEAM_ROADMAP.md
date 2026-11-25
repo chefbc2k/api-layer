@@ -1,3 +1,10 @@
+## API-05 Follow-on — Proposal Cancellation Proof — 2026-11-25
+
+- Added exact loopback-fork proof for `ProposalFacet.cancelProposal` through `DELETE /v1/governance/commands/cancel-proposal`. The founder fixture proposer created a pending no-op proposal and canceled it through HTTP. `ProposalCreated` and `ProposalCanceled` receipts succeeded; canonical and HTTP state reads confirmed `Canceled`, and canonical/HTTP proposal-deadline reads matched.
+- PostgreSQL stored both raw events and `governance_proposals` current projections, with block journals and unchanged idempotent replay. The full contract suite passed `48/48`; all 12 local-fork assurance stages passed, with the known `ProposalFacet.queue` safe-read gap (`445/446`).
+- API-05 advances from `141/260` to `142/260` exact-method proofs, leaving `118` open. This run completed `1` of `119` open methods (`0.8403%`), below the bounded target of `35`; API-05 remains `in_progress`.
+- Durable proof: [proposal cancellation proof](../output/api05-proposal-cancel-proof-2026-11-25.json) and [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit: `68db13f89293e4908bebcfe85a6af8a8113c841e`; [hosted API quality CI run 45530793891](https://github.com/chefbc2k/api-layer/actions/runs/45530793891) passed every configured gate.
+
 ## API-05 Follow-on — Emergency Timeout Configuration Proof — 2026-11-25
 
 - Strengthened the existing proof for `EmergencyFacet.setEmergencyTimeout` through `POST /v1/emergency/admin/set-emergency-timeout`. The founder fixture signer with `EMERGENCY_ADMIN_ROLE` changed the timeout from `7201` to `7202`, matched the canonical and HTTP getter readbacks, then restored `7201`. Both status-1 receipts had zero logs, matching the reviewed eventless invariant.
