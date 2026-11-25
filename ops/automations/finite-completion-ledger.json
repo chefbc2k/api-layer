@@ -1810,7 +1810,7 @@
           "resultLimitation": "Four open methods completed, below the bounded target of 35; API-05 remains in_progress with 97 write methods open. EmergencyFacet.executeRecoveryAction is explicitly documented as contract-only but remains counted open pending release accounting policy."
         },
         {
-          "sourceCommit": "pending",
+          "sourceCommit": "5c55d94",
           "artifact": "output/api05-rights-lifecycle-proof-2026-11-25.json",
           "proofArtifactSha256": "0d073d4435af78105c3a17ef4db985a7cb7ff195849b0841be47b3deab9bbe6b",
           "transactionArtifact": ".runtime/api05-rights-lifecycle-receipts.json",
@@ -1949,6 +1949,17 @@
             "Focused ESLint on changed generator/test files passed; git diff --check passed"
           ],
           "resultLimitation": "This fixes generator reproducibility and inventory integrity only; it adds no method proof credit. API-06 treasury and vesting economic criteria remain open."
+        },
+        {
+          "sourceCommit": "859fe30a519eace0f60707e76e9ba849639b055a",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45607441899",
+          "result": "The exact-head API quality workflow completed successfully after the role-gated inventory assertions were updated to 147. All configured gates passed on the correction commit.",
+          "checks": [
+            "Dependency audit, pinned-selector source bootstrap, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, Regression, Coverage, API surface, Actor boundaries, Red team, Indexer assurance, and evidence preservation all succeeded.",
+            "The workflow used tracked reviewed/ci-deployment-selectors.json in its isolated checkout and kept the canonical 491-function, 218-event, 260-write-method generated inventory.",
+            "API-05 remains at 186/260 exact-method proofs; API-06 treasury and vesting economic acceptance remain open."
+          ],
+          "resultLimitation": "This exact-head CI success validates configured API quality gates. It does not close remaining exact-method evidence, contract deployment, beneficiary credit, or treasury approval observability criteria."
         },
         {
           "sourceCommit": "5c55d94",
