@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "sourceCommit": "68210a5c38ca9fbec64f00f0b49cfe9012015e7b",
+  "methods": [
+    {
+      "methodKey": "EmergencyFacet.setEmergencyTimeout",
+      "route": "POST /v1/emergency/admin/set-emergency-timeout",
+      "actor": "founder fixture signer with EMERGENCY_ADMIN_ROLE",
+      "fixture": {
+        "originalTimeout": "7201",
+        "testTimeout": "7202",
+        "restoredTimeout": "7201"
+      },
+      "readbacks": {
+        "canonicalGetterMatched": true,
+        "httpGetterMatched": true,
+        "finalRestorationConfirmed": true
+      },
+      "events": {
+        "expected": "none",
+        "actualLogCount": 0
+      },
+      "receipts": [
+        {
+          "targetTimeout": "7202",
+          "receipt": {
+            "transactionHash": "0x08b6a03d739cd082d09b0e9dd668ce3ced2df1d7f8824327159798498eaf9d76",
+            "blockNumber": 63235029,
+            "blockHash": "0x6c5924d88fcca94f62191dfac3c15d9e1cddc8ecc71c68d11d6d1b5b4af728eb",
+            "status": 1,
+            "logCount": 0
+          },
+          "indexer": {
+            "rawEvents": 0,
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "blockNumber": 63235029,
+              "blockHash": "0x6c5924d88fcca94f62191dfac3c15d9e1cddc8ecc71c68d11d6d1b5b4af728eb"
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            }
+          }
+        },
+        {
+          "targetTimeout": "7201",
+          "receipt": {
+            "transactionHash": "0x1001b4cbc51f662dc9c5ecce65107f382289416a3d4535a2a32aa6b818ca8df5",
+            "blockNumber": 63235030,
+            "blockHash": "0x37c55a2b1e74b78bd98c36d2d4d3c97a7e57ae31679ce85293dc15a48b0ff3f4",
+            "status": 1,
+            "logCount": 0
+          },
+          "indexer": {
+            "rawEvents": 0,
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "blockNumber": 63235030,
+              "blockHash": "0x37c55a2b1e74b78bd98c36d2d4d3c97a7e57ae31679ce85293dc15a48b0ff3f4"
+            },
+            "replay": {
+              "status": "idempotent",
+              "unchanged": true
+            }
+          }
+        }
+      ],
+      "result": "proven working"
+    }
+  ],
+  "cumulative": {
+    "provenMethods": 141,
+    "catalogMethods": 260,
+    "remainingMethods": 119,
+    "indexedReceipts": 4334,
+    "rawEvents": 6584,
+    "projectionRows": 4259
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "reportSha256": "6453acdaea462142bc0fac23ceb6586acfc7974bb3757d6d9c28aaf86c32074f",
+    "reportPath": ".runtime/api05-emergency-timeout-assurance-report.json (ephemeral local report; checksum preserved)",
+    "stagesPassed": 12,
+    "structuredGaps": [
+      {
+        "methodKey": "ProposalFacet.queue",
+        "route": "GET /v1/governance/queries/queue",
+        "detail": "safe read returned HTTP 500"
+      }
+    ]
+  },
+  "resultLimitation": "The method already appeared in the cumulative 141/260 proven set. This run adds two stronger exact-method receipt/readback proofs; API-05 remains at 141/260 with 119 open methods, and the bounded target of 35 newly completed methods is unmet."
+}

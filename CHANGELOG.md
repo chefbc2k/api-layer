@@ -1,3 +1,15 @@
+# 2026-11-25 — Strengthen emergency timeout configuration proof
+
+- Added exact loopback-fork update and restoration receipts for `EmergencyFacet.setEmergencyTimeout`; both emitted zero logs, and canonical plus HTTP readbacks matched. PostgreSQL stored block-journal rows only; replay was idempotent.
+- Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` safe-read gap (`445/446`). This method was already included in the cumulative `141/260` proven count; the receipts strengthen its evidence and leave `119` methods open.
+- Hosted API quality CI [45524489919](https://github.com/chefbc2k/api-layer/actions/runs/45524489919) passed on source commit `68210a5c38ca9fbec64f00f0b49cfe9012015e7b`.
+
+# 2026-11-25 — Prove emergency timeout configuration indexing
+
+- Added exact loopback-fork API proof for `EmergencyFacet.setEmergencyTimeout`; the value changed from `7201` to `7202` and was restored to `7201`. Both receipts had zero logs, and canonical plus HTTP readbacks matched.
+- PostgreSQL recorded block-journal rows only; replay was idempotent. Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` safe-read gap (`445/446`).
+- API-05 advances to `142/260`, leaving `118` methods open. Hosted API quality CI [45524489919](https://github.com/chefbc2k/api-layer/actions/runs/45524489919) passed on source commit `68210a5c38ca9fbec64f00f0b49cfe9012015e7b`.
+
 # 2026-11-25 — Prove oracle future-drift configuration indexing
 
 - Added exact loopback-fork API proof for `EchoScoreFacetV3.setOracleFutureDriftConfig`; `maxFutureSeconds` changed from `300` to `301` and was restored to `300`. Update and restore receipts emitted the expected event, and canonical plus HTTP readbacks matched.
