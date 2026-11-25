@@ -2107,15 +2107,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "CONFIGURED_ECHO_SCORE_ORACLE",
-          "GOVERNANCE_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
         }
       ],
       "postStateReadbacks": {
@@ -2164,15 +2163,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "CONFIGURED_ECHO_SCORE_ORACLE",
-          "GOVERNANCE_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
         },
         {
           "kind": "argument",
@@ -2237,15 +2235,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "CONFIGURED_ECHO_SCORE_ORACLE",
-          "GOVERNANCE_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
         },
         {
           "kind": "argument",
@@ -2304,15 +2301,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "CONFIGURED_ECHO_SCORE_ORACLE",
-          "GOVERNANCE_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
         },
         {
           "kind": "argument",
@@ -2380,15 +2376,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "CONFIGURED_ECHO_SCORE_ORACLE",
-          "GOVERNANCE_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
         },
         {
           "kind": "argument",
@@ -2447,26 +2442,25 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "CONFIGURED_ECHO_SCORE_ORACLE",
-          "GOVERNANCE_ROLE"
+          "PLATFORM_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+        "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable CONFIGURED_ECHO_SCORE_ORACLE or GOVERNANCE_ROLE privilege for EchoScoreFacetV3."
+          "description": "The caller must hold PLATFORM_ADMIN_ROLE; EchoScoreFacetV3 enforces this through its onlyAdmin modifier."
         }
       ],
       "postStateReadbacks": {
         "mode": "required",
         "checks": [
           {
-            "method": "EchoScoreFacetV3.getEchoScoreOracleV3",
-            "assertion": "EchoScoreFacetV3.getEchoScoreOracleV3 reflects the receipt-confirmed EchoScoreFacetV3.unpauseEchoScoreV3 transition for the affected identifiers and actor."
+            "method": "EchoScoreFacetV3.isEchoScorePausedV3",
+            "assertion": "EchoScoreFacetV3.isEchoScorePausedV3 is false after unpauseEchoScoreV3 succeeds."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "Receipt success alone is insufficient; read the canonical paused state after finality."
       },
       "emittedEvents": {
         "mode": "all",

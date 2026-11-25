@@ -599,6 +599,7 @@ describeLive("HTTP API contract integration", () => {
   const confirmedTransactionHashes = new Set<string>();
   const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
   const oracleQuorumSignersProofObservations: Array<Record<string, unknown>> = [];
+  const oraclePauseProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
@@ -1023,6 +1024,7 @@ describeLive("HTTP API contract integration", () => {
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
         oracleFutureDriftProofObservations,
         oracleQuorumSignersProofObservations,
+        oraclePauseProofObservations,
         emergencyTimeoutProofObservations,
         ownershipPolicyProofObservations,
         proposalCancellationProofObservations,
@@ -8124,8 +8126,8 @@ describeLive("HTTP API contract integration", () => {
     ])) return;
 
     const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
-    const governanceRole = id("GOVERNANCE_ROLE");
-    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
     const originalConfig = await oracle.getOracleStalenessConfig();
     const originalMaxAge = BigInt(originalConfig.maxAgeSeconds);
     const targetMaxAge = originalMaxAge + 1n;
@@ -8186,8 +8188,8 @@ describeLive("HTTP API contract integration", () => {
     ])) return;
 
     const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
-    const governanceRole = id("GOVERNANCE_ROLE");
-    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
     const originalMaxFutureSeconds = BigInt(await oracle.getOracleFutureDriftConfig());
     const targetMaxFutureSeconds = originalMaxFutureSeconds + 1n;
     let updateTransactionHash: string | null = null;
@@ -8237,7 +8239,7 @@ describeLive("HTTP API contract integration", () => {
       oracleFutureDriftProofObservations.push({
         methodKey: "EchoScoreFacetV3.setOracleFutureDriftConfig",
         route: "PATCH /v1/staking/commands/set-oracle-future-drift-config",
-        actor: "founder fixture signer with GOVERNANCE_ROLE",
+        actor: "founder fixture signer with PLATFORM_ADMIN_ROLE",
         originalMaxFutureSeconds: originalMaxFutureSeconds.toString(),
         testMaxFutureSeconds: targetMaxFutureSeconds.toString(),
         restoredMaxFutureSeconds: (await oracle.getOracleFutureDriftConfig()).toString(),
@@ -8261,8 +8263,8 @@ describeLive("HTTP API contract integration", () => {
     ])) return;
 
     const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
-    const governanceRole = id("GOVERNANCE_ROLE");
-    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
     const original = await oracle.getOracleQuorumSigners();
     const originalSigners = Array.from(original.signers as string[]).map((address) => ethers.getAddress(address));
     const originalThreshold = BigInt(original.threshold);
@@ -8331,7 +8333,7 @@ describeLive("HTTP API contract integration", () => {
       oracleQuorumSignersProofObservations.push({
         methodKey: "EchoScoreFacetV3.setOracleQuorumSigners",
         route: "PATCH /v1/staking/commands/set-oracle-quorum-signers",
-        actor: "founder fixture signer with GOVERNANCE_ROLE",
+        actor: "founder fixture signer with PLATFORM_ADMIN_ROLE",
         originalSigners,
         originalThreshold: originalThreshold.toString(),
         targetSigners,
@@ -8347,6 +8349,79 @@ describeLive("HTTP API contract integration", () => {
         forkScopedFixture: true,
       });
     }
+  }, 180_000);
+
+  it("proves oracle pause and resume through HTTP on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "oracle pause and resume receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
+    const initialPaused = Boolean(await oracle.isEchoScorePausedV3());
+    const transitionOrder = initialPaused ? [false, true] : [true, false];
+    let pauseTransactionHash: string | null = null;
+    let unpauseTransactionHash: string | null = null;
+
+    for (const paused of transitionOrder) {
+      const response = await apiCall(port, "POST", paused
+        ? "/v1/staking/commands/pause-echo-score-v3"
+        : "/v1/staking/commands/unpause-echo-score-v3", {
+        apiKey: "founder-key",
+        body: {},
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      const expectedEventName = paused ? "Paused" : "Unpaused";
+      const expectedEvent = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = oracle.interface.parseLog(log);
+          return parsed?.name === expectedEventName ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(expectedEvent).toHaveLength(1);
+      expect(String(expectedEvent[0]!.args.admin).toLowerCase()).toBe(founderAddress.toLowerCase());
+      expect(Boolean(await oracle.isEchoScorePausedV3())).toBe(paused);
+      // The generated paused-state query has a five-second response cache.
+      await delay(6_000);
+      const httpReadback = await apiCall(port, "POST", "/v1/staking/queries/is-echo-score-paused-v3", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(httpReadback.status).toBe(200);
+      expect(httpReadback.payload).toBe(paused);
+      if (paused) pauseTransactionHash = txHash;
+      else unpauseTransactionHash = txHash;
+    }
+
+    expect(pauseTransactionHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect(unpauseTransactionHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect(Boolean(await oracle.isEchoScorePausedV3())).toBe(initialPaused);
+    oraclePauseProofObservations.push({
+      methodKeys: ["EchoScoreFacetV3.pauseEchoScoreV3", "EchoScoreFacetV3.unpauseEchoScoreV3"],
+      pauseRoute: "POST /v1/staking/commands/pause-echo-score-v3",
+      unpauseRoute: "POST /v1/staking/commands/unpause-echo-score-v3",
+      actor: "founder fixture signer with PLATFORM_ADMIN_ROLE",
+      initialPaused,
+      pauseTransactionHash,
+      unpauseTransactionHash,
+      pauseEvent: "EchoScoreFacetV3.Paused(address)",
+      unpauseEvent: "EchoScoreFacetV3.Unpaused(address)",
+      canonicalReadbacksMatched: true,
+      httpReadbacksMatched: true,
+      finalStateRestored: true,
+      forkScopedFixture: true,
+    });
   }, 180_000);
 
   it("proves emergency timeout configuration receipts remain indexable on the local fork", async (ctx) => {
