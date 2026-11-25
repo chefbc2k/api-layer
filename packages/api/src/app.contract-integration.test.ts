@@ -598,6 +598,7 @@ describeLive("HTTP API contract integration", () => {
   const confirmedTransactionHashes = new Set<string>();
   const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
+  const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
   async function captureReceiptSnapshot() {
@@ -1018,6 +1019,7 @@ describeLive("HTTP API contract integration", () => {
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
         oracleFutureDriftProofObservations,
         emergencyTimeoutProofObservations,
+        proposalCancellationProofObservations,
       }, null, 2)}\n`);
     }
     server?.close();
@@ -8308,6 +8310,96 @@ describeLive("HTTP API contract integration", () => {
         finalValueRestored: true,
       });
     }
+  }, 180_000);
+
+  it("proves proposal cancellation through HTTP and matches canceled proposal state", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "proposal cancellation receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const governanceProposerRole = await proposalFacet.GOVERNANCE_PROPOSER_ROLE();
+    expect(await accessControl.hasRole(governanceProposerRole, founderAddress)).toBe(true);
+    const create = await apiCall(port, "POST", "/v1/governance/proposals", {
+      apiKey: "founder-key",
+      body: {
+        targets: [diamondAddress],
+        values: ["0"],
+        calldatas: ["0x"],
+        description: `API-05 cancellation proof ${Date.now()}`,
+        proposalType: "0",
+      },
+    });
+    expect(create.status, JSON.stringify(create.payload)).toBe(202);
+    const createTransactionHash = extractTxHash(create.payload);
+    await expectReceipt(createTransactionHash);
+    const createReceipt = await provider.getTransactionReceipt(createTransactionHash);
+    expect(createReceipt?.status).toBe(1);
+    const createdEvents = (createReceipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = proposalFacet.interface.parseLog(log);
+        return parsed?.name === "ProposalCreated" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(createdEvents).toHaveLength(1);
+    const proposalId = BigInt(createdEvents[0]!.args.proposalId);
+    expect(await proposalFacet.prState(proposalId)).toBe(0n);
+    const deadlineBefore = BigInt(await proposalFacet.proposalDeadline(proposalId));
+
+    const cancel = await apiCall(port, "DELETE", "/v1/governance/commands/cancel-proposal", {
+      apiKey: "founder-key",
+      body: { proposalId: proposalId.toString() },
+    });
+    expect(cancel.status, JSON.stringify(cancel.payload)).toBe(202);
+    const cancelTransactionHash = extractTxHash(cancel.payload);
+    await expectReceipt(cancelTransactionHash);
+    const cancelReceipt = await provider.getTransactionReceipt(cancelTransactionHash);
+    expect(cancelReceipt?.status).toBe(1);
+    const canceledEvents = (cancelReceipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = proposalFacet.interface.parseLog(log);
+        return parsed?.name === "ProposalCanceled" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(canceledEvents).toHaveLength(1);
+    expect(BigInt(canceledEvents[0]!.args.proposalId)).toBe(proposalId);
+    expect(await proposalFacet.prState(proposalId)).toBe(2n);
+
+    const stateReadback = await apiCall(port, "GET", `/v1/governance/queries/pr-state?proposalId=${proposalId}`, {
+      apiKey: "read-key",
+    });
+    expect(stateReadback.status).toBe(200);
+    expect(BigInt(stateReadback.payload as string)).toBe(2n);
+    const deadlineReadback = await apiCall(port, "GET", `/v1/governance/queries/proposal-deadline?proposalId=${proposalId}`, {
+      apiKey: "read-key",
+    });
+    expect(deadlineReadback.status).toBe(200);
+    expect(BigInt(deadlineReadback.payload as string)).toBe(deadlineBefore);
+
+    proposalCancellationProofObservations.push({
+      methodKey: "ProposalFacet.cancelProposal",
+      route: "DELETE /v1/governance/commands/cancel-proposal",
+      actor: "founder fixture signer and proposal proposer with the deployed GOVERNANCE_PROPOSER_ROLE",
+      proposalId: proposalId.toString(),
+      initialState: "Pending",
+      finalState: "Canceled",
+      createTransactionHash,
+      cancelTransactionHash,
+      creationEvent: "ProposalFacet.ProposalCreated",
+      cancellationEvent: "ProposalFacet.ProposalCanceled",
+      canonicalStateReadbackMatched: true,
+      httpStateReadbackMatched: true,
+      canonicalDeadlineReadbackMatched: true,
+      httpDeadlineReadbackMatched: true,
+      forkScopedFixture: true,
+    });
   }, 180_000);
 
 });
