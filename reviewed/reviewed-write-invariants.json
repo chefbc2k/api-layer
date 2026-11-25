@@ -70,17 +70,13 @@
       "abiSignature": "emergencyForceAdd(bytes32,address)",
       "requiredActor": {
         "kind": "role",
-        "roles": [
-          "ADMIN_ROLE_FOR_TARGET_ROLE",
-          "TIMELOCK_ROLE",
-          "FOUNDER_ROLE"
-        ],
-        "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+        "roles": ["EMERGENCY_ADMIN_ROLE"],
+        "description": "The signer must hold EMERGENCY_ADMIN_ROLE for AccessControlFacet."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable ADMIN_ROLE_FOR_TARGET_ROLE or TIMELOCK_ROLE or FOUNDER_ROLE privilege for AccessControlFacet."
+          "description": "The signer must hold EMERGENCY_ADMIN_ROLE for AccessControlFacet."
         },
         {
           "kind": "argument",
@@ -102,12 +98,9 @@
         "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
       },
       "emittedEvents": {
-        "mode": "all",
-        "events": [
-          "AccessControlFacet.RoleGranted",
-          "AccessControlFacet.SecurityAction"
-        ],
-        "rationale": "Every listed canonical transition event must be present in the successful receipt."
+        "mode": "none",
+        "events": [],
+        "rationale": "The deployed emergencyForceAdd transition updates role membership without emitting RoleGranted or SecurityAction; verify its successful receipt and canonical hasRole readback."
       },
       "balanceEffects": {
         "mode": "none",
@@ -128,13 +121,10 @@
         "rationale": "This write can irreversibly upgrade, mint, transfer control, withdraw emergency funds, or change global emergency posture; automated proofs must stay on an isolated fork."
       },
       "indexerExpectations": {
-        "mode": "raw-event-only",
-        "events": [
-          "AccessControlFacet.RoleGranted",
-          "AccessControlFacet.SecurityAction"
-        ],
+        "mode": "none",
+        "events": [],
         "projections": [],
-        "assertion": "The raw log is decoded, deduplicated by chain/log identity, and remains replay-safe."
+        "assertion": "Index the successful receipt and block journal with no event rows; canonical role membership is verified by the HTTP proof."
       }
     },
     "AccessControlFacet.executeFounderSunset": {

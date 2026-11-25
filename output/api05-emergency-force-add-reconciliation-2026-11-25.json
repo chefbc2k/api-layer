@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T18:55:30Z",
+  "task": "API-05 exact-method acceptance evidence",
+  "methodKey": "AccessControlFacet.emergencyForceAdd",
+  "status": "open; positive acceptance not proven",
+  "positiveAttempt": {
+    "command": "API_LAYER_RUN_CONTRACT_INTEGRATION=1 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1 -t 'proves AccessControlFacet.emergencyForceAdd through its mounted route and reads back the recovered role'",
+    "environment": "disposable loopback fork at 127.0.0.1:8558; reviewed CI deployment selector; fixture-funded founder signer",
+    "transactionHash": "0xe6487c88e398c5ae720429a0fcb2c76a9252327227dffc1be4762b08163c768f",
+    "receiptStatus": 1,
+    "observations": {
+      "canonicalHasRole": true,
+      "enumeratedRoleMemberPresent": false,
+      "enumeratedRoleMemberCount": 0
+    },
+    "result": "The HTTP write succeeded and hasRole readback changed to true, but getRoleMembers did not enumerate the recovered member. The positive proof assertion failed. This inconsistency prevents exact-method acceptance; no PostgreSQL/indexer replay claim is made."
+  },
+  "negativeProof": {
+    "actorRole": "EMERGENCY_ADMIN_ROLE",
+    "targetRole": "MARKETPLACE_PURCHASER_ROLE",
+    "result": "passed: the route rejected a role outside the contract recovery allowlist without submitting a transaction or changing role state",
+    "evidence": ".runtime/release-runner/emergency-force-add-focused.log"
+  },
+  "reviewedContractSource": "/Users/chef/Public/CONTRACTS/contracts/security/access/facets/AccessControlFacet.sol and /Users/chef/Public/CONTRACTS/contracts/security/access/libraries/LibAccessControl.sol",
+  "contractSourceObservation": "The read-only source restricts emergencyForceAdd to EMERGENCY_ADMIN_ROLE, permits only BOARD_MEMBER_ROLE, FOUNDER_ROLE, and TREASURY_ROLE, and its grant helper adds newly granted members to roleMemberList. The loopback deployment's hasRole/getRoleMembers discrepancy needs contract deployment/source reconciliation.",
+  "acceptanceAccounting": {
+    "startingProvenCount": 189,
+    "endingProvenCount": 189,
+    "completedThisRun": 0,
+    "openMethodCount": 71
+  }
+}

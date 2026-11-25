@@ -2646,7 +2646,7 @@ describeLive("HTTP API contract integration", () => {
     });
   }, 180_000);
 
-  it("proves AccessControlFacet.emergencyForceAdd target authorization on its mounted route", async (ctx) => {
+  it("proves AccessControlFacet.emergencyForceAdd rejects a role outside the recovery allowlist", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
       return;
@@ -2655,13 +2655,8 @@ describeLive("HTTP API contract integration", () => {
       { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
     ])) return;
 
-    const emergencyForceRoles = [
-      id("ADMIN_ROLE_FOR_TARGET_ROLE"),
-      id("TIMELOCK_ROLE"),
-      id("FOUNDER_ROLE"),
-    ];
-    expect(await Promise.all(emergencyForceRoles.map((role) => accessControl.hasRole(role, founderAddress))))
-      .toContain(true);
+    const emergencyAdminRole = id("EMERGENCY_ADMIN_ROLE");
+    expect(await accessControl.hasRole(emergencyAdminRole, founderAddress)).toBe(true);
     const role = id("MARKETPLACE_PURCHASER_ROLE");
     const account = Wallet.createRandom().address;
     expect(await accessControl.hasRole(role, account)).toBe(false);
@@ -2678,7 +2673,7 @@ describeLive("HTTP API contract integration", () => {
       methodKey: "AccessControlFacet.emergencyForceAdd",
       route: "POST /v1/access-control/admin/emergency-force-add",
       actor: founderAddress,
-      signerHasOneListedRole: true,
+      actorRole: "EMERGENCY_ADMIN_ROLE",
       role,
       account,
       httpStatus: response.status,
