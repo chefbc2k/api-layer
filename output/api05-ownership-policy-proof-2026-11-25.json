@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T03:11:23.445Z",
+  "methodKey": "OwnershipFacet.setOwnershipPolicyEnforced",
+  "status": "proven working",
+  "sourceCommit": "c80276e3e5dac3b701a8a59234bdb7537b8a0a53",
+  "network": {
+    "mode": "local-fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "forkedFrom": "https://base-sepolia.g.alchemy.com/v2/YI7-0F2FoH3vK3Du6loG4",
+    "runnerStartedFork": true
+  },
+  "contractProof": [
+    {
+      "methodKey": "OwnershipFacet.setOwnershipPolicyEnforced",
+      "route": "PATCH /v1/ownership/commands/set-ownership-policy-enforced",
+      "actor": "founder fixture signer and diamond owner",
+      "initialValue": true,
+      "finalValue": true,
+      "updateTransactionHash": "0x34a94e5c6d0cb53045ae2186f6e534d5cf59e8a9373b55daedadabb1a1a45bde",
+      "replayTransactionHash": "0x5b7f55d2b13c211c2ee4547c5053b493424ba9304d0786b81876e24ec2d6c8b2",
+      "event": "OwnershipFacet.OwnershipPolicyEnforcementSet(bool)",
+      "canonicalReadbackMatched": true,
+      "httpReadbackMatched": true,
+      "replayStateUnchanged": true,
+      "forkScopedFixture": true,
+      "stateIsMonotonicOnContract": true
+    }
+  ],
+  "indexer": {
+    "routes": [
+      "PATCH /v1/ownership/commands/set-ownership-policy-enforced"
+    ],
+    "actors": [
+      "local-fork-fixture"
+    ],
+    "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+    "evidence": [
+      {
+        "localFork": true,
+        "methodKey": "OwnershipFacet.setOwnershipPolicyEnforced",
+        "affectedFacet": "OwnershipFacet",
+        "methodSignature": "setOwnershipPolicyEnforced(bool)",
+        "txHash": "0x34a94e5c6d0cb53045ae2186f6e534d5cf59e8a9373b55daedadabb1a1a45bde",
+        "blockNumber": 63269770,
+        "receipt": {
+          "status": 1,
+          "logCount": 1
+        },
+        "decodedEvents": [
+          {
+            "rawEventId": "274",
+            "logIndex": 0,
+            "eventKey": "OwnershipFacet.OwnershipPolicyEnforcementSet(bool)"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rowIds": [
+              "274"
+            ]
+          },
+          "projections": [
+            {
+              "table": "ownership_transfers",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ],
+              "sourceRawEventIds": [
+                "274"
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63269770",
+                "block_hash": "0x5857772a3732aa492d22f463d4a020cab10df1789879126b4c610a4cbec41a80"
+              }
+            ]
+          }
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/local-fork-proofs/http-contract-receipts.json"
+          ],
+          "producers": [
+            "packages/api/src/app.contract-integration.test.ts"
+          ],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        }
+      },
+      {
+        "localFork": true,
+        "methodKey": "OwnershipFacet.setOwnershipPolicyEnforced",
+        "affectedFacet": "OwnershipFacet",
+        "methodSignature": "setOwnershipPolicyEnforced(bool)",
+        "txHash": "0x5b7f55d2b13c211c2ee4547c5053b493424ba9304d0786b81876e24ec2d6c8b2",
+        "blockNumber": 63269771,
+        "receipt": {
+          "status": 1,
+          "logCount": 1
+        },
+        "decodedEvents": [
+          {
+            "rawEventId": "275",
+            "logIndex": 0,
+            "eventKey": "OwnershipFacet.OwnershipPolicyEnforcementSet(bool)"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rowIds": [
+              "275"
+            ]
+          },
+          "projections": [
+            {
+              "table": "ownership_transfers",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ],
+              "sourceRawEventIds": [
+                "275"
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63269771",
+                "block_hash": "0xe3fc4d94536e7883facfb9a6d6645495c1f38202ac32a77e4b80cb66728e61e8"
+              }
+            ]
+          }
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/local-fork-proofs/http-contract-receipts.json"
+          ],
+          "producers": [
+            "packages/api/src/app.contract-integration.test.ts"
+          ],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        }
+      }
+    ],
+    "finalClassification": "proven working",
+    "classification": "proven working",
+    "result": "proven working"
+  },
+  "cumulative": {
+    "provenWriteMethods": 143,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 117,
+    "indexedReceipts": 4521,
+    "rawEvents": 6865,
+    "projectionRows": 4433
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stageCount": 12,
+    "stages": [
+      {
+        "id": "generate-inventory",
+        "status": "passed"
+      },
+      {
+        "id": "provision-fixtures",
+        "status": "passed"
+      },
+      {
+        "id": "http-contract-proof",
+        "status": "passed"
+      },
+      {
+        "id": "control-plane-admin-proof",
+        "status": "passed"
+      },
+      {
+        "id": "layer1-core-proof",
+        "status": "passed"
+      },
+      {
+        "id": "layer1-completion-proof",
+        "status": "passed"
+      },
+      {
+        "id": "layer1-remaining-proof",
+        "status": "passed"
+      },
+      {
+        "id": "marketplace-purchase-proof",
+        "status": "passed"
+      },
+      {
+        "id": "governance-proof",
+        "status": "passed"
+      },
+      {
+        "id": "event-indexer-proof",
+        "status": "passed"
+      },
+      {
+        "id": "provision-read-fixtures",
+        "status": "passed"
+      },
+      {
+        "id": "probe-safe-reads",
+        "status": "passed"
+      }
+    ],
+    "safeReads": {
+      "attempted": 446,
+      "passed": 445,
+      "gaps": 1,
+      "knownGap": "ProposalFacet.queue"
+    }
+  }
+}

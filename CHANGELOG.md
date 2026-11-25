@@ -1,3 +1,10 @@
+# 2026-11-25 — Prove ownership policy enforcement indexing
+
+- Added exact loopback-fork API proof for `OwnershipFacet.setOwnershipPolicyEnforced` through `PATCH /v1/ownership/commands/set-ownership-policy-enforced`. The diamond owner enabled the monotonic policy twice; both receipts succeeded and emitted `OwnershipPolicyEnforcementSet(true)`. Direct and HTTP query readbacks matched after each write.
+- PostgreSQL stored both raw events and `ownership_transfers` projections, with block journals and unchanged idempotent replay. Full local-fork assurance passed all 12 stages with the known `ProposalFacet.queue` safe-read gap (`445/446`); the HTTP contract suite passed `49/49`.
+- API-05 advances from `142/260` to `143/260` distinct proven write methods, leaving `117` open. This run completed `1` of `118` open methods (`0.8475%`), below the bounded target of `35`; API-05 remains `in_progress`.
+- Durable proof: [ownership policy proof](output/api05-ownership-policy-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json). Source commit: `c80276e3e5dac3b701a8a59234bdb7537b8a0a53`; hosted API quality CI is running.
+
 # 2026-11-25 — Prove proposal cancellation indexing
 
 - Added exact loopback-fork API proof for `ProposalFacet.cancelProposal`; created and canceled a pending no-op proposal through HTTP. Both receipts emitted their expected events; direct and HTTP reads confirmed `Canceled` and matching proposal deadlines.
