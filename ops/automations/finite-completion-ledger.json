@@ -1971,6 +1971,32 @@
             "pnpm exec tsc -b --pretty false passed; focused ESLint and git diff --check passed"
           ],
           "resultLimitation": "The first exact-head CI run did not pass overall. A second exact-head run on the correction commit is required. API-05 remains at 186/260 proven methods; no method acceptance credit was added."
+        },
+        {
+          "sourceCommit": "1628c9b512a8305759c7e69890ec6d1b9c014db4",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45611564058",
+          "artifact": "output/api05-payment-withdraw-reveal-proof-2026-11-25.json",
+          "proofArtifactSha256": "f713a5b3622aa13e77c0b8a598639bfa57f11d858fa6153265b9b856db21171e",
+          "transactionArtifact": ".runtime/local-fork-proofs/withdrawal-reveal-receipts.json",
+          "transactionArtifactSha256": "1460e69e1e62e3f31074b2238b5eed4e633182637a17400f4196fe8eb1c72b1f",
+          "indexerArtifact": ".runtime/local-fork-proofs/event-indexer.json",
+          "indexerArtifactSha256": "2707db2fdcad8ab0f7b5d57dd41f86d9b71c00089abf443834ee16c20f6264e9",
+          "cumulativeIndexerArtifact": "verify-local-fork-indexer-output.json",
+          "cumulativeIndexerArtifactSha256": "4aba640c9a142f1324c4cfa264d57b6f2ffbc457f5724d63a36898d887c6bf54",
+          "result": "Proved PaymentFacet.revealWithdraw through POST /v1/marketplace/commands/reveal-withdraw on a disposable Base Sepolia loopback fork. The test created 127 USDC seller proceeds, committed the packed claimant/amount/nonce/deadline hash through the commit-withdraw API route, waited past the configured block timelock, and revealed through the exact mounted route. The status-1 receipt emitted ClaimRevealed and USDCPaymentWithdrawn with matching commitment/amount; pending proceeds cleared, custody decreased 127, the seller balance increased 127, and conservation was zero. PostgreSQL stored both raw events, two payment_flows projections and one payment_withdrawals projection; receipt replay was unchanged. API-05 advances from 186/260 to 187/260, leaving 73 open.",
+          "startingProvenCount": 186,
+          "startingOpenCount": 74,
+          "completedThisRun": 1,
+          "endingProvenCount": 187,
+          "endingOpenCount": 73,
+          "checks": [
+            "Focused local-fork HTTP integration passed: 1 passed, 63 unrelated tests skipped.",
+            "pnpm exec tsc -b --pretty false passed; focused ESLint and git diff --check passed.",
+            "Receipt indexer processed the three successful fixture/commit/reveal receipts: 3/3 indexed, 5 raw events, 6 projection rows, zero skipped artifacts; PostgreSQL idempotent replay preserved all row counts and receipt evidence.",
+            "The cumulative accepted method report now proves 187/260 writes with 73 remaining; report totals are 6,075 indexed receipts, 9,078 raw events, and 5,723 projection rows.",
+            "Exact-head GitHub API quality workflow 45611564058 passed on source commit 1628c9b512a8305759c7e69890ec6d1b9c014db4: dependency audit, pinned source bootstrap, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation."
+          ],
+          "resultLimitation": "This completes 1/74 currently open methods, below the bounded target of 19; API-05 remains in_progress. Exact-head hosted API quality run 45611564058 passed all configured gates on 1628c9b512a8305759c7e69890ec6d1b9c014db4; default-branch delivery and API-06 economic criteria remain open."
         }
       ],
       "deliveredCommit": null,

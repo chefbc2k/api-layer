@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T12:13:03.038Z",
+  "sourceCommit": "1628c9b512a8305759c7e69890ec6d1b9c014db4",
+  "methodKey": "PaymentFacet.revealWithdraw",
+  "signature": "revealWithdraw(uint256,uint256,uint256)",
+  "route": "POST /v1/marketplace/commands/reveal-withdraw",
+  "network": {
+    "chainId": 84532,
+    "rpcKind": "disposable Base Sepolia fork, loopback only",
+    "isolatedLoopback": true
+  },
+  "apiProof": {
+    "result": "passed",
+    "command": "env API_LAYER_RUN_CONTRACT_INTEGRATION=1 API_LAYER_AUTO_FORK=0 API_LAYER_KEEP_LOCAL_FORK=1 API_LAYER_CONTRACT_RECEIPT_ARTIFACT=.runtime/local-fork-proofs/withdrawal-reveal-receipts.json RPC_URL=http://127.0.0.1:8558 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1 -t 'proves the exact PaymentFacet.revealWithdraw route'",
+    "focusedTestsPassed": 1,
+    "unrelatedTestsSkipped": 63,
+    "observation": {
+      "methodKey": "PaymentFacet.revealWithdraw",
+      "route": "POST /v1/marketplace/commands/reveal-withdraw",
+      "actor": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "tokenId": "248",
+      "amount": "127",
+      "nonce": "1795608645686",
+      "deadline": "1795698642",
+      "createVoiceTxHash": "0x4a7aefff926f5ffe05445a0f44a315c9b5a880f54a9aaa1d051d10d86c54a4f9",
+      "commitTxHash": "0xa332f1e5ac85a5500a06d6c5ba5b24ae11e572dc40e907417dd9d8bd5cd5e111",
+      "revealTxHash": "0xeb3603580a5d7f5f7bb35f884cf1ac222b0eb1dcf213f64a5c313680a7f0f2c4",
+      "receiptStatus": 1,
+      "receiptBlockNumber": 63433783,
+      "eventNames": [
+        "ClaimRevealed",
+        "USDCPaymentWithdrawn"
+      ],
+      "pendingAfterReveal": "0",
+      "custodyDelta": "-127",
+      "payeeDelta": "127",
+      "conservation": "0",
+      "isolatedFork": true
+    }
+  },
+  "indexerProof": {
+    "result": "passed",
+    "command": "RPC_URL=http://127.0.0.1:8558 API_LAYER_INDEXER_PROOF_ARTIFACTS=.runtime/local-fork-proofs/withdrawal-reveal-receipts.json pnpm exec tsx scripts/run-local-fork-indexer-proof.ts",
+    "runTotals": {
+      "artifactTransactionHashes": 3,
+      "includedArtifacts": 1,
+      "skippedArtifacts": 0,
+      "indexedReceipts": 3,
+      "provenWriteMethods": 3,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 257,
+      "rawEvents": 5,
+      "projectionRows": 6
+    },
+    "replay": "idempotent",
+    "receipt": {
+      "txHash": "0xeb3603580a5d7f5f7bb35f884cf1ac222b0eb1dcf213f64a5c313680a7f0f2c4",
+      "blockNumber": 63433783,
+      "status": 1,
+      "eventKeys": [
+        "PaymentFacet.ClaimRevealed",
+        "PaymentFacet.USDCPaymentWithdrawn"
+      ],
+      "expectedEventKeys": [
+        "PaymentFacet.ClaimRevealed",
+        "PaymentFacet.USDCPaymentWithdrawn"
+      ],
+      "postgres": {
+        "rawEvents": {
+          "table": "raw_events",
+          "rowCount": 2,
+          "rows": [
+            {
+              "id": "4",
+              "log_index": 0,
+              "facet_name": "PaymentFacet",
+              "event_name": "ClaimRevealed",
+              "event_signature": "ClaimRevealed(address,bytes32)",
+              "decoded_args": {
+                "claimant": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                "commitHash": "0xb7b99c17a7937c1d7700c7d897f14a7d1176ae448085115b8ef486f3932b2d1a"
+              }
+            },
+            {
+              "id": "5",
+              "log_index": 1,
+              "facet_name": "PaymentFacet",
+              "event_name": "USDCPaymentWithdrawn",
+              "event_signature": "USDCPaymentWithdrawn(address,uint256)",
+              "decoded_args": {
+                "amount": "127",
+                "recipient": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+              }
+            }
+          ]
+        },
+        "projections": [
+          {
+            "table": "payment_flows",
+            "rowCount": 2,
+            "rows": [
+              {
+                "row_id": "2",
+                "source_raw_event_id": "4"
+              },
+              {
+                "row_id": "3",
+                "source_raw_event_id": "5"
+              }
+            ]
+          },
+          {
+            "table": "payment_withdrawals",
+            "rowCount": 1,
+            "rows": [
+              {
+                "row_id": "1",
+                "source_raw_event_id": "5"
+              }
+            ]
+          }
+        ]
+      },
+      "replay": "idempotent"
+    }
+  },
+  "cumulative": {
+    "acceptedWriteMethods": 187,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 73,
+    "indexedReceipts": 6075,
+    "rawEvents": 9078,
+    "projectionRows": 5723
+  },
+  "artifacts": {
+    "apiReceiptArtifact": ".runtime/local-fork-proofs/withdrawal-reveal-receipts.json",
+    "apiReceiptArtifactSha256": "1460e69e1e62e3f31074b2238b5eed4e633182637a17400f4196fe8eb1c72b1f",
+    "indexerRunArtifact": ".runtime/local-fork-proofs/event-indexer.json",
+    "indexerRunArtifactSha256": "2707db2fdcad8ab0f7b5d57dd41f86d9b71c00089abf443834ee16c20f6264e9",
+    "cumulativeIndexerReport": "verify-local-fork-indexer-output.json",
+    "cumulativeIndexerReportSha256": "4aba640c9a142f1324c4cfa264d57b6f2ffbc457f5724d63a36898d887c6bf54"
+  },
+  "limitations": [
+    "This exact-method proof does not satisfy the full API-05 denominator; 73 mounted write methods remain open.",
+    "This focused verification does not cover unrelated integration scenarios skipped by the test-name filter."
+  ]
+}
