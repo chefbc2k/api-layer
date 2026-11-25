@@ -9461,6 +9461,70 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
+  it("proves reversible staking tier configuration receipts", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "staking configuration proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    const roleWasGranted = await accessControl.hasRole(platformAdminRole, founderAddress);
+    if (!roleWasGranted) {
+      const grant = await apiCall(port, "POST", "/v1/access-control/commands/grant-role", {
+        apiKey: "founder-key",
+        body: { role: platformAdminRole, account: founderAddress, expiryTime: "0" },
+      });
+      expect(grant.status, JSON.stringify(grant.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grant.payload));
+      expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
+    }
+
+    const originalTier = await stakingFacet.getTierConfig();
+    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, method, route, { apiKey: "founder-key", body });
+      expect(response.status, `${route}: ${JSON.stringify(response.payload)}`).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      return receipt!;
+    };
+    try {
+      const currentThresholds = Array.from(originalTier[0], BigInt);
+      const currentMultipliers = Array.from(originalTier[1], BigInt);
+      const nextThresholds = currentThresholds.map((value, index) => value + BigInt(index + 1));
+      const tierReceipt = await submit("POST", "/v1/staking/commands/queue-tier-config-update", {
+        thresholds: nextThresholds.map(String),
+        multipliers: currentMultipliers.map(String),
+      });
+      expect((await stakingFacet.getTierConfig())[0]).toEqual(nextThresholds);
+      expect(tierReceipt.logs.some((log) => {
+        try { return stakingFacet.interface.parseLog(log)?.name === "TierConfigUpdated"; } catch { return false; }
+      })).toBe(true);
+      const restoreTier = await submit("POST", "/v1/staking/commands/queue-tier-config-update", {
+        thresholds: currentThresholds.map(String),
+        multipliers: currentMultipliers.map(String),
+      });
+      expect((await stakingFacet.getTierConfig())[0]).toEqual(currentThresholds);
+      expect(restoreTier.logs.some((log) => {
+        try { return stakingFacet.interface.parseLog(log)?.name === "TierConfigUpdated"; } catch { return false; }
+      })).toBe(true);
+    } finally {
+      if (!roleWasGranted) {
+        const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+          apiKey: "founder-key",
+          body: { role: platformAdminRole, account: founderAddress, reason: "local-fork staking configuration proof cleanup" },
+        });
+        expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+        await expectReceipt(extractTxHash(revoke.payload));
+        expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(false);
+      }
+    }
+  }, 180_000);
+
   it("proves emergency timeout configuration receipts remain indexable on the local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();

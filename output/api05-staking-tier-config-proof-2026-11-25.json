@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T08:47:34.119Z",
+  "sourceArtifact": ".runtime/api05-staking-tier-config-receipts.json",
+  "methods": [
+    "StakingFacet.queueTierConfigUpdate"
+  ],
+  "totals": {
+    "artifactTransactionHashes": 2,
+    "includedArtifacts": 1,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 2,
+    "provenWriteMethods": 1,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 259,
+    "rawEvents": 2,
+    "projectionRows": 2
+  },
+  "receipts": [
+    {
+      "txHash": "0x34226661824001b051ad180dc77e8518c4748d33a1326c7abd0ef10e22eb62bf",
+      "methodKey": "StakingFacet.queueTierConfigUpdate",
+      "expectedEventMode": "all",
+      "expectedEventKeys": [
+        "StakingFacet.TierConfigUpdated"
+      ],
+      "indexedEventKeys": [
+        "StakingFacet.TierConfigUpdated"
+      ],
+      "expectedProjectionTables": [
+        "staking_positions"
+      ],
+      "projectedTables": [
+        "staking_positions"
+      ],
+      "failures": [],
+      "blockNumber": 63368499,
+      "receiptStatus": 1,
+      "receiptLogCount": 1,
+      "transactionSelector": "0x2a9e68cd",
+      "affectedFacet": "StakingFacet",
+      "methodSignature": "queueTierConfigUpdate(uint256[],uint256[])",
+      "decodedEvents": [
+        {
+          "rawEventId": "1",
+          "logIndex": 0,
+          "facetName": "StakingFacet",
+          "eventName": "TierConfigUpdated",
+          "eventSignature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+          "decodedArgs": {
+            "baseApy": "1000",
+            "thresholds": [
+              "1000000000000000000001"
+            ],
+            "multipliers": [
+              "10000",
+              "5000"
+            ]
+          }
+        }
+      ],
+      "postgres": {
+        "rawEvents": {
+          "table": "raw_events",
+          "rowCount": 1,
+          "rows": [
+            {
+              "id": "1",
+              "log_index": 0,
+              "facet_name": "StakingFacet",
+              "event_name": "TierConfigUpdated",
+              "event_signature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+              "decoded_args": {
+                "baseApy": "1000",
+                "thresholds": [
+                  "1000000000000000000001"
+                ],
+                "multipliers": [
+                  "10000",
+                  "5000"
+                ]
+              }
+            }
+          ]
+        },
+        "projections": [
+          {
+            "table": "staking_positions",
+            "rowCount": 1,
+            "rows": [
+              {
+                "row_id": "1",
+                "source_raw_event_id": "1"
+              }
+            ]
+          }
+        ],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63368499",
+              "block_hash": "0x36271cb72a00063bdd9b71a3e4dcf4c1afd672a7a1d40d6adce785dd0d9338ca"
+            }
+          ]
+        }
+      },
+      "source": {
+        "workflowArtifacts": [
+          ".runtime/api05-staking-tier-config-receipts.json"
+        ],
+        "producers": [],
+        "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+      },
+      "replay": {
+        "status": "idempotent",
+        "before": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "1",
+                "log_index": 0,
+                "facet_name": "StakingFacet",
+                "event_name": "TierConfigUpdated",
+                "event_signature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+                "decoded_args": {
+                  "baseApy": "1000",
+                  "thresholds": [
+                    "1000000000000000000001"
+                  ],
+                  "multipliers": [
+                    "10000",
+                    "5000"
+                  ]
+                }
+              }
+            ]
+          },
+          "projections": [
+            {
+              "table": "staking_positions",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "1",
+                  "source_raw_event_id": "1"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63368499",
+                "block_hash": "0x36271cb72a00063bdd9b71a3e4dcf4c1afd672a7a1d40d6adce785dd0d9338ca"
+              }
+            ]
+          }
+        },
+        "after": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "1",
+                "log_index": 0,
+                "facet_name": "StakingFacet",
+                "event_name": "TierConfigUpdated",
+                "event_signature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+                "decoded_args": {
+                  "baseApy": "1000",
+                  "thresholds": [
+                    "1000000000000000000001"
+                  ],
+                  "multipliers": [
+                    "10000",
+                    "5000"
+                  ]
+                }
+              }
+            ]
+          },
+          "projections": [
+            {
+              "table": "staking_positions",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "1",
+                  "source_raw_event_id": "1"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63368499",
+                "block_hash": "0x36271cb72a00063bdd9b71a3e4dcf4c1afd672a7a1d40d6adce785dd0d9338ca"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "txHash": "0x7adbb7849ae576af0640b7cc7ffb4864513d436f059baf16b13dd077a47363e9",
+      "methodKey": "StakingFacet.queueTierConfigUpdate",
+      "expectedEventMode": "all",
+      "expectedEventKeys": [
+        "StakingFacet.TierConfigUpdated"
+      ],
+      "indexedEventKeys": [
+        "StakingFacet.TierConfigUpdated"
+      ],
+      "expectedProjectionTables": [
+        "staking_positions"
+      ],
+      "projectedTables": [
+        "staking_positions"
+      ],
+      "failures": [],
+      "blockNumber": 63368500,
+      "receiptStatus": 1,
+      "receiptLogCount": 1,
+      "transactionSelector": "0x2a9e68cd",
+      "affectedFacet": "StakingFacet",
+      "methodSignature": "queueTierConfigUpdate(uint256[],uint256[])",
+      "decodedEvents": [
+        {
+          "rawEventId": "2",
+          "logIndex": 0,
+          "facetName": "StakingFacet",
+          "eventName": "TierConfigUpdated",
+          "eventSignature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+          "decodedArgs": {
+            "baseApy": "1000",
+            "thresholds": [
+              "1000000000000000000000"
+            ],
+            "multipliers": [
+              "10000",
+              "5000"
+            ]
+          }
+        }
+      ],
+      "postgres": {
+        "rawEvents": {
+          "table": "raw_events",
+          "rowCount": 1,
+          "rows": [
+            {
+              "id": "2",
+              "log_index": 0,
+              "facet_name": "StakingFacet",
+              "event_name": "TierConfigUpdated",
+              "event_signature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+              "decoded_args": {
+                "baseApy": "1000",
+                "thresholds": [
+                  "1000000000000000000000"
+                ],
+                "multipliers": [
+                  "10000",
+                  "5000"
+                ]
+              }
+            }
+          ]
+        },
+        "projections": [
+          {
+            "table": "staking_positions",
+            "rowCount": 1,
+            "rows": [
+              {
+                "row_id": "2",
+                "source_raw_event_id": "2"
+              }
+            ]
+          }
+        ],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63368500",
+              "block_hash": "0xfb997a44073968c9401c89fcc7137e6fa17030073dbd44fcce8ce882f04b2519"
+            }
+          ]
+        }
+      },
+      "source": {
+        "workflowArtifacts": [
+          ".runtime/api05-staking-tier-config-receipts.json"
+        ],
+        "producers": [],
+        "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+      },
+      "replay": {
+        "status": "idempotent",
+        "before": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "2",
+                "log_index": 0,
+                "facet_name": "StakingFacet",
+                "event_name": "TierConfigUpdated",
+                "event_signature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+                "decoded_args": {
+                  "baseApy": "1000",
+                  "thresholds": [
+                    "1000000000000000000000"
+                  ],
+                  "multipliers": [
+                    "10000",
+                    "5000"
+                  ]
+                }
+              }
+            ]
+          },
+          "projections": [
+            {
+              "table": "staking_positions",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "2",
+                  "source_raw_event_id": "2"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63368500",
+                "block_hash": "0xfb997a44073968c9401c89fcc7137e6fa17030073dbd44fcce8ce882f04b2519"
+              }
+            ]
+          }
+        },
+        "after": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "2",
+                "log_index": 0,
+                "facet_name": "StakingFacet",
+                "event_name": "TierConfigUpdated",
+                "event_signature": "TierConfigUpdated(uint256[],uint256[],uint256)",
+                "decoded_args": {
+                  "baseApy": "1000",
+                  "thresholds": [
+                    "1000000000000000000000"
+                  ],
+                  "multipliers": [
+                    "10000",
+                    "5000"
+                  ]
+                }
+              }
+            ]
+          },
+          "projections": [
+            {
+              "table": "staking_positions",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "2",
+                  "source_raw_event_id": "2"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63368500",
+                "block_hash": "0xfb997a44073968c9401c89fcc7137e6fa17030073dbd44fcce8ce882f04b2519"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "result": "The exact queue-tier configuration HTTP route produced two status-1 receipts: one changed a strictly increasing threshold while preserving the multipliers, and one restored the original threshold list. Both receipts emitted TierConfigUpdated, direct getter readbacks matched after each transition, PostgreSQL indexed the decoded events and staking projection, and replay was idempotent.",
+  "checks": [
+    "Focused local-fork HTTP integration passed: 1 passed, 60 unrelated cases skipped.",
+    "TypeScript build passed.",
+    "Focused ESLint passed.",
+    "Generated write-invariant registry rebuilt from reviewed metadata.",
+    "Event-to-indexer assurance test passed: 210/210."
+  ]
+}

@@ -1836,6 +1836,33 @@
             "All eight targeted RightsFacet methods have exact successful receipts and post-state verification."
           ],
           "resultLimitation": "Twelve new methods were completed against a 26-method run target (starting with 101 open); 14 more are required for this automation run to meet its batch target. API-05 remains in_progress with 89 open methods."
+        },
+        {
+          "sourceCommit": "pending",
+          "artifact": "output/api05-staking-tier-config-proof-2026-11-25.json",
+          "proofArtifactSha256": "d7baca72fde40825e6eaf5f88b75520c427505200911e6ab03557af4bd5d628e",
+          "transactionArtifact": ".runtime/api05-staking-tier-config-receipts.json",
+          "transactionArtifactSha256": "26e7ec82399ea31494dbe68de9782cf2655423861961cab700c9f74870dcec88",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "d2cede200307d7c8cd61ab37b360bf581bca3d720fed28d4d190bd77beeb95df",
+          "result": "Proved StakingFacet.queueTierConfigUpdate through POST /v1/staking/commands/queue-tier-config-update on a disposable Base Sepolia loopback fork. Two exact successful receipts changed and restored tier thresholds with identical multipliers, TierConfigUpdated events, canonical getter readbacks, PostgreSQL event/projection indexing, and idempotent replay. API-05 advances from 159/260 to 172/260 proven methods across this run, leaving 88 open.",
+          "startingProvenCount": 159,
+          "startingOpenCount": 101,
+          "completedThisRun": 13,
+          "completionPercentOfStart": 12.8713,
+          "boundedRunTarget": 26,
+          "boundedRunTargetRule": "ceil(0.25 * initial run open count (101))",
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 172,
+          "endingOpenCount": 88,
+          "checks": [
+            "Focused local-fork HTTP integration passed: 1 passed, 60 unrelated cases skipped.",
+            "TypeScript build passed.",
+            "Focused ESLint passed.",
+            "Generated write-invariant registry rebuilt from reviewed metadata.",
+            "Event-to-indexer assurance test passed: 210/210."
+          ],
+          "resultLimitation": "Thirteen distinct methods were completed across this continuing run against a 26-method target (initially 101 open); 13 more are required to reach the batch target. API-05 remains in_progress."
         }
       ],
       "deliveredCommit": null,

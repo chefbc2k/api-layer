@@ -1,3 +1,10 @@
+# API-05 Follow-on — Staking Tier Configuration — 2026-11-25
+
+- Proved `StakingFacet.queueTierConfigUpdate` through its exact HTTP route on a disposable loopback fork. Two status-1 receipts changed then restored tier thresholds while preserving multipliers; both emitted `TierConfigUpdated`, direct getter readbacks matched, PostgreSQL stored raw events and staking projection rows, and replay was idempotent.
+- Focused integration, TypeScript, focused ESLint, and event assurance (210/210) passed. The generated write-invariant registry was rebuilt from reviewed metadata to correct stale expected counts.
+- Across this run, API-05 advances from 159/260 to 172/260 proven methods, leaving 88 open. Thirteen distinct methods are proved against a 26-method target (initially 101 open), leaving 13 more to meet the target.
+- Evidence: [staking tier proof](../output/api05-staking-tier-config-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json). Source commit and fresh hosted CI pending.
+
 # API-05 Follow-on — RightsFacet Lifecycle Proof — 2026-11-25
 
 - Added and passed a focused local-fork HTTP integration covering eight RightsFacet writes: collaborator add/share update/removal, rights-group creation, grant/revoke right, and enforcement-contract registration/update. Each exact route returned a successful receipt; on-chain readbacks confirmed collaborator, group, user-right, and registry state.
