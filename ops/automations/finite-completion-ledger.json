@@ -2821,6 +2821,46 @@
             "API quality workflow 45703397210 passed on exact source commit 6584c19778fa31e5bf7eb0a7518ba2ed5a738d82, including Regression, Coverage, API surface, actor boundaries, Red team, Indexer assurance, and disposable PostgreSQL/native-USDC fork."
           ],
           "resultLimitation": "API-08 remains open with 159 uncovered lines, 187 uncovered statements, 216 uncovered branches, and 25 uncovered functions in the CI aggregate, plus actual backend privacy/release acceptance outstanding. API-07 remains waiting_dependency for approved live RPC configuration and explicit authorization."
+        },
+        {
+          "sourceCommit": "e7145c31b12938887be29810cc1852b896edcc9a",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45705355861",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-e7145c31b12938887be29810cc1852b896edcc9a)",
+          "artifactSha256": "0fdd4fd5f364ed606542d532c78f8986d84193025eb2486ba65b5f5231c86291",
+          "result": "Full repository coverage on the exact source head improved to 97.79% lines, 97.58% statements, 96.62% branches, and 98.53% functions. The first attempt was cancelled during API surface after coverage completed. The exact-head rerun passed all configured API quality gates, including API surface, actor boundaries, red team, and indexer assurance. API-08 remains open below the frozen 100% coverage requirement and pending actual backend privacy/release acceptance.",
+          "coveragePercent": {
+            "lines": 97.79,
+            "statements": 97.58,
+            "branches": 96.62,
+            "functions": 98.53
+          },
+          "coveredTotals": {
+            "lines": "6705/6856",
+            "statements": "7157/7334",
+            "branches": "6135/6349",
+            "functions": "1616/1640"
+          },
+          "moduleCoveragePercent": {
+            "funding-release-readiness.ts": {
+              "lines": 69.56,
+              "statements": 71.42,
+              "branches": 58.82,
+              "functions": 80
+            },
+            "promote-base-sepolia-scenarios.ts": {
+              "lines": 53.76,
+              "statements": 54.59,
+              "branches": 68.49,
+              "functions": 78.12
+            }
+          },
+          "checks": [
+            "The CI coverage step completed and its uploaded coverage-summary.json was downloaded and SHA-256 verified.",
+            "The initial attempt was cancelled during API surface; its coverage artifact was complete but the attempt was not an all-gates pass.",
+            "Exact-head rerun 45705355861 completed successfully on e7145c31b12938887be29810cc1852b896edcc9a. Regression, Coverage, API surface, Actor boundaries, Red team, Indexer assurance, disposable PostgreSQL/native-USDC fork, and evidence preservation passed.",
+            "Production runtime and backend privacy/release acceptance remain unverified."
+          ],
+          "resultLimitation": "API-08 remains open pending 100% repository-wide coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
