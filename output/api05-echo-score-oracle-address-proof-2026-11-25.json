@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "sourceCommit": "7c99e5743ed1efc4c71f036819727a4d5fd09894",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "method": {
+    "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+    "route": "PATCH /v1/staking/commands/set-echo-score-oracle-v3",
+    "actor": "founder fixture signer with PLATFORM_ADMIN_ROLE",
+    "originalOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+    "targetOracle": "0xB67b54f43308bF997C72a91C6068990A816B864A",
+    "restoredOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+    "updateTransactionHash": "0xd0663948932285b4551b32a5c2671ebca59abe14a9f0269542dd809e829ff655",
+    "restoreTransactionHash": "0x4d4ad0a3b9762b62157bd8872c91cccfecfe0593072facc94c96c1affc0d254e",
+    "event": "EchoScoreFacetV3.OracleUpdated(address,address)",
+    "canonicalReadbackMatched": true,
+    "httpReadbackMatched": true,
+    "finalStateRestored": true,
+    "forkScopedFixture": true
+  },
+  "indexer": {
+    "classification": "proven working",
+    "receipts": [
+      {
+        "localFork": true,
+        "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "setEchoScoreOracleV3(address)",
+        "txHash": "0x4d4ad0a3b9762b62157bd8872c91cccfecfe0593072facc94c96c1affc0d254e",
+        "blockNumber": 63318025,
+        "receipt": {
+          "status": 1,
+          "logCount": 1
+        },
+        "decodedEvents": [
+          {
+            "rawEventId": "277",
+            "logIndex": 0,
+            "eventKey": "EchoScoreFacetV3.OracleUpdated(address,address)"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rowIds": [
+              "277"
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63318025",
+                "block_hash": "0x7ff80086f0b6b8a081f8239df558c75c5352a7c659949baf676654bec4ff607d"
+              }
+            ]
+          }
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/local-fork-proofs/http-contract-receipts.json"
+          ],
+          "producers": [
+            "packages/api/src/app.contract-integration.test.ts"
+          ],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        }
+      },
+      {
+        "localFork": true,
+        "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "setEchoScoreOracleV3(address)",
+        "txHash": "0xd0663948932285b4551b32a5c2671ebca59abe14a9f0269542dd809e829ff655",
+        "blockNumber": 63318024,
+        "receipt": {
+          "status": 1,
+          "logCount": 1
+        },
+        "decodedEvents": [
+          {
+            "rawEventId": "276",
+            "logIndex": 0,
+            "eventKey": "EchoScoreFacetV3.OracleUpdated(address,address)"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rowIds": [
+              "276"
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63318024",
+                "block_hash": "0xb6febf5a994a97e95f9942737aa67291f74ddcf8531b53b2b7555c1f0b1db249"
+              }
+            ]
+          }
+        },
+        "replay": {
+          "status": "idempotent",
+          "unchanged": true
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/local-fork-proofs/http-contract-receipts.json"
+          ],
+          "producers": [
+            "packages/api/src/app.contract-integration.test.ts"
+          ],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        }
+      }
+    ],
+    "totals": {
+      "artifactTransactionHashes": 5137,
+      "includedArtifacts": 6,
+      "skippedArtifacts": 0,
+      "indexedReceipts": 5137,
+      "provenWriteMethods": 147,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 113,
+      "rawEvents": 7778,
+      "projectionRows": 5007
+    }
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "safeReadsPassed": 445,
+    "safeReadsAttempted": 446,
+    "knownGap": "ProposalFacet.queue safe-read fixture gap",
+    "reportSha256": "b38871de97c96a11563adfbef64408326589556290e48cd3e803e858a5e9d232"
+  },
+  "verification": {
+    "focusedTest": "passed; 1 passed, 51 skipped",
+    "fullContractIntegration": "passed; 52/52",
+    "codegenAndCoverage": "passed; 492 functions, 218 events, 260/260 reviewed write invariants",
+    "sourceCi": "pending"
+  },
+  "methodCounts": {
+    "startingProven": 146,
+    "startingOpen": 114,
+    "endingProven": 147,
+    "endingOpen": 113
+  }
+}

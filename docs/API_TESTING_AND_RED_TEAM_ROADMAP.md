@@ -1,3 +1,10 @@
+# API-05 Follow-on — EchoScore Oracle Address Proof — 2026-11-25
+
+- Added an exact loopback-fork HTTP receipt proof for `EchoScoreFacetV3.setEchoScoreOracleV3`. The founder fixture signer with `PLATFORM_ADMIN_ROLE` set a distinct test oracle address, checked the `OracleUpdated` event plus canonical and HTTP reads, and restored the original address.
+- Both update and restore receipts were indexed into PostgreSQL as raw events with block journals; replay was unchanged and idempotent. Focused test passed; full HTTP contract integration passed `52/52`. All 12 local-fork assurance stages passed with the known `ProposalFacet.queue` safe-read gap (`445/446`).
+- API-05 advances from `146/260` to `147/260` exact-method proofs, leaving `113` open. Source commit `7c99e5743ed1efc4c71f036819727a4d5fd09894` is awaiting hosted API quality CI.
+- Durable proof: [oracle address proof](../output/api05-echo-score-oracle-address-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json), and local-fork assurance report (SHA-256 `b38871de97c96a11563adfbef64408326589556290e48cd3e803e858a5e9d232`).
+
 # API-05 Follow-on — EchoScore Pause Lifecycle Proof — 2026-11-25
 
 - Corrected the reviewed EchoScore admin invariants to require `PLATFORM_ADMIN_ROLE` and corrected `unpauseEchoScoreV3` to require a false `isEchoScorePausedV3` post-state. Added exact loopback-fork proof for `pauseEchoScoreV3` and `unpauseEchoScoreV3` through their HTTP routes. The founder fixture signer paused then resumed EchoScore V3; both receipts emitted the expected events and direct/HTTP reads matched, restoring the initial unpaused state. Reproved `setOracleQuorumSigners` with an explicit `PLATFORM_ADMIN_ROLE` assertion.
