@@ -1,0 +1,1246 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T07:59:24.137Z",
+  "summary": "proven working",
+  "methodKeys": [
+    "EchoScoreFacetV3.updateScore",
+    "EchoScoreFacetV3.batchUpdateScores"
+  ],
+  "test": {
+    "name": "proves signed single and batch EchoScore updates through HTTP on the local fork",
+    "result": "passed",
+    "passed": 1,
+    "skipped": 56,
+    "typescript": "passed",
+    "eslint": "passed",
+    "details": [
+      "Temporarily set the disposable fork oracle and one-signer quorum to the founder fixture, signed score payloads using the contract hash scheme, then restored the original oracle and quorum settings.",
+      "PATCH /v1/staking/commands/update-score succeeded with a status-1 receipt and ReputationUpdated event; canonical readback showed updateCount 1.",
+      "POST /v1/staking/commands/batch-update-scores accepted two signed score payloads; status-1 receipt emitted ScoresUpdated(count=2), both canonical records showed updateCount 1, and HTTP get-reputation matched canonical state."
+    ]
+  },
+  "receiptArtifact": {
+    "transactionHashes": [
+      "0x05ded0e9b7f5e43a8bd4be88d54549bf863b87448a1ec4703761bfda717c3bac",
+      "0x34591cd9883e8846e8e04180934899046057b0581692b735e0b0dcabe4531f17",
+      "0x4483e5dc20091c6227315c2b124190937277e95b4d74f3e4c742a1c81a0c5f4f",
+      "0x555ffb176b4ed66bed1df0fb33f48e90a2ffa70d004bf5fc68226dab5adf4351",
+      "0x907426695d438ee052d4616c4271d784bc93d124ab3490d26c2b56d99b803c74",
+      "0xe53ddfb4d145076fa71e48eaecf09c186a73cd8f608c56ec11fd9e43fa2de8e1"
+    ],
+    "rolledBackReceiptObservations": 0
+  },
+  "indexerRun": {
+    "schemaVersion": 2,
+    "generatedAt": "2026-11-25T07:58:18.634Z",
+    "status": "proven working",
+    "network": {
+      "chainId": 84532,
+      "rpcKind": "local-fork",
+      "callTracer": {
+        "status": "supported"
+      }
+    },
+    "totals": {
+      "artifactTransactionHashes": 6,
+      "includedArtifacts": 1,
+      "skippedArtifacts": 0,
+      "indexedReceipts": 6,
+      "provenWriteMethods": 4,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 256,
+      "rawEvents": 6,
+      "projectionRows": 0
+    },
+    "replay": {
+      "status": "idempotent",
+      "before": {
+        "raw_events": 6,
+        "voice_assets": 0,
+        "voice_datasets": 0,
+        "voice_dataset_members": 0,
+        "voice_license_templates": 0,
+        "voice_licenses": 0,
+        "market_listings": 0,
+        "market_sales": 0,
+        "payment_flows": 0,
+        "payment_withdrawals": 0,
+        "staking_positions": 0,
+        "staking_rewards": 0,
+        "reward_campaigns": 0,
+        "reward_claims": 0,
+        "governance_proposals": 0,
+        "governance_votes": 0,
+        "governance_delegations": 0,
+        "timelock_operations": 0,
+        "emergency_incidents": 0,
+        "emergency_withdrawals": 0,
+        "vesting_schedules": 0,
+        "vesting_releases": 0,
+        "multisig_operations": 0,
+        "upgrade_requests": 0,
+        "ownership_transfers": 0
+      },
+      "after": {
+        "raw_events": 6,
+        "voice_assets": 0,
+        "voice_datasets": 0,
+        "voice_dataset_members": 0,
+        "voice_license_templates": 0,
+        "voice_licenses": 0,
+        "market_listings": 0,
+        "market_sales": 0,
+        "payment_flows": 0,
+        "payment_withdrawals": 0,
+        "staking_positions": 0,
+        "staking_rewards": 0,
+        "reward_campaigns": 0,
+        "reward_claims": 0,
+        "governance_proposals": 0,
+        "governance_votes": 0,
+        "governance_delegations": 0,
+        "timelock_operations": 0,
+        "emergency_incidents": 0,
+        "emergency_withdrawals": 0,
+        "vesting_schedules": 0,
+        "vesting_releases": 0,
+        "multisig_operations": 0,
+        "upgrade_requests": 0,
+        "ownership_transfers": 0
+      }
+    },
+    "artifacts": {
+      "included": [
+        ".runtime/api05-echo-score-write-receipts.json"
+      ],
+      "skipped": []
+    },
+    "provenMethodKeys": [
+      "EchoScoreFacetV3.batchUpdateScores",
+      "EchoScoreFacetV3.setEchoScoreOracleV3",
+      "EchoScoreFacetV3.setOracleQuorumSigners",
+      "EchoScoreFacetV3.updateScore"
+    ],
+    "remainingMethodKeys": [
+      "AccessControlFacet.configureRole",
+      "AccessControlFacet.emergencyForceAdd",
+      "AccessControlFacet.executeFounderSunset",
+      "AccessControlFacet.grantRole",
+      "AccessControlFacet.renounceRole",
+      "AccessControlFacet.revokeRole",
+      "AccessControlFacet.scheduleFounderSunset",
+      "AccessControlFacet.setDefaultValidityPeriod",
+      "AccessControlFacet.setMinValidations",
+      "AccessControlFacet.setPaused",
+      "AccessControlFacet.setRecoveryActive",
+      "AccessControlFacet.setRoleAdmin",
+      "BurnThresholdFacet.thresholdBurnExcess",
+      "BurnThresholdFacet.thresholdBurnTokens",
+      "BurnThresholdFacet.thresholdBurnTokensFrom",
+      "BurnThresholdFacet.thresholdSetBurnLimit",
+      "CommunityRewardsFacet.claim",
+      "CommunityRewardsFacet.createCampaign",
+      "CommunityRewardsFacet.pauseCampaign",
+      "CommunityRewardsFacet.setMerkleRoot",
+      "CommunityRewardsFacet.unpauseCampaign",
+      "DelegationFacet.delegate",
+      "DelegationFacet.delegateBySig",
+      "DelegationFacet.updateDelegatedVotingPower",
+      "DelegationFacet.updateDelegatedVotingPowerBatch",
+      "DiamondCutFacet.diamondCut",
+      "DiamondCutFacet.setTrustedInitCodehash",
+      "DiamondCutFacet.setTrustedInitContract",
+      "DiamondCutFacet.setTrustedInitSelector",
+      "EchoScoreFacetV3.pauseEchoScoreV3",
+      "EchoScoreFacetV3.setOracleFutureDriftConfig",
+      "EchoScoreFacetV3.setOracleStalenessConfig",
+      "EchoScoreFacetV3.unpauseEchoScoreV3",
+      "EmergencyFacet.approveRecovery",
+      "EmergencyFacet.completeRecovery",
+      "EmergencyFacet.emergencyResume",
+      "EmergencyFacet.emergencyStop",
+      "EmergencyFacet.executeRecoveryAction",
+      "EmergencyFacet.executeRecoveryStep",
+      "EmergencyFacet.executeResponse",
+      "EmergencyFacet.executeScheduledResume",
+      "EmergencyFacet.extendPausedUntil",
+      "EmergencyFacet.freezeAssets",
+      "EmergencyFacet.reportIncident",
+      "EmergencyFacet.scheduleEmergencyResume",
+      "EmergencyFacet.setEmergencyTimeout",
+      "EmergencyFacet.setResumeDelay",
+      "EmergencyFacet.startRecovery",
+      "EmergencyFacet.triggerEmergency",
+      "EmergencyFacet.unfreezeAssets",
+      "EmergencyWithdrawalFacet.approveEmergencyWithdrawal",
+      "EmergencyWithdrawalFacet.executeWithdrawal",
+      "EmergencyWithdrawalFacet.requestEmergencyWithdrawal",
+      "EmergencyWithdrawalFacet.setRecipientWhitelist",
+      "EmergencyWithdrawalFacet.updateWithdrawalConfig",
+      "EscrowFacet.escrowAsset",
+      "EscrowFacet.onERC721Received",
+      "EscrowFacet.releaseAsset",
+      "EscrowFacet.updateAssetState",
+      "GovernorFacet.setDefaultGasLimit",
+      "GovernorFacet.setTrustedTarget",
+      "GovernorFacet.updateProposalThreshold",
+      "GovernorFacet.updateQuorumNumerator",
+      "GovernorFacet.updateVotingDelay",
+      "GovernorFacet.updateVotingPeriod",
+      "LegacyExecutionFacet.approveInheritance",
+      "LegacyExecutionFacet.delegateRights",
+      "LegacyExecutionFacet.executeInheritance",
+      "LegacyExecutionFacet.initiateInheritance",
+      "LegacyFacet.addBeneficiary",
+      "LegacyFacet.addDatasets",
+      "LegacyFacet.addInheritanceRequirement",
+      "LegacyFacet.addVoiceAssets",
+      "LegacyFacet.createLegacyPlan",
+      "LegacyFacet.setBeneficiaryRelationship",
+      "LegacyFacet.setInheritanceConditions",
+      "LegacyFacet.setMaxBeneficiaries",
+      "LegacyFacet.setMinTimelockPeriod",
+      "LegacyFacet.updateBeneficiary",
+      "MarketplaceFacet.cancelListing",
+      "MarketplaceFacet.listAsset",
+      "MarketplaceFacet.pause",
+      "MarketplaceFacet.purchaseAsset",
+      "MarketplaceFacet.unpause",
+      "MarketplaceFacet.updateListingPrice",
+      "MultiSigFacet.addOperationType",
+      "MultiSigFacet.addOperator",
+      "MultiSigFacet.approveOperation",
+      "MultiSigFacet.cancelOperation",
+      "MultiSigFacet.execute",
+      "MultiSigFacet.executeOperation",
+      "MultiSigFacet.muSetPaused",
+      "MultiSigFacet.proposeOperation",
+      "MultiSigFacet.removeOperator",
+      "MultiSigFacet.setOperationConfig",
+      "MultiSigFacet.submitTransaction",
+      "OwnershipFacet.acceptOwnership",
+      "OwnershipFacet.cancelOwnershipTransfer",
+      "OwnershipFacet.proposeOwnershipTransfer",
+      "OwnershipFacet.setApprovedOwnerTarget",
+      "OwnershipFacet.setOwnershipPolicyEnforced",
+      "OwnershipFacet.transferOwnership",
+      "PaymentFacet.approveMultisigWithdrawal",
+      "PaymentFacet.commitDistribution",
+      "PaymentFacet.commitWithdraw",
+      "PaymentFacet.distributePayment",
+      "PaymentFacet.distributePaymentFrom",
+      "PaymentFacet.distributePaymentFromWithDeadline",
+      "PaymentFacet.distributePaymentWithDeadline",
+      "PaymentFacet.executeMultisigWithdrawal",
+      "PaymentFacet.executeQuarterlyBuyback",
+      "PaymentFacet.pauseBuybacks",
+      "PaymentFacet.revealDistribution",
+      "PaymentFacet.revealDistributionStruct",
+      "PaymentFacet.revealWithdraw",
+      "PaymentFacet.setBuybackConfig",
+      "PaymentFacet.setBuybackConfigStruct",
+      "PaymentFacet.setMevProtectionConfig",
+      "PaymentFacet.setPaymentPaused",
+      "PaymentFacet.setStakingConfig",
+      "PaymentFacet.setTreasuryWithdrawalLimit",
+      "PaymentFacet.setUsdcToken",
+      "PaymentFacet.updateDevFundAddress",
+      "PaymentFacet.updateFeeConfiguration",
+      "PaymentFacet.updateTreasuryAddress",
+      "PaymentFacet.updateUnionTreasuryAddress",
+      "PaymentFacet.withdrawPayments",
+      "PaymentFacet.withdrawPaymentsWithDeadline",
+      "ProposalFacet.cancelProposal",
+      "ProposalFacet.prCastVote",
+      "ProposalFacet.prExecute",
+      "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)",
+      "ProposalFacet.propose(string,string,address[],uint256[],bytes[],uint8)",
+      "ProposalFacet.prQueue",
+      "ProposalFacet.setProposalTypeConfig",
+      "RightsFacet.addCollaborator",
+      "RightsFacet.createRightsGroup",
+      "RightsFacet.grantRight",
+      "RightsFacet.registerRightContract",
+      "RightsFacet.removeCollaborator",
+      "RightsFacet.revokeRight",
+      "RightsFacet.updateCollaboratorShare",
+      "RightsFacet.updateRightContract",
+      "StakingFacet.advanceEpoch",
+      "StakingFacet.claimRewards",
+      "StakingFacet.executeUnstake",
+      "StakingFacet.fundRewardPool",
+      "StakingFacet.initStaking",
+      "StakingFacet.initStakingWithToken",
+      "StakingFacet.queueTierConfigUpdate",
+      "StakingFacet.requestUnstake",
+      "StakingFacet.setDegradedModeConfig",
+      "StakingFacet.setEchoScoreBoost",
+      "StakingFacet.setStakingPaused",
+      "StakingFacet.stake",
+      "TimelockFacet.cancel",
+      "TimelockFacet.execute",
+      "TimelockFacet.schedule",
+      "TimelockFacet.updateMinDelay",
+      "TimewaveGiftFacet.batchReleaseTwaveVesting",
+      "TimewaveGiftFacet.createUsdcVestingSchedule",
+      "TimewaveGiftFacet.releaseTwaveVesting",
+      "TimewaveGiftFacet.releaseTwaveVestingFor",
+      "TimewaveGiftFacet.revokeTwaveVesting",
+      "TimewaveGiftFacet.setMinimumTwaveVestingDuration",
+      "TimewaveGiftFacet.setQuarterlyUnlockRate",
+      "TimewaveGiftFacet.transferTwaveVesting",
+      "TokenSupplyFacet.approve",
+      "TokenSupplyFacet.burn",
+      "TokenSupplyFacet.burnFrom",
+      "TokenSupplyFacet.initializeToken",
+      "TokenSupplyFacet.supplyFinishMinting",
+      "TokenSupplyFacet.supplyMintTokens",
+      "TokenSupplyFacet.supplySetMaximum",
+      "TokenSupplyFacet.tokenApprove",
+      "TokenSupplyFacet.tokenTransferFrom",
+      "TokenSupplyFacet.transfer",
+      "TokenSupplyFacet.transferFrom",
+      "UpgradeControllerFacet.approveUpgrade",
+      "UpgradeControllerFacet.executeUpgrade",
+      "UpgradeControllerFacet.freezeUpgradeControl",
+      "UpgradeControllerFacet.initUpgradeController",
+      "UpgradeControllerFacet.proposeDiamondCut",
+      "UpgradeControllerFacet.setUpgradeControlEnforced",
+      "VestingFacet.createCexVesting",
+      "VestingFacet.createDevFundVesting",
+      "VestingFacet.createFounderVesting",
+      "VestingFacet.createPublicVesting",
+      "VestingFacet.createTeamVesting",
+      "VestingFacet.releaseStandardVesting",
+      "VestingFacet.releaseStandardVestingFor",
+      "VestingFacet.releaseTokensFor",
+      "VestingFacet.releaseVestedTokens",
+      "VestingFacet.revokeVestingSchedule",
+      "VestingFacet.setMinimumVestingDuration",
+      "VestingFacet.transferVestingSchedule",
+      "VoiceAssetFacet.approveVoiceAsset",
+      "VoiceAssetFacet.authorizeUser",
+      "VoiceAssetFacet.customizeRoyaltyRate",
+      "VoiceAssetFacet.lockVoiceAsset",
+      "VoiceAssetFacet.recordRoyaltyPayment",
+      "VoiceAssetFacet.recordRoyaltyPaymentFrom",
+      "VoiceAssetFacet.recordUsage",
+      "VoiceAssetFacet.recordUsageFrom",
+      "VoiceAssetFacet.registerVoiceAsset",
+      "VoiceAssetFacet.registerVoiceAssetForCaller",
+      "VoiceAssetFacet.revokeUser",
+      "VoiceAssetFacet.safeTransferFrom(address,address,uint256,bytes)",
+      "VoiceAssetFacet.safeTransferFrom(address,address,uint256)",
+      "VoiceAssetFacet.setApprovalForAll",
+      "VoiceAssetFacet.setDefaultPlatformFee",
+      "VoiceAssetFacet.setDefaultRoyaltyRate",
+      "VoiceAssetFacet.setRegistrationPaused",
+      "VoiceAssetFacet.transferFromVoiceAsset",
+      "VoiceAssetFacet.unlockVoiceAsset",
+      "VoiceDatasetFacet.appendAssets",
+      "VoiceDatasetFacet.burnDataset",
+      "VoiceDatasetFacet.createDataset",
+      "VoiceDatasetFacet.removeAsset",
+      "VoiceDatasetFacet.setDatasetStatus",
+      "VoiceDatasetFacet.setLicense",
+      "VoiceDatasetFacet.setMaxAssetsPerDataset",
+      "VoiceDatasetFacet.setMetadata",
+      "VoiceDatasetFacet.setRoyalty",
+      "VoiceLicenseFacet.createLicense",
+      "VoiceLicenseFacet.createLicenseWithMarketplace",
+      "VoiceLicenseFacet.issueLicense",
+      "VoiceLicenseFacet.recordLicensedUsage",
+      "VoiceLicenseFacet.revokeLicense",
+      "VoiceLicenseFacet.transferLicense",
+      "VoiceLicenseFacet.updateLicenseTerms",
+      "VoiceLicenseFacet.withdrawLicenseRevenue",
+      "VoiceLicenseTemplateFacet.createLicenseFromTemplate",
+      "VoiceLicenseTemplateFacet.createTemplate",
+      "VoiceLicenseTemplateFacet.setTemplateStatus",
+      "VoiceLicenseTemplateFacet.updateTemplate",
+      "VoiceMetadataFacet.setAnalysisVersion",
+      "VoiceMetadataFacet.updateBasicAcousticFeatures",
+      "VoiceMetadataFacet.updateClassificationCategory",
+      "VoiceMetadataFacet.updateGeographicData",
+      "VoiceMetadataFacet.updateVoiceClassifications",
+      "VotingPowerFacet.setMaxLockDuration",
+      "VotingPowerFacet.setRoleMultiplier",
+      "VotingPowerFacet.setupInitialVotingPower",
+      "VotingPowerFacet.setZeroLockDuration",
+      "VotingPowerFacet.updateLockDuration",
+      "VotingPowerFacet.updateVotingPower",
+      "VotingPowerFacet.updateVotingPowerBatch",
+      "WhisperBlockFacet.generateAndSetEncryptionKey",
+      "WhisperBlockFacet.grantAccess",
+      "WhisperBlockFacet.registerVoiceFingerprint",
+      "WhisperBlockFacet.revokeAccess",
+      "WhisperBlockFacet.setAuditEnabled",
+      "WhisperBlockFacet.setOffchainEntropy",
+      "WhisperBlockFacet.setTrustedOracle",
+      "WhisperBlockFacet.updateSystemParameters"
+    ],
+    "receipts": [
+      {
+        "txHash": "0x05ded0e9b7f5e43a8bd4be88d54549bf863b87448a1ec4703761bfda717c3bac",
+        "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+        "expectedEventMode": "one-of",
+        "expectedEventKeys": [
+          "EchoScoreFacetV3.OracleFutureDriftConfigUpdated",
+          "EchoScoreFacetV3.OracleQuorumConfigUpdated",
+          "EchoScoreFacetV3.OracleStalenessConfigUpdated",
+          "EchoScoreFacetV3.OracleUpdated"
+        ],
+        "indexedEventKeys": [
+          "EchoScoreFacetV3.OracleUpdated"
+        ],
+        "expectedProjectionTables": [],
+        "projectedTables": [],
+        "failures": [],
+        "blockNumber": 63354239,
+        "receiptStatus": 1,
+        "receiptLogCount": 1,
+        "transactionSelector": "0x27b83e95",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "setEchoScoreOracleV3(address)",
+        "decodedEvents": [
+          {
+            "rawEventId": "1",
+            "logIndex": 0,
+            "facetName": "EchoScoreFacetV3",
+            "eventName": "OracleUpdated",
+            "eventSignature": "OracleUpdated(address,address)",
+            "decodedArgs": {
+              "newOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "oldOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED"
+            }
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "1",
+                "log_index": 0,
+                "facet_name": "EchoScoreFacetV3",
+                "event_name": "OracleUpdated",
+                "event_signature": "OracleUpdated(address,address)",
+                "decoded_args": {
+                  "newOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                  "oldOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED"
+                }
+              }
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63354239",
+                "block_hash": "0x57528a474ba25265d4fec0e798bf2901fdb3b8ce3994cfa02dbcf968b466f8a1"
+              }
+            ]
+          }
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/api05-echo-score-write-receipts.json"
+          ],
+          "producers": [],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "1",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleUpdated",
+                  "event_signature": "OracleUpdated(address,address)",
+                  "decoded_args": {
+                    "newOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                    "oldOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354239",
+                  "block_hash": "0x57528a474ba25265d4fec0e798bf2901fdb3b8ce3994cfa02dbcf968b466f8a1"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "1",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleUpdated",
+                  "event_signature": "OracleUpdated(address,address)",
+                  "decoded_args": {
+                    "newOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                    "oldOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354239",
+                  "block_hash": "0x57528a474ba25265d4fec0e798bf2901fdb3b8ce3994cfa02dbcf968b466f8a1"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "txHash": "0x907426695d438ee052d4616c4271d784bc93d124ab3490d26c2b56d99b803c74",
+        "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+        "expectedEventMode": "all",
+        "expectedEventKeys": [
+          "EchoScoreFacetV3.OracleQuorumConfigUpdated"
+        ],
+        "indexedEventKeys": [
+          "EchoScoreFacetV3.OracleQuorumConfigUpdated"
+        ],
+        "expectedProjectionTables": [],
+        "projectedTables": [],
+        "failures": [],
+        "blockNumber": 63354240,
+        "receiptStatus": 1,
+        "receiptLogCount": 1,
+        "transactionSelector": "0xe6689224",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "setOracleQuorumSigners(address[],uint256)",
+        "decodedEvents": [
+          {
+            "rawEventId": "2",
+            "logIndex": 0,
+            "facetName": "EchoScoreFacetV3",
+            "eventName": "OracleQuorumConfigUpdated",
+            "eventSignature": "OracleQuorumConfigUpdated(address[],uint256)",
+            "decodedArgs": {
+              "signers": [
+                "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+              ],
+              "threshold": "1"
+            }
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "2",
+                "log_index": 0,
+                "facet_name": "EchoScoreFacetV3",
+                "event_name": "OracleQuorumConfigUpdated",
+                "event_signature": "OracleQuorumConfigUpdated(address[],uint256)",
+                "decoded_args": {
+                  "signers": [
+                    "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                  ],
+                  "threshold": "1"
+                }
+              }
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63354240",
+                "block_hash": "0xc1a0325709f8e764521db12e6ead1d8350cbad9ed98c3245095e51a962ade376"
+              }
+            ]
+          }
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/api05-echo-score-write-receipts.json"
+          ],
+          "producers": [],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "2",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleQuorumConfigUpdated",
+                  "event_signature": "OracleQuorumConfigUpdated(address[],uint256)",
+                  "decoded_args": {
+                    "signers": [
+                      "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                    ],
+                    "threshold": "1"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354240",
+                  "block_hash": "0xc1a0325709f8e764521db12e6ead1d8350cbad9ed98c3245095e51a962ade376"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "2",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleQuorumConfigUpdated",
+                  "event_signature": "OracleQuorumConfigUpdated(address[],uint256)",
+                  "decoded_args": {
+                    "signers": [
+                      "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                    ],
+                    "threshold": "1"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354240",
+                  "block_hash": "0xc1a0325709f8e764521db12e6ead1d8350cbad9ed98c3245095e51a962ade376"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "txHash": "0x34591cd9883e8846e8e04180934899046057b0581692b735e0b0dcabe4531f17",
+        "methodKey": "EchoScoreFacetV3.updateScore",
+        "expectedEventMode": "all",
+        "expectedEventKeys": [
+          "EchoScoreFacetV3.ReputationUpdated"
+        ],
+        "indexedEventKeys": [
+          "EchoScoreFacetV3.ReputationUpdated"
+        ],
+        "expectedProjectionTables": [],
+        "projectedTables": [],
+        "failures": [],
+        "blockNumber": 63354241,
+        "receiptStatus": 1,
+        "receiptLogCount": 1,
+        "transactionSelector": "0xeec65de2",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "updateScore((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes))",
+        "decodedEvents": [
+          {
+            "rawEventId": "3",
+            "logIndex": 0,
+            "facetName": "EchoScoreFacetV3",
+            "eventName": "ReputationUpdated",
+            "eventSignature": "ReputationUpdated(bytes32,uint256,uint256,uint256,uint256,uint256,uint256)",
+            "decodedArgs": {
+              "voiceHash": "0xb19a0025682fbd93002d8e2f2785a840062eb831c940e82ee503910c24453ec5",
+              "datasetScore": "1794",
+              "qualityScore": "468",
+              "engagementScore": "847",
+              "governanceScore": "1400",
+              "totalReputation": "1233",
+              "marketplaceScore": "1800"
+            }
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "3",
+                "log_index": 0,
+                "facet_name": "EchoScoreFacetV3",
+                "event_name": "ReputationUpdated",
+                "event_signature": "ReputationUpdated(bytes32,uint256,uint256,uint256,uint256,uint256,uint256)",
+                "decoded_args": {
+                  "voiceHash": "0xb19a0025682fbd93002d8e2f2785a840062eb831c940e82ee503910c24453ec5",
+                  "datasetScore": "1794",
+                  "qualityScore": "468",
+                  "engagementScore": "847",
+                  "governanceScore": "1400",
+                  "totalReputation": "1233",
+                  "marketplaceScore": "1800"
+                }
+              }
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63354241",
+                "block_hash": "0xe172727f08a32e8880e49123756a1f4c265a16ec98e14aeaebfa40a863710eb2"
+              }
+            ]
+          }
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/api05-echo-score-write-receipts.json"
+          ],
+          "producers": [],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "3",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "ReputationUpdated",
+                  "event_signature": "ReputationUpdated(bytes32,uint256,uint256,uint256,uint256,uint256,uint256)",
+                  "decoded_args": {
+                    "voiceHash": "0xb19a0025682fbd93002d8e2f2785a840062eb831c940e82ee503910c24453ec5",
+                    "datasetScore": "1794",
+                    "qualityScore": "468",
+                    "engagementScore": "847",
+                    "governanceScore": "1400",
+                    "totalReputation": "1233",
+                    "marketplaceScore": "1800"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354241",
+                  "block_hash": "0xe172727f08a32e8880e49123756a1f4c265a16ec98e14aeaebfa40a863710eb2"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "3",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "ReputationUpdated",
+                  "event_signature": "ReputationUpdated(bytes32,uint256,uint256,uint256,uint256,uint256,uint256)",
+                  "decoded_args": {
+                    "voiceHash": "0xb19a0025682fbd93002d8e2f2785a840062eb831c940e82ee503910c24453ec5",
+                    "datasetScore": "1794",
+                    "qualityScore": "468",
+                    "engagementScore": "847",
+                    "governanceScore": "1400",
+                    "totalReputation": "1233",
+                    "marketplaceScore": "1800"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354241",
+                  "block_hash": "0xe172727f08a32e8880e49123756a1f4c265a16ec98e14aeaebfa40a863710eb2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "txHash": "0xe53ddfb4d145076fa71e48eaecf09c186a73cd8f608c56ec11fd9e43fa2de8e1",
+        "methodKey": "EchoScoreFacetV3.batchUpdateScores",
+        "expectedEventMode": "all",
+        "expectedEventKeys": [
+          "EchoScoreFacetV3.ScoresUpdated"
+        ],
+        "indexedEventKeys": [
+          "EchoScoreFacetV3.ScoresUpdated"
+        ],
+        "expectedProjectionTables": [],
+        "projectedTables": [],
+        "failures": [],
+        "blockNumber": 63354242,
+        "receiptStatus": 1,
+        "receiptLogCount": 1,
+        "transactionSelector": "0x29164fec",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "batchUpdateScores((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes)[])",
+        "decodedEvents": [
+          {
+            "rawEventId": "4",
+            "logIndex": 0,
+            "facetName": "EchoScoreFacetV3",
+            "eventName": "ScoresUpdated",
+            "eventSignature": "ScoresUpdated(uint256,uint256,address)",
+            "decodedArgs": {
+              "count": "2",
+              "oracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "batchId": "7"
+            }
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "4",
+                "log_index": 0,
+                "facet_name": "EchoScoreFacetV3",
+                "event_name": "ScoresUpdated",
+                "event_signature": "ScoresUpdated(uint256,uint256,address)",
+                "decoded_args": {
+                  "count": "2",
+                  "oracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                  "batchId": "7"
+                }
+              }
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63354242",
+                "block_hash": "0xd8bd18b7721df981b25897cd679aac132e44a5e1fca4b866f696c25dcc667844"
+              }
+            ]
+          }
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/api05-echo-score-write-receipts.json"
+          ],
+          "producers": [],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "4",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "ScoresUpdated",
+                  "event_signature": "ScoresUpdated(uint256,uint256,address)",
+                  "decoded_args": {
+                    "count": "2",
+                    "oracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                    "batchId": "7"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354242",
+                  "block_hash": "0xd8bd18b7721df981b25897cd679aac132e44a5e1fca4b866f696c25dcc667844"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "4",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "ScoresUpdated",
+                  "event_signature": "ScoresUpdated(uint256,uint256,address)",
+                  "decoded_args": {
+                    "count": "2",
+                    "oracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+                    "batchId": "7"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354242",
+                  "block_hash": "0xd8bd18b7721df981b25897cd679aac132e44a5e1fca4b866f696c25dcc667844"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "txHash": "0x555ffb176b4ed66bed1df0fb33f48e90a2ffa70d004bf5fc68226dab5adf4351",
+        "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+        "expectedEventMode": "all",
+        "expectedEventKeys": [
+          "EchoScoreFacetV3.OracleQuorumConfigUpdated"
+        ],
+        "indexedEventKeys": [
+          "EchoScoreFacetV3.OracleQuorumConfigUpdated"
+        ],
+        "expectedProjectionTables": [],
+        "projectedTables": [],
+        "failures": [],
+        "blockNumber": 63354243,
+        "receiptStatus": 1,
+        "receiptLogCount": 1,
+        "transactionSelector": "0xe6689224",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "setOracleQuorumSigners(address[],uint256)",
+        "decodedEvents": [
+          {
+            "rawEventId": "5",
+            "logIndex": 0,
+            "facetName": "EchoScoreFacetV3",
+            "eventName": "OracleQuorumConfigUpdated",
+            "eventSignature": "OracleQuorumConfigUpdated(address[],uint256)",
+            "decodedArgs": {
+              "signers": [
+                "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+                "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+                "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+              ],
+              "threshold": "3"
+            }
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "5",
+                "log_index": 0,
+                "facet_name": "EchoScoreFacetV3",
+                "event_name": "OracleQuorumConfigUpdated",
+                "event_signature": "OracleQuorumConfigUpdated(address[],uint256)",
+                "decoded_args": {
+                  "signers": [
+                    "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                    "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+                    "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                    "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+                    "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+                  ],
+                  "threshold": "3"
+                }
+              }
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63354243",
+                "block_hash": "0xc853680ecc20fc9960a38958a240f9c29e65403fde94a8bdc760cd93119a7da2"
+              }
+            ]
+          }
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/api05-echo-score-write-receipts.json"
+          ],
+          "producers": [],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "5",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleQuorumConfigUpdated",
+                  "event_signature": "OracleQuorumConfigUpdated(address[],uint256)",
+                  "decoded_args": {
+                    "signers": [
+                      "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                      "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+                      "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                      "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+                      "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+                    ],
+                    "threshold": "3"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354243",
+                  "block_hash": "0xc853680ecc20fc9960a38958a240f9c29e65403fde94a8bdc760cd93119a7da2"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "5",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleQuorumConfigUpdated",
+                  "event_signature": "OracleQuorumConfigUpdated(address[],uint256)",
+                  "decoded_args": {
+                    "signers": [
+                      "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                      "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+                      "0x0C14d2fbd9Cf0A537A8e8fC38E8da005D00A1709",
+                      "0x433Ec7884C9f191e357e32d6331832F44DE0FCD0",
+                      "0x38715AB647049A755810B2eEcf29eE79CcC649BE"
+                    ],
+                    "threshold": "3"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354243",
+                  "block_hash": "0xc853680ecc20fc9960a38958a240f9c29e65403fde94a8bdc760cd93119a7da2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "txHash": "0x4483e5dc20091c6227315c2b124190937277e95b4d74f3e4c742a1c81a0c5f4f",
+        "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+        "expectedEventMode": "one-of",
+        "expectedEventKeys": [
+          "EchoScoreFacetV3.OracleFutureDriftConfigUpdated",
+          "EchoScoreFacetV3.OracleQuorumConfigUpdated",
+          "EchoScoreFacetV3.OracleStalenessConfigUpdated",
+          "EchoScoreFacetV3.OracleUpdated"
+        ],
+        "indexedEventKeys": [
+          "EchoScoreFacetV3.OracleUpdated"
+        ],
+        "expectedProjectionTables": [],
+        "projectedTables": [],
+        "failures": [],
+        "blockNumber": 63354244,
+        "receiptStatus": 1,
+        "receiptLogCount": 1,
+        "transactionSelector": "0x27b83e95",
+        "affectedFacet": "EchoScoreFacetV3",
+        "methodSignature": "setEchoScoreOracleV3(address)",
+        "decodedEvents": [
+          {
+            "rawEventId": "6",
+            "logIndex": 0,
+            "facetName": "EchoScoreFacetV3",
+            "eventName": "OracleUpdated",
+            "eventSignature": "OracleUpdated(address,address)",
+            "decodedArgs": {
+              "newOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+              "oldOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+            }
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "6",
+                "log_index": 0,
+                "facet_name": "EchoScoreFacetV3",
+                "event_name": "OracleUpdated",
+                "event_signature": "OracleUpdated(address,address)",
+                "decoded_args": {
+                  "newOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                  "oldOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                }
+              }
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63354244",
+                "block_hash": "0x13dd9e6bc34512b2791d04e675274adb7000ab227e1ad65cd5eac6bb7868d153"
+              }
+            ]
+          }
+        },
+        "source": {
+          "workflowArtifacts": [
+            ".runtime/api05-echo-score-write-receipts.json"
+          ],
+          "producers": [],
+          "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+        },
+        "replay": {
+          "status": "idempotent",
+          "before": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "6",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleUpdated",
+                  "event_signature": "OracleUpdated(address,address)",
+                  "decoded_args": {
+                    "newOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                    "oldOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354244",
+                  "block_hash": "0x13dd9e6bc34512b2791d04e675274adb7000ab227e1ad65cd5eac6bb7868d153"
+                }
+              ]
+            }
+          },
+          "after": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "id": "6",
+                  "log_index": 0,
+                  "facet_name": "EchoScoreFacetV3",
+                  "event_name": "OracleUpdated",
+                  "event_signature": "OracleUpdated(address,address)",
+                  "decoded_args": {
+                    "newOracle": "0x5f403778E226F49A9446792cb470A30b9fC885ED",
+                    "oldOracle": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                  }
+                }
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354244",
+                  "block_hash": "0x13dd9e6bc34512b2791d04e675274adb7000ab227e1ad65cd5eac6bb7868d153"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "sourceCommit": "76eb7993933b30ab25e0f3c1abee0bbb69be6719"
+}

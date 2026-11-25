@@ -1,3 +1,8 @@
+# 2026-11-25 — Prove signed EchoScore writes
+
+- Proved `EchoScoreFacetV3.updateScore` and `EchoScoreFacetV3.batchUpdateScores` through HTTP on a disposable fork using signed payloads. Single and two-entry batch receipts emitted their expected events; exact reputation reads and update counts matched. PostgreSQL indexed all six receipts/events/block journals and replay was idempotent; original oracle and quorum settings were restored.
+- API-05 advances from `155/260` to `157/260`, leaving `103` open. Source commit `76eb7993933b30ab25e0f3c1abee0bbb69be6719`. Durable proof: [signed EchoScore write proof](output/api05-echo-score-signed-write-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json).
+
 # 2026-11-25 — Revalidate full HTTP contract receipts
 
 - The current-branch full HTTP contract integration passed `56/56`. The local-fork receipt artifact contributed 218 transaction hashes; PostgreSQL indexing and replay passed. Cumulative indexer evidence now covers 5,718 receipts, 8,641 raw events, and 5,533 projection rows.

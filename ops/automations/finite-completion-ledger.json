@@ -1730,6 +1730,32 @@
           ],
           "proofArtifactSha256": "2f0f8b7e64f010664b5134520577003f598082466d82928a77d6e8af8eedef57",
           "indexerArtifactSha256": "b8138e6371418128564cb742130e0b3853424c896329a6cd9c3eb2218c6df854"
+        },
+        {
+          "sourceCommit": "76eb7993933b30ab25e0f3c1abee0bbb69be6719",
+          "artifact": "output/api05-echo-score-signed-write-proof-2026-11-25.json",
+          "proofArtifactSha256": "01a325625aaf015d3b8d279cf82f9bcedd1b429328528a20c0c3296b54e65f4d",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "1b09b4e0d699e8b6cd06d3f3729c1dbf1d7428618e403829524ebabb05f2163b",
+          "result": "Added current-source signed HTTP proofs for EchoScoreFacetV3.updateScore and EchoScoreFacetV3.batchUpdateScores on a disposable loopback fork. A temporary one-signer oracle quorum accepted founder-signed payloads; single update and two-item batch produced successful receipts, exact reputation state readbacks, expected ReputationUpdated/ScoresUpdated events, and idempotent PostgreSQL indexing. Original oracle and quorum configuration were restored. API-05 advances from 155/260 to 157/260 proven methods, leaving 103 open.",
+          "startingProvenCount": 155,
+          "startingOpenCount": 105,
+          "completedThisRun": 2,
+          "completionPercentOfStart": 1.9048,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 157,
+          "endingOpenCount": 103,
+          "checks": [
+            "TypeScript and ESLint passed.",
+            "Focused local-fork contract integration passed: 1 passed, 56 skipped.",
+            "Indexer proof processed six successful receipts, decoded six raw events, wrote six block journals, and replayed idempotently.",
+            "Single update incremented the selected voice hash update count to 1 and emitted ReputationUpdated.",
+            "Two-item batch emitted ScoresUpdated with count 2; both update counts were 1 and HTTP get-reputation matched canonical contract state.",
+            "Temporary oracle address and signer quorum settings were restored on the fork.",
+            "Cumulative exact-method evidence now records 157/260 methods with 103 remaining."
+          ],
+          "resultLimitation": "Two previously open methods completed, below the bounded target of 35; API-05 remains in_progress with 103 methods open."
         }
       ],
       "deliveredCommit": null,

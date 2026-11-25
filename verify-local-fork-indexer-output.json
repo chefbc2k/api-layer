@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T07:50:39.216Z",
+  "generatedAt": "2026-11-25T07:58:18.634Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5718,
-    "includedArtifacts": 12,
+    "artifactTransactionHashes": 5724,
+    "includedArtifacts": 13,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5718,
-    "provenWriteMethods": 155,
+    "indexedReceipts": 5724,
+    "provenWriteMethods": 157,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 105,
-    "rawEvents": 8641,
+    "remainingWriteMethods": 103,
+    "rawEvents": 8647,
     "projectionRows": 5533
   },
   "reports": {
@@ -53583,6 +53583,70 @@
       "classification": "proven working",
       "result": "proven working"
     },
+    "EchoScoreFacetV3.batchUpdateScores": {
+      "routes": [
+        "POST /v1/staking/commands/batch-update-scores"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.batchUpdateScores",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "batchUpdateScores((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes)[])",
+          "txHash": "0xe53ddfb4d145076fa71e48eaecf09c186a73cd8f608c56ec11fd9e43fa2de8e1",
+          "blockNumber": 63354242,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "4",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.ScoresUpdated(uint256,uint256,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "4"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354242",
+                  "block_hash": "0xd8bd18b7721df981b25897cd679aac132e44a5e1fca4b866f696c25dcc667844"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-score-write-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
     "EchoScoreFacetV3.pauseEchoScoreV3": {
       "routes": [
         "POST /v1/staking/commands/pause-echo-score-v3"
@@ -53711,6 +53775,56 @@
           "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
           "affectedFacet": "EchoScoreFacetV3",
           "methodSignature": "setEchoScoreOracleV3(address)",
+          "txHash": "0x05ded0e9b7f5e43a8bd4be88d54549bf863b87448a1ec4703761bfda717c3bac",
+          "blockNumber": 63354239,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleUpdated(address,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354239",
+                  "block_hash": "0x57528a474ba25265d4fec0e798bf2901fdb3b8ce3994cfa02dbcf968b466f8a1"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-score-write-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setEchoScoreOracleV3(address)",
           "txHash": "0x2e84500b435e8ed1cb5f2cd88d8a30cb61eb9529eea9188337e9ba70be8a4944",
           "blockNumber": 63325442,
           "receipt": {
@@ -53755,6 +53869,56 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setEchoScoreOracleV3(address)",
+          "txHash": "0x4483e5dc20091c6227315c2b124190937277e95b4d74f3e4c742a1c81a0c5f4f",
+          "blockNumber": 63354244,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "6",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleUpdated(address,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "6"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354244",
+                  "block_hash": "0x13dd9e6bc34512b2791d04e675274adb7000ab227e1ad65cd5eac6bb7868d153"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-score-write-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -54147,6 +54311,56 @@
           "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
           "affectedFacet": "EchoScoreFacetV3",
           "methodSignature": "setOracleQuorumSigners(address[],uint256)",
+          "txHash": "0x555ffb176b4ed66bed1df0fb33f48e90a2ffa70d004bf5fc68226dab5adf4351",
+          "blockNumber": 63354243,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "5",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "5"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354243",
+                  "block_hash": "0xc853680ecc20fc9960a38958a240f9c29e65403fde94a8bdc760cd93119a7da2"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-score-write-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setOracleQuorumSigners(address[],uint256)",
           "txHash": "0x6efb085b307170f90f36c37cd17dfffb6e9ea47bd8ec96fac58ef650f13a3f6b",
           "blockNumber": 63338133,
           "receipt": {
@@ -54191,6 +54405,56 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setOracleQuorumSigners(address[],uint256)",
+          "txHash": "0x907426695d438ee052d4616c4271d784bc93d124ab3490d26c2b56d99b803c74",
+          "blockNumber": 63354240,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354240",
+                  "block_hash": "0xc1a0325709f8e764521db12e6ead1d8350cbad9ed98c3245095e51a962ade376"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-score-write-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -54777,6 +55041,70 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-full-contract-integration-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "EchoScoreFacetV3.updateScore": {
+      "routes": [
+        "PATCH /v1/staking/commands/update-score"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.updateScore",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "updateScore((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes))",
+          "txHash": "0x34591cd9883e8846e8e04180934899046057b0581692b735e0b0dcabe4531f17",
+          "blockNumber": 63354241,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.ReputationUpdated(bytes32,uint256,uint256,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "3"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63354241",
+                  "block_hash": "0xe172727f08a32e8880e49123756a1f4c265a16ec98e14aeaebfa40a863710eb2"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-echo-score-write-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"

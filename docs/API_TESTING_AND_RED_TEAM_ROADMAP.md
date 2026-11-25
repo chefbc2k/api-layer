@@ -1,3 +1,9 @@
+# API-05 Follow-on — Signed EchoScore Write Proof — 2026-11-25
+
+- Proved `EchoScoreFacetV3.updateScore` and `EchoScoreFacetV3.batchUpdateScores` with signed HTTP updates on a disposable loopback fork. The focused integration passed; the single receipt emitted `ReputationUpdated`, the two-item batch emitted `ScoresUpdated(count=2)`, canonical and HTTP reads matched, PostgreSQL stored six raw events and block journals, and replay was idempotent. The original oracle and quorum were restored.
+- API-05 advances from `155/260` to `157/260` exact-method proofs, leaving `103` open.
+- Source commit: `76eb7993933b30ab25e0f3c1abee0bbb69be6719`. Evidence: [proof artifact](../output/api05-echo-score-signed-write-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json).
+
 # API-05 Follow-on — Full HTTP Contract Receipt Revalidation — 2026-11-25
 
 - Current-branch HTTP contract integration passed `56/56`. The loopback fork produced 218 receipt hashes; PostgreSQL indexing recorded raw events, projections, block journals, and idempotent replay. Cumulative totals are 5,718 indexed receipts, 8,641 raw events, and 5,533 projection rows.
