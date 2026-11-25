@@ -1330,12 +1330,17 @@
             "PostgreSQL recorded one raw event and block-journal row per receipt, no projection; replay was unchanged and idempotent.",
             "Final canonical getter confirms maxFutureSeconds 300 was restored.",
             "Pinned codegen passed: 492 functions, 218 events, and 260/260 reviewed write invariants.",
-            "Hosted API quality run 45521013544 passed every configured gate on source commit 4f761c974c3425f96aa7eade51e7cc8a6f24482f, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
+            "Hosted API quality run 45521013544 passed every configured gate on source commit 4f761c974c3425f96aa7eade51e7cc8a6f24482f, including TypeScript, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.",
+            "Hosted API quality run 45522086295 passed every configured gate on evidence commit beba07f2fd505f110e23b3406045ed7506b56a50."
           ],
           "resultLimitation": "This run completed 1 of the 120 open methods (0.8333%), below the bounded target of 35; API-05 remains in_progress with 119 methods open.",
           "ciRunId": 45521013544,
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45521013544",
-          "ciCommit": "4f761c974c3425f96aa7eade51e7cc8a6f24482f"
+          "ciCommit": "4f761c974c3425f96aa7eade51e7cc8a6f24482f",
+          "evidenceCommit": "beba07f2fd505f110e23b3406045ed7506b56a50",
+          "evidenceCiRunId": 45522086295,
+          "evidenceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45522086295",
+          "evidenceCiCommit": "beba07f2fd505f110e23b3406045ed7506b56a50"
         }
       ],
       "deliveredCommit": null,
