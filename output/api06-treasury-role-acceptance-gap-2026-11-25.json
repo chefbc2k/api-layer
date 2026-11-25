@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T10:49:25.424Z",
+  "status": "diagnostic; approval observability remains open",
+  "chainId": 84532,
+  "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+  "roleAdmins": {
+    "boardMember": "0xf66846415d2bf9eabda9e84793ff9c0ea96d87f50fc41e66aa16469c6a442f05",
+    "treasury": "0xcec76911b0fe4caf5265d64ceb6a61556e5caf5634a24948be9128bc66694133",
+    "treasurySigner": "0xe1dcbdb91df27212a29bc27177c840cf2f819ecf2187432e1fac86c2dd5dfca9"
+  },
+  "roleGrantEvidence": [
+    {
+      "role": "0xcec76911b0fe4caf5265d64ceb6a61556e5caf5634a24948be9128bc66694133",
+      "account": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "transactionHash": "0x5e712df011f1eda7fa7fd7e6b35644c5530811a6129f215129ca09f8135d4b29"
+    },
+    {
+      "role": "0xe1dcbdb91df27212a29bc27177c840cf2f819ecf2187432e1fac86c2dd5dfca9",
+      "account": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "transactionHash": "0x1269d42731b33a21f68e83f8c151635795d3530b9b4ab8cb82894c5f62c839d6"
+    },
+    {
+      "role": "0x4d2ef557af4d8dfaa7cdf673963992d6d0f441a313df51bdc0713efa011877b0",
+      "account": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "transactionHash": "0x4510399e4ce6bd5214c4fb4f57fb8c23fb89ed264a492873853e3f6cb176a084"
+    },
+    {
+      "role": "0x4d2ef557af4d8dfaa7cdf673963992d6d0f441a313df51bdc0713efa011877b0",
+      "account": "0x9382a99092e91e950e362b8E853660a3DAABae68",
+      "transactionHash": "0xa02d19faf0d61a47e155ec9ed4a1bc4712d9caefd5d7a632fbefc9a79a6ac3ff"
+    }
+  ],
+  "signers": [
+    "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+    "0x9382a99092e91e950e362b8E853660a3DAABae68"
+  ],
+  "approvals": {
+    "transactionHashes": [
+      "0xc8f1b751c18dee627ca8c027a27255ab8147cdb6821a3aefcd374a94b5bd4151",
+      "0xfed82677b4a7c271c5bc29ab5cff939ea9ebda2ce381c0a0549699f48a92167a"
+    ],
+    "submittedApprovalReceiptCount": 2,
+    "economicsUnchanged": true,
+    "contractApprovalCountReadback": null
+  },
+  "execution": {
+    "txHash": "0xd3fd6366dabc6b8a9c3b088658e52e5e0567274d59801f0b4812b4a947f985ba",
+    "pending": {
+      "before": "920",
+      "after": "0",
+      "delta": "-920"
+    },
+    "custody": {
+      "before": "86600",
+      "after": "85680",
+      "delta": "-920"
+    },
+    "recipient": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+    "conservation": "0",
+    "treasury": "0x276D8504239A02907BA5e7dD42eEb5A651274bCd",
+    "releasedAmount": "920",
+    "remainingPending": "0",
+    "approvalCount": 2
+  },
+  "receiptEvidence": [
+    {
+      "role": "0xcec76911b0fe4caf5265d64ceb6a61556e5caf5634a24948be9128bc66694133",
+      "account": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "transactionHash": "0x5e712df011f1eda7fa7fd7e6b35644c5530811a6129f215129ca09f8135d4b29",
+      "kind": "role-grant",
+      "blockNumber": 63409338,
+      "status": 1,
+      "logCount": 2,
+      "logTopics": [
+        "0x2d5eca95f1f9ca81cacc102a9fd22dc355542cf1e45d38e2eb2fd90f57fac33c",
+        "0x46db8dbcba31a48d604ba6c7c3ac65e4dce60284d0f9da7d51b443cd1c3cccc5"
+      ]
+    },
+    {
+      "role": "0xe1dcbdb91df27212a29bc27177c840cf2f819ecf2187432e1fac86c2dd5dfca9",
+      "account": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "transactionHash": "0x1269d42731b33a21f68e83f8c151635795d3530b9b4ab8cb82894c5f62c839d6",
+      "kind": "role-grant",
+      "blockNumber": 63409339,
+      "status": 1,
+      "logCount": 2,
+      "logTopics": [
+        "0x2d5eca95f1f9ca81cacc102a9fd22dc355542cf1e45d38e2eb2fd90f57fac33c",
+        "0x46db8dbcba31a48d604ba6c7c3ac65e4dce60284d0f9da7d51b443cd1c3cccc5"
+      ]
+    },
+    {
+      "role": "0x4d2ef557af4d8dfaa7cdf673963992d6d0f441a313df51bdc0713efa011877b0",
+      "account": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+      "transactionHash": "0x4510399e4ce6bd5214c4fb4f57fb8c23fb89ed264a492873853e3f6cb176a084",
+      "kind": "role-grant",
+      "blockNumber": 63409340,
+      "status": 1,
+      "logCount": 2,
+      "logTopics": [
+        "0x2d5eca95f1f9ca81cacc102a9fd22dc355542cf1e45d38e2eb2fd90f57fac33c",
+        "0x46db8dbcba31a48d604ba6c7c3ac65e4dce60284d0f9da7d51b443cd1c3cccc5"
+      ]
+    },
+    {
+      "role": "0x4d2ef557af4d8dfaa7cdf673963992d6d0f441a313df51bdc0713efa011877b0",
+      "account": "0x9382a99092e91e950e362b8E853660a3DAABae68",
+      "transactionHash": "0xa02d19faf0d61a47e155ec9ed4a1bc4712d9caefd5d7a632fbefc9a79a6ac3ff",
+      "kind": "role-grant",
+      "blockNumber": 63409341,
+      "status": 1,
+      "logCount": 2,
+      "logTopics": [
+        "0x2d5eca95f1f9ca81cacc102a9fd22dc355542cf1e45d38e2eb2fd90f57fac33c",
+        "0x46db8dbcba31a48d604ba6c7c3ac65e4dce60284d0f9da7d51b443cd1c3cccc5"
+      ]
+    },
+    {
+      "kind": "multisig-approval",
+      "transactionHash": "0xc8f1b751c18dee627ca8c027a27255ab8147cdb6821a3aefcd374a94b5bd4151",
+      "blockNumber": 63409353,
+      "status": 1,
+      "logCount": 0,
+      "logTopics": []
+    },
+    {
+      "kind": "multisig-approval",
+      "transactionHash": "0xfed82677b4a7c271c5bc29ab5cff939ea9ebda2ce381c0a0549699f48a92167a",
+      "blockNumber": 63409354,
+      "status": 1,
+      "logCount": 0,
+      "logTopics": []
+    },
+    {
+      "kind": "multisig-execution",
+      "transactionHash": "0xd3fd6366dabc6b8a9c3b088658e52e5e0567274d59801f0b4812b4a947f985ba",
+      "blockNumber": 63409355,
+      "status": 1,
+      "logCount": 0,
+      "logTopics": []
+    }
+  ],
+  "limitation": "The workflow currently derives approvalCount from submitted transaction hashes. PaymentFacet exposes no approval event or getter, so this artifact does not claim contract-state approval observability or indexer acceptance."
+}

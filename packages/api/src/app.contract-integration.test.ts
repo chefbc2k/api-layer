@@ -2546,40 +2546,61 @@ describeLive("HTTP API contract integration", () => {
     const snapshot = await captureReceiptSnapshot();
     let proofCompleted = false;
     try {
+      const roleGrantEvidence: Array<{ role: string; account: string; transactionHash: string }> = [];
+      const grantRoleThroughApi = async (role: string, account: string, label: string) => {
+        const response = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+          apiKey: "founder-key",
+          body: { role, account, expiryTime: "0" },
+        });
+        expect(response.status, JSON.stringify(response.payload)).toBe(202);
+        const txHash = extractTxHash(response.payload);
+        await expectReceipt(txHash);
+        roleGrantEvidence.push({ role, account, transactionHash: txHash });
+        expect(await waitFor(
+          () => accessControl.hasRole(role, account),
+          (active) => active === true,
+          `treasury role grant ${label}`,
+        )).toBe(true);
+      };
       const feeManagerRole = id("FEE_MANAGER_ROLE");
       if (!(await accessControl.hasRole(feeManagerRole, founderAddress))) {
-        const roleReceipt = await (
-          await accessControl.connect(founderWallet).grantRole(feeManagerRole, founderAddress, ethers.MaxUint256)
-        ).wait();
-        expect(roleReceipt?.status).toBe(1);
+        await grantRoleThroughApi(feeManagerRole, founderAddress, "fee manager");
       }
       const treasurySignerRole = id("TREASURY_SIGNER_ROLE");
-      const accessStorageBase = BigInt(ethers.keccak256(ethers.toUtf8Bytes("speak.access.control.storage")));
-      const roleMembersMappingSlot = accessStorageBase + 11n;
-      const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+      const timeLockRole = id("TIMELOCK_ROLE");
+      const boardMemberRole = id("BOARD_MEMBER_ROLE");
+      const treasuryRole = id("TREASURY_ROLE");
+      expect(await accessControl.getRoleAdmin(boardMemberRole)).toBe(timeLockRole);
+      expect(await accessControl.getRoleAdmin(treasuryRole)).toBe(boardMemberRole);
+      expect(await accessControl.getRoleAdmin(treasurySignerRole)).toBe(treasuryRole);
+      expect(await accessControl.hasRole(boardMemberRole, founderAddress)).toBe(false);
+      expect(await accessControl.hasRole(treasuryRole, founderAddress)).toBe(false);
+      expect(await accessControl.hasRole(treasurySignerRole, founderAddress)).toBe(false);
+      expect(await accessControl.hasRole(treasurySignerRole, licenseeWallet.address)).toBe(false);
+
+      if (!(await accessControl.hasRole(timeLockRole, founderAddress))) {
+        await grantRoleThroughApi(timeLockRole, founderAddress, "timelock admin");
+      }
+      if (!(await accessControl.hasRole(boardMemberRole, founderAddress))) {
+        await grantRoleThroughApi(boardMemberRole, founderAddress, "board member");
+      }
+      if (!(await accessControl.hasRole(treasuryRole, founderAddress))) {
+        await grantRoleThroughApi(treasuryRole, founderAddress, "treasury admin");
+      }
       for (const signer of [founderAddress, licenseeWallet.address]) {
         if (!(await accessControl.hasRole(treasurySignerRole, signer))) {
-          const roleBucket = BigInt(ethers.keccak256(abiCoder.encode(
-            ["bytes32", "uint256"],
-            [treasurySignerRole, roleMembersMappingSlot],
-          )));
-          const memberSlot = BigInt(ethers.keccak256(abiCoder.encode(
-            ["address", "uint256"],
-            [signer, roleBucket],
-          )));
-          await provider.send("anvil_setStorageAt", [
-            diamondAddress,
-            ethers.toBeHex(memberSlot, 32),
-            ethers.toBeHex(ethers.MaxUint256, 32),
-          ]);
-          await provider.send("anvil_setStorageAt", [
-            diamondAddress,
-            ethers.toBeHex(memberSlot + 3n, 32),
-            ethers.toBeHex(1n << 160n, 32),
-          ]);
-          await provider.send("evm_mine", []);
-          expect(await accessControl.hasRole(treasurySignerRole, signer)).toBe(true);
+          await grantRoleThroughApi(treasurySignerRole, signer, `signer ${signer}`);
         }
+      }
+      for (const signer of [founderAddress, licenseeWallet.address]) {
+        const roleReadback = await apiCall(
+          port,
+          "GET",
+          `/v1/access-control/queries/has-role?role=${encodeURIComponent(treasurySignerRole)}&account=${encodeURIComponent(signer)}`,
+          { apiKey: "read-key" },
+        );
+        expect(roleReadback.status).toBe(200);
+        expect(roleReadback.payload).toBe(true);
       }
 
       const configuredPayees = {
@@ -2911,6 +2932,53 @@ describeLive("HTTP API contract integration", () => {
       );
       assertNoEconomicSideEffects("treasurySweep.repeat.pending", pendingAfterMultisig, await readPending());
       assertNoEconomicSideEffects("treasurySweep.repeat.balances", balancesAfterMultisig, await readPayeeBalances());
+      const api06ArtifactPath = process.env.API_LAYER_API06_TREASURY_PROOF_ARTIFACT;
+      if (api06ArtifactPath) {
+        const receiptEvidenceInputs = [
+          ...roleGrantEvidence.map((entry) => ({ ...entry, kind: "role-grant" })),
+          ...multisigProof.approvals.txHashes.map((transactionHash) => ({
+            kind: "multisig-approval",
+            transactionHash,
+          })),
+          { kind: "multisig-execution", transactionHash: multisigProof.execution.txHash },
+        ];
+        const receiptEvidence = [];
+        for (const entry of receiptEvidenceInputs) {
+          const receipt = await provider.getTransactionReceipt(entry.transactionHash);
+          receiptEvidence.push({
+            ...entry,
+            blockNumber: receipt?.blockNumber ?? null,
+            status: receipt ? Number(receipt.status) : null,
+            logCount: receipt?.logs.length ?? null,
+            logTopics: receipt?.logs.map((log) => log.topics[0]) ?? [],
+          });
+        }
+        const resolvedPath = path.resolve(api06ArtifactPath);
+        await mkdir(path.dirname(resolvedPath), { recursive: true });
+        await writeFile(resolvedPath, `${JSON.stringify({
+          schemaVersion: 1,
+          generatedAt: new Date().toISOString(),
+          status: "diagnostic; approval observability remains open",
+          chainId: Number((await provider.getNetwork()).chainId),
+          diamondAddress,
+          roleAdmins: {
+            boardMember: timeLockRole,
+            treasury: boardMemberRole,
+            treasurySigner: treasuryRole,
+          },
+          roleGrantEvidence,
+          signers: [founderAddress, licenseeWallet.address],
+          approvals: {
+            transactionHashes: multisigProof.approvals.txHashes,
+            submittedApprovalReceiptCount: multisigProof.approvals.txHashes.length,
+            economicsUnchanged: multisigProof.approvals.economicsUnchanged,
+            contractApprovalCountReadback: null,
+          },
+          execution: { ...multisigProof.execution, ...multisigProof.summary },
+          receiptEvidence,
+          limitation: "The workflow currently derives approvalCount from submitted transaction hashes. PaymentFacet exposes no approval event or getter, so this artifact does not claim contract-state approval observability or indexer acceptance.",
+        }, null, 2)}\n`);
+      }
       proofCompleted = true;
     } finally {
       const reverted = await restoreReceiptSnapshot(snapshot).catch(() => false);
