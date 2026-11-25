@@ -37,7 +37,8 @@ export function readFundingConfig(env: NodeJS.ProcessEnv = process.env): Funding
     };
     const checkout = z.enum(["true", "false"]).parse(env.API_LAYER_FUNDING_CHECKOUT_ENABLED ?? "false");
     if (checkout === "true") {
-      const key = env.API_LAYER_FUNDING_ENCRYPTION_KEY ?? "";
+      const key = env.API_LAYER_FUNDING_ENCRYPTION_KEY;
+      if (!key) throw new Error("Invalid encryption key");
       if (Buffer.from(key, "base64").length !== 32 || Buffer.from(key, "base64").toString("base64") !== key) throw new Error("Invalid encryption key");
       const redirect = new URL(env.API_LAYER_FUNDING_REDIRECT_URL ?? "");
       if (redirect.username || redirect.password || !config.origins.includes(redirect.origin)) throw new Error("Unapproved redirect");

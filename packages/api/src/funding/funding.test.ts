@@ -24,6 +24,7 @@ describe("funding configuration and decimal validation", () => {
   it.each([
     { API_LAYER_FUNDING_MODE: "unexpected" }, { CDP_API_KEY_SECRET: "" }, { CDP_API_KEY_ID: "" },
     { SUPABASE_DB_URL: "https://localhost/db" }, { API_LAYER_FUNDING_ORIGINS_JSON: "bad" },
+    { API_LAYER_FUNDING_ORIGINS_JSON: undefined },
     { API_LAYER_FUNDING_ORIGINS_JSON: '["*"]' }, { API_LAYER_FUNDING_ORIGINS_JSON: '["https://app.example/path"]' },
     { API_LAYER_FUNDING_ORIGINS_JSON: '["http://app.example"]' }, { API_LAYER_FUNDING_ORIGINS_JSON: "[]" },
   ])("rejects unsafe/incomplete configuration without leaking input: %j", patch => {
@@ -32,6 +33,31 @@ describe("funding configuration and decimal validation", () => {
   it("supports local browser testing and rejects misspelled enable flags", () => {
     expect(readFundingConfig({ ...env, API_LAYER_FUNDING_ORIGINS_JSON: '["http://localhost:3000"]' })?.origins).toEqual(["http://localhost:3000"]);
     expect(() => readFundingConfig({ API_LAYER_FUNDING_ENABLED: "yes" })).toThrow("must be true or false");
+  });
+  it("rejects a decodable but non-canonical base64 encryption key", () => {
+    const nonCanonicalKey = "KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiB=";
+    expect(Buffer.from(nonCanonicalKey, "base64")).toHaveLength(32);
+    expect(Buffer.from(nonCanonicalKey, "base64").toString("base64")).not.toBe(nonCanonicalKey);
+    expect(() => readFundingConfig({
+      ...env,
+      API_LAYER_FUNDING_CHECKOUT_ENABLED: "true",
+      API_LAYER_FUNDING_ENCRYPTION_KEY: nonCanonicalKey,
+      API_LAYER_FUNDING_REDIRECT_URL: "https://app.example/funded",
+    })).toThrow("Funding configuration requires");
+  });
+  it("rejects checkout when the redirect URL is omitted", () => {
+    expect(() => readFundingConfig({
+      ...env,
+      API_LAYER_FUNDING_CHECKOUT_ENABLED: "true",
+      API_LAYER_FUNDING_ENCRYPTION_KEY: Buffer.alloc(32, 42).toString("base64"),
+    })).toThrow("Funding configuration requires");
+  });
+  it("rejects checkout when the encryption key is omitted", () => {
+    expect(() => readFundingConfig({
+      ...env,
+      API_LAYER_FUNDING_CHECKOUT_ENABLED: "true",
+      API_LAYER_FUNDING_REDIRECT_URL: "https://app.example/funded",
+    })).toThrow("Funding configuration requires");
   });
   it("preserves micro-USDC exactly without floating-point arithmetic", () => {
     expect(decimalUnits("999999999999.999999", 6)).toBe(999999999999999999n);
