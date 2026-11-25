@@ -611,6 +611,9 @@ describeLive("HTTP API contract integration", () => {
   const ownershipTransferLifecycleProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
   const withdrawalRevealProofObservations: Array<Record<string, unknown>> = [];
+  const governorVotingPeriodProofObservations: Array<Record<string, unknown>> = [];
+  const timelockMinDelayProofObservations: Array<Record<string, unknown>> = [];
+  const emergencyForceAddProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
   async function captureReceiptSnapshot() {
@@ -1059,6 +1062,9 @@ describeLive("HTTP API contract integration", () => {
         ownershipTransferLifecycleProofObservations,
         proposalCancellationProofObservations,
         withdrawalRevealProofObservations,
+        governorVotingPeriodProofObservations,
+        timelockMinDelayProofObservations,
+        emergencyForceAddProofObservations,
       }, null, 2)}\n`);
     }
     server?.close();
@@ -2663,6 +2669,135 @@ describeLive("HTTP API contract integration", () => {
       isolatedFork: true,
     });
   }, 240_000);
+
+  it("proves GovernorFacet.updateVotingPeriod is governance-proposal-only through its mounted route", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "governance voting-period route proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000008") },
+    ])) return;
+
+    const governanceRole = id("GOVERNANCE_ROLE");
+    expect(await accessControl.hasRole(governanceRole, founderAddress)).toBe(true);
+    const originalConfig = await governorFacet.getVotingConfig();
+    const attemptedPeriod = BigInt(originalConfig.votingPeriod) + 1n;
+    const response = await apiCall(port, "PATCH", "/v1/governance/commands/update-voting-period", {
+      apiKey: "founder-key",
+      body: { newVotingPeriod: attemptedPeriod.toString() },
+    });
+    expect(response.status, JSON.stringify(response.payload)).toBe(500);
+    expect(JSON.stringify(response.payload)).toContain("OnlyGovernance()");
+    expect(JSON.stringify(response.payload)).not.toMatch(/"txHash"/u);
+    const afterAttempt = await governorFacet.getVotingConfig();
+    expect(BigInt(afterAttempt.votingPeriod)).toBe(BigInt(originalConfig.votingPeriod));
+    expect(BigInt(afterAttempt.votingDelay)).toBe(BigInt(originalConfig.votingDelay));
+    expect(BigInt(afterAttempt.proposalThreshold)).toBe(BigInt(originalConfig.proposalThreshold));
+    expect(BigInt(afterAttempt.quorumNumerator)).toBe(BigInt(originalConfig.quorumNumerator));
+
+    governorVotingPeriodProofObservations.push({
+      methodKey: "GovernorFacet.updateVotingPeriod",
+      route: "PATCH /v1/governance/commands/update-voting-period",
+      actor: founderAddress,
+      originalPeriod: String(originalConfig.votingPeriod),
+      attemptedPeriod: attemptedPeriod.toString(),
+      httpStatus: response.status,
+      error: "OnlyGovernance()",
+      stateUnchanged: true,
+      transactionSubmitted: false,
+      isolatedFork: true,
+    });
+  }, 180_000);
+
+  it("proves TimelockFacet.updateMinDelay is governance-proposal-only through its mounted route", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "timelock minimum-delay route proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+    ])) return;
+
+    for (const role of [await timelockFacet.PROPOSER_ROLE(), await timelockFacet.EXECUTOR_ROLE()]) {
+      if (await accessControl.hasRole(role, founderAddress)) continue;
+      const grantResponse = await apiCall(port, "POST", "/v1/access-control/commands/grant-role", {
+        apiKey: "founder-key",
+        body: { role, account: founderAddress, expiryTime: "0" },
+      });
+      expect(grantResponse.status, JSON.stringify(grantResponse.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grantResponse.payload));
+      expect(await accessControl.hasRole(role, founderAddress)).toBe(true);
+    }
+
+    const originalDelay = BigInt(await timelockFacet.getMinDelay());
+    const attemptedDelay = originalDelay + 1n;
+    const response = await apiCall(port, "PATCH", "/v1/governance/commands/update-min-delay", {
+      apiKey: "founder-key",
+      body: { newDelay: attemptedDelay.toString() },
+    });
+    expect(response.status, JSON.stringify(response.payload)).toBe(500);
+    expect(JSON.stringify(response.payload)).toContain("OnlyGovernance()");
+    expect(JSON.stringify(response.payload)).not.toMatch(/"txHash"/u);
+    expect(BigInt(await timelockFacet.getMinDelay())).toBe(originalDelay);
+
+    timelockMinDelayProofObservations.push({
+      methodKey: "TimelockFacet.updateMinDelay",
+      route: "PATCH /v1/governance/commands/update-min-delay",
+      actor: founderAddress,
+      rolesGrantedForAttempt: ["PROPOSER_ROLE", "EXECUTOR_ROLE"],
+      originalDelay: originalDelay.toString(),
+      attemptedDelay: attemptedDelay.toString(),
+      httpStatus: response.status,
+      error: "OnlyGovernance()",
+      stateUnchanged: true,
+      transactionSubmitted: false,
+      isolatedFork: true,
+    });
+  }, 180_000);
+
+  it("proves AccessControlFacet.emergencyForceAdd target authorization on its mounted route", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "emergency force-add disposable role proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+    ])) return;
+
+    const emergencyForceRoles = [
+      id("ADMIN_ROLE_FOR_TARGET_ROLE"),
+      id("TIMELOCK_ROLE"),
+      id("FOUNDER_ROLE"),
+    ];
+    expect(await Promise.all(emergencyForceRoles.map((role) => accessControl.hasRole(role, founderAddress))))
+      .toContain(true);
+    const role = id("MARKETPLACE_PURCHASER_ROLE");
+    const account = Wallet.createRandom().address;
+    expect(await accessControl.hasRole(role, account)).toBe(false);
+    const response = await apiCall(port, "POST", "/v1/access-control/admin/emergency-force-add", {
+      apiKey: "founder-key",
+      body: { role, account },
+    });
+    expect(response.status, JSON.stringify(response.payload)).toBe(500);
+    expect(JSON.stringify(response.payload)).toContain("Unauthorized(address,string)");
+    expect(JSON.stringify(response.payload)).not.toMatch(/"txHash"/u);
+    expect(await accessControl.hasRole(role, account)).toBe(false);
+
+    emergencyForceAddProofObservations.push({
+      methodKey: "AccessControlFacet.emergencyForceAdd",
+      route: "POST /v1/access-control/admin/emergency-force-add",
+      actor: founderAddress,
+      signerHasOneListedRole: true,
+      role,
+      account,
+      httpStatus: response.status,
+      error: "Unauthorized(address,string)",
+      stateUnchanged: true,
+      transactionSubmitted: false,
+      isolatedFork: true,
+    });
+  }, 180_000);
 
   it("proves payment-split liabilities and treasury sweeps conserve token custody on an isolated fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
