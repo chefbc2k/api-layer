@@ -610,6 +610,7 @@ describeLive("HTTP API contract integration", () => {
   const ownershipTargetApprovalProofObservations: Array<Record<string, unknown>> = [];
   const ownershipTransferLifecycleProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
+  const withdrawalRevealProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
   async function captureReceiptSnapshot() {
@@ -1057,6 +1058,7 @@ describeLive("HTTP API contract integration", () => {
         ownershipTargetApprovalProofObservations,
         ownershipTransferLifecycleProofObservations,
         proposalCancellationProofObservations,
+        withdrawalRevealProofObservations,
       }, null, 2)}\n`);
     }
     server?.close();
@@ -2527,6 +2529,140 @@ describeLive("HTTP API contract integration", () => {
       expect(await restoreReceiptSnapshot(snapshot)).toBe(true);
     }
   }, 300_000);
+
+  it("proves the exact PaymentFacet.revealWithdraw route and payout economics on a disposable fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "withdrawal reveal receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.000012") },
+      { address: marketplaceBuyerWallet.address, minimumWei: ethers.parseEther("0.000006") },
+    ])) return;
+
+    const createVoiceResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+      body: {
+        ipfsHash: `QmWithdrawalReveal${Date.now()}`,
+        royaltyRate: "100",
+      },
+    });
+    expect(createVoiceResponse.status, JSON.stringify(createVoiceResponse.payload)).toBe(202);
+    const voiceHash = String((createVoiceResponse.payload as Record<string, unknown>).result);
+    const createVoiceTxHash = extractTxHash(createVoiceResponse.payload);
+    await expectReceipt(createVoiceTxHash);
+    const tokenId = BigInt(await waitFor(
+      () => voiceAsset.getTokenId(voiceHash),
+      (value) => BigInt(value as bigint) > 0n,
+      "withdrawal reveal fixture token",
+    ));
+    await provider.send("evm_increaseTime", [86_401]);
+    await provider.send("evm_mine", []);
+
+    const paymentTokenAddress = await paymentFacet.getUsdcToken();
+    const paymentToken = new Contract(paymentTokenAddress, [
+      "function balanceOf(address account) view returns (uint256)",
+      "function approve(address spender,uint256 amount) returns (bool)",
+    ], provider);
+    const distributionAmount = 137n;
+    expect(BigInt(await paymentToken.balanceOf(marketplaceBuyerWallet.address))).toBeGreaterThanOrEqual(distributionAmount);
+    const buyerNonce = await provider.getTransactionCount(marketplaceBuyerWallet.address, "pending");
+    const approvalReceipt = await (await paymentToken.connect(marketplaceBuyerWallet).approve(
+      diamondAddress,
+      distributionAmount,
+      { nonce: buyerNonce },
+    )).wait();
+    expect(approvalReceipt?.status).toBe(1);
+    const distributionReceipt = await (await paymentFacet.connect(marketplaceBuyerWallet).distributePayment(
+      tokenId,
+      distributionAmount,
+      founderAddress,
+      ethers.ZeroAddress,
+      false,
+      { nonce: buyerNonce + 1 },
+    )).wait();
+    expect(distributionReceipt?.status).toBe(1);
+
+    const amount = BigInt(await paymentFacet.getPendingPayments(founderAddress));
+    expect(amount).toBeGreaterThan(0n);
+    const custodyBefore = BigInt(await paymentToken.balanceOf(diamondAddress));
+    const payeeBefore = BigInt(await paymentToken.balanceOf(founderAddress));
+    const nonce = BigInt(Date.now());
+    const latestBeforeCommit = await provider.getBlock("latest");
+    expect(latestBeforeCommit).not.toBeNull();
+    const deadline = BigInt(latestBeforeCommit!.timestamp + 3_600);
+    const commitment = ethers.solidityPackedKeccak256(
+      ["address", "uint256", "uint256", "uint256"],
+      [founderAddress, amount, nonce, deadline],
+    );
+    const commitResponse = await apiCall(port, "POST", "/v1/marketplace/commands/commit-withdraw", {
+      apiKey: "founder-key",
+      body: { commitHash: commitment },
+    });
+    expect(commitResponse.status, JSON.stringify(commitResponse.payload)).toBe(202);
+    const commitTxHash = extractTxHash(commitResponse.payload);
+    await expectReceipt(commitTxHash);
+    const commitReceipt = await provider.getTransactionReceipt(commitTxHash);
+    expect(commitReceipt?.status).toBe(1);
+    expect((commitReceipt?.logs ?? []).some((log) => {
+      try {
+        const parsed = paymentFacet.interface.parseLog(log);
+        return parsed?.name === "ClaimCommitted" && String(parsed.args.commitHash).toLowerCase() === commitment.toLowerCase();
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+
+    for (let block = 0; block < 4; block += 1) {
+      await provider.send("evm_mine", []);
+    }
+    const revealResponse = await apiCall(port, "POST", "/v1/marketplace/commands/reveal-withdraw", {
+      apiKey: "founder-key",
+      body: { amount: amount.toString(), nonce: nonce.toString(), deadline: deadline.toString() },
+    });
+    expect(revealResponse.status, JSON.stringify(revealResponse.payload)).toBe(202);
+    const revealTxHash = extractTxHash(revealResponse.payload);
+    await expectReceipt(revealTxHash);
+    const revealReceipt = await provider.getTransactionReceipt(revealTxHash);
+    expect(revealReceipt?.status).toBe(1);
+    const revealEvents = (revealReceipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = paymentFacet.interface.parseLog(log);
+        return parsed ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(revealEvents.map((event) => event.name)).toEqual(["ClaimRevealed", "USDCPaymentWithdrawn"]);
+    expect(String(revealEvents[0]!.args.commitHash).toLowerCase()).toBe(commitment.toLowerCase());
+    expect(String(revealEvents[1]!.args.amount)).toBe(amount.toString());
+
+    const custodyAfter = BigInt(await paymentToken.balanceOf(diamondAddress));
+    const payeeAfter = BigInt(await paymentToken.balanceOf(founderAddress));
+    expect(await paymentFacet.getPendingPayments(founderAddress)).toBe(0n);
+    const custodyDelta = assertExactAmountDelta("withdrawalReveal.custody", custodyBefore, custodyAfter, -amount);
+    const payeeDelta = assertExactAmountDelta("withdrawalReveal.payee", payeeBefore, payeeAfter, amount);
+    assertConservedDeltas("withdrawalReveal.conservation", [custodyDelta.delta, payeeDelta.delta]);
+    withdrawalRevealProofObservations.push({
+      methodKey: "PaymentFacet.revealWithdraw",
+      route: "POST /v1/marketplace/commands/reveal-withdraw",
+      actor: founderAddress,
+      tokenId: tokenId.toString(),
+      amount: amount.toString(),
+      nonce: nonce.toString(),
+      deadline: deadline.toString(),
+      createVoiceTxHash,
+      commitTxHash,
+      revealTxHash,
+      receiptStatus: Number(revealReceipt!.status),
+      receiptBlockNumber: revealReceipt!.blockNumber,
+      eventNames: revealEvents.map((event) => event.name),
+      pendingAfterReveal: String(await paymentFacet.getPendingPayments(founderAddress)),
+      custodyDelta: custodyDelta.delta.toString(),
+      payeeDelta: payeeDelta.delta.toString(),
+      conservation: "0",
+      isolatedFork: true,
+    });
+  }, 240_000);
 
   it("proves payment-split liabilities and treasury sweeps conserve token custody on an isolated fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
