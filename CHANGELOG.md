@@ -2,7 +2,7 @@
 
 - Added a fork-only HTTP receipt proof for `EchoScoreFacetV3.setEchoScoreOracleV3`. A `PLATFORM_ADMIN_ROLE` founder fixture changed the oracle address to a distinct test address, verified `OracleUpdated` and direct/HTTP readbacks, then restored the original address. Both receipts were indexed in PostgreSQL with raw-event and block-journal rows; replay was idempotent.
 - The focused test passed, and full HTTP contract integration passed `52/52`. All 12 local-fork assurance stages passed; safe reads passed `445/446` with the known `ProposalFacet.queue` fixture gap.
-- API-05 advances from `146/260` to `147/260` proven write methods, leaving `113` open. Source commit `7c99e5743ed1efc4c71f036819727a4d5fd09894` is awaiting hosted API quality CI.
+- API-05 advances from `146/260` to `147/260` proven write methods, leaving `113` open. Source commit `7c99e5743ed1efc4c71f036819727a4d5fd09894` passed hosted API quality CI [45556710345](https://github.com/chefbc2k/api-layer/actions/runs/45556710345).
 - Durable proof: [oracle address proof](output/api05-echo-score-oracle-address-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json).
 
 # 2026-11-25 — Prove EchoScore oracle pause lifecycle

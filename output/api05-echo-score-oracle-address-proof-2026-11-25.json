@@ -157,7 +157,12 @@
     "focusedTest": "passed; 1 passed, 51 skipped",
     "fullContractIntegration": "passed; 52/52",
     "codegenAndCoverage": "passed; 492 functions, 218 events, 260/260 reviewed write invariants",
-    "sourceCi": "pending"
+    "sourceCi": {
+      "runId": 45556710345,
+      "url": "https://github.com/chefbc2k/api-layer/actions/runs/45556710345",
+      "sourceCommit": "7c99e5743ed1efc4c71f036819727a4d5fd09894",
+      "conclusion": "success"
+    }
   },
   "methodCounts": {
     "startingProven": 146,
