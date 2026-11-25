@@ -106,5 +106,11 @@
     ],
     "endingOpenMethods": 74,
     "overallApi05Status": "in_progress"
+  },
+  "sourceCommit": "4bf2eed107c96338ee1168a1de9eef7a541a896b",
+  "hostedCi": {
+    "runId": 45591134910,
+    "url": "https://github.com/chefbc2k/api-layer/actions/runs/45591134910",
+    "conclusion": "success"
   }
 }

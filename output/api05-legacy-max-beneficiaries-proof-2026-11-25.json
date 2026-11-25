@@ -87,5 +87,11 @@
     "fullSuiteAfterCorrection": "not rerun; immediately prior fresh-fork suite was 62/63 due to a test-reference typo subsequently corrected and independently verified",
     "hostedCi": "pending for source commit"
   },
-  "sourceCommit": null
+  "sourceCommit": "4bf2eed107c96338ee1168a1de9eef7a541a896b",
+  "hostedCi": {
+    "runId": 45591134910,
+    "url": "https://github.com/chefbc2k/api-layer/actions/runs/45591134910",
+    "conclusion": "success",
+    "sourceCommit": "4bf2eed107c96338ee1168a1de9eef7a541a896b"
+  }
 }
