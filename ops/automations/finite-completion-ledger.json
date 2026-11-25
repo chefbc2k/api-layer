@@ -4510,6 +4510,24 @@
             "API quality CI 45689110979: passed on exact source commit."
           ],
           "resultLimitation": "TEST-01 remains open pending interval-wide review of the final release candidate and verified delivery to default master."
+    },
+    {
+      "sourceCommit": "1e0faa1dc43bcf743f26ba802504cfd322167ee2",
+      "url": "https://github.com/chefbc2k/api-layer/actions/runs/45717211578",
+      "artifacts": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md"
+      ],
+      "result": "Added mounted-route proposal authorization and preflight-rejection cases, and strengthened the stake rejection test to assert the primitive call boundary. Regenerated the exact-source behavior-gap report: 709 items, 609 ready; 100 remaining gaps are reads needing fixture attribution, with no remaining write gaps. Local focused suite (29 tests), TypeScript build, ESLint, and diff check passed.",
+      "checks": [
+        "pnpm exec vitest run packages/api/src/workflows/proposal-command-safety.integration.test.ts packages/api/src/workflows/stake-and-delegate.test.ts --maxWorkers 1: 29 passed",
+        "pnpm exec tsc -b --pretty false: passed",
+        "ESLint for proposal/staking test files: passed",
+        "API quality CI 45717211578: in progress at regression stage; type, Vercel type, lint, build, and disposable PostgreSQL/native USDC fork setup passed.",
+        "api-test-gap-report.json SHA-256: a50ea13f5d761620e7c6d371f129948e95fa76215fdae13e465aaea702d2b249",
+        "api-test-gap-report.md SHA-256: a0a3a150daa6043fd9bdb02d25c21541a6cbc1239a41db06699fb96c31186bb9"
+      ],
+      "resultLimitation": "TEST-01 remains open: 100 read functions need fixture-backed attribution, the frozen interval-wide review is unfinished, and delivery to default master is unverified."
         }
       ],
       "deliveredCommit": null,
