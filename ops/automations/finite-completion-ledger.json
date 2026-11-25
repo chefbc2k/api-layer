@@ -4528,6 +4528,38 @@
         "api-test-gap-report.md SHA-256: a0a3a150daa6043fd9bdb02d25c21541a6cbc1239a41db06699fb96c31186bb9"
       ],
       "resultLimitation": "TEST-01 remains open: 100 read functions need fixture-backed attribution, the frozen interval-wide review is unfinished, and delivery to default master is unverified."
+    },
+    {
+      "sourceCommit": "1e0faa1dc43bcf743f26ba802504cfd322167ee2",
+      "url": "https://github.com/chefbc2k/api-layer/actions/runs/45717211578",
+      "result": "Exact-head API quality CI completed successfully, including regression, coverage, API surface, actor boundaries, red team, indexer assurance and evidence preservation.",
+      "checks": [
+        "API quality CI 45717211578: success on exact source commit 1e0faa1dc43bcf743f26ba802504cfd322167ee2.",
+        "TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native USDC fork setup, regression, coverage, API surface, actor boundaries, red team and indexer assurance all passed."
+      ],
+      "resultLimitation": "This run predates the static test-attribution correction. TEST-01 remains open pending final interval-wide review and verified default delivery."
+    },
+    {
+      "sourceCommit": "3bc6d3ec60f18b9fb2f7bccffb90061b5a594d84",
+      "url": "https://github.com/chefbc2k/api-layer/actions/runs/45718626684",
+      "artifacts": [
+        "output/api-test-gap-report.json",
+        "output/api-test-gap-report.md",
+        "scripts/generate-test-roadmap.ts",
+        "scripts/generate-test-roadmap.test.ts"
+      ],
+      "result": "Corrected test evidence scoping so explicit ABI keys constrain only their own test case, not every test in the same source file. The prior 100 missing read attributions were present as exact route and contract-read assertions in the app contract integration tests. The regenerated inventory now attributes unit/integration evidence for all 709 items: 709 ready, zero needs fixture, zero remaining write or event gaps.",
+      "checks": [
+        "pnpm exec vitest run scripts/generate-test-roadmap.test.ts --maxWorkers 1: 42 passed, including keyed-matrix cross-test isolation.",
+        "pnpm run report:test-gaps: generated 33 facets, 491 functions and 218 events.",
+        "pnpm exec tsc -b --pretty false: passed.",
+        "ESLint for the roadmap generator and its tests: passed.",
+        "git diff --check: passed.",
+        "api-test-gap-report.json SHA-256: cf5363493c07503fb087d4d2315509659aa498815f1b4c14f427a09782938f33",
+        "api-test-gap-report.md SHA-256: 524f8757c223229edfce82cac67c0671177a89eb43c3c33a9d9be765bc0d3fce",
+        "API quality CI 45718626684: dispatched on exact source commit; pending."
+      ],
+      "resultLimitation": "The corrected inventory establishes attributable source tests, not new live execution or per-method fork/indexer receipts. TEST-01 remains open pending exact-head CI, final release-interval audit, and verified default delivery."
         }
       ],
       "deliveredCommit": null,
