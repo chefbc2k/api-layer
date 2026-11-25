@@ -4676,6 +4676,21 @@
         "Exact-head CI coverage artifact: 98.99% lines, 98.78% statements, 97.48% branches, 99.02% functions."
       ],
       "resultLimitation": "The corrected inventory establishes attributable source tests, not new live execution or per-method fork/indexer receipts. TEST-01 remains open pending final release-interval audit and verified default delivery."
+      },
+      {
+        "sourceCommit": "90f0daae1bb485c2163274628f0621ec1b0803fc",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45723580025",
+        "artifact": "scripts/local-fork-read-fixture.test.ts",
+        "result": "Added the missing default voice-hash fallback behavior case. The helper focused suite passed 5/5 with 100% line, statement, branch, and function coverage on the exact helper module; exact-head API quality CI passed all configured gates. This verifies one targeted behavior increment, not the full release interval.",
+        "checks": [
+          "pnpm exec vitest run scripts/local-fork-read-fixture.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include=scripts/local-fork-read-fixture.ts: 5 passed; 100% across all four helper coverage measures.",
+          "ESLint for the changed fixture test: passed.",
+          "pnpm exec tsc -b --pretty false: passed.",
+          "API quality CI 45723580025 passed on exact source commit 90f0daae1bb485c2163274628f0621ec1b0803fc.",
+          "The current static report still classifies 709/709 API items ready, but this is attribution evidence rather than a full interval-wide behavioral review.",
+          "Current source/test delivery to default master remains unverified; no merge is claimed."
+        ],
+        "resultLimitation": "TEST-01 remains open pending full meaningful behavior-gap audit over the frozen source interval and verified default-branch delivery."
         }
       ],
       "deliveredCommit": null,
