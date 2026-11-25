@@ -494,7 +494,18 @@ export async function runPromotion(options: {
     return;
   }
 
-  const fixture = readJson<SetupFixture>(fixturePath);
+  let fixture: SetupFixture;
+  try {
+    fixture = readJson<SetupFixture>(fixturePath);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    output.readiness.status = "blocked";
+    output.readiness.blockers.push(`setup fixture could not be read: ${reason}`);
+    output.finalClassification = "blocked by setup/state";
+    persistOutput(output);
+    process.exitCode = 2;
+    return;
+  }
   output.setup = fixture;
   const runtimeRpcUrl = fixture.network?.runtimeRpcUrl;
   if (

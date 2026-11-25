@@ -188,6 +188,85 @@ describe("Base Sepolia promotion report decisions",()=>{
 });
 
 describe("Base Sepolia promotion CLI safety",()=>{
+  async function withPromotionFixture(
+    fixture: unknown,
+    run: (paths: { envPath: string; fixturePath: string; outputPath: string; marketplaceOutputPath: string; governanceOutputPath: string; provider: { getNetwork: ReturnType<typeof vi.fn>; getCode: ReturnType<typeof vi.fn>; destroy: ReturnType<typeof vi.fn> }; executeCommand: ReturnType<typeof vi.fn> }) => Promise<void>,
+  ) {
+    const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-scenario-branch-"));
+    const envPath=path.join(isolatedCwd,"promotion.env");const fixturePath=path.join(isolatedCwd,"fixture.json");const outputPath=path.join(isolatedCwd,"report.json");
+    const marketplaceOutputPath=path.join(isolatedCwd,"marketplace.json");const governanceOutputPath=path.join(isolatedCwd,"governance.json");
+    const previousExitCode=process.exitCode;
+    const provider={getNetwork:vi.fn().mockResolvedValue({chainId:84532n}),getCode:vi.fn().mockResolvedValue("0x6000"),destroy:vi.fn().mockResolvedValue(undefined)};
+    writeFileSync(envPath,Object.entries(readyEnv()).map(([key,value])=>`${key}=${value}`).join("\n"));
+    const executeCommand=vi.fn(async(_command:string,args:string[])=>{
+      if(args[1]==="setup:base-sepolia"){writeFileSync(fixturePath,JSON.stringify(fixture));return 0;}
+      const destination=args[1]==="verify:marketplace:purchase:base-sepolia"?marketplaceOutputPath:governanceOutputPath;
+      writeFileSync(destination,JSON.stringify({summary:"proven working"}));
+      return 0;
+    });
+    try {await run({envPath,fixturePath,outputPath,marketplaceOutputPath,governanceOutputPath,provider,executeCommand});}
+    finally {process.exitCode=previousExitCode;rmSync(isolatedCwd,{recursive:true,force:true});}
+  }
+
+  const readyFixture={network:{chainId:84532,runtimeRpcUrl:"https://base-sepolia.example.invalid",forkedFrom:null},setup:{status:"ready"},marketplace:{agedListingFixture:{status:"ready",purchaseReadiness:"purchase-ready",listing:{readback:{payload:{price:"100"}}}},usdcFunding:{buyerBalance:"100",buyerAllowance:"100"}},governance:{status:"ready"}};
+
+  it("blocks when setup exits unsuccessfully or leaves its fixture stale",async()=>{
+    await withPromotionFixture(readyFixture,async({envPath,fixturePath,outputPath,provider})=>{
+      const executeCommand=vi.fn().mockResolvedValue(1);
+      await runPromotion({envPath,fixturePath,outputPath,providerFactory:()=>provider,runCommand:executeCommand});
+      expect(executeCommand).toHaveBeenCalledOnce();
+      expect(JSON.parse(readFileSync(outputPath,"utf8"))).toMatchObject({readiness:{status:"blocked"},finalClassification:"blocked by setup/state",scenarios:[]});
+    });
+    await withPromotionFixture(readyFixture,async({envPath,fixturePath,outputPath,provider})=>{
+      const executeCommand=vi.fn().mockResolvedValue(0);
+      await runPromotion({envPath,fixturePath,outputPath,providerFactory:()=>provider,runCommand:executeCommand});
+      expect(JSON.parse(readFileSync(outputPath,"utf8")).readiness.blockers[0]).toContain("did not refresh");
+    });
+  });
+
+  it("blocks on an unreadable refreshed fixture",async()=>{
+    await withPromotionFixture(readyFixture,async({envPath,fixturePath,outputPath,provider})=>{
+      const executeCommand=vi.fn(async()=>{writeFileSync(fixturePath,"{");return 0;});
+      await runPromotion({envPath,fixturePath,outputPath,providerFactory:()=>provider,runCommand:executeCommand});
+      expect(JSON.parse(readFileSync(outputPath,"utf8"))).toMatchObject({readiness:{status:"blocked",blockers:[expect.stringContaining("fixture could not be read")]},finalClassification:"blocked by setup/state"});
+    });
+  });
+
+  it("skips scenarios whose fixture-specific readiness is missing",async()=>{
+    const fixture={...readyFixture,governance:{status:"blocked",reason:"proposer role missing"}};
+    await withPromotionFixture(fixture,async({envPath,fixturePath,outputPath,marketplaceOutputPath,governanceOutputPath,provider,executeCommand})=>{
+      await runPromotion({envPath,fixturePath,outputPath,marketplaceOutputPath,providerFactory:()=>provider,runCommand:executeCommand});
+      const report=JSON.parse(readFileSync(outputPath,"utf8"));
+      expect(report.scenarios).toHaveLength(2);
+      expect(report.scenarios[1]).toMatchObject({id:"governance",status:"skipped",reason:"proposer role missing"});
+      expect(executeCommand).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("records failed commands and stale or unclassified proof reports",async()=>{
+    await withPromotionFixture(readyFixture,async({envPath,fixturePath,outputPath,marketplaceOutputPath,governanceOutputPath,provider,executeCommand})=>{
+      executeCommand.mockImplementation(async(_command:string,args:string[])=>{
+        if(args[1]==="setup:base-sepolia"){writeFileSync(fixturePath,JSON.stringify(readyFixture));return 0;}
+        if(args[1]==="verify:marketplace:purchase:base-sepolia") return 7;
+        writeFileSync(governanceOutputPath,JSON.stringify({summary:"unexpected classification"}));
+        return 0;
+      });
+      await runPromotion({envPath,fixturePath,outputPath,marketplaceOutputPath,providerFactory:()=>provider,runCommand:executeCommand});
+      const report=JSON.parse(readFileSync(outputPath,"utf8"));
+      expect(report.scenarios[0]).toMatchObject({status:"failed",finalClassification:"deeper issue remains",reason:"command exited 7",report:null});
+      expect(report.scenarios[1]).toMatchObject({status:"blocked",finalClassification:"deeper issue remains",reason:"proof report classified deeper issue remains"});
+      expect(report.finalClassification).toBe("deeper issue remains");
+    });
+    await withPromotionFixture(readyFixture,async({envPath,fixturePath,outputPath,marketplaceOutputPath,provider,executeCommand})=>{
+      executeCommand.mockImplementation(async(_command:string,args:string[])=>{
+        if(args[1]==="setup:base-sepolia"){writeFileSync(fixturePath,JSON.stringify(readyFixture));return 0;}
+        return 0;
+      });
+      await runPromotion({envPath,fixturePath,outputPath,marketplaceOutputPath,providerFactory:()=>provider,runCommand:executeCommand});
+      expect(JSON.parse(readFileSync(outputPath,"utf8")).scenarios[0]).toMatchObject({status:"blocked",reason:"proof report classified deeper issue remains",report:null});
+    });
+  });
+
   it("orchestrates fixture-backed scenarios with injected commands and temporary artifacts",async()=>{
     const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-scenarios-"));
     const envPath=path.join(isolatedCwd,"promotion.env");const fixturePath=path.join(isolatedCwd,"fixture.json");const outputPath=path.join(isolatedCwd,"report.json");
