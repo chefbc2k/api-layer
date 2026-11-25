@@ -1756,10 +1756,44 @@
             "Cumulative exact-method evidence now records 157/260 methods with 103 remaining."
           ],
           "resultLimitation": "Two previously open methods completed, below the bounded target of 35; API-05 remains in_progress with 103 methods open."
+        },
+        {
+          "sourceCommit": "0f5294c8edc792c0dc60126c7f04cf1829f6b412",
+          "artifact": "output/api05-ownership-transfer-immediate-proof-2026-11-25.json",
+          "proofArtifactSha256": "b2277c5ad41914bc065521cac8d1b2ebfefcdd7006bc716fa365c59805bbb2b5",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "9621c912fd18dcc31a7c063cd2073513d572131aa680d4d8f4f9997fca8020ee",
+          "result": "Proved OwnershipFacet.transferOwnership through HTTP on a disposable persistent fork. The owner approved the deployed USDC contract target, transferred ownership to it, observed the OwnershipTransferred event and canonical owner readback, then discarded the isolated fork after PostgreSQL indexing. API-05 advances from 158/260 to 159/260 proven write methods, leaving 101 open. OwnershipFacet.acceptOwnership remains unproven because the pending owner must itself be a code-bearing approved contract; its reviewed contract-only policy is recorded separately and the key remains in the exact-method open count.",
+          "startingProvenCount": 158,
+          "startingOpenCount": 102,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.9804,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 159,
+          "endingOpenCount": 101,
+          "checks": [
+            "TypeScript and ESLint passed.",
+            "Focused local-fork HTTP integration passed: 1 passed, 58 skipped.",
+            "Ownership transfer receipt succeeded and emitted OwnershipTransferred(previousOwner,newOwner); the owner getter matched the approved USDC target.",
+            "PostgreSQL indexed the ownership event and ownership_transfers projections; replay was idempotent.",
+            "The owner-changing test ran on a disposable loopback fork which was stopped after indexer proof.",
+            "OwnershipFacet.acceptOwnership is explicitly classified as a reviewed contract-only exception in the invariant metadata; it remains counted open pending release accounting policy."
+          ],
+          "resultLimitation": "One open method completed, below the bounded target of 35; API-05 remains in_progress with 101 methods open."
         }
       ],
       "deliveredCommit": null,
-      "blocker": null
+      "blocker": null,
+      "reviewedContractOnlyPolicies": [
+        {
+          "methodKey": "OwnershipFacet.acceptOwnership",
+          "classification": "reviewed-contract-only-exception",
+          "status": "documented; acceptance accounting unchanged",
+          "rationale": "The approved-target guard rejects EOAs and acceptOwnership requires msg.sender to be the pending contract. Current API keys sign as EOAs, so positive HTTP execution requires a dedicated contract callback harness. The method remains open in the 260-key count until exception accounting is explicitly adopted by the release checklist.",
+          "source": "reviewed/reviewed-write-invariants.json"
+        }
+      ]
     },
     {
       "id": "API-06",

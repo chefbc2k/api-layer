@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T08:10:02.184Z",
+  "summary": "proven working",
+  "methodKey": "OwnershipFacet.transferOwnership",
+  "sourceCommit": "0f5294c8edc792c0dc60126c7f04cf1829f6b412",
+  "test": {
+    "name": "proves immediate ownership transfer to a reviewed contract target on the local fork",
+    "result": "passed",
+    "passed": 1,
+    "skipped": 58,
+    "typescript": "passed",
+    "eslint": "passed",
+    "route": "POST /v1/ownership/commands/transfer-ownership",
+    "details": [
+      "Temporarily approved the deployed USDC contract target through the owner-only HTTP route, then transferred ownership to that exact code-bearing approved target.",
+      "The transfer receipt succeeded and emitted OwnershipTransferred with matching previous and new owners; canonical owner readback matched the target.",
+      "The test intentionally ends with the USDC contract as owner because the isolated fork is discarded after indexing; the contract itself cannot sign a restoration transaction."
+    ]
+  },
+  "receiptArtifact": {
+    "transactionHashes": [
+      "0x459891200e9c881d7a6e21956181acffa156aa011e544e74761675f802512d89",
+      "0x56d220423f7d6156d98df50de2600abc54560127286a793ed7377184b4658c44"
+    ]
+  },
+  "indexerReceipts": [
+    {
+      "txHash": "0x459891200e9c881d7a6e21956181acffa156aa011e544e74761675f802512d89",
+      "methodKey": "OwnershipFacet.transferOwnership",
+      "expectedEventMode": "one-of",
+      "expectedEventKeys": [
+        "OwnershipFacet.OwnershipTransferCancelled",
+        "OwnershipFacet.OwnershipTransferProposed",
+        "OwnershipFacet.OwnershipTransferred"
+      ],
+      "indexedEventKeys": [
+        "OwnershipFacet.OwnershipTransferred"
+      ],
+      "expectedProjectionTables": [
+        "ownership_transfers"
+      ],
+      "projectedTables": [
+        "ownership_transfers"
+      ],
+      "failures": [],
+      "blockNumber": 63359733,
+      "receiptStatus": 1,
+      "receiptLogCount": 1,
+      "transactionSelector": "0xf2fde38b",
+      "affectedFacet": "OwnershipFacet",
+      "methodSignature": "transferOwnership(address)",
+      "decodedEvents": [
+        {
+          "rawEventId": "2",
+          "logIndex": 0,
+          "facetName": "OwnershipFacet",
+          "eventName": "OwnershipTransferred",
+          "eventSignature": "OwnershipTransferred(address,address)",
+          "decodedArgs": {
+            "newOwner": "0xf976bb0f0a4091d41B149AE6D4Cda8cac232b2F2",
+            "previousOwner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+          }
+        }
+      ],
+      "postgres": {
+        "rawEvents": {
+          "table": "raw_events",
+          "rowCount": 1,
+          "rows": [
+            {
+              "id": "2",
+              "log_index": 0,
+              "facet_name": "OwnershipFacet",
+              "event_name": "OwnershipTransferred",
+              "event_signature": "OwnershipTransferred(address,address)",
+              "decoded_args": {
+                "newOwner": "0xf976bb0f0a4091d41B149AE6D4Cda8cac232b2F2",
+                "previousOwner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+              }
+            }
+          ]
+        },
+        "projections": [
+          {
+            "table": "ownership_transfers",
+            "rowCount": 1,
+            "rows": [
+              {
+                "row_id": "2",
+                "source_raw_event_id": "2"
+              }
+            ]
+          }
+        ],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63359733",
+              "block_hash": "0x2f38ff2a427d87180fa6fad9fc0eda8de9f82ef840696014be9ad57a3d606cd7"
+            }
+          ]
+        }
+      },
+      "source": {
+        "workflowArtifacts": [
+          ".runtime/api05-ownership-transfer-live-receipts.json"
+        ],
+        "producers": [],
+        "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+      },
+      "replay": {
+        "status": "idempotent",
+        "before": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "2",
+                "log_index": 0,
+                "facet_name": "OwnershipFacet",
+                "event_name": "OwnershipTransferred",
+                "event_signature": "OwnershipTransferred(address,address)",
+                "decoded_args": {
+                  "newOwner": "0xf976bb0f0a4091d41B149AE6D4Cda8cac232b2F2",
+                  "previousOwner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                }
+              }
+            ]
+          },
+          "projections": [
+            {
+              "table": "ownership_transfers",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "2",
+                  "source_raw_event_id": "2"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63359733",
+                "block_hash": "0x2f38ff2a427d87180fa6fad9fc0eda8de9f82ef840696014be9ad57a3d606cd7"
+              }
+            ]
+          }
+        },
+        "after": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 1,
+            "rows": [
+              {
+                "id": "2",
+                "log_index": 0,
+                "facet_name": "OwnershipFacet",
+                "event_name": "OwnershipTransferred",
+                "event_signature": "OwnershipTransferred(address,address)",
+                "decoded_args": {
+                  "newOwner": "0xf976bb0f0a4091d41B149AE6D4Cda8cac232b2F2",
+                  "previousOwner": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2"
+                }
+              }
+            ]
+          },
+          "projections": [
+            {
+              "table": "ownership_transfers",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "2",
+                  "source_raw_event_id": "2"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63359733",
+                "block_hash": "0x2f38ff2a427d87180fa6fad9fc0eda8de9f82ef840696014be9ad57a3d606cd7"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "cumulativeIndexerTotals": {
+    "artifactTransactionHashes": 5734,
+    "includedArtifacts": 15,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 5734,
+    "provenWriteMethods": 159,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 101,
+    "rawEvents": 8655,
+    "projectionRows": 5535
+  }
+}

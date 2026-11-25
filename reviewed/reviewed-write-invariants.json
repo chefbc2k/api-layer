@@ -6813,29 +6813,35 @@
     "OwnershipFacet.acceptOwnership": {
       "abiSignature": "acceptOwnership()",
       "requiredActor": {
-        "kind": "self",
-        "roles": [],
-        "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+        "kind": "contract",
+        "roles": [
+          "PENDING_OWNER_CONTRACT"
+        ],
+        "description": "Only the preapproved pending owner contract can call acceptOwnership. Ownership target enforcement rejects EOAs; the mounted API signer map can represent only EOAs and cannot invoke a contract as msg.sender."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer acts on its own allowance, entitlement, position, or beneficiary state."
+          "description": "The caller must be the same contract stored as pendingOwner, and that target must have passed code-bearing approved-target enforcement."
         },
         {
           "kind": "protocol-state",
-          "description": "The protocol and affected resource are in the lifecycle state required by this transition and are not blocked by pause or freeze controls."
+          "description": "A pending ownership proposal must exist for the caller contract."
         }
       ],
       "postStateReadbacks": {
         "mode": "required",
         "checks": [
           {
-            "method": "OwnershipFacet.isOwnershipPolicyEnforced",
-            "assertion": "OwnershipFacet.isOwnershipPolicyEnforced reflects the receipt-confirmed OwnershipFacet.acceptOwnership transition for the affected identifiers and actor."
+            "method": "OwnershipFacet.owner",
+            "assertion": "The new contract owner equals the preapproved pending owner after acceptance."
+          },
+          {
+            "method": "OwnershipFacet.pendingOwner",
+            "assertion": "Pending owner is cleared after acceptance."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "Ownership transfer is a control-plane transition; owner and pending-owner getters prove the final state."
       },
       "emittedEvents": {
         "mode": "all",
@@ -6868,6 +6874,11 @@
           "ownership_transfers:current"
         ],
         "assertion": "Every expected log is decoded and projected once; duplicate ingestion is idempotent and the current/ledger projection matches post-state readbacks."
+      },
+      "acceptancePolicy": {
+        "classification": "reviewed-contract-only-exception",
+        "rationale": "The production guard requires a code-bearing approved target, and acceptOwnership requires that contract itself as msg.sender. Current HTTP signer execution maps API keys to EOAs, so a positive HTTP receipt cannot be obtained without a dedicated contract callback harness. Do not accept a revert or an EOA bypass as proof.",
+        "evidence": "contracts/diamond/facets/OwnershipFacet.sol: _enforceOwnershipPolicy and acceptOwnership"
       }
     },
     "OwnershipFacet.cancelOwnershipTransfer": {

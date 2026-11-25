@@ -1,3 +1,9 @@
+# API-05 Follow-on — Immediate Ownership Transfer — 2026-11-25
+
+- Proved `OwnershipFacet.transferOwnership` through HTTP to an approved deployed USDC contract on a disposable fork. The receipt emitted `OwnershipTransferred`, canonical owner state matched, PostgreSQL indexed the event and ownership projection, and replay was idempotent. The fork was discarded after proof.
+- API-05 advances from `158/260` to `159/260` exact-method proofs, leaving `101` open. Source commit: `0f5294c8edc792c0dc60126c7f04cf1829f6b412`. Evidence: [proof artifact](../output/api05-ownership-transfer-immediate-proof-2026-11-25.json), [cumulative report](../verify-local-fork-indexer-output.json).
+- Reviewed `OwnershipFacet.acceptOwnership` as contract-only: only a code-bearing approved pending-owner contract can invoke its own acceptance call. This policy is recorded in the reviewed invariant metadata and API-05 ledger; the key remains counted open.
+
 # API-05 Follow-on — ERC721 Escrow Receiver Callback — 2026-11-25
 
 - Proved the exact `EscrowFacet.onERC721Received` HTTP route on a persistent loopback fork. Two successful zero-log receipts used the expected selector and left escrow owner/state unchanged. PostgreSQL block journals and idempotent replay were verified.
