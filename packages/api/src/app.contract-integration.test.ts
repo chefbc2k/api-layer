@@ -8634,6 +8634,181 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
+  it("proves signed single and batch EchoScore updates through HTTP on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "signed EchoScore update proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0008") },
+    ])) return;
+
+    const oracle = new Contract(diamondAddress, facetRegistry.EchoScoreFacetV3.abi, provider);
+    const originalOracle = String(await oracle.getEchoScoreOracleV3());
+    const originalQuorum = await oracle.getOracleQuorumSigners();
+    const originalSigners = [...originalQuorum.signers];
+    const originalThreshold = BigInt(originalQuorum.threshold);
+    const platformAdminRole = id("PLATFORM_ADMIN_ROLE");
+    expect(await accessControl.hasRole(platformAdminRole, founderAddress)).toBe(true);
+    const coder = ethers.AbiCoder.defaultAbiCoder();
+    const buildSignedUpdate = async (voiceHash: string, nonce: string) => {
+      const latestBlock = await provider.getBlock("latest");
+      const timestamp = String(latestBlock?.timestamp ?? Math.floor(Date.now() / 1000));
+      const qualityData = {
+        completenessPercentage: "90", sampleRate: "44100", speechDuration: "20",
+        hnr: "9000", jitterLocal: "100", shimmerLocal: "100",
+      };
+      const engagementData = {
+        viewCount: "100", likeCount: "10", playCount: "30", ratingAverage: "450",
+        ratingCount: "10", assetAge: "20",
+      };
+      const governanceData = { proposalsCreated: "2", proposalsActiveOrSuccess: "2", votesCast: "3" };
+      const contributionData = {
+        datasetCount: "1", totalAssetCount: "5", totalDuration: "100",
+        hasCommercialDataset: true, hasHighQualityDataset: true,
+      };
+      const marketplaceData = {
+        datasetSalesCount: "1", datasetSalesVolume: "1000", assetSalesCount: "2",
+        assetSalesVolume: "500", royaltiesRealized: "800", royaltyPaymentsCount: "2",
+      };
+      const qualityHash = ethers.keccak256(coder.encode(
+        ["uint256", "uint256", "uint256", "uint256", "uint256", "uint256"],
+        Object.values(qualityData),
+      ));
+      const engagementHash = ethers.keccak256(coder.encode(
+        ["uint256", "uint256", "uint256", "uint256", "uint256", "uint256"],
+        Object.values(engagementData),
+      ));
+      const governanceHash = ethers.keccak256(coder.encode(
+        ["uint256", "uint256", "uint256"], Object.values(governanceData),
+      ));
+      const contributionHash = ethers.keccak256(coder.encode(
+        ["uint256", "uint256", "uint256", "bool", "bool"], Object.values(contributionData),
+      ));
+      const marketplaceHash = ethers.keccak256(coder.encode(
+        ["uint256", "uint256", "uint256", "uint256", "uint256", "uint256"],
+        Object.values(marketplaceData),
+      ));
+      const messageHash = ethers.keccak256(coder.encode(
+        ["bytes32", "bytes32", "bytes32", "bytes32", "bytes32", "bytes32", "uint256", "uint256"],
+        [voiceHash, qualityHash, engagementHash, governanceHash, contributionHash, marketplaceHash, nonce, timestamp],
+      ));
+      const signature = await founderWallet.signMessage(ethers.getBytes(messageHash));
+      return {
+        voiceHash,
+        qualityData,
+        engagementData,
+        governanceData,
+        contributionData,
+        marketplaceData,
+        nonce,
+        timestamp,
+        signature,
+      };
+    };
+    const updateVoiceHash = id(`api05-echo-update-${Date.now()}`);
+    const batchVoiceHashes = [id(`api05-echo-batch-a-${Date.now()}`), id(`api05-echo-batch-b-${Date.now()}`)];
+    let oracleChangeTxHash: string | null = null;
+    let updateTxHash: string | null = null;
+    let batchTxHash: string | null = null;
+    let restoreTxHash: string | null = null;
+
+    try {
+      if (originalOracle.toLowerCase() !== founderAddress.toLowerCase()) {
+        const change = await apiCall(port, "PATCH", "/v1/staking/commands/set-echo-score-oracle-v3", {
+          apiKey: "founder-key",
+          body: { newOracle: founderAddress },
+        });
+        expect(change.status, JSON.stringify(change.payload)).toBe(202);
+        oracleChangeTxHash = extractTxHash(change.payload);
+        await expectReceipt(oracleChangeTxHash);
+      }
+      expect(String(await oracle.getEchoScoreOracleV3()).toLowerCase()).toBe(founderAddress.toLowerCase());
+      if (originalThreshold !== 1n || originalSigners.length !== 1 ||
+          originalSigners[0]!.toLowerCase() !== founderAddress.toLowerCase()) {
+        const quorum = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-quorum-signers", {
+          apiKey: "founder-key",
+          body: { signers: [founderAddress], threshold: "1" },
+        });
+        expect(quorum.status, JSON.stringify(quorum.payload)).toBe(202);
+        await expectReceipt(extractTxHash(quorum.payload));
+      }
+
+      const update = await buildSignedUpdate(updateVoiceHash, "0");
+      const single = await apiCall(port, "PATCH", "/v1/staking/commands/update-score", {
+        apiKey: "founder-key", body: { update },
+      });
+      expect(single.status, JSON.stringify(single.payload)).toBe(202);
+      updateTxHash = extractTxHash(single.payload);
+      await expectReceipt(updateTxHash);
+      const singleReceipt = await provider.getTransactionReceipt(updateTxHash);
+      expect(singleReceipt?.status).toBe(1);
+      const singleState = normalize(await oracle.getReputation(updateVoiceHash));
+      expect((singleState as unknown[])[7]).toBe("1");
+
+      const updates = await Promise.all(batchVoiceHashes.map((voiceHash) => buildSignedUpdate(voiceHash, "0")));
+      const batch = await apiCall(port, "POST", "/v1/staking/commands/batch-update-scores", {
+        apiKey: "founder-key", body: { updates },
+      });
+      expect(batch.status, JSON.stringify(batch.payload)).toBe(202);
+      batchTxHash = extractTxHash(batch.payload);
+      await expectReceipt(batchTxHash);
+      const batchReceipt = await provider.getTransactionReceipt(batchTxHash);
+      expect(batchReceipt?.status).toBe(1);
+      const scoresUpdated = (batchReceipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = oracle.interface.parseLog(log);
+          return parsed?.name === "ScoresUpdated" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(scoresUpdated).toHaveLength(1);
+      expect(scoresUpdated[0]!.args.count).toBe(2n);
+      for (const voiceHash of batchVoiceHashes) {
+        expect((normalize(await oracle.getReputation(voiceHash)) as unknown[])[7]).toBe("1");
+      }
+      const batchReadback = await apiCall(port, "GET", `/v1/staking/queries/get-reputation?voiceHash=${encodeURIComponent(batchVoiceHashes[0]!)}`, {
+        apiKey: "read-key",
+      });
+      expect(batchReadback.status).toBe(200);
+      const expectedReadback = await oracle.getReputation(batchVoiceHashes[0]!);
+      expect(batchReadback.payload).toEqual({
+        totalReputation: String(expectedReadback[0]),
+        voiceQualityScore: String(expectedReadback[1]),
+        engagementScore: String(expectedReadback[2]),
+        governanceScore: String(expectedReadback[3]),
+        datasetScore: String(expectedReadback[4]),
+        marketplaceScore: String(expectedReadback[5]),
+        lastUpdated: String(expectedReadback[6]),
+        updateCount: String(expectedReadback[7]),
+      });
+    } finally {
+      const currentQuorum = await oracle.getOracleQuorumSigners();
+      const currentSigners = [...currentQuorum.signers].map((address) => address.toLowerCase());
+      if (BigInt(currentQuorum.threshold) !== originalThreshold ||
+          currentSigners.length !== originalSigners.length ||
+          originalSigners.some((address, index) => currentSigners[index] !== address.toLowerCase())) {
+        const restoreQuorum = await apiCall(port, "PATCH", "/v1/staking/commands/set-oracle-quorum-signers", {
+          apiKey: "founder-key",
+          body: { signers: originalSigners, threshold: originalThreshold.toString() },
+        });
+        expect(restoreQuorum.status, JSON.stringify(restoreQuorum.payload)).toBe(202);
+        await expectReceipt(extractTxHash(restoreQuorum.payload));
+      }
+      const currentOracle = String(await oracle.getEchoScoreOracleV3());
+      if (currentOracle.toLowerCase() !== originalOracle.toLowerCase()) {
+        const restore = await apiCall(port, "PATCH", "/v1/staking/commands/set-echo-score-oracle-v3", {
+          apiKey: "founder-key", body: { newOracle: originalOracle },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        restoreTxHash = extractTxHash(restore.payload);
+        await expectReceipt(restoreTxHash);
+      }
+      expect(String(await oracle.getEchoScoreOracleV3()).toLowerCase()).toBe(originalOracle.toLowerCase());
+    }
+  }, 180_000);
+
   it("proves degraded-mode configuration receipts remain indexable on the local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
