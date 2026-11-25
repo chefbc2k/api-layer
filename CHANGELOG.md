@@ -1,3 +1,8 @@
+# 2026-11-25 — Prove ERC721 escrow receiver callback
+
+- Proved the mounted `EscrowFacet.onERC721Received` route through HTTP on a persistent local fork. Two calls produced status-1 receipts with the exact callback selector and no logs; escrow owner/state remained unchanged. PostgreSQL journaled the eventless receipts and replay was idempotent.
+- API-05 advances from `157/260` to `158/260`, leaving `102` open. Source commit `da365d601a16e9212b034057a0d651e7c96d9ec8`. See [callback proof](output/api05-escrow-receiver-callback-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json).
+
 # 2026-11-25 — Prove signed EchoScore writes
 
 - Proved `EchoScoreFacetV3.updateScore` and `EchoScoreFacetV3.batchUpdateScores` through HTTP on a disposable fork using signed payloads. Single and two-entry batch receipts emitted their expected events; exact reputation reads and update counts matched. PostgreSQL indexed all six receipts/events/block journals and replay was idempotent; original oracle and quorum settings were restored.

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T08:04:35.950Z",
+  "summary": "proven working",
+  "methodKey": "EscrowFacet.onERC721Received",
+  "sourceCommit": null,
+  "test": {
+    "name": "proves the ERC721 escrow receiver callback through HTTP on the local fork",
+    "result": "passed",
+    "passed": 1,
+    "skipped": 57,
+    "typescript": "passed",
+    "eslint": "passed",
+    "route": "POST /v1/marketplace/commands/on-erc721-received",
+    "details": [
+      "Two status-1 receipts were produced with the exact callback selector and zero logs.",
+      "The token id was not in escrow before or after either callback; original owner remained zero and state remained None."
+    ]
+  },
+  "receiptArtifact": {
+    "transactionHashes": [
+      "0x234fd3248d407206b29b20feee4690101d0ba1674338b55b4a97e1f4495e72ce",
+      "0x49bba2d80c68f734ceec2a6293eae86b9a1b1d1397a0433cb7ce7861aa62dbf7",
+      "0x593d6d4885a26334bcdbffdcac02fc7164b9749cad6d31645f1fb0d50af7cf3f",
+      "0x68fdc5b14a2cbfc8d0b798a5a4e3223d988315e2c7550c4d885e858353fafe49",
+      "0x69ee4dc84b2940bad9a6bb7e2230fc3ac1d7163ea6917dd84d8187276bb7d9cd",
+      "0x9c7acee8808d5fc33b76d7023ab98f5655666cfde927a68ee776fd3e2d6d6614",
+      "0xd9c51a7f37fcbf82add371d605fb3e755ab6a908f43212b61e015dc314e7e612",
+      "0xfe02dc5225b30890bea8bd9adda2d69637a37988bff7200ff05948cf1f94a0b6"
+    ]
+  },
+  "indexerReceipts": [
+    {
+      "txHash": "0x234fd3248d407206b29b20feee4690101d0ba1674338b55b4a97e1f4495e72ce",
+      "methodKey": "EscrowFacet.onERC721Received",
+      "expectedEventMode": "none",
+      "expectedEventKeys": [],
+      "indexedEventKeys": [],
+      "expectedProjectionTables": [],
+      "projectedTables": [],
+      "failures": [],
+      "blockNumber": 63359724,
+      "receiptStatus": 1,
+      "receiptLogCount": 0,
+      "transactionSelector": "0x150b7a02",
+      "affectedFacet": "EscrowFacet",
+      "methodSignature": "onERC721Received(address,address,uint256,bytes)",
+      "decodedEvents": [],
+      "postgres": {
+        "rawEvents": {
+          "table": "raw_events",
+          "rowCount": 0,
+          "rows": []
+        },
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63359724",
+              "block_hash": "0xda3158353690478511a9bad28e8f687239afc9fac5a47a5b942d0df55a13d53b"
+            }
+          ]
+        }
+      },
+      "source": {
+        "workflowArtifacts": [
+          ".runtime/api05-method-followup-live-receipts.json"
+        ],
+        "producers": [],
+        "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+      },
+      "replay": {
+        "status": "idempotent",
+        "before": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 0,
+            "rows": []
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63359724",
+                "block_hash": "0xda3158353690478511a9bad28e8f687239afc9fac5a47a5b942d0df55a13d53b"
+              }
+            ]
+          }
+        },
+        "after": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 0,
+            "rows": []
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63359724",
+                "block_hash": "0xda3158353690478511a9bad28e8f687239afc9fac5a47a5b942d0df55a13d53b"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "txHash": "0xfe02dc5225b30890bea8bd9adda2d69637a37988bff7200ff05948cf1f94a0b6",
+      "methodKey": "EscrowFacet.onERC721Received",
+      "expectedEventMode": "none",
+      "expectedEventKeys": [],
+      "indexedEventKeys": [],
+      "expectedProjectionTables": [],
+      "projectedTables": [],
+      "failures": [],
+      "blockNumber": 63359725,
+      "receiptStatus": 1,
+      "receiptLogCount": 0,
+      "transactionSelector": "0x150b7a02",
+      "affectedFacet": "EscrowFacet",
+      "methodSignature": "onERC721Received(address,address,uint256,bytes)",
+      "decodedEvents": [],
+      "postgres": {
+        "rawEvents": {
+          "table": "raw_events",
+          "rowCount": 0,
+          "rows": []
+        },
+        "projections": [],
+        "blockJournal": {
+          "table": "indexer_blocks",
+          "rowCount": 1,
+          "rows": [
+            {
+              "block_number": "63359725",
+              "block_hash": "0x20cffc88a60e8dc726b19ad2a21c828556a6cb02ecd20471a11b24b974f834c1"
+            }
+          ]
+        }
+      },
+      "source": {
+        "workflowArtifacts": [
+          ".runtime/api05-method-followup-live-receipts.json"
+        ],
+        "producers": [],
+        "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+      },
+      "replay": {
+        "status": "idempotent",
+        "before": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 0,
+            "rows": []
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63359725",
+                "block_hash": "0x20cffc88a60e8dc726b19ad2a21c828556a6cb02ecd20471a11b24b974f834c1"
+              }
+            ]
+          }
+        },
+        "after": {
+          "rawEvents": {
+            "table": "raw_events",
+            "rowCount": 0,
+            "rows": []
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63359725",
+                "block_hash": "0x20cffc88a60e8dc726b19ad2a21c828556a6cb02ecd20471a11b24b974f834c1"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "indexerTotals": {
+    "artifactTransactionHashes": 8,
+    "includedArtifacts": 1,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 8,
+    "provenWriteMethods": 5,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 255,
+    "rawEvents": 6,
+    "projectionRows": 0
+  }
+}

@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T07:58:18.634Z",
+  "generatedAt": "2026-11-25T08:04:11.561Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5724,
-    "includedArtifacts": 13,
+    "artifactTransactionHashes": 5732,
+    "includedArtifacts": 14,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5724,
-    "provenWriteMethods": 157,
+    "indexedReceipts": 5732,
+    "provenWriteMethods": 158,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 103,
-    "rawEvents": 8647,
+    "remainingWriteMethods": 102,
+    "rawEvents": 8653,
     "projectionRows": 5533
   },
   "reports": {
@@ -53597,6 +53597,56 @@
           "methodKey": "EchoScoreFacetV3.batchUpdateScores",
           "affectedFacet": "EchoScoreFacetV3",
           "methodSignature": "batchUpdateScores((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes)[])",
+          "txHash": "0x68fdc5b14a2cbfc8d0b798a5a4e3223d988315e2c7550c4d885e858353fafe49",
+          "blockNumber": 63359729,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "4",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.ScoresUpdated(uint256,uint256,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "4"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359729",
+                  "block_hash": "0xbb3c6f6b6f67b3a32275a88d0aec514f2e8c09d65970b3fea8b09258657adff5"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.batchUpdateScores",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "batchUpdateScores((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes)[])",
           "txHash": "0xe53ddfb4d145076fa71e48eaecf09c186a73cd8f608c56ec11fd9e43fa2de8e1",
           "blockNumber": 63354242,
           "receipt": {
@@ -53977,6 +54027,56 @@
           "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
           "affectedFacet": "EchoScoreFacetV3",
           "methodSignature": "setEchoScoreOracleV3(address)",
+          "txHash": "0x593d6d4885a26334bcdbffdcac02fc7164b9749cad6d31645f1fb0d50af7cf3f",
+          "blockNumber": 63359731,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "6",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleUpdated(address,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "6"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359731",
+                  "block_hash": "0x2035dc42f284d8afab23a3ef21c65fefb58e223226d74367c0422b4dd7e25046"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setEchoScoreOracleV3(address)",
           "txHash": "0x95950ae9297242e870227fa46368d28ff2207e2495febe5400e708405efeeb51",
           "blockNumber": 63338137,
           "receipt": {
@@ -54069,6 +54169,56 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-full-contract-integration-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setEchoScoreOracleV3",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setEchoScoreOracleV3(address)",
+          "txHash": "0x9c7acee8808d5fc33b76d7023ab98f5655666cfde927a68ee776fd3e2d6d6614",
+          "blockNumber": 63359726,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleUpdated(address,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359726",
+                  "block_hash": "0xe9314c23eae9c1c59f8f5b1f52fc01515122eb0bbae315424042a209d5e26e97"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -54303,6 +54453,56 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setOracleQuorumSigners(address[],uint256)",
+          "txHash": "0x49bba2d80c68f734ceec2a6293eae86b9a1b1d1397a0433cb7ce7861aa62dbf7",
+          "blockNumber": 63359727,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359727",
+                  "block_hash": "0x948fb55a578da8fb69265e42deded6aab997317a6a1af80acc81e1cadcb30c0d"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         },
@@ -54605,6 +54805,56 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-full-contract-integration-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.setOracleQuorumSigners",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "setOracleQuorumSigners(address[],uint256)",
+          "txHash": "0xd9c51a7f37fcbf82add371d605fb3e755ab6a908f43212b61e015dc314e7e612",
+          "blockNumber": 63359730,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "5",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.OracleQuorumConfigUpdated(address[],uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "5"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359730",
+                  "block_hash": "0x9501f268c03b5267c394c47f94ecbd3052b65f6e2d9d627cd7d213b78ff9b175"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -55105,6 +55355,56 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-echo-score-write-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EchoScoreFacetV3.updateScore",
+          "affectedFacet": "EchoScoreFacetV3",
+          "methodSignature": "updateScore((bytes32,(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256),(uint256,uint256,uint256),(uint256,uint256,uint256,bool,bool),(uint256,uint256,uint256,uint256,uint256,uint256),uint256,uint256,bytes))",
+          "txHash": "0x69ee4dc84b2940bad9a6bb7e2230fc3ac1d7163ea6917dd84d8187276bb7d9cd",
+          "blockNumber": 63359728,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "EchoScoreFacetV3.ReputationUpdated(bytes32,uint256,uint256,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "3"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359728",
+                  "block_hash": "0x7ececaf1d0e277d63f8b023e3b97fca4088a72212e8539d669f9b6eafc925270"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -71952,6 +72252,104 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "EscrowFacet.onERC721Received": {
+      "routes": [
+        "POST /v1/marketplace/commands/on-erc721-received"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "EscrowFacet.onERC721Received",
+          "affectedFacet": "EscrowFacet",
+          "methodSignature": "onERC721Received(address,address,uint256,bytes)",
+          "txHash": "0x234fd3248d407206b29b20feee4690101d0ba1674338b55b4a97e1f4495e72ce",
+          "blockNumber": 63359724,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359724",
+                  "block_hash": "0xda3158353690478511a9bad28e8f687239afc9fac5a47a5b942d0df55a13d53b"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "EscrowFacet.onERC721Received",
+          "affectedFacet": "EscrowFacet",
+          "methodSignature": "onERC721Received(address,address,uint256,bytes)",
+          "txHash": "0xfe02dc5225b30890bea8bd9adda2d69637a37988bff7200ff05948cf1f94a0b6",
+          "blockNumber": 63359725,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359725",
+                  "block_hash": "0x20cffc88a60e8dc726b19ad2a21c828556a6cb02ecd20471a11b24b974f834c1"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-method-followup-live-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         }

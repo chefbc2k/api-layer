@@ -1734,7 +1734,7 @@
         {
           "sourceCommit": "76eb7993933b30ab25e0f3c1abee0bbb69be6719",
           "artifact": "output/api05-echo-score-signed-write-proof-2026-11-25.json",
-          "proofArtifactSha256": "01a325625aaf015d3b8d279cf82f9bcedd1b429328528a20c0c3296b54e65f4d",
+          "proofArtifactSha256": "0adb4d68538dfe7662906d8e41a64b12f031a32da91f604de8e1468ac6fef45a",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
           "indexerArtifactSha256": "1b09b4e0d699e8b6cd06d3f3729c1dbf1d7428618e403829524ebabb05f2163b",
           "result": "Added current-source signed HTTP proofs for EchoScoreFacetV3.updateScore and EchoScoreFacetV3.batchUpdateScores on a disposable loopback fork. A temporary one-signer oracle quorum accepted founder-signed payloads; single update and two-item batch produced successful receipts, exact reputation state readbacks, expected ReputationUpdated/ScoresUpdated events, and idempotent PostgreSQL indexing. Original oracle and quorum configuration were restored. API-05 advances from 155/260 to 157/260 proven methods, leaving 103 open.",

@@ -1,3 +1,8 @@
+# API-05 Follow-on — ERC721 Escrow Receiver Callback — 2026-11-25
+
+- Proved the exact `EscrowFacet.onERC721Received` HTTP route on a persistent loopback fork. Two successful zero-log receipts used the expected selector and left escrow owner/state unchanged. PostgreSQL block journals and idempotent replay were verified.
+- API-05 advances from `157/260` to `158/260` exact-method proofs, leaving `102` open. Source commit: `da365d601a16e9212b034057a0d651e7c96d9ec8`. Evidence: [proof artifact](../output/api05-escrow-receiver-callback-proof-2026-11-25.json), [cumulative report](../verify-local-fork-indexer-output.json).
+
 # API-05 Follow-on — Signed EchoScore Write Proof — 2026-11-25
 
 - Proved `EchoScoreFacetV3.updateScore` and `EchoScoreFacetV3.batchUpdateScores` with signed HTTP updates on a disposable loopback fork. The focused integration passed; the single receipt emitted `ReputationUpdated`, the two-item batch emitted `ScoresUpdated(count=2)`, canonical and HTTP reads matched, PostgreSQL stored six raw events and block journals, and replay was idempotent. The original oracle and quorum were restored.
