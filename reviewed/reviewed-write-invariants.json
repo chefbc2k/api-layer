@@ -604,6 +604,10 @@
         {
           "kind": "authorization",
           "description": "The caller must hold FOUNDER_ROLE before founder sunset, or TIMELOCK_ROLE after sunset."
+        },
+        {
+          "kind": "protocol-state",
+          "description": "The diamond itself must hold EMERGENCY_ADMIN_ROLE because setPaused calls EmergencyFacet.triggerEmergency or emergencyResume through an external self-call, making the diamond the nested call actor."
         }
       ],
       "postStateReadbacks": {
@@ -611,10 +615,10 @@
         "checks": [
           {
             "method": "EmergencyFacet.getEmergencyState",
-            "assertion": "EmergencyFacet.getEmergencyState is PAUSED after setPaused(true) and NORMAL after setPaused(false)."
+            "assertion": "EmergencyFacet.getEmergencyState is PAUSED or LOCKED_DOWN after setPaused(true), depending on automatic escalation thresholds, and NORMAL after setPaused(false)."
           }
         ],
-        "rationale": "setPaused delegates to EmergencyFacet.triggerEmergency or emergencyResume; read the canonical emergency state after each receipt."
+        "rationale": "setPaused delegates to EmergencyFacet.triggerEmergency or emergencyResume; triggerEmergency may escalate PAUSED to LOCKED_DOWN based on the active emergency thresholds, so verify the exact emitted state and canonical readback after each receipt."
       },
       "emittedEvents": {
         "mode": "all",

@@ -601,6 +601,7 @@ describeLive("HTTP API contract integration", () => {
   const oracleQuorumSignersProofObservations: Array<Record<string, unknown>> = [];
   const oraclePauseProofObservations: Array<Record<string, unknown>> = [];
   const oracleAddressProofObservations: Array<Record<string, unknown>> = [];
+  const accessControlPauseProofObservations: Array<Record<string, unknown>> = [];
   const degradedModeConfigProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
@@ -806,7 +807,9 @@ describeLive("HTTP API contract integration", () => {
     activeRpcUrl = rpcUrl;
     localForkProcess = forkRuntime.forkProcess;
     process.env.RPC_URL = rpcUrl;
-    process.env.ALCHEMY_RPC_URL = runtimeConfig.alchemyRpcUrl;
+    // Keep every API provider on the same isolated fork. A fallback Alchemy URL may
+    // otherwise route an HTTP write to Base Sepolia while direct assertions use Anvil.
+    process.env.ALCHEMY_RPC_URL = isLoopbackRpcUrl(rpcUrl) ? rpcUrl : runtimeConfig.alchemyRpcUrl;
 
     const licenseePrivateKey = Wallet.createRandom().privateKey;
     const transfereePrivateKey = Wallet.createRandom().privateKey;
@@ -999,6 +1002,10 @@ describeLive("HTTP API contract integration", () => {
 
     const api = createApiServer({ port: 0 });
     apiExecutionContext = api.app.get("apiExecutionContext") as ApiExecutionContext;
+    if (isLoopbackRpcUrl(activeRpcUrl)) {
+      expect(isLoopbackRpcUrl(apiExecutionContext.config.cbdpRpcUrl)).toBe(true);
+      expect(isLoopbackRpcUrl(apiExecutionContext.config.alchemyRpcUrl)).toBe(true);
+    }
     server = api.listen();
     const address = server.address();
     port = typeof address === "object" && address ? address.port : 8787;
@@ -1028,6 +1035,7 @@ describeLive("HTTP API contract integration", () => {
         oracleQuorumSignersProofObservations,
         oraclePauseProofObservations,
         oracleAddressProofObservations,
+        accessControlPauseProofObservations,
         degradedModeConfigProofObservations,
         emergencyTimeoutProofObservations,
         ownershipPolicyProofObservations,
@@ -8643,6 +8651,137 @@ describeLive("HTTP API contract integration", () => {
         eventlessReceipt: true,
         canonicalReadbackMatched: true,
         httpReadbackMatched: true,
+        finalStateRestored: true,
+        forkScopedFixture: true,
+      });
+    }
+  }, 180_000);
+
+  it("proves AccessControlFacet setPaused through HTTP and restores the emergency state", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "access-control pause receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const founderRole = id("FOUNDER_ROLE");
+    const emergencyAdminRole = id("EMERGENCY_ADMIN_ROLE");
+    expect(await accessControl.hasRole(founderRole, founderAddress)).toBe(true);
+    expect(await accessControl.hasRole(emergencyAdminRole, founderAddress)).toBe(true);
+    const originalState = BigInt(await emergencyFacet.getEmergencyState());
+    expect(originalState, "the isolated fixture must start in NORMAL state").toBe(0n);
+    const diamondAlreadyEmergencyAdmin = await accessControl.hasRole(emergencyAdminRole, diamondAddress);
+    let roleGrantTransactionHash: string | null = null;
+    let roleRevokeTransactionHash: string | null = null;
+    let pauseTransactionHash: string | null = null;
+    let resumeTransactionHash: string | null = null;
+    let pausedState: bigint | null = null;
+
+    try {
+      // AccessControlFacet.setPaused makes an external self-call to EmergencyFacet,
+      // so the diamond itself must hold EMERGENCY_ADMIN_ROLE for that nested call.
+      if (!diamondAlreadyEmergencyAdmin) {
+        const grant = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+          apiKey: "founder-key",
+          body: { role: emergencyAdminRole, account: diamondAddress, expiryTime: "0" },
+        });
+        expect(grant.status, JSON.stringify(grant.payload)).toBe(202);
+        roleGrantTransactionHash = extractTxHash(grant.payload);
+        await expectReceipt(roleGrantTransactionHash);
+        expect(await accessControl.hasRole(emergencyAdminRole, diamondAddress)).toBe(true);
+      }
+
+      const pause = await apiCall(port, "POST", "/v1/access-control/admin/set-paused", {
+        apiKey: "founder-key",
+        body: { paused: true },
+      });
+      expect(pause.status, JSON.stringify(pause.payload)).toBe(202);
+      pauseTransactionHash = extractTxHash(pause.payload);
+      await expectReceipt(pauseTransactionHash);
+      const pauseReceipt = await provider.getTransactionReceipt(pauseTransactionHash);
+      expect(pauseReceipt?.status).toBe(1);
+      const pauseEvents = (pauseReceipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = emergencyFacet.interface.parseLog(log);
+          return parsed?.name === "EmergencyStateChanged" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(pauseEvents).toHaveLength(1);
+      expect(BigInt(pauseEvents[0]!.args.previousState)).toBe(0n);
+      pausedState = BigInt(pauseEvents[0]!.args.newState);
+      expect([1n, 2n]).toContain(pausedState);
+      expect(String(pauseEvents[0]!.args.triggeredBy).toLowerCase()).toBe(diamondAddress.toLowerCase());
+      expect(BigInt(await emergencyFacet.getEmergencyState())).toBe(pausedState);
+
+      await delay(6_000);
+      const pausedReadback = await apiCall(port, "POST", "/v1/emergency/queries/get-emergency-state", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(pausedReadback.status).toBe(200);
+      expect(BigInt(pausedReadback.payload as string)).toBe(pausedState);
+    } finally {
+      if (BigInt(await emergencyFacet.getEmergencyState()) !== originalState) {
+        const resume = await apiCall(port, "POST", "/v1/access-control/admin/set-paused", {
+          apiKey: "founder-key",
+          body: { paused: false },
+        });
+        expect(resume.status, JSON.stringify(resume.payload)).toBe(202);
+        resumeTransactionHash = extractTxHash(resume.payload);
+        await expectReceipt(resumeTransactionHash);
+        const resumeReceipt = await provider.getTransactionReceipt(resumeTransactionHash);
+        expect(resumeReceipt?.status).toBe(1);
+        const resumeEvents = (resumeReceipt?.logs ?? []).flatMap((log) => {
+          try {
+            const parsed = emergencyFacet.interface.parseLog(log);
+            return parsed?.name === "EmergencyStateChanged" ? [parsed] : [];
+          } catch {
+            return [];
+          }
+        });
+        expect(resumeEvents).toHaveLength(1);
+        expect(BigInt(resumeEvents[0]!.args.previousState)).toBe(pausedState);
+        expect(BigInt(resumeEvents[0]!.args.newState)).toBe(0n);
+        expect(String(resumeEvents[0]!.args.triggeredBy).toLowerCase()).toBe(diamondAddress.toLowerCase());
+      }
+      expect(BigInt(await emergencyFacet.getEmergencyState())).toBe(originalState);
+      if (!diamondAlreadyEmergencyAdmin && await accessControl.hasRole(emergencyAdminRole, diamondAddress)) {
+        const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+          apiKey: "founder-key",
+          body: { role: emergencyAdminRole, account: diamondAddress, reason: "restore local-fork pause proof state" },
+        });
+        expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+        roleRevokeTransactionHash = extractTxHash(revoke.payload);
+        await expectReceipt(roleRevokeTransactionHash);
+        expect(await accessControl.hasRole(emergencyAdminRole, diamondAddress)).toBe(false);
+      }
+      await delay(6_000);
+      const restoredReadback = await apiCall(port, "POST", "/v1/emergency/queries/get-emergency-state", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(restoredReadback.status).toBe(200);
+      expect(BigInt(restoredReadback.payload as string)).toBe(originalState);
+      accessControlPauseProofObservations.push({
+        methodKey: "AccessControlFacet.setPaused",
+        route: "POST /v1/access-control/admin/set-paused",
+        actor: "founder fixture signer with FOUNDER_ROLE and EMERGENCY_ADMIN_ROLE",
+        originalState: originalState.toString(),
+        pausedState: pausedState?.toString() ?? null,
+        restoredState: (await emergencyFacet.getEmergencyState()).toString(),
+        diamondAlreadyEmergencyAdmin,
+        roleGrantTransactionHash,
+        roleRevokeTransactionHash,
+        pauseTransactionHash,
+        resumeTransactionHash,
+        pauseEvent: `EmergencyStateChanged(0,${pausedState?.toString() ?? "unknown"})`,
+        resumeEvent: `EmergencyStateChanged(${pausedState?.toString() ?? "unknown"},0)`,
+        canonicalReadbacksMatched: true,
+        httpReadbacksMatched: true,
         finalStateRestored: true,
         forkScopedFixture: true,
       });
