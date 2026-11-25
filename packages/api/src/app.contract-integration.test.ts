@@ -8679,6 +8679,146 @@ describeLive("HTTP API contract integration", () => {
     expect(transactionHashes).toHaveLength(2);
   }, 120_000);
 
+  it("proves emergency recovery start, approval, step execution, and completion on a local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "emergency recovery lifecycle proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00004") },
+      { address: licenseeWallet.address, minimumWei: ethers.parseEther("0.00001") },
+      { address: outsiderWallet.address, minimumWei: ethers.parseEther("0.00001") },
+    ])) {
+      return;
+    }
+
+    const submit = async (apiKey: string, route: string, body: Record<string, unknown>) => {
+      const response = await apiCall(port, "POST", route, { apiKey, body });
+      expect(response.status, `${route}: ${JSON.stringify(response.payload)}`).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt).not.toBeNull();
+      expect(receipt!.status).toBe(1);
+      return { txHash, receipt: receipt! };
+    };
+
+    const approverRole = id("RECOVERY_APPROVER_ROLE");
+    const securityAdminRole = id("SECURITY_ADMIN_ROLE");
+    const approvers = [founderAddress, licenseeWallet.address, outsiderWallet.address];
+    const grants: Array<{ role: string; account: string }> = [];
+    for (const account of approvers) {
+      if (!(await accessControl.hasRole(approverRole, account))) {
+        const grant = await submit("founder-key", "/v1/access-control/admin/grant-role", {
+          role: approverRole,
+          account,
+          expiryTime: "0",
+        });
+        expect(grant.receipt.logs.some((log) => {
+          try { return accessControl.interface.parseLog(log)?.name === "RoleGranted"; } catch { return false; }
+        })).toBe(true);
+        grants.push({ role: approverRole, account });
+      }
+    }
+    if (!(await accessControl.hasRole(securityAdminRole, diamondAddress))) {
+      const grant = await submit("founder-key", "/v1/access-control/admin/grant-role", {
+        role: securityAdminRole,
+        account: diamondAddress,
+        expiryTime: "0",
+      });
+      expect(grant.receipt.logs.some((log) => {
+        try { return accessControl.interface.parseLog(log)?.name === "RoleGranted"; } catch { return false; }
+      })).toBe(true);
+      grants.push({ role: securityAdminRole, account: diamondAddress });
+    }
+
+    const incidentWrite = await submit("founder-key", "/v1/emergency/admin/report-incident", {
+      incidentType: "3",
+      description: `local-fork recovery lifecycle ${Date.now()}`,
+    });
+    const incidentEvent = incidentWrite.receipt.logs.flatMap((log) => {
+      try {
+        const parsed = emergencyFacet.interface.parseLog(log);
+        return parsed?.name === "IncidentReported" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    })[0];
+    expect(incidentEvent).toBeDefined();
+    const incidentId = String(incidentEvent!.args.incidentId);
+    const originalEmergencyTimeout = await emergencyFacet.getEmergencyTimeout();
+    const temporaryEmergencyTimeout = originalEmergencyTimeout + 37n;
+    const firstStep = emergencyFacet.interface.encodeFunctionData("setEmergencyTimeout", [temporaryEmergencyTimeout]);
+    const restoreStep = emergencyFacet.interface.encodeFunctionData("setEmergencyTimeout", [originalEmergencyTimeout]);
+
+    const start = await submit("founder-key", "/v1/emergency/admin/start-recovery", {
+      incidentId,
+      steps: [firstStep, restoreStep],
+    });
+    expect(start.receipt.logs.some((log) => {
+      try { return emergencyFacet.interface.parseLog(log)?.name === "RecoveryStarted"; } catch { return false; }
+    })).toBe(true);
+    const startedPlan = await emergencyFacet.getRecoveryPlan(incidentId);
+    expect(startedPlan.steps).toEqual([firstStep, restoreStep]);
+    expect(startedPlan.startTime).toBeGreaterThan(0n);
+
+    for (const [index, apiKey] of ["founder-key", "licensee-key", "outsider-key"].entries()) {
+      const approval = await submit(apiKey, "/v1/emergency/admin/approve-recovery", { incidentId });
+      expect(approval.receipt.logs).toHaveLength(0);
+      expect((await emergencyFacet.getRecoveryPlan(incidentId)).approvalCount).toBe(BigInt(index + 1));
+    }
+    expect((await emergencyFacet.getRecoveryPlan(incidentId)).approvedByGovernance).toBe(true);
+
+    const timelockSeconds = 24 * 60 * 60 + 2;
+    await provider.send("evm_increaseTime", [timelockSeconds]);
+    await provider.send("evm_mine", []);
+    for (const stepIndex of [0, 1]) {
+      const execution = await submit("founder-key", "/v1/emergency/admin/execute-recovery-step", {
+        incidentId,
+        stepIndex: String(stepIndex),
+      });
+      expect(execution.receipt.logs.some((log) => {
+        try {
+          const parsed = emergencyFacet.interface.parseLog(log);
+          return parsed?.name === "RecoveryStepExecuted" && parsed.args.stepIndex === BigInt(stepIndex) && parsed.args.success === true;
+        } catch {
+          return false;
+        }
+      })).toBe(true);
+      const plan = await emergencyFacet.getRecoveryPlan(incidentId);
+      expect(plan.results).toHaveLength(stepIndex + 1);
+      expect(await emergencyFacet.getEmergencyTimeout()).toBe(stepIndex === 0 ? temporaryEmergencyTimeout : originalEmergencyTimeout);
+    }
+
+    const completion = await submit("founder-key", "/v1/emergency/admin/complete-recovery", { incidentId });
+    expect(completion.receipt.logs.some((log) => {
+      try {
+        const parsed = emergencyFacet.interface.parseLog(log);
+        return parsed?.name === "RecoveryCompleted" && parsed.args.incidentId === BigInt(incidentId) && parsed.args.success === true;
+      } catch {
+        return false;
+      }
+    })).toBe(true);
+    expect(emergencyIncidentToObject(await emergencyFacet.getIncident(incidentId))).toMatchObject({
+      id: incidentId,
+      resolved: true,
+    });
+    const completedPlan = await emergencyFacet.getRecoveryPlan(incidentId);
+    expect(completedPlan.completionTime).toBeGreaterThan(0n);
+    expect(completedPlan.results).toHaveLength(2);
+
+    // This test is run on a throwaway fork; role cleanup is included in its receipt set.
+    for (const grant of grants) {
+      const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+        apiKey: "founder-key",
+        body: { ...grant, reason: "local-fork recovery proof cleanup" },
+      });
+      expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+      await expectReceipt(extractTxHash(revoke.payload));
+      expect(await accessControl.hasRole(grant.role, grant.account)).toBe(false);
+    }
+  }, 120_000);
+
   it("proves immediate ownership transfer to a reviewed contract target on the local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();

@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-25T08:25:18.751Z",
+  "summary": "proven working",
+  "task": "API-05 exact-method acceptance evidence",
+  "methodKeys": [
+    "EmergencyFacet.startRecovery",
+    "EmergencyFacet.approveRecovery",
+    "EmergencyFacet.executeRecoveryStep",
+    "EmergencyFacet.completeRecovery"
+  ],
+  "sourceCommit": null,
+  "test": {
+    "name": "proves emergency recovery start, approval, step execution, and completion on a local fork",
+    "command": "API_LAYER_AUTO_FORK=0 API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json API_LAYER_RUN_CONTRACT_INTEGRATION=1 API_LAYER_CONTRACT_RECEIPT_ARTIFACT=.runtime/api05-emergency-recovery-receipts.json DATABASE_URL=postgres://api:api@127.0.0.1:5432/api RPC_URL=http://127.0.0.1:8545 DIAMOND_ADDRESS=<reviewed loopback fixture> pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t 'emergency recovery start, approval, step execution, and completion on a local fork' --maxWorkers 1",
+    "result": "passed: 1; skipped: 59",
+    "typescript": "passed",
+    "eslint": "passed"
+  },
+  "scenario": {
+    "emergencyAdmin": "founder API signer",
+    "approvalThreshold": 3,
+    "approvalCountReadback": 3,
+    "recoveryPlanSteps": 2,
+    "timelockSecondsAdvanced": 86402,
+    "stepEvents": 2,
+    "stateReadbacks": [
+      "Recovery plan contains both exact encoded steps and nonzero start time.",
+      "Distinct authorized approvers increment approvalCount to 1, 2, and 3; approvedByGovernance becomes true.",
+      "First recovery step changed emergency timeout by 37 seconds; the second restored the original timeout.",
+      "Both step results were recorded and completion resolved the incident with a nonzero completion time.",
+      "Temporary approver and diamond security-admin grants were revoked before the disposable fork was discarded."
+    ]
+  },
+  "receiptCounts": {
+    "EmergencyFacet.startRecovery": 1,
+    "EmergencyFacet.approveRecovery": 3,
+    "EmergencyFacet.executeRecoveryStep": 2,
+    "EmergencyFacet.completeRecovery": 1
+  },
+  "indexedReceipts": 16,
+  "indexedArtifact": ".runtime/local-fork-proofs/event-indexer.json",
+  "indexedArtifactTotals": {
+    "artifactTransactionHashes": 16,
+    "includedArtifacts": 1,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 16,
+    "provenWriteMethods": 7,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 253,
+    "rawEvents": 21,
+    "projectionRows": 5
+  },
+  "postgresReplay": "idempotent",
+  "receipts": [
+    {
+      "methodKey": "EmergencyFacet.startRecovery",
+      "transactionHash": "0x9a93a133e33b8bd293ce39fa04f827c7e9663d62b532b70ba60f1630158086cc",
+      "blockNumber": 63365541,
+      "receiptStatus": 1,
+      "logCount": 1,
+      "decodedEvents": [
+        {
+          "eventName": "RecoveryStarted",
+          "eventSignature": "RecoveryStarted(uint256,uint256,bytes[])",
+          "decodedArgs": {
+            "steps": [
+              "0x1f1c014400000000000000000000000000000000000000000000000000000000000151a5",
+              "0x1f1c01440000000000000000000000000000000000000000000000000000000000015180"
+            ],
+            "timestamp": "1795594997",
+            "incidentId": "5"
+          }
+        }
+      ],
+      "postgres": {
+        "rawEventRows": 1,
+        "projectionTables": [
+          {
+            "table": "emergency_incidents",
+            "rowCount": 1
+          }
+        ],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    },
+    {
+      "methodKey": "EmergencyFacet.approveRecovery",
+      "transactionHash": "0xa76cbc82717ea252f9595466540d9d84da8dfc75da65fffcf254b524fe2de619",
+      "blockNumber": 63365542,
+      "receiptStatus": 1,
+      "logCount": 0,
+      "decodedEvents": [],
+      "postgres": {
+        "rawEventRows": 0,
+        "projectionTables": [],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    },
+    {
+      "methodKey": "EmergencyFacet.approveRecovery",
+      "transactionHash": "0x9068f6896c6453e643bdcdde1849a6d2b7a0db69b4018770e49101d86408006b",
+      "blockNumber": 63365543,
+      "receiptStatus": 1,
+      "logCount": 0,
+      "decodedEvents": [],
+      "postgres": {
+        "rawEventRows": 0,
+        "projectionTables": [],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    },
+    {
+      "methodKey": "EmergencyFacet.approveRecovery",
+      "transactionHash": "0x1d3f74ba1c3231a5d5066e4ba19d5f8d405cb390bbe449bf897540bc2d912514",
+      "blockNumber": 63365544,
+      "receiptStatus": 1,
+      "logCount": 0,
+      "decodedEvents": [],
+      "postgres": {
+        "rawEventRows": 0,
+        "projectionTables": [],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    },
+    {
+      "methodKey": "EmergencyFacet.executeRecoveryStep",
+      "transactionHash": "0x62ac6b4596216d376d92299ba4a3e8e0435e8b94026954fdd99259b910d0cbe2",
+      "blockNumber": 63365546,
+      "receiptStatus": 1,
+      "logCount": 1,
+      "decodedEvents": [
+        {
+          "eventName": "RecoveryStepExecuted",
+          "eventSignature": "RecoveryStepExecuted(uint256,uint256,bool)",
+          "decodedArgs": {
+            "success": true,
+            "stepIndex": "0",
+            "incidentId": "5"
+          }
+        }
+      ],
+      "postgres": {
+        "rawEventRows": 1,
+        "projectionTables": [
+          {
+            "table": "emergency_incidents",
+            "rowCount": 1
+          }
+        ],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    },
+    {
+      "methodKey": "EmergencyFacet.executeRecoveryStep",
+      "transactionHash": "0x9a04125649b9aade04ac7ecc502f97aed4a41098ac092472948f22652d79e6e4",
+      "blockNumber": 63365547,
+      "receiptStatus": 1,
+      "logCount": 1,
+      "decodedEvents": [
+        {
+          "eventName": "RecoveryStepExecuted",
+          "eventSignature": "RecoveryStepExecuted(uint256,uint256,bool)",
+          "decodedArgs": {
+            "success": true,
+            "stepIndex": "1",
+            "incidentId": "5"
+          }
+        }
+      ],
+      "postgres": {
+        "rawEventRows": 1,
+        "projectionTables": [
+          {
+            "table": "emergency_incidents",
+            "rowCount": 1
+          }
+        ],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    },
+    {
+      "methodKey": "EmergencyFacet.completeRecovery",
+      "transactionHash": "0xaf9d8c2a6c9339ff750a56737b7ac330c33a437fde74935e388aa5cd44a96d91",
+      "blockNumber": 63365548,
+      "receiptStatus": 1,
+      "logCount": 1,
+      "decodedEvents": [
+        {
+          "eventName": "RecoveryCompleted",
+          "eventSignature": "RecoveryCompleted(uint256,uint256,bool)",
+          "decodedArgs": {
+            "success": true,
+            "timestamp": "1795681401",
+            "incidentId": "5"
+          }
+        }
+      ],
+      "postgres": {
+        "rawEventRows": 1,
+        "projectionTables": [
+          {
+            "table": "emergency_incidents",
+            "rowCount": 1
+          }
+        ],
+        "blockJournalRows": 1
+      },
+      "replayStatus": "idempotent"
+    }
+  ],
+  "resultLimitation": "Four new API-05 exact-method keys were proven. EmergencyFacet.executeRecoveryAction remains open as a reviewed contract-self-call exception; the remaining API-05 method backlog is not complete."
+}
