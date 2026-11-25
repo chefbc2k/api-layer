@@ -581,6 +581,7 @@ describeLive("HTTP API contract integration", () => {
   let diamondLoupeFacet: Contract;
   let upgradeControllerFacet: Contract;
   let emergencyFacet: EmergencyFacet;
+  let ownershipFacet: Contract;
   let emergencyWithdrawalFacet: Contract;
   let multisigFacet: Contract;
   let stakingFacet: Contract;
@@ -598,6 +599,7 @@ describeLive("HTTP API contract integration", () => {
   const confirmedTransactionHashes = new Set<string>();
   const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
   const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
+  const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
@@ -979,6 +981,7 @@ describeLive("HTTP API contract integration", () => {
     diamondLoupeFacet = new Contract(diamondAddress, facetRegistry.DiamondLoupeFacet.abi, provider);
     upgradeControllerFacet = new Contract(diamondAddress, facetRegistry.UpgradeControllerFacet.abi, provider);
     emergencyFacet = new Contract(diamondAddress, facetRegistry.EmergencyFacet.abi, provider) as unknown as EmergencyFacet;
+    ownershipFacet = new Contract(diamondAddress, facetRegistry.OwnershipFacet.abi, provider);
     emergencyWithdrawalFacet = new Contract(diamondAddress, facetRegistry.EmergencyWithdrawalFacet.abi, provider);
     multisigFacet = new Contract(diamondAddress, facetRegistry.MultiSigFacet.abi, provider);
     stakingFacet = new Contract(diamondAddress, facetRegistry.StakingFacet.abi, provider);
@@ -1019,6 +1022,7 @@ describeLive("HTTP API contract integration", () => {
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
         oracleFutureDriftProofObservations,
         emergencyTimeoutProofObservations,
+        ownershipPolicyProofObservations,
         proposalCancellationProofObservations,
       }, null, 2)}\n`);
     }
@@ -8399,6 +8403,71 @@ describeLive("HTTP API contract integration", () => {
       canonicalDeadlineReadbackMatched: true,
       httpDeadlineReadbackMatched: true,
       forkScopedFixture: true,
+    });
+  }, 180_000);
+
+  it("proves ownership policy enforcement through HTTP on the disposable fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "ownership policy enforcement receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    expect((await ownershipFacet.owner()).toLowerCase()).toBe(founderAddress.toLowerCase());
+    const initialValue = Boolean(await ownershipFacet.isOwnershipPolicyEnforced());
+    const initialHttpReadback = await apiCall(port, "POST", "/v1/ownership/queries/is-ownership-policy-enforced", {
+      apiKey: "read-key",
+    });
+    expect(initialHttpReadback.status).toBe(200);
+    expect(initialHttpReadback.payload).toBe(initialValue);
+
+    const submitPolicyEnforcement = async () => {
+      const response = await apiCall(port, "PATCH", "/v1/ownership/commands/set-ownership-policy-enforced", {
+        apiKey: "founder-key",
+        body: { enforced: true },
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      const policyEvents = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = ownershipFacet.interface.parseLog(log);
+          return parsed?.name === "OwnershipPolicyEnforcementSet" ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(policyEvents).toHaveLength(1);
+      expect(policyEvents[0]!.args.enforced).toBe(true);
+      expect(await ownershipFacet.isOwnershipPolicyEnforced()).toBe(true);
+      const httpReadback = await apiCall(port, "POST", "/v1/ownership/queries/is-ownership-policy-enforced", {
+        apiKey: "read-key",
+      });
+      expect(httpReadback.status).toBe(200);
+      expect(httpReadback.payload).toBe(true);
+      return txHash;
+    };
+
+    const updateTransactionHash = await submitPolicyEnforcement();
+    const replayTransactionHash = await submitPolicyEnforcement();
+    ownershipPolicyProofObservations.push({
+      methodKey: "OwnershipFacet.setOwnershipPolicyEnforced",
+      route: "PATCH /v1/ownership/commands/set-ownership-policy-enforced",
+      actor: "founder fixture signer and diamond owner",
+      initialValue,
+      finalValue: true,
+      updateTransactionHash,
+      replayTransactionHash,
+      event: "OwnershipFacet.OwnershipPolicyEnforcementSet(bool)",
+      canonicalReadbackMatched: true,
+      httpReadbackMatched: true,
+      replayStateUnchanged: true,
+      forkScopedFixture: true,
+      stateIsMonotonicOnContract: true,
     });
   }, 180_000);
 
