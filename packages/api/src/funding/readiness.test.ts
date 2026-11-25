@@ -2,7 +2,7 @@ import express from "express";
 import { Interface,type Provider } from "ethers";
 import { describe,it,expect,vi } from "vitest";
 import { assertFreshReadinessBlock, createReadinessRouter, inspectReadiness } from "./readiness.js";
-import { BASE_SEPOLIA_USDC } from "./config.js";
+import { BASE_USDC,BASE_SEPOLIA_USDC } from "./config.js";
 import { loadApiKeys } from "../shared/auth.js";
 import type { ApiExecutionContext } from "../shared/execution-context.js";
 const wallet="0x00000000000000000000000000000000000000aa",diamond="0x00000000000000000000000000000000000000dd";
@@ -47,6 +47,12 @@ describe("live customer wallet readiness",()=>{
     const allowance=rpc.call.mock.calls.map(([tx])=>abi.parseTransaction(tx)).find(tx=>tx?.name==="allowance")!;
     expect(String(allowance.args[1]).toLowerCase()).toBe(diamond);
     expect(rpc.estimateGas).toHaveBeenCalledWith(expect.objectContaining({to:expect.stringMatching(/dd$/i),from:expect.stringMatching(/aa$/i)}));
+  });
+  it("selects the pinned native USDC address for Base mainnet",async()=>{
+    const {rpc}=fixture({chain:8453,token:BASE_USDC});
+    const result=await inspectReadiness(rpc as unknown as Provider,8453,diamond,wallet,"1",nowMs);
+    expect(result).toMatchObject({chainId:8453,readiness:"ready_for_user_signature"});
+    expect(result.tokenAddress.toLowerCase()).toBe(BASE_USDC);
   });
   it.each([{balance:10_000_000n},{allowance:10_000_000n}])("reports insufficient units before gas estimation %s",async patch=>{
     const {rpc,run}=fixture(patch);expect((await run()).readiness).toBe("action_required"); expect(rpc.estimateGas).not.toHaveBeenCalled();
