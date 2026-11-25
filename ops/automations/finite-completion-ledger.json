@@ -1571,6 +1571,37 @@
           "ciRunId": 45559294213,
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45559294213",
           "ciCommit": "5f4e310b0d692129ad3d6d05331c3ba179592027"
+        },
+        {
+          "sourceCommit": "372329377bfe90299e42308f0b61a673101b4479",
+          "artifact": "output/api05-access-control-pause-proof-2026-11-25.json",
+          "proofArtifactSha256": "2a98c512b783f30078051b138a821cd7251fe55fae69aad800dad38f83a4f895",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "fe4bd573e845abd73e3365b5f3d94badb6b69398f0cd428d5573b2284ec5c759",
+          "result": "Added exact loopback-fork HTTP proof for AccessControlFacet.setPaused. The founder fixture temporarily granted EMERGENCY_ADMIN_ROLE to the diamond for the nested self-call, then proved the emergency-state transition (the full assurance run escalated PAUSED to LOCKED_DOWN), restored NORMAL, revoked the temporary role, and verified canonical/HTTP readbacks. PostgreSQL captured both EmergencyStateChanged events and emergency_incidents projections; all four support/transition receipts had block journals and idempotent replay. API-05 advances from 148/260 to 149/260, leaving 111 open.",
+          "startingProvenCount": 148,
+          "startingOpenCount": 112,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 0.8929,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 149,
+          "endingOpenCount": 111,
+          "assuranceReportSha256": "2abde70d8c1a6c566105e9b9e05e4185e3c18d011e216116cd16731b9b418462",
+          "assuranceReportPath": ".runtime/api05-access-control-pause-assurance.json (ephemeral local report; checksum preserved)",
+          "checks": [
+            "Focused current-source HTTP contract test passed (1 passed, 53 skipped).",
+            "Full local-fork assurance passed all 12 stages with one known ProposalFacet.queue safe-read fixture gap (445/446 safe reads).",
+            "Write-invariant tests passed 7/7; codegen/coverage validated 492 functions, 218 events, and 260/260 reviewed write invariants.",
+            "Pause and resume receipts emitted EmergencyStateChanged and were projected into emergency_incidents; PostgreSQL replay was idempotent.",
+            "The temporary diamond EMERGENCY_ADMIN_ROLE grant/revoke receipts were indexed with raw events and block journals, no projections, and idempotent replay.",
+            "Hosted API quality CI run 45565290774 was queued on source commit 372329377bfe90299e42308f0b61a673101b4479."
+          ],
+          "resultLimitation": "One open method completed, below the bounded target of 35; API-05 remains in_progress with 111 methods open.",
+          "ciConclusion": "pending",
+          "ciRunId": 45565290774,
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45565290774",
+          "ciCommit": "372329377bfe90299e42308f0b61a673101b4479"
         }
       ],
       "deliveredCommit": null,

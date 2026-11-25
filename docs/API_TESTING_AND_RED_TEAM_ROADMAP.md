@@ -1,3 +1,10 @@
+# API-05 Follow-on — Access-Control Pause Lifecycle Proof — 2026-11-25
+
+- Added exact loopback-fork HTTP proof for `AccessControlFacet.setPaused` through `POST /v1/access-control/admin/set-paused`. The diamond temporarily received `EMERGENCY_ADMIN_ROLE` for the nested self-call, then the test verified the emergency transition (automatic escalation produced `LOCKED_DOWN` in the full run), restored `NORMAL`, revoked the temporary role, and matched canonical/HTTP readbacks.
+- PostgreSQL captured both `EmergencyStateChanged` receipts in `raw_events` and `emergency_incidents`, journaled each block, and replayed idempotently. Temporary grant/revoke receipts were journaled with raw role events and no fabricated projections. The invariant now records the diamond role precondition and allowed automatic escalation.
+- API-05 advances from `148/260` to `149/260` exact-method proofs, leaving `111` open. Focused current-source test passed; all 12 local-fork assurance stages passed with the known `ProposalFacet.queue` gap (`445/446` safe reads). Hosted API quality CI [45565290774](https://github.com/chefbc2k/api-layer/actions/runs/45565290774) is running on source commit `372329377bfe90299e42308f0b61a673101b4479`.
+- Durable proof: [pause lifecycle proof](../output/api05-access-control-pause-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json), and assurance report SHA-256 `2abde70d8c1a6c566105e9b9e05e4185e3c18d011e216116cd16731b9b418462`.
+
 # API-05 Follow-on — Degraded-Mode Staking Config Proof — 2026-11-25
 
 - Corrected the reviewed `StakingFacet.setDegradedModeConfig` authorization and event policy: the contract requires `PLATFORM_ADMIN_ROLE` and emits no event. Added a fork-only API proof that toggles the enabled flag, verifies canonical and HTTP config readbacks, and restores the original settings.

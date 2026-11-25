@@ -1,3 +1,9 @@
+# 2026-11-25 — Prove access-control pause lifecycle
+
+- Added a loopback-fork HTTP proof for `AccessControlFacet.setPaused`, including a temporary diamond `EMERGENCY_ADMIN_ROLE` grant for the nested emergency call, pause/resume state readbacks, and role revocation. The full run observed automatic escalation to `LOCKED_DOWN` and restored `NORMAL`; reviewed invariant metadata now records that behavior and the hidden role precondition.
+- PostgreSQL indexed both `EmergencyStateChanged` events into the emergency ledger projection, recorded the blocks, and passed idempotent replay. API-05 advances to `149/260` proven write methods, with `111` open. Hosted CI run [45565290774](https://github.com/chefbc2k/api-layer/actions/runs/45565290774) is pending on source commit `372329377bfe90299e42308f0b61a673101b4479`.
+- Durable proof: [pause lifecycle proof](output/api05-access-control-pause-proof-2026-11-25.json) and [cumulative indexer report](verify-local-fork-indexer-output.json).
+
 # 2026-11-25 — Prove degraded-mode staking configuration
 
 - Corrected `StakingFacet.setDegradedModeConfig` invariants to match the contract's `PLATFORM_ADMIN_ROLE` requirement and eventless receipt behavior. The local-fork HTTP test toggled degraded mode, verified canonical and HTTP readbacks, and restored the original configuration.

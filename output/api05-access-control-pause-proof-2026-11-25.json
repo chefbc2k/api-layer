@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "sourceCommit": "372329377bfe90299e42308f0b61a673101b4479",
+  "network": {
+    "mode": "loopback Base Sepolia fork",
+    "rpcUrl": "http://127.0.0.1:8548",
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+  },
+  "method": {
+    "methodKey": "AccessControlFacet.setPaused",
+    "route": "POST /v1/access-control/admin/set-paused",
+    "actor": "founder fixture signer with FOUNDER_ROLE and EMERGENCY_ADMIN_ROLE",
+    "precondition": "The diamond itself temporarily held EMERGENCY_ADMIN_ROLE because setPaused makes an external self-call to EmergencyFacet; the role was revoked after both state transitions.",
+    "fullAssuranceObservation": {
+      "originalState": "0",
+      "pausedState": "2",
+      "restoredState": "0",
+      "pauseTransactionHash": "0x3cc1d84ea3b5d0f51660c28a62153833d221df65dfef1fe004305bb37fc90e09",
+      "resumeTransactionHash": "0x8fa9056c55a14123d231f268bc47c93c4159713a55cec7835c336c5f778b83bc",
+      "pauseEvent": "EmergencyStateChanged(0,2)",
+      "resumeEvent": "EmergencyStateChanged(2,0)",
+      "canonicalReadbacksMatched": true,
+      "httpReadbacksMatched": true,
+      "finalStateRestored": true,
+      "forkScopedFixture": true
+    },
+    "focusedCurrentSourceObservation": {
+      "methodKey": "AccessControlFacet.setPaused",
+      "route": "POST /v1/access-control/admin/set-paused",
+      "actor": "founder fixture signer with FOUNDER_ROLE and EMERGENCY_ADMIN_ROLE",
+      "originalState": "0",
+      "pausedState": "1",
+      "restoredState": "0",
+      "diamondAlreadyEmergencyAdmin": false,
+      "roleGrantTransactionHash": "0x408897ff13e231f620cce7dcbb76370a9728c893da371e82d780a53e71351964",
+      "roleRevokeTransactionHash": "0xfa37e214f3064f7f968f75f36c940a9357c3f326a2c42d91b0bfca5907d774e3",
+      "pauseTransactionHash": "0x0b3c69377c09a09bf854c3d4bbf2b3c2292218d8baa9c54da69124716a7b50cc",
+      "resumeTransactionHash": "0x293a7c546c23ce0dff215281a0599dbb8ed4569de75fd39c6a411aa1bfab2af7",
+      "pauseEvent": "EmergencyStateChanged(0,1)",
+      "resumeEvent": "EmergencyStateChanged(1,0)",
+      "canonicalReadbacksMatched": true,
+      "httpReadbacksMatched": true,
+      "finalStateRestored": true,
+      "forkScopedFixture": true
+    },
+    "supportingRoleGrantTransactionHash": "0xda5f4f0accc35bb4254073788b08bc53d69d322ab6b281f3706f5b3b3802bd21",
+    "supportingRoleRevokeTransactionHash": "0x577bd1788f8e359a9c228b8a7bf24e25a86e974bc28b7f932c5d685299847c90"
+  },
+  "indexer": {
+    "classification": "proven working",
+    "receipts": [
+      {
+        "methodKey": "AccessControlFacet.grantRole",
+        "transactionHash": "0xda5f4f0accc35bb4254073788b08bc53d69d322ab6b281f3706f5b3b3802bd21",
+        "blockNumber": 63338141,
+        "receiptStatus": 1,
+        "eventLogCount": 2,
+        "events": [
+          {
+            "eventName": "RoleGranted",
+            "eventSignature": "RoleGranted(bytes32,address,address,uint256)",
+            "decodedArgs": {
+              "role": "0x5358bcfd81d1ef3da152b1755e1c3c6739686fa7e83dbcad0071568cc4b73a63",
+              "sender": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "account": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+              "expiryTime": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            },
+            "rawEventId": "278"
+          },
+          {
+            "eventName": "SecurityAction",
+            "eventSignature": "SecurityAction(bytes32,address,uint8,uint256)",
+            "decodedArgs": {
+              "actor": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "actionId": "0x6bd14b1114ed0965d1451e2d57e0ed423291ac8ff38cb053d4ff349d166b5d8f",
+              "timestamp": "1797059000",
+              "actionType": "0"
+            },
+            "rawEventId": "279"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "rowCount": 2,
+            "rowIds": [
+              "278",
+              "279"
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63338141",
+                "block_hash": "0x5fcb83cd1edd5db3ae4c9970f5ebcac06c6c7100ce948f3f2f438d5b455710f8"
+              }
+            ]
+          }
+        },
+        "replay": "idempotent"
+      },
+      {
+        "methodKey": "AccessControlFacet.setPaused",
+        "transactionHash": "0x3cc1d84ea3b5d0f51660c28a62153833d221df65dfef1fe004305bb37fc90e09",
+        "blockNumber": 63338142,
+        "receiptStatus": 1,
+        "eventLogCount": 1,
+        "events": [
+          {
+            "eventName": "EmergencyStateChanged",
+            "eventSignature": "EmergencyStateChanged(uint8,uint8,address,string)",
+            "decodedArgs": {
+              "reason": "System paused by founder",
+              "newState": "2",
+              "triggeredBy": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+              "previousState": "0"
+            },
+            "rawEventId": "280"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "rowCount": 1,
+            "rowIds": [
+              "280"
+            ]
+          },
+          "projections": [
+            {
+              "table": "emergency_incidents",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "11",
+                  "source_raw_event_id": "280"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63338142",
+                "block_hash": "0x3b375db0196c7182dd181dcaa44a0e1423f547c0c5665d64cc11ec1112b23cd8"
+              }
+            ]
+          }
+        },
+        "replay": "idempotent"
+      },
+      {
+        "methodKey": "AccessControlFacet.setPaused",
+        "transactionHash": "0x8fa9056c55a14123d231f268bc47c93c4159713a55cec7835c336c5f778b83bc",
+        "blockNumber": 63338143,
+        "receiptStatus": 1,
+        "eventLogCount": 1,
+        "events": [
+          {
+            "eventName": "EmergencyStateChanged",
+            "eventSignature": "EmergencyStateChanged(uint8,uint8,address,string)",
+            "decodedArgs": {
+              "reason": "Emergency state resumed",
+              "newState": "0",
+              "triggeredBy": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+              "previousState": "2"
+            },
+            "rawEventId": "281"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "rowCount": 1,
+            "rowIds": [
+              "281"
+            ]
+          },
+          "projections": [
+            {
+              "table": "emergency_incidents",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "row_id": "12",
+                  "source_raw_event_id": "281"
+                }
+              ]
+            }
+          ],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63338143",
+                "block_hash": "0x98ede79aa4a194469c2a450ca3792c286020365f654409e4c0ef27dff84948c6"
+              }
+            ]
+          }
+        },
+        "replay": "idempotent"
+      },
+      {
+        "methodKey": "AccessControlFacet.revokeRole",
+        "transactionHash": "0x577bd1788f8e359a9c228b8a7bf24e25a86e974bc28b7f932c5d685299847c90",
+        "blockNumber": 63338144,
+        "receiptStatus": 1,
+        "eventLogCount": 2,
+        "events": [
+          {
+            "eventName": "RoleRevoked",
+            "eventSignature": "RoleRevoked(bytes32,address,address,string)",
+            "decodedArgs": {
+              "role": "0x5358bcfd81d1ef3da152b1755e1c3c6739686fa7e83dbcad0071568cc4b73a63",
+              "reason": "restore local-fork pause proof state",
+              "sender": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "account": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669"
+            },
+            "rawEventId": "282"
+          },
+          {
+            "eventName": "SecurityAction",
+            "eventSignature": "SecurityAction(bytes32,address,uint8,uint256)",
+            "decodedArgs": {
+              "actor": "0x3605020bb497c0ad07635E9ca0021Ba60f1244a2",
+              "actionId": "0x01174c3477b22263664727b1bdc3f7353b13ca7104082323c66303222d5f6bd7",
+              "timestamp": "1797059008",
+              "actionType": "1"
+            },
+            "rawEventId": "283"
+          }
+        ],
+        "postgres": {
+          "rawEvents": {
+            "rowCount": 2,
+            "rowIds": [
+              "282",
+              "283"
+            ]
+          },
+          "projections": [],
+          "blockJournal": {
+            "table": "indexer_blocks",
+            "rowCount": 1,
+            "rows": [
+              {
+                "block_number": "63338144",
+                "block_hash": "0x0d03c5d1ba348b395fc14495d43a2319a2b40f4ca6c086e37942c970c20d078d"
+              }
+            ]
+          }
+        },
+        "replay": "idempotent"
+      }
+    ],
+    "report": "verify-local-fork-indexer-output.json",
+    "totals": {
+      "artifactTransactionHashes": 5557,
+      "includedArtifacts": 6,
+      "skippedArtifacts": 0,
+      "indexedReceipts": 5557,
+      "provenWriteMethods": 149,
+      "catalogWriteMethods": 260,
+      "remainingWriteMethods": 111,
+      "rawEvents": 8407,
+      "projectionRows": 5403
+    }
+  },
+  "assurance": {
+    "status": "passed with structured gaps",
+    "stagesPassed": 12,
+    "stagesTotal": 12,
+    "safeReadsPassed": 445,
+    "safeReadsAttempted": 446,
+    "knownGap": "ProposalFacet.queue safe-read fixture gap",
+    "reportSha256": "2abde70d8c1a6c566105e9b9e05e4185e3c18d011e216116cd16731b9b418462"
+  },
+  "verification": {
+    "focusedCurrentSourceTest": "passed; 1 passed, 53 skipped",
+    "writeInvariantTests": "passed; 7/7",
+    "codegenAndCoverage": "passed; 492 functions, 218 events, 260/260 reviewed write invariants",
+    "fullLocalForkAssurance": "passed; 12/12 stages with one structured safe-read gap",
+    "sourceCi": "pending",
+    "sourceCiRun": "https://github.com/chefbc2k/api-layer/actions/runs/45565290774"
+  },
+  "methodCounts": {
+    "startingProven": 148,
+    "startingOpen": 112,
+    "endingProven": 149,
+    "endingOpen": 111
+  }
+}
