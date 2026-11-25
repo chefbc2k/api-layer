@@ -423,6 +423,21 @@
             "API quality workflow 45392034598 completed successfully on default master commit 32c13038936c78d0f9811c83c85435ac1a913ecb.",
             "Dependency audit, selector codegen, TypeScript, Vercel types, lint, build, disposable PostgreSQL/fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance all passed."
           ]
+        },
+        {
+          "sourceCommit": "ee850c998433bb8ae87c2e455ed7b54416c2bd15",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45620299915",
+          "artifact": "output/api05-fork-assurance-2026-11-25.json",
+          "artifactSha256": "1b476cb3f0e1f39af2bd6cbb1a7f70aaa2a0648e062bf70f646f059ef3c96dc2",
+          "aggregateReport": ".runtime/release-runner/api05-fixed.json",
+          "aggregateReportSha256": "656a2bbdae4385fba88725bd4d53ed7a7d33fca46e3f8283e465095a3a3bc4d0",
+          "result": "The current full local-fork aggregate passed 439 of 445 reviewed safe reads. Six reads remain blocked by fixture/setup conditions, including ProposalFacet.queue; the aggregate also exposed four independent failed proof stages, so API-04 remains waiting_dependency.",
+          "checks": [
+            "Code generation completed with the pinned 491-function inventory.",
+            "Safe-read sweep attempted 445 reviewed read/event routes; 439 passed and 6 returned HTTP 500 due to unavailable fixtures.",
+            "Full HTTP contract stage passed 67/67 tests on the exact source content."
+          ],
+          "resultLimitation": "No API-04 acceptance change. ProposalFacet.queue still needs the external contract expiry-helper correction; current aggregate does not satisfy 446/446."
         }
       ],
       "deliveredCommit": null,
@@ -1997,6 +2012,30 @@
             "Exact-head GitHub API quality workflow 45611564058 passed on source commit 1628c9b512a8305759c7e69890ec6d1b9c014db4: dependency audit, pinned source bootstrap, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation."
           ],
           "resultLimitation": "This completes 1/74 currently open methods, below the bounded target of 19; API-05 remains in_progress. Exact-head hosted API quality run 45611564058 passed all configured gates on 1628c9b512a8305759c7e69890ec6d1b9c014db4; default-branch delivery and API-06 economic criteria remain open."
+        },
+        {
+          "sourceCommit": "ee850c998433bb8ae87c2e455ed7b54416c2bd15",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45620299915",
+          "artifact": "output/api05-fork-assurance-2026-11-25.json",
+          "proofArtifactSha256": "1b476cb3f0e1f39af2bd6cbb1a7f70aaa2a0648e062bf70f646f059ef3c96dc2",
+          "transactionArtifact": ".runtime/local-fork-proofs/http-contract-receipts.json",
+          "transactionArtifactSha256": "0f5a8b54fc3a8d64a92de11ed8e597255aff5ae46f59087196d6f7594aacc79e",
+          "cumulativeIndexerArtifact": "verify-local-fork-indexer-output.json",
+          "cumulativeIndexerArtifactSha256": "778f6e18d38884878df9f889a1d07f5fd1c68417c29c310a54ade8c9df9d13db",
+          "result": "Fixed the fork integration test\u2019s undefined fork-preservation flag and corrected the get-operation route assertion to match the generated TimelockFacet governance endpoint. The complete HTTP contract integration stage passed 67/67. The latest completed cumulative indexer report remains 187/260 methods (73 open), 6,114 receipts, 9,141 raw events, and 5,771 projections; no new write method was accepted.",
+          "startingProvenCount": 187,
+          "endingProvenCount": 187,
+          "completedThisRun": 0,
+          "endingOpenCount": 73,
+          "checks": [
+            "Focused local fork tests passed for emergency-withdrawal replay safety and governance/timelock control-plane reads (2 passed, 65 skipped).",
+            "Complete HTTP contract integration passed 67/67 on the source content committed as ee850c9.",
+            "TypeScript build, focused ESLint, and git diff --check passed.",
+            "A prior completed aggregate on parent source c7b623f passed event-indexer-proof with 6,114 indexed receipts and 187/260 methods.",
+            "A fresh aggregate run on ee850c9 failed the PostgreSQL event-indexer stage because the host filesystem had only about 155 MB free; other failed stages and six safe-read fixture gaps are detailed in the proof artifact.",
+            "API quality workflow 45620299915 was dispatched for ee850c998433bb8ae87c2e455ed7b54416c2bd15 and was in progress when this evidence was written."
+          ],
+          "resultLimitation": "API-05 remains in_progress at 187/260 with 73 methods open. The current full aggregate is incomplete; authorization and fork-state gaps remain in control-plane, Layer 1, and marketplace proof stages, and current CI is pending."
         }
       ],
       "deliveredCommit": null,

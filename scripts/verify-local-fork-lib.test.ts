@@ -129,16 +129,16 @@ describe("local-fork proof planning and reporting", () => {
     expect(plan.map((stage) => stage.id)).toEqual([
       "generate-inventory",
       "provision-fixtures",
-      "http-contract-proof",
       "control-plane-admin-proof",
       "layer1-core-proof",
       "layer1-completion-proof",
       "layer1-remaining-proof",
       "marketplace-purchase-proof",
       "governance-proof",
-      "event-indexer-proof",
       "provision-read-fixtures",
       "probe-safe-reads",
+      "http-contract-proof",
+      "event-indexer-proof",
     ]);
     expect(plan.filter((stage) => stage.destructive).length).toBeGreaterThan(0);
     expect(plan.find((stage) => stage.id === "http-contract-proof")?.artifactPath).toContain("http-contract-receipts.json");

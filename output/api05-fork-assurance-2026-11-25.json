@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "sourceCommit": "ee850c998433bb8ae87c2e455ed7b54416c2bd15",
+  "scope": "API-layer fork assurance follow-up",
+  "target": {
+    "chainId": 84532,
+    "diamondAddress": "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669",
+    "rpc": "disposable loopback Base Sepolia fork"
+  },
+  "sourceChanges": [
+    "Declared the fork-preservation environment flag used by the emergency-withdrawal proof.",
+    "Corrected the control-plane get-operation test to use the generated governance/timelock route and TimelockFacet readback."
+  ],
+  "verification": {
+    "focusedContractTests": {
+      "command": "API_LAYER_RUN_CONTRACT_INTEGRATION=1 RPC_URL=http://127.0.0.1:8558 ALCHEMY_RPC_URL=http://127.0.0.1:8558 pnpm vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1 -t 'proves funded emergency withdrawal custody and execution replay safety|proves admin, emergency, and multisig control-plane reads'",
+      "result": "passed",
+      "passed": 2,
+      "skipped": 65
+    },
+    "fullHttpContractStage": {
+      "command": "pnpm vitest run packages/api/src/app.contract-integration.test.ts --maxWorkers 1",
+      "result": "passed",
+      "passed": 67,
+      "skipped": 0,
+      "receiptArtifact": ".runtime/local-fork-proofs/http-contract-receipts.json",
+      "receiptArtifactSha256": "0f5a8b54fc3a8d64a92de11ed8e597255aff5ae46f59087196d6f7594aacc79e"
+    },
+    "localQuality": {
+      "typescript": "passed: pnpm exec tsc -b --pretty false",
+      "eslint": "passed: pnpm exec eslint packages/api/src/app.contract-integration.test.ts",
+      "diffCheck": "passed: git diff --check"
+    },
+    "hostedApiQuality": {
+      "runId": 45620299915,
+      "url": "https://github.com/chefbc2k/api-layer/actions/runs/45620299915",
+      "headSha": "ee850c998433bb8ae87c2e455ed7b54416c2bd15",
+      "statusAtArtifactCreation": "in_progress"
+    }
+  },
+  "fullAggregate": {
+    "command": "pnpm run verify:local-fork --output .runtime/release-runner/api05-fixed.json --continue-on-gap",
+    "result": "failed with structured gaps",
+    "report": ".runtime/release-runner/api05-fixed.json",
+    "reportSha256": "656a2bbdae4385fba88725bd4d53ed7a7d33fca46e3f8283e465095a3a3bc4d0",
+    "safeReads": {
+      "attempted": 445,
+      "passed": 439,
+      "gaps": 6,
+      "unprovenMethods": [
+        "ProposalFacet.queue",
+        "RightsFacet.getRightsGroup",
+        "VoiceLicenseFacet.getLicense",
+        "VoiceLicenseFacet.getLicenseTerms",
+        "VoiceLicenseFacet.getUsageCount",
+        "WhisperBlockFacet.verifyVoiceAuthenticity"
+      ]
+    },
+    "failedStages": [
+      {
+        "stage": "control-plane-admin-proof",
+        "finding": "The configured signer reverted with NotDiamondOwner(address) for setTrustedInitContract."
+      },
+      {
+        "stage": "layer1-remaining-proof",
+        "finding": "WhisperBlockFacet.setAuditEnabled reverted with NotAuthorized(address,string)."
+      },
+      {
+        "stage": "marketplace-purchase-proof",
+        "finding": "commitWithdraw emitted the expected event but the expected storage commitment did not match the live fork state."
+      },
+      {
+        "stage": "event-indexer-proof",
+        "finding": "Disposable PostgreSQL migrations failed because the host filesystem had only about 155 MB free."
+      }
+    ]
+  },
+  "latestPreviouslyCompletedIndexerEvidence": {
+    "sourceCommit": "c7b623fa02381da2d541a5d6f9a8bc9569647204",
+    "runnerReport": ".runtime/release-runner/api05-followup.json",
+    "runnerReportSha256": "cb414cd357b0309d97346e8c87f2cc5fa9bd884e199e9d306e20aa9e5b9a121b",
+    "stage": "event-indexer-proof",
+    "status": "passed",
+    "cumulativeIndexerReport": "verify-local-fork-indexer-output.json",
+    "cumulativeIndexerReportSha256": "778f6e18d38884878df9f889a1d07f5fd1c68417c29c310a54ade8c9df9d13db",
+    "indexedReceipts": 6114,
+    "provenWriteMethods": 187,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 73,
+    "rawEvents": 9141,
+    "projectionRows": 5771,
+    "limitation": "This prior indexer stage passed on the immediately preceding source revision; the current full aggregate could not rerun its PostgreSQL stage due to disk exhaustion. No new method acceptance credit is claimed."
+  },
+  "acceptance": {
+    "api05Status": "in_progress",
+    "api05ProvenMethods": 187,
+    "api05TotalMethods": 260,
+    "api05OpenMethods": 73,
+    "newWriteMethodsAccepted": 0,
+    "api04Status": "waiting_dependency",
+    "api04SafeReadResult": "439/445 passed on the current aggregate; six fixture gaps remain."
+  }
+}

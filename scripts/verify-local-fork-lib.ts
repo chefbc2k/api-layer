@@ -249,15 +249,6 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       artifactPath: path.join(".runtime", "base-sepolia-operator-fixtures.json"),
     },
     {
-      id: "http-contract-proof",
-      description: "run fixture-backed HTTP reads and writes with direct contract readbacks",
-      command: "pnpm",
-      args: ["vitest", "run", "packages/api/src/app.contract-integration.test.ts", "--maxWorkers", "1"],
-      destructive: true,
-      artifactPath: path.join(PROOF_DIR, "http-contract-receipts.json"),
-      maxAttempts: 2,
-    },
-    {
       id: "control-plane-admin-proof",
       description: "record exact-route receipts and readbacks for the selected control-plane admin batch",
       command: "env",
@@ -338,14 +329,6 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       requiredArtifactSummary: "proven working",
     },
     {
-      id: "event-indexer-proof",
-      description: "decode real workflow receipts, project them into PostgreSQL, and prove replay idempotency",
-      command: "pnpm",
-      args: ["run", "proof:indexer:local-fork-receipts"],
-      destructive: false,
-      artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
-    },
-    {
       id: "provision-read-fixtures",
       description: "create a disposable rights-group fixture for the mounted safe-read sweep",
       command: "pnpm",
@@ -366,6 +349,23 @@ export function buildLocalForkProofPlan(): ProofStage[] {
       ],
       destructive: false,
       artifactPath: path.join(PROOF_DIR, "safe-reads.json"),
+    },
+    {
+      id: "http-contract-proof",
+      description: "run fixture-backed HTTP reads and writes with direct contract readbacks; terminal ownership transfer is intentionally last",
+      command: "pnpm",
+      args: ["vitest", "run", "packages/api/src/app.contract-integration.test.ts", "--maxWorkers", "1"],
+      destructive: true,
+      artifactPath: path.join(PROOF_DIR, "http-contract-receipts.json"),
+      maxAttempts: 2,
+    },
+    {
+      id: "event-indexer-proof",
+      description: "decode all accumulated workflow receipts, project them into PostgreSQL, and prove replay idempotency",
+      command: "pnpm",
+      args: ["run", "proof:indexer:local-fork-receipts"],
+      destructive: false,
+      artifactPath: path.join(PROOF_DIR, "event-indexer.json"),
     },
   ];
 }
