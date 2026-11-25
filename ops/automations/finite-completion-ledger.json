@@ -642,6 +642,20 @@
         "defaultAcceptedMethods": 107,
         "inventoryReconciliationRequired": true
       },
+      "currentCheckpoint": {
+        "successfulWriteProofCount": 189,
+        "fixedWriteMethodDenominator": 260,
+        "reportedRemainingCount": 71,
+        "reviewedContractOnlyExceptions": [
+          "OwnershipFacet.acceptOwnership",
+          "EmergencyFacet.executeRecoveryAction"
+        ],
+        "ordinaryExactMethodProofsRemaining": 69,
+        "countSourceCommit": "d9d07d54463f6316e8e83822171d27ea132330b2",
+        "countSourceArtifact": "verify-local-fork-indexer-output.json",
+        "countSourceArtifactSha256": "598cf290e5751f9fe5a7991b21cd29d4f9da75d2c0eb74a54820ed356aaa8f56",
+        "inventoryStatus": "The baseline.openMethodKeys list is the initial 113/260 snapshot (147 keys), not the current open-key list. Later evidence reports 189/260 proven and 71 remaining, but the cumulative artifact bytes containing the complete provenMethodKeys and remainingMethodKeys lists are not present in this checkout. Do not subtract names from the initial list or infer the current 69-key ordinary remainder until that exact list is recovered and reconciled against the generated 260-method catalog and per-method acceptance evidence."
+      },
       "evidence": [
         {
           "sourceCommit": "3114992c21bf553e86505c90a1c76e5bdc6816c7",
