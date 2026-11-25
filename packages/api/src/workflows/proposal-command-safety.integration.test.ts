@@ -65,6 +65,22 @@ const diamondAddress = "0x0000000000000000000000000000000000000001";
 
 const proposalWriteCases = [
   {
+    key: "ProposalFacet.propose(address[],uint256[],bytes[],string,uint8)",
+    signature: "propose(address[],uint256[],bytes[],string,uint8)",
+    method: "POST",
+    path: "/v1/governance/proposals",
+    body: {
+      targets: ["0x00000000000000000000000000000000000000bb"],
+      values: ["0"],
+      calldatas: ["0x1234"],
+      description: "Negative-path command safety proposal",
+      proposalType: "0",
+    },
+    runtimeArgs: [["0x00000000000000000000000000000000000000bb"], [0n], ["0x1234"], "Negative-path command safety proposal", 0n],
+    preflightResult: 902n,
+    preflightRejection: "proposal threshold not met",
+  },
+  {
     key: "ProposalFacet.cancelProposal",
     signature: "cancelProposal(uint256)",
     method: "DELETE",
@@ -203,6 +219,7 @@ describe("proposal command route preflight safety", () => {
   it.each(proposalWriteCases)(
     "preflights $key through its mounted route before mutation",
     async (testCase) => {
+      mocks.contractStaticCall.mockResolvedValue("preflightResult" in testCase ? testCase.preflightResult : null);
       const { context, txStore } = buildContext();
       const { server, port } = await startServer(context);
 
@@ -217,11 +234,12 @@ describe("proposal command route preflight safety", () => {
           signal: AbortSignal.timeout(2_500),
         });
 
-        expect(response.status, testCase.key).toBe(202);
+        const responseBody = await response.clone().json();
+        expect(response.status, `${testCase.key}: ${JSON.stringify(responseBody)}`).toBe(202);
         await expect(response.json()).resolves.toEqual({
           requestId: "proposal-request-1",
           txHash: "0xproposal-command",
-          result: null,
+          result: "preflightResult" in testCase ? "902" : null,
         });
         expect(mocks.contractStaticCall).toHaveBeenCalledWith(testCase.signature, testCase.runtimeArgs);
         expect(txStore.insert).toHaveBeenCalledWith(expect.objectContaining({

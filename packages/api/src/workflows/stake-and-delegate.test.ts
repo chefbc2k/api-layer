@@ -600,7 +600,7 @@ describe("runStakeAndDelegateWorkflow", () => {
     expect(result.stake.stakeInfoAfter).toEqual({ amount: "100" });
   });
 
-  it("surfaces EchoScore-too-low stake reverts as an explicit workflow state block", async () => {
+  it("negative path for StakingFacet.stake surfaces EchoScore-too-low reverts as an explicit workflow state block", async () => {
     const context = {
       addressBook: {
         toJSON: () => ({ diamond: "0x0000000000000000000000000000000000000ddd" }),
@@ -619,7 +619,7 @@ describe("runStakeAndDelegateWorkflow", () => {
         .mockResolvedValueOnce({ statusCode: 200, body: "1" }),
       tokenApprove: vi.fn().mockResolvedValue({ statusCode: 202, body: { txHash: "0xapprove-write" } }),
     });
-    mocks.createStakingPrimitiveService.mockReturnValue({
+    const staking = {
       getStakeInfo: vi.fn().mockResolvedValue({ statusCode: 200, body: { amount: "0" } }),
       stake: vi.fn().mockRejectedValue({
         message: "execution reverted",
@@ -631,7 +631,9 @@ describe("runStakeAndDelegateWorkflow", () => {
           },
         },
       }),
-    });
+      delegate: vi.fn(),
+    };
+    mocks.createStakingPrimitiveService.mockReturnValue(staking);
     mocks.waitForWorkflowWriteReceipt.mockResolvedValueOnce("0xapprove-receipt");
 
     await expect(async () => {
@@ -648,6 +650,8 @@ describe("runStakeAndDelegateWorkflow", () => {
         throw error;
       }
     }).rejects.toThrow("stake-and-delegate blocked by stake rule violation: EchoScore too low (0 < 1000)");
+    expect(staking.stake).toHaveBeenCalledOnce();
+    expect(staking.delegate).not.toHaveBeenCalled();
   });
 
   it("rejects signerless workflow execution when no wallet address or signer mapping is available", async () => {
