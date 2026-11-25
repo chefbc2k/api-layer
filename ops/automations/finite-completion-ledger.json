@@ -2715,6 +2715,41 @@
             "Whole-repository coverage and backend privacy/release acceptance remain open."
           ],
           "resultLimitation": "API-08 remains open pending 100% repository-wide coverage and actual backend privacy/release acceptance."
+        },
+        {
+          "sourceCommit": "39929b60eb41311c5016d96105bb046c546c2429",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45695323371",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-39929b60eb41311c5016d96105bb046c546c2429)",
+          "artifactSha256": "6ebe4281325a1c1b9dcecef260dabd918dee894b8e670a78e5248f87048f2074",
+          "result": "Added focused durable-settlement processor tests covering idle selection, production and sandbox verification, missing metadata retry, duplicate settlement identity, invalid receipt expectation, provider failures, production chain restrictions, and outer transaction rollback. Full repository coverage increased from the previously recorded 96.76% lines, 96.48% statements, 95.36% branches, and 97.74% functions to 97.21% lines, 96.94% statements, 95.77% branches, and 97.86% functions. The settlement module now has 100% lines and branches and 98.57% statements. Exact-head API quality CI passed. API-08 remains open because repository coverage is below the frozen 100% criterion and actual backend privacy/release acceptance is unverified.",
+          "coveragePercent": {
+            "lines": 97.21,
+            "statements": 96.94,
+            "branches": 95.77,
+            "functions": 97.86
+          },
+          "coveredTotals": {
+            "lines": "6666/6857",
+            "statements": "7111/7335",
+            "branches": "6078/6346",
+            "functions": "1605/1640"
+          },
+          "moduleCoveragePercent": {
+            "settlement.ts": {
+              "lines": 100,
+              "statements": 98.57,
+              "functions": 75,
+              "branches": 100
+            }
+          },
+          "checks": [
+            "pnpm run test:coverage completed successfully across the repository.",
+            "Focused settlement suite: pnpm exec vitest run packages/api/src/funding/settlement.test.ts --maxWorkers 1 --coverage.enabled true --coverage.reporter=json-summary; 22 tests passed.",
+            "pnpm exec eslint packages/api/src/funding/settlement.test.ts passed.",
+            "pnpm exec tsc -b --pretty false passed.",
+            "API quality workflow 45695323371 passed on exact source commit 39929b60eb41311c5016d96105bb046c546c2429, including disposable PostgreSQL/native-USDC fork, Regression, Coverage, API surface, Actor boundaries, Red team, Indexer assurance, and evidence preservation."
+          ],
+          "resultLimitation": "API-08 remains open pending 100% repository-wide coverage and actual backend privacy/release acceptance. The coverage artifact reports 191 uncovered lines, 224 uncovered statements, 268 uncovered branches, and 35 uncovered functions."
         }
       ],
       "deliveredCommit": null,
