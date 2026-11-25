@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T08:04:11.561Z",
+  "generatedAt": "2026-11-25T08:08:03.923Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5732,
-    "includedArtifacts": 14,
+    "artifactTransactionHashes": 5734,
+    "includedArtifacts": 15,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5732,
-    "provenWriteMethods": 158,
+    "indexedReceipts": 5734,
+    "provenWriteMethods": 159,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 102,
-    "rawEvents": 8653,
-    "projectionRows": 5533
+    "remainingWriteMethods": 101,
+    "rawEvents": 8655,
+    "projectionRows": 5535
   },
   "reports": {
     "AccessControlFacet.configureRole": {
@@ -82259,6 +82259,67 @@
           "methodKey": "OwnershipFacet.setApprovedOwnerTarget",
           "affectedFacet": "OwnershipFacet",
           "methodSignature": "setApprovedOwnerTarget(address,bool)",
+          "txHash": "0x56d220423f7d6156d98df50de2600abc54560127286a793ed7377184b4658c44",
+          "blockNumber": 63359732,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "OwnershipFacet.OwnershipTargetApprovalSet(address,bool)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [
+              {
+                "table": "ownership_transfers",
+                "rowCount": 1,
+                "rowIds": [
+                  "1"
+                ],
+                "sourceRawEventIds": [
+                  "1"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359732",
+                  "block_hash": "0x6f0df401cbadbcb2b531fda4c1a824bb94a7fc8d0411eb4f263745307dd7605d"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-ownership-transfer-live-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "OwnershipFacet.setApprovedOwnerTarget",
+          "affectedFacet": "OwnershipFacet",
+          "methodSignature": "setApprovedOwnerTarget(address,bool)",
           "txHash": "0x80af9ec0753848616d3a09d948b64f4f3889430046770e4f3df16f26745cf99b",
           "blockNumber": 63354209,
           "receipt": {
@@ -83259,6 +83320,81 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-full-contract-integration-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "OwnershipFacet.transferOwnership": {
+      "routes": [
+        "POST /v1/ownership/commands/transfer-ownership"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "OwnershipFacet.transferOwnership",
+          "affectedFacet": "OwnershipFacet",
+          "methodSignature": "transferOwnership(address)",
+          "txHash": "0x459891200e9c881d7a6e21956181acffa156aa011e544e74761675f802512d89",
+          "blockNumber": 63359733,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "OwnershipFacet.OwnershipTransferred(address,address)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [
+              {
+                "table": "ownership_transfers",
+                "rowCount": 1,
+                "rowIds": [
+                  "2"
+                ],
+                "sourceRawEventIds": [
+                  "2"
+                ]
+              }
+            ],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63359733",
+                  "block_hash": "0x2f38ff2a427d87180fa6fad9fc0eda8de9f82ef840696014be9ad57a3d606cd7"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-ownership-transfer-live-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
