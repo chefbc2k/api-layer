@@ -597,6 +597,7 @@ describeLive("HTTP API contract integration", () => {
   let localForkProcess: ChildProcessWithoutNullStreams | null = null;
   const confirmedTransactionHashes = new Set<string>();
   const oracleFutureDriftProofObservations: Array<Record<string, unknown>> = [];
+  const emergencyTimeoutProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
   async function captureReceiptSnapshot() {
@@ -1016,6 +1017,7 @@ describeLive("HTTP API contract integration", () => {
         rolledBackReceiptObservations,
         transactionHashes: [...confirmedTransactionHashes].sort((left, right) => left.localeCompare(right)),
         oracleFutureDriftProofObservations,
+        emergencyTimeoutProofObservations,
       }, null, 2)}\n`);
     }
     server?.close();
@@ -8234,6 +8236,73 @@ describeLive("HTTP API contract integration", () => {
         updateTransactionHash,
         restoreTransactionHash,
         event: "EchoScoreFacetV3.OracleFutureDriftConfigUpdated(uint256)",
+        canonicalReadbackMatched: true,
+        httpReadbackMatched: true,
+        finalValueRestored: true,
+      });
+    }
+  }, 180_000);
+
+  it("proves emergency timeout configuration receipts remain indexable on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "emergency timeout configuration receipt proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const emergencyAdminRole = id("EMERGENCY_ADMIN_ROLE");
+    expect(await accessControl.hasRole(emergencyAdminRole, founderAddress)).toBe(true);
+    const originalTimeout = BigInt(await emergencyFacet.getEmergencyTimeout());
+    const targetTimeout = originalTimeout === 7_201n ? 7_202n : 7_201n;
+    let updateTransactionHash: string | null = null;
+    let restoreTransactionHash: string | null = null;
+
+    try {
+      const update = await apiCall(port, "POST", "/v1/emergency/admin/set-emergency-timeout", {
+        apiKey: "emergency-proof-key",
+        body: { newTimeout: targetTimeout.toString() },
+      });
+      expect(update.status, JSON.stringify(update.payload)).toBe(202);
+      updateTransactionHash = extractTxHash(update.payload);
+      await expectReceipt(updateTransactionHash);
+      const updateReceipt = await provider.getTransactionReceipt(updateTransactionHash);
+      expect(updateReceipt?.status).toBe(1);
+      expect(updateReceipt?.logs).toHaveLength(0);
+      expect(BigInt(await emergencyFacet.getEmergencyTimeout())).toBe(targetTimeout);
+
+      const readback = await apiCall(port, "POST", "/v1/emergency/queries/get-emergency-timeout", {
+        apiKey: "read-key",
+        body: {},
+      });
+      expect(readback.status).toBe(200);
+      expect(BigInt(readback.payload as string)).toBe(targetTimeout);
+    } finally {
+      const currentTimeout = BigInt(await emergencyFacet.getEmergencyTimeout());
+      if (currentTimeout !== originalTimeout) {
+        const restore = await apiCall(port, "POST", "/v1/emergency/admin/set-emergency-timeout", {
+          apiKey: "emergency-proof-key",
+          body: { newTimeout: originalTimeout.toString() },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        restoreTransactionHash = extractTxHash(restore.payload);
+        await expectReceipt(restoreTransactionHash);
+        const restoreReceipt = await provider.getTransactionReceipt(restoreTransactionHash);
+        expect(restoreReceipt?.status).toBe(1);
+        expect(restoreReceipt?.logs).toHaveLength(0);
+      }
+      expect(BigInt(await emergencyFacet.getEmergencyTimeout())).toBe(originalTimeout);
+      emergencyTimeoutProofObservations.push({
+        methodKey: "EmergencyFacet.setEmergencyTimeout",
+        route: "POST /v1/emergency/admin/set-emergency-timeout",
+        actor: "founder fixture signer with EMERGENCY_ADMIN_ROLE",
+        originalTimeout: originalTimeout.toString(),
+        testTimeout: targetTimeout.toString(),
+        restoredTimeout: (await emergencyFacet.getEmergencyTimeout()).toString(),
+        updateTransactionHash,
+        restoreTransactionHash,
+        receiptLogs: 0,
         canonicalReadbackMatched: true,
         httpReadbackMatched: true,
         finalValueRestored: true,
