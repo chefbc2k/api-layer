@@ -4086,6 +4086,18 @@
             "Correction for event-assurance.test.ts was validated by 210/210 focused tests; branch follow-up and exact-head CI rerun are pending."
           ],
           "resultLimitation": "The proof commit is not merged to master; the current API-05 work and the broader finite release remain incomplete."
+        },
+        {
+          "sourceCommit": "9c6e52f767fc6037804d9678c992cdd799ce8bb9",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45689110979",
+          "deliveredCommit": "f54465a271657ed5cb9080629415e4e0ae52b26e",
+          "result": "Pushed the reviewed API-08 purchase-route coverage increment and recorded its exact-head CI result on the release branch. The code head 9c6e52f passed all API quality gates; ledger and coverage evidence were then committed as f54465a. The branch remains unmerged, and frozen candidate dispositions/default-master delivery are still incomplete.",
+          "checks": [
+            "origin/codex/api05-payment-deadline-20261124 resolves to f54465a271657ed5cb9080629415e4e0ae52b26e.",
+            "Exact-source API quality CI 45689110979 passed on code commit 9c6e52f767fc6037804d9678c992cdd799ce8bb9.",
+            "No other worktree was modified."
+          ],
+          "resultLimitation": "DELIVERY-01 remains in progress until every frozen branch/worktree candidate is dispositioned and approved source passengers are verified on default master."
         }
       ],
       "deliveredCommit": null,
@@ -4109,6 +4121,19 @@
             "pnpm exec vitest run scripts/vercel-entrypoint.test.ts --maxWorkers 1: 1 passed",
             "pnpm run typecheck:vercel: passed"
           ]
+        },
+        {
+          "sourceCommit": "9c6e52f767fc6037804d9678c992cdd799ce8bb9",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45689110979",
+          "artifact": "packages/api/src/funding/purchase.router.test.ts",
+          "result": "Added route-level behavior coverage for purchase intent authorization, verified settlement gating, snapshot/readiness failures, durable request persistence, owner-scoped receipt verification, finality, retry conflicts, and sanitized failures. The 102-test focused funding suite passed locally and exact-source API quality CI passed. This advances test evidence but does not complete the frozen interval-wide gap audit or default delivery.",
+          "checks": [
+            "pnpm exec vitest run packages/api/src/funding/store.test.ts packages/api/src/funding/reconciler.test.ts packages/api/src/funding/processor.test.ts packages/api/src/funding/release-readiness.test.ts packages/api/src/funding/purchase.test.ts packages/api/src/funding/purchase.router.test.ts --maxWorkers 1 --coverage.enabled true: 102 passed.",
+            "pnpm exec tsc -b --pretty false: passed.",
+            "ESLint for purchase test files: passed.",
+            "API quality CI 45689110979: passed on exact source commit."
+          ],
+          "resultLimitation": "TEST-01 remains open pending interval-wide review of the final release candidate and verified delivery to default master."
         }
       ],
       "deliveredCommit": null,
