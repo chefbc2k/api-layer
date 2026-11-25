@@ -2931,6 +2931,32 @@
             "Production runtime and backend privacy/release acceptance remain unverified."
           ],
           "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
+        },
+        {
+          "sourceCommit": "1b32544b85bb0403734ec1a0a9acf6419b5681f2",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45712865120",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-1b32544b85bb0403734ec1a0a9acf6419b5681f2)",
+          "artifactSha256": "fb0a1c781265aaff8804feb2d8acf004cb3349e760d7a7e04a6119173d1f4e34",
+          "result": "Added injectable promotion-runner dependencies and local orchestration tests covering successful read-only preflight, wrong-chain fail-closed behavior, temporary artifacts, and fixture-backed local command orchestration without external writes. Exact-head API quality CI passed all configured gates. Whole-repository coverage increased to 98.86% lines, 98.65% statements, 97.29% branches, and 98.96% functions. API-08 remains open below its frozen 100% criterion and pending actual backend privacy/release acceptance.",
+          "coveragePercent": {
+            "lines": 98.86,
+            "statements": 98.65,
+            "branches": 97.29,
+            "functions": 98.96
+          },
+          "coveredTotals": {
+            "lines": "6782/6860",
+            "statements": "7240/7339",
+            "branches": "6195/6367",
+            "functions": "1625/1642"
+          },
+          "checks": [
+            "Promotion-runner focused tests, ESLint, TypeScript, and full repository coverage passed locally.",
+            "Exact-head API quality workflow 45712865120 passed on 1b32544b85bb0403734ec1a0a9acf6419b5681f2, including dependency audit, codegen, types, lint, build, disposable PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation.",
+            "The uploaded whole-repository coverage-summary.json was downloaded and SHA-256 verified.",
+            "No external RPC or testnet writes occurred; production runtime and backend privacy/release acceptance remain unverified."
+          ],
+          "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
