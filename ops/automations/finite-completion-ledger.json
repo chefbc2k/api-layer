@@ -2785,6 +2785,42 @@
             "API quality workflow 45700603560 passed on exact source commit 59caef5f8ed7f2c29b14a789b7a3427cc0872264, including Regression, Coverage, API surface, actor boundaries, Red team, Indexer assurance, and disposable PostgreSQL/native-USDC fork."
           ],
           "resultLimitation": "API-08 remains open pending 100% repository-wide coverage and actual backend privacy/release acceptance. The CI coverage artifact reports 183 uncovered lines, 212 uncovered statements, 262 uncovered branches, and 32 uncovered functions."
+        },
+        {
+          "sourceCommit": "6584c19778fa31e5bf7eb0a7518ba2ed5a738d82",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45703397210",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-6584c19778fa31e5bf7eb0a7518ba2ed5a738d82)",
+          "artifactSha256": "0128809b5ad66fa0db61d657d0cb2fa61093ec91d513715f3182776e8791b091",
+          "result": "Expanded API-07 promotion-runner tests for explicit readiness, fixture prerequisites, report classifications, integer parsing, target serialization, child-process failure handling, and fail-closed CLI behavior. In an isolated temporary cwd with no approved env file, the CLI wrote a blocked report and exited before creating a provider; no RPC or testnet write was attempted. The exact-head API quality workflow passed. Repository coverage increased to 97.68% lines, 97.45% statements, 96.59% branches, and 98.47% functions. API-08 remains open below the frozen 100% requirement and pending actual backend privacy/release acceptance.",
+          "coveragePercent": {
+            "lines": 97.68,
+            "statements": 97.45,
+            "branches": 96.59,
+            "functions": 98.47
+          },
+          "coveredTotals": {
+            "lines": "6698/6857",
+            "statements": "7148/7335",
+            "branches": "6131/6347",
+            "functions": "1615/1640"
+          },
+          "moduleCoveragePercent": {
+            "promote-base-sepolia-scenarios.ts": {
+              "lines": 53.76,
+              "statements": 54.59,
+              "functions": 78.12,
+              "branches": 68.49
+            }
+          },
+          "checks": [
+            "pnpm run test:coverage passed across the full repository.",
+            "Focused runner suite: pnpm exec vitest run scripts/promote-base-sepolia-scenarios.test.ts --maxWorkers 1; 12 tests passed.",
+            "Isolated promotion module coverage report confirms 53.47% lines, 54.59% statements, 68.49% branches, and 78.12% functions; full CI coverage reports 53.76% lines after its source-map normalization.",
+            "pnpm exec eslint scripts/promote-base-sepolia-scenarios.ts scripts/promote-base-sepolia-scenarios.test.ts passed.",
+            "pnpm exec tsc -b --pretty false passed.",
+            "API quality workflow 45703397210 passed on exact source commit 6584c19778fa31e5bf7eb0a7518ba2ed5a738d82, including Regression, Coverage, API surface, actor boundaries, Red team, Indexer assurance, and disposable PostgreSQL/native-USDC fork."
+          ],
+          "resultLimitation": "API-08 remains open with 159 uncovered lines, 187 uncovered statements, 216 uncovered branches, and 25 uncovered functions in the CI aggregate, plus actual backend privacy/release acceptance outstanding. API-07 remains waiting_dependency for approved live RPC configuration and explicit authorization."
         }
       ],
       "deliveredCommit": null,
