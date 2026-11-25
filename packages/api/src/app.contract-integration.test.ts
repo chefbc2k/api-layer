@@ -8634,6 +8634,51 @@ describeLive("HTTP API contract integration", () => {
     }
   }, 180_000);
 
+  it("proves the ERC721 escrow receiver callback through HTTP on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "ERC721 escrow receiver callback proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const escrow = new Contract(diamondAddress, facetRegistry.EscrowFacet.abi, provider);
+    const tokenId = 900_000_000n + BigInt(Math.floor(Math.random() * 100_000));
+    const callbackArgs = {
+      arg0: founderAddress,
+      arg1: outsiderWallet.address,
+      arg2: tokenId.toString(),
+      arg3: "0x1234",
+    };
+    const beforeOwner = String(await escrow.getOriginalOwner(tokenId));
+    const beforeState = Number(await escrow.getAssetState(tokenId));
+    expect(beforeOwner).toBe(ethers.ZeroAddress);
+    expect(await escrow.isInEscrow(tokenId)).toBe(false);
+    const transactionHashes: string[] = [];
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const response = await apiCall(port, "POST", "/v1/marketplace/commands/on-erc721-received", {
+        apiKey: "founder-key",
+        body: callbackArgs,
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      transactionHashes.push(txHash);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      expect(receipt?.logs).toHaveLength(0);
+      const transaction = await provider.getTransaction(txHash);
+      expect(transaction?.data.slice(0, 10)).toBe(escrow.interface.getFunction("onERC721Received")!.selector);
+    }
+
+    expect(await escrow.getOriginalOwner(tokenId)).toBe(beforeOwner);
+    expect(Number(await escrow.getAssetState(tokenId))).toBe(beforeState);
+    expect(await escrow.isInEscrow(tokenId)).toBe(false);
+    expect(transactionHashes).toHaveLength(2);
+  }, 120_000);
+
   it("proves signed single and batch EchoScore updates through HTTP on the local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
