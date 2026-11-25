@@ -1810,7 +1810,7 @@
           "resultLimitation": "Four open methods completed, below the bounded target of 35; API-05 remains in_progress with 97 write methods open. EmergencyFacet.executeRecoveryAction is explicitly documented as contract-only but remains counted open pending release accounting policy."
         },
         {
-          "sourceCommit": "5c55d94",
+          "sourceCommit": "pending",
           "artifact": "output/api05-rights-lifecycle-proof-2026-11-25.json",
           "proofArtifactSha256": "0d073d4435af78105c3a17ef4db985a7cb7ff195849b0841be47b3deab9bbe6b",
           "transactionArtifact": ".runtime/api05-rights-lifecycle-receipts.json",
@@ -1940,7 +1940,7 @@
           "resultLimitation": "API state assertions are stronger, but event/indexer acceptance remains blocked until the contract fix is deployed to a disposable fork and exact API receipts index with idempotent replay."
         },
         {
-          "sourceCommit": "pending",
+          "sourceCommit": "5c55d94",
           "result": "Fixed codegen to use the tracked reviewed/ci-deployment-selectors.json when no explicit or adjacent deployment manifest exists. This prevents fallback to every ABI entry in isolated worktrees. Canonical codegen now returns to the pinned inventory: 491 manifest functions, 218 ABI event occurrences, and 260 write methods; duplicate ERC20 selectors are excluded from VoiceAssetFacet. Corrected stale MultiSig readback invariant references to the mounted getOperationStatus method. Historical API-05 acceptance remains 186/260, with exact-method proof and delivery still open.",
           "checks": [
             "pnpm run codegen passed: 491 manifest functions, 218 ABI events, 260/260 ABI write invariants; tracked reviewed/ci-deployment-selectors.json selected in isolated worktree",
