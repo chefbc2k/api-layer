@@ -2207,6 +2207,27 @@
             "API quality workflow 45680212596 passed on exact head 7b5cb2fc0f4249dfd7f44fff06049a1b8f2ea94d; all 21 workflow steps succeeded."
           ],
           "resultLimitation": "API-05 remains in_progress at 189/260 with 71 open. emergencyForceAdd positive state reconciliation and PostgreSQL idempotent replay remain unproven; API-04, API-06, API-07, API-08, delivery, test-gap, and external acceptance requirements also remain open."
+        },
+        {
+          "sourceCommit": "5752b91d273c42659170fa3e98c2ab51e96793c1",
+          "contractSourceCommit": "3b814442ca9eea1b56bd8683b8b7b19343c9c383",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45691617059",
+          "artifact": "reviewed/reviewed-write-invariants.json",
+          "result": "Applied the explicit API-05 contract-only exception allowance to two reviewed keys: OwnershipFacet.acceptOwnership and EmergencyFacet.executeRecoveryAction. Current contract source confirms one requires the pending approved contract as msg.sender and the other requires address(this). They are accepted as reviewed exceptions only; neither is added to the 189 successful-write proof count. The exact-method cumulative indexer remains 189/260 with 69 ordinary methods plus 2 accepted exceptions previously classified in its 71-key remainder; API-05 remains in_progress.",
+          "acceptedReviewedExceptions": [
+            "OwnershipFacet.acceptOwnership",
+            "EmergencyFacet.executeRecoveryAction"
+          ],
+          "successfulWriteProofCount": 189,
+          "ordinaryExactMethodProofsRemaining": 69,
+          "fixedWriteMethodDenominator": 260,
+          "checks": [
+            "Read-only contract source at 3b814442ca9eea1b56bd8683b8b7b19343c9c383 confirms the self-call/pending-contract conditions.",
+            "The parent executeRecoveryStep local-fork lifecycle artifact proves recovery lifecycle effects; it does not claim an independent executeRecoveryAction receipt.",
+            "The existing cumulative receipt artifact remains unchanged; no successful-write proof credit is added to either exception.",
+            "Exact-head API quality workflow 45691617059 passed on 5752b91d273c42659170fa3e98c2ab51e96793c1; the verify job completed successfully."
+          ],
+          "resultLimitation": "API-05 remains in_progress. The 69 ordinary exact-method proofs, hosted/default delivery, and the broader external API release acceptance remain outstanding."
         }
       ],
       "deliveredCommit": null,
@@ -2215,15 +2236,15 @@
         {
           "methodKey": "OwnershipFacet.acceptOwnership",
           "classification": "reviewed-contract-only-exception",
-          "status": "documented; acceptance accounting unchanged",
-          "rationale": "The approved-target guard rejects EOAs and acceptOwnership requires msg.sender to be the pending contract. Current API keys sign as EOAs, so positive HTTP execution requires a dedicated contract callback harness. The method remains open in the 260-key count until exception accounting is explicitly adopted by the release checklist.",
+          "status": "accepted-reviewed-exception; successful-write proof count unchanged",
+          "rationale": "The approved-target guard rejects EOAs and acceptOwnership requires msg.sender to be the pending contract. Current API keys sign as EOAs, so positive HTTP execution requires a dedicated contract callback harness. The API-05 acceptance explicitly permits contract-only exceptions when supported by reviewed policy. This key is accepted only as an exception, not as successful method execution.",
           "source": "reviewed/reviewed-write-invariants.json"
         },
         {
           "methodKey": "EmergencyFacet.executeRecoveryAction",
           "classification": "reviewed-contract-only-exception",
-          "status": "documented; acceptance accounting unchanged",
-          "rationale": "The deployed method rejects every caller except address(this) and is reached from executeRecoveryStep. A positive direct HTTP call from the current EOA signer model is impossible. The method remains counted open until exception accounting is explicitly adopted by the release checklist.",
+          "status": "accepted-reviewed-exception; successful-write proof count unchanged",
+          "rationale": "The deployed method rejects every caller except address(this) and is reached from executeRecoveryStep. A positive direct HTTP call from the current EOA signer model is impossible. The API-05 acceptance explicitly permits contract-only exceptions when supported by reviewed policy. This key is accepted only as an exception, not as successful method execution.",
           "source": "reviewed/reviewed-write-invariants.json"
         }
       ]
