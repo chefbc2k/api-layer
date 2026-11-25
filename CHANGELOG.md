@@ -1,3 +1,8 @@
+# 2026-11-25 — Prove ownership proposal and cancellation lifecycle
+
+- Added a fork-only HTTP proof for `OwnershipFacet.proposeOwnershipTransfer` and `OwnershipFacet.cancelOwnershipTransfer`. With approved-contract enforcement enabled, the current owner temporarily approved the deployed USDC contract, proposed it, cancelled the proposal, and removed the temporary approval. The owner stayed unchanged and pending-owner state returned to zero; PostgreSQL indexed four receipts and replay passed.
+- API-05 advances from `153/260` to `155/260` unique write methods proven, leaving `105` open. See [ownership transfer lifecycle proof](output/api05-ownership-transfer-propose-cancel-proof-2026-11-25.json).
+
 # 2026-11-25 — Prove direct emergency withdrawal execution
 
 - Extended the disposable-fork lifecycle to set the required approval count to one, create a second request, and submit `EmergencyWithdrawalFacet.executeWithdrawal` as a distinct HTTP transaction. The receipt emitted `EmergencyWithdrawalExecuted`; custody, licensed-recipient, and total-supply deltas matched, and replay was rejected.

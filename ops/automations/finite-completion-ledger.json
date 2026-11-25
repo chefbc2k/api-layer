@@ -1688,6 +1688,29 @@
             "Replay was rejected; idempotent receipt replay was unchanged.",
             "Disposable fork was stopped after indexing."
           ]
+        },
+        {
+          "sourceCommit": null,
+          "artifact": "output/api05-ownership-transfer-propose-cancel-proof-2026-11-25.json",
+          "proofArtifactSha256": "03a1a51d525eadb8a2c7399df61a3100303342cb85aa43509efa9464e0ef2992",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "bd6aae96f20c7e1795830afb1de4765649dce7c99aa2173340ae60e1a25c62ed",
+          "result": "Proved OwnershipFacet.proposeOwnershipTransfer and OwnershipFacet.cancelOwnershipTransfer through HTTP on a disposable loopback fork. Because owner-target enforcement was enabled, the current owner temporarily approved the deployed USDC contract address, proposed it as pending owner, cancelled the proposal, and removed the temporary approval. Both ownership events and canonical/HTTP pending-owner reads matched, the diamond owner stayed unchanged, and the original approval/pending state was restored. PostgreSQL indexed four successful receipts with four raw events, ownership_transfers projections, block journals, and idempotent replay. API-05 advances from 153/260 to 155/260 proven methods, leaving 105 open.",
+          "startingProvenCount": 153,
+          "startingOpenCount": 107,
+          "completedThisRun": 2,
+          "completionPercentOfStart": 1.8519,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 155,
+          "endingOpenCount": 105,
+          "checks": [
+            "Focused local-fork HTTP integration passed (1 passed, 55 skipped).",
+            "Four receipts indexed; four raw events, projections, and block journals verified.",
+            "Canonical and HTTP pending-owner readbacks matched after cache expiration.",
+            "Temporary approved-target and ownership proposal state were restored; replay remained idempotent.",
+            "Disposable fork was stopped after indexing."
+          ]
         }
       ],
       "deliveredCommit": null,

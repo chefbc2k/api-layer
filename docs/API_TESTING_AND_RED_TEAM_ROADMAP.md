@@ -1,3 +1,8 @@
+# API-05 Follow-on — Ownership Transfer Proposal and Cancellation — 2026-11-25
+
+- Proved `OwnershipFacet.proposeOwnershipTransfer` and `OwnershipFacet.cancelOwnershipTransfer` through HTTP on a disposable loopback fork. Owner-target enforcement required temporary approval of the deployed USDC contract; the test proposed then cancelled the transfer, restored the approval, and verified the diamond owner stayed unchanged and pending owner returned to zero. PostgreSQL indexed four receipts and projections with block journals; replay was idempotent.
+- API-05 advances from `153/260` to `155/260`, leaving `105` open. See [ownership transfer lifecycle proof](../output/api05-ownership-transfer-propose-cancel-proof-2026-11-25.json).
+
 # API-05 Follow-on — Direct Emergency Withdrawal Execution — 2026-11-25
 
 - Added a second withdrawal on the disposable fork with required approvals set to one. The request began with the requester’s approval, then the workflow submitted `EmergencyWithdrawalFacet.executeWithdrawal` as a separate transaction. Its receipt emitted `EmergencyWithdrawalExecuted`; custody decreased by 1, the licensed recipient increased by 1, total supply was unchanged, and replay was rejected. The indexer confirmed raw events, projections, block journals, and idempotent replay.

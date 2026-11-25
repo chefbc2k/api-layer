@@ -609,6 +609,7 @@ describeLive("HTTP API contract integration", () => {
   const emergencyWithdrawalProofObservations: Array<Record<string, unknown>> = [];
   const ownershipPolicyProofObservations: Array<Record<string, unknown>> = [];
   const ownershipTargetApprovalProofObservations: Array<Record<string, unknown>> = [];
+  const ownershipTransferLifecycleProofObservations: Array<Record<string, unknown>> = [];
   const proposalCancellationProofObservations: Array<Record<string, unknown>> = [];
   let rolledBackReceiptObservations = 0;
 
@@ -1055,6 +1056,7 @@ describeLive("HTTP API contract integration", () => {
         emergencyWithdrawalProofObservations,
         ownershipPolicyProofObservations,
         ownershipTargetApprovalProofObservations,
+        ownershipTransferLifecycleProofObservations,
         proposalCancellationProofObservations,
       }, null, 2)}\n`);
     }
@@ -9178,6 +9180,129 @@ describeLive("HTTP API contract integration", () => {
       canonicalReadbacksMatched: true,
       httpReadbacksMatched: true,
       finalStateRestored: true,
+      forkScopedFixture: true,
+    });
+  }, 180_000);
+
+  it("proves ownership transfer proposal and cancellation through HTTP on the disposable fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "ownership transfer proposal and cancellation proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.00002") },
+    ])) return;
+
+    expect((await ownershipFacet.owner()).toLowerCase()).toBe(founderAddress.toLowerCase());
+    const initialPendingOwner = String(await ownershipFacet.pendingOwner());
+    expect(initialPendingOwner).toBe(ethers.ZeroAddress);
+    const target = String(await paymentFacet.getUsdcToken());
+    const initialTargetApproval = Boolean(await ownershipFacet.isOwnerTargetApproved(target));
+    let temporaryTargetApprovalHash: string | null = null;
+    let targetApprovalRestoreHash: string | null = null;
+    if (!initialTargetApproval) {
+      const approval = await apiCall(port, "PATCH", "/v1/ownership/commands/set-approved-owner-target", {
+        apiKey: "founder-key",
+        body: { target, approved: true },
+      });
+      expect(approval.status, JSON.stringify(approval.payload)).toBe(202);
+      temporaryTargetApprovalHash = extractTxHash(approval.payload);
+      await expectReceipt(temporaryTargetApprovalHash);
+      const approvalReceipt = await provider.getTransactionReceipt(temporaryTargetApprovalHash);
+      expect(approvalReceipt?.status).toBe(1);
+      expect(Boolean(await ownershipFacet.isOwnerTargetApproved(target))).toBe(true);
+    }
+    const submit = async (
+      method: "POST" | "DELETE",
+      route: string,
+      eventName: string,
+      expectedPending: string,
+      expectedEventPending = expectedPending,
+    ) => {
+      const response = await apiCall(port, method, route, {
+        apiKey: "founder-key",
+        ...(method === "POST" ? { body: { _newOwner: target } } : {}),
+      });
+      expect(response.status, JSON.stringify(response.payload)).toBe(202);
+      const txHash = extractTxHash(response.payload);
+      await expectReceipt(txHash);
+      const receipt = await provider.getTransactionReceipt(txHash);
+      expect(receipt?.status).toBe(1);
+      const events = (receipt?.logs ?? []).flatMap((log) => {
+        try {
+          const parsed = ownershipFacet.interface.parseLog(log);
+          return parsed?.name === eventName ? [parsed] : [];
+        } catch {
+          return [];
+        }
+      });
+      expect(events).toHaveLength(1);
+      expect(String(events[0]!.args.currentOwner).toLowerCase()).toBe(founderAddress.toLowerCase());
+      expect(String(events[0]!.args.pendingOwner).toLowerCase()).toBe(expectedEventPending.toLowerCase());
+      expect(String(await ownershipFacet.pendingOwner()).toLowerCase()).toBe(expectedPending.toLowerCase());
+      await delay(6_000);
+      const httpReadback = await apiCall(port, "POST", "/v1/ownership/queries/pending-owner", { apiKey: "read-key" });
+      expect(httpReadback.status).toBe(200);
+      expect(String(httpReadback.payload).toLowerCase()).toBe(expectedPending.toLowerCase());
+      expect((await ownershipFacet.owner()).toLowerCase()).toBe(founderAddress.toLowerCase());
+      return txHash;
+    };
+
+    let proposalTransactionHash: string | null = null;
+    let cancelTransactionHash: string | null = null;
+    try {
+      proposalTransactionHash = await submit(
+        "POST",
+        "/v1/ownership/commands/propose-ownership-transfer",
+        "OwnershipTransferProposed",
+        target,
+      );
+      cancelTransactionHash = await submit(
+        "DELETE",
+        "/v1/ownership/commands/cancel-ownership-transfer",
+        "OwnershipTransferCancelled",
+        ethers.ZeroAddress,
+        target,
+      );
+    } finally {
+      if (String(await ownershipFacet.pendingOwner()).toLowerCase() !== ethers.ZeroAddress.toLowerCase()) {
+        await submit("DELETE", "/v1/ownership/commands/cancel-ownership-transfer", "OwnershipTransferCancelled", ethers.ZeroAddress, target);
+      }
+      if (!initialTargetApproval && Boolean(await ownershipFacet.isOwnerTargetApproved(target))) {
+        const restore = await apiCall(port, "PATCH", "/v1/ownership/commands/set-approved-owner-target", {
+          apiKey: "founder-key",
+          body: { target, approved: false },
+        });
+        expect(restore.status, JSON.stringify(restore.payload)).toBe(202);
+        targetApprovalRestoreHash = extractTxHash(restore.payload);
+        await expectReceipt(targetApprovalRestoreHash);
+        expect(Boolean(await ownershipFacet.isOwnerTargetApproved(target))).toBe(false);
+      }
+    }
+    expect(proposalTransactionHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect(cancelTransactionHash).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+    expect((await ownershipFacet.owner()).toLowerCase()).toBe(founderAddress.toLowerCase());
+    expect(String(await ownershipFacet.pendingOwner())).toBe(ethers.ZeroAddress);
+    expect(Boolean(await ownershipFacet.isOwnerTargetApproved(target))).toBe(initialTargetApproval);
+    ownershipTransferLifecycleProofObservations.push({
+      methodKeys: ["OwnershipFacet.proposeOwnershipTransfer", "OwnershipFacet.cancelOwnershipTransfer"],
+      proposalRoute: "POST /v1/ownership/commands/propose-ownership-transfer",
+      cancelRoute: "DELETE /v1/ownership/commands/cancel-ownership-transfer",
+      actor: "founder fixture signer and current diamond owner",
+      target,
+      targetWasApprovedDuringProposal: true,
+      initialTargetApproval,
+      temporaryTargetApprovalHash,
+      targetApprovalRestoreHash,
+      initialPendingOwner,
+      proposalTransactionHash,
+      cancelTransactionHash,
+      proposedEvent: "OwnershipFacet.OwnershipTransferProposed(address,address)",
+      cancelledEvent: "OwnershipFacet.OwnershipTransferCancelled(address,address)",
+      ownerUnchanged: true,
+      pendingOwnerRestored: true,
+      canonicalReadbacksMatched: true,
+      httpReadbacksMatched: true,
       forkScopedFixture: true,
     });
   }, 180_000);
