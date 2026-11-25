@@ -61,6 +61,15 @@ describe("local-fork rights read fixture", () => {
     expect(input.verifyGroup).toHaveBeenCalledOnce();
   });
 
+  it("uses the requested voice hash when no verified hash override is supplied", async () => {
+    const input = baseInput();
+    await expect(ensureLocalForkRightsGroupFixture(input)).resolves.toMatchObject({
+      status: "created",
+      voiceHash: input.voiceHash,
+      transactionHash: `0x${"22".repeat(32)}`,
+    });
+  });
+
   it("does not claim a fixture when its creation receipt failed", async () => {
     const input = { ...baseInput(), createGroup: vi.fn(async () => ({ status: 0, transactionHash: `0x${"22".repeat(32)}`, blockNumber: 42 })) };
     await expect(ensureLocalForkRightsGroupFixture(input)).rejects.toThrow("rights_group_fixture_receipt_failed");

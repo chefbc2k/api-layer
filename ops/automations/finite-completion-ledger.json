@@ -3160,6 +3160,31 @@
             "API quality CI on the exact code commit: pending."
           ],
           "resultLimitation": "API-08 remains open below the frozen 100% repository-wide criterion; backend privacy/release acceptance is also unverified."
+      },
+      {
+        "sourceCommit": "07895c5cd481ae9660cc501cdcf633f0d1bc90e8",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45722212627",
+        "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-80f7121cf11efd214d3bed5cca6337f8c1478eaa)",
+        "artifactSha256": "626d703cb44780a6d4c6f32274fc6edb97962d07e7da7febed95045767279b92",
+        "result": "Exact-head API quality CI passed all configured gates. Hosted repository coverage matches the local collector at 99.01% lines, 98.80% statements, 97.55% branches, and 99.02% functions, below the frozen 100% criterion. Backend privacy/release acceptance remains unverified.",
+        "coveragePercent": {
+          "lines": 99.01,
+          "statements": 98.80,
+          "branches": 97.55,
+          "functions": 99.02
+        },
+        "coveredTotals": {
+          "lines": "6801/6869",
+          "statements": "7261/7349",
+          "branches": "6213/6369",
+          "functions": "1626/1642"
+        },
+        "checks": [
+          "API quality CI 45722212627 passed all configured gates on exact source commit 80f7121cf11efd214d3bed5cca6337f8c1478eaa.",
+          "Downloaded coverage artifact SHA-256 verified.",
+          "Local helper-focused fixture coverage is recorded separately and is not represented in this run, whose exact source predates that test."
+        ],
+        "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
