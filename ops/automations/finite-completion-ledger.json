@@ -2750,6 +2750,41 @@
             "API quality workflow 45695323371 passed on exact source commit 39929b60eb41311c5016d96105bb046c546c2429, including disposable PostgreSQL/native-USDC fork, Regression, Coverage, API surface, Actor boundaries, Red team, Indexer assurance, and evidence preservation."
           ],
           "resultLimitation": "API-08 remains open pending 100% repository-wide coverage and actual backend privacy/release acceptance. The coverage artifact reports 191 uncovered lines, 224 uncovered statements, 268 uncovered branches, and 35 uncovered functions."
+        },
+        {
+          "sourceCommit": "59caef5f8ed7f2c29b14a789b7a3427cc0872264",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45700603560",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-59caef5f8ed7f2c29b14a789b7a3427cc0872264)",
+          "artifactSha256": "58889581a3c6c16709ce29a7487f440077e6497abc0d5a126e74298128dc3fe3",
+          "result": "Added route-level readiness coverage for authenticated success, missing credentials, malformed and out-of-range token IDs, wallet mismatch, rate limiting, sanitized provider failures, unavailable initial/confirmation blocks, missing fee fallback, and Base mainnet native-USDC selection. The exact-head API quality workflow passed. CI coverage confirms packages/api/src/funding/readiness.ts at 100% lines, statements, functions, and branches. Repository coverage improved to 97.33% lines, 97.10% statements, 95.87% branches, and 98.04% functions. API-08 remains open because repository coverage is below the frozen 100% threshold and actual backend privacy/release acceptance is unverified.",
+          "coveragePercent": {
+            "lines": 97.33,
+            "statements": 97.1,
+            "branches": 95.87,
+            "functions": 98.04
+          },
+          "coveredTotals": {
+            "lines": "6674/6857",
+            "statements": "7123/7335",
+            "branches": "6084/6346",
+            "functions": "1608/1640"
+          },
+          "moduleCoveragePercent": {
+            "readiness.ts": {
+              "lines": 100,
+              "statements": 100,
+              "functions": 100,
+              "branches": 100
+            }
+          },
+          "checks": [
+            "Focused readiness suite: pnpm exec vitest run packages/api/src/funding/readiness.test.ts --maxWorkers 1; 26 tests passed.",
+            "Isolated Istanbul report for readiness.test.ts confirms readiness.ts at 100% lines, statements, functions, and branches.",
+            "pnpm exec eslint packages/api/src/funding/readiness.test.ts passed.",
+            "pnpm exec tsc -b --pretty false passed.",
+            "API quality workflow 45700603560 passed on exact source commit 59caef5f8ed7f2c29b14a789b7a3427cc0872264, including Regression, Coverage, API surface, actor boundaries, Red team, Indexer assurance, and disposable PostgreSQL/native-USDC fork."
+          ],
+          "resultLimitation": "API-08 remains open pending 100% repository-wide coverage and actual backend privacy/release acceptance. The CI coverage artifact reports 183 uncovered lines, 212 uncovered statements, 262 uncovered branches, and 32 uncovered functions."
         }
       ],
       "deliveredCommit": null,
