@@ -2896,6 +2896,41 @@
             "Production runtime and backend privacy/release acceptance remain unverified."
           ],
           "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
+        },
+        {
+          "sourceCommit": "b72a838a1b167a96fe741c7ab3080caaaf800893",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45709955877",
+          "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-b72a838a1b167a96fe741c7ab3080caaaf800893)",
+          "artifactSha256": "a289fceace96f520d578676776dc631d60094243bd42623c99251736f59dfd56",
+          "result": "Expanded funding webhook input and inbox tests for disabled/misconfigured startup, signed malformed identities and JSON, alternate signature header, successful insert, exact replay, and identity collision. Exact-head API quality CI passed all configured gates. Whole-repository coverage improved to 98.01% lines, 97.83% statements, 96.78% branches, and 98.65% functions. API-08 remains open below its frozen 100% criterion and pending actual backend privacy/release acceptance.",
+          "coveragePercent": {
+            "lines": 98.01,
+            "statements": 97.83,
+            "branches": 96.78,
+            "functions": 98.65
+          },
+          "coveredTotals": {
+            "lines": "6720/6856",
+            "statements": "7175/7334",
+            "branches": "6145/6349",
+            "functions": "1618/1640"
+          },
+          "moduleCoveragePercent": {
+            "webhook.ts": {
+              "lines": 97.77,
+              "statements": 98.36,
+              "branches": 98,
+              "functions": 100
+            }
+          },
+          "checks": [
+            "Focused webhook suite passed 11 tests; ESLint and TypeScript passed.",
+            "pnpm run test:coverage passed across the full repository.",
+            "Exact-head API quality workflow 45709955877 passed on b72a838a1b167a96fe741c7ab3080caaaf800893, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, disposable PostgreSQL/native-USDC fork, and evidence preservation.",
+            "The uploaded whole-repository coverage-summary.json was downloaded and SHA-256 verified.",
+            "Production runtime and backend privacy/release acceptance remain unverified."
+          ],
+          "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
