@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T09:04:33.072Z",
+  "generatedAt": "2026-11-25T09:15:33.118Z",
   "summary": "proven working",
   "totals": {
-    "artifactTransactionHashes": 5788,
-    "includedArtifacts": 20,
+    "artifactTransactionHashes": 5801,
+    "includedArtifacts": 32,
     "skippedArtifacts": 0,
-    "indexedReceipts": 5788,
-    "provenWriteMethods": 174,
+    "indexedReceipts": 5801,
+    "provenWriteMethods": 185,
     "catalogWriteMethods": 260,
-    "remainingWriteMethods": 86,
-    "rawEvents": 8720,
+    "remainingWriteMethods": 75,
+    "rawEvents": 8728,
     "projectionRows": 5559
   },
   "reports": {
@@ -73517,6 +73517,174 @@
       "classification": "proven working",
       "result": "proven working"
     },
+    "LegacyFacet.addDatasets": {
+      "routes": [
+        "POST /v1/voice-assets/commands/add-datasets"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.addDatasets",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "addDatasets(uint256[])",
+          "txHash": "0x23687a78babd49bddf0a91f4d7209758dd4c0a4c218c97d451a6c13121961cf2",
+          "blockNumber": 63368570,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368570",
+                  "block_hash": "0xb2da2db2985cd24f419eebd7ebe384c0965c9cb126cdb97fa82aee198c763d44"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-addDatasets-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.addInheritanceRequirement": {
+      "routes": [
+        "POST /v1/voice-assets/commands/add-inheritance-requirement"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.addInheritanceRequirement",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "addInheritanceRequirement(string)",
+          "txHash": "0xf440dc302cf161e98cf82815e5b505edbc180704e4729df3fc97e221cbcd362f",
+          "blockNumber": 63368575,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368575",
+                  "block_hash": "0x41d0a23a5b36cee0dc52b074ebf4a893cece2f0cd356e91f67a4ab76449d2f0c"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-addInheritanceRequirement-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.addVoiceAssets": {
+      "routes": [
+        "POST /v1/voice-assets/commands/add-voice-assets"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.addVoiceAssets",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "addVoiceAssets(bytes32[])",
+          "txHash": "0x8bf71901e2b78a880a6382072ee6922f4abff6d2b2e29791d5ac6c9c4f0ca57d",
+          "blockNumber": 63368567,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368567",
+                  "block_hash": "0x8bfa8bb1be4379b975cb981cff4bcc9c0f94257619f9b62e14575215e63a9346"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-addVoiceAssets-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
     "LegacyFacet.createLegacyPlan": {
       "routes": [
         "POST /v1/voice-assets/legacy/create-legacy-plan"
@@ -73526,6 +73694,56 @@
       ],
       "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
       "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.createLegacyPlan",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "createLegacyPlan(string)",
+          "txHash": "0xed5b4e8e723a33bd6c0f39ed6ce62890301d328149f1edbbfb56780cc2d529ee",
+          "blockNumber": 63368565,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "LegacyFacet.LegacyPlanCreated(address,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368565",
+                  "block_hash": "0x90b6e8a1828e109ba6cf4f2f9bfb34f19e5406de53754b0792355b902bcc10ac"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-createPlan-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
         {
           "localFork": true,
           "methodKey": "LegacyFacet.createLegacyPlan",
@@ -73571,6 +73789,232 @@
           "source": {
             "workflowArtifacts": [
               ".runtime/api05-legacy-lifecycle-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.setInheritanceConditions": {
+      "routes": [
+        "PATCH /v1/voice-assets/commands/set-inheritance-conditions"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.setInheritanceConditions",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "setInheritanceConditions(uint256,bool,address[],uint256)",
+          "txHash": "0xc717859b3a2ca1c2c1703b400125115e98947c7f390fac5307b3c8309d24b2f1",
+          "blockNumber": 63368574,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "LegacyFacet.InheritanceConditionsUpdated(address,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "3"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368574",
+                  "block_hash": "0xd7e643704921955ed959a9e1375dde80c0a5e27e86060f2b80736883a42160ad"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-setInheritanceConditions-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.setMinTimelockPeriod": {
+      "routes": [
+        "PATCH /v1/voice-assets/commands/set-min-timelock-period"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.setMinTimelockPeriod",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "setMinTimelockPeriod(uint256)",
+          "txHash": "0x10fac8c7d02dbfc4ca3097be7186468fa2bd4256faa54b520035c2e0c58d88ff",
+          "blockNumber": 63368593,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368593",
+                  "block_hash": "0x0e3572d7030c615d164eeb5c7611409185403f1c847d874e64922a8af5a25a0d"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-setMinTimelockPeriod-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        },
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.setMinTimelockPeriod",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "setMinTimelockPeriod(uint256)",
+          "txHash": "0xe7abaa04c2460a729df891c6cf837161deb93f1c98fad110ba957ecd7019f2ad",
+          "blockNumber": 63368595,
+          "receipt": {
+            "status": 1,
+            "logCount": 0
+          },
+          "decodedEvents": [],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 0,
+              "rowIds": []
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368595",
+                  "block_hash": "0xfe1006aac0bd5c783a099e7a463bc9e2de211561fc90d00991e3d15f1b514928"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-setMinTimelockPeriod-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "LegacyFacet.updateBeneficiary": {
+      "routes": [
+        "PATCH /v1/voice-assets/commands/update-beneficiary"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "LegacyFacet.updateBeneficiary",
+          "affectedFacet": "LegacyFacet",
+          "methodSignature": "updateBeneficiary((uint256,uint256,address,bool,bool,string),uint256)",
+          "txHash": "0x1fc7fbcb70659f1019b3e23547ec6d8d99b68f8a6cbbcf7e38530db36bccdff8",
+          "blockNumber": 63368573,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "LegacyFacet.BeneficiaryUpdated(address,address,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368573",
+                  "block_hash": "0x27a4f5db4a01edfdd02f3c6bb72b80cf68074ded4dea00ed966e90f616654980"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-legacy-updateBeneficiary-receipts.json"
             ],
             "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
@@ -153902,6 +154346,326 @@
             "producers": [
               "packages/api/src/app.contract-integration.test.ts"
             ],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "VestingFacet.createCexVesting": {
+      "routes": [
+        "POST /v1/tokenomics/vesting/create-cex-vesting"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VestingFacet.createCexVesting",
+          "affectedFacet": "VestingFacet",
+          "methodSignature": "createCexVesting(address,uint256)",
+          "txHash": "0xbf2c57fa72d9e962baa4abb00a73571e8de0832bb5d91c446fa977a21cc98ae6",
+          "blockNumber": 63368581,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "5",
+              "logIndex": 0,
+              "eventKey": "VestingFacet.VestingScheduleCreated(address,uint8,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "5"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368581",
+                  "block_hash": "0x1cb90ec18c2aeaa5d94810072bb274e0e04c84693d3c4a92a1325fc86cfbd298"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-vesting-createCexVesting-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "VestingFacet.createDevFundVesting": {
+      "routes": [
+        "POST /v1/tokenomics/vesting/create-dev-fund-vesting"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VestingFacet.createDevFundVesting",
+          "affectedFacet": "VestingFacet",
+          "methodSignature": "createDevFundVesting(address,uint256)",
+          "txHash": "0x5d3070c275ffa0836fd0891885d2cd814d87ba95f23fd4f6308bc6d143a2d4b3",
+          "blockNumber": 63368579,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "3",
+              "logIndex": 0,
+              "eventKey": "VestingFacet.VestingScheduleCreated(address,uint8,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "3"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368579",
+                  "block_hash": "0xbd7faa2b264c06f556cc7c6dd18090f220637afb88f71eb2ed2fcb7d0a20e4be"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-vesting-createDevFundVesting-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "VestingFacet.createFounderVesting": {
+      "routes": [
+        "POST /v1/tokenomics/vesting/create-founder-vesting"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VestingFacet.createFounderVesting",
+          "affectedFacet": "VestingFacet",
+          "methodSignature": "createFounderVesting(address,uint256)",
+          "txHash": "0xc8466a6a01e659b6dba99b9b2604a5631299c8a140459490359a6d4ec9c754be",
+          "blockNumber": 63368577,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "1",
+              "logIndex": 0,
+              "eventKey": "VestingFacet.VestingScheduleCreated(address,uint8,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "1"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368577",
+                  "block_hash": "0x3861812ce984298caa7f4360d754801c46e05b6bdc7351e27a5461b52574cce7"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-vesting-createFounderVesting-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "VestingFacet.createPublicVesting": {
+      "routes": [
+        "POST /v1/tokenomics/vesting/create-public-vesting"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VestingFacet.createPublicVesting",
+          "affectedFacet": "VestingFacet",
+          "methodSignature": "createPublicVesting(address,uint256)",
+          "txHash": "0x0676c05bdce78052097ff2ea602a65e65f993f5b5d95f50656b44f06e8c08668",
+          "blockNumber": 63368580,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "4",
+              "logIndex": 0,
+              "eventKey": "VestingFacet.VestingScheduleCreated(address,uint8,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "4"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368580",
+                  "block_hash": "0xa9dac77bff6ecafc07a88c4c0016dce43c49d0c586cc8dde0e5c7e2bc630adf9"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-vesting-createPublicVesting-receipts.json"
+            ],
+            "producers": [],
+            "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
+          }
+        }
+      ],
+      "finalClassification": "proven working",
+      "classification": "proven working",
+      "result": "proven working"
+    },
+    "VestingFacet.createTeamVesting": {
+      "routes": [
+        "POST /v1/tokenomics/vesting/create-team-vesting"
+      ],
+      "actors": [
+        "local-fork-fixture"
+      ],
+      "executionResult": "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+      "evidence": [
+        {
+          "localFork": true,
+          "methodKey": "VestingFacet.createTeamVesting",
+          "affectedFacet": "VestingFacet",
+          "methodSignature": "createTeamVesting(address,uint256,uint8)",
+          "txHash": "0x4c5587b7a4680cb0bd8edff9021fe2c9cf3f6efa4f001393cede2b230006e3fb",
+          "blockNumber": 63368578,
+          "receipt": {
+            "status": 1,
+            "logCount": 1
+          },
+          "decodedEvents": [
+            {
+              "rawEventId": "2",
+              "logIndex": 0,
+              "eventKey": "VestingFacet.VestingScheduleCreated(address,uint8,uint256,uint256,uint256,uint256)"
+            }
+          ],
+          "postgres": {
+            "rawEvents": {
+              "table": "raw_events",
+              "rowCount": 1,
+              "rowIds": [
+                "2"
+              ]
+            },
+            "projections": [],
+            "blockJournal": {
+              "table": "indexer_blocks",
+              "rowCount": 1,
+              "rows": [
+                {
+                  "block_number": "63368578",
+                  "block_hash": "0x93199ac9e08c84180609fb28f9e6bc8a4511a0d191a56cda3820d47214acceb2"
+                }
+              ]
+            }
+          },
+          "replay": {
+            "status": "idempotent",
+            "unchanged": true
+          },
+          "source": {
+            "workflowArtifacts": [
+              ".runtime/api05-vesting-createTeamVesting-receipts.json"
+            ],
+            "producers": [],
             "ingestionScript": "scripts/run-local-fork-indexer-proof.ts"
           }
         }

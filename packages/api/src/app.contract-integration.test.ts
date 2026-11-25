@@ -1329,11 +1329,21 @@ describeLive("HTTP API contract integration", () => {
     const legacy = new Contract(diamondAddress, facetRegistry.LegacyFacet.abi, provider);
     const legacyView = new Contract(diamondAddress, facetRegistry.LegacyViewFacet.abi, provider);
     const ownerRole = id("OWNER_ROLE");
+    const voiceAdminRole = id("VOICE_ADMIN_ROLE");
     const hadOwnerRole = await accessControl.hasRole(ownerRole, owner.address);
+    const hadVoiceAdminRole = await accessControl.hasRole(voiceAdminRole, owner.address);
     if (!hadOwnerRole) {
       const grant = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
         apiKey: "founder-key",
         body: { role: ownerRole, account: owner.address, expiryTime: "0" },
+      });
+      expect(grant.status, JSON.stringify(grant.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grant.payload));
+    }
+    if (!hadVoiceAdminRole) {
+      const grant = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+        apiKey: "founder-key",
+        body: { role: voiceAdminRole, account: owner.address, expiryTime: "0" },
       });
       expect(grant.status, JSON.stringify(grant.payload)).toBe(202);
       await expectReceipt(extractTxHash(grant.payload));
@@ -1351,18 +1361,35 @@ describeLive("HTTP API contract integration", () => {
       legacyOwner: owner.privateKey,
     });
 
-    const submit = async (method: string, route: string, body: Record<string, unknown>) => {
+    const lifecycleReceiptHashes: Record<string, string[]> = {
+      createPlan: [],
+      updateBeneficiary: [],
+      setInheritanceConditions: [],
+      addInheritanceRequirement: [],
+      addVoiceAssets: [],
+      addDatasets: [],
+      setMinTimelockPeriod: [],
+    };
+    let createPlanTxHash = "";
+    const submit = async (
+      method: string,
+      route: string,
+      body: Record<string, unknown>,
+      artifactKey?: keyof typeof lifecycleReceiptHashes,
+    ) => {
       const response = await apiCall(port, method, route, { apiKey: "legacy-owner-key", body });
       expect(response.status, JSON.stringify(response.payload)).toBe(202);
       const txHash = extractTxHash(response.payload);
       await expectReceipt(txHash);
+      if (artifactKey) lifecycleReceiptHashes[artifactKey].push(txHash);
       const receipt = await provider.getTransactionReceipt(txHash);
       expect(receipt?.status).toBe(1);
       return receipt!;
     };
 
     try {
-      const created = await submit("POST", "/v1/voice-assets/legacy/create-legacy-plan", { memo: "API-05 local proof" });
+      const created = await submit("POST", "/v1/voice-assets/legacy/create-legacy-plan", { memo: "API-05 local proof" }, "createPlan");
+      createPlanTxHash = created.hash;
       expect(created.logs.some((log) => {
         try {
           const parsed = legacy.interface.parseLog(log);
@@ -1373,6 +1400,51 @@ describeLive("HTTP API contract integration", () => {
       const initialPlan = await legacyView.getLegacyPlan(owner.address);
       expect(initialPlan.createdAt).toBeGreaterThan(0n);
       expect(initialPlan.memo).toBe("API-05 local proof");
+
+      const voiceAssetResponse = await apiCall(port, "POST", "/v1/voice-assets", {
+        apiKey: "legacy-owner-key",
+        body: { ipfsHash: `QmLegacyPlanProof${Date.now()}`, royaltyRate: "250" },
+      });
+      expect(voiceAssetResponse.status, JSON.stringify(voiceAssetResponse.payload)).toBe(202);
+      const voiceHash = String((voiceAssetResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(voiceAssetResponse.payload));
+      const assetsReceipt = await submit("POST", "/v1/voice-assets/commands/add-voice-assets", {
+        voiceAssets: [voiceHash],
+      }, "addVoiceAssets");
+      expect(assetsReceipt.status).toBe(1);
+      expect(await voiceAsset.getVoiceAssetsByOwner(owner.address)).toContain(voiceHash);
+      const apiOwnerAssets = await apiCall(port, "GET", `/v1/voice-assets/by-owner/${encodeURIComponent(owner.address)}`, {
+        apiKey: "read-key",
+      });
+      expect(apiOwnerAssets.status).toBe(200);
+      expect(apiOwnerAssets.payload).toContain(voiceHash);
+
+      const datasetTemplate = await buildHttpTemplate(provider, founderAddress, `Legacy Plan Template ${Date.now()}`);
+      const templateResponse = await apiCall(port, "POST", "/v1/licensing/license-templates/create-template", {
+        apiKey: "founder-key",
+        body: { template: datasetTemplate },
+      });
+      expect(templateResponse.status, JSON.stringify(templateResponse.payload)).toBe(202);
+      const templateId = String((templateResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(templateResponse.payload));
+      const tokenId = await voiceAsset.getTokenId(voiceHash);
+      const datasetResponse = await apiCall(port, "POST", "/v1/datasets/datasets", {
+        apiKey: "legacy-owner-key",
+        body: {
+          title: `Legacy Plan Dataset ${Date.now()}`,
+          assetIds: [tokenId.toString()],
+          licenseTemplateId: BigInt(templateId).toString(),
+          metadataURI: `ipfs://legacy-dataset-${Date.now()}`,
+          royaltyBps: "250",
+        },
+      });
+      expect(datasetResponse.status, JSON.stringify(datasetResponse.payload)).toBe(202);
+      const datasetId = String((datasetResponse.payload as Record<string, unknown>).result);
+      await expectReceipt(extractTxHash(datasetResponse.payload));
+      const addDatasetReceipt = await submit("POST", "/v1/voice-assets/commands/add-datasets", {
+        datasetIds: [datasetId],
+      }, "addDatasets");
+      expect(addDatasetReceipt.status).toBe(1);
 
       await submit("POST", "/v1/voice-assets/commands/add-beneficiary", {
         account: beneficiary, share: "6000", canDelegate: true,
@@ -1386,7 +1458,7 @@ describeLive("HTTP API contract integration", () => {
       };
       const updatedBeneficiaryReceipt = await submit("PATCH", "/v1/voice-assets/commands/update-beneficiary", {
         beneficiary: beneficiaryUpdate, index: "0",
-      });
+      }, "updateBeneficiary");
       expect(updatedBeneficiaryReceipt.logs.some((log) => {
         try {
           const parsed = legacy.interface.parseLog(log);
@@ -1398,15 +1470,39 @@ describeLive("HTTP API contract integration", () => {
       const minimumTimelock = beforeConditions.conditions.timelock > 7n * 24n * 60n * 60n
         ? beforeConditions.conditions.timelock
         : 7n * 24n * 60n * 60n;
+      const shortenedTimelock = 24n * 60n * 60n;
+      const lowerMinimum = await apiCall(port, "PATCH", "/v1/voice-assets/commands/set-min-timelock-period", {
+        apiKey: "legacy-owner-key",
+        body: { period: shortenedTimelock.toString() },
+      });
+      expect(lowerMinimum.status, JSON.stringify(lowerMinimum.payload)).toBe(202);
+      const lowerMinimumHash = extractTxHash(lowerMinimum.payload);
+      lifecycleReceiptHashes.setMinTimelockPeriod.push(lowerMinimumHash);
+      await expectReceipt(lowerMinimumHash);
+      const shortCondition = await submit("PATCH", "/v1/voice-assets/commands/set-inheritance-conditions", {
+        timelock: shortenedTimelock.toString(), requiresProof: false, approvers: [], minApprovals: "0",
+      });
+      expect(shortCondition.logs.some((log) => {
+        try { return legacy.interface.parseLog(log)?.name === "InheritanceConditionsUpdated"; } catch { return false; }
+      })).toBe(true);
+      expect((await legacyView.getLegacyPlan(owner.address)).conditions.timelock).toBe(shortenedTimelock);
+      const restoreMinimum = await apiCall(port, "PATCH", "/v1/voice-assets/commands/set-min-timelock-period", {
+        apiKey: "legacy-owner-key",
+        body: { period: minimumTimelock.toString() },
+      });
+      expect(restoreMinimum.status, JSON.stringify(restoreMinimum.payload)).toBe(202);
+      const restoreMinimumHash = extractTxHash(restoreMinimum.payload);
+      lifecycleReceiptHashes.setMinTimelockPeriod.push(restoreMinimumHash);
+      await expectReceipt(restoreMinimumHash);
       const conditionReceipt = await submit("PATCH", "/v1/voice-assets/commands/set-inheritance-conditions", {
         timelock: minimumTimelock.toString(), requiresProof: true, approvers: [], minApprovals: "0",
-      });
+      }, "setInheritanceConditions");
       expect(conditionReceipt.logs.some((log) => {
         try { return legacy.interface.parseLog(log)?.name === "InheritanceConditionsUpdated"; } catch { return false; }
       })).toBe(true);
       await submit("POST", "/v1/voice-assets/commands/add-inheritance-requirement", {
         doc: "local-fork-proof-document",
-      });
+      }, "addInheritanceRequirement");
 
       const finalPlan = await legacyView.getLegacyPlan(owner.address);
       expect(finalPlan.beneficiaries).toHaveLength(1);
@@ -1416,6 +1512,8 @@ describeLive("HTTP API contract integration", () => {
       expect(finalPlan.conditions.timelock).toBe(minimumTimelock);
       expect(finalPlan.conditions.requiresProof).toBe(true);
       expect(finalPlan.conditions.requiredDocs).toContain("local-fork-proof-document");
+      expect(finalPlan.voiceAssets).toContain(voiceHash);
+      expect(finalPlan.datasetIds.map(String)).toContain(datasetId);
       const apiPlan = await apiCall(port, "GET", `/v1/voice-assets/queries/get-legacy-plan?owner=${encodeURIComponent(owner.address)}`, {
         apiKey: "read-key",
       });
@@ -1435,7 +1533,28 @@ describeLive("HTTP API contract integration", () => {
         requiresProof: true,
         requiredDocs: ["local-fork-proof-document"],
       });
+      lifecycleReceiptHashes.createPlan = [createPlanTxHash];
+
+      const proofDirectory = path.resolve(".runtime");
+      await mkdir(proofDirectory, { recursive: true });
+      for (const [key, hashes] of Object.entries(lifecycleReceiptHashes)) {
+        await writeFile(path.join(proofDirectory, `api05-legacy-${key}-receipts.json`), `${JSON.stringify({
+          schemaVersion: 1,
+          generatedAt: new Date().toISOString(),
+          status: "proven working",
+          transactionHashes: hashes,
+        }, null, 2)}\n`);
+      }
     } finally {
+      if (!hadVoiceAdminRole) {
+        const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+          apiKey: "founder-key",
+          body: { role: voiceAdminRole, account: owner.address, reason: "local-fork legacy plan proof cleanup" },
+        });
+        expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+        await expectReceipt(extractTxHash(revoke.payload));
+        expect(await accessControl.hasRole(voiceAdminRole, owner.address)).toBe(false);
+      }
       if (!hadOwnerRole) {
         const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
           apiKey: "founder-key",
@@ -1444,6 +1563,102 @@ describeLive("HTTP API contract integration", () => {
         expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
         await expectReceipt(extractTxHash(revoke.payload));
         expect(await accessControl.hasRole(ownerRole, owner.address)).toBe(false);
+      }
+    }
+  }, 60_000);
+
+  it("proves five vesting schedule creation routes against receipts and canonical schedules", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    const vestingManagerRole = id("VESTING_MANAGER_ROLE");
+    const hadVestingManagerRole = await accessControl.hasRole(vestingManagerRole, founderAddress);
+    const scheduleMethods = [
+      { key: "createFounderVesting", route: "/v1/tokenomics/vesting/create-founder-vesting", vestingType: 0, args: {} },
+      { key: "createTeamVesting", route: "/v1/tokenomics/vesting/create-team-vesting", vestingType: 1, args: { vestingType: "1" } },
+      { key: "createDevFundVesting", route: "/v1/tokenomics/vesting/create-dev-fund-vesting", vestingType: 4, args: {} },
+      { key: "createPublicVesting", route: "/v1/tokenomics/vesting/create-public-vesting", vestingType: 5, args: {} },
+      { key: "createCexVesting", route: "/v1/tokenomics/vesting/create-cex-vesting", vestingType: 6, args: {} },
+    ] as const;
+    const amount = 1_000n;
+    const startingBalance = BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress));
+    expect(startingBalance).toBeGreaterThanOrEqual(amount * BigInt(scheduleMethods.length));
+    const hashes: Record<string, string[]> = Object.fromEntries(scheduleMethods.map(({ key }) => [key, []]));
+
+    if (!hadVestingManagerRole) {
+      const grant = await apiCall(port, "POST", "/v1/access-control/admin/grant-role", {
+        apiKey: "founder-key",
+        body: { role: vestingManagerRole, account: founderAddress, expiryTime: "0" },
+      });
+      expect(grant.status, JSON.stringify(grant.payload)).toBe(202);
+      await expectReceipt(extractTxHash(grant.payload));
+      expect(await accessControl.hasRole(vestingManagerRole, founderAddress)).toBe(true);
+    }
+
+    try {
+      for (const method of scheduleMethods) {
+        const beneficiary = Wallet.createRandom().address;
+        const response = await apiCall(port, "POST", method.route, {
+          apiKey: "founder-key",
+          body: { beneficiary, amount: amount.toString(), ...method.args },
+        });
+        expect(response.status, JSON.stringify(response.payload)).toBe(202);
+        const txHash = extractTxHash(response.payload);
+        hashes[method.key].push(txHash);
+        await expectReceipt(txHash);
+        const receipt = await provider.getTransactionReceipt(txHash);
+        expect(receipt?.status).toBe(1);
+        expect(receipt!.logs.some((log) => {
+          try {
+            const parsed = vestingFacet.interface.parseLog(log);
+            return parsed?.name === "VestingScheduleCreated"
+              && parsed.args.beneficiary === beneficiary
+              && parsed.args.vestingType === BigInt(method.vestingType)
+              && parsed.args.amount === amount;
+          } catch { return false; }
+        })).toBe(true);
+
+        const schedule = await vestingFacet.getVestingDetails(beneficiary);
+        expect(schedule.vestingType).toBe(BigInt(method.vestingType));
+        expect(schedule.totalAmount).toBe(amount);
+        expect(schedule.releasedAmount).toBe(0n);
+        const apiSchedule = await apiCall(
+          port,
+          "GET",
+          `/v1/tokenomics/queries/get-vesting-details?beneficiary=${encodeURIComponent(beneficiary)}`,
+          { apiKey: "read-key" },
+        );
+        expect(apiSchedule.status).toBe(200);
+        expect(apiSchedule.payload).toMatchObject({
+          vestingType: String(method.vestingType),
+          totalAmount: amount.toString(),
+          releasedAmount: "0",
+        });
+      }
+
+      expect(BigInt(await tokenSupplyFacet.tokenBalanceOf(founderAddress))).toBe(
+        startingBalance - amount * BigInt(scheduleMethods.length),
+      );
+      const proofDirectory = path.resolve(".runtime");
+      await mkdir(proofDirectory, { recursive: true });
+      for (const [key, transactionHashes] of Object.entries(hashes)) {
+        await writeFile(path.join(proofDirectory, `api05-vesting-${key}-receipts.json`), `${JSON.stringify({
+          schemaVersion: 1,
+          generatedAt: new Date().toISOString(),
+          status: "proven working",
+          transactionHashes,
+        }, null, 2)}\n`);
+      }
+    } finally {
+      if (!hadVestingManagerRole) {
+        const revoke = await apiCall(port, "DELETE", "/v1/access-control/commands/revoke-role", {
+          apiKey: "founder-key",
+          body: { role: vestingManagerRole, account: founderAddress, reason: "local-fork vesting proof cleanup" },
+        });
+        expect(revoke.status, JSON.stringify(revoke.payload)).toBe(202);
+        await expectReceipt(extractTxHash(revoke.payload));
+        expect(await accessControl.hasRole(vestingManagerRole, founderAddress)).toBe(false);
       }
     }
   }, 60_000);

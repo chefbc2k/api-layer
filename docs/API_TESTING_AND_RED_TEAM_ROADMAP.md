@@ -1,3 +1,13 @@
+# API-05 Follow-on — 26-Method Acceptance Batch Closed — 2026-11-25
+
+- This continuing batch started at `159/260` proven with 101 open. Its 26-method target is met: the cumulative indexer report now proves `185/260`, leaving 75 open.
+- The additional accepted methods are `LegacyFacet.createLegacyPlan`, `addDatasets`, `addInheritanceRequirement`, `addVoiceAssets`, `setInheritanceConditions`, `updateBeneficiary`, and `setMinTimelockPeriod`; `VestingFacet.createFounderVesting`, `createTeamVesting`, `createDevFundVesting`, `createPublicVesting`, and `createCexVesting`; plus the previously documented 14 emergency, rights, staking, and royalty proofs.
+- The legacy-plan test used a fresh owner, asset, dataset, beneficiary, and temporary roles on the loopback fork. Receipts and HTTP/canonical state readbacks matched. It lowered the global minimum timelock to one day, verified a one-day plan condition, restored the seven-day default, then revoked the temporary owner and voice-admin roles.
+- Five vesting routes each emitted `VestingScheduleCreated`; direct and HTTP schedule reads matched, the founder's token balance fell by the exact 5,000 base units allocated, and temporary `VESTING_MANAGER_ROLE` was revoked. PostgreSQL indexed all selected receipts; eventless writes had zero raw events but block-journal evidence; replay was idempotent.
+- `LegacyFacet.addBeneficiary` and `LegacyFacet.setBeneficiaryRelationship` remain open: their receipts succeeded, but the deployed code omitted the reviewed `BeneficiaryUpdated` event. They were not counted.
+- Corrected the reviewed `LegacyFacet.setMinTimelockPeriod` invariant to match the contract: `VOICE_ADMIN_ROLE`, behavioral plan readback (the global setting has no getter), and no token balance effects. The generated registry remains complete at 260/260.
+- Evidence: [batch proof](../output/api05-batch-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json). TypeScript, focused ESLint, diff checks, both local-fork integration tests, invariant/actor/indexer unit tests (24/24), and indexer validation passed. Source commit and fresh hosted CI pending.
+
 # API-05 Follow-on — Legacy Plan Creation — 2026-11-25
 
 - Proved `LegacyFacet.createLegacyPlan` through its exact HTTP route on a disposable loopback fork. The receipt emitted `LegacyPlanCreated` for the fresh fixture owner; `LegacyViewFacet.getLegacyPlan` and the HTTP query confirmed the plan timestamp and memo. A temporary `OWNER_ROLE` grant was revoked.

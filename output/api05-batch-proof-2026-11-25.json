@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-25",
+  "task": "API-05 exact-method acceptance evidence",
+  "batch": {
+    "startingProvenMethods": 159,
+    "startingOpenMethods": 101,
+    "targetNewMethods": 26,
+    "completedNewMethods": 26,
+    "status": "target-met"
+  },
+  "finalCumulative": {
+    "artifactTransactionHashes": 5801,
+    "includedArtifacts": 32,
+    "skippedArtifacts": 0,
+    "indexedReceipts": 5801,
+    "provenWriteMethods": 185,
+    "catalogWriteMethods": 260,
+    "remainingWriteMethods": 75,
+    "rawEvents": 8728,
+    "projectionRows": 5559
+  },
+  "newlyAcceptedMethodKeys": [
+    "LegacyFacet.createLegacyPlan",
+    "LegacyFacet.addDatasets",
+    "LegacyFacet.addInheritanceRequirement",
+    "LegacyFacet.addVoiceAssets",
+    "LegacyFacet.setInheritanceConditions",
+    "LegacyFacet.updateBeneficiary",
+    "LegacyFacet.setMinTimelockPeriod",
+    "VestingFacet.createFounderVesting",
+    "VestingFacet.createTeamVesting",
+    "VestingFacet.createDevFundVesting",
+    "VestingFacet.createPublicVesting",
+    "VestingFacet.createCexVesting",
+    "EmergencyFacet.startRecovery",
+    "EmergencyFacet.approveRecovery",
+    "EmergencyFacet.executeRecoveryStep",
+    "EmergencyFacet.completeRecovery",
+    "RightsFacet.addCollaborator",
+    "RightsFacet.updateCollaboratorShare",
+    "RightsFacet.removeCollaborator",
+    "RightsFacet.createRightsGroup",
+    "RightsFacet.grantRight",
+    "RightsFacet.revokeRight",
+    "RightsFacet.registerRightContract",
+    "RightsFacet.updateRightContract",
+    "StakingFacet.queueTierConfigUpdate",
+    "VoiceAssetFacet.recordRoyaltyPayment"
+  ],
+  "methodKeyCount": 26,
+  "sourceArtifact": "verify-local-fork-indexer-output.json",
+  "sourceArtifactSha256": "a08fc0c0e33e120e8ed41735a7fb7e148c55e1f96efc857f8c9f6f6a541a05f2",
+  "focusedLocalForkTests": [
+    {
+      "name": "legacy-plan beneficiary and inheritance lifecycle through HTTP",
+      "result": "passed",
+      "coverage": [
+        "LegacyFacet.createLegacyPlan",
+        "LegacyFacet.addDatasets",
+        "LegacyFacet.addInheritanceRequirement",
+        "LegacyFacet.addVoiceAssets",
+        "LegacyFacet.setInheritanceConditions",
+        "LegacyFacet.updateBeneficiary",
+        "LegacyFacet.setMinTimelockPeriod"
+      ]
+    },
+    {
+      "name": "five vesting schedule creation routes against receipts and canonical schedules",
+      "result": "passed",
+      "coverage": [
+        "VestingFacet.createFounderVesting",
+        "VestingFacet.createTeamVesting",
+        "VestingFacet.createDevFundVesting",
+        "VestingFacet.createPublicVesting",
+        "VestingFacet.createCexVesting"
+      ]
+    }
+  ],
+  "verification": {
+    "typescript": "passed",
+    "focusedEslint": "passed",
+    "gitDiffCheck": "passed",
+    "indexer": "passed",
+    "postgresReplay": "idempotent",
+    "writeInvariantRegistry": "passed: 260/260 after metadata correction",
+    "focusedPolicyTests": "passed: actor negative paths 9/9, write invariants 7/7, indexer receipt proof 8/8"
+  },
+  "policyNotes": [
+    "LegacyFacet.setMinTimelockPeriod emitted successful zero-log receipts; canonical plan behavior verified at a one-day minimum, then the local-fork minimum was restored to seven days. The setter receipts were journaled and replayed idempotently.",
+    "Vesting creation used 1,000 base units per fresh beneficiary. Receipts emitted VestingScheduleCreated, direct/API schedule readbacks matched, and the founder balance decreased by the exact aggregate amount.",
+    "LegacyFacet.addBeneficiary and LegacyFacet.setBeneficiaryRelationship remain open because current deployed code omits their reviewed BeneficiaryUpdated events. No exception was counted.",
+    "The reviewed write invariant for LegacyFacet.setMinTimelockPeriod was corrected to match the deployed/source contract: VOICE_ADMIN_ROLE, behavioral legacy-plan readback because the global value has no getter, and no token balance effects."
+  ],
+  "reviewedInvariantCorrection": {
+    "methodKey": "LegacyFacet.setMinTimelockPeriod",
+    "sourceOfTruth": "CONTRACTS VoiceFacet checks VOICE_ADMIN_ROLE and changes LegacyStorage.minTimelockPeriod; no getter or token balance effect exists.",
+    "correction": "Replaced stale PLATFORM_ADMIN_ROLE and unrelated TimelockFacet.getMinDelay/erc20 balance claims with the actual role, behavioral plan readback, and no-balance-effect invariant.",
+    "generatedRegistry": "generated/manifests/write-invariant-registry.json"
+  }
+}

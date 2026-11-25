@@ -5520,18 +5520,14 @@
       "requiredActor": {
         "kind": "role",
         "roles": [
-          "PLATFORM_ADMIN_ROLE"
+          "VOICE_ADMIN_ROLE"
         ],
-        "description": "The signer must hold the applicable PLATFORM_ADMIN_ROLE privilege for LegacyFacet."
+        "description": "The signer must hold VOICE_ADMIN_ROLE, which LegacyFacet.setMinTimelockPeriod checks directly."
       },
       "preconditions": [
         {
           "kind": "authorization",
-          "description": "The signer must hold the applicable PLATFORM_ADMIN_ROLE privilege for LegacyFacet."
-        },
-        {
-          "kind": "funding",
-          "description": "Required balances, allowances, escrow, caps, and protocol liquidity are sufficient before submission."
+          "description": "The signer must hold VOICE_ADMIN_ROLE."
         },
         {
           "kind": "protocol-state",
@@ -5542,11 +5538,11 @@
         "mode": "required",
         "checks": [
           {
-            "method": "TimelockFacet.getMinDelay",
-            "assertion": "TimelockFacet.getMinDelay reflects the receipt-confirmed LegacyFacet.setMinTimelockPeriod transition for the affected identifiers and actor."
+            "method": "LegacyViewFacet.getLegacyPlan",
+            "assertion": "After the minimum timelock is lowered, a plan can be assigned that shorter condition and its canonical legacy plan readback contains the requested value; restore the previous global minimum after the proof."
           }
         ],
-        "rationale": "Receipt success alone is insufficient; read the canonical affected state after finality."
+        "rationale": "LegacyFacet stores this global configuration without a getter. Verify its behavioral effect through the minimum accepted by setInheritanceConditions and read the resulting canonical plan."
       },
       "emittedEvents": {
         "mode": "none",
@@ -5554,20 +5550,9 @@
         "rationale": "The reviewed ABI exposes no method-specific event for setMinTimelockPeriod; receipt and state readbacks are authoritative."
       },
       "balanceEffects": {
-        "mode": "tracked",
-        "effects": [
-          {
-            "asset": "erc20",
-            "direction": "mint",
-            "accounts": [
-              "caller",
-              "affected owner or beneficiary",
-              "protocol custody/treasury when applicable"
-            ],
-            "assertion": "Pre/post balances and allowances reconcile exactly with receipt amounts, fees, burns, mints, custody, and protocol-accounting deltas; failed or replayed calls move no value."
-          }
-        ],
-        "rationale": "This method can change ownership, custody, allowance, entitlement, supply, or a withdrawable balance."
+        "mode": "none",
+        "effects": [],
+        "rationale": "Changing the minimum inheritance timelock does not move fungible tokens or affect account balances."
       },
       "replayConstraints": {
         "mode": "idempotent",
