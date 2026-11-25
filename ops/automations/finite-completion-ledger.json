@@ -1781,6 +1781,33 @@
             "OwnershipFacet.acceptOwnership is explicitly classified as a reviewed contract-only exception in the invariant metadata; it remains counted open pending release accounting policy."
           ],
           "resultLimitation": "One open method completed, below the bounded target of 35; API-05 remains in_progress with 101 methods open."
+        },
+        {
+          "sourceCommit": "ae544dc",
+          "artifact": "output/api05-emergency-recovery-lifecycle-proof-2026-11-25.json",
+          "proofArtifactSha256": "999756f11f479f1e4f78e667499bf27db608b7d6df937c6307148a36341832fe",
+          "indexerArtifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "da96c6fef32ec83f35644f948ef6a92b19b5f38ac4bdd537a651f612e70cf27d",
+          "result": "Proved EmergencyFacet.startRecovery, approveRecovery, executeRecoveryStep, and completeRecovery through HTTP on a disposable Base Sepolia loopback fork. The lifecycle used three distinct recovery approvers, executed two timelocked internal configuration steps with exact before/after readbacks, restored the original emergency timeout, and resolved the incident. PostgreSQL indexed 16 successful receipts, 21 raw events and five projection rows; replay was unchanged. API-05 advances from 159/260 to 163/260 exact write methods, leaving 97 open. EmergencyFacet.executeRecoveryAction remains open under a reviewed contract-self-call policy; exception accounting is unchanged.",
+          "startingProvenCount": 159,
+          "startingOpenCount": 101,
+          "completedThisRun": 4,
+          "completionPercentOfStart": 3.9604,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 163,
+          "endingOpenCount": 97,
+          "checks": [
+            "Focused local-fork HTTP contract integration passed: 1 passed, 59 unrelated cases skipped.",
+            "pnpm exec tsc -b passed.",
+            "Focused ESLint passed for packages/api/src/app.contract-integration.test.ts.",
+            "pnpm run test:write-invariants passed: 7/7.",
+            "Indexer processed 16 successful receipts with 21 raw events, five projection rows and idempotent PostgreSQL replay.",
+            "RecoveryStarted, both successful RecoveryStepExecuted events and RecoveryCompleted were decoded; canonical plan/approval/incident state matched.",
+            "The timeout configuration changed by 37 seconds during the first recovery step and was restored by the second; temporary roles were revoked.",
+            "The persistent local fork and disposable PostgreSQL instance were stopped after indexing."
+          ],
+          "resultLimitation": "Four open methods completed, below the bounded target of 35; API-05 remains in_progress with 97 write methods open. EmergencyFacet.executeRecoveryAction is explicitly documented as contract-only but remains counted open pending release accounting policy."
         }
       ],
       "deliveredCommit": null,
@@ -1791,6 +1818,13 @@
           "classification": "reviewed-contract-only-exception",
           "status": "documented; acceptance accounting unchanged",
           "rationale": "The approved-target guard rejects EOAs and acceptOwnership requires msg.sender to be the pending contract. Current API keys sign as EOAs, so positive HTTP execution requires a dedicated contract callback harness. The method remains open in the 260-key count until exception accounting is explicitly adopted by the release checklist.",
+          "source": "reviewed/reviewed-write-invariants.json"
+        },
+        {
+          "methodKey": "EmergencyFacet.executeRecoveryAction",
+          "classification": "reviewed-contract-only-exception",
+          "status": "documented; acceptance accounting unchanged",
+          "rationale": "The deployed method rejects every caller except address(this) and is reached from executeRecoveryStep. A positive direct HTTP call from the current EOA signer model is impossible. The method remains counted open until exception accounting is explicitly adopted by the release checklist.",
           "source": "reviewed/reviewed-write-invariants.json"
         }
       ]

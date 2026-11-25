@@ -3,6 +3,7 @@
 - Added a focused local-fork HTTP integration for recovery start, three distinct approvals, two timelocked recovery steps, and completion. The test verifies each receipt, RecoveryStarted/RecoveryStepExecuted/RecoveryCompleted events, approval counts, exact step results, a reversible emergency-timeout update, incident resolution, and cleanup of temporary role grants.
 - All four newly accepted keys have exact successful receipts and PostgreSQL raw-event, projection, block-journal, and unchanged replay evidence. The focused integration passed 1 test (59 unrelated cases skipped); invariant tests passed 7/7, TypeScript and focused ESLint passed.
 - API-05 advances from 159/260 to 163/260 exact-method proofs, leaving 97 open. `EmergencyFacet.executeRecoveryAction` remains open as a contract-self-call-only method; its reviewed policy does not change acceptance accounting.
+- Source commit: `ae544dc`. TypeScript, focused ESLint, and the 7/7 invariant tests passed; current-head hosted CI remains required.
 - Evidence: [proof artifact](../output/api05-emergency-recovery-lifecycle-proof-2026-11-25.json), [cumulative indexer report](../verify-local-fork-indexer-output.json). The test ran against a disposable Base Sepolia loopback fork and disposable local PostgreSQL; both were stopped after indexing. Current-head hosted CI is pending.
 
 # API-05 Follow-on — Immediate Ownership Transfer — 2026-11-25

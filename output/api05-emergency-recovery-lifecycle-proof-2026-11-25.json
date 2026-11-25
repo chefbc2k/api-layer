@@ -9,7 +9,7 @@
     "EmergencyFacet.executeRecoveryStep",
     "EmergencyFacet.completeRecovery"
   ],
-  "sourceCommit": null,
+  "sourceCommit": "ae544dc",
   "test": {
     "name": "proves emergency recovery start, approval, step execution, and completion on a local fork",
     "command": "API_LAYER_AUTO_FORK=0 API_LAYER_PARENT_REPO_DIR=/Users/chef/Public/CONTRACTS API_LAYER_DEPLOYMENT_MANIFEST=reviewed/ci-deployment-selectors.json API_LAYER_RUN_CONTRACT_INTEGRATION=1 API_LAYER_CONTRACT_RECEIPT_ARTIFACT=.runtime/api05-emergency-recovery-receipts.json DATABASE_URL=postgres://api:api@127.0.0.1:5432/api RPC_URL=http://127.0.0.1:8545 DIAMOND_ADDRESS=<reviewed loopback fixture> pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t 'emergency recovery start, approval, step execution, and completion on a local fork' --maxWorkers 1",
