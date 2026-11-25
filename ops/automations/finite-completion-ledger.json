@@ -1890,8 +1890,8 @@
           "resultLimitation": "Fourteen distinct methods are proved across this continuing run against a 26-method target (initially 101 open); 12 more are required to reach the batch target. API-05 remains in_progress."
         },
         {
-          "sourceCommit": "4bf2eed107c96338ee1168a1de9eef7a541a896b",
-          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45591134910",
+          "sourceCommit": "0a1e91b9e43ebcda0afac0392ffe166dc7ecd356",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45592833022",
           "artifact": "output/api05-batch-proof-2026-11-25.json",
           "proofArtifactSha256": "1d748558a44d4aa99d86ee7f38b9c19ce78e204dc3761b852bfa871534b3a18c",
           "indexerArtifact": "verify-local-fork-indexer-output.json",
@@ -1911,7 +1911,7 @@
             "Five vesting creation HTTP routes passed on a disposable loopback fork with 1,000 base units each; VestingScheduleCreated logs, direct/API schedule readbacks, and exact founder balance decrement matched. Temporary VESTING_MANAGER_ROLE was revoked.",
             "Local-fork PostgreSQL indexer now passes cumulatively: 6,072 receipts, 186/260 exact methods, 9,073 raw events, 5,717 projection rows; eventless configuration receipts had block journals; idempotent replay unchanged.",
             "Focused policy tests passed: actor negative paths 9/9, write invariant tests 7/7, indexer receipt-proof tests 8/8; generated registry covers 260/260 methods.",
-            "Hosted API quality CI run 45591134910 passed all configured gates on source commit 4bf2eed107c96338ee1168a1de9eef7a541a896b. Local TypeScript, focused ESLint, codegen coverage, and diff checks passed; full local contract suite after test correction was not rerun because available fork funding was insufficient."
+            "Hosted API quality CI run 45592833022 passed every configured gate on documentation/evidence commit 0a1e91b9e43ebcda0afac0392ffe166dc7ecd356. The parent implementation commit 4bf2eed107c96338ee1168a1de9eef7a541a896b also passed run 45591134910."
           ],
           "resultLimitation": "The bounded batch added 26 methods and the follow-on added one method. The ledger proves 186/260 exact methods, leaving 74 open. The follow-on's one-of-75 incremental batch is below its 19-method target. API-05 remains in_progress; LegacyFacet.addBeneficiary and LegacyFacet.setBeneficiaryRelationship remain open because their receipts omit the reviewed BeneficiaryUpdated event."
         }
@@ -2075,17 +2075,17 @@
           "url": "https://github.com/chefbc2k/api-layer/blob/3114992c21bf553e86505c90a1c76e5bdc6816c7/packages/api/src/app.contract-integration.test.ts#L4118",
           "result": "The current-source HTTP contract run on a disposable Base Sepolia fork passed the vesting diagnostic that detects the beneficiary credit deficit and verifies revoke accounting. This confirms the reported payout blocker. The diagnostic does not satisfy the payout acceptance criterion.",
           "checks": [
-          "HTTP API contract integration: detects the standard vesting release schedule advancing while beneficiary liquid balance stays unchanged and supply remains unchanged; the API returns 500 on the failed beneficiary-credit invariant.",
-          "On the same isolated fork, revoke succeeds and emits its receipt; schedule revoked state becomes true; reported canceled liability increases by the full unreleased schedule amount; beneficiary balance, totalSupply, schedule total, and released amount stay unchanged; repeated revoke is rejected without economic side effects.",
-          "This diagnostic does not read lockedBalances and does not prove unlock or return of the remaining locked token allocation on release or revoke. It does not prove exact mounted writes releaseStandardVesting or releaseStandardVestingFor through their direct command routes."
-        ],
-        "currentSourceReview": {
-          "contractsCheckoutCommit": "3b814442",
-          "sourceFile": "/Users/chef/Public/CONTRACTS/contracts/token/vesting/VestingFacet.sol",
-          "releaseStandardVestingFor": "increments schedule.releasedAmount and emits TokensReleased but does not decrement lockedBalances or increment balances; the adjacent releaseTokensFor implementation performs those balance updates.",
-          "revokeVestingSchedule": "sets schedule.revoked and emits VestingScheduleRevoked(totalAmount - releasedAmount) but does not move the remaining amount from lockedBalances back to liquid balances.",
-          "acceptanceStatus": "open; deployed source cannot satisfy the required beneficiary credit and full locked-liability reconciliation"
-        }
+            "HTTP API contract integration: detects the standard vesting release schedule advancing while beneficiary liquid balance stays unchanged and supply remains unchanged; the API returns 500 on the failed beneficiary-credit invariant.",
+            "On the same isolated fork, revoke succeeds and emits its receipt; schedule revoked state becomes true; reported canceled liability increases by the full unreleased schedule amount; beneficiary balance, totalSupply, schedule total, and released amount stay unchanged; repeated revoke is rejected without economic side effects.",
+            "This diagnostic does not read lockedBalances and does not prove unlock or return of the remaining locked token allocation on release or revoke. It does not prove exact mounted writes releaseStandardVesting or releaseStandardVestingFor through their direct command routes."
+          ],
+          "currentSourceReview": {
+            "contractsCheckoutCommit": "3b814442",
+            "sourceFile": "/Users/chef/Public/CONTRACTS/contracts/token/vesting/VestingFacet.sol",
+            "releaseStandardVestingFor": "increments schedule.releasedAmount and emits TokensReleased but does not decrement lockedBalances or increment balances; the adjacent releaseTokensFor implementation performs those balance updates.",
+            "revokeVestingSchedule": "sets schedule.revoked and emits VestingScheduleRevoked(totalAmount - releasedAmount) but does not move the remaining amount from lockedBalances back to liquid balances.",
+            "acceptanceStatus": "open; deployed source cannot satisfy the required beneficiary credit and full locked-liability reconciliation"
+          }
         }
       ],
       "deliveredCommit": null,
