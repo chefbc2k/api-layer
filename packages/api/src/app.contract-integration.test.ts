@@ -8679,6 +8679,53 @@ describeLive("HTTP API contract integration", () => {
     expect(transactionHashes).toHaveLength(2);
   }, 120_000);
 
+  it("proves immediate ownership transfer to a reviewed contract target on the local fork", async (ctx) => {
+    if (!isLoopbackRpcUrl(activeRpcUrl)) {
+      ctx.skip();
+      return;
+    }
+    if (await skipWhenFundingBlocked(ctx, "immediate ownership transfer proof", [
+      { address: founderAddress, minimumWei: ethers.parseEther("0.0005") },
+    ])) return;
+
+    const ownership = new Contract(diamondAddress, facetRegistry.OwnershipFacet.abi, provider);
+    const originalOwner = String(await ownership.owner());
+    const target = String(await paymentFacet.getUsdcToken());
+    expect(originalOwner.toLowerCase()).toBe(founderAddress.toLowerCase());
+    expect(target).not.toBe(ethers.ZeroAddress);
+    expect(await provider.getCode(target)).not.toBe("0x");
+    if (!(await ownership.isOwnerTargetApproved(target))) {
+      const approve = await apiCall(port, "PATCH", "/v1/ownership/commands/set-approved-owner-target", {
+        apiKey: "founder-key",
+        body: { target, approved: true },
+      });
+      expect(approve.status, JSON.stringify(approve.payload)).toBe(202);
+      await expectReceipt(extractTxHash(approve.payload));
+    }
+
+    const transfer = await apiCall(port, "POST", "/v1/ownership/commands/transfer-ownership", {
+      apiKey: "founder-key",
+      body: { _newOwner: target },
+    });
+    expect(transfer.status, JSON.stringify(transfer.payload)).toBe(202);
+    const txHash = extractTxHash(transfer.payload);
+    await expectReceipt(txHash);
+    const receipt = await provider.getTransactionReceipt(txHash);
+    expect(receipt?.status).toBe(1);
+    const transferred = (receipt?.logs ?? []).flatMap((log) => {
+      try {
+        const parsed = ownership.interface.parseLog(log);
+        return parsed?.name === "OwnershipTransferred" ? [parsed] : [];
+      } catch {
+        return [];
+      }
+    });
+    expect(transferred).toHaveLength(1);
+    expect(String(transferred[0]!.args.previousOwner).toLowerCase()).toBe(originalOwner.toLowerCase());
+    expect(String(transferred[0]!.args.newOwner).toLowerCase()).toBe(target.toLowerCase());
+    expect(String(await ownership.owner()).toLowerCase()).toBe(target.toLowerCase());
+  }, 120_000);
+
   it("proves signed single and batch EchoScore updates through HTTP on the local fork", async (ctx) => {
     if (!isLoopbackRpcUrl(activeRpcUrl)) {
       ctx.skip();
