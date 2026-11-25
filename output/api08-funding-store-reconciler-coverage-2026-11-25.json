@@ -5,19 +5,41 @@
   "scope": [
     "packages/api/src/funding/store.ts",
     "packages/api/src/funding/reconciliation.ts",
-    "packages/api/src/funding/processor.ts"
+    "packages/api/src/funding/processor.ts",
+    "packages/api/src/funding/release-readiness.ts"
   ],
   "status": "targeted module coverage passed; repository-wide coverage remains open",
-  "command": "pnpm exec vitest run packages/api/src/funding/store.test.ts packages/api/src/funding/reconciler.test.ts packages/api/src/funding/processor.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include packages/api/src/funding/store.ts --coverage.include packages/api/src/funding/reconciliation.ts --coverage.include packages/api/src/funding/processor.ts --coverage.reporter=json-summary",
+  "command": "pnpm exec vitest run packages/api/src/funding/store.test.ts packages/api/src/funding/reconciler.test.ts packages/api/src/funding/processor.test.ts packages/api/src/funding/release-readiness.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include packages/api/src/funding/store.ts --coverage.include packages/api/src/funding/reconciliation.ts --coverage.include packages/api/src/funding/processor.ts --coverage.include packages/api/src/funding/release-readiness.ts --coverage.reporter=json-summary",
   "tests": {
-    "filesPassed": 3,
-    "testsPassed": 66,
+    "filesPassed": 4,
+    "testsPassed": 72,
     "testsFailed": 0
   },
   "coveragePercent": {
-    "store.ts": {"lines": 100, "statements": 100, "functions": 100, "branches": 100},
-    "reconciliation.ts": {"lines": 100, "statements": 100, "functions": 100, "branches": 100},
-    "processor.ts": {"lines": 100, "statements": 100, "functions": 100, "branches": 100}
+    "store.ts": {
+      "lines": 100,
+      "statements": 100,
+      "functions": 100,
+      "branches": 100
+    },
+    "reconciliation.ts": {
+      "lines": 100,
+      "statements": 100,
+      "functions": 100,
+      "branches": 100
+    },
+    "processor.ts": {
+      "lines": 100,
+      "statements": 100,
+      "functions": 100,
+      "branches": 100
+    },
+    "release-readiness.ts": {
+      "lines": 100,
+      "statements": 100,
+      "functions": 100,
+      "branches": 100
+    }
   },
   "additionalChecks": {
     "typescriptBuild": "passed: pnpm exec tsc -b --pretty false",
