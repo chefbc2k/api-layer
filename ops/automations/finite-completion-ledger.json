@@ -3095,6 +3095,19 @@
             "Disposable fork artifact is sandbox/test evidence only; recipient balance remained zero and it provides no production economic acceptance."
           ],
           "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
+        },
+        {
+          "sourceCommit": "969370cdbb816daaef8e38230df0ac3a6875461a",
+          "artifact": "packages/api/src/shared/auth.test.ts and /tmp/api08-auth-coverage-final/coverage-summary.json",
+          "result": "Added tests for loading keys from process.env through the default argument and rejecting an own API-key entry with an undefined context. Targeted authentication coverage now reports 100% lines, statements, functions and branches (31/31 lines, 34/34 statements, 11/11 functions, 22/22 branches). The repository-wide frozen coverage requirement and backend privacy/release acceptance remain open.",
+          "checks": [
+            "pnpm exec vitest run packages/api/src/shared/auth.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include packages/api/src/shared/auth.ts --coverage.reporter=json-summary: 37 passed.",
+            "Targeted auth coverage-summary.json SHA-256: e9bac87882c855890b19f85e496fc095df3ea152d5a7193e2f8f26984a8eba66.",
+            "ESLint for packages/api/src/shared/auth.test.ts: passed.",
+            "pnpm exec tsc -b --pretty false: passed.",
+            "git diff --check: passed."
+          ],
+          "resultLimitation": "Focused module coverage does not establish the frozen 100% repository-wide requirement. Exact-head CI and backend privacy/release acceptance remain outstanding."
         }
       ],
       "deliveredCommit": null,
