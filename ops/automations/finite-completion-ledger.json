@@ -3545,6 +3545,30 @@
     "Hosted coverage artifact SHA-256 2d3fc8d271306d621ec6be18eddf237e889a1504e79bb3ba006b5921ab18dc24; repository totals: 6858/6869 lines (99.83%), 7338/7349 statements (99.85%), 6316/6368 branches (99.18%), and 1639/1642 functions (99.81%)."
   ],
   "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+},
+{
+  "sourceCommit": "3c80f87a6e6a4619fb41511851f25ca80b239791",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45886700265",
+  "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-3c80f87a6e6a4619fb41511851f25ca80b239791)",
+  "artifactSha256": "8ea1a9b4c524a39f3bbc216a293f37d56ebe8a51d7c7af7521c4d1c03cc29078",
+  "result": "Added promotion-runner configuration-fallback and fail-closed coverage. Exact-head API quality CI passed every configured gate. Whole-repository coverage remains below the frozen 100% requirement and actual backend privacy/release acceptance remains open.",
+  "coveragePercent": {
+    "lines": 99.83,
+    "statements": 99.85,
+    "branches": 99.27,
+    "functions": 99.81
+  },
+  "coveredTotals": {
+    "lines": "6858/6869",
+    "statements": "7338/7349",
+    "branches": "6322/6368",
+    "functions": "1639/1642"
+  },
+  "checks": [
+    "Exact-head GitHub API quality workflow 45886700265 passed on 3c80f87a6e6a4619fb41511851f25ca80b239791: dependency audit, pinned code generation, TypeScript, Vercel entrypoint types, lint, build, PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+    "Coverage artifact SHA-256 8ea1a9b4c524a39f3bbc216a293f37d56ebe8a51d7c7af7521c4d1c03cc29078; whole-repository totals are 6858/6869 lines, 7338/7349 statements, 6322/6368 branches, and 1639/1642 functions."
+  ],
+  "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }
 ],
       "deliveredCommit": null,
@@ -5191,6 +5215,24 @@
     "pnpm exec vitest run scripts/promote-base-sepolia-scenarios.test.ts --coverage.enabled --coverage.include=scripts/promote-base-sepolia-scenarios.ts --coverage.reportsDirectory=/tmp/api05-promotion-coverage-after --maxWorkers 1: 24 tests passed; target module coverage is 98.48% lines, 98.56% statements, 93.30% branches, and 97.05% functions.",
     "pnpm exec tsc -b --pretty false, pnpm exec eslint scripts/promote-base-sepolia-scenarios.test.ts, and git diff --check passed.",
     "Hosted coverage artifact SHA-256 2d3fc8d271306d621ec6be18eddf237e889a1504e79bb3ba006b5921ab18dc24; repository totals: 6858/6869 lines (99.83%), 7338/7349 statements (99.85%), 6316/6368 branches (99.18%), and 1639/1642 functions (99.81%)."
+  ],
+  "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "3c80f87a6e6a4619fb41511851f25ca80b239791",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45886700265",
+  "artifact": "scripts/promote-base-sepolia-scenarios.test.ts; coverage/coverage-summary.json",
+  "artifactSha256": "8ea1a9b4c524a39f3bbc216a293f37d56ebe8a51d7c7af7521c4d1c03cc29078",
+  "result": "Added regression coverage for legacy configuration aliases and missing-environment fail-closed behavior in the promotion preflight. The exact-head API quality workflow passed all configured gates. This advances targeted test evidence but does not finish the frozen interval-wide behavior audit or default delivery.",
+  "coveragePercent": {
+    "lines": 99.83,
+    "statements": 99.85,
+    "branches": 99.27,
+    "functions": 99.81
+  },
+  "checks": [
+    "Exact-head GitHub API quality workflow 45886700265 passed on 3c80f87a6e6a4619fb41511851f25ca80b239791, including regression, coverage, API surface, actor boundaries, red team, indexer assurance and evidence preservation.",
+    "Coverage artifact SHA-256 8ea1a9b4c524a39f3bbc216a293f37d56ebe8a51d7c7af7521c4d1c03cc29078; whole-repository totals are 6858/6869 lines, 7338/7349 statements, 6322/6368 branches, and 1639/1642 functions."
   ],
   "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
 }
