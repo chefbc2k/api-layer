@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-26T19:53:46Z",
+  "source": "Local Codex automation.toml inventory; scheduler was inspected read-only.",
+  "summary": {
+    "totalAutomations": 37,
+    "globalStatusCounts": {
+      "PAUSED": 32,
+      "ACTIVE": 5
+    },
+    "apiAutomationCount": 16,
+    "apiStatusCounts": {
+      "PAUSED": 11,
+      "ACTIVE": 5
+    },
+    "nonApiAutomationCount": 21,
+    "nonApiStatusCounts": {
+      "PAUSED": 21
+    },
+    "activeApiIds": [
+      "api-assurance-daily-branch-consolidation",
+      "api-assurance-production-indexer-write-coverage",
+      "api-assurance-economic-invariants",
+      "contracts-api",
+      "test-gap-detection"
+    ],
+    "pausedApiIds": [
+      "api-assurance-actor-negative-paths",
+      "api-assurance-local-fork-automation",
+      "coinbase-usdc-daily-build-10-days",
+      "api-assurance-red-team-harness",
+      "api-assurance-base-sepolia-promotion",
+      "office-2-0-gap-checker",
+      "api-assurance-report-driven-gap-completion",
+      "api-assurance-event-indexer-proof",
+      "api-assurance-abi-gap-report",
+      "api-assurance-write-invariants",
+      "office-2-0-gap-builder"
+    ],
+    "completedActiveApiIds": [],
+    "pausedDependencyWaiters": [
+      "api-assurance-base-sepolia-promotion",
+      "coinbase-usdc-daily-build-10-days"
+    ],
+    "activeApiModelSettings": [
+      "gpt-6-luna / low"
+    ]
+  },
+  "automations": [
+    {
+      "id": "api-assurance-abi-gap-report",
+      "name": "API Assurance: ABI Gap Report",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-actor-negative-paths",
+      "name": "API Assurance: Actor Negative Paths",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-base-sepolia-promotion",
+      "name": "API Assurance: Base Sepolia Promotion",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-daily-branch-consolidation",
+      "name": "API assurance bounded delivery",
+      "status": "ACTIVE",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-economic-invariants",
+      "name": "API Assurance: Economic Invariants",
+      "status": "ACTIVE",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-event-indexer-proof",
+      "name": "API Assurance: Event Indexer Proof",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-local-fork-automation",
+      "name": "API Assurance: Local Fork Automation",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-production-indexer-write-coverage",
+      "name": "API Assurance: Production Indexer Write Coverage",
+      "status": "ACTIVE",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-red-team-harness",
+      "name": "API Assurance: Red Team Harness",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-report-driven-gap-completion",
+      "name": "API Assurance: Report-Driven Gap Completion",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "api-assurance-write-invariants",
+      "name": "API Assurance: Write Invariants",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "coinbase-usdc-daily-build-10-days",
+      "name": "API Coinbase USDC backend completion",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    },
+    {
+      "id": "contracts-api",
+      "name": "API release completion coordinator",
+      "status": "ACTIVE",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "daily-feature-idea-proposals",
+      "name": "Daily feature idea proposals",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    },
+    {
+      "id": "daily-improvement-agent-prompt",
+      "name": "# Daily Improvement Agent Prompt",
+      "status": "PAUSED",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "mandtory",
+      "name": "mandtory",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    },
+    {
+      "id": "md-swarm",
+      "name": "md swarm",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    },
+    {
+      "id": "molt-daily-git-deploy-and-skill-maintenance",
+      "name": "MOLT daily git deploy and skill maintenance",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "molt-feature-execution-daily",
+      "name": "MOLT moonshot phase execution daily",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "molt-feature-planning-daily",
+      "name": "MOLT moonshot feature planning daily",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "molt-moonshot-feature-brainstorming-daily",
+      "name": "MOLT moonshot feature brainstorming daily",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "molt-platform-operating-daily-log",
+      "name": "MOLT platform operating daily log",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "molt-studio",
+      "name": "Molt Studio",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "molt-x-onboarding-story-creation-daily",
+      "name": "MOLT X onboarding story creation daily",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "office-2-0-gap-builder",
+      "name": "Office 2.0 Gap Builder",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "office-2-0-gap-checker",
+      "name": "Office 2.0 Gap Checker",
+      "status": "PAUSED",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "paperclip-project-acceptance-and-completion",
+      "name": "Paperclip project acceptance and completion",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    },
+    {
+      "id": "paperclip-runtime-recovery-and-finite-stopping-controls",
+      "name": "Paperclip runtime recovery and finite stopping controls",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    },
+    {
+      "id": "paperclip-tasks",
+      "name": "paperclip tasks",
+      "status": "PAUSED",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "skill-progression-map",
+      "name": "Skill progression map",
+      "status": "PAUSED",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "test-gap-detection",
+      "name": "API release regression gap completion",
+      "status": "ACTIVE",
+      "model": "gpt-6-luna",
+      "reasoningEffort": "low"
+    },
+    {
+      "id": "tv-guide-page-build-out",
+      "name": "TV guide page build out",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "update-agents-md",
+      "name": "Update AGENTS.md",
+      "status": "PAUSED",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "update-agents-md-2",
+      "name": "Update AGENTS.md",
+      "status": "PAUSED",
+      "model": "gpt-5.4",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "weekly-release-notes",
+      "name": "MOLT weekly feature and Vercel analytics summary",
+      "status": "PAUSED",
+      "model": "gpt-5.5",
+      "reasoningEffort": "high"
+    },
+    {
+      "id": "x-search-first-time-artist",
+      "name": "x search first time artist",
+      "status": "PAUSED",
+      "model": "gpt-5.3-codex",
+      "reasoningEffort": "medium"
+    },
+    {
+      "id": "x-search-for-contract-issues",
+      "name": "x search for contract issues",
+      "status": "PAUSED",
+      "model": null,
+      "reasoningEffort": null
+    }
+  ]
+}

@@ -4,7 +4,7 @@ The user's scope clarification supersedes the earlier cross-repository completio
 
 ## Applied state
 
-- **7 API jobs active; 9 API jobs paused.** All other Codex automations are paused.
+- **Current scheduler audit (November 26, 2026): 5 API jobs active and 11 API jobs paused; all 21 non-API jobs are paused.** The five active API jobs use `gpt-6-luna` at low reasoning effort. The 11 paused API jobs include nine completed/consolidated jobs plus Base Sepolia and Coinbase owners waiting on changed prerequisites. See [the scheduler audit](../output/api-automation-scheduler-audit-2026-11-26.json).
 - Both newly created Paperclip heartbeat jobs are paused. Their companies/projects are not completion prerequisites.
 - The separate Paperclip scheduler is also stopped: three active companies paused, all 47 workers paused via the supported endpoint (which cancels their active runs), and Swarm Scout paused. Writing Loop was already paused. No tasks/projects were deleted or marked done, and no non-API implementation was performed.
 - No further automation creation or non-API resumption is authorized by this plan. API coordination may resume only unfinished API owners waiting on a changed dependency; completed and consolidated jobs stay paused.
@@ -25,17 +25,17 @@ The user's scope clarification supersedes the earlier cross-repository completio
 
 Current verification is actual GitHub [API quality run 43797771150](https://github.com/chefbc2k/api-layer/actions/runs/43797771150) for delivered default source `3e75b84765bb541ddda159151f6cdecd913cca14`. It completed successfully with pinned canonical generation, TypeScript, lint, build, PostgreSQL/native-USDC fork, 2,785 regression tests, measured coverage, surface checks, 1,034 actor checks, 277 red-team checks and 272 active indexer checks. Skipped live/fork cases are not new acceptance. CI's deterministic red-team/native-funding proofs do not claim the outstanding full protocol fork-runner or every exact-method receipt proof.
 
-## Seven remaining active jobs
+## Seven remaining API workstreams (five active, two paused pending prerequisites)
 
-| Job | Owned API scope | Stopping point |
+| Job | Scheduler state | Owned API scope | Stopping point |
 | --- | --- | --- |
-| Production Indexer Write Coverage | API-03, API-04, API-05: actual fork/runner validation and exact-method receipt/indexer proof | Reconcile local 113/260 vs default 107/260, then accept every fixed mounted-method key with actual receipt, meaningful post-state, real PostgreSQL and replay; deliver artifacts |
-| Economic Invariants | API-06: concrete API/contract economic blockers | Accept fixed method/blocker checklist with actual beneficiary/state/balance consequences; outside company-finance concepts do not add scope |
-| Base Sepolia Promotion | API-07: safe API marketplace and governance scenarios | Both real gated scenarios accepted with tx/block/delta/event evidence and delivery |
-| Coinbase backend completion | C19, C20 only | PAUSED waiting_external November 16 after verified SDK collection-bound backport/default delivery; C19/C20 blocked_external, 18/20 (90%). Exact CDP administrator/API acceptance and security/release owner actions are in the owned ledger. F01 excluded; resume only on changed prerequisites |
-| API release completion coordinator | API-08, PRIV-ROLLOUT, COORD-01 | Verify API-only release/deployment criteria and permitted dependency handoffs; never resume outside or completed jobs |
-| API assurance bounded delivery | DELIVERY-01 | Evidence-backed disposition of 134 frozen branch tips/83 worktrees; deliver only approved API passengers without arbitrary autosaves |
-| API release regression gap completion | TEST-01 | Close meaningful test gaps within the frozen API release interval; unrelated future work does not expand scope |
+| Production Indexer Write Coverage | Active | API-03, API-04, API-05: actual fork/runner validation and exact-method receipt/indexer proof | Reconcile local 113/260 vs default 107/260, then accept every fixed mounted-method key with actual receipt, meaningful post-state, real PostgreSQL and replay; deliver artifacts |
+| Economic Invariants | Active | API-06: concrete API/contract economic blockers | Accept fixed method/blocker checklist with actual beneficiary/state/balance consequences; outside company-finance concepts do not add scope |
+| Base Sepolia Promotion | Paused, waiting_dependency | API-07: safe API marketplace and governance scenarios | Resume only after approved direct RPCs, explicit enablement and transaction authorization are provided, and API-04 is resolved; then prove both gated scenarios |
+| Coinbase backend completion | Paused, waiting_external | C19, C20 only | Resume only after the exact CDP administrator/API acceptance and security/release owner actions in the ledger are supplied. F01 is excluded. |
+| API release completion coordinator | Active | API-08, PRIV-ROLLOUT, COORD-01 | Verify API-only release/deployment criteria and permitted dependency handoffs; never resume outside or completed jobs |
+| API assurance bounded delivery | Active | DELIVERY-01 | Evidence-backed disposition of 134 frozen branch tips/83 worktrees; deliver only approved API passengers without arbitrary autosaves |
+| API release regression gap completion | Active | TEST-01 | Close meaningful test gaps within the frozen API release interval; unrelated future work does not expand scope |
 
 ## Ledger and stop rules
 
@@ -49,4 +49,4 @@ The backend can require approved provider/domain/webhook configuration, test fun
 
 `ops/automations/finite-completion-configuration.json` exports current API scheduler settings plus the paused non-API inventory. Editing this snapshot does not apply scheduler changes; use the automation tool. `output/api-only-automation-review-2026-11-15.json` records the applied scope/pause receipt. The earlier audit and configuration verification are historical snapshots; this plan supersedes their broader scheduling scope.
 
-November 16 Coinbase-owner receipt: source `9daadaf` passed every required local and exact-source GitHub gate (run 43883645807), then default delivery was verified and scheduler PAUSED waiting_external with schedule/preferences retained. Two backend items stay blocked_external, not completed. The aggregate seven-active/nine-paused counts above are the November 15 snapshot; this owner transition does not audit or alter other scheduler states. No non-API or terminal completed job was resumed. See `output/coinbase-usdc/2026-11-16-am-pause-receipt.json`.
+November 16 Coinbase-owner receipt: source `9daadaf` passed every required local and exact-source GitHub gate (run 43883645807), then default delivery was verified and scheduler PAUSED waiting_external with schedule/preferences retained. Two backend items stay blocked_external, not completed. The seven-active/nine-paused aggregate was the November 15 snapshot; the November 26 scheduler audit above is current. No non-API or terminal completed job was resumed. See `output/coinbase-usdc/2026-11-16-am-pause-receipt.json`.
