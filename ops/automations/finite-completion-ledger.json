@@ -1360,6 +1360,20 @@
             "lines": 99.73
           },
           "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+        },
+        {
+          "sourceCommit": "23042f576f3cb832e7255e00168ec9f8b2dbff83",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45809858058",
+          "artifact": "GitHub Actions artifact api-quality-23042f576f3cb832e7255e00168ec9f8b2dbff83/coverage/coverage-summary.json",
+          "artifactSha256": "770c258cacb4d0784e3e944de1bc95eba43411961289f3e7d790835bb704f5e1",
+          "result": "Exact-source candidate-branch API quality CI passed every configured gate, including the full coverage collector. Hosted coverage is 99.76% statements (7,332/7,349), 99.02% branches (6,306/6,368), 99.75% functions (1,638/1,642), and 99.76% lines (6,853/6,869). The collector now retains three individually proven statement hits lost at source-map merge boundaries and allows up to 60 seconds per instrumented test; an unsupported operator-setup line was excluded. Coverage remains below the frozen 100% criterion. Backend privacy/release acceptance remains unverified; this is not default-branch delivery.",
+          "coveragePercent": {
+            "statements": 99.76,
+            "branches": 99.02,
+            "functions": 99.75,
+            "lines": 99.76
+          },
+          "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
