@@ -1004,6 +1004,33 @@
           "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45458828912",
           "ciRunId": 45458828912,
           "ciCommit": "253f7bc94004358fea662cd6519fde3a99da3e50"
+        },
+        {
+          "sourceCommit": "fbc1db8113187191ab9648ca6f3ff49d30eb5db8",
+          "url": "https://github.com/chefbc2k/api-layer/commit/fbc1db8113187191ab9648ca6f3ff49d30eb5db8",
+          "artifact": "verify-local-fork-indexer-output.json",
+          "indexerArtifactSha256": "7a611ad89b930531b3a53b2f8d2c0cb32dcc3ad4648213d8c4ad2580d52c27f0",
+          "result": "Added current-source proof for AccessControlFacet.emergencyForceAdd through POST /v1/access-control/admin/emergency-force-add. On a freshly provisioned loopback Base Sepolia fork the API returned 202, the transaction receipt had status 1 and zero logs, direct hasRole and getRoleMember readbacks showed the new role active, and the mounted getRoleMember query matched the contract readback. The eventless receipt was indexed with one PostgreSQL block-journal row, zero raw events, zero projections, and unchanged idempotent replay. The cumulative current-source artifact reconciles to 190 of 260 distinct write methods proven, with 70 open.",
+          "startingProvenCount": 189,
+          "startingOpenCount": 71,
+          "completedThisRun": 1,
+          "completionPercentOfStart": 1.4085,
+          "boundedRunTarget": 35,
+          "boundedRunTargetMet": false,
+          "endingProvenCount": 190,
+          "endingOpenCount": 70,
+          "checks": [
+            "Fresh local-fork setup completed with setup.status=ready on loopback port 8552; no live-network write was enabled.",
+            "API_LAYER_RUN_CONTRACT_INTEGRATION=1 API_LAYER_AUTO_FORK=0 pnpm exec vitest run packages/api/src/app.contract-integration.test.ts -t \"proves mounted control-plane admin writes on a local fork\" --maxWorkers 1 passed (1 test; 66 unrelated tests skipped).",
+            "pnpm exec tsc -b, pnpm exec eslint packages/api/src/app.contract-integration.test.ts, and git diff --check passed.",
+            "pnpm run proof:indexer:local-fork-receipts passed for 11 exact receipts across 10 methods; the emergencyForceAdd receipt was classified expectedEventMode=none, status 1, zero logs, zero raw events, zero projections, one indexer_blocks row, and idempotent replay.",
+            "Cumulative evidence contains 7720 unique receipts, 190/260 distinct write methods, 70 remaining methods, 11506 raw events, and 7235 projection rows.",
+            "GitHub Actions API quality workflow 45753813534 passed every configured gate on exact candidate commit fbc1db8113187191ab9648ca6f3ff49d30eb5db8: dependency audit, generated sources, TypeScript, Vercel types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and measured-evidence preservation."
+          ],
+          "resultLimitation": "API-05 remains in_progress: one of the 71 open methods was completed this run, below the bounded target of 35. A diagnostic read also showed getRoleMembers does not include the newly emergency-added member in this deployed contract; the reviewed write invariant for emergencyForceAdd requires receipt plus canonical hasRole readback, both of which passed. The broader API-05 acceptance remains open with 70 method keys.",
+          "ciRun": "https://github.com/chefbc2k/api-layer/actions/runs/45753813534",
+          "ciRunId": 45753813534,
+          "ciCommit": "fbc1db8113187191ab9648ca6f3ff49d30eb5db8"
         }
       ],
       "deliveredCommit": null,
