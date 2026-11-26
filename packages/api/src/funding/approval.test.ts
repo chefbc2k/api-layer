@@ -32,13 +32,25 @@ describe("bounded customer approval handoff",()=>{
     await expect(fixture(0n,"0x6000").run()).rejects.toThrow("verified wallet adapter");
     await expect(fixture(0n,"0x",0n).run()).rejects.toThrow("native gas");
   });
+  it("falls back to legacy gas price and rejects unavailable gas fees",async()=>{
+    const fallback=fixture();fallback.rpc.getFeeData.mockResolvedValue({maxFeePerGas:null,gasPrice:1n} as Awaited<ReturnType<typeof fallback.rpc.getFeeData>>);
+    expect((await fallback.run()).nextStep).toBe("sign_approval_and_confirm_receipt");
+    const unavailable=fixture();unavailable.rpc.getFeeData.mockResolvedValue({maxFeePerGas:null,gasPrice:null} as Awaited<ReturnType<typeof unavailable.rpc.getFeeData>>);
+    await expect(unavailable.run()).rejects.toThrow("Approval gas price unavailable");
+  });
+  it("rejects an approval snapshot whose block hash changes before signing",async()=>{
+    const {rpc,run}=fixture();rpc.getBlock.mockReset().mockResolvedValueOnce({number:100,timestamp:Math.floor(Date.now()/1000),hash:"0x"+"ab".repeat(32)}).mockResolvedValueOnce({number:100,timestamp:Math.floor(Date.now()/1000),hash:"0x"+"ab".repeat(32)}).mockResolvedValueOnce({number:100,timestamp:Math.floor(Date.now()/1000),hash:"0x"+"cd".repeat(32)});
+    await expect(run()).rejects.toThrow("Approval snapshot changed; prepare again");
+  });
   it.each([{...body,authorizeApprovalPreparation:false},{...body,spender:wallet},{...body,maximumUsdcUnits:"0"},{...body,maximumUsdcUnits:"1e18"},{...body,maximumUsdcUnits:(2n**256n).toString()}])("rejects unconsented or substituted input %s",input=>expect(()=>approvalInput.parse(input)).toThrow());
   it("authenticates ownership/write permission before any chain read",async()=>{
-    const {rpc}=fixture();const context={config:{chainId:84532,diamondAddress:diamond},apiKeys:loadApiKeys({API_LAYER_KEYS_JSON:JSON.stringify({buyer:{label:"buyer",roles:["buyer"],fundingUserId:"buyer-a",walletAddress:wallet},reader:{label:"reader",roles:["read-only"],fundingUserId:"buyer-a",walletAddress:wallet}})}),rateLimiter:new RateLimiter(),providerRouter:{withProvider:vi.fn(async(_kind:string,_method:string,action:(provider:unknown)=>unknown)=>action(rpc))}} as unknown as ApiExecutionContext;
+    const {rpc}=fixture();const providerRouter={withProvider:vi.fn(async(_kind:string,_method:string,action:(provider:unknown)=>unknown)=>action(rpc))};const context={config:{chainId:84532,diamondAddress:diamond},apiKeys:loadApiKeys({API_LAYER_KEYS_JSON:JSON.stringify({buyer:{label:"buyer",roles:["buyer"],fundingUserId:"buyer-a",walletAddress:wallet},reader:{label:"reader",roles:["read-only"],fundingUserId:"buyer-a",walletAddress:wallet}})}),rateLimiter:new RateLimiter(),providerRouter} as unknown as ApiExecutionContext;
     const app=express();app.use(express.json());app.use(createApprovalRouter(context));const server=app.listen(0,"127.0.0.1");await new Promise<void>(resolve=>server.once("listening",resolve));const port=(server.address() as {port:number}).port;
     try {
-      const call=(key:string,extra={})=>fetch(`http://127.0.0.1:${port}/v1/funding/approval-requests`,{method:"POST",headers:{"content-type":"application/json","x-api-key":key,...extra},body:JSON.stringify(body)});
+      const call=(key:string,extra={},input:unknown=body)=>fetch(`http://127.0.0.1:${port}/v1/funding/approval-requests`,{method:"POST",headers:{"content-type":"application/json","x-api-key":key,...extra},body:JSON.stringify(input)});
       expect((await call("reader")).status).toBe(403);expect((await call("buyer",{"x-wallet-address":"0x00000000000000000000000000000000000000cc"})).status).toBe(403);expect(rpc.call).not.toHaveBeenCalled();expect((await call("buyer")).status).toBe(200);expect(rpc.broadcastTransaction).not.toHaveBeenCalled();
+      const invalid=await call("buyer",{},{});expect(invalid.status).toBe(400);expect((await invalid.json()).error).toBe("Invalid funding approval request");
+      providerRouter.withProvider.mockRejectedValueOnce(new Error("private provider credentials"));const failed=await call("buyer");expect(failed.status).toBe(500);expect(await failed.json()).toEqual({error:"Funding approval preparation unavailable"});
     }finally{server.closeAllConnections();await new Promise<void>(resolve=>server.close(()=>resolve()));}
   });
 });
