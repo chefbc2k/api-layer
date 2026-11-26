@@ -163,4 +163,24 @@ describe("runRevokeBeneficiaryVestingWorkflow", () => {
     })).rejects.toThrow("failedWrite.beneficiaryBalance economic invariant failed");
   });
 
+  it("rejects an impossible vesting state where released value exceeds the schedule total", async () => {
+    const revokeVestingSchedule = vi.fn();
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      hasVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: true }),
+      getStandardVestingSchedule: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalAmount: "1000", releasedAmount: "1001", revoked: false } }),
+      getVestingDetails: vi.fn().mockResolvedValue({ statusCode: 200, body: { revoked: false } }),
+      getVestingReleasableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "0" }),
+      getVestingTotalAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalVested: "1000", totalReleased: "1001", releasable: "0" } }),
+      tokenBalanceOf: vi.fn(),
+      totalSupply: vi.fn(),
+      revokeVestingSchedule,
+      vestingScheduleRevokedEventQuery: vi.fn(),
+    });
+
+    await expect(runRevokeBeneficiaryVestingWorkflow({} as never, auth, undefined, {
+      beneficiary: "0x00000000000000000000000000000000000000ab",
+    })).rejects.toThrow("released amount exceeds total amount");
+    expect(revokeVestingSchedule).not.toHaveBeenCalled();
+  });
+
 });
