@@ -3644,6 +3644,31 @@
     "Hosted coverage artifact SHA-256: bb43cf49d91940a108e25905c3e063a8e4eff6e48fe94c247fa75cd581640f43."
   ],
   "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+},
+{
+  "sourceCommit": "e1cb556eb6ea68e89e0ad3a035e00cc2a629dfd2",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45896379449",
+  "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-e1cb556eb6ea68e89e0ad3a035e00cc2a629dfd2)",
+  "artifactSha256": "f1292476cd3b41b2e9be7cbc012b0a6eefc5b4c450a9d179152ca4476987e74e",
+  "result": "Exact-head API quality CI passed every configured gate. The vesting-helper change removed a logically unreachable decoder condition and added malformed transaction-log regressions; whole-repository branch coverage improved to 99.48%, but all-category 100% and privacy/release acceptance remain open.",
+  "coveragePercent": {
+    "lines": 99.92,
+    "statements": 99.93,
+    "branches": 99.48,
+    "functions": 99.93
+  },
+  "coveredTotals": {
+    "lines": "6864/6869",
+    "statements": "7344/7349",
+    "branches": "6331/6364",
+    "functions": "1641/1642"
+  },
+  "checks": [
+    "Exact-head workflow 45896379449 passed all configured gates on e1cb556eb6ea68e89e0ad3a035e00cc2a629dfd2, including regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+    "Focused vesting-helpers suite passed 17/17 and measured 100% lines, statements, branches, and functions for vesting-helpers.ts.",
+    "Hosted coverage artifact SHA-256: f1292476cd3b41b2e9be7cbc012b0a6eefc5b4c450a9d179152ca4476987e74e."
+  ],
+  "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }
 ],
       "deliveredCommit": null,
@@ -5365,6 +5390,25 @@
     "Exact-head API quality workflow 45894940281 passed every configured gate on 1fcbed884f3a7cfbcc6643096794f7bec8e468a4.",
     "Focused revoke-beneficiary-vesting and withdraw-marketplace-payments suites passed 18/18; both modules reached 100% lines, statements, and functions. Branch coverage was 85.71% and 97.91%, respectively, with remaining guarded branches recorded in the full report.",
     "Hosted whole-repository coverage: 6865/6870 lines, 7345/7350 statements, 6331/6366 branches, and 1641/1642 functions."
+  ],
+  "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "e1cb556eb6ea68e89e0ad3a035e00cc2a629dfd2",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45896379449",
+  "artifact": "packages/api/src/workflows/vesting-helpers.test.ts; coverage/coverage-summary.json",
+  "artifactSha256": "f1292476cd3b41b2e9be7cbc012b0a6eefc5b4c450a9d179152ca4476987e74e",
+  "result": "Added log extraction cases for a null transaction hash, mismatched transaction hashes, and malformed non-numeric amounts. Simplified a decoder guard whose length precondition guarantees at least one parsed word. The focused helper suite passed 17/17 at 100% module coverage, and exact-head API quality CI passed; repository-wide coverage remains below 100%.",
+  "coveragePercent": {
+    "lines": 99.92,
+    "statements": 99.93,
+    "branches": 99.48,
+    "functions": 99.93
+  },
+  "checks": [
+    "Exact-head API quality workflow 45896379449 passed every configured gate on e1cb556eb6ea68e89e0ad3a035e00cc2a629dfd2.",
+    "Focused vesting-helpers suite: 17/17 tests; 100% lines, statements, branches, and functions for vesting-helpers.ts.",
+    "Hosted whole-repository coverage: 6864/6869 lines, 7344/7349 statements, 6331/6364 branches, and 1641/1642 functions."
   ],
   "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
 }
