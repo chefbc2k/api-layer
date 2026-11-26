@@ -151,6 +151,7 @@ describe("funding purchase HTTP routes", () => {
       apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify({
         buyer: { label: "buyer", roles: ["buyer"], fundingUserId: "buyer_1", walletAddress: wallet },
         roleOnly: { label: "roleOnly", roles: ["buyer"], walletAddress: wallet },
+        readOnlyBuyer: { label: "readOnlyBuyer", roles: [], fundingUserId: "buyer_1", walletAddress: wallet },
       }) }),
       rateLimiter: new RateLimiter(),
       providerRouter: { withProvider: vi.fn(async (_purpose: string, _label: string, callback: (provider: typeof rpc) => unknown) => callback(rpc)) },
@@ -199,6 +200,13 @@ describe("funding purchase HTTP routes", () => {
     const { call, db, rpc } = await setup();
     const response = await call(undefined, {}, String(key), suppliedWallet ? String(suppliedWallet) : undefined);
     expect(response.status).toBe(status);
+    expect(db.query).not.toHaveBeenCalled();
+    expect(rpc.call).not.toHaveBeenCalled();
+  });
+
+  it("rejects a customer-bound read-only key before database or provider access", async () => {
+    const { call, db, rpc } = await setup();
+    expect((await call(undefined, requestBody, "readOnlyBuyer")).status).toBe(403);
     expect(db.query).not.toHaveBeenCalled();
     expect(rpc.call).not.toHaveBeenCalled();
   });
