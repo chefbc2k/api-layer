@@ -126,12 +126,14 @@ describe("Base Sepolia promotion evidence", () => {
   it("captures labeled actor addresses from setup and workflow evidence", () => {
     expect(collectPromotionEvidence([{
       actors: { founder: { address: founder.address } },
-      actorWallets: { buyer: buyer.address },
+      actorWallets: { buyer: buyer.address, missing: null, malformed: { address: "not-an-address" } },
     }]).actors).toEqual([
       "founder",
       founder.address,
       "buyer",
       buyer.address,
+      "missing",
+      "malformed",
     ]);
   });
 });
@@ -198,6 +200,7 @@ describe("Base Sepolia promotion report decisions",()=>{
       target:{network:"base-sepolia",chainId:null,rpcOrigin:null,diamondAddress:null},
       finalClassification:"blocked by setup/state",
     });
+    expect(baseOutput({}, assessPromotionReadiness({}, false)).target.network).toBeNull();
   });
 });
 
@@ -358,6 +361,33 @@ describe("Base Sepolia promotion CLI safety",()=>{
     } finally {process.exitCode=previousExitCode;rmSync(isolatedCwd,{recursive:true,force:true});}
   });
 
+  it("accepts the legacy RPC and diamond environment aliases during read-only preflight", async () => {
+    const isolatedCwd = mkdtempSync(path.join(tmpdir(), "base-sepolia-legacy-env-aliases-"));
+    const envPath = path.join(isolatedCwd, "promotion.env");
+    const outputPath = path.join(isolatedCwd, "report.json");
+    const previousExitCode = process.exitCode;
+    const env = readyEnv();
+    delete env.RPC_URL;
+    env.CBDP_RPC_URL = "https://legacy-base-sepolia.example.invalid/rpc";
+    delete env.DIAMOND_ADDRESS;
+    env.API_LAYER_DIAMOND_ADDRESS = "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669";
+    try {
+      writeFileSync(envPath, Object.entries(env).map(([key, value]) => `${key}=${value}`).join("\n"));
+      const provider = { getNetwork: vi.fn().mockResolvedValue({ chainId: 84532 }), getCode: vi.fn().mockResolvedValue("0x6000"), destroy: vi.fn().mockResolvedValue(undefined) };
+      const providerFactory = vi.fn(() => provider);
+      await runPromotion({ envPath, outputPath, argv: ["--preflight"], providerFactory });
+      expect(providerFactory).toHaveBeenCalledWith("https://legacy-base-sepolia.example.invalid/rpc");
+      expect(JSON.parse(readFileSync(outputPath, "utf8"))).toMatchObject({
+        readiness: { status: "ready" },
+        target: { diamondAddress: "0xa14088AcbF0639EF1C3655768a3001E6B8DC9669" },
+        liveTarget: { checked: true, chainId: 84532, diamondCodePresent: true },
+      });
+    } finally {
+      process.exitCode = previousExitCode;
+      rmSync(isolatedCwd, { recursive: true, force: true });
+    }
+  });
+
   it("writes a blocked report when the live target is wrong and restores the process exit code",async()=>{
     const isolatedCwd=mkdtempSync(path.join(tmpdir(),"base-sepolia-wrong-target-"));
     const envPath=path.join(isolatedCwd,"promotion.env");const outputPath=path.join(isolatedCwd,"report.json");
@@ -391,6 +421,28 @@ describe("Base Sepolia promotion CLI safety",()=>{
       expect(providerFactory).not.toHaveBeenCalled();
       expect(error).toHaveBeenCalledOnce();
       expect(process.exitCode).toBe(2);
+    } finally {
+      error.mockRestore();
+      process.exitCode = previousExitCode;
+      rmSync(isolatedCwd, { recursive: true, force: true });
+    }
+  });
+
+  it("fails closed when the environment file is missing without creating a provider", async () => {
+    const isolatedCwd = mkdtempSync(path.join(tmpdir(), "base-sepolia-env-file-missing-"));
+    const envPath = path.join(isolatedCwd, "missing.env");
+    const outputPath = path.join(isolatedCwd, "report.json");
+    const previousExitCode = process.exitCode;
+    const providerFactory = vi.fn();
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      await runPromotion({ envPath, outputPath, providerFactory });
+      const report = JSON.parse(readFileSync(outputPath, "utf8"));
+      expect(report).toMatchObject({ readiness: { status: "blocked" }, liveTarget: { checked: false }, scenarios: [] });
+      expect(report.readiness.blockers).toContain("env-file: .env is missing");
+      expect(providerFactory).not.toHaveBeenCalled();
+      expect(process.exitCode).toBe(2);
+      expect(error).toHaveBeenCalledOnce();
     } finally {
       error.mockRestore();
       process.exitCode = previousExitCode;
