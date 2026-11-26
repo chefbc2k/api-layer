@@ -3406,6 +3406,77 @@
                 "Uploaded whole-repository coverage artifact SHA-256: 9511b76a3679b60e4bb3ca47052c8bed9e386582257bf3daea22754134d1ecb4; all four coverage measures remain below the frozen 100% criterion."
         ],
         "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+},
+{
+        "sourceCommit": "41139ffe6f10fe37f9dc7dafe0fb43876221f0e8",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45741252272",
+        "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-41139ffe6f10fe37f9dc7dafe0fb43876221f0e8)",
+        "artifactSha256": "b673a43365edf1b4a9c7ce54f3965281322f16f9a69a629babb7989ea84c2424",
+        "result": "Added fail-closed funding approval behavior tests for legacy fee fallback, unavailable gas pricing, changing snapshot block hashes, invalid HTTP input, and sanitized provider failures. Exact-head API quality CI passed all configured gates. Hosted whole-repository coverage matches the successful local collector and remains below the frozen 100% acceptance criterion; API-08 remains open.",
+        "coveragePercent": {
+                "lines": 99.69,
+                "statements": 99.61,
+                "branches": 98.75,
+                "functions": 99.63
+        },
+        "coveredTotals": {
+                "lines": "6848/6869",
+                "statements": "7321/7349",
+                "branches": "6289/6368",
+                "functions": "1636/1642"
+        },
+        "localArtifactSha256": "ac4169869f78eeede2c9f2e33a94407878acf5010b5c8fb95ef83b2241e019bf",
+        "moduleCoveragePercent": {
+                "packages/api/src/funding/provider.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                },
+                "packages/api/src/funding/approval.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                },
+                "scripts/gap-builder-plan.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                },
+                "packages/api/src/workflows/manage-access-control.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                },
+                "scripts/indexer-trace-capability-lib.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                },
+                "scripts/indexer-receipt-proof-lib.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                },
+                "packages/api/src/workflows/treasury-multisig-withdrawal.ts": {
+                        "lines": 100,
+                        "statements": 100,
+                        "branches": 100,
+                        "functions": 100
+                }
+        },
+        "checks": [
+                "pnpm exec vitest run packages/api/src/funding/approval.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include=packages/api/src/funding/approval.ts: 12 passed; approval.ts at 100% lines, statements, branches, and functions.",
+                "pnpm run test:coverage completed successfully locally; aggregate lines 6848/6869, statements 7321/7349, branches 6289/6368, functions 1636/1642. The local exact-summary SHA-256 is ac4169869f78eeede2c9f2e33a94407878acf5010b5c8fb95ef83b2241e019bf.",
+                "API quality CI 45741252272 passed all configured gates on exact source/ledger commit 41139ffe6f10fe37f9dc7dafe0fb43876221f0e8, including disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance and evidence preservation.",
+                "Hosted whole-repository coverage artifact SHA-256: b673a43365edf1b4a9c7ce54f3965281322f16f9a69a629babb7989ea84c2424; it reports the same aggregate totals as local."
+        ],
+        "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }],
       "deliveredCommit": null,
       "blocker": null
@@ -4977,6 +5048,26 @@
                 "pnpm exec vitest run packages/api/src/funding/funding.test.ts packages/api/src/funding/reconciliation.test.ts packages/api/src/funding/checkout.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include=packages/api/src/funding/provider.ts: 152 passed; provider.ts 100% lines/statements/branches/functions.",
                 "API quality CI 45740158000 passed all configured gates on exact source commit 2d11559b3986b805ce7401c8310d8f94d97e9a0c.",
                 "The generated test attribution inventory and this focused increment do not replace the full meaningful behavior review over the frozen interval. Verified default-branch delivery remains outstanding."
+        ],
+        "resultLimitation": "TEST-01 remains open pending the complete frozen interval-wide behavior audit and verified default-branch delivery."
+},
+{
+        "sourceCommit": "41139ffe6f10fe37f9dc7dafe0fb43876221f0e8",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45741252272",
+        "artifact": "packages/api/src/funding/approval.test.ts; coverage/coverage-summary.json (workflow artifact api-quality-41139ffe6f10fe37f9dc7dafe0fb43876221f0e8)",
+        "artifactSha256": "b673a43365edf1b4a9c7ce54f3965281322f16f9a69a629babb7989ea84c2424",
+        "result": "Added approval preparation coverage for legacy gas price fallback, unavailable fee data, changed snapshot hash, invalid consent input and sanitized upstream failures. The focused approval suite passed 12/12 with 100% line, statement, branch and function coverage; exact-head API quality CI passed all configured gates. The repository-wide artifact remains below 100%, and this targeted increment does not complete the frozen interval-wide behavior audit or default delivery.",
+        "coveragePercent": {
+                "lines": 99.69,
+                "statements": 99.61,
+                "branches": 98.75,
+                "functions": 99.63
+        },
+        "checks": [
+                "pnpm exec vitest run packages/api/src/funding/approval.test.ts --maxWorkers 1 --coverage.enabled true --coverage.clean true --coverage.include=packages/api/src/funding/approval.ts --coverage.reporter=text: 12 passed; approval.ts 100% in all four coverage categories.",
+                "pnpm exec tsc -b --pretty false, ESLint for approval.test.ts, and git diff --check passed.",
+                "API quality CI 45741252272 passed all configured gates on exact source commit 41139ffe6f10fe37f9dc7dafe0fb43876221f0e8.",
+                "Repository-wide hosted coverage is 99.69% lines, 99.61% statements, 98.75% branches, and 99.63% functions."
         ],
         "resultLimitation": "TEST-01 remains open pending the complete frozen interval-wide behavior audit and verified default-branch delivery."
 }],
