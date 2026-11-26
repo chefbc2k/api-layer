@@ -2,7 +2,8 @@ import express from "express";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { createFundingRouter } from "./routes.js";
-import { BASE_SEPOLIA_USDC, readFundingConfig, type FundingConfig } from "./config.js";
+import { createCheckoutRouter } from "./checkout.js";
+import { BASE_USDC, BASE_SEPOLIA_USDC, readFundingConfig, type FundingConfig } from "./config.js";
 import { CoinbaseFundingProvider } from "./provider.js";
 import { sealCheckout, openCheckout } from "./checkout-crypto.js";
 import type { FundingAttempt } from "./store.js";
@@ -35,6 +36,12 @@ describe("checkout encryption and enablement", () => {
     expect(() => readFundingConfig({ ...env, API_LAYER_FUNDING_ENCRYPTION_KEY: "bad" })).toThrow("Funding configuration");
     expect(() => readFundingConfig({ ...env, API_LAYER_FUNDING_REDIRECT_URL: "https://evil.example" })).toThrow("Funding configuration");
     expect(() => readFundingConfig({ ...env, API_LAYER_FUNDING_CHECKOUT_ENABLED: "yes" })).toThrow("Funding configuration");
+  });
+  it("leaves checkout unmounted when disabled and creates default provider/store when enabled", () => {
+    const context = { config: { chainId: 84532 } } as unknown as ApiExecutionContext;
+    const inspectChain = vi.fn().mockResolvedValue({ chainId: 84532, token: BASE_SEPOLIA_USDC });
+    expect(createCheckoutRouter(context, { ...config, checkoutEnabled: false }, inspectChain).stack).toHaveLength(0);
+    expect(createCheckoutRouter(context, config, inspectChain).stack.length).toBeGreaterThan(0);
   });
 });
 
@@ -217,6 +224,7 @@ describe("checkout HTTP and idempotency", () => {
     ["customer", { partnerUserRef: "sandbox-confused-deputy" }],
     ["purchase amount", { purchaseAmount: "101" }],
     ["payment conservation", { paymentTotal: "100.76" }],
+    ["price increase", { paymentTotal: "101", paymentSubtotal: "100.25" }],
   ])("locks the checkout after a mismatched provider %s response", async (_label, patch) => {
     const { call, provider, getAttempt } = await setup();
     provider.createOrder.mockResolvedValueOnce({
@@ -273,6 +281,21 @@ describe("checkout HTTP and idempotency", () => {
       expect(context.config.chainId).toBe(84532);
     } finally {
       config.mode = previousMode;
+    }
+  });
+  it("allows live checkout only after matching Base mainnet and USDC preflight", async () => {
+    const { call, context, inspectChain, provider } = await setup();
+    const previousMode = config.mode;
+    config.mode = "live";
+    context.config.chainId = 8453;
+    inspectChain.mockResolvedValueOnce({ chainId: 8453, token: BASE_USDC });
+    try {
+      expect((await call("sessions", {})).status).toBe(200);
+      expect(inspectChain).toHaveBeenCalledOnce();
+      expect(provider.createSession).toHaveBeenCalledOnce();
+    } finally {
+      config.mode = previousMode;
+      context.config.chainId = 84532;
     }
   });
   it("rejects a configured chain whose USDC token does not match", async () => {
@@ -347,6 +370,14 @@ describe("checkout HTTP and idempotency", () => {
     provider.getOrder.mockResolvedValue({ ...order, partnerUserRef: "persisted-customer-reference" });
     expect(await call(`orders/${id}`)).toMatchObject({ status: 200, body: { id, status: "awaiting_verification" } });
     expect(provider.getOrder).toHaveBeenCalledWith(orderId);
+  });
+  it("derives the unprefixed customer reference for a legacy production attempt", async () => {
+    const { call, provider, getAttempt } = await setup();
+    await call("orders", { quoteId });
+    getAttempt()!.sandbox = false;
+    getAttempt()!.provider_order_id = orderId;
+    provider.getOrder.mockResolvedValue({ ...order, partnerUserRef: ref.slice("sandbox-".length) });
+    expect(await call(`orders/${id}`)).toMatchObject({ status: 200, body: { id, status: "awaiting_verification" } });
   });
   it("never exposes links or authentication tokens in history", async () => {
     const { call } = await setup(); await call("orders", { quoteId });

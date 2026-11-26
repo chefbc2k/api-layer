@@ -58,7 +58,7 @@ describe("exact finalized USDC receipt verification",()=>{
 
 type Attempt={id:string;provider_tx_hash:string|null;expected_usdc_units:string|null;wallet_address:string;sandbox:boolean};
 
-function processorFixture(options:{attempt?:Attempt|null;chainId?:number;insertError?:Error;selectError?:Error;providerError?:Error}={}) {
+function processorFixture(options:{attempt?:Attempt|null;chainId?:number;insertError?:Error;selectError?:Error;providerError?:Error;rollbackError?:Error}={}) {
   const {receipt,rpc,expected}=receiptFixture();
   const chainId=options.chainId??84532;
   const token=chainId===8453?BASE_USDC:BASE_SEPOLIA_USDC;
@@ -68,6 +68,7 @@ function processorFixture(options:{attempt?:Attempt|null;chainId?:number;insertE
     id:"attempt-1",provider_tx_hash:expected.txHash,expected_usdc_units:expected.amountUnits.toString(),wallet_address:wallet,sandbox:false,
   }:options.attempt;
   const query=vi.fn(async(sql:string,values?:unknown[]):Promise<QueryResult>=>{
+    if(sql==="ROLLBACK"&&options.rollbackError) throw options.rollbackError;
     if(sql.startsWith("SELECT * FROM funding_attempts")) {
       if(options.selectError) throw options.selectError;
       return {rows:attempt?[attempt]:[],rowCount:attempt?1:0,command:"SELECT",oid:0,fields:[]} as QueryResult;
@@ -136,6 +137,13 @@ describe("durable funding settlement processor decisions",()=>{
   it("rolls back the outer transaction on database failure and always releases",async()=>{
     const failure=new Error("database unavailable");
     const {worker,query,client}=processorFixture({selectError:failure});
+    await expect(worker.runOne()).rejects.toBe(failure);
+    expect(query).toHaveBeenCalledWith("ROLLBACK");
+    expect(client.release).toHaveBeenCalledOnce();
+  });
+  it("preserves the original database failure when outer rollback also fails", async () => {
+    const failure=new Error("database unavailable"), rollbackFailure=new Error("rollback unavailable");
+    const {worker,query,client}=processorFixture({selectError:failure,rollbackError:rollbackFailure});
     await expect(worker.runOne()).rejects.toBe(failure);
     expect(query).toHaveBeenCalledWith("ROLLBACK");
     expect(client.release).toHaveBeenCalledOnce();

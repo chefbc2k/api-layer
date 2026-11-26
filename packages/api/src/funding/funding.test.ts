@@ -125,7 +125,7 @@ describe("funding HTTP boundary", () => {
     const provider = { options: vi.fn().mockResolvedValue(structuredClone(options)), quote: vi.fn().mockResolvedValue(structuredClone(quote)) };
     const store = { insertQuote: vi.fn().mockResolvedValue({ id: "quote-id", expiresAt: "2026-10-20T16:01:00.000Z" }) };
     const inspectChain = vi.fn().mockResolvedValue({ chainId: settings.chain ?? 84532, token: settings.token ?? BASE_SEPOLIA_USDC });
-    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify(settings.apiKeys ?? { customer: { label: "customer", walletAddress: settings.binding ?? wallet, ...(settings.fundingId === false ? {} : { fundingUserId: "user_a" }) } }) }), rateLimiter: new RateLimiter(), config: { chainId: 84532 } } as unknown as ApiExecutionContext;
+    const context = { apiKeys: loadApiKeys({ API_LAYER_KEYS_JSON: JSON.stringify(settings.apiKeys ?? { customer: { label: "customer", walletAddress: settings.binding ?? wallet, ...(settings.fundingId === false ? {} : { fundingUserId: "user_a" }) } }) }), rateLimiter: new RateLimiter(), config: { chainId: settings.chain ?? 84532 } } as unknown as ApiExecutionContext;
     const app = express(); app.use(express.json());
     app.use(createFundingRouter(context, { config: settings.disabled ? null : { ...config, mode: settings.live ? "live" : "sandbox" }, provider, store, inspectChain }));
     const server = app.listen(0); servers.push(server);
@@ -157,6 +157,16 @@ describe("funding HTTP boundary", () => {
     expect(result.body.hostedPaymentMethods).toEqual([{ id: "ACH_BANK_ACCOUNT", min: "10", max: "25000" }]);
     expect(result.headers.get("cache-control")).toBe("no-store");
     expect(result.headers.get("access-control-allow-origin")).toBe("https://app.example");
+  });
+  it("returns no headless methods for non-US options and handles mainnet live quotes", async () => {
+    const canada = await setup();
+    const canadianOptions = await fetch(`http://127.0.0.1:${canada.port}/v1/funding/options?country=CA`, { headers: { "x-api-key": "customer" } });
+    expect(canadianOptions.status).toBe(200);
+    expect((await canadianOptions.json()).headlessPaymentMethods).toEqual([]);
+
+    const live = await setup({ live: true, chain: 8453, token: BASE_USDC });
+    expect((await live.call(input)).status).toBe(201);
+    expect(live.provider.quote).toHaveBeenCalledWith(expect.objectContaining({ partnerUserRef: expect.stringMatching(/^[a-f0-9]{32}$/), purchaseAmount: "100" }));
   });
   it("resolves chain ID and USDC through the default provider-router preflight", async () => {
     const { context, provider } = await setup();
@@ -255,6 +265,18 @@ describe("funding HTTP boundary", () => {
     provider.quote.mockResolvedValue({ ...quote, paymentTotal: "100", paymentSubtotal: "99.25" });
     expect((await call({ ...input, purchaseAmount: undefined, paymentAmount: "100" })).status).toBe(201);
   });
+  it("rejects zero quote amounts, unavailable methods, and sanitizes upstream failures", async () => {
+    const zero = await setup();
+    expect((await zero.call({ ...input, purchaseAmount: "0" })).status).toBe(400);
+
+    const unavailable = await setup();
+    unavailable.provider.options.mockResolvedValue({ ...options, payment_currencies: [{ id: "USD", limits: [{ id: "ACH_BANK_ACCOUNT", min: "10", max: "25000" }] }] });
+    expect((await unavailable.call(input)).status).toBe(422);
+
+    const failed = await setup();
+    failed.provider.quote.mockRejectedValue(new Error("private upstream diagnostic"));
+    expect(await failed.call(input)).toMatchObject({ status: 500, body: { error: "Funding service is unavailable" } });
+  });
   it("rejects an otherwise consistent quote whose fiat cost exceeds provider limits", async () => {
     const { call, provider, store } = await setup();
     provider.quote.mockResolvedValue({ ...quote, paymentTotal: "3000", paymentSubtotal: "2999.25" });
@@ -279,6 +301,13 @@ describe("funding HTTP boundary", () => {
   it("leaves funding unmounted when disabled", async () => {
     const { call, provider } = await setup({ disabled: true });
     expect((await call()).status).toBe(404); expect(provider.options).not.toHaveBeenCalled();
+  });
+  it("uses environment configuration and default provider/store dependencies when omitted", () => {
+    const context = { apiKeys: {}, rateLimiter: new RateLimiter(), config: { chainId: 84532, diamondAddress: wallet } } as unknown as ApiExecutionContext;
+    vi.stubEnv("API_LAYER_FUNDING_ENABLED", "false");
+    try { expect(createFundingRouter(context).stack).toHaveLength(0); }
+    finally { vi.unstubAllEnvs(); }
+    expect(createFundingRouter(context, { config }).stack.length).toBeGreaterThan(0);
   });
   it("enforces the customer rate limit before upstream requests", async () => {
     const { call, context, provider } = await setup();

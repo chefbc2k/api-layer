@@ -617,6 +617,20 @@ describe("__testOnly helpers", () => {
     )).not.toThrow();
   });
 
+  it("uses the explicit anonymous signer label when wallet identity mismatches without signer ID", () => {
+    expect(() => __testOnly.assertRequestedWalletMatchesSigner(
+      { apiKey: "legacy", label: "legacy", signerId: undefined, allowGasless: false, roles: ["service"] },
+      "0x00000000000000000000000000000000000000aa",
+      "0x00000000000000000000000000000000000000bb",
+    )).toThrow("signerId <none> does not match x-wallet-address");
+  });
+
+  it("validates raw pending nonces and rejects unsafe loopback RPC results", async () => {
+    const provider = { send: vi.fn().mockResolvedValueOnce(7).mockResolvedValueOnce("9007199254740992") };
+    await expect(__testOnly.readPendingNonce(provider as never, "0xabc", true)).resolves.toBe(7);
+    await expect(__testOnly.readPendingNonce(provider as never, "0xabc", true)).rejects.toThrow("invalid pending nonce");
+  });
+
   it("surfaces unmapped signer ids directly from signerRunnerFor", async () => {
     process.env.API_LAYER_SIGNER_MAP_JSON = JSON.stringify({});
 
@@ -665,6 +679,15 @@ describe("__testOnly helpers", () => {
     })).resolves.toBe("done");
 
     expect(context.signerQueues.get("shared")).toBe(replacement);
+  });
+
+  it("continues queued signer work when the previous queue promise rejected", async () => {
+    const context = buildContext();
+    const previous = Promise.reject(new Error("previous signer work failed"));
+    void previous.catch(() => undefined);
+    context.signerQueues.set("shared", previous);
+    await expect(__testOnly.withSignerQueue(context as never, "shared", async () => "continued")).resolves.toBe("continued");
+    expect(context.signerQueues.has("shared")).toBe(false);
   });
 
   it("formats canonical nested tuple arrays directly from ABI component metadata", () => {

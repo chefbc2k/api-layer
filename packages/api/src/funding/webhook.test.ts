@@ -27,11 +27,18 @@ describe("Coinbase raw webhook verification", () => {
   });
   it("leaves the route disabled by default and rejects incomplete enabled configuration",()=>{
     expect(createFundingWebhookRouter({}).stack).toHaveLength(0);
+    vi.stubEnv("API_LAYER_FUNDING_WEBHOOK_ENABLED", "false");
+    try { expect(createFundingWebhookRouter().stack).toHaveLength(0); }
+    finally { vi.unstubAllEnvs(); }
     for(const env of [
       {API_LAYER_FUNDING_WEBHOOK_ENABLED:"true",SUPABASE_DB_URL:"postgresql://localhost/test"},
       {API_LAYER_FUNDING_WEBHOOK_ENABLED:"true",API_LAYER_FUNDING_WEBHOOK_SECRET:"short",SUPABASE_DB_URL:"postgresql://localhost/test"},
       {API_LAYER_FUNDING_WEBHOOK_ENABLED:"true",API_LAYER_FUNDING_WEBHOOK_SECRET:secret,SUPABASE_DB_URL:"https://database.invalid"},
     ]) expect(()=>createFundingWebhookRouter(env)).toThrow("Funding webhook requires a subscription secret and PostgreSQL URL");
+  });
+  it("constructs the default PostgreSQL inbox when webhook storage is not injected", () => {
+    const router = createFundingWebhookRouter({ API_LAYER_FUNDING_WEBHOOK_ENABLED:"true", API_LAYER_FUNDING_WEBHOOK_SECRET:secret, SUPABASE_DB_URL:"postgresql://localhost/test" });
+    expect(router.stack).toHaveLength(1);
   });
   it("verifies signed bytes and required headers", () => {
     expect(verifyWebhook(body,signature(),secret,headers)).toBe(true);
@@ -46,6 +53,10 @@ describe("Coinbase raw webhook verification", () => {
   });
   it.each([undefined,"","t=1,h=content-type,v1=x","t=1234567890,t=1234567890,v1=abc","v0=abc"])("rejects malformed signatures %s", value => {
     expect(verifyWebhook(body,value,secret,headers)).toBe(false);
+  });
+  it("fails closed when signed-header access throws", () => {
+    const throwingHeaders = new Proxy({}, { get() { throw new Error("malformed header collection"); } });
+    expect(verifyWebhook(body, signature(), secret, throwingHeaders as Record<string, string | string[] | undefined>)).toBe(false);
   });
   it("rejects deterministic body, identity, timestamp, header-list, and MAC mutations", () => {
     const now = Date.now();
