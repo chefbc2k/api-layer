@@ -3619,6 +3619,31 @@
     "Hosted coverage artifact SHA-256: a6dfa6456c6e1c75a2f5acad2afe42dff5e54bce3add010cce81c607dc6a79b5."
   ],
   "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+},
+{
+  "sourceCommit": "1fcbed884f3a7cfbcc6643096794f7bec8e468a4",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45894940281",
+  "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-1fcbed884f3a7cfbcc6643096794f7bec8e468a4)",
+  "artifactSha256": "bb43cf49d91940a108e25905c3e063a8e4eff6e48fe94c247fa75cd581640f43",
+  "result": "Exact-head API quality CI passed every configured gate with the new vesting and withdrawal failure-path regressions. Whole-repository coverage is 99.92% lines, 99.93% statements, 99.45% branches, and 99.93% functions; the frozen 100% requirement remains open.",
+  "coveragePercent": {
+    "lines": 99.92,
+    "statements": 99.93,
+    "branches": 99.45,
+    "functions": 99.93
+  },
+  "coveredTotals": {
+    "lines": "6865/6870",
+    "statements": "7345/7350",
+    "branches": "6331/6366",
+    "functions": "1641/1642"
+  },
+  "checks": [
+    "Exact-head workflow 45894940281 passed all configured gates on 1fcbed884f3a7cfbcc6643096794f7bec8e468a4, including regression, coverage, API surface, actor boundaries, red team, and indexer assurance.",
+    "New invalid vesting liability and null withdrawal rejection tests passed in the exact-head regression suite.",
+    "Hosted coverage artifact SHA-256: bb43cf49d91940a108e25905c3e063a8e4eff6e48fe94c247fa75cd581640f43."
+  ],
+  "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }
 ],
       "deliveredCommit": null,
@@ -5321,6 +5346,25 @@
     "Exact-head API quality workflow 45893558972 passed every configured gate on e0c990943174f224c2687ab5def7baaf00a0f644.",
     "Focused worker suite passed 25/25 with 100% lines, statements, branches, and functions.",
     "Hosted repository coverage: 6863/6870 lines, 7343/7350 statements, 6329/6366 branches, and 1641/1642 functions."
+  ],
+  "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "1fcbed884f3a7cfbcc6643096794f7bec8e468a4",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45894940281",
+  "artifact": "packages/api/src/workflows/revoke-beneficiary-vesting.test.ts; packages/api/src/workflows/withdraw-marketplace-payments.test.ts; coverage/coverage-summary.json",
+  "artifactSha256": "bb43cf49d91940a108e25905c3e063a8e4eff6e48fe94c247fa75cd581640f43",
+  "result": "Added regressions proving vesting revocation rejects released value above schedule total and that a non-Error null withdrawal rejection is preserved after checking for economic side effects. Both workflow modules measured 100% lines, statements, and functions in focused coverage; whole-repository branch coverage remains below 100%. Exact-head hosted CI passed.",
+  "coveragePercent": {
+    "lines": 99.92,
+    "statements": 99.93,
+    "branches": 99.45,
+    "functions": 99.93
+  },
+  "checks": [
+    "Exact-head API quality workflow 45894940281 passed every configured gate on 1fcbed884f3a7cfbcc6643096794f7bec8e468a4.",
+    "Focused revoke-beneficiary-vesting and withdraw-marketplace-payments suites passed 18/18; both modules reached 100% lines, statements, and functions. Branch coverage was 85.71% and 97.91%, respectively, with remaining guarded branches recorded in the full report.",
+    "Hosted whole-repository coverage: 6865/6870 lines, 7345/7350 statements, 6331/6366 branches, and 1641/1642 functions."
   ],
   "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
 }
