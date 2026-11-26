@@ -88,6 +88,32 @@ describe("api surface helpers", () => {
     });
   });
 
+  it("builds route surfaces for every generated ABI method and event", async () => {
+    const registry = await loadAbiRegistry();
+    const methods = Object.values(registry.methods).map(buildMethodSurface);
+    const events = Object.fromEntries(Object.entries(registry.events).map(([key, definition]) => [
+      key,
+      buildEventSurface(definition),
+    ]));
+    const uniqueEvents = ensureUniqueEventPaths(events);
+    const eventRoutes = Object.values(uniqueEvents).map(({ httpMethod, path }) => `${httpMethod} ${path}`);
+
+    expect(methods).toHaveLength(Object.keys(registry.methods).length);
+    expect(methods.find((item) => item.wrapperKey === "transferFromVoiceAsset")).toMatchObject({
+      httpMethod: "POST",
+      path: "/v1/voice-assets/tokens/:tokenId/transfers",
+      inputShape: {
+        kind: "path+body",
+        bindings: [
+          { name: "from", source: "body", field: "from" },
+          { name: "to", source: "body", field: "to" },
+          { name: "tokenId", source: "path", field: "tokenId" },
+        ],
+      },
+    });
+    expect(new Set(eventRoutes).size).toBe(eventRoutes.length);
+  });
+
   it("classifies reads, creates, updates, deletes, admin writes, and actions", () => {
     expect(classifyMethod("marketplace", method({ methodName: "listVoiceAssets" }))).toBe("query");
     expect(classifyMethod("voice-assets", method({ methodName: "getVoiceAsset" }))).toBe("read");
@@ -931,6 +957,18 @@ describe("api surface helpers", () => {
       .toBe("/v1/licensing/events/license-created/query/voice-license-template");
     expect(new Set(Object.values(events).map((entry) => `${entry.httpMethod} ${entry.path}`)).size)
       .toBe(Object.keys(events).length);
+  });
+
+  it("rejects event collisions that remain after overload and facet suffixing", () => {
+    const collision = buildEventSurface(event({
+      facetName: "TimelockFacet",
+      wrapperKey: "OperationExecuted(bytes32)",
+      eventName: "OperationExecuted",
+    }));
+
+    expect(() => ensureUniqueEventPaths({ first: collision, second: collision })).toThrow(
+      "could not derive unique event paths for first, second",
+    );
   });
 
   it("throws for unmapped method or event facets", () => {
