@@ -5,6 +5,7 @@ import {
   collectTransactionHashes,
   defaultReceiptProofArtifactProducers,
   evaluateReceiptExpectation,
+  indexedEventKeys,
   mergePersistentProofReports,
   projectionTableNames,
   receiptProofArtifactEligibility,
@@ -28,10 +29,13 @@ describe("local-fork receipt-to-indexer proof", () => {
   });
 
   it("rejects failed workflow artifacts before collecting reverted fork receipts", () => {
+    expect(receiptProofArtifactEligibility(null)).toEqual({ eligible: false, reason: "artifact root is not an object" });
+    expect(receiptProofArtifactEligibility([])).toEqual({ eligible: false, reason: "artifact root is not an object" });
     expect(receiptProofArtifactEligibility({ status: "proven working", transactionHashes: [] }))
       .toEqual({ eligible: true, reason: null });
     expect(receiptProofArtifactEligibility({ summary: "proven working", reports: {} }))
       .toEqual({ eligible: true, reason: null });
+    expect(receiptProofArtifactEligibility({ reports: {} })).toEqual({ eligible: true, reason: null });
     expect(receiptProofArtifactEligibility({ summary: "deeper issues remain", reports: {} }))
       .toEqual({ eligible: false, reason: 'summary is "deeper issues remain"' });
     expect(receiptProofArtifactEligibility({ status: "failed", transactionHashes: [] }))
@@ -42,6 +46,8 @@ describe("local-fork receipt-to-indexer proof", () => {
     const selectors = buildWriteSelectorMap();
     expect(selectors.size).toBe(260);
     expect([...selectors.values()].some(({ methodKey }) => methodKey === "MarketplaceFacet.purchaseAsset")).toBe(true);
+    const definition = selectors.values().next().value!.definition;
+    expect(() => buildWriteSelectorMap({ first: definition, second: definition })).toThrow(/write selector collision/u);
   });
 
   it("normalizes projection declarations to table names", () => {
@@ -55,6 +61,16 @@ describe("local-fork receipt-to-indexer proof", () => {
     const claim = writes
       .find(({ methodKey }) => methodKey === "CommunityRewardsFacet.claim")!;
     expect(projectionTableNames(claim.definition)).toEqual(["reward_claims"]);
+    expect(projectionTableNames({
+      ...purchase.definition,
+      invariants: {
+        ...purchase.definition.invariants,
+        indexerExpectations: {
+          ...purchase.definition.invariants.indexerExpectations,
+          projections: ["z_table:id", "a_table:id", "a_table:other"],
+        },
+      },
+    } as never)).toEqual(["a_table", "z_table"]);
   });
 
   it("accepts all-event and one-of evidence and reports missing projections", () => {
@@ -75,6 +91,13 @@ describe("local-fork receipt-to-indexer proof", () => {
       })) as never,
     });
     expect(result.failures).toEqual(["missing declared projections: market_sales"]);
+    expect(evaluateReceiptExpectation({
+      txHash: `0x${"33".repeat(32)}`,
+      methodKey: purchase.methodKey,
+      definition: purchase.definition,
+      indexedRows: [],
+      projectedTables: ["market_sales", "extra_table"],
+    }).failures[0]).toContain("missing declared events:");
 
     const oneOf = writes.find(({ definition }) => definition.invariants.emittedEvents.mode === "one-of")!;
     const selected = oneOf.definition.invariants.emittedEvents.events[0];
@@ -91,6 +114,23 @@ describe("local-fork receipt-to-indexer proof", () => {
       })) as never,
     });
     expect(oneOfResult.failures).toEqual([]);
+    expect(evaluateReceiptExpectation({
+      txHash: `0x${"44".repeat(32)}`,
+      methodKey: oneOf.methodKey,
+      definition: oneOf.definition,
+      indexedRows: [],
+      projectedTables: projectionTableNames(oneOf.definition),
+      eventDefinitions: Object.fromEntries(oneOf.definition.invariants.emittedEvents.events.map((eventKey) => {
+        const [candidateFacet, candidateEvent] = eventKey.split(".", 2);
+        return [eventKey, { facetName: candidateFacet, eventName: candidateEvent, signature: eventKey }];
+      })) as never,
+    }).failures).toContain(`missing every declared event variant: ${oneOf.definition.invariants.emittedEvents.events.join(", ")}`);
+
+    expect(indexedEventKeys([
+      { facet_name: "wrong", event_name: eventName, event_signature: selected },
+      { facet_name: facetName, event_name: "wrong", event_signature: selected },
+      { facet_name: facetName, event_name: eventName, event_signature: "wrong" },
+    ], { [selected]: { facetName, eventName, signature: selected } } as never)).toEqual([]);
   });
 
   it("accepts an eventless write receipt without inventing a projection", () => {
@@ -106,6 +146,19 @@ describe("local-fork receipt-to-indexer proof", () => {
       indexedRows: [],
       projectedTables: [],
     }).failures).toEqual([]);
+    expect(evaluateReceiptExpectation({
+      txHash: `0x${"55".repeat(32)}`,
+      methodKey: write.methodKey,
+      definition: {
+        ...write.definition,
+        invariants: {
+          ...write.definition.invariants,
+          emittedEvents: { mode: "none", events: ["EmergencyFacet.Unexpected"] },
+        },
+      } as never,
+      indexedRows: [],
+      projectedTables: [],
+    }).failures).toContain("event mode none contains declared events");
   });
 
   it("merges durable method proof without losing receipts from earlier fork runs", () => {
@@ -148,5 +201,64 @@ describe("local-fork receipt-to-indexer proof", () => {
       rawEvents: 1,
       projectionRows: 0,
     });
+
+    const sortedEvidence = mergePersistentProofReports({}, {
+      "SortedFacet.write": { evidence: [
+        { txHash: `0x${"99".repeat(32)}` },
+        { txHash: `0x${"88".repeat(32)}` },
+      ] },
+    });
+    expect(sortedEvidence["SortedFacet.write"].evidence?.map((entry) => entry.txHash))
+      .toEqual([`0x${"88".repeat(32)}`, `0x${"99".repeat(32)}`]);
+    const priorOnly = mergePersistentProofReports({
+      "PriorFacet.write": { result: "old", evidence: [{ txHash: `0x${"ab".repeat(32)}` }] },
+    }, {});
+    expect(priorOnly["PriorFacet.write"].result).toBe("old");
+    expect(priorOnly["PriorFacet.write"].evidence).toHaveLength(1);
+    expect(mergePersistentProofReports({}, {
+      "InvalidFacet.write": { evidence: [{ txHash: "not-a-transaction-hash" }] },
+    })["InvalidFacet.write"].evidence).toEqual([]);
+
+    const invalidRows = {
+      "NoEvidence.write": {},
+      "InvalidFacet.write": {
+        evidence: [
+          { txHash: "invalid", postgres: { rawEvents: { rowCount: 5 } } },
+          { txHash: `0x${"88".repeat(32)}`, postgres: {
+            rawEvents: { rowCount: -1 },
+            projections: [{ rowCount: 1.5 }, { rowCount: Number.MAX_SAFE_INTEGER + 1 }],
+          }, source: { workflowArtifacts: ["one.json", 7, "one.json"] } },
+        ],
+      },
+    };
+    expect(summarizePersistentProofReports(invalidRows, 2, 3)).toMatchObject({
+      artifactTransactionHashes: 1,
+      includedArtifacts: 1,
+      skippedArtifacts: 3,
+      rawEvents: 0,
+      projectionRows: 0,
+    });
+  });
+
+  it("collects hashes from array roots and caller-provided sets while ignoring malformed entries", () => {
+    const initial = new Set([`0x${"aa".repeat(32)}`]);
+    const result = collectTransactionHashes([
+      { transactionHashes: [null, 4, `0x${"bb".repeat(32)}`] },
+      { hash: "0x1234", nested: [{ transactionHash: `0x${"CC".repeat(32)}` }] },
+      false,
+    ], initial);
+    expect([...result]).toEqual([`0x${"aa".repeat(32)}`, `0x${"bb".repeat(32)}`, `0x${"cc".repeat(32)}`]);
+  });
+
+  it("sorts multiple indexed event keys deterministically", () => {
+    const definitions = {
+      "ZuluFacet.Zulu": { facetName: "ZuluFacet", eventName: "Zulu", signature: "Zulu(uint256)" },
+      "AlphaFacet.Alpha": { facetName: "AlphaFacet", eventName: "Alpha", signature: "Alpha(uint256)" },
+    } as never;
+    expect(indexedEventKeys([
+      { facet_name: "ZuluFacet", event_name: "Zulu", event_signature: "Zulu(uint256)" },
+      { facet_name: "AlphaFacet", event_name: "Alpha", event_signature: "Alpha(uint256)" },
+    ], definitions)).toEqual(["AlphaFacet.Alpha", "ZuluFacet.Zulu"]);
+    expect(indexedEventKeys([])).toEqual([]);
   });
 });

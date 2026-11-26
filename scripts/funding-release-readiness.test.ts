@@ -1,6 +1,8 @@
 import {mkdtemp,readFile,rm,writeFile} from "node:fs/promises";
+import {spawnSync} from "node:child_process";
 import os from "node:os";
 import path from "node:path";
+import {fileURLToPath} from "node:url";
 import {describe,it,expect,vi} from "vitest";
 import type {Pool} from "pg";
 import {inspectFundingReleaseDatabase,runFundingReleaseReadiness,fundingMigrationChecksums,fundingReleaseMain} from "./funding-release-readiness.js";
@@ -36,6 +38,17 @@ describe("funding database rollout inspection",()=>{
    expect(report.database.status).toBe("unconfigured");
    expect(JSON.stringify(report)).not.toMatch(/file-id|file-secret/);
   }finally{process.exitCode=previousExitCode;await rm(directory,{recursive:true,force:true});}
+ });
+ it("sanitizes command-line configuration failures",async()=>{
+  const directory=await mkdtemp(path.join(os.tmpdir(),"funding-release-cli-"));
+  try {
+   const script=path.join(path.dirname(fileURLToPath(import.meta.url)),"funding-release-readiness.ts");
+   const tsx=path.resolve("node_modules/.bin/tsx");
+   const result=spawnSync(tsx,[script],{cwd:directory,encoding:"utf8",env:{...process.env,API_LAYER_FUNDING_RELEASE_ENV_FILE:path.join(directory,"missing.env")} });
+   expect(result.status).toBe(1);
+   expect(result.stderr).toContain("Funding release inspection failed; inspect private configuration");
+   expect(result.stderr).not.toContain(directory);
+  }finally{await rm(directory,{recursive:true,force:true});}
  });
  it("starts an explicit read-only transaction, rolls back errors and sanitizes diagnostics",async()=>{
   const query=vi.fn(async(sql:string)=>{if(sql.startsWith("SELECT"))throw new Error("postgres://private-key@private-host secret");return {rows:[],rowCount:0};}),release=vi.fn();
