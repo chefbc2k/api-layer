@@ -3727,7 +3727,7 @@
           {
             "name": "codex/api-assurance-event-indexer-proof-20261021",
             "commit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/api-assurance-event-indexer-proof-20261026",
@@ -3782,7 +3782,7 @@
           {
             "name": "codex/api-assurance-gap-completion-20261023",
             "commit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/api-assurance-gap-completion-20261024",
@@ -3942,7 +3942,7 @@
           {
             "name": "codex/autosave-20261020-api-assurance-gap-completion",
             "commit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
-            "disposition": null
+            "disposition": "superseded"
           },
           {
             "name": "codex/autosave-20261020-daily-consolidation-primary",
@@ -5124,6 +5124,21 @@
             "Preserved the shared checkout and its user-owned dirty reviewed/reviewed-write-invariants.json file."
           ],
           "resultLimitation": "This resolves only the 2026-11-14 generated-report cohort. Other frozen candidates and preserved dirty worktrees remain under DELIVERY-01; overall delivery remains in progress."
+        }
+      ,
+        {
+          "sourceCommit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
+          "url": "https://github.com/chefbc2k/api-layer/commit/e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
+          "artifact": "frozen control-plane admin guard matrix, API gap report/planner artifacts, current default workflow tests and generated report",
+          "result": "Superseded the three frozen Oct 20 admin-guard branch refs with the newer default-branch guard/test/report state. All eight guard keys are present in current default control-plane workflow or contract-integration tests. Current default gap inventory reports 710/710 ready, and its gap plan reports zero non-ready and zero selected. The exact-default-head API quality workflow passed. The frozen commit’s release-note version 0.1.396 conflicts with a later 0.1.396 entry already on default, so its dated claim was not copied over the later release record. No live administrative writes or API-05 exact-method credit are inferred from these guard tests.",
+          "checks": [
+            "All three local frozen refs were verified at e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2; current default is 67feb5d720f24c8519d326eb29bae24c257d0503.",
+            "Exact API quality CI https://github.com/chefbc2k/api-layer/actions/runs/45460307061 passed on default head 67feb5d720f24c8519d326eb29bae24c257d0503.",
+            "All eight guard keys were found in current origin/master control-plane workflow/integration test sources.",
+            "Current default report: 710 items, 710 ready; planner: 0 non-ready, 0 selected.",
+            "Current default changelog already assigns version 0.1.396 to a later actor-revalidation record; the old duplicate versioned changelog block was therefore superseded."
+          ],
+          "resultLimitation": "This dispositions three historical refs only. Readiness classification and admin-denial coverage do not substitute for successful exact-method execution/post-state/indexer proofs; API-05 and the remaining release criteria stay open."
         }
       ],
       "deliveredCommit": null,
