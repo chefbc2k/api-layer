@@ -2316,6 +2316,28 @@
           ],
           "resultLimitation": "API-05 remains in_progress. The 69 ordinary exact-method proofs, hosted/default delivery, and the broader external API release acceptance remain outstanding."
         }
+      ,
+        {
+          "sourceCommit": "707e57e5f87cfc16220e75ec59746a19730b6185",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45753813534",
+          "artifact": "verify-local-fork-indexer-output.json",
+          "artifactSha256": "c3c404c64d13d733cb5b3f28254e1f52d4e97fd0542f4331549437d636c80cd7",
+          "result": "Reconciled the latest cumulative receipt/indexer report with API-05 acceptance. The report records 190/260 methods because it classifies AccessControlFacet.emergencyForceAdd as proven from a status-1 zero-log receipt, PostgreSQL block journal, and idempotent replay. API-05 remains correctly at 189/260: this receipt does not prove the required canonical method post-state, and the separate positive state read found hasRole=true while getRoleMembers omitted the recovered member. No proof credit is added; 69 ordinary exact-method proofs and two reviewed contract-only exceptions remain.",
+          "successfulWriteProofCount": 189,
+          "ordinaryExactMethodProofsRemaining": 69,
+          "reviewedContractOnlyExceptions": [
+            "OwnershipFacet.acceptOwnership",
+            "EmergencyFacet.executeRecoveryAction"
+          ],
+          "fixedWriteMethodDenominator": 260,
+          "checks": [
+            "The indexer artifact was generated 2026-11-26T04:25:30.461Z and its SHA-256 is c3c404c64d13d733cb5b3f28254e1f52d4e97fd0542f4331549437d636c80cd7.",
+            "Receipt 0x6255e8737b9b8e56c42975bdddbc06f0ab3d02cbbdac132c94d4b06de4ad16e7 has status 1 and zero logs; PostgreSQL records one indexer_blocks row, zero raw events, and unchanged replay.",
+            "The API-quality workflow 45753813534 passed on fbc1db8113187191ab9648ca6f3ff49d30eb5db8; commit 707e57e5f87cfc16220e75ec59746a19730b6185 changed only the cumulative proof artifact.",
+            "The API-05 checkpoint records the canonical post-state disagreement and retains 189/260 accepted methods; the indexed receipt count is not substituted for that stronger acceptance criterion."
+          ],
+          "resultLimitation": "API-05 remains in progress at 189/260 exact-method accepted proofs; 69 ordinary methods and two reviewed exceptions remain, as do verified delivery and broader release items."
+        }
       ],
       "deliveredCommit": null,
       "blocker": null,
