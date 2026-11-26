@@ -153,6 +153,32 @@ describe("funding HTTP boundary", () => {
     expect(result.headers.get("cache-control")).toBe("no-store");
     expect(result.headers.get("access-control-allow-origin")).toBe("https://app.example");
   });
+  it("resolves chain ID and USDC through the default provider-router preflight", async () => {
+    const { context, provider } = await setup();
+    const rpc = {
+      getNetwork: vi.fn().mockResolvedValue({ chainId: 84532n }),
+      call: vi.fn().mockResolvedValue(`0x${"0".repeat(24)}${BASE_SEPOLIA_USDC.slice(2).toLowerCase()}`),
+    };
+    const withProvider = vi.fn(async (_purpose: string, _label: string, run: (provider: typeof rpc) => unknown) => run(rpc));
+    Object.assign(context, {
+      config: { ...context.config, diamondAddress: "0x00000000000000000000000000000000000000dd" },
+      providerRouter: { withProvider },
+    });
+    const app = express();
+    app.use(express.json());
+    app.use(createFundingRouter(context, { config, provider }));
+    const server = app.listen(0);
+    servers.push(server);
+    await new Promise<void>(resolve => server.once("listening", resolve));
+    const port = (server.address() as import("node:net").AddressInfo).port;
+    const response = await fetch(`http://127.0.0.1:${port}/v1/funding/options?country=US&subdivision=IL`, {
+      headers: { "x-api-key": "customer" },
+    });
+    expect(response.status).toBe(200);
+    expect(withProvider).toHaveBeenCalledWith("read", "funding.destination", expect.any(Function));
+    expect(rpc.getNetwork).toHaveBeenCalledOnce();
+    expect(rpc.call).toHaveBeenCalledOnce();
+  });
   it("persists a non-payable quote bound to the server customer and exact wallet", async () => {
     const { call, provider, store } = await setup();
     const result = await call(input);
@@ -223,6 +249,15 @@ describe("funding HTTP boundary", () => {
     expect((await call({ ...input, purchaseAmount: undefined, paymentAmount: "1" })).status).toBe(422);
     provider.quote.mockResolvedValue({ ...quote, paymentTotal: "100", paymentSubtotal: "99.25" });
     expect((await call({ ...input, purchaseAmount: undefined, paymentAmount: "100" })).status).toBe(201);
+  });
+  it("rejects an otherwise consistent quote whose fiat cost exceeds provider limits", async () => {
+    const { call, provider, store } = await setup();
+    provider.quote.mockResolvedValue({ ...quote, paymentTotal: "3000", paymentSubtotal: "2999.25" });
+    expect(await call(input)).toMatchObject({
+      status: 422,
+      body: { error: "Quoted fiat cost is outside provider payment limits" },
+    });
+    expect(store.insertQuote).not.toHaveBeenCalled();
   });
   it("redacts storage failures and fails closed for unavailable assets/methods", async () => {
     const { call, store, provider } = await setup();
