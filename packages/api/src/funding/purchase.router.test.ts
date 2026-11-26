@@ -253,6 +253,25 @@ describe("funding purchase HTTP routes", () => {
     expect(db.query.mock.calls.at(-1)?.[0]).toMatch(/^UPDATE funding_purchase_requests/);
   });
 
+  it("rejects receipt confirmation when the persistence compare-and-set loses a race", async () => {
+    const { call, db, base, rpc } = await setup();
+    db.setReceiptRow({
+      id: "00000000-0000-4000-8000-000000000002",
+      user_id: "buyer_1",
+      wallet_address: wallet,
+      sandbox: true,
+      tx_hash: null,
+      intent: { ...db.intent, walletAddress: wallet },
+      expires_at: new Date("2026-11-25T20:00:00.000Z"),
+    });
+    db.setUpdateRowCount(0);
+    rpc.setOwner(wallet);
+
+    const response = await call(`${base}/00000000-0000-4000-8000-000000000002/receipt`, { txHash });
+    expect(response).toMatchObject({ status: 409, body: { error: "Purchase receipt conflict" } });
+    expect(db.query.mock.calls.at(-1)?.[0]).toMatch(/^UPDATE funding_purchase_requests/);
+  });
+
   it("allows retrying the same receipt and reports an expired but final production request", async () => {
     const { call, db, base, rpc } = await setup(false);
     db.setReceiptRow({
