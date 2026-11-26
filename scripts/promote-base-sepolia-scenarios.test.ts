@@ -84,6 +84,20 @@ describe("Base Sepolia promotion readiness", () => {
     expect(result.status).toBe("blocked");
     expect(result.blockers.length).toBeGreaterThanOrEqual(6);
   });
+  it("rejects malformed non-empty actor keys and missing RPC values without throwing", () => {
+    const env = readyEnv();
+    env.PRIVATE_KEY = "not-a-private-key";
+    env.RPC_URL = "not a URL";
+    delete env.ALCHEMY_RPC_URL;
+    const result = assessPromotionReadiness(env);
+    expect(result.status).toBe("blocked");
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining("direct-live-rpc"),
+      expect.stringContaining("direct-diagnostics-rpc"),
+      expect.stringContaining("required-actors"),
+      expect.stringContaining("founder-sender"),
+    ]));
+  });
 });
 
 describe("Base Sepolia promotion evidence", () => {
@@ -232,6 +246,27 @@ describe("Base Sepolia promotion CLI safety",()=>{
     });
   });
 
+  it("blocks when a refreshed setup fixture points at a fork or loopback runtime", async () => {
+    const invalidFixture = {
+      ...readyFixture,
+      network: { ...readyFixture.network, runtimeRpcUrl: "http://127.0.0.1:8545", forkedFrom: "https://base-sepolia.example.invalid" },
+      setup: { status: "ready", blockers: ["forked runtime"] },
+    };
+    await withPromotionFixture(invalidFixture, async ({ envPath, fixturePath, outputPath, provider, executeCommand }) => {
+      await runPromotion({ envPath, fixturePath, outputPath, providerFactory: () => provider, runCommand: executeCommand });
+      const report = JSON.parse(readFileSync(outputPath, "utf8"));
+      expect(report).toMatchObject({
+        readiness: {
+          status: "blocked",
+          blockers: ["forked runtime", "setup artifact did not prove a direct, ready Base Sepolia runtime"],
+        },
+        finalClassification: "blocked by setup/state",
+        scenarios: [],
+      });
+      expect(executeCommand).toHaveBeenCalledOnce();
+    });
+  });
+
   it("skips scenarios whose fixture-specific readiness is missing",async()=>{
     const fixture={...readyFixture,governance:{status:"blocked",reason:"proposer role missing"}};
     await withPromotionFixture(fixture,async({envPath,fixturePath,outputPath,marketplaceOutputPath,governanceOutputPath,provider,executeCommand})=>{
@@ -322,6 +357,32 @@ describe("Base Sepolia promotion CLI safety",()=>{
       expect(report).toMatchObject({readiness:{status:"blocked"},liveTarget:{checked:true,chainId:1,diamondCodePresent:true},finalClassification:"blocked by setup/state"});
       expect(process.exitCode).toBe(2);expect(provider.destroy).toHaveBeenCalledOnce();
     } finally {process.exitCode=previousExitCode;rmSync(isolatedCwd,{recursive:true,force:true});}
+  });
+
+  it("writes a blocked report for incomplete readiness without creating a provider", async () => {
+    const isolatedCwd = mkdtempSync(path.join(tmpdir(), "base-sepolia-readiness-blocked-"));
+    const envPath = path.join(isolatedCwd, "promotion.env");
+    const outputPath = path.join(isolatedCwd, "report.json");
+    const previousExitCode = process.exitCode;
+    const providerFactory = vi.fn();
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      writeFileSync(envPath, "NETWORK=mainnet\nCHAIN_ID=1\n");
+      await runPromotion({ envPath, outputPath, providerFactory });
+      const report = JSON.parse(readFileSync(outputPath, "utf8"));
+      expect(report).toMatchObject({
+        readiness: { status: "blocked" },
+        liveTarget: { checked: false },
+        finalClassification: "blocked by setup/state",
+      });
+      expect(providerFactory).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalledOnce();
+      expect(process.exitCode).toBe(2);
+    } finally {
+      error.mockRestore();
+      process.exitCode = previousExitCode;
+      rmSync(isolatedCwd, { recursive: true, force: true });
+    }
   });
 
   it("writes a blocked report and exits before creating a provider when approval configuration is absent",()=>{
