@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { tmpdir } from "node:os";
@@ -265,6 +265,19 @@ describe("Base Sepolia promotion CLI safety",()=>{
       });
       expect(executeCommand).toHaveBeenCalledOnce();
     });
+
+    const malformedLoopbackFixture = {
+      ...readyFixture,
+      network: { ...readyFixture.network, runtimeRpcUrl: "localhost invalid" },
+    };
+    await withPromotionFixture(malformedLoopbackFixture, async ({ envPath, fixturePath, outputPath, provider, executeCommand }) => {
+      await runPromotion({ envPath, fixturePath, outputPath, providerFactory: () => provider, runCommand: executeCommand });
+      const report = JSON.parse(readFileSync(outputPath, "utf8"));
+      expect(report.readiness).toMatchObject({ status: "blocked" });
+      expect(report.readiness.blockers).toContain("setup artifact did not prove a direct, ready Base Sepolia runtime");
+      expect(report.scenarios).toEqual([]);
+      expect(executeCommand).toHaveBeenCalledOnce();
+    });
   });
 
   it("skips scenarios whose fixture-specific readiness is missing",async()=>{
@@ -412,6 +425,28 @@ describe("Base Sepolia promotion CLI safety",()=>{
       ]));
       expect(result.stderr).toContain("\"status\": \"blocked\"");
     } finally {rmSync(isolatedCwd,{recursive:true,force:true});}
+  });
+
+  it("reports output persistence errors through the direct CLI failure handler", () => {
+    const project = process.cwd();
+    const isolatedCwd = mkdtempSync(path.join(tmpdir(), "base-sepolia-promotion-output-error-"));
+    try {
+      mkdirSync(path.join(isolatedCwd, "verify-base-sepolia-promotion-output.json"));
+      const result = spawnSync(path.join(project, "node_modules/.bin/tsx"), [
+        path.join(project, "scripts/promote-base-sepolia-scenarios.ts"),
+      ], {
+        cwd: isolatedCwd,
+        env: { ...process.env, API_LAYER_BASE_SEPOLIA_ENV_PATH: path.join(isolatedCwd, "missing.env") },
+        encoding: "utf8",
+        timeout: 15_000,
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.status).toBe(1);
+      expect(result.stderr).toMatch(/EISDIR|EEXIST|EACCES/u);
+    } finally {
+      rmSync(isolatedCwd, { recursive: true, force: true });
+    }
   });
 
   it("maps child process exit and spawn errors into stable runner results",async()=>{
