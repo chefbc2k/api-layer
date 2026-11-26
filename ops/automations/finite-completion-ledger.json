@@ -4110,7 +4110,7 @@
           {
             "name": "codex/autosave-20261109-root-assurance",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/autosave-20261114-root-assurance",
@@ -4165,7 +4165,7 @@
           {
             "name": "codex/contracts-api-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/contracts-api-20261115",
@@ -4215,67 +4215,67 @@
           {
             "name": "codex/office-gap-build-20261109",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261110-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261110-run2",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261110-run3",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261111-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261111-run2",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261111-run3",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261112",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261112-next",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-build-20261112-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-builder-20261113",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-builder-20261113-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-builder-20261114",
@@ -4300,27 +4300,27 @@
           {
             "name": "codex/office-gap-check-20261109",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-check-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-check-20261111",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-check-20261112",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-check-20261113",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/office-gap-check-20261114",
@@ -4335,7 +4335,7 @@
           {
             "name": "codex/office-gap-check-rerun-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "name": "codex/production-indexer-write-coverage-20261028",
@@ -4350,7 +4350,7 @@
           {
             "name": "codex/test-gap-detection-20261112",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
-            "disposition": null
+            "disposition": "already-delivered"
           }
         ],
         "worktrees": [
@@ -4394,19 +4394,19 @@
             "path": "/private/tmp/api-layer-office-gap",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": null,
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/api-layer-office-gap-20261112-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": null,
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/api-layer-office-gap-20261113",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": null,
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/api-local-fork-automation-20261115/master",
@@ -4478,7 +4478,7 @@
             "path": "/private/tmp/test-gap-detection-20261112",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/test-gap-detection-20261112",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/abi-gap-report-20261028/api-layer",
@@ -4580,85 +4580,85 @@
             "path": "/Users/chef/.codex/worktrees/contracts-api-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/contracts-api-20261110",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261109",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261109",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261110",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261110-run",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110-run2",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261110-run2",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261110-run3",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261110-run3",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261111-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261111-run",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261111-run2",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261111-run2",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261111-run3",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261111-run3",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261112",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261112",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261112-next",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261112-next",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-build-20261112-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-build-20261112-run",
-            "disposition": null
+            "disposition": "preserved-unreviewed"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-builder-20261113",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-builder-20261113",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-builder-20261113-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-builder-20261113-run",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-builder-20261115-run",
@@ -4676,49 +4676,49 @@
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261109",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-check-20261109",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261110",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-check-20261110",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261110-final",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": null,
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261110-rerun",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-check-rerun-20261110",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261111",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-check-20261111",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261112",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-check-20261112",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261113",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": "refs/heads/codex/office-gap-check-20261113",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/office-gap-check-20261113-run",
             "commit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
             "branch": null,
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261026/api-layer",
@@ -5073,6 +5073,21 @@
             "No other worktree was modified."
           ],
           "resultLimitation": "DELIVERY-01 remains in progress until every frozen branch/worktree candidate is dispositioned and approved source passengers are verified on default master."
+        }
+      ,
+        {
+          "sourceCommit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+          "url": "https://github.com/chefbc2k/api-layer/commit/66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
+          "artifact": "ops/automations/finite-completion-ledger.json; frozen cohort source and generated gap reports compared with origin/master",
+          "result": "Dispositioned all 22 frozen branch refs for the 2026-11-09 root-assurance cohort as already delivered. The 33 paths changed by the frozen commit were compared with current origin/master: 25 blobs match exactly; the remaining eight are superseded changelog/report/package/event-count/gap-builder-test versions whose substantive coverage remains in current master. The API-surface and test-roadmap implementation and the cohort’s governance, licensing, vesting, voice-asset, workflow, and primitive-read tests match current master exactly. Current generated gap report contains 710/710 ready items and the plan contains zero non-ready items. Of 26 recorded worktrees, 21 are clean at the frozen commit; three paths are missing and one registration is unusable/prunable. Their candidate changes are still represented by the verified frozen commit. One extant dirty worktree was preserved and marked preserved-unreviewed; its reviewed-method-policy.json additions were not copied.",
+          "checks": [
+            "All 22 recorded local branch refs were verified at 66bf0e188ca505aa1dc157c063ba72b2ae2f6d85; their source changes were compared against 67feb5d720f24c8519d326eb29bae24c257d0503.",
+            "Git worktree inventory confirmed 21 clean worktrees, one dirty worktree, three missing paths, and one unusable/prunable registration.",
+            "The exact governance/licensing/tokenomics/voice-assets primitive and workflow test files, API-surface library, and test-roadmap source from the frozen cohort are byte-identical to current master.",
+            "The newer default package.json includes expanded funding/red-team test inventories and dependency remediation; indexer event-assurance counts and gap-builder tests reflect later current inventory and retain percentage-target assertions.",
+            "Current default gap report: 710 total, 710 ready, 0 non-ready; current plan: 0 non-ready and 0 selected."
+          ],
+          "resultLimitation": "This resolves only the 2026-11-09 root-assurance cohort. Other frozen candidate refs remain unresolved, and the dirty worktree policy additions await review; DELIVERY-01 remains in progress."
         }
       ],
       "deliveredCommit": null,
