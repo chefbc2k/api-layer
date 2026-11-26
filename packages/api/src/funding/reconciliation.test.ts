@@ -13,6 +13,11 @@ describe("reconciliation provider boundary",()=>{
     const url=new URL(String(fetcher.mock.calls[0][0]));expect(url.searchParams.get("pageKey")).toBe("prior/?");expect(url.searchParams.get("pageSize")).toBe("100");
     await expect(provider.transactions("../other")).rejects.toThrow();
   });
+  it("starts the first transaction page without a cursor",async()=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({transactions:[]})));
+    await new CoinbaseFundingProvider(config,fetcher,vi.fn().mockResolvedValue("fixture-jwt")).transactions("sandbox-reference");
+    const url=new URL(String(fetcher.mock.calls[0][0]));expect(url.searchParams.get("pageSize")).toBe("100");expect(url.searchParams.has("pageKey")).toBe(false);
+  });
   it("only reads subscription state and strips secrets from its response",async()=>{
     const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({subscriptionId:id,isEnabled:true,eventTypes:[],target:{url:"https://api.example/v1/webhooks/coinbase/onramp",method:"POST"},secret:"never-return",metadata:{secret:"never-return"}})));
     const sign=vi.fn().mockResolvedValue("fixture-jwt");

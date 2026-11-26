@@ -88,6 +88,11 @@ describe("Coinbase provider boundary", () => {
     expect(String(fetcher.mock.calls[0][0])).toBe("https://api.developer.coinbase.com/onramp/v1/buy/options?country=US&networks=base&subdivision=IL");
     expect(sign).toHaveBeenCalledWith(expect.objectContaining({ requestMethod: "GET", requestPath: "/onramp/v1/buy/options" }));
   });
+  it("omits the optional subdivision query when no subdivision is supplied", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(options)));
+    await new CoinbaseFundingProvider(config, fetcher, vi.fn().mockResolvedValue("jwt")).options("US");
+    expect(String(fetcher.mock.calls[0][0])).toBe("https://api.developer.coinbase.com/onramp/v1/buy/options?country=US&networks=base");
+  });
   it.each(["network", "status", "shape", "json", "sign"])("redacts %s failures", async failure => {
     const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
       if (failure === "network") throw new Error("PII-secret");

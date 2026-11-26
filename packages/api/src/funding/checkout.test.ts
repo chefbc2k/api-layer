@@ -57,6 +57,38 @@ describe("checkout provider requests", () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ order, paymentLink: { url } })));
     await expect(new CoinbaseFundingProvider(config, fetcher, vi.fn().mockResolvedValue("jwt")).createOrder({})).rejects.toThrow("Coinbase funding request failed");
   });
+  it.each([
+    ["", undefined],
+    ["0x", undefined],
+    [`0x${"a".repeat(64)}`, `0x${"a".repeat(64)}`],
+  ])("normalizes provider transaction hash %s", async (txHash, expected) => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ order: { ...order, txHash } })));
+    expect((await new CoinbaseFundingProvider(config, fetcher, vi.fn().mockResolvedValue("jwt")).getOrder(orderId)).txHash).toBe(expected);
+  });
+  it("rejects malformed provider transaction hashes", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ order: { ...order, txHash: "0x1234" } })));
+    await expect(new CoinbaseFundingProvider(config, fetcher, vi.fn().mockResolvedValue("jwt")).getOrder(orderId)).rejects.toThrow("Coinbase funding request failed");
+  });
+  it.each([
+    ["GUEST_CHECKOUT_APPLE_PAY", "useApplePaySandbox"],
+    ["GUEST_CHECKOUT_GOOGLE_PAY", "useGooglePaySandbox"],
+  ])("adds the %s simulator flag only in sandbox", async (paymentMethod, flag) => {
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => new Response(JSON.stringify({ order, paymentLink: { url: "https://pay.coinbase.com/checkout?existing=kept" } })));
+    const sandbox = new CoinbaseFundingProvider(config, fetcher, vi.fn().mockResolvedValue("jwt"));
+    const sandboxUrl = new URL((await sandbox.createOrder({ paymentMethod })).paymentLink.url);
+    expect(sandboxUrl.searchParams.get("existing")).toBe("kept");
+    expect(sandboxUrl.searchParams.get(flag)).toBe("true");
+    expect(sandboxUrl.searchParams.has(flag === "useApplePaySandbox" ? "useGooglePaySandbox" : "useApplePaySandbox")).toBe(false);
+
+    const live = new CoinbaseFundingProvider({ ...config, mode: "live" }, fetcher, vi.fn().mockResolvedValue("jwt"));
+    const liveUrl = new URL((await live.createOrder({ paymentMethod })).paymentLink.url);
+    expect(liveUrl.searchParams.has(flag)).toBe(false);
+  });
+  it("does not add payment simulator flags for unrelated methods", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify({ order, paymentLink: { url: "https://pay.coinbase.com/checkout" } })));
+    const result = await new CoinbaseFundingProvider(config, fetcher, vi.fn().mockResolvedValue("jwt")).createOrder({ paymentMethod: "CARD" });
+    expect(new URL(result.paymentLink.url).search).toBe("");
+  });
 });
 
 describe("checkout HTTP and idempotency", () => {
