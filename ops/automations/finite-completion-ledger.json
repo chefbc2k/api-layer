@@ -3477,7 +3477,42 @@
                 "Hosted whole-repository coverage artifact SHA-256: b673a43365edf1b4a9c7ce54f3965281322f16f9a69a629babb7989ea84c2424; it reports the same aggregate totals as local."
         ],
         "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
-}],
+},
+{
+        "sourceCommit": "2576d0648734071a8407c112b982787497d9337a",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45743222885",
+        "artifact": "packages/api/src/funding/purchase.router.test.ts; coverage/coverage-summary.json (workflow artifact api-quality-2576d0648734071a8407c112b982787497d9337a)",
+        "artifactSha256": "f626fec64d3095c51fbc9a55440a49e92a653714aba770a8e5483c6dfe9bd5ac",
+        "result": "Added database compare-and-set race coverage for purchase receipt persistence. Exact-head API quality CI passed every configured gate. Hosted and local aggregate coverage totals match, while the artifact byte hashes differ because the hosted report uses runner paths. Whole-repository coverage remains below API-08\u2019s frozen 100% criterion; TEST-01\u2019s interval-wide audit and default delivery also remain open.",
+        "coveragePercent": {
+                "lines": 99.69,
+                "statements": 99.63,
+                "branches": 98.77,
+                "functions": 99.63
+        },
+        "coveredTotals": {
+                "lines": "6848/6869",
+                "statements": "7322/7349",
+                "branches": "6290/6368",
+                "functions": "1636/1642"
+        },
+        "localArtifactSha256": "05f49463d89e5c7e7d9b338da81fae828c5e3b77c83ae133c69699051c712a03",
+        "moduleCoveragePercent": {
+                "packages/api/src/funding/purchase.ts": {
+                        "lines": 98.38,
+                        "statements": 98.87,
+                        "branches": 100,
+                        "functions": 100
+                }
+        },
+        "checks": [
+                "Exact source commit 2576d0648734071a8407c112b982787497d9337a passed API quality CI 45743222885: TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+                "Hosted aggregate coverage totals equal the local collector totals; hashes differ, so only the totals are treated as equivalent.",
+                "purchase.ts remains at 98.87% statements (88/89); repository totals remain below API-08\u2019s 100% threshold."
+        ],
+        "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and backend privacy/release acceptance. TEST-01 remains open pending interval-wide meaningful behavior audit and verified default-branch delivery."
+}
+],
       "deliveredCommit": null,
       "blocker": null
     },
@@ -5070,7 +5105,42 @@
                 "Repository-wide hosted coverage is 99.69% lines, 99.61% statements, 98.75% branches, and 99.63% functions."
         ],
         "resultLimitation": "TEST-01 remains open pending the complete frozen interval-wide behavior audit and verified default-branch delivery."
-}],
+},
+{
+        "sourceCommit": "2576d0648734071a8407c112b982787497d9337a",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45743222885",
+        "artifact": "packages/api/src/funding/purchase.router.test.ts; coverage/coverage-summary.json (workflow artifact api-quality-2576d0648734071a8407c112b982787497d9337a)",
+        "artifactSha256": "f626fec64d3095c51fbc9a55440a49e92a653714aba770a8e5483c6dfe9bd5ac",
+        "result": "Added database compare-and-set race coverage for purchase receipt persistence. Exact-head API quality CI passed every configured gate. Hosted and local aggregate coverage totals match, while the artifact byte hashes differ because the hosted report uses runner paths. Whole-repository coverage remains below API-08\u2019s frozen 100% criterion; TEST-01\u2019s interval-wide audit and default delivery also remain open.",
+        "coveragePercent": {
+                "lines": 99.69,
+                "statements": 99.63,
+                "branches": 98.77,
+                "functions": 99.63
+        },
+        "coveredTotals": {
+                "lines": "6848/6869",
+                "statements": "7322/7349",
+                "branches": "6290/6368",
+                "functions": "1636/1642"
+        },
+        "localArtifactSha256": "05f49463d89e5c7e7d9b338da81fae828c5e3b77c83ae133c69699051c712a03",
+        "moduleCoveragePercent": {
+                "packages/api/src/funding/purchase.ts": {
+                        "lines": 98.38,
+                        "statements": 98.87,
+                        "branches": 100,
+                        "functions": 100
+                }
+        },
+        "checks": [
+                "Exact source commit 2576d0648734071a8407c112b982787497d9337a passed API quality CI 45743222885: TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+                "Hosted aggregate coverage totals equal the local collector totals; hashes differ, so only the totals are treated as equivalent.",
+                "purchase.ts remains at 98.87% statements (88/89); repository totals remain below API-08\u2019s 100% threshold."
+        ],
+        "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and backend privacy/release acceptance. TEST-01 remains open pending interval-wide meaningful behavior audit and verified default-branch delivery."
+}
+],
       "deliveredCommit": null,
       "blocker": null
     },
