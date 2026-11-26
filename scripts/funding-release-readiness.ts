@@ -24,4 +24,5 @@ export async function fundingReleaseMain(env:NodeJS.ProcessEnv=process.env, outp
  if(env.API_LAYER_FUNDING_RELEASE_ENV_FILE)env={...parse(await readFile(env.API_LAYER_FUNDING_RELEASE_ENV_FILE,"utf8")),...env};
  const report=await runFundingReleaseReadiness(env);const output=path.resolve(outputArgument??"output/coinbase-usdc/funding-release-readiness.json");await mkdir(path.dirname(output),{recursive:true});await writeFile(output,JSON.stringify(report,null,2)+"\n");process.stdout.write("Funding database rollout inspection: "+report.database.status+"; no production release accepted.\n");if(report.database.status!=="verified")process.exitCode=2;
 }
-if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href)fundingReleaseMain().catch(()=>{process.stderr.write("Funding release inspection failed; inspect private configuration\n");process.exitCode=1;});
+export function reportFundingReleaseReadinessFailure():void{process.stderr.write("Funding release inspection failed; inspect private configuration\n");process.exitCode=1;}
+if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href)fundingReleaseMain().catch(reportFundingReleaseReadinessFailure);
