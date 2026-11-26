@@ -1388,6 +1388,20 @@
             "lines": 99.78
           },
           "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+        },
+        {
+          "sourceCommit": "a27ff3f65dbfcf1c7b46ea387b0e60f39743b5d3",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45881883365",
+          "artifact": "GitHub Actions artifact api-quality-a27ff3f65dbfcf1c7b46ea387b0e60f39743b5d3/coverage/coverage-summary.json",
+          "artifactSha256": "41e3425bc7c6b34d41a865d7c62b47852e10e7846173d0d94fc79b03818a7514",
+          "result": "Exact-source candidate-branch API quality CI passed every configured gate. Funding release readiness tests now cover process-environment/argv defaults, fallback report path, the sanitized CLI error handler, and the invariant that verified database rollout does not authorize production release. The hosted coverage artifact reports 99.82% statements (7,336/7,349), 99.13% branches (6,313/6,368), 99.81% functions (1,639/1,642), and 99.81% lines (6,856/6,869). The funding readiness file is fully covered in the merged local coverage map. Whole-repository coverage remains below the frozen 100% criterion; backend privacy/release acceptance and default-branch delivery remain unverified.",
+          "coveragePercent": {
+            "statements": 99.82,
+            "branches": 99.13,
+            "functions": 99.81,
+            "lines": 99.81
+          },
+          "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
