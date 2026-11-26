@@ -2315,8 +2315,7 @@
             "Exact-head API quality workflow 45691617059 passed on 5752b91d273c42659170fa3e98c2ab51e96793c1; the verify job completed successfully."
           ],
           "resultLimitation": "API-05 remains in_progress. The 69 ordinary exact-method proofs, hosted/default delivery, and the broader external API release acceptance remain outstanding."
-        }
-      ,
+        },
         {
           "sourceCommit": "707e57e5f87cfc16220e75ec59746a19730b6185",
           "url": "https://github.com/chefbc2k/api-layer/actions/runs/45753813534",
@@ -5095,8 +5094,7 @@
             "No other worktree was modified."
           ],
           "resultLimitation": "DELIVERY-01 remains in progress until every frozen branch/worktree candidate is dispositioned and approved source passengers are verified on default master."
-        }
-      ,
+        },
         {
           "sourceCommit": "66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
           "url": "https://github.com/chefbc2k/api-layer/commit/66bf0e188ca505aa1dc157c063ba72b2ae2f6d85",
@@ -5110,8 +5108,7 @@
             "Current default gap report: 710 total, 710 ready, 0 non-ready; current plan: 0 non-ready and 0 selected."
           ],
           "resultLimitation": "This resolves only the 2026-11-09 root-assurance cohort. Other frozen candidate refs remain unresolved, and the dirty worktree policy additions await review; DELIVERY-01 remains in progress."
-        }
-      ,
+        },
         {
           "sourceCommit": "e74cae8794e7633ef3a44f9a691010d4df3e6876",
           "url": "https://github.com/chefbc2k/api-layer/commit/e74cae8794e7633ef3a44f9a691010d4df3e6876",
@@ -5124,8 +5121,7 @@
             "Preserved the shared checkout and its user-owned dirty reviewed/reviewed-write-invariants.json file."
           ],
           "resultLimitation": "This resolves only the 2026-11-14 generated-report cohort. Other frozen candidates and preserved dirty worktrees remain under DELIVERY-01; overall delivery remains in progress."
-        }
-      ,
+        },
         {
           "sourceCommit": "e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
           "url": "https://github.com/chefbc2k/api-layer/commit/e1e32ef3f7fb9fb9dd66474189788b0e5a12c3e2",
