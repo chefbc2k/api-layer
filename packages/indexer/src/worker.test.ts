@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => {
   const db = {
     query: vi.fn(),
     withTransaction: vi.fn(),
+    close: vi.fn(),
   };
   const transactionClient = {
     query: vi.fn(),
@@ -161,6 +162,60 @@ describe("EventIndexer", () => {
     expect(mocks.transactionClient.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "3", "3", null]);
   });
 
+  it("uses the zero fallback when the configured start block is not below the cursor", async () => {
+    process.env.API_LAYER_INDEXER_START_BLOCK = "9";
+    mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.detectReorg") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xnew" }) });
+      }
+      if (label === "indexer.commonAncestor") {
+        return work({ getBlock: vi.fn().mockResolvedValue(null) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await expect((indexer as any).detectReorg({
+      cursorBlock: 9n,
+      finalizedBlock: 6n,
+      cursorBlockHash: "0xold",
+    })).resolves.toEqual({ cursorBlock: 0n, finalizedBlock: 0n, cursorBlockHash: null });
+
+    expect(mocks.transactionClient.query).toHaveBeenLastCalledWith(
+      expect.stringContaining("INSERT INTO indexer_checkpoints"),
+      [84532, "0", "0", null],
+    );
+  });
+
+  it("retains a finalized ancestor below the stored finalized block during reorg rollback", async () => {
+    mocks.db.query.mockResolvedValueOnce({
+      rowCount: 1,
+      rows: [{ block_number: "7", block_hash: "0xshared-7" }],
+    });
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.detectReorg") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xnew-9" }) });
+      }
+      if (label === "indexer.commonAncestor") {
+        return work({ getBlock: vi.fn().mockResolvedValue({ hash: "0xshared-7" }) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await expect((indexer as any).detectReorg({
+      cursorBlock: 9n,
+      finalizedBlock: 6n,
+      cursorBlockHash: "0xold-9",
+    })).resolves.toEqual({ cursorBlock: 7n, finalizedBlock: 6n, cursorBlockHash: "0xshared-7" });
+
+    expect(mocks.transactionClient.query).toHaveBeenLastCalledWith(
+      expect.stringContaining("INSERT INTO indexer_checkpoints"),
+      [84532, "7", "6", "0xshared-7"],
+    );
+  });
+
   it("does not mark orphaned data when the checkpoint cannot be verified as a reorg", async () => {
     mocks.db.query.mockResolvedValue({ rows: [], rowCount: 0 });
     mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
@@ -271,6 +326,42 @@ describe("EventIndexer", () => {
       "0xblock",
     ]));
     expect(mocks.transactionClient.query).toHaveBeenLastCalledWith(expect.stringContaining("INSERT INTO indexer_checkpoints"), [84532, "10", "10", "0xblock"]);
+  });
+
+  it("saves a checkpoint through the database when no transaction client is supplied", async () => {
+    const indexer = new EventIndexer();
+
+    await (indexer as any).saveCheckpoint(12n, 10n, "0xblock-12");
+
+    expect(mocks.db.query).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO indexer_checkpoints"),
+      [84532, "12", "10", "0xblock-12"],
+    );
+  });
+
+  it("rejects an ingested range when a canonical block is unavailable", async () => {
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.getLogs") {
+        return work({ getLogs: vi.fn().mockResolvedValue([]) });
+      }
+      if (label === "indexer.blockJournal") {
+        return work({ getBlock: vi.fn().mockResolvedValue(null) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await expect(indexer.ingestRange(10n, 10n, 10n)).rejects.toThrow("missing canonical block 10");
+
+    expect(mocks.db.withTransaction).not.toHaveBeenCalled();
+  });
+
+  it("closes the database connection", async () => {
+    const indexer = new EventIndexer();
+
+    await indexer.close();
+
+    expect(mocks.db.close).toHaveBeenCalledOnce();
   });
 
   it("persists undecoded logs without projecting them and clamps finalized block to zero", async () => {
@@ -396,6 +487,30 @@ describe("EventIndexer", () => {
 
     const indexer = new EventIndexer();
     await expect((indexer as any).resolveAmbiguousLog({ transactionHash: "0xambiguous" }, ambiguous)).resolves.toBe(ambiguous);
+  });
+
+  it("ignores malformed trace inputs and selectors without a reviewed event mapping", async () => {
+    const ambiguous = {
+      eventName: "Transfer",
+      signature: "Transfer(address,address,uint256)",
+      candidateEventKeys: ["TokenSupplyFacet.Transfer", "VoiceAssetFacet.Transfer"],
+      candidateArgs: {},
+    };
+    mocks.providerRouter.withProvider.mockImplementation(async (_mode: string, label: string, work: (provider: unknown) => Promise<unknown>) => {
+      if (label === "indexer.transaction") {
+        return work({ getTransaction: vi.fn().mockResolvedValue({ data: "0xdeadbeef" }) });
+      }
+      if (label === "indexer.transactionTrace") {
+        return work({ send: vi.fn().mockResolvedValue({
+          input: "0xmalformed",
+          calls: [{ input: "0x12345678" }],
+        }) });
+      }
+      throw new Error(`unexpected label ${label}`);
+    });
+
+    const indexer = new EventIndexer();
+    await expect((indexer as any).resolveAmbiguousLog({ transactionHash: "0xunmapped" }, ambiguous)).resolves.toBe(ambiguous);
   });
 
   it("uses the originating write selector to resolve and project one ambiguous event candidate", async () => {

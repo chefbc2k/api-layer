@@ -398,7 +398,9 @@ export class EventIndexer {
         });
       }
       await this.saveBlockJournal(client, blocks);
-      await this.saveCheckpoint(toBlock, finalizedBlock, blocks.at(-1)?.blockHash ?? null, client);
+      // The toBlock < fromBlock guard returns before this point, and each valid range journals at least one verified block.
+      const lastBlock = blocks.at(-1)!;
+      await this.saveCheckpoint(toBlock, finalizedBlock, lastBlock.blockHash, client);
     });
   }
 
