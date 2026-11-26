@@ -6730,6 +6730,68 @@ describeLive("HTTP API contract integration", () => {
       "AccessControlFacet.setRecoveryActive",
     );
 
+    const recoveredAccount = Wallet.createRandom().address;
+    const recoverableRoleCandidates = await Promise.all(["BOARD_MEMBER_ROLE", "TREASURY_ROLE"].map(async (name) => {
+      const role = id(name);
+      const [config, members] = await Promise.all([
+        accessControl.getRoleConfig(role),
+        accessControl.getRoleMembers(role),
+      ]);
+      const normalizedMembers = normalize(members);
+      const eligible = (
+        BigInt(normalizedMembers.length) <= BigInt(config.minMemberLimit) || config.recoveryActive
+      ) && (
+        BigInt(config.memberLimit) === 0n
+          || BigInt(normalizedMembers.length) < BigInt(config.memberLimit) + 1n
+      );
+      return { role, config, members: normalizedMembers, eligible };
+    }));
+    const recoverableRoleState = recoverableRoleCandidates.find((candidate) => candidate.eligible);
+    expect(recoverableRoleState, "fixture must expose an available recoverable role").toBeDefined();
+    const { role: recoverableRole, members: recoverableRoleMembersBefore } = recoverableRoleState!;
+    expect(await accessControl.hasRole(id("EMERGENCY_ADMIN_ROLE"), founderAddress)).toBe(true);
+    expect(recoverableRoleMembersBefore).not.toContain(recoveredAccount);
+    const emergencyForceAddResponse = await apiCall(port, "POST", "/v1/access-control/admin/emergency-force-add", {
+      apiKey: "founder-key",
+      body: { role: recoverableRole, account: recoveredAccount },
+    });
+    expect(emergencyForceAddResponse.status, JSON.stringify(emergencyForceAddResponse.payload)).toBe(202);
+    const emergencyForceAddTxHash = extractTxHash(emergencyForceAddResponse.payload);
+    await expectReceipt(emergencyForceAddTxHash);
+    const emergencyForceAddReceipt = await provider.getTransactionReceipt(emergencyForceAddTxHash);
+    expect(emergencyForceAddReceipt?.status).toBe(1);
+    expect(emergencyForceAddReceipt?.logs).toHaveLength(0);
+
+    expect(await accessControl.hasRole(recoverableRole, recoveredAccount)).toBe(true);
+    const recoveredRoleMember = await accessControl.getRoleMember(recoverableRole, recoveredAccount);
+    expect(roleMemberToObject(recoveredRoleMember)).toMatchObject({ active: true, assignedBy: ethers.ZeroAddress });
+    const recoveredRoleMembersAfter = normalize(await accessControl.getRoleMembers(recoverableRole));
+    const recoveredRoleMemberResponse = await apiCall(
+      port,
+      "GET",
+      `/v1/access-control/queries/get-role-member?role=${encodeURIComponent(recoverableRole)}&account=${encodeURIComponent(recoveredAccount)}`,
+      { apiKey: "read-key" },
+    );
+    expect(recoveredRoleMemberResponse.status).toBe(200);
+    expect(recoveredRoleMemberResponse.payload).toEqual(roleMemberToObject(recoveredRoleMember));
+    emergencyForceAddProofObservations.push({
+      methodKey: "AccessControlFacet.emergencyForceAdd",
+      route: "POST /v1/access-control/admin/emergency-force-add",
+      actor: founderAddress,
+      actorRole: "EMERGENCY_ADMIN_ROLE",
+      role: recoverableRole,
+      account: recoveredAccount,
+      httpStatus: emergencyForceAddResponse.status,
+      transactionHash: emergencyForceAddTxHash,
+      receiptStatus: emergencyForceAddReceipt.status,
+      logCount: emergencyForceAddReceipt.logs.length,
+      activeBefore: false,
+      activeAfter: await accessControl.hasRole(recoverableRole, recoveredAccount),
+      roleMemberReadback: roleMemberToObject(recoveredRoleMember),
+      listedByContract: recoveredRoleMembersAfter.includes(recoveredAccount),
+      isolatedFork: true,
+    });
+
     await submitAdminWrite(
       "/v1/diamond-admin/admin/set-upgrade-control-enforced",
       { enforced: true },
