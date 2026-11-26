@@ -246,6 +246,25 @@ describe("runClaimRewardCampaignWorkflow", () => {
     setTimeoutSpy.mockRestore();
   });
 
+  it("rejects a successful claim response that reports no positive economic delta", async () => {
+    mocks.createTokenomicsPrimitiveService.mockReturnValue({
+      ...tokenEconomics("100", "100"),
+      getCampaign: vi.fn().mockResolvedValue({ statusCode: 200, body: { totalClaimed: "5", paused: false } }),
+      claimableAmount: vi.fn().mockResolvedValue({ statusCode: 200, body: "10" }),
+      claimed: vi.fn().mockResolvedValue({ statusCode: 200, body: "5" }),
+      claim: vi.fn().mockResolvedValue({ statusCode: 202, body: { accepted: true, result: "0" } }),
+      claimedEventQuery: vi.fn(),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(null);
+
+    await expect(runClaimRewardCampaignWorkflow(
+      workflowContext(),
+      auth,
+      "0x00000000000000000000000000000000000000aa",
+      { campaignId: "22", totalAllocation: "10", proof: [] },
+    )).rejects.toThrow("claimRewardCampaign economic invariant failed: claim amount must be positive");
+  });
+
   it("normalizes insufficient campaign funding into an explicit workflow block", async () => {
     mocks.createTokenomicsPrimitiveService.mockReturnValue({
       ...tokenEconomics(),
