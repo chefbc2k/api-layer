@@ -3220,6 +3220,41 @@
           "Exact-head API quality CI 45725681404 is running on d8b71dd0151549ebbb33f0af14e74adc1f710de6; the disposable PostgreSQL/native USDC fork step is still active."
         ],
         "resultLimitation": "API-08 remains open: repository coverage is below 100%, hosted CI has not completed, and actual backend privacy/release acceptance is unverified."
+      },
+      {
+        "sourceCommit": "c4761645a921e1529eba9f14ebfbfc5d2954af3b",
+        "codeCommit": "d8b71dd0151549ebbb33f0af14e74adc1f710de6",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45730005675",
+        "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-c4761645a921e1529eba9f14ebfbfc5d2954af3b)",
+        "artifactSha256": "3859e1fe7d58ff7c574cba8efed84e84817c6ea8e3558b436e4d5170e8ce5116",
+        "result": "Exact-head API quality CI passed all configured gates. Hosted coverage matches local measurements at 99.09% lines, 98.89% statements, 97.70% branches, and 99.02% functions; the changed checkout module is 100% covered for lines/functions, 99.04% statements, and 93.61% branches. The repository remains below the frozen 100% coverage requirement. Backend privacy/release acceptance remains unverified.",
+        "coveragePercent": {
+          "lines": 99.09,
+          "statements": 98.89,
+          "branches": 97.70,
+          "functions": 99.02
+        },
+        "coveredTotals": {
+          "lines": "6807/6869",
+          "statements": "7268/7349",
+          "branches": "6223/6369",
+          "functions": "1626/1642"
+        },
+        "moduleCoveragePercent": {
+          "packages/api/src/funding/checkout.ts": {
+            "lines": 100,
+            "statements": 99.04,
+            "branches": 93.61,
+            "functions": 100
+          }
+        },
+        "checks": [
+          "API quality CI 45730005675 passed on exact branch head c4761645a921e1529eba9f14ebfbfc5d2954af3b, whose code tree includes test commit d8b71dd0151549ebbb33f0af14e74adc1f710de6.",
+          "TypeScript, Vercel types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation passed.",
+          "Downloaded hosted coverage artifact SHA-256 verified; all totals match local collector output.",
+          "A prior run 45725681404 on the same code commit was cancelled after GitHub reported its disposable fork gate active well beyond historical runtime; no acceptance was claimed from that cancelled run."
+        ],
+        "resultLimitation": "API-08 remains open pending exact 100% repository-wide coverage and actual backend privacy/release acceptance."
       }
       ],
       "deliveredCommit": null,
@@ -4726,7 +4761,20 @@
           "Current source/test delivery to default master remains unverified; no merge is claimed."
         ],
         "resultLimitation": "TEST-01 remains open pending full meaningful behavior-gap audit over the frozen source interval and verified default-branch delivery."
-        }
+      },
+      {
+        "sourceCommit": "d8b71dd0151549ebbb33f0af14e74adc1f710de6",
+        "url": "https://github.com/chefbc2k/api-layer/actions/runs/45730005675",
+        "artifact": "packages/api/src/funding/checkout.test.ts",
+        "result": "Added nine checkout behavior cases for stale and incomplete stored checkout state, chain policy, reservation races, payment-amount quotes, paging, error sanitization and persisted provider references. The focused suite passes 52/52; exact-head API quality CI passed all configured gates including regression and coverage. This closes targeted cases only.",
+        "checks": [
+          "pnpm exec vitest run packages/api/src/funding/checkout.test.ts --maxWorkers 1 --coverage.enabled true --coverage.include=packages/api/src/funding/checkout.ts: 52 passed.",
+          "Full local coverage collector passed; repo coverage 99.09% lines, 98.89% statements, 97.70% branches, 99.02% functions.",
+          "API quality CI 45730005675 passed on branch head c4761645a921e1529eba9f14ebfbfc5d2954af3b, containing code commit d8b71dd0151549ebbb33f0af14e74adc1f710de6.",
+          "TEST-01's interval-wide behavior review and verified default-branch delivery remain outstanding."
+        ],
+        "resultLimitation": "TEST-01 remains open pending full meaningful behavior-gap audit over the frozen source interval and verified default-branch delivery."
+      }
       ],
       "deliveredCommit": null,
       "blocker": null
