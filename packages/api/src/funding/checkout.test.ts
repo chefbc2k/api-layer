@@ -129,6 +129,46 @@ describe("checkout HTTP and idempotency", () => {
     expect((await call("orders", { quoteId })).status).toBe(200);
     expect(provider.createOrder).toHaveBeenCalledTimes(1);
   });
+  it("refuses to return an expired checkout link on an idempotent replay", async () => {
+    const { call, store, provider } = await setup();
+    const complete = store.completeAttempt.getMockImplementation()!;
+    store.completeAttempt.mockImplementationOnce(async (...args) => {
+      const saved = await complete(...args);
+      saved.checkout_expires_at = new Date(0);
+      return saved;
+    });
+    await call("orders", { quoteId });
+    expect(await call("orders", { quoteId })).toMatchObject({
+      status: 409,
+      body: { error: "Checkout link expired; inspect order status before creating a new checkout" },
+    });
+    expect(provider.createOrder).toHaveBeenCalledOnce();
+  });
+  it("does not expose a checkout when a completed attempt has no stored ciphertext", async () => {
+    const { call, store, provider } = await setup();
+    const complete = store.completeAttempt.getMockImplementation()!;
+    store.completeAttempt.mockImplementationOnce(async (...args) => {
+      const saved = await complete(...args);
+      saved.checkout_ciphertext = null;
+      return saved;
+    });
+    expect(await call("sessions", {})).toMatchObject({ status: 200, body: { checkoutAvailable: false } });
+    expect(provider.createSession).toHaveBeenCalledOnce();
+  });
+  it("does not expose a checkout when a ready attempt has no expiry", async () => {
+    const { call, store } = await setup();
+    const complete = store.completeAttempt.getMockImplementation()!;
+    store.completeAttempt.mockImplementationOnce(async (...args) => {
+      const saved = await complete(...args);
+      saved.checkout_expires_at = null;
+      return saved;
+    });
+    await call("sessions", {});
+    expect(await call("sessions", {})).toMatchObject({
+      status: 409,
+      body: { error: "Checkout link expired; inspect order status before creating a new checkout" },
+    });
+  });
   it("rejects idempotency-key reuse for a different quote", async () => {
     const { call, provider } = await setup(); await call("orders", { quoteId });
     expect((await call("orders", { quoteId: id })).status).toBe(409);
@@ -189,6 +229,40 @@ describe("checkout HTTP and idempotency", () => {
     expect(provider.createSession).toHaveBeenCalledWith(expect.objectContaining({ redirectUrl: config.redirectUrl, partnerUserRef: ref }));
     expect((await call("sessions", { redirectUrl: "https://evil.example" })).status).toBe(400);
   });
+  it("rejects sandbox-chain checkout when live funding is configured", async () => {
+    const { call, context, inspectChain, provider, store } = await setup();
+    const previousMode = config.mode;
+    config.mode = "live";
+    try {
+      expect((await call("sessions", {})).status).toBe(409);
+      expect(inspectChain).toHaveBeenCalledOnce();
+      expect(store.beginAttempt).not.toHaveBeenCalled();
+      expect(provider.createSession).not.toHaveBeenCalled();
+      expect(context.config.chainId).toBe(84532);
+    } finally {
+      config.mode = previousMode;
+    }
+  });
+  it("rejects a configured chain whose USDC token does not match", async () => {
+    const { call, inspectChain, provider, store } = await setup();
+    inspectChain.mockResolvedValueOnce({ chainId: 84532, token: wallet });
+    expect(await call("sessions", {})).toMatchObject({ status: 409, body: { error: "Funding destination does not match configured chain and USDC" } });
+    expect(store.beginAttempt).not.toHaveBeenCalled();
+    expect(provider.createSession).not.toHaveBeenCalled();
+  });
+  it("returns a raced reservation without creating a second provider order", async () => {
+    const { call, store, provider, getAttempt } = await setup();
+    const response = await call("sessions", {});
+    expect(response.status).toBe(200);
+    const attempt = getAttempt()!;
+    store.findAttempt.mockResolvedValue(null);
+    store.beginAttempt.mockResolvedValue({ created: false, attempt: { ...attempt, state: "creating", checkout_ciphertext: null } });
+    expect(await call("sessions", {}, { "idempotency-key": "request_0002" })).toMatchObject({
+      status: 202,
+      body: { id, status: "outcome_unknown", retryCreation: false },
+    });
+    expect(provider.createSession).toHaveBeenCalledOnce();
+  });
   it.each([{ quoteId, email: "forged@example.test" }, {}, { quoteId: "invalid" }])("rejects invalid or injected order creation %j", async input => {
     const { call, provider } = await setup(); expect((await call("orders", input)).status).toBe(400); expect(provider.createOrder).not.toHaveBeenCalled();
   });
@@ -201,6 +275,13 @@ describe("checkout HTTP and idempotency", () => {
   it("does not create an order for another owner or expired quote", async () => {
     const { call, store, provider } = await setup(); store.getQuoteRecord.mockResolvedValue(null);
     expect((await call("orders", { quoteId })).status).toBe(404); expect(provider.createOrder).not.toHaveBeenCalled();
+  });
+  it("sends payment-amount quotes to the matching provider request field", async () => {
+    const { call, store, provider } = await setup();
+    store.getQuoteRecord.mockResolvedValue({ ...quoteRecord, amount_kind: "payment", request_amount: "100.750000" });
+    expect((await call("orders", { quoteId })).status).toBe(200);
+    expect(provider.createOrder).toHaveBeenCalledWith(expect.objectContaining({ paymentAmount: "100.750000" }));
+    expect(provider.createOrder.mock.calls[0][0]).not.toHaveProperty("purchaseAmount");
   });
   it("refreshes owned order status without claiming verified settlement", async () => {
     const { call, provider } = await setup(); await call("orders", { quoteId });
@@ -220,10 +301,41 @@ describe("checkout HTTP and idempotency", () => {
     const { call, store, provider } = await setup(); store.getAttempt.mockResolvedValue(null);
     expect((await call(`orders/${id}`)).status).toBe(404); expect(provider.getOrder).not.toHaveBeenCalled();
   });
+  it("returns a ready attempt without querying the provider when it has no provider order ID", async () => {
+    const { call, provider, getAttempt } = await setup();
+    await call("orders", { quoteId });
+    getAttempt()!.provider_order_id = null;
+    expect(await call(`orders/${id}`)).toMatchObject({ status: 200, body: { id, status: "awaiting_verification" } });
+    expect(provider.getOrder).not.toHaveBeenCalled();
+  });
+  it("uses a persisted provider customer reference when refreshing an order", async () => {
+    const { call, provider, getAttempt } = await setup();
+    await call("orders", { quoteId });
+    getAttempt()!.provider_user_ref = "persisted-customer-reference";
+    provider.getOrder.mockResolvedValue({ ...order, partnerUserRef: "persisted-customer-reference" });
+    expect(await call(`orders/${id}`)).toMatchObject({ status: 200, body: { id, status: "awaiting_verification" } });
+    expect(provider.getOrder).toHaveBeenCalledWith(orderId);
+  });
   it("never exposes links or authentication tokens in history", async () => {
     const { call } = await setup(); await call("orders", { quoteId });
     const response = await call("history?limit=1");
     expect(response.body.items).toHaveLength(1); expect(JSON.stringify(response)).not.toContain("pay.coinbase"); expect(JSON.stringify(response)).not.toContain("never-return-this");
     expect((await call("history?limit=101")).status).toBe(400);
+  });
+  it("sanitizes unexpected history-store failures", async () => {
+    const { call, store } = await setup();
+    store.history.mockRejectedValue(new Error("database credential detail"));
+    expect(await call("history")).toMatchObject({ status: 500, body: { error: "Funding checkout service is unavailable" } });
+    expect(await call("history")).not.toHaveProperty("database credential detail");
+  });
+  it("returns the final item ID as the next history cursor when another page exists", async () => {
+    const { call, store, getAttempt } = await setup();
+    await call("sessions", {});
+    const attempt = getAttempt()!;
+    store.history.mockResolvedValue([{ ...attempt }, { ...attempt, id: quoteId }]);
+    expect(await call("history?limit=1")).toMatchObject({
+      status: 200,
+      body: { items: [{ id }], nextCursor: id },
+    });
   });
 });
