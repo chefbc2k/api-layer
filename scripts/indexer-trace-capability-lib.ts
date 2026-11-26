@@ -15,12 +15,12 @@ type TraceProvider = {
   send(method: string, params: unknown[]): Promise<unknown>;
 };
 
-function isLoopbackRpcUrl(rpcUrl: string): boolean {
+function isUnsafeTraceRpcUrl(rpcUrl: string): boolean {
   try {
-    const hostname = new URL(rpcUrl).hostname.toLowerCase();
+    const hostname = new URL(rpcUrl).hostname.toLowerCase().replace(/^\[|\]$/gu, "");
     return hostname === "127.0.0.1" || hostname === "localhost" || hostname === "::1";
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -37,7 +37,7 @@ export function selectTraceRpcUrl(env: NodeJS.ProcessEnv): TraceRpcSelection {
 
   for (const key of ["ALCHEMY_RPC_URL", "RPC_URL", "CBDP_RPC_URL"]) {
     const configured = envValue(env, key);
-    if (configured && !isLoopbackRpcUrl(configured)) {
+    if (configured && !isUnsafeTraceRpcUrl(configured)) {
       return { rpcUrl: configured, source: "configured" };
     }
   }

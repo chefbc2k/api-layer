@@ -31,6 +31,25 @@ describe("indexer trace capability proof", () => {
       rpcUrl: BASE_SEPOLIA_PUBLIC_RPC_URL,
       source: "base-sepolia-public-fallback",
     });
+    expect(selectTraceRpcUrl({
+      ALCHEMY_RPC_URL: "http://[::1]:8545",
+      RPC_URL: "malformed-rpc-url",
+    })).toEqual({
+      rpcUrl: BASE_SEPOLIA_PUBLIC_RPC_URL,
+      source: "base-sepolia-public-fallback",
+    });
+  });
+
+  it("uses the first configured valid non-loopback endpoint", () => {
+    expect(selectTraceRpcUrl({
+      ALCHEMY_RPC_URL: "https://trace.example.com/alchemy-key",
+      RPC_URL: "https://secondary.example.com/rpc-key",
+      CHAIN_ID: "1",
+      NETWORK: "mainnet",
+    })).toEqual({
+      rpcUrl: "https://trace.example.com/alchemy-key",
+      source: "configured",
+    });
   });
 
   it("fails closed for another network without a non-loopback trace endpoint", () => {
@@ -76,5 +95,13 @@ describe("indexer trace capability proof", () => {
     await expect(probeCallTracer(emptyProvider, "0xmissing")).rejects.toThrow(
       "callTracer returned an invalid object result",
     );
+    await expect(probeCallTracer({ ...emptyProvider, send: vi.fn().mockResolvedValue([]) }, "0xarray"))
+      .resolves.toEqual({ traceKind: "array" });
+    await expect(findRecentSuccessfulTransaction({
+      ...emptyProvider,
+      getBlockNumber: vi.fn().mockResolvedValue(0),
+      getBlock: vi.fn().mockResolvedValue(null),
+      getTransactionReceipt: vi.fn().mockResolvedValue(null),
+    }, 1)).rejects.toThrow("no successful transaction found");
   });
 });
