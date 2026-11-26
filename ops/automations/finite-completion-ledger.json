@@ -3511,6 +3511,40 @@
                 "purchase.ts remains at 98.87% statements (88/89); repository totals remain below API-08\u2019s 100% threshold."
         ],
         "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and backend privacy/release acceptance. TEST-01 remains open pending interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "d086a32e0e21c0c4aa32595f9f8a8c30d0e98193",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45884423518",
+  "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-d086a32e0e21c0c4aa32595f9f8a8c30d0e98193)",
+  "artifactSha256": "2d3fc8d271306d621ec6be18eddf237e889a1504e79bb3ba006b5921ab18dc24",
+  "result": "Added focused promotion-runner failure-path tests for malformed localhost runtime URLs and output persistence errors handled by the direct CLI path. Exact-head API quality CI passed every configured gate. Hosted repository coverage advanced to 99.83% lines, 99.85% statements, 99.18% branches, and 99.81% functions; the frozen 100% criterion and actual backend privacy/release acceptance remain open.",
+  "coveragePercent": {
+    "lines": 99.83,
+    "statements": 99.85,
+    "branches": 99.18,
+    "functions": 99.81
+  },
+  "coveredTotals": {
+    "lines": "6858/6869",
+    "statements": "7338/7349",
+    "branches": "6316/6368",
+    "functions": "1639/1642"
+  },
+  "moduleCoveragePercent": {
+    "scripts/promote-base-sepolia-scenarios.ts": {
+      "lines": 98.48,
+      "statements": 98.56,
+      "branches": 93.3,
+      "functions": 97.05
+    }
+  },
+  "checks": [
+    "Exact-head GitHub API quality workflow 45884423518 passed on d086a32e0e21c0c4aa32595f9f8a8c30d0e98193: dependency audit, pinned code generation, TypeScript, Vercel entrypoint types, lint, build, PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+    "pnpm exec vitest run scripts/promote-base-sepolia-scenarios.test.ts --coverage.enabled --coverage.include=scripts/promote-base-sepolia-scenarios.ts --coverage.reportsDirectory=/tmp/api05-promotion-coverage-after --maxWorkers 1: 24 tests passed; target module coverage is 98.48% lines, 98.56% statements, 93.30% branches, and 97.05% functions.",
+    "pnpm exec tsc -b --pretty false, pnpm exec eslint scripts/promote-base-sepolia-scenarios.test.ts, and git diff --check passed.",
+    "Hosted coverage artifact SHA-256 2d3fc8d271306d621ec6be18eddf237e889a1504e79bb3ba006b5921ab18dc24; repository totals: 6858/6869 lines (99.83%), 7338/7349 statements (99.85%), 6316/6368 branches (99.18%), and 1639/1642 functions (99.81%)."
+  ],
+  "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }
 ],
       "deliveredCommit": null,
@@ -5139,6 +5173,26 @@
                 "purchase.ts remains at 98.87% statements (88/89); repository totals remain below API-08\u2019s 100% threshold."
         ],
         "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and backend privacy/release acceptance. TEST-01 remains open pending interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "d086a32e0e21c0c4aa32595f9f8a8c30d0e98193",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45884423518",
+  "artifact": "scripts/promote-base-sepolia-scenarios.test.ts; coverage/coverage-summary.json",
+  "artifactSha256": "2d3fc8d271306d621ec6be18eddf237e889a1504e79bb3ba006b5921ab18dc24",
+  "result": "Added focused regressions for malformed localhost runtime URLs failing closed and for output persistence errors reaching the direct CLI failure handler. The promotion-runner suite passed 24/24 and exact-head API quality CI passed all configured gates. This is a targeted behavior-coverage increment, not completion of the frozen interval-wide review or default delivery.",
+  "coveragePercent": {
+    "lines": 99.83,
+    "statements": 99.85,
+    "branches": 99.18,
+    "functions": 99.81
+  },
+  "checks": [
+    "Exact-head GitHub API quality workflow 45884423518 passed on d086a32e0e21c0c4aa32595f9f8a8c30d0e98193: dependency audit, pinned code generation, TypeScript, Vercel entrypoint types, lint, build, PostgreSQL/native-USDC fork, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+    "pnpm exec vitest run scripts/promote-base-sepolia-scenarios.test.ts --coverage.enabled --coverage.include=scripts/promote-base-sepolia-scenarios.ts --coverage.reportsDirectory=/tmp/api05-promotion-coverage-after --maxWorkers 1: 24 tests passed; target module coverage is 98.48% lines, 98.56% statements, 93.30% branches, and 97.05% functions.",
+    "pnpm exec tsc -b --pretty false, pnpm exec eslint scripts/promote-base-sepolia-scenarios.test.ts, and git diff --check passed.",
+    "Hosted coverage artifact SHA-256 2d3fc8d271306d621ec6be18eddf237e889a1504e79bb3ba006b5921ab18dc24; repository totals: 6858/6869 lines (99.83%), 7338/7349 statements (99.85%), 6316/6368 branches (99.18%), and 1639/1642 functions (99.81%)."
+  ],
+  "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
 }
 ],
       "deliveredCommit": null,
