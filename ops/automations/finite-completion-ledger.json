@@ -3594,6 +3594,31 @@
     "Hosted coverage artifact SHA-256: 9b7664ec0a874dccb3fbe7779b9cfab17ecb2f1b490d17d9ed57bd3329816510."
   ],
   "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+},
+{
+  "sourceCommit": "e0c990943174f224c2687ab5def7baaf00a0f644",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45893558972",
+  "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-e0c990943174f224c2687ab5def7baaf00a0f644)",
+  "artifactSha256": "a6dfa6456c6e1c75a2f5acad2afe42dff5e54bce3add010cce81c607dc6a79b5",
+  "result": "Exact-head API quality CI passed every configured gate after adding indexer ingestion, rollback, lifecycle, and malformed trace tests. Whole-repository coverage improved to 99.89% lines, 99.90% statements, 99.41% branches, and 99.93% functions; the frozen 100% criterion remains open.",
+  "coveragePercent": {
+    "lines": 99.89,
+    "statements": 99.9,
+    "branches": 99.41,
+    "functions": 99.93
+  },
+  "coveredTotals": {
+    "lines": "6863/6870",
+    "statements": "7343/7350",
+    "branches": "6329/6366",
+    "functions": "1641/1642"
+  },
+  "checks": [
+    "Exact-head workflow 45893558972 passed all 21 gates on e0c990943174f224c2687ab5def7baaf00a0f644, including typecheck, lint, build, regression, coverage, API surface, actor boundaries, red team, indexer assurance, and evidence preservation.",
+    "Focused packages/indexer/src/worker.test.ts passed 25/25; worker.ts measured 100% lines, statements, branches, and functions.",
+    "Hosted coverage artifact SHA-256: a6dfa6456c6e1c75a2f5acad2afe42dff5e54bce3add010cce81c607dc6a79b5."
+  ],
+  "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }
 ],
       "deliveredCommit": null,
@@ -5277,6 +5302,25 @@
     "Exact-head API quality workflow 45891210230 passed on 1025bd311d1ea73029eb226ba855a061ad9d783b.",
     "Hosted whole-repository coverage: 6859/6869 lines, 7339/7349 statements, 6323/6368 branches, and 1639/1642 functions.",
     "Focused workflow suite: 16 tests passed with 100% coverage in all four categories."
+  ],
+  "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "e0c990943174f224c2687ab5def7baaf00a0f644",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45893558972",
+  "artifact": "packages/indexer/src/worker.test.ts; coverage/coverage-summary.json",
+  "artifactSha256": "a6dfa6456c6e1c75a2f5acad2afe42dff5e54bce3add010cce81c607dc6a79b5",
+  "result": "Added indexer worker regressions for missing canonical blocks, rollback behavior, database closure, fallback checkpointing, malformed traces, and unregistered selectors. The 25-test worker suite reached 100% module coverage across all four categories, and exact-head API quality CI passed. This remains a targeted increment, not completion of the interval-wide test-gap audit or default delivery.",
+  "coveragePercent": {
+    "lines": 99.89,
+    "statements": 99.9,
+    "branches": 99.41,
+    "functions": 99.93
+  },
+  "checks": [
+    "Exact-head API quality workflow 45893558972 passed every configured gate on e0c990943174f224c2687ab5def7baaf00a0f644.",
+    "Focused worker suite passed 25/25 with 100% lines, statements, branches, and functions.",
+    "Hosted repository coverage: 6863/6870 lines, 7343/7350 statements, 6329/6366 branches, and 1641/1642 functions."
   ],
   "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
 }
