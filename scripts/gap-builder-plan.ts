@@ -85,7 +85,7 @@ function compareGapItems(left: GapItem, right: GapItem): number {
   );
 }
 
-function selectGroupedItems(items: GapItem[], maxItems: number, allowSmallOverage = false): GapItem[] {
+function selectGroupedItems(items: GapItem[], maxItems: number, allowSmallOverage: boolean): GapItem[] {
   const byFacet = new Map<string, GapItem[]>();
   for (const item of items) {
     byFacet.set(item.facetName, [...(byFacet.get(item.facetName) ?? []), item]);
