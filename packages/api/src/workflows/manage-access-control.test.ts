@@ -185,6 +185,56 @@ describe("runManageAccessControlWorkflow", () => {
     });
   });
 
+  it.each([
+    ["different role values", { ...config, memberLimit: "3" }],
+    ["a non-object role value", null],
+  ])("rejects configureRole when readback is %s", async (_label, readback) => {
+    mocks.createAccessControlPrimitiveService.mockReturnValue({
+      configureRole: vi.fn().mockResolvedValue({ body: { txHash: "0xconfigure" } }),
+      getRoleConfig: vi.fn().mockResolvedValue({ body: readback }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xconfigure-receipt");
+
+    await expect(runManageAccessControlWorkflow({} as never, auth, undefined, {
+      role,
+      config,
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: "manage-access-control configureRole readback mismatch",
+    });
+  });
+
+  it("rejects a role-admin update whose readback differs from the requested admin", async () => {
+    mocks.createAccessControlPrimitiveService.mockReturnValue({
+      setRoleAdmin: vi.fn().mockResolvedValue({ body: { txHash: "0xadmin" } }),
+      getRoleAdmin: vi.fn().mockResolvedValue({ body: founderRole }),
+    });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue("0xadmin-receipt");
+
+    await expect(runManageAccessControlWorkflow({} as never, auth, undefined, {
+      role,
+      adminRole: ownerRole,
+    })).rejects.toMatchObject({
+      statusCode: 409,
+      message: "manage-access-control setRoleAdmin readback mismatch",
+    });
+  });
+
+  it("returns gateway timeout when a write receipt cannot be resolved", async () => {
+    const setDefaultValidityPeriod = vi.fn().mockResolvedValue({ body: { txHash: "0xvalidity" } });
+    mocks.createAccessControlPrimitiveService.mockReturnValue({ setDefaultValidityPeriod });
+    mocks.waitForWorkflowWriteReceipt.mockResolvedValue(undefined);
+
+    await expect(runManageAccessControlWorkflow({} as never, auth, undefined, {
+      role,
+      defaultValidityPeriod: "86400",
+    })).rejects.toMatchObject({
+      statusCode: 504,
+      message: "manageAccessControl.setDefaultValidityPeriod receipt did not resolve",
+    });
+    expect(setDefaultValidityPeriod).toHaveBeenCalledOnce();
+  });
+
   it("rejects renounceRole when the readback account is not bound to the request wallet", async () => {
     mocks.createAccessControlPrimitiveService.mockReturnValue({
       hasRole: vi.fn(),
