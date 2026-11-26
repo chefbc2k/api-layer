@@ -3569,6 +3569,31 @@
     "Coverage artifact SHA-256 8ea1a9b4c524a39f3bbc216a293f37d56ebe8a51d7c7af7521c4d1c03cc29078; whole-repository totals are 6858/6869 lines, 7338/7349 statements, 6322/6368 branches, and 1639/1642 functions."
   ],
   "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
+},
+{
+  "sourceCommit": "1025bd311d1ea73029eb226ba855a061ad9d783b",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45891210230",
+  "artifact": "coverage/coverage-summary.json (workflow artifact api-quality-1025bd311d1ea73029eb226ba855a061ad9d783b)",
+  "artifactSha256": "9b7664ec0a874dccb3fbe7779b9cfab17ecb2f1b490d17d9ed57bd3329816510",
+  "result": "Added a regression for a successful reward-claim response that reports zero economic value. Exact-head API quality CI passed every configured gate. Coverage advanced slightly but remains below the frozen 100% requirement; actual backend privacy/release acceptance remains open.",
+  "coveragePercent": {
+    "lines": 99.85,
+    "statements": 99.86,
+    "branches": 99.29,
+    "functions": 99.81
+  },
+  "coveredTotals": {
+    "lines": "6859/6869",
+    "statements": "7339/7349",
+    "branches": "6323/6368",
+    "functions": "1639/1642"
+  },
+  "checks": [
+    "Exact-head API quality workflow 45891210230 passed on 1025bd311d1ea73029eb226ba855a061ad9d783b, including regression, coverage, API surface, actor boundaries, red team, indexer assurance and evidence preservation.",
+    "Focused claim-reward workflow coverage: 16 tests passed and the workflow measured 100% lines, statements, branches, and functions.",
+    "Hosted coverage artifact SHA-256: 9b7664ec0a874dccb3fbe7779b9cfab17ecb2f1b490d17d9ed57bd3329816510."
+  ],
+  "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
 }
 ],
       "deliveredCommit": null,
@@ -5233,6 +5258,25 @@
   "checks": [
     "Exact-head GitHub API quality workflow 45886700265 passed on 3c80f87a6e6a4619fb41511851f25ca80b239791, including regression, coverage, API surface, actor boundaries, red team, indexer assurance and evidence preservation.",
     "Coverage artifact SHA-256 8ea1a9b4c524a39f3bbc216a293f37d56ebe8a51d7c7af7521c4d1c03cc29078; whole-repository totals are 6858/6869 lines, 7338/7349 statements, 6322/6368 branches, and 1639/1642 functions."
+  ],
+  "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
+},
+{
+  "sourceCommit": "1025bd311d1ea73029eb226ba855a061ad9d783b",
+  "url": "https://github.com/chefbc2k/api-layer/actions/runs/45891210230",
+  "artifact": "packages/api/src/workflows/claim-reward-campaign.test.ts; coverage/coverage-summary.json",
+  "artifactSha256": "9b7664ec0a874dccb3fbe7779b9cfab17ecb2f1b490d17d9ed57bd3329816510",
+  "result": "Added a negative behavior regression proving the reward-claim workflow rejects an accepted submission whose direct result is zero. The focused workflow suite passed 16/16 tests and reached 100% line, statement, branch, and function coverage. Exact-head API quality CI passed every configured gate. This is a targeted increment, not completion of the interval-wide test-gap audit or default delivery.",
+  "coveragePercent": {
+    "lines": 99.85,
+    "statements": 99.86,
+    "branches": 99.29,
+    "functions": 99.81
+  },
+  "checks": [
+    "Exact-head API quality workflow 45891210230 passed on 1025bd311d1ea73029eb226ba855a061ad9d783b.",
+    "Hosted whole-repository coverage: 6859/6869 lines, 7339/7349 statements, 6323/6368 branches, and 1639/1642 functions.",
+    "Focused workflow suite: 16 tests passed with 100% coverage in all four categories."
   ],
   "resultLimitation": "TEST-01 remains open pending the full frozen interval-wide meaningful behavior audit and verified default-branch delivery."
 }
