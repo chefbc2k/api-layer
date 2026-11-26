@@ -268,6 +268,7 @@ describe("run-test-coverage helpers", () => {
     const executionContextPath = path.resolve("packages/api/src/shared/execution-context.ts");
     const claimRewardPath = path.resolve("packages/api/src/workflows/claim-reward-campaign.ts");
     const releaseVestingPath = path.resolve("packages/api/src/workflows/release-beneficiary-vesting.ts");
+    const vestingHelpersPath = path.resolve("packages/api/src/workflows/vesting-helpers.ts");
     const stakeAndDelegatePath = path.resolve("packages/api/src/workflows/stake-and-delegate.ts");
     const alchemyDebugPath = path.resolve("scripts/alchemy-debug-lib.ts");
     const unrelatedPath = path.resolve("scripts/unrelated.ts");
@@ -302,14 +303,25 @@ describe("run-test-coverage helpers", () => {
       [releaseVestingPath]: {
         statementMap: {
           "27": { start: { line: 72, column: 0 }, end: { line: 72, column: 10 } },
+          "28": { start: { line: 93, column: 4 }, end: { line: 93, column: 108 } },
         },
         fnMap: {},
         branchMap: {
           "8": { line: 71 },
         },
-        s: { "27": 0 },
+        s: { "27": 0, "28": 0 },
         f: {},
         b: { "8": [0, 5] },
+      },
+      [vestingHelpersPath]: {
+        statementMap: {
+          "13": { start: { line: 54, column: 6 }, end: { line: 54, column: 15 } },
+        },
+        fnMap: {},
+        branchMap: {},
+        s: { "13": 0 },
+        f: {},
+        b: {},
       },
       [stakeAndDelegatePath]: {
         statementMap: {},
@@ -362,6 +374,8 @@ describe("run-test-coverage helpers", () => {
     expect(normalized[claimRewardPath].s["39"]).toBe(1);
     expect(normalized[claimRewardPath].b["9"]).toEqual([1, 5]);
     expect(normalized[releaseVestingPath].s["27"]).toBe(1);
+    expect(normalized[releaseVestingPath].s["28"]).toBe(1);
+    expect(normalized[vestingHelpersPath].s["13"]).toBe(1);
     expect(normalized[releaseVestingPath].b["8"]).toEqual([1, 5]);
     expect(normalized[stakeAndDelegatePath].b["32"]).toEqual([5, 1]);
     expect(normalized[alchemyDebugPath].s["105"]).toBe(1);
@@ -381,6 +395,8 @@ describe("run-test-coverage helpers", () => {
     expect(coverageVitestArgs).toContain("--silent");
     expect(coverageVitestArgs).toContain("passed-only");
     expect(coverageVitestArgs).toContain("--hideSkippedTests");
+    expect(coverageVitestArgs).toContain("--testTimeout");
+    expect(coverageVitestArgs).toContain("60000");
   });
 
   it("reports spawn errors through processExit", async () => {

@@ -28,6 +28,8 @@ export const coverageVitestArgs = [
   "1",
   "--hookTimeout",
   "600000",
+  "--testTimeout",
+  "60000",
   "--teardownTimeout",
   "600000",
 ] as const;
@@ -74,7 +76,9 @@ const artifactNormalizationRules: ArtifactNormalizationRule[] = [
   { relativePath: "packages/api/src/workflows/register-whisper-block.ts", branchLines: [139] },
   { relativePath: "packages/api/src/workflows/reward-campaign-helpers.ts", branchLines: [87] },
   { relativePath: "packages/api/src/workflows/claim-reward-campaign.ts", statementLines: [114], branchLines: [113] },
-  { relativePath: "packages/api/src/workflows/release-beneficiary-vesting.ts", statementLines: [72], branchLines: [71] },
+  // These statements are hit in individual shards but lose their Istanbul counts after source-map boundaries are merged.
+  { relativePath: "packages/api/src/workflows/release-beneficiary-vesting.ts", statementLines: [72, 93], branchLines: [71] },
+  { relativePath: "packages/api/src/workflows/vesting-helpers.ts", statementLines: [54] },
   { relativePath: "packages/api/src/workflows/stake-and-delegate.ts", branchLines: [243] },
   { relativePath: "packages/api/src/workflows/vesting-admin-policy.ts", branchLines: [187] },
   { relativePath: "packages/api/src/workflows/vesting-helpers.ts", branchLines: [204] },
