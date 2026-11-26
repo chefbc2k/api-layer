@@ -1316,6 +1316,20 @@
             "functions": 96.15,
             "lines": 93.62
           }
+        },
+        {
+          "sourceCommit": "daed9bac97d0cef8895a84a6caecd6ca0915ce2a",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45746879380",
+          "artifact": "GitHub Actions artifact api-quality-daed9bac97d0cef8895a84a6caecd6ca0915ce2a/coverage/coverage-summary.json",
+          "artifactSha256": "7e03ab80f595c8418f8854c4c7468f6a08828c0c385ee06001db9e8a295c334b",
+          "result": "Exact-source candidate-branch API quality CI passed every configured gate: critical dependency audit, generated-source bootstrap, TypeScript, Vercel entrypoint types, lint, build, disposable PostgreSQL/native USDC fork, regression, coverage, API surface, actor boundaries, red team, and indexer assurance. Hosted coverage is 99.74% statements, 99.02% branches, 99.75% functions, and 99.73% lines; it remains below the frozen 100% criterion. This source is on the isolated candidate branch and is not default-branch delivery.",
+          "coveragePercent": {
+            "statements": 99.74,
+            "branches": 99.02,
+            "functions": 99.75,
+            "lines": 99.73
+          },
+          "resultLimitation": "API-08 remains open pending exact 100% whole-repository coverage and actual backend privacy/release acceptance."
         }
       ],
       "deliveredCommit": null,
@@ -2720,6 +2734,20 @@
             "pnpm exec vitest run scripts/vercel-entrypoint.test.ts --maxWorkers 1: 1 passed",
             "pnpm run typecheck:vercel: passed"
           ]
+        },
+        {
+          "sourceCommit": "daed9bac97d0cef8895a84a6caecd6ca0915ce2a",
+          "url": "https://github.com/chefbc2k/api-layer/actions/runs/45746879380",
+          "artifactSha256": "7e03ab80f595c8418f8854c4c7468f6a08828c0c385ee06001db9e8a295c334b",
+          "result": "Candidate-branch source adds tests for funding checkout/pricing/provider failure, settlement rollback, webhook fail-closed/default-storage behavior, and signer nonce/queue handling. Focused suites passed 276 tests; type-check and lint passed; hosted full regression and coverage gates passed on the exact source commit. The release-wide frozen interval behavior-gap review is not complete, and this source is not default-branch delivery.",
+          "checks": [
+            "Focused Vitest: 276 passed across five files",
+            "pnpm exec tsc -b --pretty false: passed",
+            "ESLint on changed tests: passed",
+            "git diff --check: passed",
+            "Hosted API quality CI 45746879380 passed all gates; aggregate coverage remains below 100%"
+          ],
+          "resultLimitation": "TEST-01 remains open pending interval-wide meaningful behavior audit and verified default-branch delivery."
         }
       ],
       "deliveredCommit": null,
