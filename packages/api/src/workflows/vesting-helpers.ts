@@ -250,9 +250,8 @@ function extractUint256Words(text: string): string[] {
       const word = payload.slice(index, index + 64);
       words.push(BigInt(`0x${word}`).toString());
     }
-    if (words.length > 0) {
-      return words;
-    }
+    // The length guard above guarantees the loop contributes at least one complete word.
+    return words;
   }
   return [];
 }
