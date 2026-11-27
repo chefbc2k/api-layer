@@ -4391,19 +4391,19 @@
             "path": "/private/tmp/api-base-sepolia-promotion-20261115",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/base-sepolia-promotion-20261115",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/api-economic-invariants-20261115",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/economic-invariants-20261115",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/api-event-proof-20261115",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/api-event-indexer-proof-20261115",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/api-layer-gap-20261115",
@@ -4433,7 +4433,7 @@
             "path": "/private/tmp/api-local-fork-automation-20261115/master",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/local-fork-automation-20261115",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/private/tmp/contracts-api-20261115",
@@ -4553,7 +4553,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-actor-negative-paths-20261111",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/actor-negative-paths-20261111",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-event-indexer-proof-20261026",
@@ -4781,7 +4781,7 @@
             "path": "/Users/chef/.codex/worktrees/red-team-harness-20261113",
             "commit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
             "branch": "refs/heads/codex/red-team-harness-20261113",
-            "disposition": null
+            "disposition": "already-delivered"
           },
           {
             "path": "/Users/chef/.codex/worktrees/transaction-request-privacy-20261026/api-layer",
@@ -5135,6 +5135,25 @@
             "Current default changelog already assigns version 0.1.396 to a later actor-revalidation record; the old duplicate versioned changelog block was therefore superseded."
           ],
           "resultLimitation": "This dispositions three historical refs only. Readiness classification and admin-denial coverage do not substitute for successful exact-method execution/post-state/indexer proofs; API-05 and the remaining release criteria stay open."
+        },
+        {
+          "sourceCommit": "86f58fab72a93abe524dfbc7810c75ec06e51238",
+          "verifiedAgainstCommit": "820636dfaf36c46e5b302c5db6121c2127c0ef5a",
+          "artifact": "ops/automations/finite-completion-ledger.json",
+          "result": "Six frozen worktrees were already delivered: each exact frozen commit is an ancestor of the current release branch head, so its candidate state is included in the release branch.",
+          "checks": [
+            "All six frozen worktree entries resolve to commit 86f58fab72a93abe524dfbc7810c75ec06e51238.",
+            "git merge-base --is-ancestor 86f58fab72a93abe524dfbc7810c75ec06e51238 HEAD succeeded on release branch codex/api05-payment-deadline-20261124 at 820636dfaf36c46e5b302c5db6121c2127c0ef5a.",
+            "The candidate-specific diff against the current release branch is empty; these frozen worktrees contain no undelivered passenger changes."
+          ],
+          "disposedWorktrees": [
+            "/private/tmp/api-base-sepolia-promotion-20261115",
+            "/private/tmp/api-economic-invariants-20261115",
+            "/private/tmp/api-event-proof-20261115",
+            "/private/tmp/api-local-fork-automation-20261115/master",
+            "/Users/chef/.codex/worktrees/api-assurance-actor-negative-paths-20261111",
+            "/Users/chef/.codex/worktrees/red-team-harness-20261113"
+          ]
         }
       ],
       "deliveredCommit": null,
