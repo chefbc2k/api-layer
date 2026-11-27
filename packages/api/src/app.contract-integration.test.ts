@@ -3476,7 +3476,8 @@ describeLive("HTTP API contract integration", () => {
     const changedDelayExecution = await executeScheduledOperation(changeDelayOperation);
     const delayUpdateEvents = parsedTimelockEvents(changedDelayExecution.receipt);
     expect(delayUpdateEvents.map((event) => event.signature)).toContain("MinDelayUpdated(uint256,uint256)");
-    expect(await timelockFacet.getMinDelay()).toBe(changedDelay);
+    const changedDelayReadback = await timelockFacet.getMinDelay();
+    expect(changedDelayReadback).toBe(changedDelay);
 
     const restoreDelayOperation = buildOperation(
       baseProposalId + 3n,
@@ -3485,9 +3486,32 @@ describeLive("HTTP API contract integration", () => {
       changedDelay,
     );
     const restoredDelayExecution = await executeScheduledOperation(restoreDelayOperation);
-    expect(parsedTimelockEvents(restoredDelayExecution.receipt).map((event) => event.signature))
+    const restoreDelayEvents = parsedTimelockEvents(restoredDelayExecution.receipt);
+    expect(restoreDelayEvents.map((event) => event.signature))
       .toContain("MinDelayUpdated(uint256,uint256)");
-    expect(await timelockFacet.getMinDelay()).toBe(minDelay);
+    const restoredDelayReadback = await timelockFacet.getMinDelay();
+    expect(restoredDelayReadback).toBe(minDelay);
+    timelockMinDelayProofObservations.push({
+      methodKey: "TimelockFacet.updateMinDelay",
+      route: "POST /v1/governance/commands/execute",
+      invocationKind: "internal-diamond-call",
+      transactionMethodKey: "TimelockFacet.execute",
+      originalDelay: minDelay.toString(),
+      changedDelay: changedDelay.toString(),
+      changedDelayReadback: changedDelayReadback.toString(),
+      restoredDelayReadback: restoredDelayReadback.toString(),
+      changeOperationId: changedDelayExecution.operationId,
+      restoreOperationId: restoredDelayExecution.operationId,
+      changeTransactionHash: changedDelayExecution.receipt.hash,
+      restoreTransactionHash: restoredDelayExecution.receipt.hash,
+      changeReceiptStatus: Number(changedDelayExecution.receipt.status),
+      restoreReceiptStatus: Number(restoredDelayExecution.receipt.status),
+      changeEvents: delayUpdateEvents.map((event) => event.signature),
+      restoreEvents: restoreDelayEvents.map((event) => event.signature),
+      stateChangedAndRestored: changedDelayReadback === changedDelay
+        && restoredDelayReadback === minDelay,
+      isolatedFork: isLoopbackRpcUrl(activeRpcUrl),
+    });
   }, 180_000);
 
   it("proves tokenomics reads and reversible admin/token flows through HTTP on Base Sepolia", async (ctx) => {
