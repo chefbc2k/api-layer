@@ -4517,7 +4517,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261110",
             "commit": "178e465a4132d6087c0c0ec0d5ac591f753ada61",
             "branch": "refs/heads/codex/api-assurance-gap-completion-20261110",
-            "disposition": null
+            "disposition": "preserved-unreviewed"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261111",
@@ -4529,7 +4529,7 @@
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261113",
             "commit": "bfb0bfa981bba6582bdc478ed6b9dbb225f1764f",
             "branch": "refs/heads/codex/api-assurance-gap-completion-20261113",
-            "disposition": null
+            "disposition": "preserved-unreviewed"
           },
           {
             "path": "/Users/chef/.codex/worktrees/api-assurance-20261114",
@@ -4769,7 +4769,7 @@
             "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261105/api-layer",
             "commit": "a9657c39a4c824789d02ba2706a9c1d6155d043b",
             "branch": "refs/heads/codex/production-indexer-write-coverage-20261105",
-            "disposition": null
+            "disposition": "preserved-unreviewed"
           },
           {
             "path": "/Users/chef/.codex/worktrees/red-team-harness-20261026/api-layer",
@@ -4841,7 +4841,7 @@
             "path": "/Users/chef/Public/api-layer-base-sepolia-promotion-20261015",
             "commit": "712aa3467f5169b0f2ae777943012486d500576a",
             "branch": "refs/heads/codex/base-sepolia-promotion-20261029",
-            "disposition": null
+            "disposition": "preserved-unreviewed"
           },
           {
             "path": "/Users/chef/Public/api-layer-economic-invariants-20261012",
@@ -4859,7 +4859,7 @@
             "path": "/Users/chef/Public/api-layer-local-fork-automation",
             "commit": "90a62e2ab8d401eddd9f2e015b542881ce22377d",
             "branch": "refs/heads/codex/local-fork-automation-20261105",
-            "disposition": null
+            "disposition": "preserved-unreviewed"
           },
           {
             "path": "/Users/chef/Public/api-layer-red-team-harness-20261011",
@@ -5153,6 +5153,58 @@
             "/private/tmp/api-local-fork-automation-20261115/master",
             "/Users/chef/.codex/worktrees/api-assurance-actor-negative-paths-20261111",
             "/Users/chef/.codex/worktrees/red-team-harness-20261113"
+          ]
+        },
+        {
+          "verifiedAgainstCommit": "f4ab221",
+          "artifact": "ops/automations/finite-completion-ledger.json",
+          "result": "Preserved five live worktrees with post-snapshot edits. Their frozen commits are already in the release branch, but their later dirty edits have not been reviewed for delivery and remain untouched.",
+          "checks": [
+            "Read-only git status and diff inspection found post-snapshot edits in five worktrees; no files were modified or removed.",
+            "The dirty edits include API tests/runtime code, reviewed policy metadata, generated artifacts, and dated readiness reports; current-release overlap is incomplete and no passenger is claimed delivered."
+          ],
+          "preservedWorktrees": [
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-20261110",
+              "uncommittedPaths": [
+                "CHANGELOG.md",
+                "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md"
+              ]
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/api-assurance-20261113",
+              "uncommittedPaths": [
+                "reviewed/reviewed-method-policy.json"
+              ]
+            },
+            {
+              "path": "/Users/chef/.codex/worktrees/production-indexer-write-coverage-20261105/api-layer",
+              "uncommittedPaths": [
+                "reviewed/reviewed-method-policy.json",
+                "verify-control-plane-admin-output.json",
+                "generated/",
+                "generated.local-20261105/",
+                "output/production-indexer-write-coverage-run-ledger-2026-11-05.json"
+              ]
+            },
+            {
+              "path": "/Users/chef/Public/api-layer-base-sepolia-promotion-20261015",
+              "uncommittedPaths": [
+                "CHANGELOG.md",
+                "docs/API_TESTING_AND_RED_TEAM_ROADMAP.md",
+                "verify-base-sepolia-promotion-output.json"
+              ]
+            },
+            {
+              "path": "/Users/chef/Public/api-layer-local-fork-automation",
+              "uncommittedPaths": [
+                "packages/api/src/app.contract-integration.test.ts",
+                "packages/api/src/shared/execution-context.test.ts",
+                "packages/api/src/shared/execution-context.ts",
+                "reviewed/reviewed-api-surface.json",
+                "verify-control-plane-admin-output.json"
+              ]
+            }
           ]
         }
       ],
