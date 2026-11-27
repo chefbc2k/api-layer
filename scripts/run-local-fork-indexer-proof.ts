@@ -13,6 +13,7 @@ import { EventIndexer } from "../packages/indexer/src/worker.js";
 import { projectionTables } from "../packages/indexer/src/projections/tables.js";
 import {
   buildWriteSelectorMap,
+  collectWriteInvocationsFromCallTrace,
   collectTransactionHashes,
   defaultReceiptProofArtifactProducers,
   evaluateReceiptExpectation,
@@ -21,6 +22,7 @@ import {
   receiptProofArtifactEligibility,
   summarizePersistentProofReports,
   type IndexedEventRow,
+  type TracedWriteInvocation,
   type PersistentProofReports,
 } from "./indexer-receipt-proof-lib.js";
 import { fileExists, rootDir, writeJson } from "./utils.js";
@@ -39,6 +41,13 @@ type ReceiptProof = {
   receipt: TransactionReceipt;
   methodKey: string;
   definition: ReturnType<typeof getAllWriteInvariantDefinitions>[string];
+  transactionMethodKey: string;
+  transactionDefinition: ReturnType<typeof getAllWriteInvariantDefinitions>[string];
+  invocation: {
+    kind: "transaction" | "internal-diamond-call";
+    selector: string;
+    callPath: number[];
+  };
   sourceArtifacts: string[];
   sourceScripts: string[];
 };
@@ -150,23 +159,49 @@ async function loadReceiptProofs(
     if (!write) {
       throw new Error(`diamond transaction ${txHash} has unregistered write selector ${selector}`);
     }
-    proofs.push({
-      txHash,
-      blockNumber: receipt.blockNumber,
-      transaction,
-      receipt,
-      methodKey: write.methodKey,
-      definition: write.definition,
-      sourceArtifacts,
-      sourceScripts: [...new Set(sourceArtifacts
-        .map((source) => defaultReceiptProofArtifactProducers[path.basename(source)])
-        .filter((producer): producer is string => Boolean(producer)))].sort(),
-    });
+    const sourceScripts = [...new Set(sourceArtifacts
+      .map((source) => defaultReceiptProofArtifactProducers[path.basename(source)])
+      .filter((producer): producer is string => Boolean(producer)))].sort();
+    const invocations = new Map<string, TracedWriteInvocation>([[write.methodKey, {
+      ...write,
+      selector,
+      callPath: [],
+    }]]);
+    try {
+      const trace = await provider.send("debug_traceTransaction", [txHash, { tracer: "callTracer" }]);
+      for (const invocation of collectWriteInvocationsFromCallTrace(trace, diamondAddress, selectors)) {
+        invocations.set(invocation.methodKey, invocation);
+      }
+    } catch {
+      // Direct transaction evidence remains usable when the active RPC lacks call tracing.
+    }
+    for (const invocation of invocations.values()) {
+      proofs.push({
+        txHash,
+        blockNumber: receipt.blockNumber,
+        transaction,
+        receipt,
+        methodKey: invocation.methodKey,
+        definition: invocation.definition,
+        transactionMethodKey: write.methodKey,
+        transactionDefinition: write.definition,
+        invocation: {
+          kind: invocation.callPath.length === 0 ? "transaction" : "internal-diamond-call",
+          selector: invocation.selector,
+          callPath: invocation.callPath,
+        },
+        sourceArtifacts,
+        sourceScripts,
+      });
+    }
   }
   if (proofs.length === 0) {
     throw new Error("workflow artifacts contained no successful writes to the configured diamond");
   }
-  return proofs.sort((left, right) => left.blockNumber - right.blockNumber || left.txHash.localeCompare(right.txHash));
+  return proofs.sort((left, right) =>
+    left.blockNumber - right.blockNumber
+    || left.txHash.localeCompare(right.txHash)
+    || left.methodKey.localeCompare(right.methodKey));
 }
 
 async function applyMigrations(psql: string, port: number): Promise<void> {
@@ -266,6 +301,10 @@ async function runProof(
           receiptStatus: Number(proof.receipt.status),
           receiptLogCount: proof.receipt.logs.length,
           transactionSelector: proof.transaction.data.slice(0, 10).toLowerCase(),
+          transactionMethodKey: proof.transactionMethodKey,
+          transactionMethodSignature: proof.transactionDefinition.signature,
+          invocation: proof.invocation,
+          methodSelector: proof.invocation.selector,
           affectedFacet: proof.methodKey.split(".", 1)[0],
           methodSignature: proof.definition.signature,
           decodedEvents: postgres.rawEvents.rows.map((row) => ({
@@ -335,7 +374,8 @@ async function runProof(
         artifactTransactionHashes: artifacts.hashes.size,
         includedArtifacts: artifacts.includedArtifacts.length,
         skippedArtifacts: artifacts.skippedArtifacts.length,
-        indexedReceipts: results.length,
+        indexedReceipts: new Set(results.map((result) => result.txHash)).size,
+        provenWriteInvocations: results.length,
         provenWriteMethods: provenMethodKeys.length,
         catalogWriteMethods: allMethods.length,
         remainingWriteMethods: allMethods.length - provenMethodKeys.length,
@@ -365,20 +405,28 @@ async function runProof(
       })),
     };
     const reports = Object.fromEntries(provenMethodKeys.map((methodKey) => {
-      const endpoint = httpRegistry.methods[methodKey];
-      if (!endpoint) {
-        throw new Error(`missing HTTP endpoint registry entry for proven write ${methodKey}`);
-      }
       const methodResults = results.filter((result) => result.methodKey === methodKey);
+      const routes = [...new Set(methodResults.map((result) => {
+        const endpoint = httpRegistry.methods[result.transactionMethodKey];
+        if (!endpoint) {
+          throw new Error(`missing HTTP endpoint registry entry for transaction write ${result.transactionMethodKey}`);
+        }
+        return `${endpoint.httpMethod} ${endpoint.path}`;
+      }))].sort((left, right) => left.localeCompare(right));
       return [methodKey, {
-        routes: [`${endpoint.httpMethod} ${endpoint.path}`],
+        routes,
         actors: ["local-fork-fixture"],
-        executionResult: "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed",
+        executionResult: "receipt, decoded-event, PostgreSQL projection, and idempotent-replay proof passed for the recorded transaction or internal diamond invocation",
         evidence: methodResults.map((result) => ({
           localFork: true,
           methodKey: result.methodKey,
           affectedFacet: result.affectedFacet,
           methodSignature: result.methodSignature,
+          methodSelector: result.methodSelector,
+          transactionMethodKey: result.transactionMethodKey,
+          transactionMethodSignature: result.transactionMethodSignature,
+          transactionSelector: result.transactionSelector,
+          invocation: result.invocation,
           txHash: result.txHash,
           blockNumber: result.blockNumber,
           receipt: {

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildWriteSelectorMap,
+  collectWriteInvocationsFromCallTrace,
   collectTransactionHashes,
   defaultReceiptProofArtifactProducers,
   evaluateReceiptExpectation,
@@ -48,6 +49,46 @@ describe("local-fork receipt-to-indexer proof", () => {
     expect([...selectors.values()].some(({ methodKey }) => methodKey === "MarketplaceFacet.purchaseAsset")).toBe(true);
     const definition = selectors.values().next().value!.definition;
     expect(() => buildWriteSelectorMap({ first: definition, second: definition })).toThrow(/write selector collision/u);
+  });
+
+  it("attributes successful nested diamond self-calls and ignores reverted targets", () => {
+    const diamond = `0x${"ab".repeat(20)}`;
+    const selectors = buildWriteSelectorMap();
+    const execute = [...selectors.entries()].find(([, value]) => value.methodKey === "TimelockFacet.execute")!;
+    const updateDelay = [...selectors.entries()].find(([, value]) => value.methodKey === "TimelockFacet.updateMinDelay")!;
+    const updateVotingDelay = [...selectors.entries()].find(([, value]) => value.methodKey === "GovernorFacet.updateVotingDelay")!;
+    const failedTarget = [...selectors.entries()].find(([, value]) => value.methodKey === "GovernorFacet.updateVotingPeriod")!;
+
+    expect(collectWriteInvocationsFromCallTrace({
+      to: diamond,
+      input: `${execute[0]}${"00".repeat(64)}`,
+      calls: [{ to: diamond, input: `${updateDelay[0]}${"00".repeat(32)}` }, {
+        to: `0x${"ef".repeat(20)}`,
+        input: "0x12345678",
+        calls: [{ to: diamond.toUpperCase(), input: `${updateVotingDelay[0]}${"00".repeat(32)}` }],
+      }, { to: diamond, input: `${failedTarget[0]}${"00".repeat(32)}`, error: "execution reverted" }],
+    }, diamond, selectors).map(({ methodKey, callPath }) => ({ methodKey, callPath }))).toEqual([
+      { methodKey: "TimelockFacet.execute", callPath: [] },
+      { methodKey: "TimelockFacet.updateMinDelay", callPath: [0] },
+      { methodKey: "GovernorFacet.updateVotingDelay", callPath: [1, 0] },
+    ]);
+  });
+
+  it("deduplicates repeated successful internal calls to the same write method per receipt", () => {
+    const diamond = `0x${"cd".repeat(20)}`;
+    const selectors = buildWriteSelectorMap();
+    const update = [...selectors.entries()].find(([, value]) => value.methodKey === "GovernorFacet.updateVotingDelay")!;
+    const invocations = collectWriteInvocationsFromCallTrace({
+      to: diamond,
+      input: "0x12345678",
+      calls: [
+        { to: diamond, input: `${update[0]}${"00".repeat(32)}` },
+        { to: diamond, input: `${update[0]}${"11".repeat(32)}` },
+      ],
+    }, diamond, selectors);
+
+    expect(invocations).toHaveLength(1);
+    expect(invocations[0]).toMatchObject({ methodKey: "GovernorFacet.updateVotingDelay", callPath: [0] });
   });
 
   it("normalizes projection declarations to table names", () => {

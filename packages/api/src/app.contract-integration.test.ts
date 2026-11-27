@@ -3366,14 +3366,19 @@ describeLive("HTTP API contract integration", () => {
     const minDelay = await timelockFacet.getMinDelay();
     const readCalldata = timelockFacet.interface.encodeFunctionData("getMinDelay");
     const baseProposalId = BigInt(await provider.getBlockNumber()) * 1_000_000n + BigInt(Date.now() % 1_000_000);
-    const buildOperation = (proposalId: bigint, label: string) => ({
+    const buildOperation = (
+      proposalId: bigint,
+      label: string,
+      calldatas = [readCalldata],
+      delay = minDelay,
+    ) => ({
       proposalId: proposalId.toString(),
-      targets: [diamondAddress],
-      values: ["0"],
-      calldatas: [readCalldata],
+      targets: calldatas.map(() => diamondAddress),
+      values: calldatas.map(() => "0"),
+      calldatas,
       predecessor: ZERO_BYTES32,
       salt: id(`indexer-timelock-${label}-${Date.now()}`),
-      delay: minDelay.toString(),
+      delay: delay.toString(),
     });
     const submit = async (method: string, route: string, body: Record<string, unknown>) => {
       const response = await apiCall(port, method, route, { body });
@@ -3435,6 +3440,54 @@ describeLive("HTTP API contract integration", () => {
       "CallExecuted(address,uint256,bytes,bool)",
     ]));
     expect(await timelockFacet.isOperationExecuted(executedOperationId)).toBe(true);
+
+    const executeScheduledOperation = async (operation: ReturnType<typeof buildOperation>) => {
+      const scheduled = await submit("POST", "/v1/governance/commands/schedule", operation);
+      const scheduleEvents = parsedTimelockEvents(scheduled.receipt);
+      const operationId = String(scheduleEvents.find((event) => event.name === "OperationScheduled")?.args.id);
+      expect(operationId).toMatch(/^0x[a-fA-F0-9]{64}$/u);
+      expect(await timelockFacet.isOperationPending(operationId)).toBe(true);
+
+      const stored = await timelockFacet.getOperation(operationId);
+      const latest = await provider.getBlock("latest");
+      const secondsUntilReady = stored.timestamp - BigInt(latest!.timestamp) + 1n;
+      expect(secondsUntilReady).toBeGreaterThan(0n);
+      await provider.send("evm_increaseTime", [Number(secondsUntilReady)]);
+      await provider.send("evm_mine", []);
+      expect(await timelockFacet.isOperationReady(operationId)).toBe(true);
+
+      const execution = await submit("POST", "/v1/governance/commands/execute", operation);
+      const events = parsedTimelockEvents(execution.receipt);
+      expect(events.map((event) => event.signature)).toEqual(expect.arrayContaining([
+        "OperationExecuted(bytes32,uint256,uint256)",
+        "OperationExecuted(bytes32)",
+        "CallExecuted(address,uint256,bytes,bool)",
+      ]));
+      expect(await timelockFacet.isOperationExecuted(operationId)).toBe(true);
+      return { operationId, receipt: execution.receipt };
+    };
+
+    const changedDelay = minDelay + 1n;
+    const changeDelayOperation = buildOperation(
+      baseProposalId + 2n,
+      "change-min-delay",
+      [timelockFacet.interface.encodeFunctionData("updateMinDelay", [changedDelay])],
+    );
+    const changedDelayExecution = await executeScheduledOperation(changeDelayOperation);
+    const delayUpdateEvents = parsedTimelockEvents(changedDelayExecution.receipt);
+    expect(delayUpdateEvents.map((event) => event.signature)).toContain("MinDelayUpdated(uint256,uint256)");
+    expect(await timelockFacet.getMinDelay()).toBe(changedDelay);
+
+    const restoreDelayOperation = buildOperation(
+      baseProposalId + 3n,
+      "restore-min-delay",
+      [timelockFacet.interface.encodeFunctionData("updateMinDelay", [minDelay])],
+      changedDelay,
+    );
+    const restoredDelayExecution = await executeScheduledOperation(restoreDelayOperation);
+    expect(parsedTimelockEvents(restoredDelayExecution.receipt).map((event) => event.signature))
+      .toContain("MinDelayUpdated(uint256,uint256)");
+    expect(await timelockFacet.getMinDelay()).toBe(minDelay);
   }, 180_000);
 
   it("proves tokenomics reads and reversible admin/token flows through HTTP on Base Sepolia", async (ctx) => {
