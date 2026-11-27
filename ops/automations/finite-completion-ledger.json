@@ -2336,6 +2336,18 @@
             "The API-05 checkpoint records the canonical post-state disagreement and retains 189/260 accepted methods; the indexed receipt count is not substituted for that stronger acceptance criterion."
           ],
           "resultLimitation": "API-05 remains in progress at 189/260 exact-method accepted proofs; 69 ordinary methods and two reviewed exceptions remain, as do verified delivery and broader release items."
+        },
+        {
+          "sourceCommit": "7f0d525",
+          "artifact": "scripts/indexer-receipt-proof-lib.ts; scripts/run-local-fork-indexer-proof.ts; packages/api/src/app.contract-integration.test.ts",
+          "result": "Added call-trace attribution for nested diamond write invocations and an API timelock test that changes minDelay then restores the original value through separate scheduled operations. This prepares exact receipt-to-indexer proof for TimelockFacet.updateMinDelay; it does not yet prove a fork execution.",
+          "checks": [
+            "pnpm exec vitest run scripts/indexer-receipt-proof-lib.test.ts --maxWorkers 1: 12/12 passed.",
+            "pnpm exec tsc -p tsconfig.json --noEmit: passed.",
+            "Focused ESLint for all four changed source/test files: passed.",
+            "git diff --check passed; the release worktree was clean after commit 7f0d525."
+          ],
+          "resultLimitation": "API-05 remains accepted at 189/260. The live fork scenario, direct minDelay readbacks, PostgreSQL receipt projection/journal, and idempotent replay have not been run because the existing assurance process continues to hold the shared fork."
         }
       ],
       "deliveredCommit": null,
